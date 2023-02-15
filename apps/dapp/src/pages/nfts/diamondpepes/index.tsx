@@ -106,7 +106,6 @@ const DiamondPepesNfts = () => {
               their initial selected moves.
             </Typography>
           </Box>
-
           <Box className="p-2 mt-7 md:flex">
             {boxes.map((box, index) => (
               <Box key={index} className="md:w-1/3 p-4 text-center">
@@ -184,7 +183,6 @@ const DiamondPepesNfts = () => {
                 Please follow his twitter or Dopex’s official Twitter account
                 for more information.
               </Typography>
-
               <Box className={'flex mt-6'}>
                 <Link
                   href="https://tofunft.com/collection/duel-pepes/items"
@@ -196,14 +194,12 @@ const DiamondPepesNfts = () => {
                     alt={'Export'}
                   />
                 </Link>
-
                 <PepeLink
                   link={'https://tofunft.com/collection/duel-pepes/items'}
                   text={'Tofunft'}
                   className=""
                   variant="caption"
                 />
-
                 <Link
                   href="https://twitter.com/dopex_io"
                   target="_blank"
@@ -215,14 +211,12 @@ const DiamondPepesNfts = () => {
                     alt={'Pepe tweet'}
                   />
                 </Link>
-
                 <PepeLink
                   link={'https://twitter.com/dopex_io'}
                   text={'DOPEX'}
                   className="mr-auto"
                   variant={'caption'}
                 />
-
                 <Link href="https://twitter.com/chutoro_au" target="_blank">
                   {' '}
                   <img
@@ -258,7 +252,6 @@ const DiamondPepesNfts = () => {
                 game with duels and wagers where winner takes all.
                 <br />
               </Typography>
-
               <Box className={'flex mt-6'}>
                 <Link
                   href="https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-mint-ui-walkthrough"

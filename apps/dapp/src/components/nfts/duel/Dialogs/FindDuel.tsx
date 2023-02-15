@@ -310,34 +310,15 @@ const FindDuel = ({ open, handleClose }: Props) => {
               {[...Array(8)].map((i) => {
                 return (
                   <Box className="flex lg:grid lg:grid-cols-12 mb-3" key={i}>
-                    <Box className="col-span-3 pl-2 pr-2 relative">
-                      <img
-                        src="/images/nfts/pepes/pepe-frame-3.png"
-                        className="w-full"
-                        alt="Pepe"
-                      />
-                    </Box>
-                    <Box className="col-span-3 pl-2 pr-2 relative">
-                      <img
-                        src="/images/nfts/pepes/pepe-frame-1.png"
-                        className="w-full"
-                        alt="Pepe"
-                      />
-                    </Box>
-                    <Box className="col-span-3 pl-2 pr-2 relative">
-                      <img
-                        src="/images/nfts/pepes/pepe-frame-2.png"
-                        className="w-full"
-                        alt="Pepe"
-                      />
-                    </Box>
-                    <Box className="col-span-3 pl-2 pr-2 relative">
-                      <img
-                        src="/images/nfts/pepes/pepe-frame-1.png"
-                        className="w-full"
-                        alt="Pepe"
-                      />
-                    </Box>
+                    {[3, 1, 2, 1].map((j) => (
+                      <Box className="col-span-3 px-2 relative" key={j}>
+                        <img
+                          src={`/images/nfts/pepes/pepe-frame-${j}.png`}
+                          className="w-full"
+                          alt="Pepe"
+                        />
+                      </Box>
+                    ))}
                   </Box>
                 );
               })}
@@ -417,7 +398,6 @@ const FindDuel = ({ open, handleClose }: Props) => {
                       {2 - kickMovesSelected}
                     </Typography>
                   </Box>
-
                   <img
                     src="/images/nfts/pepes/kick.png"
                     className="mx-auto my-auto w-6 h-6"

@@ -156,27 +156,22 @@ const DuelPepes = () => {
       <Head>
         <title>Duel Pepes | Dopex</title>
       </Head>
-
       <BackgroundBox>
         <BackgroundOverlay />
         <MobileBackgroundOverlay />
         <AppBar />
-
         <CreateDuel
           open={isCreateDuelDialogOpen}
           handleClose={closeCreateDuelDialog}
         />
-
         <FindDuel
           open={isFindDuelDialogOpen}
           handleClose={closeFindDuelDialog}
         />
-
         <RevealDuel
           open={isRevealDuelDialogOpen}
           handleClose={closeRevealDuelDialog}
         />
-
         <Box className="pt-28 md:pt-32 pb-6lg:max-w-9xl md:max-w-7xl sm:max-w-xl mx-auto px-4 lg:px-0">
           <Box className="text-center mx-auto md:mb-12 lg:mt-24 flex">
             <img
@@ -195,7 +190,6 @@ const DuelPepes = () => {
               signature of their initial selected moves.
             </Typography>
           </Box>
-
           <Box className="p-2 mt-7 md:flex">
             {boxes.map((box, index) => (
               <Box key={index} className="md:w-1/3 p-4 text-center">
@@ -218,7 +212,6 @@ const DuelPepes = () => {
             className="ml-auto mr-auto mt-8 mb-8"
             alt={''}
           />
-
           <Box className={'flex mt-6'}>
             <img
               src={'/assets/export.svg'}
@@ -231,7 +224,6 @@ const DuelPepes = () => {
                 )
               }
             />
-
             <PepeLink
               link={
                 'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-how-to-mint'
@@ -240,7 +232,6 @@ const DuelPepes = () => {
               className="text-[#78859E] font-['Minecraft'] relative z-1 mr-2 ml-4 mt-1 cursor-pointer"
               variant={'h5'}
             />
-
             <img
               src={'/assets/export.svg'}
               className={'w-5 h-5 ml-8 mt-1'}
@@ -252,7 +243,6 @@ const DuelPepes = () => {
                 )
               }
             />
-
             <PepeLink
               link={
                 'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-mint-ui-walkthrough'
@@ -261,7 +251,6 @@ const DuelPepes = () => {
               className="text-[#78859E] font-['Minecraft'] relative z-1 mr-2 ml-4 mt-1 cursor-pointer"
               variant={'h5'}
             />
-
             <img
               src={'/assets/export.svg'}
               className={'w-5 h-5 ml-8 mt-1'}
@@ -281,7 +270,6 @@ const DuelPepes = () => {
               className="text-[#78859E] font-['Minecraft'] relative z-1 mr-2 ml-4 mt-1 cursor-pointer"
               variant={'h5'}
             />
-
             <img
               src={'/assets/export.svg'}
               className={'w-5 h-5 ml-8 mt-1'}
@@ -290,7 +278,6 @@ const DuelPepes = () => {
                 window.open('https://twitter.com/chutoro_au', '_blank')
               }
             />
-
             <PepeLink
               link={'https://twitter.com/chutoro_au'}
               text={'CEO'}
@@ -298,7 +285,6 @@ const DuelPepes = () => {
               variant={'h5'}
             />
           </Box>
-
           <Box className=" mt-6 text-center">
             <Typography
               variant="h5"
@@ -356,7 +342,6 @@ const DuelPepes = () => {
               ) : null}
             </Box>
           </Box>
-
           <Box className="flex mt-6">
             <Box className="ml-auto mr-auto mb-5 mt-5 lg:w-[14rem]">
               <PepeButton
@@ -368,13 +353,11 @@ const DuelPepes = () => {
               />
             </Box>
           </Box>
-
           <img
             src={'/assets/pepe-line.png'}
             className="ml-auto mr-auto mt-8 mb-12"
             alt={''}
           />
-
           <Box className="flex mb-14">
             <PepeText
               text={'YOUR ACTIVE AND RECENT DUELS'}
@@ -382,7 +365,6 @@ const DuelPepes = () => {
               variant={'h3'}
             />
           </Box>
-
           {activeDuels.map((duel, key) => (
             <Box className="mb-16" key={key}>
               <ActiveDuel
@@ -393,7 +375,6 @@ const DuelPepes = () => {
               />
             </Box>
           ))}
-
           {activeDuels.length == 0 ? (
             isLoading ? (
               <Box className="text-stieglitz text-center pt-8 pb-9">
@@ -411,13 +392,11 @@ const DuelPepes = () => {
             )
           ) : null}
         </Box>
-
         <img
           src={'/assets/pepe-line.png'}
           className="ml-auto mr-auto mb-12"
           alt={''}
         />
-
         <Box className="flex">
           <PepeText
             text={'ALL DUELS'}
@@ -425,7 +404,6 @@ const DuelPepes = () => {
             variant={'h3'}
           />
         </Box>
-
         <Box className="pt-2 pb-32 lg:max-w-9xl md:max-w-7xl sm:max-w-xl mx-auto px-4 lg:px-0 mt-8">
           <Duels findDuel={findDuel} />
         </Box>

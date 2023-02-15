@@ -266,7 +266,6 @@ const RevealDuel = ({ open, handleClose }: Props) => {
                       {2 - kickMovesSelected}
                     </Typography>
                   </Box>
-
                   <img
                     src="/images/nfts/pepes/kick.png"
                     alt=""
@@ -355,7 +354,6 @@ const RevealDuel = ({ open, handleClose }: Props) => {
                 disabled={false}
               />
             </Box>
-
             <Box className="w-1/2 ml-2 mr-4">
               <PepeButton
                 action={saveMoves}
@@ -420,7 +418,6 @@ const RevealDuel = ({ open, handleClose }: Props) => {
               )}
             </Box>
           </Box>
-
           <Box className="rounded-xl p-4 pb-1.5 border border-[#232935] bg-[#232935] w-full mt-0.5">
             <Details
               maxPayout={maxPayout}

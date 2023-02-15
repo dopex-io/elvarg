@@ -432,7 +432,6 @@ const CreateDuel = ({ open, handleClose }: Props) => {
             >
               Your secret code is
             </Typography>
-
             <Typography variant="h6" className="text-white ml-3">
               <i>{salt}</i>
             </Typography>
@@ -452,7 +451,6 @@ const CreateDuel = ({ open, handleClose }: Props) => {
                       {2 - kickMovesSelected}
                     </Typography>
                   </Box>
-
                   <img
                     src="/images/nfts/pepes/kick.png"
                     className="mx-auto my-auto w-6 h-6"
@@ -580,7 +578,6 @@ const CreateDuel = ({ open, handleClose }: Props) => {
                 disabled={false}
               />
             </Box>
-
             <Box className="w-1/2 ml-2 mr-4">
               <PepeButton
                 action={saveMoves}
