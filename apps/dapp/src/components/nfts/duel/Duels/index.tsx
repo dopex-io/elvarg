@@ -139,7 +139,7 @@ export const Duels = ({ findDuel }: { findDuel: Function }) => {
                       <TableCell align="left" className="pt-2">
                         <PepeSimpleText
                           variant="h5"
-                          text={displayAddress(duel['challengerAddress'])}
+                          content={displayAddress(duel['challengerAddress'])}
                         />
                       </TableCell>
                       <TableCell align="left" className="pt-2">
@@ -165,18 +165,24 @@ export const Duels = ({ findDuel }: { findDuel: Function }) => {
                         </Typography>
                       </TableCell>
                       <TableCell align="left" className="px-6 pt-2">
-                        <PepeSimpleText variant="h5" text={'#' + duel['id']} />
+                        <PepeSimpleText
+                          variant="h5"
+                          content={'#' + duel['id']}
+                        />
                       </TableCell>
                       <TableCell align="left" className="px-6 pt-2">
                         <PepeSimpleText
                           variant="h5"
-                          text={duel['wager'] + ' ' + duel['tokenName']}
+                          content={duel['wager'] + ' ' + duel['tokenName']}
                         />
-                        <Typography variant="h6" className="font-['Minecraft']">
-                          <span className="text-stieglitz">
-                            ~${formatAmount(duel['wagerValueInUSD'], 2)}
-                          </span>
-                        </Typography>
+                        <PepeSimpleText
+                          variant="h6"
+                          content={
+                            <span className="text-stieglitz">
+                              ~${formatAmount(duel['wagerValueInUSD'], 2)}
+                            </span>
+                          }
+                        />
                       </TableCell>
                       <TableCell align="left" className="px-6 pt-2">
                         <PepeButton
