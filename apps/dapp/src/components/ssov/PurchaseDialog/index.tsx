@@ -267,7 +267,7 @@ const PurchaseDialog = ({
           getContractAddress(ssovData.collateralSymbol),
           accountAddress,
           strikeIndex,
-          state.totalCost,
+          routerMode ? quote.amountOut : state.totalCost,
           '0',
           quote.swapData,
         ]
@@ -305,6 +305,7 @@ const PurchaseDialog = ({
     ssovData.collateralSymbol,
     ssovSigner,
     state.totalCost,
+    quote.amountOut,
   ]);
 
   // Calculate the Option Price & Fees
@@ -425,6 +426,7 @@ const PurchaseDialog = ({
       );
 
       const userAmount = await _token.balanceOf(accountAddress);
+      console.log('balance', userAmount.toString());
       setUserTokenBalance(userAmount);
 
       const allowance = await _token.allowance(accountAddress, spender);
@@ -448,6 +450,8 @@ const PurchaseDialog = ({
   ]);
 
   const purchaseButtonProps = useMemo(() => {
+    const totalCost = routerMode ? quote.amountOut : state.totalCost;
+
     const disabled = Boolean(
       optionsAmount <= 0 ||
         isPurchaseStatsLoading ||
@@ -459,8 +463,8 @@ const PurchaseDialog = ({
               getContractReadableAmount(optionsAmount, 18)
             )) ||
         (isPut
-          ? state.totalCost.gt(userTokenBalance)
-          : state.totalCost
+          ? totalCost.gt(userTokenBalance)
+          : totalCost
               .mul(1e8)
               .div(ssovData.collateralPrice!)
               .gt(userTokenBalance))
@@ -493,19 +497,16 @@ const PurchaseDialog = ({
         children = 'Collateral not available';
       } else if (
         isPut
-          ? state.totalCost.gt(userTokenBalance)
-          : state.totalCost
+          ? totalCost.gt(userTokenBalance)
+          : totalCost
               .mul(1e8)
               .div(ssovData.collateralPrice!)
               .gt(userTokenBalance)
       ) {
         console.log(
+          'Cost',
           state.totalCost.gt(userTokenBalance).toString(),
-          state.totalCost
-            .mul(1e8)
-            .div(ssovData.collateralPrice!)
-            .gt(userTokenBalance)
-            .toString()
+          state.totalCost.mul(1e8).div(ssovData.collateralPrice!).toString()
         );
         children = 'Insufficient Balance';
       } else if (approved) {
@@ -524,6 +525,8 @@ const PurchaseDialog = ({
       onClick,
     };
   }, [
+    quote.amountOut,
+    routerMode,
     optionsAmount,
     isPurchaseStatsLoading,
     isPut,
