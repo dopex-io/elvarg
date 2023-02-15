@@ -7,13 +7,7 @@ import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import {
-  DECIMALS_TOKEN,
-  DECIMALS_STRIKE,
-  DECIMALS_USD,
-  MAX_VALUE,
-  TOKEN_DECIMALS,
-} from 'constants/index';
+import { DECIMALS_TOKEN, ARBITRUM_CHAIN_ID } from 'constants/index';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 import { Addresses } from '@dopex-io/sdk';
@@ -235,8 +229,10 @@ export default function BorrowDialog({
                   Borrow
                 </Typography>
                 <Typography variant="h6" color="stieglitz">
-                  Liquidity:{' $'}
-                  {`${formatAmount(assetDatum.totalSupply, 2, true)}`}
+                  Liquidity:
+                  <span className="text-white">
+                    {` $${formatAmount(assetDatum.totalSupply, 2, true)}`}
+                  </span>
                 </Typography>
               </Box>
             </Box>
@@ -359,7 +355,10 @@ export default function BorrowDialog({
           </Box>
           <Box className="bg-umbra border border-umbra rounded-lg p-3 mt-2">
             <Box className="bg-carbon rounded-lg p-3">
-              <EstimatedGasCostButton gas={500000} chainId={42161} />
+              <EstimatedGasCostButton
+                gas={500000}
+                chainId={ARBITRUM_CHAIN_ID}
+              />
             </Box>
           </Box>
           <CustomButton
@@ -369,12 +368,11 @@ export default function BorrowDialog({
               !tokenApproved ||
               (tokenDepositAmount > 0 &&
                 tokenDepositAmount <=
-                  getUserReadableAmount(userTokenBalance, 18))
+                  getUserReadableAmount(userTokenBalance, DECIMALS_TOKEN))
                 ? 'primary'
                 : 'mineshaft'
             }
             disabled={tokenDepositAmount <= 0}
-            // approve token, e.g., $DPX, then approve $DPX-4444-P, then deposit
             onClick={
               !tokenApproved
                 ? handleTokenApprove
@@ -387,7 +385,7 @@ export default function BorrowDialog({
               ? tokenDepositAmount == 0
                 ? 'Insert an amount'
                 : tokenDepositAmount >
-                  getUserReadableAmount(userTokenBalance, 18)
+                  getUserReadableAmount(userTokenBalance, DECIMALS_TOKEN)
                 ? 'Insufficient balance'
                 : 'Deposit'
               : 'Approve'}

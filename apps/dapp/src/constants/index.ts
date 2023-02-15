@@ -10,6 +10,8 @@ export const DECIMALS_USD: number = 6;
 
 export const ROWS_PER_PAGE: number = 5;
 
+export const ARBITRUM_CHAIN_ID = 42161;
+
 export const ASC = 'asc';
 export const DESC = 'desc';
 export const NULL: string = '0x0000000000000000000000000000000000000000';

@@ -8,18 +8,12 @@ import LockerIcon from 'svgs/icons/LockerIcon';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import {
-  DECIMALS_TOKEN,
-  DECIMALS_STRIKE,
-  DECIMALS_USD,
-  MAX_VALUE,
-  TOKEN_DECIMALS,
-} from 'constants/index';
+import { DECIMALS_TOKEN, ARBITRUM_CHAIN_ID } from 'constants/index';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 import { Addresses } from '@dopex-io/sdk';
 import { CustomButton, Dialog } from 'components/UI';
-import Input from 'components/UI/Input';
+import Input from '@mui/material/Input';
 import useUserTokenBalance from 'hooks/useUserTokenBalance';
 import { SsovLendingData } from 'store/Vault/lending';
 import { SsovV4Put__factory } from 'mocks/factories/SsovV4Put__factory';
@@ -27,9 +21,7 @@ import SsovStrikeBox from 'components/common/SsovStrikeBox';
 import { SelectChangeEvent } from '@mui/material';
 import useAssetApproval from 'hooks/useAssetApproval';
 import { getContractReadableAmount, getReadableTime } from 'utils/contracts';
-import { formatAmount } from 'utils/general';
-import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
-import SouthEastRounded from '@mui/icons-material/SouthEastRounded';
+import InputHelpers from 'components/common/InputHelpers';
 
 interface Props {
   anchorEl: null | HTMLElement;
@@ -49,16 +41,10 @@ export default function LendDialog({
 
   const tokenAddress =
     Addresses[assetDatum.chainId][assetDatum.underlyingSymbol];
-  const optionTokenAddress = assetDatum.optionTokens[strikeIndex]!;
 
   const userTokenBalance = useUserTokenBalance(
     accountAddress!,
     tokenAddress,
-    signer
-  );
-  const userOptionTokenBalance = useUserTokenBalance(
-    accountAddress!,
-    optionTokenAddress,
     signer
   );
 
@@ -75,13 +61,8 @@ export default function LendDialog({
     assetDatum.address,
     tokenAddress
   );
-  const [handleOptionTokenApprove, optionTokenApproved] = useAssetApproval(
-    signer,
-    assetDatum.address,
-    optionTokenAddress
-  );
 
-  const handleBorrow = useCallback(async () => {
+  const handleLend = useCallback(async () => {
     if (!signer || !provider) return;
 
     const contract = SsovV4Put__factory.connect(assetDatum.address, provider);
@@ -140,7 +121,7 @@ export default function LendDialog({
           </Typography>
           hello
         </Box>
-        <Box>
+        {/* <Box>
           <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full bg-umbra">
             <SsovStrikeBox
               userTokenBalance={userTokenBalance}
@@ -197,6 +178,38 @@ export default function LendDialog({
                 </Box>
               </Box>
             </Box>
+          </Box> */}
+        <Box>
+          <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full bg-umbra">
+            <SsovStrikeBox
+              userTokenBalance={userTokenBalance}
+              collateralSymbol={assetDatum.underlyingSymbol}
+              strike={strikeIndex}
+              handleSelectStrike={handleSelectStrike}
+              strikes={assetDatum?.strikes.map((s) => s.toString())}
+            />
+            <Box className="mt-3">
+              <Box className="flex mb-3 group">
+                <Typography
+                  variant="h6"
+                  className="text-stieglitz ml-0 mr-auto"
+                >
+                  Amount
+                </Typography>
+                <Box className="relative">
+                  <InputHelpers handleMax={handleMax} />
+                  <Input
+                    disableUnderline={true}
+                    type="number"
+                    className="w-[11.3rem] lg:w-[9.3rem] border-[#545454] border-t-[1.5px] border-b-[1.5px] border-l-[1.5px] border-r-[1.5px] rounded-md pl-2 pr-2"
+                    classes={{ input: 'text-white text-xs text-right' }}
+                    value={tokenDepositAmount}
+                    placeholder="0"
+                    onChange={handleDepositAmount}
+                  />
+                </Box>
+              </Box>
+            </Box>
           </Box>
           <Box className="mt-3.5">
             <Box className="rounded-xl flex flex-col mb-0 p-3 border border-neutral-800 w-full">
@@ -213,6 +226,19 @@ export default function LendDialog({
                   </Typography>
                 </Box>
               </Box>
+              {/* <Box className={'flex mb-1'}>
+                <Typography
+                  variant="h6"
+                  className="text-stieglitz ml-0 mr-auto"
+                >
+                  Withdrawable
+                </Typography>
+                <Box className={'text-right'}>
+                  <Typography variant="h6" className="text-white mr-auto ml-0">
+                    {getReadableTime(assetDatum.expiry)}
+                  </Typography>
+                </Box>
+              </Box> */}
               <Box className={'flex mb-1'}>
                 <Typography
                   variant="h6"
@@ -230,15 +256,25 @@ export default function LendDialog({
           </Box>
           <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra mt-4">
             <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
-              <EstimatedGasCostButton gas={500000} chainId={42161} />
+              <EstimatedGasCostButton
+                gas={500000}
+                chainId={ARBITRUM_CHAIN_ID}
+              />
             </Box>
             <Box className="flex">
               <Box className="flex text-center p-2 mr-2 mt-1">
                 <LockerIcon />
               </Box>
               <Typography variant="h6" className="text-stieglitz">
-                Withdrawals are locked until end of Epoch{' '}
-                {getReadableTime(assetDatum.expiry)}
+                {`Withdrawals are locked until end of Epoch ${assetDatum.expiry} `}
+                {/* ({' '}
+                <span className="text-white">
+                  {getReadableTime(assetDatum.expiry)}
+                </span>
+                ) */}
+                <span className="text-white">
+                  ({getReadableTime(assetDatum.expiry)})
+                </span>
               </Typography>
             </Box>
             <CustomButton
@@ -248,25 +284,18 @@ export default function LendDialog({
                 !tokenApproved ||
                 (tokenDepositAmount > 0 &&
                   tokenDepositAmount <=
-                    getUserReadableAmount(userTokenBalance, 18))
+                    getUserReadableAmount(userTokenBalance, DECIMALS_TOKEN))
                   ? 'primary'
                   : 'mineshaft'
               }
               disabled={tokenDepositAmount <= 0}
-              // approve token, e.g., $DPX, then approve $DPX-4444-P, then deposit
-              onClick={
-                !tokenApproved
-                  ? handleTokenApprove
-                  : !optionTokenApproved
-                  ? handleOptionTokenApprove
-                  : handleBorrow
-              }
+              onClick={!tokenApproved ? handleTokenApprove : handleLend}
             >
               {tokenApproved
                 ? tokenDepositAmount == 0
                   ? 'Insert an amount'
                   : tokenDepositAmount >
-                    getUserReadableAmount(userTokenBalance, 18)
+                    getUserReadableAmount(userTokenBalance, DECIMALS_TOKEN)
                   ? 'Insufficient balance'
                   : 'Deposit'
                 : 'Approve'}
