@@ -89,7 +89,7 @@ const DepositPanel = () => {
   const [strike, setStrike] = useState(0);
 
   const routerMode = useMemo(() => {
-    return fromTokenSymbol == ssovData?.collateralSymbol;
+    return fromTokenSymbol !== ssovData?.collateralSymbol;
   }, [fromTokenSymbol, ssovData]);
 
   const spender = useMemo(() => {
