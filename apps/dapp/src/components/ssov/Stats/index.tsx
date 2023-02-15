@@ -63,7 +63,12 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
         <Typography variant="h6">${formatAmount(strikePrice, 5)}</Typography>
       </TableCell>
       <TableCell align="left" className="pt-2">
-        <Typography variant="h6">{formatAmount(totalAvailable, 5)}</Typography>
+        <Typography variant="h6">
+          {formatAmount(
+            isPut ? totalAvailable / strikePrice : totalAvailable,
+            5
+          )}
+        </Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {'$'}
           {formatAmount(isPut ? totalAvailable : totalAvailable * price, 2)}
