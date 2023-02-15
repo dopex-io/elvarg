@@ -14,7 +14,10 @@ import GraphicEqIcon from '@mui/icons-material/GraphicEq';
 
 import AppBar from 'components/common/AppBar';
 import { Typography } from 'components/UI';
+
 import { formatAmount } from 'utils/general';
+
+import { DOPEX_API_BASE_URL } from 'constants/env';
 
 interface CardProps {
   name: string;
@@ -46,7 +49,7 @@ const Home = () => {
 
   useEffect(() => {
     async function getTvl() {
-      const res = await axios.get('https://api.dopex.io/v2/tvl');
+      const res = await axios.get(`${DOPEX_API_BASE_URL}/v2/tvl`);
 
       setTvl(res.data.tvl);
     }

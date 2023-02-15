@@ -10,7 +10,7 @@ import Description from 'components/atlantics/Description';
 import Stats from 'components/atlantics/Stats';
 import Filter from 'components/atlantics/Filter';
 
-import { DOPEX_API_BASE_URL } from 'constants/index';
+import { DOPEX_API_BASE_URL } from 'constants/env';
 
 export const ATLANTIC_POOLS: string[] | string = ['WETH'];
 

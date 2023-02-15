@@ -10,7 +10,8 @@ import Filter from 'components/common/Filter';
 import Typography from 'components/UI/Typography';
 import VaultCard from 'components/straddles/VaultCard';
 
-import { CHAIN_ID_TO_NETWORK_DATA, DOPEX_API_BASE_URL } from 'constants/index';
+import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+import { DOPEX_API_BASE_URL } from 'constants/env';
 
 const states: string[] = ['Active', 'Retired'];
 
@@ -127,8 +128,12 @@ const Straddles = () => {
             </Box>
           </Box>
           <NetworkHeader chainId={42161} />
-          <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
+          <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10 mb-10">
             {getStraddlesCards(42161)}
+          </Box>
+          <NetworkHeader chainId={137} />
+          <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
+            {getStraddlesCards(137)}
           </Box>
         </Box>
       </Box>

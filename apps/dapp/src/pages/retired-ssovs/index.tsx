@@ -19,7 +19,7 @@ import SsovDepositCard from 'components/retired-ssovs/SsovDepositCard';
 import SsovOption from 'components/retired-ssovs/SsovOption';
 
 import retiredStrikeTokens from 'constants/json/retiredStrikeTokens.json';
-import { DOPEX_API_BASE_URL } from 'constants/index';
+import { DOPEX_API_BASE_URL } from 'constants/env';
 
 interface Ssov {
   type: string;

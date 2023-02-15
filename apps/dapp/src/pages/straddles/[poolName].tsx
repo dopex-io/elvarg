@@ -27,6 +27,7 @@ const Straddles = ({ poolName }: Props) => {
     updateStraddlesUserData,
     updateStraddlesEpochData,
     setIsLoading,
+    chainId,
   } = useBoundStore();
 
   useEffect(() => {
@@ -43,6 +44,7 @@ const Straddles = ({ poolName }: Props) => {
       })
     );
   }, [
+    chainId,
     setIsLoading,
     updateStraddles,
     updateStraddlesEpochData,
@@ -63,7 +65,6 @@ const Straddles = ({ poolName }: Props) => {
           <Box className="pt-5 lg:max-w-4xl md:max-w-3xl sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0">
             <Stats />
           </Box>
-
           {SHOWCHARTS ? (
             <Box>
               <Box className="pt-8 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0">
@@ -103,6 +104,13 @@ const Straddles = ({ poolName }: Props) => {
           </Box>
           <Box className="mb-5 py-2 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0 flex-auto">
             <Positions />
+            {chainId === 137 ? (
+              <img
+                className="mt-10"
+                src="/images/misc/powered-by-polygon.svg"
+                alt="Powered by Polygon"
+              />
+            ) : null}
           </Box>
         </Box>
         <Box className="lg:pt-32 sm:pt-20 lg:mr-auto md:mx-0 mx-4 mb-8 px-2 lg:px-0 lg:ml-32">

@@ -10,6 +10,7 @@ import VaultCard from 'components/olp/VaultCard';
 import { useBoundStore } from 'store';
 
 import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+import { DOPEX_API_BASE_URL } from 'constants/env';
 
 const NetworkHeader = ({ chainId }: { chainId: number }) => {
   return (
@@ -68,7 +69,7 @@ const Olp = () => {
     }
     async function getData() {
       let data = await axios
-        .get(`https://api.dopex.io/v2/olp`)
+        .get(`${DOPEX_API_BASE_URL}/v2/olp`)
         .then((payload) => payload.data);
       setVaults(data);
     }
