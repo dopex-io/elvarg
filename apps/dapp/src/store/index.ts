@@ -32,8 +32,8 @@ type T = WalletSlice &
   DpxBondsSlice &
   OlpSlice &
   GmxSlice &
-  AtlanticPoolsSlice;
-SsovLendingSlice;
+  AtlanticPoolsSlice &
+  SsovLendingSlice;
 
 export const useBoundStore = create<T>()(
   devtools((...a) => ({

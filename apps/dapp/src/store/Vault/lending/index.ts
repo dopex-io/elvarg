@@ -27,8 +27,22 @@ export interface LendingStats {
   totalBorrow: number;
   timestamp: number;
 }
+
+export interface IRawDebtPosition {
+  epoch: BigNumber;
+  strike: BigNumber;
+  supplied: BigNumber;
+  borrowed: BigNumber;
+}
+
+export interface IDebtPosition extends IRawDebtPosition {
+  underlyingSymbol: string;
+  tokenId: BigNumber;
+}
+
 export interface SsovLendingSlice {
   getSsovLendingContract: Function;
+  userDebtPositions: IDebtPosition[];
   // updateSsovLendingData: Function;
   // updateSsovLendingStats: Function;
   lendingData: SsovLendingData[];
@@ -62,8 +76,19 @@ export const createSsovLending: StateCreator<
     set((prevState) => ({
       ...prevState,
       lendingData: ssovs,
+      userDebtPositions: [
+        {
+          epoch: BigNumber.from(1),
+          strike: BigNumber.from(1),
+          supplied: BigNumber.from(1),
+          borrowed: BigNumber.from(1),
+          underlyingSymbol: 'ETH',
+          tokenId: BigNumber.from(1),
+        },
+      ],
     }));
   },
+  userDebtPositions: [],
   // updateSsovLendingStats: async () => {
   //   // const lendingStats = await axios.get(`${BASE_STATS_URL}?chainId=${chainId}`);
   // const lendingStats = `
