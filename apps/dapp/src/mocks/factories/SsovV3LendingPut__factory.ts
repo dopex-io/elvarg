@@ -4,7 +4,10 @@
 
 import { Contract, Signer, utils } from 'ethers';
 import type { Provider } from '@ethersproject/providers';
-import type { SsovV4Put, SsovV4PutInterface } from '../SsovV4Put';
+import type {
+  SsovV3LendingPut,
+  SsovV3LendingPutInterface,
+} from '../SsovV3LendingPut';
 
 const _abi = [
   {
@@ -1024,6 +1027,19 @@ const _abi = [
         internalType: 'uint256',
         name: '',
         type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'datastoreClient',
+    outputs: [
+      {
+        internalType: 'contract ISsovV3DatastoreClient',
+        name: '',
+        type: 'address',
       },
     ],
     stateMutability: 'view',
@@ -2165,17 +2181,17 @@ const _abi = [
     stateMutability: 'view',
     type: 'function',
   },
-];
+] as const;
 
 export class SsovV3LendingPut__factory {
   static readonly abi = _abi;
-  static createInterface(): SsovV4PutInterface {
-    return new utils.Interface(_abi) as SsovV4PutInterface;
+  static createInterface(): SsovV3LendingPutInterface {
+    return new utils.Interface(_abi) as SsovV3LendingPutInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): SsovV4Put {
-    return new Contract(address, _abi, signerOrProvider) as SsovV4Put;
+  ): SsovV3LendingPut {
+    return new Contract(address, _abi, signerOrProvider) as SsovV3LendingPut;
   }
 }
