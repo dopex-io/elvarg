@@ -4,7 +4,13 @@ import axios from 'axios';
 import Box from '@mui/material/Box';
 import { Divider } from '@mui/material';
 import { BigNumber } from 'ethers';
-import { Line, LineChart, ResponsiveContainer, Tooltip } from 'recharts';
+import {
+  Area,
+  AreaChart,
+  ResponsiveContainer,
+  // Tooltip,
+  YAxis,
+} from 'recharts';
 
 import Typography from 'components/UI/Typography';
 import { NumberDisplay } from 'components/UI';
@@ -17,17 +23,17 @@ import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 import { IOlpApi } from 'pages/olp';
 
 // TODO: remove
-const fakeData = [4000, 3000, 2000, 2780, 3490];
+const fakeData = [1, 2, 3, 4, 5, 6, 7, 6, 5, 6, 7, 8, 9, 7, 5, 6, 9];
 
-const CustomizedTooltip = ({ active, payload }: any) => {
-  return active && payload && payload.length ? (
-    <Box className="flex flex-col items-center border-transparent">
-      <Typography variant="h5" className="-mt-1">
-        {payload[0].payload.utilization}
-      </Typography>
-    </Box>
-  ) : null;
-};
+// const CustomizedTooltip = ({ active, payload }: any) => {
+//   return active && payload && payload.length ? (
+//     <Box className="flex flex-col items-center border-transparent">
+//       <Typography variant="h5" className="-mt-1">
+//         {payload[0].payload.utilization}
+//       </Typography>
+//     </Box>
+//   ) : null;
+// };
 
 export const FeaturedOlp = ({ olp }: { olp: IOlpApi | undefined }) => {
   // TODO: set utilizationData
@@ -74,21 +80,28 @@ export const FeaturedOlp = ({ olp }: { olp: IOlpApi | undefined }) => {
         </Box>
         <ResponsiveContainer width="99%" height="35%" className="my-3">
           {/* TODO: use utilizationData */}
-          <LineChart data={fakeData.map((d) => ({ utilization: d }))}>
+          <AreaChart data={fakeData.map((d) => ({ utilization: d }))}>
             {/* TODO: use utilizationData */}
-            <Tooltip
+            {/* <Tooltip
               cursor={false}
               wrapperStyle={{ outline: 'none' }}
               content={<CustomizedTooltip payload={fakeData} />}
-            />
-            <Line
-              className="blur-sm"
+            /> */}
+            <YAxis type="number" domain={['dataMin', 'dataMax']} hide />
+            <defs>
+              <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0.5%" stopColor="#002eff" stopOpacity={0.8} />
+                <stop offset="99.5%" stopColor="#22e1ff" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <Area
+              className="blur-[2px]"
               type="monotone"
               dataKey="utilization"
-              stroke="#22E1FF"
-              dot={false}
+              stroke="#22e1ff"
+              fill="url(#colorUv)"
             />
-          </LineChart>
+          </AreaChart>
         </ResponsiveContainer>
         <Divider className="fill-current bg-carbon" />
         <Box className="flex justify-between rounded-b-lg p-1 mt-1">

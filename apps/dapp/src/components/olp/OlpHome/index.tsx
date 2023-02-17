@@ -142,7 +142,7 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
       <Typography variant="h5" color="white">
         Featured
       </Typography>
-      <Box className="flex mt-2 flex-col space-x-0 space-y-1 lg:flex-row lg:space-x-1 lg:space-y-0">
+      <Box className="flex mt-2 flex-col space-x-0 space-y-6 lg:flex-row lg:space-x-6 lg:space-y-0">
         {olps[DEFAULT_CHAIN_ID]?.filter((o) =>
           FEATURED_OLPS.includes(o.symbol)
         ).map((o, idx) => (
