@@ -1,9 +1,8 @@
 import { BigNumber } from 'ethers';
 import Link from 'next/link';
 import { Box, TableRow } from '@mui/material';
-import { Button } from '@dopex-io/ui';
 
-import { Typography, NumberDisplay } from 'components/UI';
+import { Typography, CustomButton, NumberDisplay } from 'components/UI';
 import {
   StyleLeftCell,
   StyleCell,
@@ -55,11 +54,11 @@ export const OlpTableRow = ({ olp, idx }: { olp: IOlpApi; idx: number }) => {
         </Typography>
       </StyleCell>
       <StyleRightCell align="right" className="pt-2">
-        <Button className="rounded-lg" size="large">
+        <CustomButton className="cursor-pointer text-white">
           <Link href={`/olp/${olp.symbol}`} passHref target="_blank">
             View
           </Link>
-        </Button>
+        </CustomButton>
       </StyleRightCell>
     </TableRow>
   );
