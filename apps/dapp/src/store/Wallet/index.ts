@@ -161,12 +161,7 @@ export const createWalletSlice: StateCreator<
 
     let contractAddresses: any;
 
-    // TODO(@komorebi): fix addresses
-    // contractAddresses = Addresses[chainId];
-    contractAddresses = {
-      'DPX-WEEKLY-PUTS-SSOV-V4': '0x94bA72E58Be755c64d7cA1C543DE264A65ccEb66',
-      'ETH-WEEKLY-PUTS-SSOV-V4': '0x8de648Ad7b37c0D5ca17De4bD80ed55060778C05',
-    };
+    contractAddresses = Addresses[chainId];
 
     set((prevState: any) => ({
       ...prevState,

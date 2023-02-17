@@ -7,6 +7,7 @@ function getReadableTime(data: BigNumber | number): string {
     const numberData = data instanceof BigNumber ? data?.toNumber() : data;
     return format(new Date(numberData * 1000), DATE_FORMAT);
   } catch (error) {
+    console.error(data, error);
     return 'date error';
   }
 }

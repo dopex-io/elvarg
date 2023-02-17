@@ -1,6 +1,6 @@
 import { BigNumber, BigNumberish, ethers } from 'ethers';
 
-import { ANKR_KEY, INFURA_PROJECT_ID } from './env';
+import { ALCHEMY_PROJECT_ID, ANKR_KEY, INFURA_PROJECT_ID } from './env';
 
 export const DATE_FORMAT: string = 'd LLL yy';
 
@@ -11,6 +11,7 @@ export const DECIMALS_USD: number = 6;
 export const ROWS_PER_PAGE: number = 5;
 
 export const ARBITRUM_CHAIN_ID = 42161;
+export const ARBITRUM_GOERLI_CHAIN_ID = 421613;
 
 export const ASC = 'asc';
 export const DESC = 'desc';
@@ -375,6 +376,7 @@ export const CHAIN_ID_TO_RPC: { [key: number]: string } = {
   5: `https://goerli.infura.io/v3/${INFURA_PROJECT_ID}`,
   56: `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
   42161: `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
+  421613: `https://arb-goerli.g.alchemy.com/v2/${ALCHEMY_PROJECT_ID}`,
   43114: `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
   421613: `https://arbitrum-goerli.infura.io/v3/${INFURA_PROJECT_ID}`,
   1088: 'https://andromeda.metis.io/?owner=1088',

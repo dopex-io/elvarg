@@ -16,7 +16,7 @@ import { CustomButton, Dialog } from 'components/UI';
 import Input from '@mui/material/Input';
 import useUserTokenBalance from 'hooks/useUserTokenBalance';
 import { ISsovLendingData } from 'store/Vault/lending';
-import { SsovV4Put__factory } from 'mocks/factories/SsovV4Put__factory';
+import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
 import SsovStrikeBox from 'components/common/SsovStrikeBox';
 import { SelectChangeEvent } from '@mui/material';
 import useAssetApproval from 'hooks/useAssetApproval';
@@ -39,8 +39,9 @@ export default function LendDialog({
   const sendTx = useSendTx();
   const [strikeIndex, setStrikeIndex] = useState(0);
 
-  const tokenAddress =
-    Addresses[assetDatum.chainId][assetDatum.underlyingSymbol];
+  const tokenAddress = '0xeA460116299D59C722c88D0EF900a5F78Ab8557E';
+  // const tokenAddress =
+  //   Addresses[assetDatum.chainId][assetDatum.underlyingSymbol];
 
   const userTokenBalance = useUserTokenBalance(
     accountAddress!,
@@ -65,7 +66,10 @@ export default function LendDialog({
   const handleLend = useCallback(async () => {
     if (!signer || !provider) return;
 
-    const contract = SsovV4Put__factory.connect(assetDatum.address, provider);
+    const contract = SsovV3LendingPut__factory.connect(
+      assetDatum.address,
+      provider
+    );
 
     try {
       await sendTx(contract.connect(signer), 'deposit', [

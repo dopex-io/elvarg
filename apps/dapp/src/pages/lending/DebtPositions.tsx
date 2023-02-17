@@ -9,7 +9,7 @@ import {
   TableRow,
   TablePagination,
 } from '@mui/material';
-import { SsovV4Put__factory } from 'mocks/factories/SsovV4Put__factory';
+import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
 
 import Typography from 'components/UI/Typography';
 
@@ -116,7 +116,7 @@ const DebtPositions = () => {
 
       try {
         const debt: IDebtPosition = userDebtPositions[selectedIndex]!;
-        const contract = SsovV4Put__factory.connect(
+        const contract = SsovV3LendingPut__factory.connect(
           assetToContractAddress.get(debt.underlyingSymbol)!,
           provider
         );

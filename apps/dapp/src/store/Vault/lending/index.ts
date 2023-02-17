@@ -4,9 +4,8 @@ import axios from 'axios';
 import { WalletSlice } from 'store/Wallet';
 import { CommonSlice } from 'store/Vault/common';
 import { BigNumber } from 'ethers';
-import { ARBITRUM_CHAIN_ID } from 'constants/index';
-const LENDING_URL = 'http://localhost:5001/api/v2/lending';
-const BASE_STATS_URL = 'http://localhost:3001/fetchCollateralBorrowingAmount';
+import { ARBITRUM_CHAIN_ID, ARBITRUM_GOERLI_CHAIN_ID } from 'constants/index';
+import { DOPEX_API_BASE_URL } from 'constants/env';
 
 export interface ISsovLendingData {
   underlyingSymbol: string;
@@ -61,9 +60,13 @@ export const createSsovLending: StateCreator<
 > = (set, get) => ({
   assetToContractAddress: new Map(),
   getSsovLending: async () => {
+    const { chainId } = get();
+    const lendingUrl = `${DOPEX_API_BASE_URL}/v2/lending`;
+    console.log('lendingUrl: ', lendingUrl);
+
     const lendingData = await axios
-      .get(LENDING_URL)
-      .then((payload) => payload.data[ARBITRUM_CHAIN_ID])
+      .get(lendingUrl)
+      .then((payload) => payload.data[chainId])
       .catch((err) => console.log(err));
 
     // const lendingStats = await axios
