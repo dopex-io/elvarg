@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { utils } from 'ethers';
+import { useState, useCallback, useEffect } from 'react';
+import { BigNumber, utils } from 'ethers';
 import Box from '@mui/material/Box';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
@@ -8,20 +8,19 @@ import LockerIcon from 'svgs/icons/LockerIcon';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { DECIMALS_TOKEN, ARBITRUM_CHAIN_ID } from 'constants/index';
+import { DECIMALS_TOKEN, ARBITRUM_CHAIN_ID, MAX_VALUE } from 'constants/index';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
-import { Addresses } from '@dopex-io/sdk';
+import { Addresses, ERC20__factory } from '@dopex-io/sdk';
 import { CustomButton, Dialog } from 'components/UI';
 import Input from '@mui/material/Input';
-import useUserTokenBalance from 'hooks/useUserTokenBalance';
 import { ISsovLendingData } from 'store/Vault/lending';
 import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
 import SsovStrikeBox from 'components/common/SsovStrikeBox';
 import { SelectChangeEvent } from '@mui/material';
-import useAssetApproval from 'hooks/useAssetApproval';
 import { getContractReadableAmount, getReadableTime } from 'utils/contracts';
 import InputHelpers from 'components/common/InputHelpers';
+import allowanceApproval from 'utils/contracts/allowanceApproval';
 
 interface Props {
   anchorEl: null | HTMLElement;
@@ -38,16 +37,15 @@ export default function LendDialog({
 
   const sendTx = useSendTx();
   const [strikeIndex, setStrikeIndex] = useState(0);
-
-  const tokenAddress = '0xeA460116299D59C722c88D0EF900a5F78Ab8557E';
-  // const tokenAddress =
-  //   Addresses[assetDatum.chainId][assetDatum.underlyingSymbol];
-
-  const userTokenBalance = useUserTokenBalance(
-    accountAddress!,
-    tokenAddress,
-    signer
+  const [collatBalance, setCollatBalance] = useState<BigNumber>(
+    BigNumber.from(0)
   );
+  const [approved, setApproved] = useState<boolean>(false);
+
+  // 2CRV address
+  const tokenAddress = '0xb01ff8efc9905de664c5ea62ab938bb141ce0ee8';
+  // const tokenAddress =
+  //   Addresses[assetDatum.chainId][assetDatum.collateralTokenAddress];
 
   const handleSelectStrike = useCallback((event: SelectChangeEvent<number>) => {
     setStrikeIndex(Number(event.target.value));
@@ -57,11 +55,37 @@ export default function LendDialog({
     0
   );
 
-  const [handleTokenApprove, tokenApproved] = useAssetApproval(
-    signer,
-    assetDatum.address,
-    tokenAddress
-  );
+  const handleApprove = useCallback(async () => {
+    if (!signer || !assetDatum?.address) return;
+    try {
+      await sendTx(ERC20__factory.connect(tokenAddress, signer), 'approve', [
+        assetDatum.address,
+        MAX_VALUE,
+      ]);
+      setApproved(true);
+    } catch (err) {
+      console.log(err);
+    }
+  }, [sendTx, signer, assetDatum, tokenAddress]);
+
+  useEffect(() => {
+    (async () => {
+      if (!signer || !accountAddress) return;
+      try {
+        allowanceApproval(
+          tokenAddress,
+          accountAddress,
+          assetDatum.address,
+          signer,
+          getContractReadableAmount(tokenDepositAmount, DECIMALS_TOKEN),
+          setApproved,
+          setCollatBalance
+        );
+      } catch (err) {
+        console.log(err);
+      }
+    })();
+  }, [signer, accountAddress, assetDatum, tokenDepositAmount]);
 
   const handleLend = useCallback(async () => {
     if (!signer || !provider) return;
@@ -73,16 +97,15 @@ export default function LendDialog({
 
     try {
       await sendTx(contract.connect(signer), 'deposit', [
-        assetDatum.strikes[strikeIndex],
+        strikeIndex,
         getContractReadableAmount(tokenDepositAmount, DECIMALS_TOKEN),
         accountAddress,
       ]).then(() => {
         setTokenDepositAmount('0');
-        // TODO: update
       });
     } catch (e) {
-      console.log('fail to borrow');
-      throw new Error('fail to borrow');
+      console.log('fail to lend');
+      throw new Error('fail to lend');
     }
   }, [
     sendTx,
@@ -101,8 +124,8 @@ export default function LendDialog({
   );
 
   const handleMax = useCallback(() => {
-    setTokenDepositAmount(utils.formatEther(userTokenBalance));
-  }, [userTokenBalance]);
+    setTokenDepositAmount(utils.formatEther(collatBalance));
+  }, [collatBalance]);
 
   return (
     <Dialog
@@ -116,17 +139,16 @@ export default function LendDialog({
       }}
       width={368}
     >
-      <Box className="bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 w-full">
+      <Box className="bg-cod-gray p-1 rounded-xl w-full">
         <Box className="flex mb-3">
           <Typography variant="h3" className="text-stieglitz">
-            Deposit
+            Lend
           </Typography>
-          hello
         </Box>
         {/* <Box>
           <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full bg-umbra">
             <SsovStrikeBox
-              userTokenBalance={userTokenBalance}
+              collatBalance={collatBalance}
               collateralSymbol={assetDatum.underlyingSymbol}
               strike={strikeIndex}
               handleSelectStrike={handleSelectStrike}
@@ -184,8 +206,8 @@ export default function LendDialog({
         <Box>
           <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full bg-umbra">
             <SsovStrikeBox
-              userTokenBalance={userTokenBalance}
-              collateralSymbol={assetDatum.underlyingSymbol}
+              userTokenBalance={collatBalance}
+              collateralSymbol={'2CRV'}
               strike={strikeIndex}
               handleSelectStrike={handleSelectStrike}
               strikes={assetDatum?.strikes.map((s) => s.toString())}
@@ -278,21 +300,21 @@ export default function LendDialog({
               size="medium"
               className="w-full mt-4 !rounded-md"
               color={
-                !tokenApproved ||
+                !approved ||
                 (tokenDepositAmount > 0 &&
                   tokenDepositAmount <=
-                    getUserReadableAmount(userTokenBalance, DECIMALS_TOKEN))
+                    getUserReadableAmount(collatBalance, DECIMALS_TOKEN))
                   ? 'primary'
                   : 'mineshaft'
               }
               disabled={tokenDepositAmount <= 0}
-              onClick={!tokenApproved ? handleTokenApprove : handleLend}
+              onClick={!approved ? handleApprove : handleLend}
             >
-              {tokenApproved
+              {approved
                 ? tokenDepositAmount == 0
                   ? 'Insert an amount'
                   : tokenDepositAmount >
-                    getUserReadableAmount(userTokenBalance, DECIMALS_TOKEN)
+                    getUserReadableAmount(collatBalance, DECIMALS_TOKEN)
                   ? 'Insufficient balance'
                   : 'Deposit'
                 : 'Approve'}

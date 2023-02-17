@@ -3,6 +3,7 @@ import { MAX_VALUE } from 'constants/index';
 import { ERC20__factory } from '@dopex-io/sdk';
 import { Signer } from 'ethers';
 import useSendTx from './useSendTx';
+import { BigNumber } from 'ethers';
 
 type UseAssetApproval = (
   signer: Signer | undefined,
@@ -23,6 +24,17 @@ const useAssetApproval: UseAssetApproval = (
     if (!signer || !contractAddress || !tokenAddress) return;
     try {
       const token = await ERC20__factory.connect(tokenAddress, signer);
+      const allowance = await token.allowance(
+        await signer.getAddress(),
+        contractAddress
+      );
+
+      console.log('allowance: ', allowance);
+      if (allowance > BigNumber.from(0)) {
+        setTokenApproved(true);
+        return;
+      }
+
       await sendTx(token, 'approve', [contractAddress, MAX_VALUE]);
       setTokenApproved(true);
     } catch (err) {

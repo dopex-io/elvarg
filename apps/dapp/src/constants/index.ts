@@ -391,6 +391,7 @@ export const CHAIN_ID_TO_EXPLORER: { [key: number]: string } = {
   137: 'https://polygonscan.com/',
   1088: 'https://andromeda-explorer.metis.io/',
   42161: 'https://arbiscan.io/',
+  421613: 'https://goerli.arbiscan.io/',
   43114: 'https://snowtrace.io/',
   421613: 'https://testnet.arbiscan.io/',
 };

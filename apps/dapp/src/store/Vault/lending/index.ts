@@ -9,6 +9,7 @@ import { DOPEX_API_BASE_URL } from 'constants/env';
 
 export interface ISsovLendingData {
   underlyingSymbol: string;
+  collateralTokenAddress: string;
   symbol: string;
   chainId: number;
   address: string;
@@ -62,7 +63,6 @@ export const createSsovLending: StateCreator<
   getSsovLending: async () => {
     const { chainId } = get();
     const lendingUrl = `${DOPEX_API_BASE_URL}/v2/lending`;
-    console.log('lendingUrl: ', lendingUrl);
 
     const lendingData = await axios
       .get(lendingUrl)
