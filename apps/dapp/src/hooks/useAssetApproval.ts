@@ -28,8 +28,6 @@ const useAssetApproval: UseAssetApproval = (
         await signer.getAddress(),
         contractAddress
       );
-
-      console.log('allowance: ', allowance);
       if (allowance > BigNumber.from(0)) {
         setTokenApproved(true);
         return;

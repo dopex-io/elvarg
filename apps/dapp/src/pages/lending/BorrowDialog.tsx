@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { utils } from 'ethers';
+import { useState, useCallback, useEffect } from 'react';
+import { BigNumber, utils } from 'ethers';
 import Box from '@mui/material/Box';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
@@ -7,19 +7,26 @@ import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { DECIMALS_TOKEN, ARBITRUM_CHAIN_ID } from 'constants/index';
+import {
+  DECIMALS_TOKEN,
+  ARBITRUM_CHAIN_ID,
+  DECIMALS_STRIKE,
+  MAX_VALUE,
+} from 'constants/index';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
-import { Addresses } from '@dopex-io/sdk';
+import { ERC20__factory } from '@dopex-io/sdk';
 import { CustomButton, Dialog } from 'components/UI';
 import Input from 'components/UI/Input';
-import useUserTokenBalance from 'hooks/useUserTokenBalance';
 import { ISsovLendingData } from 'store/Vault/lending';
 import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
 import SsovStrikeBox from 'components/common/SsovStrikeBox';
 import { SelectChangeEvent } from '@mui/material';
-import useAssetApproval from 'hooks/useAssetApproval';
-import { getContractReadableAmount, getReadableTime } from 'utils/contracts';
+import {
+  allowanceApproval,
+  getContractReadableAmount,
+  getReadableTime,
+} from 'utils/contracts';
 import { formatAmount } from 'utils/general';
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 import SouthEastRounded from '@mui/icons-material/SouthEastRounded';
@@ -44,37 +51,84 @@ export default function BorrowDialog({
   //   Addresses[assetDatum.chainId][assetDatum.underlyingSymbol];
   const tokenAddress = '0xeA460116299D59C722c88D0EF900a5F78Ab8557E';
   const optionTokenAddress = assetDatum.optionTokens[strikeIndex]!;
-  console.log('assetDatum: ', assetDatum);
 
-  const userTokenBalance = useUserTokenBalance(
-    accountAddress!,
-    tokenAddress,
-    signer
+  const [underlyingApproved, setUnderlyingApproved] = useState<boolean>(false);
+  const [underlyingBalance, setUnderlyingBalance] = useState<BigNumber>(
+    BigNumber.from(0)
   );
-  const userOptionTokenBalance = useUserTokenBalance(
-    accountAddress!,
-    optionTokenAddress,
-    signer
+  const [borrowAmount, setBorrowAmount] = useState<string | number>(0);
+  const [optionApproved, setOptionApproved] = useState<boolean>(false);
+  const [optionBalance, setOptionBalance] = useState<BigNumber>(
+    BigNumber.from(0)
   );
 
   const handleSelectStrike = useCallback((event: SelectChangeEvent<number>) => {
     setStrikeIndex(Number(event.target.value));
   }, []);
 
-  const [tokenDepositAmount, setTokenDepositAmount] = useState<string | number>(
-    0
-  );
+  const handleUnderlyingApproved = useCallback(async () => {
+    if (!signer || !assetDatum?.address) return;
+    try {
+      await sendTx(ERC20__factory.connect(tokenAddress, signer), 'approve', [
+        assetDatum.address,
+        MAX_VALUE,
+      ]);
+      setUnderlyingApproved(true);
+    } catch (err) {
+      console.log(err);
+    }
+  }, [sendTx, signer, assetDatum, tokenAddress]);
 
-  const [handleTokenApprove, tokenApproved] = useAssetApproval(
+  const handleOptionApproved = useCallback(async () => {
+    if (!signer || !assetDatum?.address) return;
+    try {
+      await sendTx(
+        ERC20__factory.connect(optionTokenAddress, signer),
+        'approve',
+        [assetDatum.address, MAX_VALUE]
+      );
+      setOptionApproved(true);
+    } catch (err) {
+      console.log(err);
+    }
+  }, [sendTx, signer, assetDatum, optionTokenAddress]);
+
+  useEffect(() => {
+    (async () => {
+      if (!signer || !accountAddress) return;
+      try {
+        allowanceApproval(
+          tokenAddress,
+          accountAddress,
+          assetDatum.address,
+          signer,
+          getContractReadableAmount(borrowAmount, DECIMALS_TOKEN), // TODO: use underlying decimals
+          setUnderlyingApproved,
+          setUnderlyingBalance
+        );
+        allowanceApproval(
+          optionTokenAddress,
+          accountAddress,
+          assetDatum.address,
+          signer,
+          getContractReadableAmount(borrowAmount, DECIMALS_STRIKE),
+          setOptionApproved,
+          setOptionBalance
+        );
+      } catch (err) {
+        console.log(err);
+      }
+    })();
+  }, [
     signer,
+    accountAddress,
+    tokenAddress,
+    optionTokenAddress,
     assetDatum.address,
-    tokenAddress
-  );
-  const [handleOptionTokenApprove, optionTokenApproved] = useAssetApproval(
-    signer,
-    assetDatum.address,
-    optionTokenAddress
-  );
+    borrowAmount,
+    underlyingApproved,
+    optionApproved,
+  ]);
 
   const handleBorrow = useCallback(async () => {
     if (!signer || !provider) return;
@@ -87,32 +141,29 @@ export default function BorrowDialog({
     try {
       await sendTx(contract.connect(signer), 'borrow', [
         strikeIndex,
-        getContractReadableAmount(tokenDepositAmount, DECIMALS_TOKEN),
+        getContractReadableAmount(borrowAmount, DECIMALS_TOKEN),
       ]);
-
-      setTokenDepositAmount('0');
-
-      // await updateOlpEpochData!();
-      // await updateOlpUserData!();
+      setBorrowAmount('0');
     } catch (e) {
       console.log('fail to borrow');
       throw new Error('fail to borrow');
     }
-  }, [sendTx, tokenDepositAmount, strikeIndex, assetDatum, signer, provider]);
+  }, [sendTx, borrowAmount, strikeIndex, assetDatum, signer, provider]);
 
   const handleDepositAmount = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) =>
-      setTokenDepositAmount(e.target.value),
+      setBorrowAmount(e.target.value),
     []
   );
 
   const handleMax = useCallback(() => {
-    setTokenDepositAmount(utils.formatEther(userTokenBalance));
-  }, [userTokenBalance]);
+    setBorrowAmount(utils.formatEther(underlyingBalance));
+  }, [underlyingBalance]);
 
-  // requiredCollateral = ((amount * strike * collateralPrecision) / getCollateralPrice()) / 1e18;
+  // const requiredCollateral =
+  //   (amount * strike * collateralPrecision) / getCollateralPrice() / 1e18;
   const usdToReceive =
-    (Number(tokenDepositAmount) * assetDatum?.strikes[strikeIndex]!) /
+    (Number(borrowAmount) * assetDatum?.strikes[strikeIndex]!) /
     assetDatum.tokenPrice;
 
   const optionTokenSymbol = `${
@@ -133,10 +184,12 @@ export default function BorrowDialog({
     >
       <Box className="bg-cod-gray rounded-lg">
         <Box className="flex flex-col mb-2">
-          <Typography variant="h5">Borrow</Typography>
+          <Typography variant="h4" className="mb-2">
+            Borrow
+          </Typography>
           <Box className="rounded-lg p-3 pt-2.5 pb-2 border border-neutral-800 w-full bg-umbra my-2">
             <SsovStrikeBox
-              userTokenBalance={userOptionTokenBalance}
+              userTokenBalance={optionBalance}
               collateralSymbol={optionTokenSymbol}
               strike={strikeIndex}
               handleSelectStrike={handleSelectStrike}
@@ -151,7 +204,7 @@ export default function BorrowDialog({
                 variant="default"
                 type="number"
                 placeholder="0.0"
-                value={tokenDepositAmount}
+                value={borrowAmount}
                 onChange={handleDepositAmount}
                 className="p-3"
                 leftElement={
@@ -189,7 +242,7 @@ export default function BorrowDialog({
                 <Typography variant="h6" color="stieglitz">
                   Balance:{' '}
                   {`${formatAmount(
-                    getUserReadableAmount(userTokenBalance, DECIMALS_TOKEN),
+                    getUserReadableAmount(underlyingBalance, DECIMALS_TOKEN),
                     2
                   )}`}
                 </Typography>
@@ -278,7 +331,7 @@ export default function BorrowDialog({
                 placeholder="0"
                 type="number"
                 className="h-12 text-2xl text-stieglitz font-mono"
-                value={tokenDepositAmount}
+                value={borrowAmount}
                 onChange={handleDepositAmount}
                 classes={{ input: 'text-right' }}
               />
@@ -332,9 +385,9 @@ export default function BorrowDialog({
           </Typography>
 
           <Typography variant="h6">
-            {`Deposit ${tokenDepositAmount} ${
+            {`Deposit ${borrowAmount} ${
               assetDatum.underlyingSymbol
-            } and ${tokenDepositAmount} ${optionTokenSymbol} to borrow ${formatAmount(
+            } and ${borrowAmount} ${optionTokenSymbol} to borrow ${formatAmount(
               usdToReceive,
               2
             )} 2CRV`}
@@ -370,27 +423,27 @@ export default function BorrowDialog({
             size="medium"
             className="w-full mt-4 !rounded-md"
             color={
-              !tokenApproved ||
-              (tokenDepositAmount > 0 &&
-                tokenDepositAmount <=
-                  getUserReadableAmount(userTokenBalance, DECIMALS_TOKEN))
+              !underlyingApproved ||
+              (borrowAmount > 0 &&
+                borrowAmount <=
+                  getUserReadableAmount(underlyingBalance, DECIMALS_TOKEN))
                 ? 'primary'
                 : 'mineshaft'
             }
-            disabled={tokenDepositAmount <= 0}
+            disabled={borrowAmount <= 0}
             onClick={
-              !tokenApproved
-                ? handleTokenApprove
-                : !optionTokenApproved
-                ? handleOptionTokenApprove
+              !underlyingApproved
+                ? handleUnderlyingApproved
+                : !optionApproved
+                ? handleOptionApproved
                 : handleBorrow
             }
           >
-            {tokenApproved
-              ? tokenDepositAmount == 0
+            {underlyingApproved && optionApproved
+              ? borrowAmount == 0
                 ? 'Insert an amount'
-                : tokenDepositAmount >
-                  getUserReadableAmount(userTokenBalance, DECIMALS_TOKEN)
+                : borrowAmount >
+                  getUserReadableAmount(underlyingBalance, DECIMALS_TOKEN)
                 ? 'Insufficient balance'
                 : 'Deposit'
               : 'Approve'}

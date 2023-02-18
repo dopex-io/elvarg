@@ -25,7 +25,15 @@ export const CONTRACT_ERRORS: Record<string, string> = {
   '0x9f2932cb0000000000000000000000000000000000000000000000000000000000000009':
     'SSOV: Epoch must be expired',
   '0x9f2932cb000000000000000000000000000000000000000000000000000000000000000a':
-    'SSOV: Settle amount must be equal to or less than option balance', // 10
+    'SSOV: Settle amount must be equal to or less than option balance',
+  '0x9f2932cb000000000000000000000000000000000000000000000000000000000000000b':
+    'SSOV: Repay must be less than or equal to borrowed',
+  '0x9f2932cb000000000000000000000000000000000000000000000000000000000000000c':
+    'SSOV: Required collateral must be greater than available to be borrowed',
+  '0x9f2932cb000000000000000000000000000000000000000000000000000000000000000d':
+    'SSOV: epoch must not be pre-expired',
+  '0x9f2932cb000000000000000000000000000000000000000000000000000000000000000e':
+    'SSOV: epoch must be pre-expired', // 14
   // Atlantic Pools: AtlanticPutsPoolError(uint256)
   '0xdf32c7420000000000000000000000000000000000000000000000000000000000000001':
     'AP: Invalid params',

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import isEmpty from 'lodash/isEmpty';
 import Box from '@mui/material/Box';
 import {
@@ -9,91 +9,95 @@ import {
   TableRow,
   TablePagination,
 } from '@mui/material';
-import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
 
 import Typography from 'components/UI/Typography';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 import { CustomButton } from 'components/UI';
 
 import { useBoundStore } from 'store';
 import { IDebtPosition } from 'store/Vault/lending';
-import useSendTx from 'hooks/useSendTx';
 
 import {
   DECIMALS_STRIKE,
   DECIMALS_TOKEN,
-  DECIMALS_USD,
   ROWS_PER_PAGE,
 } from 'constants/index';
 
 import { StyleContainer, StyleRow } from './Assets';
+import RepayDialog from './RepayDialog';
+import { getUserReadableAmount } from 'utils/contracts';
+import { BigNumber } from 'ethers';
 
-interface IDebtPositionTableData extends IDebtPosition {
-  action: () => void;
+interface IDebtPositionTableData {
+  selectedIndex: number;
+  debt: IDebtPosition;
 }
 
-const DebtPositionTableData = (props: IDebtPositionTableData) => {
+const DebtPositionTableData = ({
+  selectedIndex,
+  debt,
+}: IDebtPositionTableData) => {
+  const { epoch, underlyingSymbol, strike, supplied, borrowed } = debt;
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
   return (
     <StyleRow>
       <TableCell align="left">
         <Box className="flex flex-row">
           <img
             className="-ml-1 w-7 h-7"
-            src={`/images/tokens/${props.underlyingSymbol}.svg`}
-            alt={`${props.underlyingSymbol}`}
+            src={`/images/tokens/${underlyingSymbol?.toLowerCase()}.svg`}
+            alt={`${underlyingSymbol}`}
           />
           <Typography variant="h6" color="white" className="ml-3 my-auto">
-            {props.underlyingSymbol}
+            {underlyingSymbol}
           </Typography>
         </Box>
       </TableCell>
       <TableCell align="left">
-        <Typography variant="h6">{props.epoch.toNumber()}</Typography>
+        <Typography variant="h6">{epoch}</Typography>
       </TableCell>
       <TableCell align="left">
         <Typography variant="h6">
-          $
-          {formatAmount(
-            getUserReadableAmount(props.strike, DECIMALS_STRIKE),
-            2
-          )}
+          ${formatAmount(getUserReadableAmount(strike, DECIMALS_STRIKE), 2)}
         </Typography>
       </TableCell>
       <TableCell align="left">
         <Typography variant="h6">
-          {formatAmount(
-            getUserReadableAmount(props.supplied, DECIMALS_TOKEN),
-            2
-          )}{' '}
-          {props.underlyingSymbol}
+          {formatAmount(getUserReadableAmount(supplied, DECIMALS_TOKEN), 2)}{' '}
+          {underlyingSymbol}
         </Typography>
       </TableCell>
       <TableCell align="left">
         <Typography variant="h6">
-          {formatAmount(getUserReadableAmount(props.borrowed, DECIMALS_USD), 2)}{' '}
-          2CRV
+          {formatAmount(getUserReadableAmount(borrowed, DECIMALS_TOKEN))} 2CRV
         </Typography>
       </TableCell>
       <TableCell align="right">
         <CustomButton
           className="cursor-pointer text-white"
           color="primary"
-          onClick={() => props.action()}
+          onClick={(e) => setAnchorEl(e.currentTarget)}
         >
           Repay
         </CustomButton>
+        {anchorEl && (
+          <RepayDialog
+            key={selectedIndex}
+            anchorEl={anchorEl}
+            setAnchorEl={setAnchorEl}
+            debt={debt}
+          />
+        )}
       </TableCell>
     </StyleRow>
   );
 };
 
 const DebtPositions = () => {
-  const { userDebtPositions, signer, provider, assetToContractAddress } =
-    useBoundStore();
-  const sendTx = useSendTx();
+  const { userDebtPositions } = useBoundStore();
 
   const [page, setPage] = useState(0);
 
@@ -104,39 +108,26 @@ const DebtPositions = () => {
     [setPage]
   );
 
-  const handleRepay = useCallback(
-    async (selectedIndex: number) => {
-      if (
-        !signer ||
-        !provider ||
-        !userDebtPositions ||
-        selectedIndex === undefined
-      )
-        return;
-
-      try {
-        const debt: IDebtPosition = userDebtPositions[selectedIndex]!;
-        const contract = SsovV3LendingPut__factory.connect(
-          assetToContractAddress.get(debt.underlyingSymbol)!,
-          provider
-        );
-        await sendTx(contract.connect(signer), 'repay', [
-          debt.tokenId,
-          debt.borrowed,
-          debt.supplied,
-        ]);
-        // TODO: update
-      } catch (err) {
-        console.log(err);
-        throw new Error('fail to repay');
-      }
-    },
-    [sendTx, userDebtPositions, provider, signer, assetToContractAddress]
-  );
+  const debts: IDebtPositionTableData[] = useMemo(() => {
+    return userDebtPositions.map((debt, idx) => {
+      return {
+        selectedIndex: idx,
+        debt: {
+          id: debt?.id,
+          epoch: debt?.epoch,
+          expiry: debt?.expiry,
+          underlyingSymbol: debt?.underlyingSymbol,
+          strike: debt?.strike,
+          supplied: debt?.supplied,
+          borrowed: debt?.borrowed,
+        },
+      } as IDebtPositionTableData;
+    });
+  }, [userDebtPositions]);
 
   return (
     <>
-      <Typography variant="h4" color="white" className="my-2">
+      <Typography variant="h4" color="white" className="my-2 mb-4">
         Debt Positions
       </Typography>
       <Box className="bg-cod-gray px-2 mt-2 border-radius rounded-lg">
@@ -176,17 +167,17 @@ const DebtPositions = () => {
                   </TableCell>
                 </TableRow>
               </TableHead>
-              {userDebtPositions
+              {debts
                 .slice(
                   page * ROWS_PER_PAGE,
                   page * ROWS_PER_PAGE + ROWS_PER_PAGE
                 )
-                ?.map((o: IDebtPosition, i: number) => (
+                ?.map((debt: IDebtPositionTableData, i: number) => (
                   <TableBody key={i} className="rounded-lg bg-umbra">
                     <DebtPositionTableData
                       key={i}
-                      {...o}
-                      action={() => handleRepay(i)}
+                      selectedIndex={i}
+                      debt={debt.debt}
                     />
                   </TableBody>
                 ))}

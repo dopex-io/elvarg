@@ -4,7 +4,6 @@ import axios from 'axios';
 import { WalletSlice } from 'store/Wallet';
 import { CommonSlice } from 'store/Vault/common';
 import { BigNumber } from 'ethers';
-import { ARBITRUM_CHAIN_ID, ARBITRUM_GOERLI_CHAIN_ID } from 'constants/index';
 import { DOPEX_API_BASE_URL } from 'constants/env';
 
 export interface ISsovLendingData {
@@ -30,20 +29,21 @@ export interface LendingStats {
 }
 
 export interface IRawDebtPosition {
-  epoch: BigNumber;
-  strike: BigNumber;
-  supplied: BigNumber;
-  borrowed: BigNumber;
+  id: number;
+  expiry: number;
+  epoch: number;
+  strike: string;
+  supplied: string;
+  borrowed: string;
 }
 
 export interface IDebtPosition extends IRawDebtPosition {
   underlyingSymbol: string;
-  tokenId: BigNumber;
 }
 
 export interface SsovLendingSlice {
   // getSsovLendingContract: Function;
-  userDebtPositions: IDebtPosition[];
+  userDebtPositions: (IDebtPosition | null)[];
   getSsovLending: Function;
   // updateSsovLendingStats: Function;
   lendingData: ISsovLendingData[];
@@ -62,12 +62,39 @@ export const createSsovLending: StateCreator<
   assetToContractAddress: new Map(),
   getSsovLending: async () => {
     const { chainId } = get();
+    const accountAddress = '0x9d16d832dD97eD9684DaE9CD30234bB7028EBfDf';
     const lendingUrl = `${DOPEX_API_BASE_URL}/v2/lending`;
 
-    const lendingData = await axios
+    const lendingData: ISsovLendingData[] = await axios
       .get(lendingUrl)
       .then((payload) => payload.data[chainId])
       .catch((err) => console.log(err));
+
+    const debts = await Promise.all(
+      lendingData.map(async (asset) => {
+        const { underlyingSymbol } = asset;
+        return await axios
+          .get(
+            `${lendingUrl}/debts?symbol=${underlyingSymbol.toLowerCase()}&owner=${accountAddress}`
+          )
+          .then((payload) => {
+            const rawDebts: IRawDebtPosition[] = payload.data.debts;
+            return rawDebts.map(
+              (debt) =>
+                ({
+                  ...debt,
+                  underlyingSymbol: underlyingSymbol,
+                } as IDebtPosition)
+            );
+          })
+          .catch((err) => {
+            console.log(err);
+            return null;
+          });
+      })
+    );
+
+    console.log('debts: ', debts);
 
     // const lendingStats = await axios
     //   .get(BASE_STATS_URL)
@@ -111,16 +138,7 @@ export const createSsovLending: StateCreator<
       ...prevState,
       lendingData: lendingData,
       lendingStats: lendingStats,
-      userDebtPositions: [
-        {
-          epoch: BigNumber.from(1),
-          strike: BigNumber.from(1),
-          supplied: BigNumber.from(1),
-          borrowed: BigNumber.from(1),
-          underlyingSymbol: 'ETH',
-          tokenId: BigNumber.from(1),
-        },
-      ],
+      userDebtPositions: debts.flat(),
       assetToContractAddress: assetToContractAddress,
     }));
   },

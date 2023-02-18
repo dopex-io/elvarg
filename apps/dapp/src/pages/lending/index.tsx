@@ -23,8 +23,8 @@ const Lending = () => {
         <title>Lending | Dopex</title>
       </Head>
       <AppBar active="Lending" />
-      <Box className="lg:pt-28 lg:max-w-5xl md:max-w-3xl sm:max-w-2xl ml-auto mr-auto mt-10">
-        <div className="flex flex-row justify-between mb-10">
+      <Box className="pt-1 pb-32 lg:max-w-6xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
+        <div className="flex flex-row justify-between mt-32">
           <Chart
             key={'Collateral'}
             loanType={'Collateral'}
@@ -48,8 +48,12 @@ const Lending = () => {
             totalLoan={180}
           />
         </div>
-        <Assets data={lendingData} />
-        <DebtPositions />
+        <div className="mt-8">
+          <Assets data={lendingData} />
+        </div>
+        <div className="mt-8">
+          <DebtPositions />
+        </div>
       </Box>
     </Box>
   );

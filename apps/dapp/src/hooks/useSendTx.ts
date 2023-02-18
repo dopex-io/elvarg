@@ -48,7 +48,7 @@ const useSendTx = () => {
       }
       try {
         const tx = await transaction;
-        toast.loading(
+        const loadingToastId = toast.loading(
           TransactionToast({
             message: loadingMessage,
             txHash: tx.hash,
@@ -56,6 +56,9 @@ const useSendTx = () => {
           }),
           { id: toastId }
         );
+        setTimeout(() => {
+          toast.dismiss(loadingToastId);
+        }, 10000);
         const receipt = await tx.wait();
         if (receipt.status === 1) {
           toast.success(
@@ -86,10 +89,11 @@ const useSendTx = () => {
         } else {
           if (err.message.includes('user rejected transaction'))
             toast.error('Transaction rejected', { id: toastId });
-          else
+          else {
             toast.error(getErrorBlobMessage(err.message), {
               id: toastId,
             });
+          }
         }
         throw Error(err);
       }
