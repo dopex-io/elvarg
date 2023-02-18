@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { BigNumber, utils as ethersUtils } from 'ethers';
+import { BigNumber, utils as ethersUtils, ethers } from 'ethers';
 import axios from 'axios';
 import {
   Addresses,
@@ -12,7 +12,6 @@ import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Input from '@mui/material/Input';
 import Tooltip from '@mui/material/Tooltip';
-import { ethers } from 'ethers';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -49,6 +48,33 @@ const SWAPPER_ID_TO_ROUTE: { [key: string]: string } = {
   5: 'GMX and Sushiswap',
   6: 'Uniswap V3 and Sushiswap',
 };
+
+const emptyUnoswapParams = {
+  srcToken: '0x0000000000000000000000000000000000000000',
+  amount: BigNumber.from('0'),
+  minReturn: BigNumber.from('0'),
+  pools: [],
+};
+const emptyUniswapV3Params = {
+  amount: BigNumber.from('0'),
+  minReturn: BigNumber.from('0'),
+  pools: [],
+};
+
+// const emptySwapParams = [
+//   '0x0000000000000000000000000000000000000000',
+//   [
+//     '0x0000000000000000000000000000000000000000',
+//     '0x0000000000000000000000000000000000000000',
+//     '0x0000000000000000000000000000000000000000',
+//     '0x0000000000000000000000000000000000000000',
+//     BigNumber.from('0'),
+//     BigNumber.from('0'),
+//     BigNumber.from('0'),
+//   ],
+//   '0x',
+//   '0x',
+// ];
 
 function InfoBox({
   info,
@@ -201,11 +227,39 @@ const PurchaseCard = () => {
         accountAddress: straddlesContract.address,
       });
 
+      const routerV5 = new ethers.Contract(
+        '0x1111111254EEB25477B68fb85Ed929f73A960582',
+        oneInchRouterAbi
+      );
+
+      const params = routerV5.interface.decodeFunctionData(
+        'swap',
+        swap['tx']['data']
+      );
+
       const results = await straddlesContract.callStatic.purchase(
         getContractReadableAmount(amount * 2, 18),
         0,
         accountAddress,
-        swap['tx']['data']
+        {
+          swapId: 2,
+          unoswapParams: emptyUnoswapParams,
+          uniswapV3Params: emptyUniswapV3Params,
+          swapParams: {
+            executor: params['executor'],
+            desc: {
+              srcToken: params['desc']['srcToken'],
+              dstToken: params['desc']['dstToken'],
+              srcReceiver: params['desc']['srcReceiver'],
+              dstReceiver: params['desc']['dstReceiver'],
+              amount: 1,
+              minReturnAmount: 1,
+              flags: params['desc']['flags'],
+            },
+            permit: params['permit'],
+            data: params['data'],
+          },
+        }
       );
 
       const protocolFee = results[1];
@@ -277,11 +331,41 @@ const PurchaseCard = () => {
           9
         );
 
+        const routerV5 = new ethers.Contract(
+          '0x1111111254EEB25477B68fb85Ed929f73A960582',
+          oneInchRouterAbi
+        );
+
+        const params = routerV5.interface.decodeFunctionData(
+          'swap',
+          swap['tx']['data']
+        );
+
+        console.log(params);
+
         await sendTx(straddlesContract, 'purchase', [
           getContractReadableAmount(amount * 2, 18),
           swap['toTokenAmount'],
           accountAddress,
-          swap['tx']['data'],
+          {
+            swapId: 2,
+            unoswapParams: emptyUnoswapParams,
+            uniswapV3Params: emptyUniswapV3Params,
+            swapParams: {
+              executor: params['executor'],
+              desc: {
+                srcToken: params['desc']['srcToken'],
+                dstToken: params['desc']['dstToken'],
+                srcReceiver: params['desc']['srcReceiver'],
+                dstReceiver: params['desc']['dstReceiver'],
+                amount: 1,
+                minReturnAmount: 1,
+                flags: params['desc']['flags'],
+              },
+              permit: params['permit'],
+              data: params['data'],
+            },
+          },
           {
             maxFeePerGas,
             maxPriorityFeePerGas,
@@ -580,3 +664,7 @@ const PurchaseCard = () => {
 };
 
 export default PurchaseCard;
+
+const oneInchRouterAbi = JSON.parse(
+  '[{"inputs":[{"internalType":"contract IAggregationExecutor","name":"executor","type":"address"},{"components":[{"internalType":"address","name":"srcToken","type":"address"},{"internalType":"address","name":"dstToken","type":"address"},{"internalType":"address payable","name":"srcReceiver","type":"address"},{"internalType":"address payable","name":"dstReceiver","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"minReturnAmount","type":"uint256"},{"internalType":"uint256","name":"flags","type":"uint256"}],"internalType":"struct SwapDescription","name":"desc","type":"tuple"},{"internalType":"bytes","name":"permit","type":"bytes"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"swap","outputs":[{"internalType":"uint256","name":"returnAmount","type":"uint256"},{"internalType":"uint256","name":"spentAmount","type":"uint256"}],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"minReturn","type":"uint256"},{"internalType":"uint256[]","name":"pools","type":"uint256[]"}],"name":"uniswapV3Swap","outputs":[{"internalType":"uint256","name":"returnAmount","type":"uint256"}],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"address","name":"srcToken","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"minReturn","type":"uint256"},{"internalType":"uint256[]","name":"pools","type":"uint256[]"}],"name":"unoswap","outputs":[{"internalType":"uint256","name":"returnAmount","type":"uint256"}],"stateMutability":"payable","type":"function"}]'
+);
