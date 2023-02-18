@@ -370,6 +370,7 @@ const PurchaseCard = () => {
           {
             maxFeePerGas,
             maxPriorityFeePerGas,
+            gasLimit: 9000000,
           },
         ]);
       } else {
