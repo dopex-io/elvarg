@@ -1,5 +1,6 @@
-import React, { useCallback } from "react";
+import React, { ReactEventHandler, useCallback } from "react";
 import { ComponentMeta } from "@storybook/react";
+import { Menu as HeadlessMenu } from "@headlessui/react";
 
 import Menu from "../src/Menu";
 
@@ -10,13 +11,36 @@ const meta: ComponentMeta<typeof Menu> = {
 
 export default meta;
 
-export const Default = () => {
-  const data = ["Menu Item 1", "Menu Item 2", "Menu Item 3", "Menu Item 4"];
-  const [selection, setSelection] = React.useState<any>(data[0]);
+type ItemType = {
+  textContent: string;
+  icon?: boolean | JSX.Element;
+  disabled?: boolean;
+};
 
-  const handleSelection = useCallback((e: { target: any }) => {
+export const Default = () => {
+  const handleSelection: ReactEventHandler = useCallback((e: any) => {
     setSelection(e.target.textContent);
   }, []);
+
+  const data: ItemType[] = [
+    {
+      textContent: "Menu Item 1",
+      icon: false,
+      disabled: false,
+    },
+    {
+      textContent: "Menu Item 2",
+      icon: false,
+      disabled: false,
+    },
+    {
+      textContent: "Menu Item 3",
+      icon: false,
+      disabled: true,
+    },
+  ];
+
+  const [selection, setSelection] = React.useState<any>(data[0].textContent);
 
   return (
     <div
@@ -26,29 +50,41 @@ export const Default = () => {
       }}
     >
       <div className="fixed top-16 text-right">
-        <Menu data={data} selection={selection} onChange={handleSelection} />
+        <Menu<ItemType>
+          data={data.map((item, i) => (
+            <MenuItem key={i} item={item} handleSelection={handleSelection} />
+          ))}
+          selection={selection}
+        />
       </div>
     </div>
   );
 };
 
 export const IconMenu = () => {
-  const data = [
-    {
-      icon: <LongStraddleIcon />,
-      textContent: "Straddles",
-    },
-    {
-      icon: <InsuredPerpsIcon />,
-      textContent: "Insured Perps",
-    },
-    { icon: <PegHedgeIcon />, textContent: "Peg Hedge" },
-  ];
-  const [selection, setSelection] = React.useState<any>(data[0]);
-
-  const handleSelection = useCallback((e: { target: any }) => {
+  const handleSelection: ReactEventHandler = useCallback((e: any) => {
     setSelection(e.target.textContent);
   }, []);
+
+  const data = [
+    {
+      textContent: "Straddles",
+      icon: <LongStraddleIcon />,
+      disabled: false,
+    },
+    {
+      textContent: "Insured Perps",
+      icon: <InsuredPerpsIcon />,
+      disabled: false,
+    },
+    {
+      textContent: "Peg Hedge",
+      icon: <PegHedgeIcon />,
+      disabled: true,
+    },
+  ];
+
+  const [selection, setSelection] = React.useState<any>(data[0].textContent);
 
   return (
     <div
@@ -58,7 +94,17 @@ export const IconMenu = () => {
       }}
     >
       <div className="fixed top-16 text-right">
-        <Menu data={data} selection={selection} onChange={handleSelection} />
+        <Menu
+          data={data.map((item, i) => (
+            <MenuItem
+              key={i}
+              item={item}
+              variant="icon"
+              handleSelection={handleSelection}
+            />
+          ))}
+          selection={selection}
+        />
       </div>
     </div>
   );
@@ -76,7 +122,7 @@ export const DenseMenu = () => {
     { textContent: "Menu Item 4" },
     { textContent: "Menu Item 5" },
   ];
-  const [selection, setSelection] = React.useState<any>(data[0]);
+  const [selection, setSelection] = React.useState<string>(data[0].textContent);
 
   const handleSelection = useCallback((e: { target: any }) => {
     setSelection(e.target.textContent);
@@ -91,18 +137,97 @@ export const DenseMenu = () => {
     >
       <div className="fixed top-16 text-right">
         <Menu
-          variant="dense"
           scroll
-          data={data}
+          data={data.map((item, i) => (
+            <MenuItem
+              key={i}
+              item={item}
+              variant="dense"
+              handleSelection={handleSelection}
+            />
+          ))}
           selection={selection}
-          onChange={handleSelection}
         />
       </div>
     </div>
   );
 };
 
-/* IconMenu icons sample */
+/* ===================== Templates & Icons ===================== */
+
+// MenuItem template #1
+
+interface MenuItemProps {
+  item: ItemType;
+  variant?: variants;
+  handleSelection: any;
+}
+
+type variants = "basic" | "icon" | "dense";
+
+const COMMON_CLASSES = {
+  background: "bg-carbon",
+  textSize: "text-xs",
+  textColor: "text-white",
+  ddFill: "bg-umbra",
+  dropDownPaper:
+    "absolute left-0 mt-2 w-56 origin-top-right rounded-lg bg-umbra shadow-lg focus:outline-none",
+  dropDownBorder: "border border-carbon",
+};
+
+const VARIANT_CLASSES: Record<
+  variants,
+  Record<string, string | boolean | null>
+> = {
+  basic: {
+    icons: null,
+    padding: "p-2",
+    ...COMMON_CLASSES,
+  },
+  icon: {
+    icons: null,
+    padding: "p-2",
+    ...COMMON_CLASSES,
+  },
+  dense: {
+    icons: "hidden",
+    padding: "p-1",
+    ...COMMON_CLASSES,
+  },
+};
+
+const MenuItem = ({
+  item,
+  handleSelection,
+  variant = "basic",
+  ...rest
+}: MenuItemProps) => {
+  const selectedVariant = VARIANT_CLASSES[variant];
+
+  return (
+    <HeadlessMenu.Item>
+      <button
+        className={`${
+          selectedVariant["padding"]
+        } flex justify-between rounded-md w-full hover:bg-mineshaft text-sm ${
+          item["disabled"]
+            ? "bg-opacity-50 text-stieglitz cursor-not-allowed"
+            : "text-white cursor-pointer"
+        }`}
+        onClick={handleSelection}
+        disabled={item["disabled"]}
+        {...rest}
+      >
+        <div className="flex space-x-2">
+          {item["icon"] && variant === "icon" ? item["icon"] : null}
+          <div className="flex justify-between">{item["textContent"]}</div>
+        </div>
+      </button>
+    </HeadlessMenu.Item>
+  );
+};
+
+// Icons
 
 const LongStraddleIcon = ({ className = "" }) => {
   return (
