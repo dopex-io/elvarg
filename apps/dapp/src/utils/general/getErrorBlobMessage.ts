@@ -4,8 +4,6 @@ const START_OFFSET: number = 1;
 const END_OFFSET: number = 2;
 
 const getErrorBlobMessage = (message: string) => {
-  console.log('enter 1');
-
   // check if it's BigNumber error
   if (message.includes('BigNumber')) {
     return 'Invalid input';

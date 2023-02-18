@@ -20,6 +20,7 @@ import { ISsovLendingData } from 'store/Vault/lending';
 
 import BorrowDialog from './BorrowDialog';
 import LendDialog from './LendDialog';
+import { CHAIN_ID_TO_EXPLORER } from 'constants';
 
 export const StyleContainer = styled(TableContainer)`
   table {
@@ -74,16 +75,24 @@ const AssetTableData = ({
     <>
       <StyleRow key={`main-${underlyingSymbol}`}>
         <TableCell align="left">
-          <Box className="flex flex-row">
-            <img
-              className="-ml-1 w-7 h-7"
-              src={`/images/tokens/${underlyingSymbol}.svg`}
-              alt={`${underlyingSymbol}`}
-            />
-            <Typography variant="h6" color="white" className="ml-3 my-auto">
-              {underlyingSymbol}
-            </Typography>
-          </Box>
+          <a
+            href={`${CHAIN_ID_TO_EXPLORER[assetDatum.chainId]}address/${
+              assetDatum.address
+            }`}
+            rel="noopener noreferrer"
+            target={'_blank'}
+          >
+            <Box className="flex flex-row">
+              <img
+                className="-ml-1 w-7 h-7"
+                src={`/images/tokens/${underlyingSymbol}.svg`}
+                alt={`${underlyingSymbol}`}
+              />
+              <Typography variant="h6" color="white" className="ml-3 my-auto">
+                {underlyingSymbol}
+              </Typography>
+            </Box>
+          </a>
         </TableCell>
         <TableCell align="left">
           <Typography variant="h6" color="white">

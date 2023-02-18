@@ -28,7 +28,6 @@ import {
 import { StyleContainer, StyleRow } from './Assets';
 import RepayDialog from './RepayDialog';
 import { getUserReadableAmount } from 'utils/contracts';
-import { BigNumber } from 'ethers';
 
 interface IDebtPositionTableData {
   selectedIndex: number;

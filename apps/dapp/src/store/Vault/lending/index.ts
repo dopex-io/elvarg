@@ -94,8 +94,6 @@ export const createSsovLending: StateCreator<
       })
     );
 
-    console.log('debts: ', debts);
-
     // const lendingStats = await axios
     //   .get(BASE_STATS_URL)
     //   .then((payload) => payload.data)

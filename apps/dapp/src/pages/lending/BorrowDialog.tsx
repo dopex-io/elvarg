@@ -42,14 +42,15 @@ export default function BorrowDialog({
   setAnchorEl,
   assetDatum,
 }: Props) {
-  const { accountAddress, signer, provider } = useBoundStore();
+  const { accountAddress, signer, provider, getSsovLending } = useBoundStore();
 
   const sendTx = useSendTx();
   const [strikeIndex, setStrikeIndex] = useState(0);
 
   // const tokenAddress =
   //   Addresses[assetDatum.chainId][assetDatum.underlyingSymbol];
-  const tokenAddress = '0xeA460116299D59C722c88D0EF900a5F78Ab8557E';
+  // eth token
+  const tokenAddress = '0x36EbEeC09CefF4a060fFfa27D3a227F51Ce20919';
   const optionTokenAddress = assetDatum.optionTokens[strikeIndex]!;
 
   const [underlyingApproved, setUnderlyingApproved] = useState<boolean>(false);
@@ -144,11 +145,20 @@ export default function BorrowDialog({
         getContractReadableAmount(borrowAmount, DECIMALS_TOKEN),
       ]);
       setBorrowAmount('0');
+      await getSsovLending();
     } catch (e) {
       console.log('fail to borrow');
       throw new Error('fail to borrow');
     }
-  }, [sendTx, borrowAmount, strikeIndex, assetDatum, signer, provider]);
+  }, [
+    sendTx,
+    borrowAmount,
+    strikeIndex,
+    assetDatum,
+    signer,
+    provider,
+    getSsovLending,
+  ]);
 
   const handleDepositAmount = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) =>
@@ -170,6 +180,14 @@ export default function BorrowDialog({
     assetDatum.underlyingSymbol
   }-${assetDatum.strikes[strikeIndex]?.toString()}-P`;
 
+  const borrowAmountValid =
+    borrowAmount > 0 &&
+    underlyingBalance.gt(
+      getContractReadableAmount(borrowAmount, DECIMALS_TOKEN)
+    ) &&
+    optionBalance.gt(getContractReadableAmount(borrowAmount, DECIMALS_TOKEN));
+  console.log('borrowAmountValid: ', borrowAmountValid);
+
   return (
     <Dialog
       open={anchorEl != null}
@@ -182,12 +200,12 @@ export default function BorrowDialog({
       }}
       width={368}
     >
-      <Box className="bg-cod-gray rounded-lg">
+      <Box className="bg-cod-gray rounded-xl">
         <Box className="flex flex-col mb-2">
           <Typography variant="h4" className="mb-2">
             Borrow
           </Typography>
-          <Box className="rounded-lg p-3 pt-2.5 pb-2 border border-neutral-800 w-full bg-umbra my-2">
+          <Box className="rounded-xl p-3 pt-2.5 pb-2 border border-neutral-800 w-full bg-umbra my-2">
             <SsovStrikeBox
               userTokenBalance={optionBalance}
               collateralSymbol={optionTokenSymbol}
@@ -296,7 +314,7 @@ export default function BorrowDialog({
             </Box>
           </Box>
 
-          {/* <Box className="rounded-lg bg-umbra p-2">
+          {/* <Box className="rounded-xl bg-umbra p-2">
             <Box className="flex">
               <Box className="p-1 rounded-full flex w-full">
                 <Box className="bg-cod-gray flex p-1 px-2 rounded-full mr-1">
@@ -345,7 +363,7 @@ export default function BorrowDialog({
           </Box>
 
           {/* TODO: space-x */}
-          {/* <Box className="rounded-lg bg-umbra p-2 mt-1">
+          {/* <Box className="rounded-xl bg-umbra p-2 mt-1">
             <Box className="flex">
               <Box className="p-1 rounded-full flex w-full">
                 <Box className="bg-cod-gray flex p-1 px-2 rounded-full mr-1">
@@ -393,7 +411,7 @@ export default function BorrowDialog({
             )} 2CRV`}
           </Typography> */}
 
-          <Box className="rounded-lg bg-umbra pl-1 pr-2 mt-1 space-y-1">
+          <Box className="rounded-xl bg-umbra pl-1 pr-2 mt-1 space-y-1">
             <Box className="flex flex-col p-3 space-y-2">
               <Box className="flex space-x-1">
                 <SouthEastRounded className="fill-current text-down-bad p-1" />
@@ -411,8 +429,8 @@ export default function BorrowDialog({
               />
             </Box>
           </Box>
-          <Box className="bg-umbra border border-umbra rounded-lg p-3 mt-2">
-            <Box className="bg-carbon rounded-lg p-3">
+          <Box className="bg-umbra border border-umbra rounded-xl p-3 mt-2">
+            <Box className="bg-carbon rounded-xl p-3">
               <EstimatedGasCostButton
                 gas={500000}
                 chainId={ARBITRUM_CHAIN_ID}
@@ -423,14 +441,11 @@ export default function BorrowDialog({
             size="medium"
             className="w-full mt-4 !rounded-md"
             color={
-              !underlyingApproved ||
-              (borrowAmount > 0 &&
-                borrowAmount <=
-                  getUserReadableAmount(underlyingBalance, DECIMALS_TOKEN))
+              !underlyingApproved || !optionApproved || borrowAmountValid
                 ? 'primary'
                 : 'mineshaft'
             }
-            disabled={borrowAmount <= 0}
+            disabled={!borrowAmountValid}
             onClick={
               !underlyingApproved
                 ? handleUnderlyingApproved
@@ -442,10 +457,9 @@ export default function BorrowDialog({
             {underlyingApproved && optionApproved
               ? borrowAmount == 0
                 ? 'Insert an amount'
-                : borrowAmount >
-                  getUserReadableAmount(underlyingBalance, DECIMALS_TOKEN)
-                ? 'Insufficient balance'
-                : 'Deposit'
+                : !borrowAmountValid
+                ? 'Invalid borrow amount'
+                : 'Borrow'
               : 'Approve'}
           </CustomButton>
         </Box>

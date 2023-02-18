@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react';
-import { utils } from 'ethers';
 import Box from '@mui/material/Box';
 import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
 
@@ -29,7 +28,8 @@ interface Props {
 }
 
 export default function RepayDialog({ anchorEl, setAnchorEl, debt }: Props) {
-  const { signer, provider, assetToContractAddress } = useBoundStore();
+  const { signer, provider, assetToContractAddress, getSsovLending } =
+    useBoundStore();
   const sendTx = useSendTx();
 
   const [repayAmount, setRepayAmount] = useState<string | number>(0);
@@ -56,13 +56,18 @@ export default function RepayDialog({ anchorEl, setAnchorEl, debt }: Props) {
           debt.id,
           getContractReadableAmount(repayAmount, DECIMALS_TOKEN),
         ]);
+        await getSsovLending();
       } catch (err) {
         console.log(err);
         throw new Error('fail to repay');
       }
     },
-    [sendTx, provider, signer, assetToContractAddress]
+    [sendTx, provider, signer, assetToContractAddress, getSsovLending]
   );
+
+  const repayGtBorrowed = BigNumber.from(
+    getContractReadableAmount(repayAmount, DECIMALS_TOKEN)
+  ).gt(BigNumber.from(debt.borrowed));
 
   return (
     <Dialog
@@ -162,13 +167,15 @@ export default function RepayDialog({ anchorEl, setAnchorEl, debt }: Props) {
             <CustomButton
               size="medium"
               className="w-full mt-4 !rounded-md"
-              color={repayAmount ? 'primary' : 'mineshaft'}
+              color={
+                repayAmount > 0 && !repayGtBorrowed ? 'primary' : 'mineshaft'
+              }
               disabled={repayAmount <= 0}
               onClick={() => handleRepay(debt, repayAmount.toString())}
             >
               {repayAmount == 0
                 ? 'Insert an amount'
-                : repayAmount > debt.borrowed
+                : repayGtBorrowed
                 ? 'Repaying more than borrowed'
                 : 'Repay'}
             </CustomButton>

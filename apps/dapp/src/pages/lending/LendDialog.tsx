@@ -33,7 +33,7 @@ export default function LendDialog({
   setAnchorEl,
   assetDatum,
 }: Props) {
-  const { accountAddress, signer, provider } = useBoundStore();
+  const { accountAddress, signer, provider, getSsovLending } = useBoundStore();
 
   const sendTx = useSendTx();
   const [strikeIndex, setStrikeIndex] = useState(0);
@@ -103,6 +103,7 @@ export default function LendDialog({
       ]).then(() => {
         setTokenDepositAmount('0');
       });
+      await getSsovLending();
     } catch (e) {
       console.log('fail to lend');
       throw new Error('fail to lend');
@@ -115,6 +116,7 @@ export default function LendDialog({
     signer,
     provider,
     accountAddress,
+    getSsovLending,
   ]);
 
   const handleDepositAmount = useCallback(
