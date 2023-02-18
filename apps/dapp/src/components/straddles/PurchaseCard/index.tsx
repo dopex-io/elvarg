@@ -3,6 +3,7 @@ import { BigNumber, utils as ethersUtils, ethers } from 'ethers';
 import axios from 'axios';
 import {
   Addresses,
+  AtlanticStraddle,
   AtlanticStraddleV2__factory,
   ERC20__factory,
 } from '@dopex-io/sdk';
@@ -166,7 +167,7 @@ const PurchaseCard = () => {
         const swapperId = POOL_TO_SWAPPER_IDS[selectedPoolName]![Number(i)]!;
 
         promises.push(
-          straddlesData.straddlesContract
+          (straddlesData.straddlesContract as AtlanticStraddle)
             .connect(signer)
             .callStatic.purchase(
               getContractReadableAmount(2 * amount, 18),
