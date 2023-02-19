@@ -5,6 +5,8 @@ import {
   AtlanticStraddle,
   SSOVOptionPricing__factory,
   Addresses,
+  AtlanticStraddleV2__factory,
+  AtlanticStraddleV2,
 } from '@dopex-io/sdk';
 
 import { WalletSlice } from 'store/Wallet';
@@ -13,7 +15,7 @@ import { CommonSlice } from 'store/Vault/common';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
 export interface StraddlesData {
-  straddlesContract: AtlanticStraddle | undefined;
+  straddlesContract: AtlanticStraddle | AtlanticStraddleV2 | undefined;
   currentEpoch: number;
   currentExpiry: BigNumber;
   underlying: string;
@@ -106,9 +108,9 @@ export const createStraddlesSlice: StateCreator<
   },
   straddlesUserData: {},
   updateStraddlesEpochData: async () => {
-    const { selectedEpoch, getStraddlesContract } = get();
+    const { selectedEpoch, getStraddlesContract, chainId } = get();
 
-    const straddlesContract: AtlanticStraddle = getStraddlesContract();
+    const straddlesContract = getStraddlesContract();
 
     if (selectedEpoch === null || !straddlesContract) return;
 
@@ -116,13 +118,24 @@ export const createStraddlesSlice: StateCreator<
       Math.max(selectedEpoch, 1)
     );
 
-    const epochCollectionsData = await straddlesContract![
-      'epochCollectionsData'
-    ](selectedEpoch);
+    let usdFunding: BigNumber;
+    let usdPremiums: BigNumber;
+    let totalSold: BigNumber;
+
+    if (chainId === 137) {
+      usdFunding = epochData['usdFunding'];
+      usdPremiums = epochData['usdPremiums'];
+      totalSold = epochData['totalSold'];
+    } else {
+      const epochCollectionsData = await straddlesContract![
+        'epochCollectionsData'
+      ](selectedEpoch);
+      usdFunding = epochCollectionsData['usdFunding'];
+      usdPremiums = epochCollectionsData['usdPremiums'];
+      totalSold = epochCollectionsData['totalSold'];
+    }
+
     const currentPrice = await straddlesContract!['getUnderlyingPrice']();
-    const usdFunding = epochCollectionsData['usdFunding'];
-    const usdPremiums = epochCollectionsData['usdPremiums'];
-    const totalSold = epochCollectionsData['totalSold'];
 
     let straddlePrice: BigNumber;
     let aprFunding: BigNumber;
@@ -135,32 +148,60 @@ export const createStraddlesSlice: StateCreator<
       epochData['expiry'].toNumber() - new Date().getTime() / 1000;
 
     try {
-      const newData = await Promise.all([
-        straddlesContract!['calculatePremium'](
-          true,
-          currentPrice,
-          currentPrice,
-          getContractReadableAmount(1, 18),
-          epochData['expiry']
-        ),
-        straddlesContract!['apFundingPercent'](),
-        straddlesContract!['purchaseFeePercent'](),
-        straddlesContract!['getVolatility'](currentPrice),
-        straddlesContract!['calculateApFunding'](
-          currentPrice,
-          getContractReadableAmount(1, 18),
-          BigNumber.from(Math.round(timeToExpiry))
-        ),
-      ]);
+      if (chainId === 137) {
+        const newData = await Promise.all([
+          straddlesContract!['calculatePremium'](
+            true,
+            currentPrice,
+            currentPrice,
+            getContractReadableAmount(1, 18),
+            epochData['expiry']
+          ),
+          straddlesContract!['vaultVariables'](),
+          straddlesContract!['getVolatility'](currentPrice),
+          straddlesContract!['calculateApFunding'](
+            currentPrice,
+            getContractReadableAmount(1, 18),
+            BigNumber.from(Math.round(timeToExpiry))
+          ),
+        ]);
 
-      straddlePremium = newData[0].mul(BigNumber.from(2));
-      aprFunding = newData[1].div(1e6);
-      purchaseFee = newData[2]
-        .mul(currentPrice)
-        .mul(BigNumber.from(2))
-        .mul(1e10);
-      volatility = newData[3];
-      straddleFunding = newData[4].mul(BigNumber.from(2));
+        straddlePremium = newData[0].mul(BigNumber.from(2));
+        aprFunding = newData[1].apFundingPercent.div(1e6);
+        purchaseFee = newData[1].purchaseFeePercent
+          .mul(currentPrice)
+          .mul(BigNumber.from(2))
+          .mul(1e10);
+        volatility = newData[2];
+        straddleFunding = newData[3].mul(BigNumber.from(2));
+      } else {
+        const newData = await Promise.all([
+          straddlesContract!['calculatePremium'](
+            true,
+            currentPrice,
+            currentPrice,
+            getContractReadableAmount(1, 18),
+            epochData['expiry']
+          ),
+          straddlesContract!['apFundingPercent'](),
+          straddlesContract!['purchaseFeePercent'](),
+          straddlesContract!['getVolatility'](currentPrice),
+          straddlesContract!['calculateApFunding'](
+            currentPrice,
+            getContractReadableAmount(1, 18),
+            BigNumber.from(Math.round(timeToExpiry))
+          ),
+        ]);
+
+        straddlePremium = newData[0].mul(BigNumber.from(2));
+        aprFunding = newData[1].div(1e6);
+        purchaseFee = newData[2]
+          .mul(currentPrice)
+          .mul(BigNumber.from(2))
+          .mul(1e10);
+        volatility = newData[3];
+        straddleFunding = newData[4].mul(BigNumber.from(2));
+      }
     } catch (e) {
       straddlePremium = BigNumber.from('0');
       aprFunding = BigNumber.from('0');
@@ -265,7 +306,7 @@ export const createStraddlesSlice: StateCreator<
     }));
   },
   updateStraddles: async () => {
-    const { setSelectedEpoch, getStraddlesContract } = get();
+    const { setSelectedEpoch, getStraddlesContract, chainId } = get();
 
     const straddlesContract = getStraddlesContract();
 
@@ -275,8 +316,17 @@ export const createStraddlesSlice: StateCreator<
     try {
       currentEpoch = Number(await straddlesContract!['currentEpoch']());
 
-      isEpochExpired = await straddlesContract!['isEpochExpired'](currentEpoch);
-      if (isEpochExpired) currentEpoch = currentEpoch + 1;
+      if (chainId === 137) {
+        let epochStatus = await straddlesContract!['epochStatus'](currentEpoch);
+
+        // Epoch Status 3 = Expired
+        if (epochStatus === 3) currentEpoch = currentEpoch + 1;
+      } else {
+        isEpochExpired = await straddlesContract!['isEpochExpired'](
+          currentEpoch
+        );
+        if (isEpochExpired) currentEpoch = currentEpoch + 1;
+      }
     } catch (err) {
       console.log(err);
       return;
@@ -291,10 +341,23 @@ export const createStraddlesSlice: StateCreator<
     const underlying = addresses['underlying'];
 
     const usd = addresses['usd'];
+    let isVaultReady: boolean;
 
-    const isVaultReady = await straddlesContract!['isVaultReady'](currentEpoch);
+    if (chainId === 137) {
+      let status = await straddlesContract!['epochStatus'](currentEpoch);
+      isVaultReady = status === 1;
+    } else {
+      isVaultReady = await straddlesContract!['isVaultReady'](currentEpoch);
+    }
 
-    const blackOut = await straddlesContract!['blackoutPeriodBeforeExpiry']();
+    let blackOut: BigNumber;
+
+    if (chainId === 137) {
+      let vars = await straddlesContract!['vaultVariables']();
+      blackOut = vars.blackoutPeriodBeforeExpiry;
+    } else {
+      blackOut = await straddlesContract!['blackoutPeriodBeforeExpiry']();
+    }
 
     const epochData = await straddlesContract!['epochData'](currentEpoch);
 
@@ -320,6 +383,12 @@ export const createStraddlesSlice: StateCreator<
     if (!selectedPoolName || !provider || !chainId) return;
 
     if (!Addresses[chainId]['STRADDLES'].Vault[selectedPoolName]) return;
+
+    if (chainId === 137)
+      return AtlanticStraddleV2__factory.connect(
+        Addresses[chainId]['STRADDLES'].Vault[selectedPoolName],
+        provider
+      );
 
     return AtlanticStraddle__factory.connect(
       Addresses[chainId]['STRADDLES'].Vault[selectedPoolName],

@@ -2,9 +2,10 @@ import format from 'date-fns/format';
 import { BigNumber } from 'ethers';
 import { DATE_FORMAT } from 'constants/index';
 
-function getReadableTime(data: BigNumber): string {
+function getReadableTime(data: BigNumber | number): string {
   try {
-    return format(new Date(data?.toNumber() * 1000), DATE_FORMAT);
+    const numberData = data instanceof BigNumber ? data?.toNumber() : data;
+    return format(new Date(numberData * 1000), DATE_FORMAT);
   } catch (error) {
     return 'date error';
   }

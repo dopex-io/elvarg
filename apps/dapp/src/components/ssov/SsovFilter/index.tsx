@@ -50,7 +50,7 @@ const SsovFilter = (props: Props) => {
     <Box className="m-2">
       <Select
         value={activeFilters}
-        className="bg-mineshaft rounded-md pr-2 pl-4 text-white h-8 w-24"
+        className="bg-mineshaft rounded-md pr-2 pl-4 text-white h-8 w-28"
         displayEmpty
         multiple={multiple}
         onChange={handleSelect}
@@ -70,7 +70,7 @@ const SsovFilter = (props: Props) => {
           icon: 'absolute right-2 p-0.5 text-white',
         }}
       >
-        {options.map((option) => (
+        {options?.map((option) => (
           <MenuItem key={option} value={option} className="pb-2 pt-2">
             <Checkbox
               className={

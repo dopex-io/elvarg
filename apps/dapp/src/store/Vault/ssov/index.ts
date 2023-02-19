@@ -69,6 +69,7 @@ export interface WritePositionInterface {
   strike: BigNumber;
   accruedRewards: BigNumber[];
   accruedPremiums: BigNumber;
+  utilization: BigNumber;
   epoch: number;
   tokenId: BigNumber;
 }
@@ -307,7 +308,9 @@ export const createSsovV3Slice: StateCreator<
         epoch: o.epoch.toNumber(),
         strike: o.strike,
         accruedRewards: moreData[i]?.rewardTokenWithdrawAmounts || [],
+
         accruedPremiums: moreData[i]?.accruedPremium || BigNumber.from(0),
+        utilization: moreData[i]?.estimatedCollateralUsage || BigNumber.from(0),
       };
     });
 

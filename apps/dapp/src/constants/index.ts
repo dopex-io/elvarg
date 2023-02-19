@@ -66,6 +66,7 @@ export const CURRENCIES_MAP: { [key: string]: string } = {
   '5': 'ETH',
   '42161': 'ETH',
   '56': 'BNB',
+  '137': 'MATIC',
   '43114': 'AVAX',
   '1088': 'METIS',
 };
@@ -298,6 +299,7 @@ export const DISPLAY_TOKENS: { [key: string | number]: string[] } = {
   56: ['BNB', 'VBNB'],
   43114: ['AVAX'],
   1088: ['METIS'],
+  137: ['MATIC'],
 };
 
 export const CHAIN_ID_TO_NETWORK_DATA: {

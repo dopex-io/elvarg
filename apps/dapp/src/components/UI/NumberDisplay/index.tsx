@@ -11,6 +11,7 @@ interface Props {
   altText?: ReactNode;
   minNumber?: number;
   decimalsToShow?: number;
+  rightText?: string;
 }
 
 const NumberDisplay = ({
@@ -19,6 +20,7 @@ const NumberDisplay = ({
   altText,
   minNumber = 0.0001,
   decimalsToShow = 4,
+  rightText,
 }: Props) => {
   if (BigNumber.from(decimals).gt(18)) throw Error('Decimals cannot exceed 18');
 
@@ -37,6 +39,7 @@ const NumberDisplay = ({
   return (
     <span className="text-white">
       {formatAmount(_val.toString(), decimalsToShow)}
+      {rightText}
     </span>
   );
 };

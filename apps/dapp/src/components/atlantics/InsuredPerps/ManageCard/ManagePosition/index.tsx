@@ -5,8 +5,6 @@
  *   use the collateral asset (USDC).
  */
 
-import Slider from '@mui/material/Slider';
-import Box from '@mui/material/Box';
 import React, {
   ChangeEvent,
   SyntheticEvent,
@@ -16,6 +14,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import axios from 'axios';
 import { BigNumber, ethers } from 'ethers';
 import {
   ERC20__factory,
@@ -24,6 +23,8 @@ import {
 } from '@dopex-io/sdk';
 import { useDebounce } from 'use-debounce';
 // import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import Box from '@mui/material/Box';
+import Slider from '@mui/material/Slider';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import Typography from 'components/UI/Typography';
@@ -32,21 +33,17 @@ import Input from 'components/UI/Input';
 import CustomButton from 'components/UI/Button';
 import StrategyDetails from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/StrategyDetails';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
-
 import { useBoundStore } from 'store';
+import { IAtlanticPoolEpochStrikeData } from 'store/Vault/atlantics';
 import { AtlanticsContext } from 'contexts/Atlantics';
 
 import useSendTx from 'hooks/useSendTx';
 
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
-
-import { MIN_EXECUTION_FEE } from 'constants/gmx';
-import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
 import { getBlockTime } from 'utils/general/getBlocktime';
-
 import {
   getPositionFee,
   getSwapFees,
@@ -54,12 +51,10 @@ import {
   tokenToUsdMin,
   usdToTokenMin,
 } from 'utils/contracts/gmx';
-
 import {
   getEligiblePutStrike,
   getStrategyFee,
 } from 'utils/contracts/atlantics/insuredPerps';
-
 import {
   BLACKOUT_WINDOW,
   getFundingFees,
@@ -67,7 +62,9 @@ import {
   OPTIONS_TOKEN_DECIMALS,
 } from 'utils/contracts/atlantics/pool';
 
-import { IAtlanticPoolEpochStrikeData } from 'store/Vault/atlantics';
+import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
+import { MIN_EXECUTION_FEE } from 'constants/gmx';
+import { DOPEX_API_BASE_URL } from 'constants/env';
 
 const steps = 0.1;
 const minMarks = 2;
@@ -108,7 +105,8 @@ export interface IStrategyDetails {
   fundingFees: BigNumber;
   totalFeesUsd: BigNumber;
   collateralDeltaUsd: BigNumber;
-  availabeLiquidityForLongs: number;
+  availableLiquidityForLongs: number;
+  optionsPurchasable?: number;
   feesWithoutDiscount: {
     purchaseFees: BigNumber;
     strategyFee: BigNumber;
@@ -172,7 +170,8 @@ const ManagePosition = () => {
     fundingFees: BigNumber.from(0),
     totalFeesUsd: BigNumber.from(0),
     collateralDeltaUsd: BigNumber.from(0),
-    availabeLiquidityForLongs: 0,
+    availableLiquidityForLongs: 0,
+    optionsPurchasable: 0,
     feesWithoutDiscount: {
       purchaseFees: BigNumber.from(0),
       strategyFee: BigNumber.from(0),
@@ -317,6 +316,64 @@ const ManagePosition = () => {
   // const selectToken = (token: string) => {
   //   setSelectedToken(() => token);
   // };
+
+  const updatePurchasableOptionsForMaxStrike = useCallback(async () => {
+    if (
+      !strategyDetails.putStrike ||
+      !atlanticPool ||
+      !atlanticPool.tokens.underlying
+    )
+      return;
+
+    const apData = await axios
+      .get(`${DOPEX_API_BASE_URL}/v2/atlantics`)
+      .then((res) => res.data);
+    const apPoolData = apData[atlanticPool.tokens.underlying][0];
+    const apEpochStrikeData = apPoolData['epochStrikeData'];
+
+    if (!apEpochStrikeData) return;
+
+    const filteredMaxStrikesData: {
+      strike: string;
+      activeCollateral: string;
+      unlockedCollateral: string;
+      totalLiquidity: string;
+      premiumAccrued: string;
+      borrowFeesAccrued: string;
+      liquidityBalance: string;
+    }[] = apEpochStrikeData
+      .slice()
+      .reverse()
+      .filter(
+        (strikeData: {
+          strike: string;
+          activeCollateral: string;
+          unlockedCollateral: string;
+          totalLiquidity: string;
+          premiumAccrued: string;
+          borrowFeesAccrued: string;
+          liquidityBalance: string;
+        }) =>
+          Number(strikeData.strike) >=
+          Number(strategyDetails.putStrike.div(1e8))
+      );
+
+    let accumulatedOptionsPurchasable = filteredMaxStrikesData.reduce(
+      (prev, curr) => {
+        return (
+          prev +
+          (Number(curr['totalLiquidity']) - Number(curr['activeCollateral'])) /
+            Number(strategyDetails.putStrike.div(1e8))
+        );
+      },
+      0
+    );
+
+    setStrategyDetails((prevState) => ({
+      ...prevState,
+      optionsPurchasable: accumulatedOptionsPurchasable,
+    }));
+  }, [strategyDetails.putStrike, atlanticPool]);
 
   const handleStrategyCalculations = useCallback(async () => {
     if (
@@ -493,12 +550,13 @@ const ManagePosition = () => {
         strategyFee,
         totalFeesUsd: positionFeeUsd.add(LIQUIDATION_FEE_USD),
         collateralDeltaUsd: collateralUsd,
-        availabeLiquidityForLongs: getUserReadableAmount(
+        availableLiquidityForLongs: getUserReadableAmount(
           maxLongsLimit.sub(currentLongsUsd).gt(0)
             ? maxLongsLimit.sub(currentLongsUsd)
             : 0,
           30
         ),
+        optionsPurchasable: 0,
         feesWithoutDiscount: {
           purchaseFees: purchaseFees /* purchaseFeesWithoutDiscount */,
           strategyFee: BigNumber.from(0) /* strategyFeeWithoutDiscount */,
@@ -591,7 +649,7 @@ const ManagePosition = () => {
     setStrategyDetails((prev) => ({
       ...prev,
       markPrice: price,
-      availabeLiquidityForLongs: getUserReadableAmount(
+      availableLiquidityForLongs: getUserReadableAmount(
         maxLongs.sub(currentLongs).gt(0) ? maxLongs.sub(currentLongs) : 0,
         30
       ),
@@ -719,6 +777,10 @@ const ManagePosition = () => {
   useEffect(() => {
     handleStrategyCalculations();
   }, [handleStrategyCalculations]);
+
+  useEffect(() => {
+    updatePurchasableOptionsForMaxStrike();
+  }, [updatePurchasableOptionsForMaxStrike]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -866,6 +928,7 @@ const ManagePosition = () => {
           <Box className="w-full px-5 pt-2">
             <Slider
               sx={customSliderStyle}
+              onChange={handleChangeLeverage}
               className="w-full"
               aria-label="Small steps"
               defaultValue={1.1}
