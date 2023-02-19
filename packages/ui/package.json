@@ -8,6 +8,7 @@
   },
   "main": "./dist/index.cjs",
   "unpkg": "./dist/index.umd.js",
+  "types": "./dist/types/index.d.ts",
   "version": "0.1.0",
   "description": "Dopex UI",
   "files": [
