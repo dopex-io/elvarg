@@ -1,25 +1,25 @@
 import { useState, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
+import { BigNumber } from 'ethers';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import Typography from 'components/UI/Typography';
+import { Typography, Input, CustomButton, Dialog } from 'components/UI';
+import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 
 import { useBoundStore } from 'store';
 import { IDebtPosition } from 'store/Vault/lending';
+
 import useSendTx from 'hooks/useSendTx';
 
-import { CustomButton, Dialog } from 'components/UI';
-import Input from 'components/UI/Input';
 import { formatAmount } from 'utils/general';
-import { ARBITRUM_CHAIN_ID, DECIMALS_TOKEN } from 'constants/index';
-import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 import {
   getContractReadableAmount,
   getReadableTime,
   getUserReadableAmount,
 } from 'utils/contracts';
-import { BigNumber } from 'ethers';
+
+import { ARBITRUM_CHAIN_ID, DECIMALS_TOKEN } from 'constants/index';
 
 interface Props {
   anchorEl: null | HTMLElement;

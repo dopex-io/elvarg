@@ -1,26 +1,29 @@
 import { useState, useCallback, useEffect } from 'react';
 import { BigNumber, utils } from 'ethers';
-import Box from '@mui/material/Box';
+import { Box, Input, SelectChangeEvent } from '@mui/material';
+import { Addresses, ERC20__factory } from '@dopex-io/sdk';
+import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
 
+import { useBoundStore } from 'store';
+import { ISsovLendingData } from 'store/Vault/lending';
+
+import SsovStrikeBox from 'components/common/SsovStrikeBox';
+import InputHelpers from 'components/common/InputHelpers';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import Typography from 'components/UI/Typography';
+import { CustomButton, Dialog } from 'components/UI';
 import LockerIcon from 'svgs/icons/LockerIcon';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import useSendTx from 'hooks/useSendTx';
+
+import {
+  allowanceApproval,
+  getUserReadableAmount,
+  getContractReadableAmount,
+  getReadableTime,
+} from 'utils/contracts';
 
 import { DECIMALS_TOKEN, ARBITRUM_CHAIN_ID, MAX_VALUE } from 'constants/index';
-import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
-import { Addresses, ERC20__factory } from '@dopex-io/sdk';
-import { CustomButton, Dialog } from 'components/UI';
-import Input from '@mui/material/Input';
-import { ISsovLendingData } from 'store/Vault/lending';
-import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
-import SsovStrikeBox from 'components/common/SsovStrikeBox';
-import { SelectChangeEvent } from '@mui/material';
-import { getContractReadableAmount, getReadableTime } from 'utils/contracts';
-import InputHelpers from 'components/common/InputHelpers';
-import allowanceApproval from 'utils/contracts/allowanceApproval';
 
 interface Props {
   anchorEl: null | HTMLElement;

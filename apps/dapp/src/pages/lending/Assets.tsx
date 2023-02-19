@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   styled,
@@ -11,16 +11,16 @@ import {
 } from '@mui/material';
 import { max, min } from 'lodash';
 
+import { ISsovLendingData } from 'store/Vault/lending';
+
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
 
 import formatAmount from 'utils/general/formatAmount';
-
-import { ISsovLendingData } from 'store/Vault/lending';
+import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
 
 import BorrowDialog from './BorrowDialog';
 import LendDialog from './LendDialog';
-import { CHAIN_ID_TO_EXPLORER } from 'constants';
 
 export const StyleContainer = styled(TableContainer)`
   table {
@@ -56,14 +56,7 @@ const AssetTableData = ({
   positionIdx: number;
   assetDatum: ISsovLendingData;
 }) => {
-  const {
-    underlyingSymbol,
-    address,
-    totalSupply,
-    totalBorrow,
-    tokenPrice,
-    aprs,
-  } = assetDatum;
+  const { underlyingSymbol, totalSupply, tokenPrice, aprs } = assetDatum;
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [lendAnchorEl, setLendAnchorEl] = useState<null | HTMLElement>(null);
@@ -104,11 +97,6 @@ const AssetTableData = ({
             ${formatAmount(tokenPrice, 2)}
           </Typography>
         </TableCell>
-        {/* <TableCell align="left">
-          <Typography variant="h6" color="white">
-            83%
-          </Typography>
-        </TableCell> */}
         <TableCell align="left">
           <Typography variant="h6" color="white">
             {minApr === 0 && minApr === maxApr
@@ -176,11 +164,6 @@ export const Assets = ({ data }: { data: any[] }) => {
                     Price
                   </Typography>
                 </TableCell>
-                {/* <TableCell align="left" className="border-none">
-                <Typography variant="h6" color="stieglitz">
-                  Utilization
-                </Typography>
-              </TableCell> */}
                 <TableCell align="left" className="border-none">
                   <Typography variant="h6" color="stieglitz">
                     Borrow APR

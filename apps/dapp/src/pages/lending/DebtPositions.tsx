@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import isEmpty from 'lodash/isEmpty';
-import Box from '@mui/material/Box';
 import {
+  Box,
   Table,
   TableBody,
   TableCell,
@@ -10,14 +10,17 @@ import {
   TablePagination,
 } from '@mui/material';
 
-import Typography from 'components/UI/Typography';
-
-import formatAmount from 'utils/general/formatAmount';
-import TablePaginationActions from 'components/UI/TablePaginationActions';
-import { CustomButton } from 'components/UI';
-
 import { useBoundStore } from 'store';
 import { IDebtPosition } from 'store/Vault/lending';
+
+import {
+  TablePaginationActions,
+  Typography,
+  CustomButton,
+} from 'components/UI';
+
+import formatAmount from 'utils/general/formatAmount';
+import { getUserReadableAmount } from 'utils/contracts';
 
 import {
   DECIMALS_STRIKE,
@@ -27,7 +30,6 @@ import {
 
 import { StyleContainer, StyleRow } from './Assets';
 import RepayDialog from './RepayDialog';
-import { getUserReadableAmount } from 'utils/contracts';
 
 interface IDebtPositionTableData {
   selectedIndex: number;
@@ -95,7 +97,7 @@ const DebtPositionTableData = ({
   );
 };
 
-const DebtPositions = () => {
+export const DebtPositions = () => {
   const { userDebtPositions } = useBoundStore();
 
   const [page, setPage] = useState(0);
@@ -200,5 +202,3 @@ const DebtPositions = () => {
     </>
   );
 };
-
-export default DebtPositions;

@@ -1,9 +1,10 @@
 import { StateCreator } from 'zustand';
 import axios from 'axios';
+import { BigNumber } from 'ethers';
 
 import { WalletSlice } from 'store/Wallet';
 import { CommonSlice } from 'store/Vault/common';
-import { BigNumber } from 'ethers';
+
 import { DOPEX_API_BASE_URL } from 'constants/env';
 
 export interface ISsovLendingData {

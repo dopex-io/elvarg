@@ -2,11 +2,13 @@ import React, { useEffect } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
-import AppBar from 'components/common/AppBar';
-import { Chart } from './Chart';
 import { useBoundStore } from 'store';
+
+import AppBar from 'components/common/AppBar';
+
+import { Chart } from './Chart';
 import { Assets } from './Assets';
-import DebtPositions from './DebtPositions';
+import { DebtPositions } from './DebtPositions';
 
 const Lending = () => {
   const {

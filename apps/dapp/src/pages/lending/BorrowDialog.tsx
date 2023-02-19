@@ -1,36 +1,33 @@
 import { useState, useCallback, useEffect } from 'react';
 import { BigNumber, utils } from 'ethers';
-import Box from '@mui/material/Box';
+import { Box, SelectChangeEvent } from '@mui/material';
+import SouthEastRounded from '@mui/icons-material/SouthEastRounded';
+import { ERC20__factory } from '@dopex-io/sdk';
+import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
+
+import { useBoundStore } from 'store';
+import { ISsovLendingData } from 'store/Vault/lending';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import Typography from 'components/UI/Typography';
+import SsovStrikeBox from 'components/common/SsovStrikeBox';
+import { Typography, CustomButton, Dialog, Input } from 'components/UI';
+import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import useSendTx from 'hooks/useSendTx';
 
+import {
+  allowanceApproval,
+  getContractReadableAmount,
+  getUserReadableAmount,
+  getReadableTime,
+} from 'utils/contracts';
+import { formatAmount } from 'utils/general';
 import {
   DECIMALS_TOKEN,
   ARBITRUM_CHAIN_ID,
   DECIMALS_STRIKE,
   MAX_VALUE,
-  CHAIN_ID_TO_EXPLORER,
 } from 'constants/index';
-import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
-import { ERC20__factory } from '@dopex-io/sdk';
-import { CustomButton, Dialog } from 'components/UI';
-import Input from 'components/UI/Input';
-import { ISsovLendingData } from 'store/Vault/lending';
-import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
-import SsovStrikeBox from 'components/common/SsovStrikeBox';
-import { SelectChangeEvent } from '@mui/material';
-import {
-  allowanceApproval,
-  getContractReadableAmount,
-  getReadableTime,
-} from 'utils/contracts';
-import { formatAmount } from 'utils/general';
-import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
-import SouthEastRounded from '@mui/icons-material/SouthEastRounded';
 
 interface Props {
   anchorEl: null | HTMLElement;

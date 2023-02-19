@@ -6,11 +6,13 @@ import {
   Tooltip as RechartsTooltip,
   Cell,
 } from 'recharts';
+import { format } from 'date-fns';
 import Box from '@mui/material/Box';
 
-import Typography from 'components/UI/Typography';
 import { LendingStats } from 'store/Vault/lending';
-import { format } from 'date-fns';
+
+import Typography from 'components/UI/Typography';
+
 import { formatAmount } from 'utils/general';
 
 const loanTypeToColor: Record<string, string> = {
@@ -66,7 +68,6 @@ export const Chart = (props: ChartProps) => {
       <Typography key={`${loanType}-amount`} variant="h1" className="mb-5">
         ${formatAmount(totalLoan, 2, true)}
       </Typography>
-
       <ResponsiveContainer aspect={2.5} width={480}>
         <BarChart
           barCategoryGap={1}
