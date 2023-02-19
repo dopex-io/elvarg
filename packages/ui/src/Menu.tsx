@@ -1,24 +1,44 @@
-import React, { Fragment, ReactElement } from "react";
+import React, { ReactEventHandler } from "react";
 import { Menu as HeadlessMenu, Transition } from "@headlessui/react";
 
+import MenuItems, { dropdownVariants } from "../src/MenuItems";
+
+import { ItemType } from "../src/MenuItems";
+
 interface MenuProps<T> {
-  scroll?: boolean;
+  data: T[];
   selection?: string;
-  data: ReactElement<T>[];
+  handleSelection: ReactEventHandler;
+  dropdownVariant?: dropdownVariants;
+  scrollable?: boolean;
 }
 
-const Menu = <T extends unknown>(props: MenuProps<T>) => {
-  const { data, scroll = false, selection } = props;
+const Menu = <T extends ItemType>(props: MenuProps<T>) => {
+  const {
+    data,
+    selection,
+    handleSelection,
+    dropdownVariant = "basic",
+    scrollable = false,
+    ...rest
+  } = props;
 
   return (
-    <HeadlessMenu as="div" className="relative inline-block text-left">
+    <HeadlessMenu as="div" className="inline-block text-left">
       <div>
-        <HeadlessMenu.Button className="inline-flex w-full justify-center rounded-lg bg-carbon px-4 py-2 text-sm font-medium text-white">
-          {selection}
+        <HeadlessMenu.Button className="w-auto my-auto inline-flex justify-between rounded-lg bg-carbon px-3 py-2 text-sm font-medium text-white">
+          {({ open }) => (
+            <div className="flex justify-between">
+              {selection}
+              <DropdownArrowIcon
+                className={open ? `transform rotate-180` : ""}
+              />
+            </div>
+          )}
         </HeadlessMenu.Button>
       </div>
       <Transition
-        as={Fragment}
+        as="div"
         enter="transition ease-out duration-100"
         enterFrom="transform opacity-0 scale-95"
         enterTo="transform opacity-100 scale-100"
@@ -26,17 +46,40 @@ const Menu = <T extends unknown>(props: MenuProps<T>) => {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <HeadlessMenu.Items className="absolute left-0 mt-2 w-56 origin-top-right rounded-lg bg-umbra shadow-lg focus:outline-non">
-          <div
-            className={`p-1 border rounded-lg border-carbon h-full ${
-              scroll ? "h-32 overflow-auto" : null
-            }`}
-          >
-            {data.map((item) => item)}
-          </div>
-        </HeadlessMenu.Items>
+        <MenuItems
+          data={data}
+          handleSelection={handleSelection}
+          variant={dropdownVariant}
+          scrollable
+          {...rest}
+        />
       </Transition>
     </HeadlessMenu>
+  );
+};
+
+const DropdownArrowIcon = ({ className = "" }) => {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 18 18"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
+      <g clip-path="url(#clip0_2644_2251)">
+        <path
+          d="M6.53248 8.7825L8.47498 10.725C8.76748 11.0175 9.23998 11.0175 9.53248 10.725L11.475 8.7825C11.9475 8.31 11.61 7.5 10.9425 7.5H7.05748C6.38998 7.5 6.05998 8.31 6.53248 8.7825Z"
+          fill="white"
+        />
+      </g>
+      <defs>
+        <clipPath id="clip0_2644_2251">
+          <rect width="18" height="18" fill="white" />
+        </clipPath>
+      </defs>
+    </svg>
   );
 };
 
