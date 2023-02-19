@@ -308,8 +308,9 @@ const ManageCard = (props: ManageCardProps) => {
           </Typography>
         </Box>
         <Typography variant="h6" className="mx-2 pb-2 text-gray-400">
-          This vault rolls deposits over between epochs by default. You can
-          unselect this option above.
+          Enabling rollover will automatically transfer your deposits to the
+          next epoch after the other except for premiums and funding which will
+          be sent back.
         </Typography>
       </Box>
       <PoolStats poolType={poolType} />
