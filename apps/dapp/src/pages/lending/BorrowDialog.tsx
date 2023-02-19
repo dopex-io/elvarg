@@ -12,6 +12,7 @@ import {
   ARBITRUM_CHAIN_ID,
   DECIMALS_STRIKE,
   MAX_VALUE,
+  CHAIN_ID_TO_EXPLORER,
 } from 'constants/index';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
@@ -133,12 +134,10 @@ export default function BorrowDialog({
 
   const handleBorrow = useCallback(async () => {
     if (!signer || !provider) return;
-
     const contract = SsovV3LendingPut__factory.connect(
       assetDatum.address,
       provider
     );
-
     try {
       await sendTx(contract.connect(signer), 'borrow', [
         strikeIndex,
@@ -170,8 +169,6 @@ export default function BorrowDialog({
     setBorrowAmount(utils.formatEther(underlyingBalance));
   }, [underlyingBalance]);
 
-  // const requiredCollateral =
-  //   (amount * strike * collateralPrecision) / getCollateralPrice() / 1e18;
   const usdToReceive =
     (Number(borrowAmount) * assetDatum?.strikes[strikeIndex]!) /
     assetDatum.tokenPrice;
@@ -186,7 +183,6 @@ export default function BorrowDialog({
       getContractReadableAmount(borrowAmount, DECIMALS_TOKEN)
     ) &&
     optionBalance.gt(getContractReadableAmount(borrowAmount, DECIMALS_TOKEN));
-  console.log('borrowAmountValid: ', borrowAmountValid);
 
   return (
     <Dialog
@@ -202,9 +198,24 @@ export default function BorrowDialog({
     >
       <Box className="bg-cod-gray rounded-xl">
         <Box className="flex flex-col mb-2">
-          <Typography variant="h4" className="mb-2">
-            Borrow
-          </Typography>
+          <Box className="flex justify-between items-center">
+            <Typography variant="h4" className="mb-2">
+              Borrow
+            </Typography>
+            <a
+              href={`/ssov/${assetDatum.symbol}`}
+              rel="noopener noreferrer"
+              target={'_blank'}
+            >
+              <Typography
+                variant="h6"
+                className="-mb-1 hover:text-white hover:underline"
+                color="stieglitz"
+              >
+                Purchase option
+              </Typography>
+            </a>
+          </Box>
           <Box className="rounded-xl p-3 pt-2.5 pb-2 border border-neutral-800 w-full bg-umbra my-2">
             <SsovStrikeBox
               userTokenBalance={optionBalance}

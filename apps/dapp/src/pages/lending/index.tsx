@@ -9,7 +9,13 @@ import { Assets } from './Assets';
 import DebtPositions from './DebtPositions';
 
 const Lending = () => {
-  const { lendingData, getSsovLending, lendingStats } = useBoundStore();
+  const {
+    lendingData,
+    getSsovLending,
+    lendingStats,
+    ssovLendingTotalCollat,
+    ssovLendingTotalBorrowing,
+  } = useBoundStore();
 
   useEffect(() => {
     (async () => {
@@ -34,7 +40,7 @@ const Lending = () => {
                 timestamp: s.timestamp,
               };
             })}
-            totalLoan={180}
+            totalLoan={ssovLendingTotalCollat}
           />
           <Chart
             key={'Borrowing'}
@@ -45,7 +51,7 @@ const Lending = () => {
                 timestamp: s.timestamp,
               };
             })}
-            totalLoan={180}
+            totalLoan={ssovLendingTotalBorrowing}
           />
         </div>
         <div className="mt-8">

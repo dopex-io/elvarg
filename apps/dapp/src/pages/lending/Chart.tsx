@@ -58,13 +58,13 @@ export const Chart = (props: ChartProps) => {
     <Box key={`${loanType}-box`}>
       <Typography
         key={`${loanType}-text`}
-        variant="h5"
+        variant="h3"
         color={loanType === 'Collateral' ? 'primary' : 'wave-blue'}
       >
         Total {loanType}
       </Typography>
       <Typography key={`${loanType}-amount`} variant="h1" className="mb-5">
-        ${totalLoan}
+        ${formatAmount(totalLoan, 2, true)}
       </Typography>
 
       <ResponsiveContainer aspect={2.5} width={480}>

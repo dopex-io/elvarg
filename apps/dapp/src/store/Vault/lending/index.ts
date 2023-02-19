@@ -50,6 +50,8 @@ export interface SsovLendingSlice {
   lendingStats: LendingStats[];
   selectedAssetIdx: number;
   assetToContractAddress: Map<string, string>;
+  ssovLendingTotalCollat: number;
+  ssovLendingTotalBorrowing: number;
   setSelectedAssetIdx: (idx: number) => void;
 }
 
@@ -60,6 +62,8 @@ export const createSsovLending: StateCreator<
   SsovLendingSlice
 > = (set, get) => ({
   assetToContractAddress: new Map(),
+  ssovLendingTotalCollat: 0,
+  ssovLendingTotalBorrowing: 0,
   getSsovLending: async () => {
     const { chainId } = get();
     const accountAddress = '0x9d16d832dD97eD9684DaE9CD30234bB7028EBfDf';
@@ -93,6 +97,11 @@ export const createSsovLending: StateCreator<
           });
       })
     );
+
+    const { totalCollatTvl, totalBorrowingTvl } = await axios
+      .get(`${lendingUrl}/tvl`)
+      .then((payload) => payload.data)
+      .catch((err) => console.log(err));
 
     // const lendingStats = await axios
     //   .get(BASE_STATS_URL)
@@ -138,6 +147,8 @@ export const createSsovLending: StateCreator<
       lendingStats: lendingStats,
       userDebtPositions: debts.flat(),
       assetToContractAddress: assetToContractAddress,
+      ssovLendingTotalCollat: totalCollatTvl,
+      ssovLendingTotalBorrowing: totalBorrowingTvl,
     }));
   },
   userDebtPositions: [],
