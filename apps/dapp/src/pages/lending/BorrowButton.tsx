@@ -8,12 +8,12 @@ interface BorrowButtonProps {
   children: ReactNode;
 }
 
-function BorrowButton({
+export const BorrowButton = ({
   color = 'primary',
   disabled,
   onClick,
   children,
-}: BorrowButtonProps) {
+}: BorrowButtonProps) => {
   return (
     <CustomButton
       size="medium"
@@ -25,6 +25,4 @@ function BorrowButton({
       {children}
     </CustomButton>
   );
-}
-
-export default BorrowButton;
+};
