@@ -28,6 +28,8 @@ import {
   DECIMALS_STRIKE,
   MAX_VALUE,
 } from 'constants/index';
+import BorrowButton from './BorrowButton';
+import { BorrowForm } from './BorrowForm';
 
 interface Props {
   anchorEl: null | HTMLElement;
@@ -222,9 +224,15 @@ export default function BorrowDialog({
               strikes={assetDatum?.strikes.map((s) => s.toString())}
             />
           </Box>
-
           <Box className="space-y-1">
-            <Box className="bg-umbra rounded-xl">
+            <BorrowForm
+              borrowAmount={borrowAmount}
+              underlyingSymbol={assetDatum?.underlyingSymbol}
+              onChange={handleDepositAmount}
+              handleMax={handleMax}
+              underlyingBalance={underlyingBalance}
+            />
+            {/* <Box className="bg-umbra rounded-xl">
               <Input
                 size="small"
                 variant="default"
@@ -273,7 +281,7 @@ export default function BorrowDialog({
                   )}`}
                 </Typography>
               </Box>
-            </Box>
+            </Box> */}
             <Box className="bg-umbra rounded-xl">
               <Input
                 size="small"
@@ -321,104 +329,6 @@ export default function BorrowDialog({
               </Box>
             </Box>
           </Box>
-
-          {/* <Box className="rounded-xl bg-umbra p-2">
-            <Box className="flex">
-              <Box className="p-1 rounded-full flex w-full">
-                <Box className="bg-cod-gray flex p-1 px-2 rounded-full mr-1">
-                  <img
-                    src="/images/tokens/usdc.svg"
-                    alt="usdc"
-                    className="h-8"
-                  />
-                  <Typography
-                    variant="h5"
-                    color="white"
-                    className="flex items-center ml-2"
-                  >
-                    USDC
-                  </Typography>
-                </Box>
-                <CustomButton
-                  onClick={handleMax}
-                  className="rounded-md p-1"
-                  color="mineshaft"
-                >
-                  <Typography variant="h6" color="stieglitz">
-                    MAX
-                  </Typography>
-                </CustomButton>
-              </Box>
-
-              <Input
-                disableUnderline
-                id="amount"
-                name="amount"
-                placeholder="0"
-                type="number"
-                className="h-12 text-2xl text-stieglitz font-mono"
-                value={borrowAmount}
-                onChange={handleDepositAmount}
-                classes={{ input: 'text-right' }}
-              />
-            </Box>
-
-            <Box className="flex justify-between p-1">
-              <Typography variant="h6" color="stieglitz">
-                Borrow
-              </Typography>
-            </Box>
-          </Box>
-
-          {/* TODO: space-x */}
-          {/* <Box className="rounded-xl bg-umbra p-2 mt-1">
-            <Box className="flex">
-              <Box className="p-1 rounded-full flex w-full">
-                <Box className="bg-cod-gray flex p-1 px-2 rounded-full mr-1">
-                  <img
-                    src={`/images/tokens/${assetDatum?.underlyingSymbol.toLowerCase()}.svg`}
-                    alt="usdc"
-                    className="h-8"
-                  />
-                  <Typography
-                    variant="h5"
-                    color="white"
-                    className="flex items-center ml-2"
-                  >
-                    {assetDatum?.underlyingSymbol}
-                  </Typography>
-                </Box>
-              </Box>
-              <Typography variant="h4" className="flex items-center">
-                ${formatAmount(usdToReceive, 2)}
-              </Typography>
-            </Box>
-            <Box className="flex justify-between p-1">
-              <Typography variant="h6" color="stieglitz">
-                Collateral
-              </Typography>
-              <Typography variant="h6" color="stieglitz">
-                {assetDatum?.underlyingSymbol}
-              </Typography>
-            </Box>
-          </Box> */}
-
-          {/* <Typography variant="h6">
-            {`Balance of ${optionTokenSymbol}: ${formatAmount(
-              getUserReadableAmount(userOptionTokenBalance, DECIMALS_TOKEN),
-              2
-            )}`}
-          </Typography>
-
-          <Typography variant="h6">
-            {`Deposit ${borrowAmount} ${
-              assetDatum.underlyingSymbol
-            } and ${borrowAmount} ${optionTokenSymbol} to borrow ${formatAmount(
-              usdToReceive,
-              2
-            )} 2CRV`}
-          </Typography> */}
-
           <Box className="rounded-xl bg-umbra pl-1 pr-2 mt-1 space-y-1">
             <Box className="flex flex-col p-3 space-y-2">
               <Box className="flex space-x-1">
@@ -445,9 +355,7 @@ export default function BorrowDialog({
               />
             </Box>
           </Box>
-          <CustomButton
-            size="medium"
-            className="w-full mt-4 !rounded-md"
+          <BorrowButton
             color={
               !underlyingApproved || !optionApproved || borrowAmountValid
                 ? 'primary'
@@ -469,7 +377,7 @@ export default function BorrowDialog({
                 ? 'Invalid borrow amount'
                 : 'Borrow'
               : 'Approve'}
-          </CustomButton>
+          </BorrowButton>
         </Box>
       </Box>
     </Dialog>

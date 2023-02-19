@@ -150,64 +150,6 @@ export default function LendDialog({
             Lend
           </Typography>
         </Box>
-        {/* <Box>
-          <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full bg-umbra">
-            <SsovStrikeBox
-              collatBalance={collatBalance}
-              collateralSymbol={assetDatum.underlyingSymbol}
-              strike={strikeIndex}
-              handleSelectStrike={handleSelectStrike}
-              strikes={assetDatum?.strikes.map((s) => s.toString())}
-            />
-            <Box className="mt-3">
-              <Box className="flex mb-3 group">
-                <Typography
-                  variant="h6"
-                  className="text-stieglitz ml-0 mr-auto"
-                >
-                  Amount
-                </Typography>
-                <Box className="relative">
-                  <Input
-                    size="small"
-                    variant="default"
-                    type="number"
-                    placeholder="0.0"
-                    value={tokenDepositAmount}
-                    onChange={handleDepositAmount}
-                    className="p-3"
-                    leftElement={
-                      <Box className="flex my-auto">
-                        <Box className="flex w-[6.2rem] mr-3 bg-cod-gray rounded-full space-x-2 p-1 pr-4">
-                          <img
-                            src={`/images/tokens/${assetDatum?.underlyingSymbol.toLowerCase()}.svg`}
-                            alt="usdc"
-                            className="h-8"
-                          />
-                          <Typography
-                            variant="h5"
-                            color="white"
-                            className="flex items-center ml-2"
-                          >
-                            {assetDatum?.underlyingSymbol}
-                          </Typography>
-                        </Box>
-                        <Box
-                          role="button"
-                          className="rounded-md bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto p-2"
-                          onClick={handleMax}
-                        >
-                          <Typography variant="caption" color="stieglitz">
-                            MAX
-                          </Typography>
-                        </Box>
-                      </Box>
-                    }
-                  />
-                </Box>
-              </Box>
-            </Box>
-          </Box> */}
         <Box>
           <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full bg-umbra">
             <SsovStrikeBox
