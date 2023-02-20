@@ -123,7 +123,9 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
       <ShareDialog
         open={share}
-        handleClose={() => {}}
+        handleClose={() => {
+          setShare(false);
+        }}
         shareImageProps={{
           title: (
             <Typography variant="h4" className="font-bold shadow-2xl">
