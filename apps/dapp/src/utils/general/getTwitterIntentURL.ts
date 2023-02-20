@@ -1,8 +1,4 @@
-export default function getTwitterIntentURL(
-  text: string,
-  url = '',
-  hashtag = ''
-) {
+const getTwitterIntentURL = (text: string, url = '', hashtag = '') => {
   let finalURL = 'https://twitter.com/intent/tweet?text=';
   if (text.length > 0) {
     finalURL += Array.isArray(text)
@@ -16,4 +12,6 @@ export default function getTwitterIntentURL(
     }
   }
   return finalURL;
-}
+};
+
+export default getTwitterIntentURL;

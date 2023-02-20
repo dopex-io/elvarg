@@ -11,6 +11,7 @@ interface StatProps {
 export interface ShareImageProps {
   title: ReactNode;
   pnlPercentage: number;
+  customPath?: string;
   stats: StatProps[];
 }
 
@@ -28,7 +29,7 @@ const Stat = ({ name, value }: StatProps) => {
 };
 
 const ShareImage = (
-  { title, pnlPercentage, stats }: ShareImageProps,
+  { title, pnlPercentage, stats, customPath = '/' }: ShareImageProps,
   ref: any
 ) => {
   return (
@@ -48,7 +49,7 @@ const ShareImage = (
           </Typography>
         </div>
         <div className="self-end justify-end shadow-2xl">
-          <QRCodeSVG value="https://app.dopex.io/" />
+          <QRCodeSVG value={`https://app.dopex.io${customPath}`} />
         </div>
       </div>
       <div className="grid grid-cols-3">

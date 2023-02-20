@@ -3,9 +3,15 @@ import { NextSeo } from 'next-seo';
 import Router from 'next/router';
 import { useEffect } from 'react';
 
-const Share = ({ imageUrl }: { imageUrl: string }) => {
+const Share = ({
+  imageUrl,
+  redirectTo,
+}: {
+  imageUrl: string;
+  redirectTo: string;
+}) => {
   useEffect(() => {
-    Router.push('/');
+    Router.push(redirectTo);
   });
 
   return (
@@ -40,7 +46,10 @@ const Share = ({ imageUrl }: { imageUrl: string }) => {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   return {
-    props: { imageUrl: context.query['imageUrl'] },
+    props: {
+      imageUrl: context.query['imageUrl'],
+      redirectTo: context.query['redirectTo'],
+    },
   };
 };
 

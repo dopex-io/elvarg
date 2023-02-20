@@ -59,10 +59,16 @@ const ShareDialog = (props: ShareDialogProps) => {
       _imageURL = await uploadImage();
     }
     window.open(
-      getTwitterIntentURL('Latest trade on @dopex_io ', getShareURL(_imageURL)),
+      getTwitterIntentURL(
+        'Latest trade on @dopex_io ',
+        getShareURL(
+          _imageURL,
+          `https://app.dopex.io${shareImageProps.customPath}`
+        )
+      ),
       '_blank'
     );
-  }, [imageURL, uploadImage]);
+  }, [imageURL, uploadImage, shareImageProps.customPath]);
 
   const onDownload = useCallback(() => {
     if (ref.current === null) {

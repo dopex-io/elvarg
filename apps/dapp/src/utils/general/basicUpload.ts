@@ -1,10 +1,10 @@
-async function basicUpload(params: {
+const basicUpload = async (params: {
   accountId: string;
   apiKey: string;
   requestBody: any;
   metadata?: Object;
   querystring?: string;
-}) {
+}) => {
   const baseUrl = 'https://api.upload.io';
 
   const path = `/v2/accounts/${params.accountId}/uploads/binary`;
@@ -37,6 +37,6 @@ async function basicUpload(params: {
     throw new Error(`Upload API Error: ${JSON.stringify(result)}`);
 
   return result;
-}
+};
 
 export default basicUpload;

@@ -7,6 +7,7 @@ import IconButton from '@mui/material/IconButton';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import { format } from 'date-fns';
 
 import { useBoundStore } from 'store';
 
@@ -17,6 +18,8 @@ import Transfer from './Dialogs/Transfer';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import ShareDialog from 'components/common/ShareDialog/ShareDialog';
+import getPercentageDifference from 'utils/math/getPercentageDifference';
 
 interface ExerciseTableDataProps {
   strikeIndex: number;
@@ -50,6 +53,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     type: 'SETTLE',
     ssovData,
   });
+  const [share, setShare] = useState(false);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -76,6 +80,10 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       }),
     [ssovData]
   );
+
+  const handleShare = () => {
+    setShare(true);
+  };
 
   const handleClickMenu = useCallback(
     (event: { currentTarget: SetStateAction<HTMLElement | null> }) =>
@@ -109,8 +117,36 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   // @ts-ignore TODO: FIX
   const Dialog = DIALOGS[dialogState.type];
 
+  const tokenPrice = getUserReadableAmount(ssovData?.tokenPrice || 0, 8);
+
   return (
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
+      <ShareDialog
+        open={share}
+        handleClose={() => {}}
+        shareImageProps={{
+          title: (
+            <Typography variant="h4" className="font-bold shadow-2xl">
+              {ssovData?.underlyingSymbol} {ssovData?.isPut ? 'PUT' : 'CALL'}{' '}
+              Options
+            </Typography>
+          ),
+          pnlPercentage: ssovData?.isPut
+            ? getPercentageDifference(tokenPrice, strikePrice)
+            : getPercentageDifference(strikePrice, tokenPrice),
+          stats: [
+            { name: 'Strike Price', value: formatAmount(strikePrice, 2) },
+            { name: 'Mark Price', value: formatAmount(tokenPrice, 2) },
+            {
+              name: 'Expiry',
+              value: format(
+                (ssovEpochData?.epochTimes[1]?.toNumber() || 0) * 1000,
+                'Do MMM'
+              ),
+            },
+          ],
+        }}
+      />
       <Dialog
         open={dialogState.open}
         handleClose={handleClose}
@@ -190,6 +226,22 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
                 disabled={settleableAmount.eq(BigNumber.from(0))}
               >
                 Transfer
+              </MenuItem>
+            </Menu>
+          </Box>
+          <Box>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleCloseMenu}
+              classes={{ paper: 'bg-umbra' }}
+            >
+              <MenuItem
+                key="share"
+                onClick={handleShare}
+                className="text-white"
+              >
+                Share
               </MenuItem>
             </Menu>
           </Box>

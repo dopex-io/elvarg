@@ -12,15 +12,12 @@ import GavelIcon from '@mui/icons-material/Gavel';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import GraphicEqIcon from '@mui/icons-material/GraphicEq';
 
-import ShareDialog from 'components/common/ShareDialog/ShareDialog';
-
 import AppBar from 'components/common/AppBar';
 import { Typography } from 'components/UI';
 
 import { formatAmount } from 'utils/general';
 
 import { DOPEX_API_BASE_URL } from 'constants/env';
-import { Button } from '@dopex-io/ui';
 
 interface CardProps {
   name: string;
@@ -49,7 +46,6 @@ const Card = ({ name, description, href, Icon }: CardProps) => {
 
 const Home = () => {
   const [tvl, setTvl] = useState('0');
-  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     async function getTvl() {
@@ -66,27 +62,7 @@ const Home = () => {
         <title>Home | Dopex</title>
       </Head>
       <AppBar />
-      <ShareDialog
-        open={open}
-        handleClose={() => {
-          setOpen(false);
-        }}
-        shareImageProps={{
-          title: (
-            <Typography variant="h4" className="font-bold shadow-2xl">
-              ETH Straddles
-            </Typography>
-          ),
-          pnlPercentage: 23.2,
-          stats: [
-            { name: 'Entry Price', value: '$1512.12' },
-            { name: 'Current Price', value: '$1688.12' },
-          ],
-        }}
-      />
       <Box className="pb-28 pt-40 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 to-">
-        <Button onClick={() => setOpen(true)}>Open</Button>
-
         <Box className="flex space-x-8 mb-24">
           <img
             src="/images/brand/logo.svg"
