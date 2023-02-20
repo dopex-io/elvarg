@@ -30,28 +30,78 @@ interface IBarData {
 
 interface LiquidityBarGraphProps {
   data: IBarData[];
+  currentPrice?: BigNumber;
   width: number;
   height: number;
   header: { [key: string]: string | number };
 }
 
 const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
-  const { data, height, header } = props;
+  const { data, currentPrice, height, header } = props;
 
   const { atlanticPoolEpochData } = useBoundStore();
 
   const [focusBar, setFocusBar] = useState<any>(null);
 
   const formattedBarData = useMemo(() => {
-    return data.map((bar: IBarData) => {
-      return {
-        availableCollateral: getUserReadableAmount(bar.availableCollateral, 6),
-        unlocked: getUserReadableAmount(bar.unlocked, 6),
-        activeCollateral: getUserReadableAmount(bar.activeCollateral, 6),
-        strike: getUserReadableAmount(bar.strike, 8),
-      };
+    if (!currentPrice) return;
+
+    const barData = data
+      .map((bar: IBarData) => ({
+        availableCollateral: bar.availableCollateral,
+        unlocked: bar.unlocked,
+        activeCollateral: bar.activeCollateral,
+        strike: bar.strike,
+      }))
+      .filter((bar) => bar.strike.lte(currentPrice));
+
+    const maxStrikeBelowMark = barData[0];
+
+    const cumulativeMaxStrikesDataAboveMarkPrice = data
+      .filter((barData) => barData.strike >= currentPrice)
+      .reduce(
+        (prev, curr) => ({
+          availableCollateral:
+            prev.availableCollateral +
+            getUserReadableAmount(curr.availableCollateral, 6),
+          unlocked: prev.unlocked + getUserReadableAmount(curr.unlocked, 6),
+          activeCollateral:
+            prev.activeCollateral +
+            getUserReadableAmount(curr.activeCollateral, 6),
+        }),
+        {
+          availableCollateral: 0,
+          unlocked: 0,
+          activeCollateral: 0,
+        }
+      );
+
+    return barData.map((bar: IBarData) => {
+      if (maxStrikeBelowMark?.strike.eq(bar.strike))
+        return {
+          availableCollateral:
+            getUserReadableAmount(bar.availableCollateral, 6) +
+            cumulativeMaxStrikesDataAboveMarkPrice.availableCollateral,
+          unlocked:
+            getUserReadableAmount(bar.unlocked, 6) +
+            cumulativeMaxStrikesDataAboveMarkPrice.unlocked,
+          activeCollateral:
+            getUserReadableAmount(bar.activeCollateral, 6) +
+            cumulativeMaxStrikesDataAboveMarkPrice.activeCollateral,
+          strike: getUserReadableAmount(bar.strike, 8),
+        };
+      else
+        return {
+          availableCollateral: getUserReadableAmount(
+            bar.availableCollateral,
+            6
+          ),
+          unlocked: getUserReadableAmount(bar.unlocked, 6),
+          activeCollateral: getUserReadableAmount(bar.activeCollateral, 6),
+          strike: getUserReadableAmount(bar.strike, 8),
+        };
     });
-  }, [data]);
+  }, [data, currentPrice]);
 
   return (
     <Box className="flex flex-col bg-cod-gray rounded-lg">
@@ -119,7 +169,7 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               tickLine={false}
             />
             <Bar
-              name={`Available Collateral`}
+              name="Available Collateral"
               dataKey="availableCollateral"
               stackId="a"
               fill="#FFF"
@@ -134,7 +184,7 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               ))}
             </Bar>
             <Bar
-              name={`Active Collateral`}
+              name="Active Collateral"
               dataKey="activeCollateral"
               stackId="a"
               fill="#FFF"
@@ -148,7 +198,7 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               ))}
             </Bar>
             <Bar
-              name={`Unlocked Collateral`}
+              name="Unlocked Collateral"
               dataKey="unlocked"
               stackId="a"
               fill="#FFF"
