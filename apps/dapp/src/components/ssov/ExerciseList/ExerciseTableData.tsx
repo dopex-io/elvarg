@@ -230,15 +230,6 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
               >
                 Transfer
               </MenuItem>
-            </Menu>
-          </Box>
-          <Box>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleCloseMenu}
-              classes={{ paper: 'bg-umbra' }}
-            >
               <MenuItem
                 key="share"
                 onClick={handleShare}
