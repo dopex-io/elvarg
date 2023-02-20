@@ -480,10 +480,14 @@ const ManagePosition = () => {
         getContractReadableAmount(1, 22)
       );
 
-      let putStrike = getEligiblePutStrike(
-        liquidationPrice,
-        atlanticPool.vaultConfig.tickSize
-      );
+      let putStrike = BigNumber.from(1);
+
+      if (liquidationUsd.lt(underlyingMaxPrice)) {
+        putStrike = getEligiblePutStrike(
+          liquidationPrice,
+          atlanticPool.vaultConfig.tickSize
+        );
+      }
 
       const [highestStrike] = atlanticPoolEpochData.maxStrikes;
 
@@ -955,16 +959,6 @@ const ManagePosition = () => {
           </Box> */}
         {/* <Switch value={depositUnderlying} onChange={handleToggle} /> */}
         {/* </Box> */}
-        {error !== '' && (
-          <Box className="mb-2">
-            <Typography
-              variant="h6"
-              className="text-down-bad border border-down-bad p-5 text-center rounded-xl"
-            >
-              {error}
-            </Typography>
-          </Box>
-        )}
         <StrategyDetails
           data={debouncedStrategyDetails[0]}
           loading={strategyDetailsLoading}
@@ -1011,11 +1005,18 @@ const ManagePosition = () => {
             </Box>
           ) : (
             <CustomButton
-              disabled={error !== '' || strategyDetailsLoading}
+              disabled={
+                error !== '' ||
+                strategyDetailsLoading ||
+                strategyDetails.putStrike.isZero() ||
+                strategyDetails.collateralDeltaUsd.isZero()
+              }
               onClick={useStrategy}
             >
               {strategyDetailsLoading ? (
                 <CircularProgress className="text-white p-3" />
+              ) : error !== '' ? (
+                error
               ) : (
                 'Long'
               )}
