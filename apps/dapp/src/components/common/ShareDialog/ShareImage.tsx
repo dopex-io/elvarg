@@ -48,11 +48,11 @@ const ShareImage = (
             {percentage.toFixed(2)}%
           </Typography>
         </div>
-        <div className="self-end justify-end shadow-2xl">
+        <div className="self-end justify-end shadow-2xl mt-[-16px]">
           <QRCodeSVG value={`https://app.dopex.io${customPath}`} />
         </div>
       </div>
-      <div className="grid grid-cols-3">
+      <div className="grid grid-cols-3 mt-6">
         {stats.map((s) => {
           return <Stat key={s.name} {...s} />;
         })}

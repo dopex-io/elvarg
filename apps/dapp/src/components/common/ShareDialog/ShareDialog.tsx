@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { toPng, toBlob } from 'html-to-image';
+import { toPng } from 'html-to-image';
 import { Button } from '@dopex-io/ui';
 import { toast } from 'react-hot-toast';
 
@@ -12,11 +12,11 @@ import Dialog from 'components/UI/Dialog';
 
 import ShareImage, { ShareImageProps } from './ShareImage';
 
-import basicUpload from 'utils/general/basicUpload';
+import imageUpload from 'utils/general/imageUpload';
 import getTwitterIntentURL from 'utils/general/getTwitterIntentURL';
 import getShareURL from 'utils/general/getShareURL';
 
-import { UPLOAD_ACCOUNT_ID, UPLOAD_API_KEY } from 'constants/env';
+import { CLOUDINARY_API_KEY } from 'constants/env';
 
 interface ShareDialogProps {
   open: boolean;
@@ -37,19 +37,18 @@ const ShareDialog = (props: ShareDialogProps) => {
       return;
     }
 
-    const image = await toBlob(ref.current, { cacheBust: true });
+    const image = await toPng(ref.current, { cacheBust: true });
 
-    if (UPLOAD_ACCOUNT_ID && UPLOAD_API_KEY) {
+    if (CLOUDINARY_API_KEY) {
       setLoading(true);
-      const response = await basicUpload({
-        accountId: UPLOAD_ACCOUNT_ID,
-        apiKey: UPLOAD_API_KEY,
-        requestBody: image,
+      const response = await imageUpload({
+        file: image,
+        upload_preset: 'rjhw5klp',
+        api_key: CLOUDINARY_API_KEY,
       });
-
-      setImageURL(response.fileUrl);
+      setImageURL(response.url);
       setLoading(false);
-      return response.fileUrl;
+      return response.url;
     }
   }, []);
 

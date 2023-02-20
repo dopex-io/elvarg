@@ -7,6 +7,4 @@ export const INFURA_PROJECT_ID = process.env['NEXT_PUBLIC_INFURA_PROJECT_ID'];
 
 export const DOPEX_API_BASE_URL = process.env['NEXT_PUBLIC_DOPEX_API_BASE_URL'];
 
-export const UPLOAD_ACCOUNT_ID = process.env['NEXT_PUBLIC_UPLOAD_ACCOUNT_ID'];
-
-export const UPLOAD_API_KEY = process.env['NEXT_PUBLIC_UPLOAD_API_KEY'];
+export const CLOUDINARY_API_KEY = process.env['NEXT_PUBLIC_CLOUDINARY_API_KEY'];
