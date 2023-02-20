@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { toPng, toBlob } from 'html-to-image';
-import CircularProgress from '@mui/material/CircularProgress';
 import { Button } from '@dopex-io/ui';
+import { toast } from 'react-hot-toast';
 
 import DownloadIcon from '@mui/icons-material/Download';
 import TwitterIcon from '@mui/icons-material/Twitter';
@@ -32,32 +32,37 @@ const ShareDialog = (props: ShareDialogProps) => {
 
   const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    async function uploadImage() {
-      if (ref.current === null || !open) {
-        return;
-      }
-
-      const image = await toBlob(ref.current, { cacheBust: true });
-
-      if (UPLOAD_ACCOUNT_ID && UPLOAD_API_KEY) {
-        setLoading(true);
-        basicUpload({
-          accountId: UPLOAD_ACCOUNT_ID,
-          apiKey: UPLOAD_API_KEY,
-          requestBody: image,
-        }).then(
-          (response) => {
-            setImageURL(response.fileUrl);
-            setLoading(false);
-          },
-          (error) => console.error(error)
-        );
-      }
+  const uploadImage = useCallback(async () => {
+    if (ref.current === null) {
+      return;
     }
 
-    uploadImage();
-  }, [open]);
+    const image = await toBlob(ref.current, { cacheBust: true });
+
+    if (UPLOAD_ACCOUNT_ID && UPLOAD_API_KEY) {
+      setLoading(true);
+      const response = await basicUpload({
+        accountId: UPLOAD_ACCOUNT_ID,
+        apiKey: UPLOAD_API_KEY,
+        requestBody: image,
+      });
+
+      setImageURL(response.fileUrl);
+      setLoading(false);
+      return response.fileUrl;
+    }
+  }, []);
+
+  const onTweet = useCallback(async () => {
+    let _imageURL = imageURL;
+    if (!_imageURL) {
+      _imageURL = await uploadImage();
+    }
+    window.open(
+      getTwitterIntentURL('Latest trade on @dopex_io ', getShareURL(_imageURL)),
+      '_blank'
+    );
+  }, [imageURL, uploadImage]);
 
   const onDownload = useCallback(() => {
     if (ref.current === null) {
@@ -76,12 +81,15 @@ const ShareDialog = (props: ShareDialogProps) => {
       });
   }, [ref]);
 
-  const onCopy = useCallback(() => {
-    if (!imageURL) {
-      return;
+  const onCopy = useCallback(async () => {
+    let _imageURL = imageURL;
+
+    if (!_imageURL) {
+      _imageURL = await uploadImage();
     }
-    navigator.clipboard.writeText(imageURL);
-  }, [imageURL]);
+    navigator.clipboard.writeText(_imageURL);
+    toast.success('Copied!!! ');
+  }, [imageURL, uploadImage]);
 
   return (
     <Dialog
@@ -95,33 +103,25 @@ const ShareDialog = (props: ShareDialogProps) => {
         <Typography variant="h5" className="text-white font-semibold mb-4">
           Share
         </Typography>
-        {loading ? (
-          <CircularProgress />
-        ) : (
-          <>
-            <div className="border-2 border-carbon">
-              <ShareImage ref={ref} {...shareImageProps} />
-            </div>
-            <div className="flex space-x-4 mt-4">
-              <Button color="carbon" onClick={onDownload}>
-                <DownloadIcon /> Download
-              </Button>
-              <Button color="carbon" onClick={onCopy}>
-                <ContentCopyIcon /> Copy
-              </Button>
-              <Button color="carbon">
-                <a
-                  href={getTwitterIntentURL(
-                    'Latest trade on @dopex_io ',
-                    getShareURL(imageURL)
-                  )}
-                >
-                  <TwitterIcon /> Tweet
-                </a>
-              </Button>
-            </div>
-          </>
-        )}
+        <>
+          <div className="border-2 border-carbon">
+            <ShareImage ref={ref} {...shareImageProps} />
+          </div>
+          {loading ? (
+            <div className="text-white">Uploading image...</div>
+          ) : null}
+          <div className="flex space-x-4 mt-4">
+            <Button color="carbon" onClick={onDownload}>
+              <DownloadIcon /> Download
+            </Button>
+            <Button color="carbon" onClick={onCopy}>
+              <ContentCopyIcon /> Copy
+            </Button>
+            <Button color="carbon" onClick={onTweet}>
+              <TwitterIcon /> Tweet
+            </Button>
+          </div>
+        </>
       </div>
     </Dialog>
   );
