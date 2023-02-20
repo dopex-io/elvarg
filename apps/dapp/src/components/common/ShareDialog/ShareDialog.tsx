@@ -63,7 +63,7 @@ const ShareDialog = (props: ShareDialogProps) => {
         'Latest trade on @dopex_io ',
         getShareURL(
           _imageURL,
-          `https://app.dopex.io${shareImageProps.customPath}`
+          `https://app.dopex.io${shareImageProps.customPath || '/'}`
         )
       ),
       '_blank'

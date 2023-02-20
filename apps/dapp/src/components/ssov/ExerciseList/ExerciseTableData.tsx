@@ -131,9 +131,10 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
               Options
             </Typography>
           ),
-          pnlPercentage: ssovData?.isPut
+          percentage: ssovData?.isPut
             ? getPercentageDifference(tokenPrice, strikePrice)
             : getPercentageDifference(strikePrice, tokenPrice),
+          customPath: '/ssov',
           stats: [
             { name: 'Strike Price', value: formatAmount(strikePrice, 2) },
             { name: 'Mark Price', value: formatAmount(tokenPrice, 2) },
@@ -141,7 +142,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
               name: 'Expiry',
               value: format(
                 (ssovEpochData?.epochTimes[1]?.toNumber() || 0) * 1000,
-                'Do MMM'
+                'do MMM'
               ),
             },
           ],

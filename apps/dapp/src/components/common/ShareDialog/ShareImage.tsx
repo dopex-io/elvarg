@@ -10,7 +10,7 @@ interface StatProps {
 
 export interface ShareImageProps {
   title: ReactNode;
-  pnlPercentage: number;
+  percentage: number;
   customPath?: string;
   stats: StatProps[];
 }
@@ -29,7 +29,7 @@ const Stat = ({ name, value }: StatProps) => {
 };
 
 const ShareImage = (
-  { title, pnlPercentage, stats, customPath = '/' }: ShareImageProps,
+  { title, percentage, stats, customPath = '/' }: ShareImageProps,
   ref: any
 ) => {
   return (
@@ -43,9 +43,9 @@ const ShareImage = (
           <Typography
             variant="h1"
             className="font-mono font-bold text-[48px]"
-            color={pnlPercentage > 0 ? 'up-only' : 'down-bad'}
+            color={percentage > 0 ? 'up-only' : 'down-bad'}
           >
-            {pnlPercentage}%
+            {percentage.toFixed(2)}%
           </Typography>
         </div>
         <div className="self-end justify-end shadow-2xl">
