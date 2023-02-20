@@ -134,8 +134,8 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
             </Typography>
           ),
           percentage: ssovData?.isPut
-            ? getPercentageDifference(tokenPrice, strikePrice)
-            : getPercentageDifference(strikePrice, tokenPrice),
+            ? getPercentageDifference(strikePrice, tokenPrice)
+            : getPercentageDifference(tokenPrice, strikePrice),
           customPath: '/ssov',
           stats: [
             { name: 'Strike Price', value: `$${formatAmount(strikePrice, 2)}` },
