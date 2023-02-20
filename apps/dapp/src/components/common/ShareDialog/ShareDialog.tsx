@@ -78,7 +78,7 @@ const ShareDialog = (props: ShareDialogProps) => {
     toPng(ref.current, { cacheBust: true })
       .then((dataUrl: string) => {
         const link = document.createElement('a');
-        link.download = 'dopex-share.jpeg';
+        link.download = 'dopex-share.png';
         link.href = dataUrl;
         link.click();
       })
