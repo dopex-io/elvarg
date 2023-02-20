@@ -15,6 +15,7 @@ export interface ButtonProps {
   color?: colors;
   size?: "xsmall" | "small" | "medium" | "large";
   variant?: "contained" | "outlined" | "text";
+  onClick?: any;
 }
 
 const SIZE_CLASSES = {
