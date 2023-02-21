@@ -24,6 +24,10 @@ export const getWeb3Modal = () => {
       },
       bitkeep: {
         package: true,
+        display: {
+          name: 'BitKeep Wallet',
+          description: 'Connect to your BitKeep Wallet',
+        },
       },
       ...((window as any).clover && {
         injected: {
