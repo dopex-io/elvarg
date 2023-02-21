@@ -46,9 +46,10 @@ const ShareDialog = (props: ShareDialogProps) => {
         upload_preset: 'rjhw5klp',
         api_key: CLOUDINARY_API_KEY,
       });
-      setImageID(response.public_id.split('share_images/')[1]);
+      const _imageID = response.public_id.split('share_images/')[1];
+      setImageID(_imageID);
       setLoading(false);
-      return response.url;
+      return _imageID;
     }
   }, []);
 
@@ -60,10 +61,7 @@ const ShareDialog = (props: ShareDialogProps) => {
     window.open(
       getTwitterIntentURL(
         'Latest trade on @dopex_io ',
-        getShareURL(
-          _imageID,
-          `https://app.dopex.io${shareImageProps.customPath || '/'}`
-        )
+        getShareURL(_imageID, shareImageProps.customPath || '/')
       ),
       '_blank'
     );
@@ -93,10 +91,7 @@ const ShareDialog = (props: ShareDialogProps) => {
       _imageID = await uploadImage();
     }
     navigator.clipboard.writeText(
-      getShareURL(
-        _imageID,
-        `https://app.dopex.io${shareImageProps.customPath || '/'}`
-      )
+      getShareURL(_imageID, shareImageProps.customPath || '/')
     );
     toast.success('Copied!!! ');
   }, [imageID, uploadImage, shareImageProps.customPath]);
