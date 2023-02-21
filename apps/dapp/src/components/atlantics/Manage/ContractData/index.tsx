@@ -70,9 +70,9 @@ const ContractData = () => {
         3,
         true
       )} ${atlanticPool?.tokens.depositToken}`,
-      durationType: `${
-        atlanticPool.durationType[0]
-      } ${atlanticPool?.durationType.substring(1).toLowerCase()}`,
+      durationType: `${atlanticPool.durationType[0]}${atlanticPool?.durationType
+        .substring(1)
+        .toLowerCase()}`,
     };
   }, [atlanticPool, atlanticPoolEpochData, epochDuration]);
 

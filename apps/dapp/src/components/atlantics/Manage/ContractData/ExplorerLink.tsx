@@ -26,7 +26,7 @@ const ExplorerLink = (props: ArbiscanLinkProps) => {
         href={`${CHAIN_ID_TO_EXPLORER[chainId]}address/${address}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex space-x-2 bg-arbitrum rounded-lg p-2"
+        className="flex space-x-2 bg-[#2D374B] rounded-lg p-2"
       >
         <img
           src={CHAIN_ID_TO_NETWORK_DATA[chainId]?.icon}
