@@ -46,38 +46,35 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
   const formattedBarData = useMemo(() => {
     if (!currentPrice) return;
 
-    const barData = data
-      .map((bar: IBarData) => ({
-        availableCollateral: bar.availableCollateral,
-        unlocked: bar.unlocked,
-        activeCollateral: bar.activeCollateral,
-        strike: bar.strike,
-      }))
-      .filter((bar) => bar.strike.lte(currentPrice));
+    const [barDataLTEMarkPrice, barDataGTMarkPrice] = data.reduce(
+      ([prevLeft, prevRight], curr) =>
+        curr.strike.lte(currentPrice)
+          ? [[...prevLeft, curr], prevRight]
+          : [prevLeft, [...prevRight, curr]],
+      [[] as IBarData[], [] as IBarData[]]
+    );
 
-    const maxStrikeBelowMark = barData[0];
+    const maxStrikeBelowMarkPrice = barDataLTEMarkPrice[0];
 
-    const cumulativeMaxStrikesDataAboveMarkPrice = data
-      .filter((barData) => barData.strike >= currentPrice)
-      .reduce(
-        (prev, curr) => ({
-          availableCollateral:
-            prev.availableCollateral +
-            getUserReadableAmount(curr.availableCollateral, 6),
-          unlocked: prev.unlocked + getUserReadableAmount(curr.unlocked, 6),
-          activeCollateral:
-            prev.activeCollateral +
-            getUserReadableAmount(curr.activeCollateral, 6),
-        }),
-        {
-          availableCollateral: 0,
-          unlocked: 0,
-          activeCollateral: 0,
-        }
-      );
+    const cumulativeMaxStrikesDataAboveMarkPrice = barDataGTMarkPrice.reduce(
+      (prev, curr) => ({
+        availableCollateral:
+          prev.availableCollateral +
+          getUserReadableAmount(curr.availableCollateral, 6),
+        unlocked: prev.unlocked + getUserReadableAmount(curr.unlocked, 6),
+        activeCollateral:
+          prev.activeCollateral +
+          getUserReadableAmount(curr.activeCollateral, 6),
+      }),
+      {
+        availableCollateral: 0,
+        unlocked: 0,
+        activeCollateral: 0,
+      }
+    );
 
-    return barData.map((bar: IBarData) => {
-      if (maxStrikeBelowMark?.strike.eq(bar.strike))
+    return barDataLTEMarkPrice.map((bar: IBarData) => {
+      if (maxStrikeBelowMarkPrice?.strike.eq(bar.strike))
         return {
           availableCollateral:
             getUserReadableAmount(bar.availableCollateral, 6) +
