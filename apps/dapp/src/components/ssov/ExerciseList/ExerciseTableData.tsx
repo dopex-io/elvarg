@@ -234,7 +234,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
                 key="share"
                 onClick={handleShare}
                 className="text-white"
-                disabled={settleableAmount.eq(BigNumber.from(0))}
+                // disabled={settleableAmount.eq(BigNumber.from(0))}
               >
                 Share
               </MenuItem>

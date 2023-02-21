@@ -4,10 +4,10 @@ import Router from 'next/router';
 import { useEffect } from 'react';
 
 const Share = ({
-  imageUrl,
+  imageID,
   redirectTo,
 }: {
-  imageUrl: string;
+  imageID: string;
   redirectTo: string;
 }) => {
   useEffect(() => {
@@ -26,7 +26,7 @@ const Share = ({
           'Trade options and various other option related strategies on-chain',
         images: [
           {
-            url: imageUrl,
+            url: `https://res.cloudinary.com/dxitdndu3/image/upload/share_images/${imageID}.png`,
             width: 800,
             height: 600,
             alt: 'Share Image',
@@ -47,7 +47,7 @@ const Share = ({
 export const getServerSideProps: GetServerSideProps = async (context) => {
   return {
     props: {
-      imageUrl: context.query['imageUrl'],
+      imageID: context.query['imageID'],
       redirectTo: context.query['redirectTo'],
     },
   };
