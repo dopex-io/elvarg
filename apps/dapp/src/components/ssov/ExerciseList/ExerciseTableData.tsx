@@ -18,8 +18,9 @@ import Transfer from './Dialogs/Transfer';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import ShareDialog from 'components/common/ShareDialog/ShareDialog';
 import getPercentageDifference from 'utils/math/getPercentageDifference';
+
+import useShare from 'hooks/useShare';
 
 interface ExerciseTableDataProps {
   strikeIndex: number;
@@ -47,13 +48,13 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   } = props;
 
   const { ssovData, ssovEpochData } = useBoundStore();
+  const share = useShare((state) => state.open);
 
   const [dialogState, setDialogState] = useState({
     open: false,
     type: 'SETTLE',
     ssovData,
   });
-  const [share, setShare] = useState(false);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -81,9 +82,33 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
     [ssovData]
   );
 
-  const handleShare = () => {
-    setShare(true);
-  };
+  const handleShare = useCallback(() => {
+    const tokenPrice = getUserReadableAmount(ssovData?.tokenPrice || 0, 8);
+
+    share({
+      title: (
+        <Typography variant="h4" className="font-bold shadow-2xl">
+          {ssovData?.underlyingSymbol} {ssovData?.isPut ? 'PUT' : 'CALL'}{' '}
+          Options
+        </Typography>
+      ),
+      percentage: ssovData?.isPut
+        ? getPercentageDifference(strikePrice, tokenPrice)
+        : getPercentageDifference(tokenPrice, strikePrice),
+      customPath: '/ssov',
+      stats: [
+        { name: 'Strike Price', value: `$${formatAmount(strikePrice, 2)}` },
+        { name: 'Mark Price', value: `$${formatAmount(tokenPrice, 2)}` },
+        {
+          name: 'Expiry',
+          value: format(
+            (ssovEpochData?.epochTimes[1]?.toNumber() || 0) * 1000,
+            'do MMM'
+          ),
+        },
+      ],
+    });
+  }, [share, ssovData, ssovEpochData, strikePrice]);
 
   const handleClickMenu = useCallback(
     (event: { currentTarget: SetStateAction<HTMLElement | null> }) =>
@@ -117,39 +142,8 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   // @ts-ignore TODO: FIX
   const Dialog = DIALOGS[dialogState.type];
 
-  const tokenPrice = getUserReadableAmount(ssovData?.tokenPrice || 0, 8);
-
   return (
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
-      <ShareDialog
-        open={share}
-        handleClose={() => {
-          setShare(false);
-        }}
-        shareImageProps={{
-          title: (
-            <Typography variant="h4" className="font-bold shadow-2xl">
-              {ssovData?.underlyingSymbol} {ssovData?.isPut ? 'PUT' : 'CALL'}{' '}
-              Options
-            </Typography>
-          ),
-          percentage: ssovData?.isPut
-            ? getPercentageDifference(strikePrice, tokenPrice)
-            : getPercentageDifference(tokenPrice, strikePrice),
-          customPath: '/ssov',
-          stats: [
-            { name: 'Strike Price', value: `$${formatAmount(strikePrice, 2)}` },
-            { name: 'Mark Price', value: `$${formatAmount(tokenPrice, 2)}` },
-            {
-              name: 'Expiry',
-              value: format(
-                (ssovEpochData?.epochTimes[1]?.toNumber() || 0) * 1000,
-                'do MMM'
-              ),
-            },
-          ],
-        }}
-      />
       <Dialog
         open={dialogState.open}
         handleClose={handleClose}

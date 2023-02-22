@@ -20,7 +20,7 @@ import { CLOUDINARY_API_KEY } from 'constants/env';
 
 interface ShareDialogProps {
   open: boolean;
-  handleClose: () => void;
+  handleClose: (e: any, reason: string) => void;
   shareImageProps: ShareImageProps;
 }
 
