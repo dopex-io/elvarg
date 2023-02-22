@@ -8,7 +8,11 @@ type colors =
   | "success"
   | "error";
 
-export interface ButtonProps {
+export interface ButtonProps
+  extends React.DetailedHTMLProps<
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    HTMLButtonElement
+  > {
   children: ReactNode;
   className?: string;
   disabled?: boolean;
@@ -61,6 +65,7 @@ const Button: FC<ButtonProps> = (props) => {
         variant === "outlined" ? `${BORDER_COLORS[color]} border` : ""
       } ${disabled ? "opacity-50" : ""}
       `}
+      disabled={disabled}
       {...otherProps}
     >
       {children}
