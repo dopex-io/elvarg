@@ -43,6 +43,7 @@ interface MenuItemsProps<T extends ItemType> {
   data: T[];
   variant?: dropdownVariants;
   scrollable?: boolean;
+  topElement?: React.ReactNode;
   handleSelection: React.ReactEventHandler<Element>;
 }
 
@@ -54,6 +55,7 @@ const MenuItems: React.FC<MenuItemsProps<ItemType>> = <T extends ItemType>(
     handleSelection,
     variant = "basic",
     scrollable = false,
+    topElement = null,
     ...rest
   } = props;
 
@@ -61,9 +63,10 @@ const MenuItems: React.FC<MenuItemsProps<ItemType>> = <T extends ItemType>(
 
   return (
     <Menu.Items
-      className={`absolute left-50 mt-2 w-56 origin-top-right rounded-lg bg-carbon shadow-lg focus:outline-none`}
+      className={`absolute left-50 mt-2 w-56 origin-top-right rounded-lg bg-carbon shadow-lg focus:outline-none border border-mineshaft`}
       {...rest}
     >
+      {topElement}
       <div
         className={`p-1 border rounded-lg border-carbon min-h-fit ${
           scrollable ? "max-h-32 overflow-auto" : null

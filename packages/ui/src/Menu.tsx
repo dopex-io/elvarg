@@ -11,6 +11,7 @@ interface MenuProps<T> {
   handleSelection: ReactEventHandler;
   dropdownVariant?: dropdownVariants;
   scrollable?: boolean;
+  topElement?: React.ReactNode;
 }
 
 const Menu = <T extends ItemType>(props: MenuProps<T>) => {
@@ -20,6 +21,7 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
     handleSelection,
     dropdownVariant = "basic",
     scrollable = false,
+    topElement = null,
     ...rest
   } = props;
 
@@ -51,6 +53,7 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
           handleSelection={handleSelection}
           variant={dropdownVariant}
           scrollable
+          topElement={topElement}
           {...rest}
         />
       </Transition>
