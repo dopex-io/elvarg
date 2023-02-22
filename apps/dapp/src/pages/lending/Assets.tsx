@@ -21,6 +21,15 @@ import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
 
 import BorrowDialog from './BorrowDialog';
 import LendDialog from './LendDialog';
+import {
+  StyleCell,
+  StyleLeftCell,
+  StyleLeftTableCell,
+  StyleRightCell,
+  StyleRightTableCell,
+  StyleTable,
+  StyleTableCell,
+} from 'components/common/LpCommon/Table';
 
 export const StyleContainer = styled(TableContainer)`
   table {
@@ -65,124 +74,121 @@ const AssetTableData = ({
   const maxApr = max(aprs);
 
   return (
-    <>
-      <StyleRow key={`main-${underlyingSymbol}`}>
-        <TableCell align="left">
-          <a
-            href={`${CHAIN_ID_TO_EXPLORER[assetDatum.chainId]}address/${
-              assetDatum.address
-            }`}
-            rel="noopener noreferrer"
-            target={'_blank'}
-          >
-            <Box className="flex flex-row">
-              <img
-                className="-ml-1 w-7 h-7"
-                src={`/images/tokens/${underlyingSymbol}.svg`}
-                alt={`${underlyingSymbol}`}
-              />
-              <Typography variant="h6" color="white" className="ml-3 my-auto">
-                {underlyingSymbol}
-              </Typography>
-            </Box>
-          </a>
-        </TableCell>
-        <TableCell align="left">
-          <Typography variant="h6" color="white">
-            ${formatAmount(totalSupply, 0, true)}
-          </Typography>
-        </TableCell>
-        <TableCell align="left">
-          <Typography variant="h6" color="white">
-            ${formatAmount(tokenPrice, 2)}
-          </Typography>
-        </TableCell>
-        <TableCell align="left">
-          <Typography variant="h6" color="white">
-            {minApr === 0 && minApr === maxApr
-              ? '-'
-              : `${minApr}% - ${maxApr}%`}
-          </Typography>
-        </TableCell>
-        <TableCell align="right">
-          <CustomButton
-            className="cursor-pointer text-white"
-            onClick={(e) => setAnchorEl(e.currentTarget)}
-          >
-            Borrow
-          </CustomButton>
-          {anchorEl && (
-            <BorrowDialog
-              key={positionIdx}
-              assetDatum={assetDatum}
-              anchorEl={anchorEl}
-              setAnchorEl={setAnchorEl}
+    <TableRow className="text-white bg-cod-gray mb-2 rounded-lg w-full">
+      <StyleLeftCell align="left">
+        <a
+          href={`${CHAIN_ID_TO_EXPLORER[assetDatum.chainId]}address/${
+            assetDatum.address
+          }`}
+          rel="noopener noreferrer"
+          target={'_blank'}
+        >
+          <Box className="flex flex-row">
+            <img
+              className="-ml-1 w-7 h-7"
+              src={`/images/tokens/${underlyingSymbol}.svg`}
+              alt={`${underlyingSymbol}`}
             />
-          )}
-        </TableCell>
-        <TableCell align="right">
-          <CustomButton onClick={(e) => setLendAnchorEl(e.currentTarget)}>
-            Lend
-          </CustomButton>
-          {lendAnchorEl && (
-            <LendDialog
-              key={positionIdx}
-              assetDatum={assetDatum}
-              anchorEl={lendAnchorEl}
-              setAnchorEl={setLendAnchorEl}
-            />
-          )}
-        </TableCell>
-      </StyleRow>
-    </>
+            <Typography variant="h6" className="ml-3 my-auto">
+              {underlyingSymbol}
+            </Typography>
+          </Box>
+        </a>
+      </StyleLeftCell>
+      <StyleCell align="left">
+        <Typography variant="h6">
+          ${formatAmount(totalSupply, 0, true)}
+        </Typography>
+      </StyleCell>
+      <StyleCell align="left">
+        <Typography variant="h6">${formatAmount(tokenPrice, 2)}</Typography>
+      </StyleCell>
+      <StyleCell align="left">
+        <Typography variant="h6">
+          {minApr === 0 && minApr === maxApr ? '-' : `${minApr}% - ${maxApr}%`}
+        </Typography>
+      </StyleCell>
+      <StyleCell align="right">
+        <CustomButton
+          className="cursor-pointer text-white"
+          onClick={(e) => setAnchorEl(e.currentTarget)}
+        >
+          Borrow
+        </CustomButton>
+        {anchorEl && (
+          <BorrowDialog
+            key={positionIdx}
+            assetDatum={assetDatum}
+            anchorEl={anchorEl}
+            setAnchorEl={setAnchorEl}
+          />
+        )}
+      </StyleCell>
+      <StyleRightCell align="right">
+        <CustomButton onClick={(e) => setLendAnchorEl(e.currentTarget)}>
+          Lend
+        </CustomButton>
+        {lendAnchorEl && (
+          <LendDialog
+            key={positionIdx}
+            assetDatum={assetDatum}
+            anchorEl={lendAnchorEl}
+            setAnchorEl={setLendAnchorEl}
+          />
+        )}
+      </StyleRightCell>
+    </TableRow>
   );
 };
 
 export const Assets = ({ data }: { data: any[] }) => {
   return (
     <>
-      <Typography variant="h4" color="white" className="mb-2">
-        Assets
+      <Typography variant="h4" className="mb-2">
+        Markets
       </Typography>
-      <Box className="bg-cod-gray px-2 mt-2 border-radius rounded-lg">
-        <StyleContainer>
-          <Table>
-            <TableHead className="bg-cod-gray">
-              <TableRow>
-                <TableCell align="left" className="border-none">
-                  <Typography variant="h6" color="stieglitz">
-                    Collateral Asset
-                  </Typography>
-                </TableCell>
-                <TableCell align="left" className="border-none">
-                  <Typography variant="h6" color="stieglitz">
-                    Total Supply
-                  </Typography>
-                </TableCell>
-                <TableCell align="left" className="border-none">
-                  <Typography variant="h6" color="stieglitz">
-                    Price
-                  </Typography>
-                </TableCell>
-                <TableCell align="left" className="border-none">
-                  <Typography variant="h6" color="stieglitz">
-                    Borrow APR
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            </TableHead>
+      <StyleTable className="py-2">
+        <Table>
+          <TableHead className="bg-cod-gray">
+            <TableRow>
+              <StyleLeftTableCell align="left">
+                <Typography variant="h6" color="stieglitz">
+                  Asset
+                </Typography>
+              </StyleLeftTableCell>
+              <StyleTableCell align="left">
+                <Typography variant="h6" color="stieglitz">
+                  Total Supply
+                </Typography>
+              </StyleTableCell>
+              <StyleTableCell align="left">
+                <Typography variant="h6" color="stieglitz">
+                  Price
+                </Typography>
+              </StyleTableCell>
+              <StyleTableCell align="left">
+                <Typography variant="h6" color="stieglitz">
+                  Borrow APR
+                </Typography>
+              </StyleTableCell>
+              <StyleTableCell align="left"></StyleTableCell>
+              <StyleRightTableCell
+                align="right"
+                className="border-none"
+              ></StyleRightTableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody className="rounded-lg bg-umbra">
             {data.map((assetDatum, idx) => (
-              <TableBody key={idx} className="rounded-lg bg-umbra">
-                <AssetTableData
-                  key={idx}
-                  positionIdx={idx}
-                  assetDatum={assetDatum}
-                />
-              </TableBody>
+              <AssetTableData
+                key={idx}
+                positionIdx={idx}
+                assetDatum={assetDatum}
+              />
             ))}
-          </Table>
-        </StyleContainer>
-      </Box>
+          </TableBody>
+        </Table>
+      </StyleTable>
     </>
   );
 };

@@ -28,8 +28,18 @@ import {
   ROWS_PER_PAGE,
 } from 'constants/index';
 
-import { StyleContainer, StyleRow } from './Assets';
 import RepayDialog from './RepayDialog';
+import {
+  BodyCell,
+  StyleCell,
+  StyleLeftCell,
+  StyleLeftTableCell,
+  StyleRightCell,
+  StyleRightTableCell,
+  StyleTable,
+  StyleTableCell,
+} from 'components/common/LpCommon/Table';
+import { StyleContainer } from './Assets';
 
 interface IDebtPositionTableData {
   selectedIndex: number;
@@ -44,8 +54,8 @@ const DebtPositionTableData = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   return (
-    <StyleRow>
-      <TableCell align="left">
+    <TableRow className="text-white bg-cod-gray mb-2 rounded-lg w-full">
+      <StyleLeftCell align="left">
         <Box className="flex flex-row">
           <img
             className="-ml-1 w-7 h-7"
@@ -56,27 +66,19 @@ const DebtPositionTableData = ({
             {underlyingSymbol}
           </Typography>
         </Box>
-      </TableCell>
-      <TableCell align="left">
-        <Typography variant="h6">{epoch}</Typography>
-      </TableCell>
-      <TableCell align="left">
-        <Typography variant="h6">
-          ${formatAmount(getUserReadableAmount(strike, DECIMALS_STRIKE), 2)}
-        </Typography>
-      </TableCell>
-      <TableCell align="left">
+      </StyleLeftCell>
+      <StyleCell align="left">
         <Typography variant="h6">
           {formatAmount(getUserReadableAmount(supplied, DECIMALS_TOKEN), 2)}{' '}
           {underlyingSymbol}
         </Typography>
-      </TableCell>
-      <TableCell align="left">
+      </StyleCell>
+      <StyleCell align="left">
         <Typography variant="h6">
           {formatAmount(getUserReadableAmount(borrowed, DECIMALS_TOKEN))} 2CRV
         </Typography>
-      </TableCell>
-      <TableCell align="right">
+      </StyleCell>
+      <StyleRightCell align="right">
         <CustomButton
           className="cursor-pointer text-white"
           color="primary"
@@ -92,8 +94,8 @@ const DebtPositionTableData = ({
             debt={debt}
           />
         )}
-      </TableCell>
-    </StyleRow>
+      </StyleRightCell>
+    </TableRow>
   );
 };
 
@@ -127,64 +129,60 @@ export const DebtPositions = () => {
   }, [userDebtPositions]);
 
   return (
-    <>
+    <Box className="flex flex-col w-full">
       <Typography variant="h4" color="white" className="my-2 mb-4">
         Debt Positions
       </Typography>
-      <Box className="bg-cod-gray px-2 mt-2 border-radius rounded-lg">
-        <StyleContainer>
-          {isEmpty(userDebtPositions) ? (
-            <Box className="text-stieglitz text-center p-10">
-              Your debt positions will appear here.
-            </Box>
-          ) : (
+      {/* className="bg-cod-gray px-2 mt-2 border-radius rounded-lg w-full" */}
+      <Box>
+        {isEmpty(userDebtPositions) ? (
+          <Box className="text-stieglitz text-center p-10">
+            Your debt positions will appear here.
+          </Box>
+        ) : (
+          <StyleTable className="py-2">
             <Table>
-              <TableHead>
+              <TableHead className="bg-cod-gray">
                 <TableRow>
-                  <TableCell align="left" className="border-none">
+                  <StyleLeftTableCell align="left">
                     <Typography variant="h6" color="stieglitz">
-                      Collateral Asset
+                      Asset
                     </Typography>
-                  </TableCell>
-                  <TableCell align="left" className="border-none">
+                  </StyleLeftTableCell>
+                  <StyleTableCell align="left" className="border-none">
                     <Typography variant="h6" color="stieglitz">
-                      Epoch
+                      Liquidity Available
                     </Typography>
-                  </TableCell>
-                  <TableCell align="left" className="border-none">
-                    <Typography variant="h6" color="stieglitz">
-                      Strike
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="left" className="border-none">
+                  </StyleTableCell>
+                  <StyleTableCell align="left" className="border-none">
                     <Typography variant="h6" color="stieglitz">
                       Supplied
                     </Typography>
-                  </TableCell>
-                  <TableCell align="left" className="border-none">
+                  </StyleTableCell>
+                  <StyleRightTableCell align="right" className="border-none">
                     <Typography variant="h6" color="stieglitz">
-                      Borrowed
+                      Action
                     </Typography>
-                  </TableCell>
+                  </StyleRightTableCell>
                 </TableRow>
               </TableHead>
-              {debts
-                .slice(
-                  page * ROWS_PER_PAGE,
-                  page * ROWS_PER_PAGE + ROWS_PER_PAGE
-                )
-                ?.map((debt: IDebtPositionTableData, i: number) => (
-                  <TableBody key={i} className="rounded-lg bg-umbra">
+              <TableBody className="rounded-lg bg-umbra w-full">
+                {debts
+                  .slice(
+                    page * ROWS_PER_PAGE,
+                    page * ROWS_PER_PAGE + ROWS_PER_PAGE
+                  )
+                  ?.map((debt: IDebtPositionTableData, i: number) => (
                     <DebtPositionTableData
                       key={i}
                       selectedIndex={i}
                       debt={debt.debt}
                     />
-                  </TableBody>
-                ))}
+                  ))}
+              </TableBody>
             </Table>
-          )}
-        </StyleContainer>
+          </StyleTable>
+        )}
         {userDebtPositions.length > ROWS_PER_PAGE ? (
           <TablePagination
             component="div"
@@ -199,6 +197,6 @@ export const DebtPositions = () => {
           />
         ) : null}
       </Box>
-    </>
+    </Box>
   );
 };

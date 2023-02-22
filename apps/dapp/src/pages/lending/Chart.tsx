@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
+  Area,
+  AreaChart,
   ResponsiveContainer,
-  Bar,
-  BarChart,
-  Tooltip as RechartsTooltip,
-  Cell,
+  Tooltip,
+  // Tooltip,
+  YAxis,
 } from 'recharts';
-import { format } from 'date-fns';
 import Box from '@mui/material/Box';
 
 import { LendingStats } from 'store/Vault/lending';
@@ -14,11 +14,28 @@ import { LendingStats } from 'store/Vault/lending';
 import Typography from 'components/UI/Typography';
 
 import { formatAmount } from 'utils/general';
+import { getReadableTime } from 'utils/contracts';
 
-const loanTypeToColor: Record<string, string> = {
-  Borrowing: '#22E1FF',
-  Collateral: '#002EFF',
-};
+// TODO: remove
+const fakeData = [
+  { loanAmount: 1000000, timestamp: 1675175442 },
+  { loanAmount: 2000000, timestamp: 1675175442 },
+  { loanAmount: 3000000, timestamp: 1675175442 },
+  { loanAmount: 4000000, timestamp: 1675175442 },
+  { loanAmount: 5000000, timestamp: 1675175442 },
+  { loanAmount: 6000000, timestamp: 1675175442 },
+  { loanAmount: 7000000, timestamp: 1675175442 },
+  { loanAmount: 6000000, timestamp: 1675175442 },
+  { loanAmount: 5000000, timestamp: 1675175442 },
+  { loanAmount: 6000000, timestamp: 1675175442 },
+  { loanAmount: 7000000, timestamp: 1675175442 },
+  { loanAmount: 8000000, timestamp: 1675175442 },
+  { loanAmount: 9000000, timestamp: 1675175442 },
+  { loanAmount: 7000000, timestamp: 1675175442 },
+  { loanAmount: 5000000, timestamp: 1675175442 },
+  { loanAmount: 6000000, timestamp: 1675175442 },
+  9,
+];
 
 interface ChartProps {
   loanType: 'Borrowing' | 'Collateral';
@@ -28,89 +45,56 @@ interface ChartProps {
 
 const CustomizedTooltip = ({ active, payload }: any) => {
   return active && payload && payload.length ? (
-    <>
-      <Box className="flex flex-col items-center border-transparent">
-        <Typography variant="h5" className="-mt-1">
+    <Box className="flex flex-col border border-cod-gray p-3 rounded-lg bg-cod-gray w-36 bg-opacity-50">
+      <Typography variant="h4" color="stieglitz">
+        {/* {format(new Date(payload[0].payload.timestamp * 1000), 'LLL d')} */}
+        {getReadableTime(payload[0].payload.timestamp)}
+      </Typography>
+      <div className="flex justify-between">
+        <Typography variant="h4" color="stieglitz">
+          TVL
+        </Typography>
+        <Typography variant="h4">
           ${formatAmount(payload[0].payload.loanAmount, 0, true)}
         </Typography>
-        <Typography variant="h5" className="-mt-1">
-          {format(new Date(payload[0].payload.timestamp * 1000), 'LLL d')}
-        </Typography>
-      </Box>
-    </>
+      </div>
+    </Box>
   ) : null;
 };
 
 export const Chart = (props: ChartProps) => {
   const { loanType, stats, totalLoan } = props;
 
-  const [focusBar, setFocusBar] = useState<number>(-1);
-  const [toolTipYPosition, setToolTipYPosition] = useState<number>(0);
-  const [toolTipXPosition, setToolTipXPosition] = useState<number>(0);
-
-  useEffect(() => {
-    const barCharts = document.querySelectorAll('.recharts-bar-rectangle');
-    if (!barCharts || !focusBar) return;
-    const barChart = barCharts[focusBar]!;
-    setToolTipYPosition(barChart?.getBoundingClientRect().height);
-    setToolTipXPosition(barChart?.getBoundingClientRect().width);
-  }, [focusBar]);
-
   return (
     <Box key={`${loanType}-box`}>
-      <Typography
-        key={`${loanType}-text`}
-        variant="h3"
-        color={loanType === 'Collateral' ? 'primary' : 'wave-blue'}
-      >
+      <Typography key={`${loanType}-amount`} variant="h4">
+        $ {formatAmount(totalLoan, 2, true)}
+      </Typography>
+      <Typography key={`${loanType}-text`} variant="h4" color="stieglitz">
         Total {loanType}
       </Typography>
-      <Typography key={`${loanType}-amount`} variant="h1" className="mb-5">
-        ${formatAmount(totalLoan, 2, true)}
-      </Typography>
-      <ResponsiveContainer aspect={2.5} width={480}>
-        <BarChart
-          barCategoryGap={1}
-          data={stats}
-          margin={{
-            top: 0,
-            right: 0,
-            left: 0,
-            bottom: 0,
-          }}
-          onMouseMove={(state) => {
-            if (state.isTooltipActive) {
-              setFocusBar(state.activeTooltipIndex!);
-            } else {
-              setFocusBar(-1);
-            }
-          }}
-          onMouseLeave={() => setFocusBar(-1)}
-        >
-          <RechartsTooltip
+      <ResponsiveContainer width={650} height="60%" className="my-3">
+        <AreaChart data={fakeData}>
+          <Tooltip
             cursor={false}
-            position={{
-              y: toolTipYPosition,
-              x: focusBar * toolTipXPosition,
-            }}
-            offset={-100}
-            content={<CustomizedTooltip payload={stats} />}
             wrapperStyle={{ outline: 'none' }}
-            allowEscapeViewBox={{ x: true }}
+            content={<CustomizedTooltip payload={fakeData} />}
           />
-          <Bar dataKey="loanAmount" radius={[2, 2, 0, 0]}>
-            {[...Array(stats.length).keys()].map((index) => (
-              <>
-                <Cell
-                  key={`cell-${loanType}-${index}`}
-                  fill={
-                    focusBar === index ? loanTypeToColor[loanType] : '#3E3E3E'
-                  }
-                />
-              </>
-            ))}
-          </Bar>
-        </BarChart>
+          <YAxis type="number" domain={['dataMin', 'dataMax']} hide />
+          <defs>
+            <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0.5%" stopColor="#002eff" stopOpacity={0.8} />
+              <stop offset="99.5%" stopColor="#22e1ff" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <Area
+            className="blur-[2px]"
+            type="monotone"
+            dataKey="loanAmount"
+            stroke="#22e1ff"
+            fill="url(#colorUv)"
+          />
+        </AreaChart>
       </ResponsiveContainer>
     </Box>
   );
