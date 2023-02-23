@@ -53,6 +53,7 @@ export default function BorrowDialog({
     BigNumber.from(0)
   );
   const [borrowAmount, setBorrowAmount] = useState<string | number>(0);
+  const [borrowAmountUsd, setBorrowAmountUsd] = useState<string | number>(0);
   const [optionApproved, setOptionApproved] = useState<boolean>(false);
   const [optionBalance, setOptionBalance] = useState<BigNumber>(
     BigNumber.from(0)
@@ -155,7 +156,7 @@ export default function BorrowDialog({
 
   const handleDepositAmount = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) =>
-      setBorrowAmount(e.target.value),
+      setBorrowAmountUsd(e.target.value),
     []
   );
 
@@ -167,16 +168,22 @@ export default function BorrowDialog({
     (Number(borrowAmount) * assetDatum?.strikes[strikeIndex]!) /
     assetDatum.tokenPrice;
 
+  const collatToDeposit =
+    (Number(borrowAmountUsd) * assetDatum.tokenPrice) /
+    assetDatum?.strikes[strikeIndex]!;
+
   const optionTokenSymbol = `${
     assetDatum.underlyingSymbol
   }-${assetDatum.strikes[strikeIndex]?.toString()}-P`;
 
   const borrowAmountValid =
-    borrowAmount > 0 &&
+    borrowAmountUsd > 0 &&
     underlyingBalance.gt(
-      getContractReadableAmount(borrowAmount, DECIMALS_TOKEN)
+      getContractReadableAmount(collatToDeposit, DECIMALS_TOKEN)
     ) &&
-    optionBalance.gt(getContractReadableAmount(borrowAmount, DECIMALS_TOKEN));
+    optionBalance.gt(
+      getContractReadableAmount(collatToDeposit, DECIMALS_TOKEN)
+    );
 
   return (
     <Dialog
@@ -194,9 +201,7 @@ export default function BorrowDialog({
       <Box className="bg-cod-gray rounded-xl">
         <Box className="flex flex-col mb-2">
           <Box className="flex justify-between items-center">
-            <Typography variant="h4" className="mb-2">
-              Borrow
-            </Typography>
+            <Typography variant="h5">Borrow</Typography>
             <a
               href={`/ssov/${assetDatum.symbol}`}
               rel="noopener noreferrer"
@@ -229,6 +234,8 @@ export default function BorrowDialog({
               underlyingBalance={underlyingBalance}
               usdToReceive={usdToReceive}
               totalSupply={assetDatum?.totalSupply}
+              collatToDeposit={collatToDeposit}
+              borrowAmountUsd={borrowAmountUsd}
             />
           </Box>
           <Box className="rounded-xl bg-umbra pl-1 pr-2 mt-1 space-y-1">
@@ -270,7 +277,7 @@ export default function BorrowDialog({
             }
           >
             {underlyingApproved && optionApproved
-              ? borrowAmount == 0
+              ? borrowAmountUsd == 0
                 ? 'Insert an amount'
                 : !borrowAmountValid
                 ? 'Invalid borrow amount'
