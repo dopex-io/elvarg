@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { formatDistance } from 'date-fns';
 import TableContainer from '@mui/material/TableContainer';
 import Table from '@mui/material/Table';
@@ -8,6 +14,12 @@ import TableBody from '@mui/material/TableBody';
 import TableCell, { TableCellProps } from '@mui/material/TableCell';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import CheckIcon from '@mui/icons-material/Check';
+import ClearIcon from '@mui/icons-material/Clear';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
@@ -79,6 +91,7 @@ const UserDepositsTable = () => {
 
   const [canWithdraw, setCanWithdraw] = useState<boolean>(false);
   const [epochDuration, setEpochDuration] = useState<string>('0');
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const sendTx = useSendTx();
 
@@ -128,6 +141,39 @@ const UserDepositsTable = () => {
       underlying: 18,
     };
   }, [atlanticPoolEpochData]);
+
+  const handleMenuClick = useCallback(
+    (event: { currentTarget: SetStateAction<HTMLElement | null> }) =>
+      setAnchorEl(event.currentTarget),
+    []
+  );
+  const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
+
+  const handleToggleRollover = useCallback(
+    async (depositId: number | undefined) => {
+      console.log(atlanticPool, accountAddress, depositId, signer);
+      if (!atlanticPool || !accountAddress || !depositId || !signer) return;
+
+      try {
+        const apContract = atlanticPool.contracts.atlanticPool.connect(signer);
+        const { rollover } =
+          await atlanticPool.contracts.atlanticPool.getDepositPosition(
+            depositId
+          );
+
+        atlanticPool.contracts.atlanticPool.setDepositRollover;
+        await sendTx(apContract, 'setDepositRollover', [
+          depositId,
+          !rollover,
+        ]).then(() => {
+          updateUserPositions();
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    [accountAddress, atlanticPool, sendTx, signer, updateUserPositions]
+  );
 
   const handleWithdraw = useCallback(
     async (depositId: number) => {
@@ -182,14 +228,13 @@ const UserDepositsTable = () => {
           <TableRow>
             <TableHeader width="w-1/6">Max Strike</TableHeader>
             <TableHeader>Liquidity</TableHeader>
-            <TableHeader width="w-1/6">Premia Earned</TableHeader>
-            <TableHeader width="w-1/6">Funding Earned</TableHeader>
-            <TableHeader width="w-1/6">
-              {atlanticPool?.tokens.underlying} Collected
-            </TableHeader>
+            <TableHeader width="w-1/6">Premia</TableHeader>
+            <TableHeader width="w-1/6">Funding</TableHeader>
+            <TableHeader width="w-1/6">Unwinds</TableHeader>
             <TableHeader>APY</TableHeader>
+            <TableHeader>Rollover</TableHeader>
             <TableHeader align="right" width="w-1/6">
-              Settle
+              Manage
             </TableHeader>
           </TableRow>
         </TableHead>
@@ -211,7 +256,7 @@ const UserDepositsTable = () => {
                     ),
                     3,
                     true
-                  )}{' '}
+                  )}
                 </Typography>
               </TableBodyCell>
               <TableBodyCell>
@@ -258,28 +303,69 @@ const UserDepositsTable = () => {
                   {formatAmount(position.apy, 8, true) + '%'}
                 </Typography>
               </TableBodyCell>
-              <TableBodyCell align="right">
-                <CustomButton
-                  onClick={async () => {
-                    await handleWithdraw(position.depositId!);
-                  }}
-                  disabled={!canWithdraw}
-                  color={!canWithdraw ? 'mineshaft' : 'primary'}
-                  className="rounded-md"
-                >
-                  {canWithdraw ? (
-                    <Typography variant="h6" className="my-auto">
-                      Withdraw
-                    </Typography>
+              <TableBodyCell>
+                <Typography className="text-center" variant="h6">
+                  {position.rollover ? (
+                    <CheckIcon className="fill-current text-green-600" />
                   ) : (
-                    <>
-                      <AlarmIcon fill="#8E8E8E" />
-                      <Typography variant="h6" className="ml-2">
-                        {epochDuration}
-                      </Typography>
-                    </>
+                    <ClearIcon className="fill-current text-red-600" />
                   )}
-                </CustomButton>
+                </Typography>
+              </TableBodyCell>
+              <TableBodyCell align="right">
+                <Box className="flex">
+                  <CustomButton
+                    onClick={async () => {
+                      await handleWithdraw(position.depositId!);
+                    }}
+                    disabled={!canWithdraw}
+                    color={!canWithdraw ? 'mineshaft' : 'primary'}
+                    className="rounded-md"
+                  >
+                    {canWithdraw ? (
+                      <Typography variant="h6" className="my-auto">
+                        Withdraw
+                      </Typography>
+                    ) : (
+                      <>
+                        <AlarmIcon fill="#8E8E8E" />
+                        <Typography variant="h6" className="ml-2">
+                          {epochDuration}
+                        </Typography>
+                      </>
+                    )}
+                  </CustomButton>
+                  <IconButton
+                    aria-label="more"
+                    aria-controls="long-menu"
+                    aria-haspopup="true"
+                    onClick={handleMenuClick}
+                    className="long-menu rounded-md bg-mineshaft mx-1 p-0 hover:bg-opacity-80 hover:bg-mineshaft flex"
+                    size="large"
+                  >
+                    <MoreVertIcon className="fill-current text-white" />
+                  </IconButton>
+                  <Box>
+                    <Menu
+                      anchorEl={anchorEl}
+                      open={Boolean(anchorEl)}
+                      onClose={handleCloseMenu}
+                      classes={{ paper: 'bg-umbra' }}
+                    >
+                      <MenuItem
+                        key="transfer-options"
+                        onClick={async () => {
+                          await handleToggleRollover(position.depositId);
+                        }}
+                        className="text-white"
+                      >
+                        {position.rollover
+                          ? 'Disable Rollover'
+                          : 'Enable Rollover'}
+                      </MenuItem>
+                    </Menu>
+                  </Box>
+                </Box>
               </TableBodyCell>
             </TableRow>
           ))}
