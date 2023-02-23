@@ -1,6 +1,6 @@
-# DApp
+# Elvarg
 
-The Dopex DApp, currently hosted on https://app.dopex.io
+The Dopex frontend monorepo
 
 ## Getting started
 
@@ -8,7 +8,7 @@ The Dopex DApp, currently hosted on https://app.dopex.io
 
 Please have these installed on your machine:
 
-- [Node.js 14+](https://nodejs.org/)
+- [Node.js 16+](https://nodejs.org/)
 - [Yarn v1](https://classic.yarnpkg.com/lang/)
 
 ### Install dependencies:
@@ -17,18 +17,116 @@ Please have these installed on your machine:
 yarn
 ```
 
-To start the DApp you also need to setup an additional .env.local file:
-
-It should look like the [`.env.example`](/.env.example)
-
-Then you can proceed to start the app:
+### Install `turbo` globally:
 
 ```
-yarn start
+yarn global add turbo
 ```
 
-To build the App:
+### Turbo pipeline commands
+
+`dev` - Runs the dapp in dev mode
+
+Via yarn:
+
+```
+yarn dev
+```
+
+Via turbo:
+
+```
+turbo dev
+```
+
+`build` - Builds the dapp
+
+Via yarn:
 
 ```
 yarn build
 ```
+
+Via turbo:
+
+```
+turbo build
+```
+
+`storybook` - Run the storybook in dev mode
+
+Via yarn:
+
+```
+yarn storybook
+```
+
+Via turbo:
+
+```
+turbo storybook
+```
+
+`lint` - Runs linting
+
+Via yarn:
+
+```
+yarn lint
+```
+
+Via turbo:
+
+```
+turbo lint
+```
+
+`generate` - Runs the graphql codegen in dapp
+
+Via yarn:
+
+```
+yarn generate
+```
+
+Via turbo:
+
+```
+turbo generate
+```
+
+`build-ui` - Builds the UI package
+
+Via yarn:
+
+```
+yarn build-ui
+```
+
+Via turbo:
+
+```
+turbo build-ui
+```
+
+`build-storybook` - Builds the storybook
+
+Via yarn:
+
+```
+yarn build-storybook
+```
+
+Via turbo:
+
+```
+turbo build-storybook
+```
+
+### Installing dependencies into a workspace
+
+Since this is a monorepo configured via yarn workspaces adding dependencies to a workspace should be done in the following manner - https://turbo.build/repo/docs/handbook/package-installation#addingremovingupgrading-packages
+
+### Starting individual workspaces
+
+Look into the specific README of the workspace to begin.
