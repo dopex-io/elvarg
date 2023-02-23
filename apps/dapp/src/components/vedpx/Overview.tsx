@@ -11,7 +11,7 @@ import { useBoundStore } from 'store';
 
 import formatAmount from 'utils/general/formatAmount';
 
-import { DOPEX_API_BASE_URL } from 'constants/index';
+import { DOPEX_API_BASE_URL } from 'constants/env';
 
 const Overview = () => {
   const { vedpxData: data } = useBoundStore();

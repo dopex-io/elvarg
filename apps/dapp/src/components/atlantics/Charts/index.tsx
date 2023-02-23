@@ -39,7 +39,8 @@ interface IPoolData {
 
 const Charts = (props: ChartsProps) => {
   const { line_data, underlying, collateral, title, type } = props;
-  const { accountAddress, atlanticPoolEpochData, connect } = useBoundStore();
+  const { accountAddress, atlanticPool, atlanticPoolEpochData, connect } =
+    useBoundStore();
 
   const handleWalletConnect = useCallback(() => {
     connect && connect();
@@ -94,7 +95,7 @@ const Charts = (props: ChartsProps) => {
   }, [accountAddress, atlanticPoolEpochData]);
 
   const renderComponent = useMemo(() => {
-    if (!poolData) return;
+    if (!poolData || !atlanticPool || !atlanticPool.underlyingPrice) return;
     if (poolData.type === 'connect')
       return (
         <Box className="p-3 items-center text-center my-auto">
@@ -113,12 +114,21 @@ const Charts = (props: ChartsProps) => {
       return (
         <ClientRenderedBarGraph
           data={poolData.data as IPoolData[]}
+          currentPrice={atlanticPool?.underlyingPrice}
           width={900}
           height={180}
           header={{ underlying, collateral, title, type }}
         />
       );
-  }, [collateral, handleWalletConnect, poolData, title, type, underlying]);
+  }, [
+    atlanticPool,
+    collateral,
+    handleWalletConnect,
+    poolData,
+    title,
+    type,
+    underlying,
+  ]);
 
   // const lineData = useMemo(() => {}, []);
 

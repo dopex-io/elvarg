@@ -27,7 +27,10 @@ const Stats = () => {
     straddlesEpochData,
     updateStraddlesEpochData,
     straddlesData,
+    tokenPrices,
   } = useBoundStore();
+
+  console.log(tokenPrices);
 
   const currentEpoch = straddlesData?.currentEpoch || 0;
 
@@ -262,6 +265,28 @@ const Stats = () => {
           )}
         </Typography>
       </Box>
+      {straddlesData?.underlying ===
+      '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270' ? (
+        <Box className="flex justify-between lg:border-r lg:border-b-0 border-r-0 border-carbon p-2">
+          <Typography variant="h6" color="wave-blue">
+            Reward APR
+          </Typography>
+          <Typography variant="h6" color="wave-blue">
+            ~
+            {formatAmount(
+              ((1526 *
+                Number(
+                  tokenPrices.find((item) => item.name === 'MATIC')?.price
+                ) *
+                100) /
+                getUserReadableAmount(straddlesEpochData?.usdDeposits!, 6)) *
+                182.5,
+              2
+            )}
+            %
+          </Typography>
+        </Box>
+      ) : null}
       {getSettlementDisplay()}
     </Box>
   );

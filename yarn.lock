@@ -1595,10 +1595,10 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz#1d572bfbbe14b7704e0ba0f39b74815b84870d70"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
-"@dopex-io/sdk@^1.0.0-beta.44":
-  version "1.0.0-beta.44"
-  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-beta.44.tgz#c164997ba7d9e67e1ba6bca9fc75e7a2eb57c4e8"
-  integrity sha512-YaRD2Oh0l3s1FZ1QwQ2eQTsW5pywvcjzmTgxkUMwwNHp7GQn0T348WQ4EhcezG8/fsnoqR4kdA+G8QEhJe4MUQ==
+"@dopex-io/sdk@^1.0.0-beta.46":
+  version "1.0.0-beta.46"
+  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-beta.46.tgz#2fc7aa8f024ee43e9e59f9a8ce42f568a4802abb"
+  integrity sha512-CO2G/SOeqbcv+av5Z0rCAOtzTS4ysQNMMd7fyR9Ad5CICvzl/XLTZXatAbghIjaxHCi0LjHhAMOLqBHOX+QnEw==
 
 "@emotion/babel-plugin@^11.10.5":
   version "11.10.5"
