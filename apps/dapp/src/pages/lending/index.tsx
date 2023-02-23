@@ -11,6 +11,7 @@ import { Chart } from './Chart';
 import { Assets } from './Assets';
 import { DebtPositions } from './DebtPositions';
 import { Typography } from 'components/UI';
+import { LendingPositions } from './LendingPositions';
 
 const LENDING_INTRO: string =
   'https://blog.dopex.io/articles/product-launches-updates/Option-Liquidity-Pools-Walkthrough';
@@ -55,7 +56,7 @@ const Lending = () => {
             </a>
           </Box>
         </Box>
-        <div className="flex flex-row justify-between">
+        <div className="flex mt-2 flex-col space-x-0 space-y-6 lg:flex-row lg:space-x-6 lg:space-y-0">
           <Chart
             key={'Collateral'}
             loanType={'Collateral'}
@@ -84,7 +85,7 @@ const Lending = () => {
         </div>
         <div className="mt-8 flex justify-between gap-4 md:flex-row sm:flex-col">
           <DebtPositions />
-          <DebtPositions />
+          <LendingPositions />
         </div>
       </Box>
     </Box>

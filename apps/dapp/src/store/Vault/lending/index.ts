@@ -33,18 +33,29 @@ export interface IRawDebtPosition {
   id: number;
   expiry: number;
   epoch: number;
-  strike: string;
+  strike: number;
   supplied: string;
   borrowed: string;
+}
+
+export interface IRawSsovPosition {
+  epoch: number;
+  strike: number;
+  collateralAmount: string;
 }
 
 export interface IDebtPosition extends IRawDebtPosition {
   underlyingSymbol: string;
 }
 
+export interface ISsovPosition extends IRawSsovPosition {
+  underlyingSymbol: string;
+}
+
 export interface SsovLendingSlice {
   // getSsovLendingContract: Function;
   userDebtPositions: (IDebtPosition | null)[];
+  userSsovPositions: (ISsovPosition | null)[];
   getSsovLending: Function;
   // updateSsovLendingStats: Function;
   lendingData: ISsovLendingData[];
@@ -99,6 +110,30 @@ export const createSsovLending: StateCreator<
       })
     );
 
+    const ssovPositions = await Promise.all(
+      lendingData.map(async (asset) => {
+        const { underlyingSymbol } = asset;
+        return await axios
+          .get(
+            `${lendingUrl}/deposits?symbol=${underlyingSymbol.toLowerCase()}&owner=${accountAddress}`
+          )
+          .then((payload) => {
+            const rawPositions: IRawSsovPosition[] = payload.data.debts;
+            return rawPositions.map(
+              (pos) =>
+                ({
+                  ...pos,
+                  underlyingSymbol: underlyingSymbol,
+                } as ISsovPosition)
+            );
+          })
+          .catch((err) => {
+            console.log(err);
+            return null;
+          });
+      })
+    );
+
     const { totalCollatTvl, totalBorrowingTvl } = await axios
       .get(`${lendingUrl}/tvl`)
       .then((payload) => payload.data)
@@ -109,33 +144,7 @@ export const createSsovLending: StateCreator<
     //   .then((payload) => payload.data)
     //   .catch((err) => console.log(err));
 
-    const mockLendingStats = `
-      {
-        "data": [
-          {
-            "totalSupply": 674529,
-            "totalBorrow": 674529,
-            "timestamp": 1675038259
-          },
-          {
-            "totalSupply": 709672,
-            "totalBorrow": 709672,
-            "timestamp": 1675175442
-          },
-          {
-            "totalSupply": 714649,
-            "totalBorrow": 714649,
-            "timestamp": 1675256169
-          },
-          {
-            "totalSupply": 813687,
-            "totalBorrow": 813687,
-            "timestamp": 1675305088
-          }
-        ]
-      }
-    `;
-    const lendingStats: LendingStats[] = JSON.parse(mockLendingStats).data;
+    const lendingStats: LendingStats[] = [];
 
     const assetToContractAddress = new Map();
     lendingData.forEach((asset: ISsovLendingData) => {
@@ -147,12 +156,14 @@ export const createSsovLending: StateCreator<
       lendingData: lendingData,
       lendingStats: lendingStats,
       userDebtPositions: debts.flat(),
+      userSsovPositions: ssovPositions.flat(),
       assetToContractAddress: assetToContractAddress,
       ssovLendingTotalCollat: totalCollatTvl,
       ssovLendingTotalBorrowing: totalBorrowingTvl,
     }));
   },
   userDebtPositions: [],
+  userSsovPositions: [],
   lendingData: [],
   lendingStats: [],
   selectedAssetIdx: 0,
