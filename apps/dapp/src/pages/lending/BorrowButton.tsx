@@ -19,7 +19,7 @@ export const BorrowButton = ({
       size="medium"
       className="w-full mt-4 !rounded-md"
       color={color}
-      disabled={!disabled}
+      disabled={disabled!}
       onClick={onClick}
     >
       {children}

@@ -185,7 +185,8 @@ export default function BorrowDialog({
       disableScrollLock={true}
       sx={{
         '.MuiPaper-root': {
-          padding: '12px',
+          padding: '18px',
+          borderRadius: '24px',
         },
       }}
       width={368}
