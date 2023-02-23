@@ -10,7 +10,6 @@ const COMMON_CLASSES = {
   ddFill: "bg-umbra",
   dropDownPaper:
     "absolute left-0 mt-2 w-56 origin-top-right rounded-lg bg-umbra shadow-lg focus:outline-none",
-  dropDownBorder: "border border-carbon",
 };
 
 const VARIANT_CLASSES: Record<
@@ -63,12 +62,12 @@ const MenuItems: React.FC<MenuItemsProps<ItemType>> = <T extends ItemType>(
 
   return (
     <Menu.Items
-      className={`absolute left-50 mt-2 w-56 origin-top-right rounded-lg bg-carbon shadow-lg focus:outline-none border border-mineshaft`}
+      className={`absolute left-50 mt-2 w-56 origin-top-right rounded-[10px] bg-umbra shadow-lg focus:outline-none border border-carbon`}
       {...rest}
     >
       {topElement}
       <div
-        className={`p-1 border rounded-lg border-carbon min-h-fit ${
+        className={`p-1 min-h-fit ${
           scrollable ? "max-h-32 overflow-auto" : null
         }`}
       >
@@ -79,7 +78,7 @@ const MenuItems: React.FC<MenuItemsProps<ItemType>> = <T extends ItemType>(
                 className={`${
                   selectedVariant["padding"]
                 } flex justify-between rounded-md w-full ${
-                  active ? "bg-mineshaft" : "bg-carbon"
+                  active ? "bg-carbon" : "bg-umbra"
                 } text-sm ${
                   Boolean(Object(dataItem)["disabled"])
                     ? "bg-opacity-50 text-stieglitz cursor-not-allowed"

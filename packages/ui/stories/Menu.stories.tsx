@@ -57,7 +57,7 @@ export const Variant = () => {
 
   const topElement = React.useMemo(() => {
     return (
-      <div className="flex justify-between bg-carbon rounded-t-md border-b border-mineshaft p-2">
+      <div className="flex justify-between bg-umbra rounded-t-md border-b border-carbon p-2">
         <div className="p-1 rounded-md bg-mineshaft">
           <span className="text-xs text-white">{copyText}</span>
         </div>
@@ -76,7 +76,7 @@ export const Variant = () => {
   }, [copy]);
 
   return (
-    <div className="grid grid-flow-row grid-cols-2 text-right min-w-screen w-fit">
+    <div className="grid grid-flow-row grid-cols-2 text-left min-w-screen w-1/2 h-[450px] bg-black">
       <div className="m-3">
         <Menu<ItemType>
           data={data}

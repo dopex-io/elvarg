@@ -1,8 +1,8 @@
 import React, { ReactEventHandler } from "react";
 import { Menu as HeadlessMenu, Transition } from "@headlessui/react";
 
+import Button from "../src/Button";
 import MenuItems, { dropdownVariants } from "../src/MenuItems";
-
 import { ItemType } from "../src/MenuItems";
 
 interface MenuProps<T> {
@@ -28,7 +28,12 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
   return (
     <HeadlessMenu as="div" className="inline-block text-left">
       <div>
-        <HeadlessMenu.Button className="w-auto my-auto inline-flex justify-between rounded-lg bg-carbon px-3 py-2 text-sm font-medium text-white">
+        <HeadlessMenu.Button
+          as={Button}
+          className="flex justify-between bg-carbon"
+          color="carbon"
+          size="medium"
+        >
           {({ open }) => (
             <div className="flex justify-between">
               {selection}

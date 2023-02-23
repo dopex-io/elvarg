@@ -34,7 +34,7 @@ export const Variant = () => {
   ];
 
   return (
-    <div className="container grid grid-flow-row grid-cols-2 w-1/2 h-[50vh]">
+    <div className="container grid grid-flow-row grid-cols-2 w-1/2 h-[450px] bg-black">
       <div className="m-4">
         <p className="text-white text-xl text-left">Basic</p>
         <HeadlessMenu as="div" className="inline-block text-left">
