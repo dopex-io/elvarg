@@ -55,8 +55,7 @@ export default function RepayDialog({ anchorEl, setAnchorEl, debt }: Props) {
         await sendTx(contract.connect(signer), 'repay', [
           debt.id,
           getContractReadableAmount(repayAmount, DECIMALS_TOKEN),
-        ]);
-        await getSsovLending();
+        ]).then(() => getSsovLending());
       } catch (err) {
         console.log(err);
         throw new Error('fail to repay');
@@ -68,6 +67,8 @@ export default function RepayDialog({ anchorEl, setAnchorEl, debt }: Props) {
   const repayGtBorrowed = BigNumber.from(
     getContractReadableAmount(repayAmount, DECIMALS_TOKEN)
   ).gt(BigNumber.from(debt.borrowed));
+
+  console.log('debt.supplied: ', debt.supplied);
 
   return (
     <Dialog
@@ -87,7 +88,7 @@ export default function RepayDialog({ anchorEl, setAnchorEl, debt }: Props) {
             Repay
           </Typography>
           <Box className="space-y-1">
-            <Box className="bg-umbra rounded-xl">
+            <Box className="p-2 border border-neutral-800 bg-umbra rounded-xl">
               <Input
                 size="small"
                 variant="default"
@@ -95,10 +96,10 @@ export default function RepayDialog({ anchorEl, setAnchorEl, debt }: Props) {
                 placeholder="0.0"
                 value={repayAmount}
                 onChange={handleRepayAmount}
-                className="p-3"
+                className="p-0 -ml-1"
                 leftElement={
                   <Box className="flex my-auto">
-                    <Box className="flex w-[6.2rem] mr-3 bg-cod-gray rounded-full space-x-2 p-1 pr-4">
+                    <Box className="flex w-[6.2rem] mr-2 bg-cod-gray rounded-full space-x-2 p-1 pr-4">
                       <img
                         src={`/images/tokens/2crv.svg`}
                         alt="usdc"
@@ -112,28 +113,28 @@ export default function RepayDialog({ anchorEl, setAnchorEl, debt }: Props) {
                         2CRV
                       </Typography>
                     </Box>
-                    <Box
-                      role="button"
-                      className="rounded-md bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto p-2"
-                      onClick={handleMax}
-                    >
-                      <Typography variant="caption" color="stieglitz">
-                        MAX
-                      </Typography>
-                    </Box>
                   </Box>
                 }
               />
-              <Box className="flex justify-end pb-3 px-5 pt-0">
-                <Typography variant="h6" color="stieglitz">
-                  Borrowed:{' '}
+              <Box className="flex justify-between">
+                <Typography variant="h5" color="stieglitz">
+                  Repay
+                </Typography>
+                <Box
+                  className="ml-auto mr-2 mt-1.5 cursor-pointer"
+                  onClick={handleMax!}
+                >
+                  <img src="/assets/max.svg" alt="MAX" />
+                </Box>
+                <Typography variant="h5" className="flex justify-end">
                   {`${formatAmount(
                     getUserReadableAmount(
                       BigNumber.from(debt.borrowed),
                       DECIMALS_TOKEN
                     ),
                     2
-                  )} 2CRV`}
+                  )}`}
+                  <span className="text-stieglitz ml-1">2CRV</span>
                 </Typography>
               </Box>
             </Box>
@@ -170,7 +171,7 @@ export default function RepayDialog({ anchorEl, setAnchorEl, debt }: Props) {
               color={
                 repayAmount > 0 && !repayGtBorrowed ? 'primary' : 'mineshaft'
               }
-              disabled={repayAmount <= 0}
+              disabled={repayAmount <= 0 || repayGtBorrowed}
               onClick={() => handleRepay(debt, repayAmount.toString())}
             >
               {repayAmount == 0

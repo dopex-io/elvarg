@@ -39,6 +39,7 @@ export interface IRawDebtPosition {
 }
 
 export interface IRawSsovPosition {
+  id: number;
   epoch: number;
   strike: number;
   collateralAmount: string;
@@ -54,8 +55,8 @@ export interface ISsovPosition extends IRawSsovPosition {
 
 export interface SsovLendingSlice {
   // getSsovLendingContract: Function;
-  userDebtPositions: (IDebtPosition | null)[];
-  userSsovPositions: (ISsovPosition | null)[];
+  userDebtPositions: IDebtPosition[];
+  userSsovPositions: ISsovPosition[];
   getSsovLending: Function;
   // updateSsovLendingStats: Function;
   lendingData: ISsovLendingData[];
@@ -105,7 +106,7 @@ export const createSsovLending: StateCreator<
           })
           .catch((err) => {
             console.log(err);
-            return null;
+            return [];
           });
       })
     );
@@ -118,7 +119,7 @@ export const createSsovLending: StateCreator<
             `${lendingUrl}/deposits?symbol=${underlyingSymbol.toLowerCase()}&owner=${accountAddress}`
           )
           .then((payload) => {
-            const rawPositions: IRawSsovPosition[] = payload.data.debts;
+            const rawPositions: IRawSsovPosition[] = payload.data.deposits;
             return rawPositions.map(
               (pos) =>
                 ({
@@ -129,7 +130,7 @@ export const createSsovLending: StateCreator<
           })
           .catch((err) => {
             console.log(err);
-            return null;
+            return [];
           });
       })
     );

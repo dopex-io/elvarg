@@ -51,6 +51,7 @@ const DebtPositionTableData = ({
   debt,
 }: IDebtPositionTableData) => {
   const { epoch, underlyingSymbol, strike, supplied, borrowed } = debt;
+  console.log('borrowed: ', borrowed);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   return (
@@ -75,7 +76,8 @@ const DebtPositionTableData = ({
       </StyleCell>
       <StyleCell align="left">
         <Typography variant="h6">
-          {formatAmount(getUserReadableAmount(borrowed, DECIMALS_TOKEN))} 2CRV
+          {formatAmount(getUserReadableAmount(borrowed, DECIMALS_TOKEN), 2)}{' '}
+          2CRV
         </Typography>
       </StyleCell>
       <StyleRightCell align="right">
@@ -151,12 +153,12 @@ export const DebtPositions = () => {
                   </StyleLeftTableCell>
                   <StyleTableCell align="left" className="border-none">
                     <Typography variant="h6" color="stieglitz">
-                      Liquidity Available
+                      Supplied
                     </Typography>
                   </StyleTableCell>
                   <StyleTableCell align="left" className="border-none">
                     <Typography variant="h6" color="stieglitz">
-                      Supplied
+                      Borrowed
                     </Typography>
                   </StyleTableCell>
                   <StyleRightTableCell align="right" className="border-none">

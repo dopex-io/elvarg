@@ -11,12 +11,17 @@ import {
 } from '@mui/material';
 
 import { useBoundStore } from 'store';
-import { IDebtPosition, ISsovPosition } from 'store/Vault/lending';
+import {
+  IDebtPosition,
+  ISsovLendingData,
+  ISsovPosition,
+} from 'store/Vault/lending';
 
 import {
   TablePaginationActions,
   Typography,
   CustomButton,
+  SplitButton,
 } from 'components/UI';
 
 import formatAmount from 'utils/general/formatAmount';
@@ -40,10 +45,22 @@ import {
   StyleTableCell,
 } from 'components/common/LpCommon/Table';
 import { StyleContainer } from './Assets';
+import Button from 'components/UI/Button';
+import useSendTx from 'hooks/useSendTx';
+import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
 
-const SsovPositionTableData = ({ pos }: ISsovPosition) => {
+interface ISsovPositionTableData {
+  pos: ISsovPosition;
+  epochExpired: boolean;
+  handleWithdraw: () => void;
+}
+
+const SsovPositionTableData = ({
+  pos,
+  epochExpired,
+  handleWithdraw,
+}: ISsovPositionTableData) => {
   const { epoch, underlyingSymbol, strike, collateralAmount } = pos;
-
   return (
     <TableRow className="text-white bg-cod-gray mb-2 rounded-lg w-full">
       <StyleLeftCell align="left">
@@ -64,19 +81,39 @@ const SsovPositionTableData = ({ pos }: ISsovPosition) => {
       <StyleCell align="left">
         <Typography variant="h6">${formatAmount(strike, 2)}</Typography>
       </StyleCell>
-      <StyleRightCell align="right">
+      <StyleCell align="left">
         <Typography variant="h6">
-          ${formatAmount(collateralAmount, 2)}
+          {formatAmount(collateralAmount, 2)} 2CRV
         </Typography>
+      </StyleCell>
+      <StyleRightCell align="right">
+        <CustomButton
+          size="medium"
+          className="rounded-md"
+          color={epochExpired ? 'primary' : 'mineshaft'}
+          disabled={!epochExpired}
+          onClick={handleWithdraw}
+        >
+          Withdraw
+        </CustomButton>
       </StyleRightCell>
     </TableRow>
   );
 };
 
 export const LendingPositions = () => {
-  const { userSsovPositions } = useBoundStore();
+  const {
+    userSsovPositions,
+    signer,
+    provider,
+    accountAddress,
+    assetToContractAddress,
+    getSsovLending,
+    lendingData,
+  } = useBoundStore();
 
   const [page, setPage] = useState(0);
+  const sendTx = useSendTx();
 
   const handleChangePage = useCallback(
     (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
@@ -85,12 +122,49 @@ export const LendingPositions = () => {
     [setPage]
   );
 
+  const handleWithdraw = useCallback(
+    async (pos: ISsovPosition) => {
+      if (!signer || !provider) return;
+      try {
+        const contract = SsovV3LendingPut__factory.connect(
+          assetToContractAddress.get(pos.underlyingSymbol)!,
+          provider
+        );
+        await sendTx(contract.connect(signer), 'withdraw', [
+          pos.id,
+          accountAddress,
+        ]).then(() => getSsovLending());
+      } catch (e) {
+        console.log(e);
+        throw new Error('fail to withdraw');
+      }
+    },
+    [
+      sendTx,
+      provider,
+      signer,
+      assetToContractAddress,
+      getSsovLending,
+      accountAddress,
+    ]
+  );
+
+  const isExpired = (lendingData: ISsovLendingData[], pos: ISsovPosition) => {
+    if (!lendingData) return false;
+    const data = lendingData?.filter(
+      (d) => d.underlyingSymbol === pos.underlyingSymbol
+    )[0];
+    if (!data) return false;
+    const expiry =
+      typeof data.expiry === 'number' ? data.expiry : data.expiry.toNumber();
+    return expiry < Date.now() / 1000;
+  };
+
   return (
     <Box className="flex flex-col w-full">
       <Typography variant="h4" color="white" className="my-2 mb-4">
         Lending Positions
       </Typography>
-      {/* className="bg-cod-gray px-2 mt-2 border-radius rounded-lg w-full" */}
       <Box>
         {isEmpty(userSsovPositions) ? (
           <Box className="text-stieglitz text-center p-10">
@@ -116,9 +190,14 @@ export const LendingPositions = () => {
                       Strike
                     </Typography>
                   </StyleTableCell>
-                  <StyleRightTableCell align="right" className="border-none">
+                  <StyleTableCell align="left" className="border-none">
                     <Typography variant="h6" color="stieglitz">
                       Collateral Amount
+                    </Typography>
+                  </StyleTableCell>
+                  <StyleRightTableCell align="right" className="border-none">
+                    <Typography variant="h6" color="stieglitz">
+                      Action
                     </Typography>
                   </StyleRightTableCell>
                 </TableRow>
@@ -129,9 +208,16 @@ export const LendingPositions = () => {
                     page * ROWS_PER_PAGE,
                     page * ROWS_PER_PAGE + ROWS_PER_PAGE
                   )
-                  ?.map((pos, i: number) => (
-                    <SsovPositionTableData key={i} pos={pos} />
-                  ))}
+                  .map((pos: ISsovPosition, i: number) => {
+                    return (
+                      <SsovPositionTableData
+                        key={i}
+                        pos={pos}
+                        epochExpired={isExpired(lendingData, pos)}
+                        handleWithdraw={() => handleWithdraw(pos)}
+                      />
+                    );
+                  })}
               </TableBody>
             </Table>
           </StyleTable>
