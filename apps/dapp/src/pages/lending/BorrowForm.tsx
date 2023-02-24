@@ -8,28 +8,22 @@ import { formatAmount } from 'utils/general';
 import { DECIMALS_TOKEN } from 'constants/index';
 
 interface BorrowFormProps {
-  borrowAmount: string | number;
   underlyingSymbol: string;
   onChange: (e: {
     target: {
       value: React.SetStateAction<string | number>;
     };
   }) => void;
-  handleMax: () => void;
   underlyingBalance: BigNumber;
-  usdToReceive: number;
   totalSupply: number;
   collatToDeposit: number;
   borrowAmountUsd: string | number;
 }
 
 export const BorrowForm = ({
-  borrowAmount,
   underlyingSymbol,
   onChange,
-  handleMax,
   underlyingBalance,
-  usdToReceive,
   totalSupply,
   collatToDeposit,
   borrowAmountUsd,
@@ -102,15 +96,6 @@ export const BorrowForm = ({
                   {underlyingSymbol}
                 </Typography>
               </Box>
-              {/* <Box
-                role="button"
-                className="rounded-md bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto p-2"
-                onClick={handleMax}
-              >
-                <Typography variant="caption" color="stieglitz">
-                  MAX
-                </Typography>
-              </Box> */}
             </Box>
           }
         />

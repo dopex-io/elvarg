@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  Area,
-  AreaChart,
-  ResponsiveContainer,
-  Tooltip,
-  // Tooltip,
-  YAxis,
-} from 'recharts';
+import { Area, AreaChart, ResponsiveContainer, Tooltip, YAxis } from 'recharts';
 import Box from '@mui/material/Box';
 
 import { LendingStats } from 'store/Vault/lending';
@@ -63,7 +56,7 @@ const CustomizedTooltip = ({ active, payload }: any) => {
 };
 
 export const Chart = (props: ChartProps) => {
-  const { loanType, stats, totalLoan } = props;
+  const { loanType, totalLoan } = props;
 
   return (
     <Box key={`${loanType}-box`}>

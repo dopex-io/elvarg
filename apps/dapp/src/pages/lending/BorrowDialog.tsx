@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { BigNumber, utils } from 'ethers';
+import { BigNumber } from 'ethers';
 import { Box, SelectChangeEvent } from '@mui/material';
 import SouthEastRounded from '@mui/icons-material/SouthEastRounded';
 import { ERC20__factory } from '@dopex-io/sdk';
@@ -20,7 +20,7 @@ import {
   getContractReadableAmount,
   getReadableTime,
 } from 'utils/contracts';
-import { DECIMALS_TOKEN, DECIMALS_STRIKE, MAX_VALUE } from 'constants/index';
+import { DECIMALS_TOKEN, MAX_VALUE } from 'constants/index';
 
 import { BorrowButton } from './BorrowButton';
 import { BorrowForm } from './BorrowForm';
@@ -52,8 +52,9 @@ export default function BorrowDialog({
   const [underlyingBalance, setUnderlyingBalance] = useState<BigNumber>(
     BigNumber.from(0)
   );
-  const [borrowAmount, setBorrowAmount] = useState<string | number>(0);
   const [borrowAmountUsd, setBorrowAmountUsd] = useState<string | number>(0);
+  const collatToDeposit =
+    (Number(borrowAmountUsd) * 1.0) / assetDatum?.strikes[strikeIndex]!;
   const [optionApproved, setOptionApproved] = useState<boolean>(false);
   const [optionBalance, setOptionBalance] = useState<BigNumber>(
     BigNumber.from(0)
@@ -99,7 +100,7 @@ export default function BorrowDialog({
           accountAddress,
           assetDatum.address,
           signer,
-          getContractReadableAmount(borrowAmount, DECIMALS_TOKEN), // TODO: use underlying decimals
+          getContractReadableAmount(collatToDeposit, DECIMALS_TOKEN),
           setUnderlyingApproved,
           setUnderlyingBalance
         );
@@ -108,7 +109,7 @@ export default function BorrowDialog({
           accountAddress,
           assetDatum.address,
           signer,
-          getContractReadableAmount(borrowAmount, DECIMALS_STRIKE),
+          getContractReadableAmount(collatToDeposit, DECIMALS_TOKEN),
           setOptionApproved,
           setOptionBalance
         );
@@ -122,7 +123,7 @@ export default function BorrowDialog({
     tokenAddress,
     optionTokenAddress,
     assetDatum.address,
-    borrowAmount,
+    collatToDeposit,
     underlyingApproved,
     optionApproved,
   ]);
@@ -136,9 +137,9 @@ export default function BorrowDialog({
     try {
       await sendTx(contract.connect(signer), 'borrow', [
         strikeIndex,
-        getContractReadableAmount(borrowAmount, DECIMALS_TOKEN),
+        getContractReadableAmount(collatToDeposit, DECIMALS_TOKEN),
       ]);
-      setBorrowAmount('0');
+      setBorrowAmountUsd('0');
       await getSsovLending();
     } catch (e) {
       console.log('fail to borrow');
@@ -146,7 +147,7 @@ export default function BorrowDialog({
     }
   }, [
     sendTx,
-    borrowAmount,
+    collatToDeposit,
     strikeIndex,
     assetDatum,
     signer,
@@ -159,18 +160,6 @@ export default function BorrowDialog({
       setBorrowAmountUsd(e.target.value),
     []
   );
-
-  const handleMax = useCallback(() => {
-    setBorrowAmount(utils.formatEther(underlyingBalance));
-  }, [underlyingBalance]);
-
-  const usdToReceive =
-    (Number(borrowAmount) * assetDatum?.strikes[strikeIndex]!) /
-    assetDatum.tokenPrice;
-
-  const collatToDeposit =
-    (Number(borrowAmountUsd) * assetDatum.tokenPrice) /
-    assetDatum?.strikes[strikeIndex]!;
 
   const optionTokenSymbol = `${
     assetDatum.underlyingSymbol
@@ -227,12 +216,9 @@ export default function BorrowDialog({
           </Box>
           <Box className="space-y-1">
             <BorrowForm
-              borrowAmount={borrowAmount}
               underlyingSymbol={assetDatum?.underlyingSymbol}
               onChange={handleDepositAmount}
-              handleMax={handleMax}
               underlyingBalance={underlyingBalance}
-              usdToReceive={usdToReceive}
               totalSupply={assetDatum?.totalSupply}
               collatToDeposit={collatToDeposit}
               borrowAmountUsd={borrowAmountUsd}

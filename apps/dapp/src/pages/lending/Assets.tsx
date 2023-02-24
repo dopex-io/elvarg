@@ -1,26 +1,11 @@
 import React, { useState } from 'react';
-import {
-  Box,
-  styled,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from '@mui/material';
+import { Box, Table, TableBody, TableHead, TableRow } from '@mui/material';
 import { max, min } from 'lodash';
 
 import { ISsovLendingData } from 'store/Vault/lending';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
-
-import formatAmount from 'utils/general/formatAmount';
-import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
-
-import BorrowDialog from './BorrowDialog';
-import LendDialog from './LendDialog';
 import {
   StyleCell,
   StyleLeftCell,
@@ -31,32 +16,11 @@ import {
   StyleTableCell,
 } from 'components/common/LpCommon/Table';
 
-export const StyleContainer = styled(TableContainer)`
-  table {
-    border-collapse: separate !important;
-    border-spacing: 0 0.5em !important;
-  }
-  td {
-    border: none !important;
-  }
-  tr:last-child td:first-of-type {
-    border-bottom-left-radius: 10px;
-  }
-  tr:last-child td:last-child {
-    border-bottom-right-radius: 10px;
-  }
-`;
+import formatAmount from 'utils/general/formatAmount';
+import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
 
-export const StyleRow = styled(TableRow)`
-  td:first-of-type {
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
-  }
-  td:last-child {
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
-  }
-`;
+import BorrowDialog from './BorrowDialog';
+import LendDialog from './LendDialog';
 
 const AssetTableData = ({
   positionIdx,

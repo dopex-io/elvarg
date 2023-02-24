@@ -1,41 +1,24 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
+import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
 import isEmpty from 'lodash/isEmpty';
 import {
   Box,
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableRow,
   TablePagination,
 } from '@mui/material';
 
 import { useBoundStore } from 'store';
-import {
-  IDebtPosition,
-  ISsovLendingData,
-  ISsovPosition,
-} from 'store/Vault/lending';
+import { ISsovLendingData, ISsovPosition } from 'store/Vault/lending';
 
 import {
   TablePaginationActions,
   Typography,
   CustomButton,
-  SplitButton,
 } from 'components/UI';
-
-import formatAmount from 'utils/general/formatAmount';
-import { getUserReadableAmount } from 'utils/contracts';
-
 import {
-  DECIMALS_STRIKE,
-  DECIMALS_TOKEN,
-  ROWS_PER_PAGE,
-} from 'constants/index';
-
-import RepayDialog from './RepayDialog';
-import {
-  BodyCell,
   StyleCell,
   StyleLeftCell,
   StyleLeftTableCell,
@@ -44,10 +27,12 @@ import {
   StyleTable,
   StyleTableCell,
 } from 'components/common/LpCommon/Table';
-import { StyleContainer } from './Assets';
-import Button from 'components/UI/Button';
+
 import useSendTx from 'hooks/useSendTx';
-import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
+
+import formatAmount from 'utils/general/formatAmount';
+
+import { ROWS_PER_PAGE } from 'constants/index';
 
 interface ISsovPositionTableData {
   pos: ISsovPosition;

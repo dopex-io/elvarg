@@ -4,7 +4,6 @@ import {
   Box,
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableRow,
   TablePagination,
@@ -22,15 +21,10 @@ import {
 import formatAmount from 'utils/general/formatAmount';
 import { getUserReadableAmount } from 'utils/contracts';
 
-import {
-  DECIMALS_STRIKE,
-  DECIMALS_TOKEN,
-  ROWS_PER_PAGE,
-} from 'constants/index';
+import { DECIMALS_TOKEN, ROWS_PER_PAGE } from 'constants/index';
 
 import RepayDialog from './RepayDialog';
 import {
-  BodyCell,
   StyleCell,
   StyleLeftCell,
   StyleLeftTableCell,
@@ -39,7 +33,6 @@ import {
   StyleTable,
   StyleTableCell,
 } from 'components/common/LpCommon/Table';
-import { StyleContainer } from './Assets';
 
 interface IDebtPositionTableData {
   selectedIndex: number;
@@ -50,8 +43,7 @@ const DebtPositionTableData = ({
   selectedIndex,
   debt,
 }: IDebtPositionTableData) => {
-  const { epoch, underlyingSymbol, strike, supplied, borrowed } = debt;
-  console.log('borrowed: ', borrowed);
+  const { underlyingSymbol, supplied, borrowed } = debt;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   return (
@@ -135,7 +127,6 @@ export const DebtPositions = () => {
       <Typography variant="h4" color="white" className="my-2 mb-4">
         Debt Positions
       </Typography>
-      {/* className="bg-cod-gray px-2 mt-2 border-radius rounded-lg w-full" */}
       <Box>
         {isEmpty(userDebtPositions) ? (
           <Box className="text-stieglitz text-center p-10">

@@ -13,8 +13,7 @@ import { DebtPositions } from './DebtPositions';
 import { Typography } from 'components/UI';
 import { LendingPositions } from './LendingPositions';
 
-const LENDING_INTRO: string =
-  'https://blog.dopex.io/articles/product-launches-updates/Option-Liquidity-Pools-Walkthrough';
+const LENDING_INTRO: string = 'https://app.dopex.io';
 
 const Lending = () => {
   const {

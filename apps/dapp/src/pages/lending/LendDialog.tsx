@@ -1,18 +1,17 @@
 import { useState, useCallback, useEffect, SyntheticEvent } from 'react';
 import { BigNumber, utils } from 'ethers';
-import { Box, SelectChangeEvent, Slider } from '@mui/material';
-import { Addresses, ERC20__factory } from '@dopex-io/sdk';
+import { Box, Slider } from '@mui/material';
+import styled from '@emotion/styled';
+import { max, min } from 'lodash';
+import { ERC20__factory } from '@dopex-io/sdk';
 import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
-import { Typography, Input } from 'components/UI';
 
 import { useBoundStore } from 'store';
 import { ISsovLendingData } from 'store/Vault/lending';
 
-import SsovStrikeBox from 'components/common/SsovStrikeBox';
-import InputHelpers from 'components/common/InputHelpers';
+import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import { CustomButton, Dialog } from 'components/UI';
-import LockerIcon from 'svgs/icons/LockerIcon';
+import { Typography, Input, CustomButton, Dialog } from 'components/UI';
 
 import useSendTx from 'hooks/useSendTx';
 
@@ -22,14 +21,11 @@ import {
   getContractReadableAmount,
   getReadableTime,
 } from 'utils/contracts';
+import { formatAmount } from 'utils/general';
 
 import { DECIMALS_TOKEN, ARBITRUM_CHAIN_ID, MAX_VALUE } from 'constants/index';
-import { formatAmount } from 'utils/general';
-import styled from '@emotion/styled';
-import { max, min } from 'lodash';
-import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 
-const CustomSlider = styled(Slider)(({ theme }) => ({
+const CustomSlider = styled(Slider)(() => ({
   color: '#2D2D2D',
   '& .MuiSlider-thumb': {
     backgroundColor: 'white',
@@ -57,7 +53,7 @@ export default function LendDialog({
   const { accountAddress, signer, provider, getSsovLending } = useBoundStore();
 
   const sendTx = useSendTx();
-  const [strikeIndex, setStrikeIndex] = useState(0);
+  const [strikeIndex, _] = useState(0);
   const [collatBalance, setCollatBalance] = useState<BigNumber>(
     BigNumber.from(0)
   );
@@ -67,10 +63,6 @@ export default function LendDialog({
   const tokenAddress = '0xb01ff8efc9905de664c5ea62ab938bb141ce0ee8';
   // const tokenAddress =
   //   Addresses[assetDatum.chainId][assetDatum.collateralTokenAddress];
-
-  const handleSelectStrike = useCallback((event: SelectChangeEvent<number>) => {
-    setStrikeIndex(Number(event.target.value));
-  }, []);
 
   const [sliderValue, setSliderValue] = useState(assetDatum.strikes[0]);
 
