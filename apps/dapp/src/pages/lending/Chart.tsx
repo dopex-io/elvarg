@@ -66,7 +66,7 @@ export const Chart = (props: ChartProps) => {
       <Typography key={`${loanType}-text`} variant="h4" color="stieglitz">
         Total {loanType}
       </Typography>
-      <ResponsiveContainer width={650} height="60%" className="my-3">
+      <ResponsiveContainer width={600} height="60%" className="my-3">
         <AreaChart data={fakeData}>
           <Tooltip
             cursor={false}

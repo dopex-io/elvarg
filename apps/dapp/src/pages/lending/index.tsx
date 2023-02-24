@@ -55,7 +55,7 @@ const Lending = () => {
             </a>
           </Box>
         </Box>
-        <div className="flex mt-2 flex-col space-x-0 space-y-6 lg:flex-row lg:space-x-6 lg:space-y-0">
+        <div className="flex mt-2 flex-col gap-4 lg:flex-row lg:space-x-6 lg:space-y-0 lg:justify-between">
           <Chart
             key={'Collateral'}
             loanType={'Collateral'}
