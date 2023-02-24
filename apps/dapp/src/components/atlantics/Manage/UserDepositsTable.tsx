@@ -151,7 +151,6 @@ const UserDepositsTable = () => {
 
   const handleToggleRollover = useCallback(
     async (depositId: number | undefined) => {
-      console.log(atlanticPool, accountAddress, depositId, signer);
       if (!atlanticPool || !accountAddress || !depositId || !signer) return;
 
       try {
