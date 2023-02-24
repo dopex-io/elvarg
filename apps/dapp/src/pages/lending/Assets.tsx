@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Box, Table, TableBody, TableHead, TableRow } from '@mui/material';
 import { max, min } from 'lodash';
+import { Button as CustomButton } from '@dopex-io/ui';
 
 import { ISsovLendingData } from 'store/Vault/lending';
 
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
 import {
   StyleCell,
   StyleLeftCell,
@@ -89,7 +89,10 @@ const AssetTableData = ({
         )}
       </StyleCell>
       <StyleRightCell align="right">
-        <CustomButton onClick={(e) => setLendAnchorEl(e.currentTarget)}>
+        <CustomButton
+          onClick={(e) => setLendAnchorEl(e.currentTarget)}
+          size="medium"
+        >
           Lend
         </CustomButton>
         {lendAnchorEl && (

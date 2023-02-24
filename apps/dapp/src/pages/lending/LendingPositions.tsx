@@ -9,15 +9,12 @@ import {
   TableRow,
   TablePagination,
 } from '@mui/material';
+import { Button as CustomButton } from '@dopex-io/ui';
 
 import { useBoundStore } from 'store';
 import { ISsovLendingData, ISsovPosition } from 'store/Vault/lending';
 
-import {
-  TablePaginationActions,
-  Typography,
-  CustomButton,
-} from 'components/UI';
+import { TablePaginationActions, Typography } from 'components/UI';
 import {
   StyleCell,
   StyleLeftCell,

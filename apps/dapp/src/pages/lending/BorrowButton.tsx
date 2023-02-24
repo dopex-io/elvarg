@@ -1,8 +1,8 @@
 import { ReactNode } from 'react';
-import { CustomButton } from 'components/UI';
+import { Button as CustomButton } from '@dopex-io/ui';
 
 interface BorrowButtonProps {
-  color?: string;
+  color?: any;
   disabled?: boolean;
   onClick?: () => void;
   children: ReactNode;
