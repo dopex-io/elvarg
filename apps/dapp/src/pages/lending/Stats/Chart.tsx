@@ -92,3 +92,5 @@ export const Chart = (props: ChartProps) => {
     </Box>
   );
 };
+
+export default Chart;

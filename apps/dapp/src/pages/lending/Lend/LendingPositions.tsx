@@ -83,7 +83,7 @@ const SsovPositionTableData = ({
   );
 };
 
-export const LendingPositions = () => {
+export default function LendingPositions() {
   const {
     userSsovPositions,
     signer,
@@ -220,4 +220,4 @@ export const LendingPositions = () => {
       </Box>
     </Box>
   );
-};
+}

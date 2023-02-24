@@ -19,8 +19,8 @@ import {
 import formatAmount from 'utils/general/formatAmount';
 import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
 
-import BorrowDialog from './BorrowDialog';
-import LendDialog from './LendDialog';
+import { BorrowDialog } from '../Borrow';
+import { LendDialog } from '../Lend';
 
 const AssetTableData = ({
   positionIdx,
@@ -108,7 +108,7 @@ const AssetTableData = ({
   );
 };
 
-export const Assets = ({ data }: { data: any[] }) => {
+export const Markets = ({ data }: { data: any[] }) => {
   return (
     <>
       <Typography variant="h4" className="mb-2">
@@ -159,3 +159,5 @@ export const Assets = ({ data }: { data: any[] }) => {
     </>
   );
 };
+
+export default Markets;

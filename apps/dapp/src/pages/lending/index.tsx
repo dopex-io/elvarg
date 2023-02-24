@@ -7,11 +7,11 @@ import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
 
-import { Chart } from './Chart';
-import { Assets } from './Assets';
-import { DebtPositions } from './DebtPositions';
+import { Chart } from './Stats/Chart';
+import { Markets } from './Markets/Markets';
+import { DebtPositions } from './Debt/DebtPositions';
 import { Typography } from 'components/UI';
-import { LendingPositions } from './LendingPositions';
+import { LendingPositions } from './Lend';
 
 const LENDING_INTRO: string = 'https://app.dopex.io';
 
@@ -80,7 +80,7 @@ const Lending = () => {
           />
         </div>
         <div className="mt-8">
-          <Assets data={lendingData} />
+          <Markets data={lendingData} />
         </div>
         <div className="mt-8 flex justify-between gap-4 md:flex-row sm:flex-col">
           <DebtPositions />

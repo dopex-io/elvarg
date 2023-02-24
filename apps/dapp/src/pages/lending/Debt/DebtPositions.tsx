@@ -193,3 +193,5 @@ export const DebtPositions = () => {
     </Box>
   );
 };
+
+export default DebtPositions;
