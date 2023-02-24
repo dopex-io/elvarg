@@ -11,7 +11,7 @@ const StyledContainer = styled(Box)`
 
 const AMM = () => {
   return (
-    <StyledContainer classes="min-h-screen">
+    <StyledContainer className="min-h-screen">
       <Head>
         <title>AMM</title>
       </Head>

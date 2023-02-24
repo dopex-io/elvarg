@@ -171,16 +171,7 @@ const appLinks = {
     { name: 'veDPX', to: '/governance/vedpx' },
   ],
   42161: [
-    { name: 'Portfolio', to: '/portfolio' },
-    { name: 'Farms', to: '/farms' },
-    { name: 'veDPX', to: '/governance/vedpx' },
-    { name: 'SSOV', to: '/ssov' },
     // { name: 'Rate Vaults', to: '/ir' },
-    { name: 'Straddles', to: '/straddles' },
-    { name: 'DPX Bonds', to: '/dpx-bonds' },
-    { name: 'AMM', to: '/rdpx-v2/amm' },
-    { name: 'APP', to: '/rdpx-v2/perpetual-pools' },
-    { name: 'Mint', to: '/rdpx-v2/mint' },
     { name: 'Stake', to: '/farms' },
     {
       name: 'Governance',
@@ -234,6 +225,28 @@ const appLinks = {
           name: 'Tzwap',
           to: '/tzwap',
           description: 'Open TWAP orders',
+        },
+      ],
+    },
+    {
+      name: 'rDPX',
+      subLinks: [
+        {
+          name: 'Atlantic Perpetual Pools',
+          to: '/rdpx-v2/perpetual-pools',
+          description:
+            'Write perpetual puts, receive funding till settlement by our treasury',
+        },
+        // todo remove AMM
+        {
+          name: 'AMM',
+          to: '/rdpx-v2/amm',
+          description: 'Privileged AMM for whitelisted addresses',
+        },
+        {
+          name: 'Mint',
+          to: '/rdpx-v2/mint',
+          description: 'Bond rDPX, mint $DSC',
         },
       ],
     },
