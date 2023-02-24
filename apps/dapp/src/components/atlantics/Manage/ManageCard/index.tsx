@@ -39,7 +39,7 @@ const ManageCard = (props: ManageCardProps) => {
   const [value, setValue] = useState<number | string>('');
   const [maxStrike, setMaxStrike] = useState<number | string>('');
   const [maxApprove, setMaxApprove] = useState<boolean>(false);
-  const [rolloverEnabled, setRolloverEnabled] = useState<boolean>(false);
+  const [rolloverEnabled, setRolloverEnabled] = useState<boolean>(true);
   const [approved, setApproved] = useState<boolean>(false);
   const [currentPrice, setCurrentPrice] = useState<BigNumber>(
     BigNumber.from(0)
