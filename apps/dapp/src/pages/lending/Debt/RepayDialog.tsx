@@ -2,10 +2,9 @@ import { useState, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
 import { BigNumber } from 'ethers';
-import { Button as CustomButton } from '@dopex-io/ui';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import { Typography, Input, Dialog } from 'components/UI';
+import { Typography, Input, CustomButton, Dialog } from 'components/UI';
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 
 import { useBoundStore } from 'store';
@@ -68,6 +67,8 @@ export default function RepayDialog({ anchorEl, setAnchorEl, debt }: Props) {
   const repayGtBorrowed = BigNumber.from(
     getContractReadableAmount(repayAmount, DECIMALS_TOKEN)
   ).gt(BigNumber.from(debt.borrowed));
+
+  console.log('debt.supplied: ', debt.supplied);
 
   return (
     <Dialog

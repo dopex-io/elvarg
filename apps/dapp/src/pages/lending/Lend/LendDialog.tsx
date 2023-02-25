@@ -4,7 +4,6 @@ import { Box, Slider } from '@mui/material';
 import styled from '@emotion/styled';
 import { max, min } from 'lodash';
 import { ERC20__factory } from '@dopex-io/sdk';
-import { Button as CustomButton } from '@dopex-io/ui';
 import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
 
 import { useBoundStore } from 'store';
@@ -12,7 +11,7 @@ import { ISsovLendingData } from 'store/Vault/lending';
 
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import { Typography, Input, Dialog } from 'components/UI';
+import { Typography, Input, CustomButton, Dialog } from 'components/UI';
 
 import useSendTx from 'hooks/useSendTx';
 
