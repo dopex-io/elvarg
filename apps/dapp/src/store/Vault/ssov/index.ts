@@ -110,6 +110,8 @@ export const createSsovV3Slice: StateCreator<
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
 
+    if (!ssovAddress) return;
+
     const _ssovContractWithSigner = SsovV3__factory.connect(
       ssovAddress,
       signer
@@ -143,6 +145,8 @@ export const createSsovV3Slice: StateCreator<
     if (!contractAddresses['SSOV-V3']) return;
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
+
+    if (!ssovAddress) return;
 
     const ssovContract = SsovV3__factory.connect(ssovAddress, provider);
 
@@ -261,6 +265,8 @@ export const createSsovV3Slice: StateCreator<
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
 
+    if (!ssovAddress) return;
+
     const ssov = SsovV3__factory.connect(ssovAddress, provider);
 
     const ssovViewerContract = SsovV3Viewer__factory.connect(
@@ -317,6 +323,8 @@ export const createSsovV3Slice: StateCreator<
     let _ssovData: SsovV3Data;
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
+
+    if (!ssovAddress) return;
 
     const _ssovContract = SsovV3__factory.connect(ssovAddress, provider);
 
