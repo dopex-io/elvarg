@@ -123,8 +123,6 @@ export const createWalletSlice: StateCreator<
 
     let router = Router;
 
-    console.log('wallet chain', chainId);
-
     if (
       PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath] &&
       !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.includes(chainId) &&

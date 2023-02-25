@@ -20,11 +20,11 @@ const SsovV3Page = (props: { ssov: string }) => {
     updateState,
   } = useBoundStore();
 
+  // TODO: The below effect should not be required in order for the chainId to update
   useEffect(() => {
     (async function () {
-      console.log('Asdas');
       await updateState({
-        isUser: true,
+        isUser: false,
         provider: new ethers.providers.StaticJsonRpcProvider(
           CHAIN_ID_TO_RPC[
             PAGE_TO_SUPPORTED_CHAIN_IDS[Router.asPath]?.default || 42161
@@ -32,7 +32,7 @@ const SsovV3Page = (props: { ssov: string }) => {
         ),
       });
     })();
-  }, []);
+  }, [updateState]);
 
   const { ssov } = props;
 
