@@ -238,11 +238,11 @@ const appLinks = {
             'Write perpetual puts, receive funding till settlement by our treasury',
         },
         // todo remove AMM
-        {
-          name: 'AMM',
-          to: '/rdpx-v2/amm',
-          description: 'Privileged AMM for whitelisted addresses',
-        },
+        // {
+        //   name: 'AMM',
+        //   to: '/rdpx-v2/amm',
+        //   description: 'Privileged AMM for whitelisted addresses',
+        // },
         {
           name: 'Mint',
           to: '/rdpx-v2/mint',
@@ -290,7 +290,7 @@ interface AppBarProps {
     | 'swap'
     | 'DPX Bonds'
     | 'vaults'
-    | 'AMM'
+    // | 'AMM'
     | 'APP'
     | 'Mint'
     | 'Atlantics';
