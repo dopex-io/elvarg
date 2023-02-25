@@ -6,11 +6,11 @@ import PerpetualPoolsIcon from 'svgs/icons/PerpetualPoolsIcon';
 
 interface Props {
   title: string;
-  quoteSymbol: string;
+  subtitle: string;
 }
 
 const Title = (props: Props) => {
-  const { title, quoteSymbol = 'USDC' } = props;
+  const { title, subtitle } = props;
 
   return (
     <Box className="flex rounded-xl p-3 w-1/3 bg-cod-gray space-x-3">
@@ -18,7 +18,7 @@ const Title = (props: Props) => {
       <Box>
         <Typography variant="h6">{title}</Typography>
         <Typography variant="h6" color="stieglitz">
-          {quoteSymbol}
+          {subtitle}
         </Typography>
       </Box>
     </Box>

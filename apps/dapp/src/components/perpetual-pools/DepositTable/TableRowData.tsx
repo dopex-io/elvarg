@@ -6,43 +6,81 @@ import TableCell from '@mui/material/TableCell';
 import Button from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 
-// import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import { useBoundStore } from 'store';
+
 import formatAmount from 'utils/general/formatAmount';
 
+import useSendTx from 'hooks/useSendTx';
+
 interface Props {
-  amount: string;
-  fundingEarned: string;
-  withdrawableAmount: string;
-  actionState: boolean;
+  totalCollateral: string | number;
+  activeCollateral: string | number;
+  accruedPremium: string | number;
+  withdrawableCollateral: string | number;
+  positionId: number;
+  withdrawable: boolean;
 }
 
 const TableRowData = (props: Props) => {
-  const { amount, fundingEarned, withdrawableAmount, actionState } = props;
+  const {
+    totalCollateral,
+    activeCollateral,
+    accruedPremium,
+    withdrawableCollateral,
+    positionId,
+    withdrawable,
+  } = props;
 
-  const handleWithdraw = useCallback(() => {
-    console.log('Handle Withdraw');
-  }, []);
+  const sendTx = useSendTx();
+
+  const { appUserData, appContractData, signer, accountAddress } =
+    useBoundStore();
+
+  const handleWithdraw = useCallback(async () => {
+    const contract = appContractData.contract;
+    if (!signer || !appUserData || !contract) return;
+
+    try {
+      await sendTx(contract, 'withdraw', [positionId, accountAddress]);
+    } catch (e) {
+      console.log(e);
+    }
+  }, [
+    accountAddress,
+    appContractData.contract,
+    appUserData,
+    positionId,
+    sendTx,
+    signer,
+  ]);
 
   return (
     <TableRow>
       <TableCell className="border-0">
-        <Typography variant="h6">${formatAmount(amount, 3)}</Typography>
+        <Typography variant="h6">
+          ${formatAmount(totalCollateral, 3)}
+        </Typography>
       </TableCell>
       <TableCell className={`border-0`}>
         <Typography
           variant="h6"
-          color={Number(fundingEarned) > 0 ? 'emerald-500' : 'stieglitz'}
+          color={Number(accruedPremium) > 0 ? 'emerald-500' : 'stieglitz'}
         >
-          ${formatAmount(fundingEarned, 3)}
+          ${formatAmount(accruedPremium, 3)}
         </Typography>
       </TableCell>
       <TableCell className="border-0" align="right">
         <Typography variant="h6">
-          ${formatAmount(withdrawableAmount, 3)}
+          ${formatAmount(activeCollateral, 3)}
         </Typography>
       </TableCell>
       <TableCell className="border-0" align="right">
-        <Button onClick={handleWithdraw} disabled={actionState}>
+        <Typography variant="h6">
+          ${formatAmount(withdrawableCollateral, 3)}
+        </Typography>
+      </TableCell>
+      <TableCell className="border-0" align="right">
+        <Button onClick={handleWithdraw} disabled={!withdrawable}>
           Withdraw
         </Button>
       </TableCell>

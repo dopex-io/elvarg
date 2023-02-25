@@ -1,25 +1,33 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
-import LockerIcon from 'svgs/icons/LockerIcon';
 import PoolStats from 'components/perpetual-pools/DepositPanel/PoolStats';
 import Input from 'components/UI/Input';
+import LockerIcon from 'svgs/icons/LockerIcon';
 
 import { useBoundStore } from 'store';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
+import { getContractReadableAmount } from 'utils/contracts';
 
-import { TOKEN_DECIMALS } from 'constants/index';
+import useSendTx from 'hooks/useSendTx';
+
+import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
 
 const DepositPanel = () => {
-  const { chainId, userAssetBalances } = useBoundStore();
+  const sendTx = useSendTx();
+
+  const { chainId, accountAddress, userAssetBalances, appContractData } =
+    useBoundStore();
 
   const [value, setValue] = useState<number | string>('');
+  const [disabled, setDisabled] = useState<boolean>(true);
+  const [approved, setApproved] = useState<boolean>(false);
 
   const handleChange = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) => {
@@ -29,16 +37,80 @@ const DepositPanel = () => {
   );
 
   const handleMax = useCallback(() => {
-    // if (!atlanticPool) return;
-    // const { depositToken } = atlanticPool?.tokens;
-    // if (!depositToken) return;
+    if (!appContractData.contract) return;
+    const { collateralToken } = appContractData;
+    if (!collateralToken) return;
     setValue(
       getUserReadableAmount(
-        userAssetBalances['USDC'] ?? '0',
-        getTokenDecimals('USDC', chainId)
+        userAssetBalances[appContractData.underlyingSymbol] || '0',
+        getTokenDecimals(appContractData.underlyingSymbol, chainId)
       )
     );
-  }, [chainId, userAssetBalances]);
+  }, [appContractData, chainId, userAssetBalances]);
+
+  const handleDeposit = useCallback(async () => {
+    if (!appContractData.contract || !accountAddress) return;
+    const _contract = appContractData.contract;
+    const inputAmount = getContractReadableAmount(value, 6);
+
+    try {
+      await sendTx(_contract, 'deposit', [inputAmount, accountAddress]);
+    } catch (e) {
+      console.log(e);
+    }
+  }, [accountAddress, appContractData.contract, sendTx, value]);
+
+  const handleApprove = useCallback(async () => {
+    if (
+      !appContractData.contract ||
+      !appContractData.collateralToken ||
+      !accountAddress
+    )
+      return;
+    const _contract = appContractData.contract;
+    const _usdc = appContractData.collateralToken;
+
+    try {
+      await sendTx(_usdc, 'approve', [MAX_VALUE, _contract]);
+    } catch (e) {
+      console.log(e);
+    }
+  }, [
+    accountAddress,
+    appContractData.collateralToken,
+    appContractData.contract,
+    sendTx,
+  ]);
+
+  useEffect(() => {
+    if (!appContractData.contract) return;
+    setDisabled(false);
+  }, [appContractData.contract]);
+
+  useEffect(() => {
+    (async () => {
+      if (
+        !appContractData.contract ||
+        !appContractData.underlyingSymbol ||
+        !appContractData.collateralToken ||
+        !accountAddress
+      )
+        return;
+      const _contract = appContractData.contract;
+      const _usdc = appContractData.collateralToken;
+      const allowance = await _usdc.allowance(
+        accountAddress,
+        _contract.address
+      );
+      const decimals = getTokenDecimals(
+        appContractData.underlyingSymbol,
+        chainId
+      );
+      const inputAmount = getContractReadableAmount(value, decimals);
+
+      setApproved(allowance.gte(inputAmount));
+    })();
+  }, [accountAddress, appContractData, chainId, value]);
 
   return (
     <Box className="p-3 bg-cod-gray rounded-xl space-y-3">
@@ -54,12 +126,12 @@ const DepositPanel = () => {
             <Box className="flex my-auto space-x-2">
               <Box className="flex bg-cod-gray rounded-full p-1 relative">
                 <img
-                  src={`/images/tokens/${'USDC'?.toLowerCase()}.svg`}
-                  alt={'USDC'.toLowerCase()}
+                  src={`/images/tokens/${appContractData.underlyingSymbol?.toLowerCase()}.svg`}
+                  alt={appContractData.underlyingSymbol.toLowerCase()}
                   className="w-[2.2rem] mr-1"
                 />
                 <Typography variant="h5" className="my-auto w-[5.2rem]">
-                  {'USDC'}
+                  {appContractData.underlyingSymbol}
                 </Typography>
               </Box>
               <Box
@@ -81,17 +153,17 @@ const DepositPanel = () => {
           <Typography variant="h6">
             {formatAmount(
               getUserReadableAmount(
-                userAssetBalances['USDC'] ?? '0',
-                TOKEN_DECIMALS[chainId]?.['USDC']
+                userAssetBalances[appContractData.underlyingSymbol] ?? '0',
+                TOKEN_DECIMALS[chainId]?.[appContractData.underlyingSymbol]
               ),
               3,
               true
             )}{' '}
-            {'USDC'}
+            {appContractData.underlyingSymbol}
           </Typography>
         </Box>
       </Box>
-      <PoolStats poolType={'PUTS'} />
+      <PoolStats poolType="PUTS" />
       <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra">
         <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
           <EstimatedGasCostButton gas={500000} chainId={chainId} />
@@ -99,17 +171,17 @@ const DepositPanel = () => {
         <Box className="flex space-x-3">
           <LockerIcon />
           <Typography variant="h6" className="text-stieglitz">
-            Withdrawals are enabled
+            Withdrawals are {disabled ? 'disabled' : 'enabled'}
           </Typography>
         </Box>
         <CustomButton
           size="medium"
           className="w-full mt-4 !rounded-md"
-          color={'mineshaft'}
-          disabled={true}
-          onClick={() => {}}
+          color={approved ? 'mineshaft' : 'primary'}
+          disabled={disabled}
+          onClick={approved ? handleDeposit : handleApprove}
         >
-          Deposit
+          {approved ? 'Deposit' : 'Approve'}
         </CustomButton>
       </Box>
     </Box>

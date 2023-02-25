@@ -1,5 +1,4 @@
 import Box from '@mui/material/Box';
-import Button from 'components/UI/Button';
 
 import Typography from 'components/UI/Typography';
 import PerpetualPoolsIcon from 'svgs/icons/PerpetualPoolsIcon';
@@ -18,7 +17,16 @@ const Description = () => {
           Perpetual Pools writes Puts for DPXUSD Bonding.
         </Typography>
       </Box>
-      <Button className="self-start h-[1rem] rounded-sm">Learn More</Button>
+      <a
+        className="self-start rounded-sm bg-primary px-2 py-1"
+        href="https://blog.dopex.io"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <Typography variant="h6" className="my-auto text-center">
+          Learn More
+        </Typography>
+      </a>
     </Box>
   );
 };

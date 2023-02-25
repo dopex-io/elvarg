@@ -374,6 +374,7 @@ export const CHAIN_ID_TO_RPC: { [key: number]: string } = {
   56: `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
   42161: `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   43114: `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
+  421613: `https://arb-goerli.g.alchemy.com/v2/${'###'}`,
   421611: `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
   1088: 'https://andromeda.metis.io/?owner=1088',
   1337: 'http://127.0.0.1:8545',
@@ -389,6 +390,7 @@ export const CHAIN_ID_TO_EXPLORER: { [key: number]: string } = {
   42161: 'https://arbiscan.io/',
   43114: 'https://snowtrace.io/',
   421611: 'https://testnet.arbiscan.io/',
+  421613: 'https://goerli.arbiscan.io/',
 };
 
 export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
@@ -402,6 +404,8 @@ export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/tzwap': { default: 42161, all: [1, 42161] },
   '/straddles': { default: 42161, all: [42161, 137] },
   '/straddles/MATIC': { default: 137, all: [137] },
+  '/rdpx-v2/mint': { default: 1337, all: [421613, 1337] },
+  '/rdpx-v2/perpetual-pools': { default: 1337, all: [421613, 1337] },
 };
 
 export const DISCLAIMER_MESSAGE = {

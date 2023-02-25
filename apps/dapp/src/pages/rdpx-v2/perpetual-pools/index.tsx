@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
@@ -7,6 +8,8 @@ import Stats from 'components/perpetual-pools/Stats';
 import Description from 'components/perpetual-pools/Description';
 import DepositPanel from 'components/perpetual-pools/DepositPanel';
 import DepositTable from 'components/perpetual-pools/DepositTable';
+
+import { useBoundStore } from 'store';
 
 /*
 Top component
@@ -31,6 +34,19 @@ const statsKeys = [
 const statsValues = ['-', '-', '-', '-', '-', '-'];
 
 const PerpetualPutsPage = () => {
+  const {
+    provider,
+    updateAPPContractData,
+    updateAPPUserData,
+    appContractData,
+  } = useBoundStore();
+
+  useEffect(() => {
+    updateAPPContractData().then(() => {
+      updateAPPUserData();
+    });
+  }, [provider, updateAPPContractData, updateAPPUserData]);
+
   return (
     <Box className="bg-contain min-h-screen">
       <Head>
@@ -41,7 +57,10 @@ const PerpetualPutsPage = () => {
         <Box className="py-12 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
           <Box className="flex mt-20 lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">
             <Box className="flex flex-col space-y-8 w-full sm:w-full lg:w-3/4 h-full">
-              <Title title={'Perpetual Pools'} quoteSymbol="USDC" />
+              <Title
+                title="Perpetual Pools"
+                subtitle={appContractData.underlyingSymbol || 'USDC'}
+              />
               <Description />
               <Stats
                 statsObject={Object.fromEntries(

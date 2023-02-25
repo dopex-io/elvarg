@@ -159,6 +159,22 @@ const appLinks = {
     { name: 'portfolio', to: '/portfolio' },
     { name: 'faucet', to: '/faucet' },
     { name: 'Atlantics', to: '/atlantics' },
+    {
+      name: 'rDPX',
+      subLinks: [
+        {
+          name: 'Atlantic Perpetual Pools',
+          to: '/rdpx-v2/perpetual-pools',
+          description:
+            'Write perpetual puts, receive funding till settlement by our treasury',
+        },
+        {
+          name: 'Mint',
+          to: '/rdpx-v2/mint',
+          description: 'Bond rDPX, mint $DSC',
+        },
+      ],
+    },
   ],
   421611: [
     // { name: 'options', to: '/' },

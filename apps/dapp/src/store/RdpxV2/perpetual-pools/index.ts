@@ -4,6 +4,16 @@ import { BigNumber } from 'ethers';
 import { WalletSlice } from 'store/Wallet';
 import { AssetsSlice } from 'store/Assets';
 
+import {
+  PerpetualAtlanticVault__factory,
+  // PerpetualAtlanticVault,
+  PerpetualAtlanticVault,
+  // ERC20,
+  // ERC20__factory,
+  USDC, // replace with ERC20
+  USDC__factory, // replace with ERC20__factory
+} from '@dopex-io/sdk';
+
 /*
 store: 
 updateAtlanticPerpetualPool:
@@ -16,7 +26,7 @@ updateAtlanticPerpetualPool:
   - totalRewardsCollected: BigNumber[2]
   - rewardDistributionRatios: BigNumber[2]
   - rewardTokensToDistribute: BigNumber[2]
-- fundingPercentage()
+- fundingPercentage() // deprecated
 - utilizationRate -- calculated from activeCollateral / totalCollateral
 updateUserAPPData():
 - getWritePosition()
@@ -37,33 +47,35 @@ interface VaultData {
   totalCollateral: BigNumber;
   activeCollateral: BigNumber;
   totalPremium: BigNumber;
-  totalRewardsCollected: [BigNumber, BigNumber];
-  rewardDistributionRatios: [BigNumber, BigNumber];
-  rewardTokensToDistribute: [BigNumber, BigNumber];
+  // totalRewardsCollected: [BigNumber, BigNumber];
+  // rewardDistributionRatios: [BigNumber, BigNumber];
+  // rewardTokensToDistribute: [BigNumber, BigNumber];
+  positionPointer: BigNumber;
 }
 
 interface APPContractData {
+  contract?: PerpetualAtlanticVault;
   underlyingSymbol: string;
-  baseSymbol: string;
+  collateralToken?: USDC;
   vaultData: VaultData;
-  fundingPercentage: BigNumber;
+  latestFundingPaymentPointer: BigNumber;
 }
 
-interface WritePosition {
+export interface WritePosition {
   totalCollateral: BigNumber;
   activeCollateral: BigNumber;
-  accruedPremium: BigNumber;
+  accuredPremium: BigNumber;
   withdrawableCollateral: BigNumber;
-  rewardDistributionRatios: [BigNumber, BigNumber];
-  strikes: Array<BigNumber>;
-  lastUpdatedTime: BigNumber | number;
-  lastUpdatedFundingPercentage: BigNumber;
-  user: string;
+  rewardDistributionRatios: BigNumber[];
+  // strikes: Array<BigNumber>;
+  // lastUpdatedTime: BigNumber | number;
+  // lastUpdatedFundingPercentage: BigNumber;
+  // user: string;
   positionId: BigNumber | number;
 }
 
 interface APPUserData {
-  writePosition: WritePosition;
+  writePositions: WritePosition[];
 }
 
 export interface APPSlice {
@@ -74,35 +86,38 @@ export interface APPSlice {
 }
 
 // todo: replace with contract data
-const dummyAppContractData: APPContractData = {
-  underlyingSymbol: 'RDPX',
-  baseSymbol: 'USDC',
-  vaultData: {
-    totalCollateral: BigNumber.from(10_000),
-    activeCollateral: BigNumber.from(5_000),
-    totalPremium: BigNumber.from(200),
-    totalRewardsCollected: [BigNumber.from(0), BigNumber.from(0)],
-    rewardDistributionRatios: [BigNumber.from(0), BigNumber.from(0)],
-    rewardTokensToDistribute: [BigNumber.from(0), BigNumber.from(0)],
-  },
-  fundingPercentage: BigNumber.from(15),
-};
+// const dummyAppContractData: APPContractData = {
+//   underlyingSymbol: 'RDPX',
+//   collateralToken: 'USDC',
+//   vaultData: {
+//     totalCollateral: BigNumber.from(10_000),
+//     activeCollateral: BigNumber.from(5_000),
+//     totalPremium: BigNumber.from(200),
+//     positionPointer: BigNumber.from(0),
+//     // totalRewardsCollected: [BigNumber.from(0), BigNumber.from(0)],
+//     // rewardDistributionRatios: [BigNumber.from(0), BigNumber.from(0)],
+//     // rewardTokensToDistribute: [BigNumber.from(0), BigNumber.from(0)],
+//   },
+//   latestFundingPaymentPointer: BigNumber.from(15),
+// };
 
 // todo: replace with contract data
-const dummyAppUserData: APPUserData = {
-  writePosition: {
-    totalCollateral: BigNumber.from(1000),
-    activeCollateral: BigNumber.from(500),
-    accruedPremium: BigNumber.from(50),
-    withdrawableCollateral: BigNumber.from(500),
-    rewardDistributionRatios: [BigNumber.from(0), BigNumber.from(0)],
-    strikes: [BigNumber.from(17), BigNumber.from(20)],
-    lastUpdatedTime: 1671644513,
-    lastUpdatedFundingPercentage: BigNumber.from(2),
-    user: '0x0abcdef123456789abcdef123456789abcdef1234',
-    positionId: 1,
-  },
-};
+// const dummyAppUserData: APPUserData = [
+//   {
+//     writePosition: {
+//       totalCollateral: BigNumber.from(1000),
+//       activeCollateral: BigNumber.from(500),
+//       accuredPremium: BigNumber.from(50),
+//       withdrawableCollateral: BigNumber.from(500),
+//       rewardDistributionRatios: [BigNumber.from(0), BigNumber.from(0)],
+//       // strikes: [BigNumber.from(17), BigNumber.from(20)],
+//       // lastUpdatedTime: 1671644513,
+//       // lastUpdatedFundingPercentage: BigNumber.from(2),
+//       // user: '0x0abcdef123456789abcdef123456789abcdef1234',
+//       positionId: 1,
+//     },
+//   },
+// ];
 
 export const createAppSlice: StateCreator<
   APPSlice & WalletSlice & AssetsSlice,
@@ -112,46 +127,114 @@ export const createAppSlice: StateCreator<
 > = (set, get) => ({
   appContractData: {
     underlyingSymbol: '',
-    baseSymbol: '',
     vaultData: {
       totalCollateral: BigNumber.from(0),
       activeCollateral: BigNumber.from(0),
       totalPremium: BigNumber.from(0),
-      totalRewardsCollected: [BigNumber.from(0), BigNumber.from(0)],
-      rewardDistributionRatios: [BigNumber.from(0), BigNumber.from(0)],
-      rewardTokensToDistribute: [BigNumber.from(0), BigNumber.from(0)],
+      positionPointer: BigNumber.from(0),
+      // totalRewardsCollected: [BigNumber.from(0), BigNumber.from(0)],
+      // rewardDistributionRatios: [BigNumber.from(0), BigNumber.from(0)],
+      // rewardTokensToDistribute: [BigNumber.from(0), BigNumber.from(0)],
     },
-    fundingPercentage: BigNumber.from(0),
+    latestFundingPaymentPointer: BigNumber.from(0),
   },
   updateAPPContractData: async () => {
-    const { provider, chainId } = get();
+    const { signer, provider, contractAddresses } = get();
 
-    if (!provider || !chainId) return;
+    if (!signer || !provider || !contractAddresses) return;
+
+    const _contract: PerpetualAtlanticVault =
+      PerpetualAtlanticVault__factory.connect(
+        '0xe6e340d132b5f46d1e472debcd681b2abc16e57e',
+        signer
+      );
+
+    const [
+      underlyingSymbol,
+      collateralToken,
+      vaultData,
+      latestFundingPaymentPointer,
+    ] = await Promise.all([
+      _contract.underlyingSymbol(),
+      _contract.collateralToken(),
+      _contract.vaultData(),
+      _contract.latestFundingPaymentPointer(),
+    ]);
+
+    console.log(
+      underlyingSymbol,
+      collateralToken,
+      vaultData,
+      latestFundingPaymentPointer
+    );
 
     set((prevState) => ({
       ...prevState,
-      appContractData: dummyAppContractData,
+      appContractData: {
+        contract: _contract,
+        underlyingSymbol,
+        collateralToken: USDC__factory.connect(
+          '0xa85233c63b9ee964add6f2cffe00fd84eb32338f', // Local node USDC Address
+          signer
+        ),
+        vaultData,
+        latestFundingPaymentPointer,
+      },
     }));
   },
   appUserData: {
-    writePosition: {
-      totalCollateral: BigNumber.from(0),
-      activeCollateral: BigNumber.from(0),
-      accruedPremium: BigNumber.from(0),
-      withdrawableCollateral: BigNumber.from(0),
-      rewardDistributionRatios: [BigNumber.from(0), BigNumber.from(0)],
-      strikes: [],
-      lastUpdatedTime: BigNumber.from(0),
-      lastUpdatedFundingPercentage: BigNumber.from(0),
-      user: '',
-      positionId: BigNumber.from(0),
-    },
+    writePositions: [
+      {
+        totalCollateral: BigNumber.from(0),
+        activeCollateral: BigNumber.from(0),
+        accuredPremium: BigNumber.from(0),
+        withdrawableCollateral: BigNumber.from(0),
+        rewardDistributionRatios: [BigNumber.from(0), BigNumber.from(0)],
+        strikes: [],
+        lastUpdatedTime: BigNumber.from(0),
+        lastUpdatedFundingPercentage: BigNumber.from(0),
+        user: '',
+        positionId: BigNumber.from(0),
+      },
+    ],
   },
   updateAPPUserData: async () => {
-    const { accountAddress, contractAddresses } = get();
+    const { accountAddress, contractAddresses, appContractData } = get();
 
-    if (!accountAddress || !contractAddresses) return;
+    if (!accountAddress || !contractAddresses || !appContractData.contract)
+      return;
 
-    set((prevState) => ({ ...prevState, appUserData: dummyAppUserData }));
+    const userTokenIds = (
+      await appContractData.contract.balanceOf(accountAddress)
+    ).toNumber();
+
+    let writePositionIds: BigNumber[] = [];
+    let writePositions: WritePosition[] = [];
+
+    for (let i = 0; i < userTokenIds; i++) {
+      const tokenId: BigNumber =
+        await appContractData.contract.tokenOfOwnerByIndex(
+          accountAddress,
+          BigNumber.from(i)
+        );
+      if (!tokenId) continue;
+      writePositionIds.push(tokenId);
+    }
+
+    for (let i = 0; i < writePositionIds.length; i++) {
+      writePositions.push({
+        ...(await appContractData.contract.getWritePosition(
+          writePositionIds[i]!
+        )),
+        positionId: writePositionIds[i]!,
+      });
+    }
+
+    // console.log(writePositionIds, writePositions);
+
+    set((prevState) => ({
+      ...prevState,
+      appUserData: { ...prevState.appUserData, writePositions },
+    }));
   },
 });
