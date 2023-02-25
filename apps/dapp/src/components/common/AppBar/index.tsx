@@ -290,7 +290,7 @@ interface AppBarProps {
     | 'swap'
     | 'DPX Bonds'
     | 'vaults'
-    // | 'AMM'
+    | 'AMM'
     | 'APP'
     | 'Mint'
     | 'Atlantics';
