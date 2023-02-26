@@ -1,15 +1,5 @@
-import React, { ReactNode, FC } from "react";
 import { Tab as HeadlessTab } from "@headlessui/react";
-
-function classNames(...classes: any) {
-  return classes.filter(Boolean).join(" ");
-}
-
-export interface TabHeaderProps {
-  children: ReactNode;
-  className?: string;
-  disabled?: boolean;
-}
+import React, { FC, ReactNode } from "react";
 
 const SIZES: { [key: string]: string } = {
   small: "h-[1.875rem] w-[41.625rem]",
@@ -17,41 +7,19 @@ const SIZES: { [key: string]: string } = {
   large: "h-[3.625rem] w-[50.5rem]",
 };
 
-export const TabHeader: FC<TabHeaderProps> = (props) => {
-  const { children, className = "", disabled = false, ...otherProps } = props;
-
-  return (
-    <HeadlessTab
-      disabled={disabled}
-      className={({ selected }) =>
-        classNames(
-          "w-full rounded-lg text-sm font-medium text-white",
-          "focus:outline-none",
-          otherProps,
-          disabled
-            ? "bg-carbon/[0.5] text-stieglitz/[0.5]"
-            : selected
-            ? "bg-carbon"
-            : "text-stieglitz hover:bg-carbon hover:text-white"
-        )
-      }
-    >
-      {children}
-    </HeadlessTab>
-  );
-};
-
-export function Tabs({
-  children,
-  size = "medium",
-}: {
+export interface TabProps {
   children: ReactNode;
+  className?: string;
   size?: string;
-}) {
+}
+
+const Tabs: FC<TabProps> = (props: TabProps) => {
+  const { children, className = "", size = "medium" } = props;
+
   return (
     <HeadlessTab.Group>
       <HeadlessTab.List
-        className={`flex mt-2 space-x-1 rounded-lg bg-umbra border border-carbon p-1 ${SIZES[size]}`}
+        className={`${className} flex mt-2 space-x-1 rounded-lg bg-umbra border border-carbon p-1 ${SIZES[size]}`}
       >
         {children}
       </HeadlessTab.List>
@@ -62,4 +30,8 @@ export function Tabs({
       </HeadlessTab.Panels>
     </HeadlessTab.Group>
   );
-}
+};
+
+Tabs.displayName = "Tabs";
+
+export default Tabs;

@@ -1,9 +1,8 @@
-import React from "react";
-import { ComponentMeta } from "@storybook/react";
-
 import AlarmIcon from "../../../apps/dapp/src/svgs/icons/AlarmIcon";
-
-import { Tabs, TabHeader } from "../src/Tabs";
+import TabHeader from "../src/TabHeader";
+import Tabs from "../src/Tabs";
+import { ComponentMeta } from "@storybook/react";
+import React from "react";
 
 export default {
   title: "Tabs",
