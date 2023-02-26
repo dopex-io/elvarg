@@ -41,7 +41,7 @@
     "react-dom": "^18.0.0",
     "react-hot-toast": "^2.0.0",
     "react-use": "^17.2.4",
-    "recharts": "2.3.2",
+    "recharts": "2.4.3",
     "sass": "^1.49.8",
     "use-debounce": "^9.0.0",
     "web3modal": "^1.9.4",
