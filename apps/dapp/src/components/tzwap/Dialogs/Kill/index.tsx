@@ -15,6 +15,7 @@ const Kill = ({ openOrder, setOpenOrder, handleKill }: Props) => {
   return (
     <Dialog
       open={openOrder !== null}
+      handleClose={(_e, _reason) => {}}
       classes={{
         paper: 'bg-cod-gray p-2 rounded-xl w-[25rem]',
       }}

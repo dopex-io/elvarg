@@ -1,23 +1,23 @@
-import { useCallback, useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
 import { BigNumber } from 'ethers';
+
 import { ERC20__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import { SelectChangeEvent } from '@mui/material/Select';
-
+import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButtonV2';
-import ApproveDepositButton from 'components/common/ApproveDepositButton';
 import Typography from 'components/UI/Typography';
+import ApproveDepositButton from 'components/common/ApproveDepositButton';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButtonV2';
 import DiscountBox from 'components/common/LpCommon/DiscountBox';
 import WithdrawInfoBox from 'components/common/LpCommon/WithdrawInfoBox';
 import {
   DepositBalanceBox,
-  StrikeBox,
   PutBox,
+  StrikeBox,
 } from 'components/olp/ProvideLp/DepositPanel';
-
-import useSendTx from 'hooks/useSendTx';
 
 import allowanceApproval from 'utils/contracts/allowanceApproval';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';

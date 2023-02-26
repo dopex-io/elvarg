@@ -1,16 +1,17 @@
 import { BigNumber } from 'ethers';
-import Input from '@mui/material/Input';
-import Box from '@mui/material/Box';
+
 import NorthEastIcon from '@mui/icons-material/NorthEast';
 import SouthEastIcon from '@mui/icons-material/SouthEast';
+import Box from '@mui/material/Box';
 import CustomButton from '@mui/material/Button';
+import Input from '@mui/material/Input';
 
 import Typography from 'components/UI/Typography';
 import AssetMenuBox from 'components/common/AssetMenuBox';
 import BalanceBox from 'components/common/LpCommon/BalanceBox';
 import StrikeMenuBox from 'components/common/StrikeMenuBox';
 
-import { DECIMALS_USD, DECIMALS_TOKEN } from 'constants/index';
+import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
 function addDecimals(input: BigNumber, decimals: number) {
   const strInput = input.toString();

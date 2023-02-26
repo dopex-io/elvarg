@@ -74,7 +74,7 @@ const SsovData = () => {
 
   const keys = useMemo(() => {
     if (!ssovs) return [];
-    else return [42161];
+    else return [42161, 137];
   }, [ssovs]);
 
   const ssovsTokens = useMemo(() => {
@@ -160,6 +160,7 @@ const SsovData = () => {
 
         {!isEmpty(ssovs)
           ? keys.map((key) => {
+              console.log(key);
               return (
                 <Box key={key} className="mb-12">
                   <NetworkHeader chainId={Number(key)} />

@@ -1,18 +1,18 @@
 import { useCallback, useMemo, useState } from 'react';
-import { useWindowSize } from 'react-use';
+
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import {
   Avatar,
   Box,
   IconButton,
-  Menu as MuiMenu,
   MenuItem,
+  Menu as MuiMenu,
 } from '@mui/material';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import { useWindowSize } from 'react-use';
+import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
-
-import { useBoundStore } from 'store';
 
 import { getReadableTime } from 'utils/contracts';
 

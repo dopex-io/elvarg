@@ -402,6 +402,8 @@ export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/tzwap': { default: 42161, all: [1, 42161] },
   '/straddles': { default: 42161, all: [42161, 137] },
   '/straddles/MATIC': { default: 137, all: [137] },
+  '/ssov': { default: 42161, all: [42161, 137] },
+  '/ssov/MATIC-WEEKLY-CALLS-SSOV-V3': { default: 137, all: [137] },
 };
 
 export const DISCLAIMER_MESSAGE = {
