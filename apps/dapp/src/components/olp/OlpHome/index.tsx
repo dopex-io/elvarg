@@ -1,25 +1,27 @@
 import { useCallback, useMemo, useState } from 'react';
+
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import {
   Box,
-  TableBody,
+  Paper,
   Table,
-  TableHead,
-  TableRow,
+  TableBody,
   TableCell,
   TableContainer,
+  TableHead,
   TablePagination,
-  Paper,
+  TableRow,
 } from '@mui/material';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { styled } from '@mui/material/styles';
 import _ from 'lodash';
 import { isEmpty } from 'lodash';
+import { IOlpApi } from 'pages/olp';
 
-import { Typography, TablePaginationActions } from 'components/UI';
+import { TablePaginationActions, Typography } from 'components/UI';
 import {
-  StyleTableCell,
   StyleLeftTableCell,
   StyleRightTableCell,
+  StyleTableCell,
 } from 'components/common/LpCommon/Table';
 import SsovFilter from 'components/ssov/SsovFilter';
 
@@ -28,7 +30,6 @@ import { getReadableTime } from 'utils/contracts';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 import { CHAIN_ID_TO_NETWORK_DATA, ROWS_PER_PAGE } from 'constants/index';
 
-import { IOlpApi } from 'pages/olp';
 import { FeaturedOlp } from './FeaturedOlp';
 import { OlpTableRow } from './OlpTableRow';
 
