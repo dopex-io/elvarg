@@ -310,6 +310,7 @@ export const CHAIN_ID_TO_NETWORK_DATA: {
   56: { name: 'BSC', icon: '/images/tokens/bnb.svg' },
   42161: { name: 'Arbitrum', icon: '/images/networks/arbitrum.svg' },
   421611: { name: 'Testnet', icon: '/images/networks/arbitrum.svg' },
+  421613: { name: 'Arbitrum Goerli', icon: '/images/networks/arbitrum.svg' },
   43114: { name: 'Avalanche', icon: '/images/tokens/avax.svg' },
   1088: { name: 'Metis', icon: '/images/tokens/metis.svg' },
   1337: { name: 'Localhost', icon: '/images/tokens/eth.svg' },

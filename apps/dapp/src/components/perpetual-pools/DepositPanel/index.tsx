@@ -87,9 +87,12 @@ const DepositPanel = () => {
   ]);
 
   useEffect(() => {
-    if (!appContractData.contract) return;
-    setDisabled(false);
-  }, [appContractData.contract]);
+    (async () => {
+      if (!appContractData.contract) return;
+      const contractIsPaused = await appContractData.contract.paused();
+      setDisabled(contractIsPaused);
+    })();
+  }, [appContractData.contract, value]);
 
   useEffect(() => {
     (async () => {
@@ -122,6 +125,7 @@ const DepositPanel = () => {
       <Box className="bg-umbra rounded-xl w-full">
         <Input
           size="small"
+          type="number"
           value={value}
           onChange={handleChange}
           placeholder="0.0"
@@ -178,17 +182,17 @@ const DepositPanel = () => {
         <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
           <EstimatedGasCostButton gas={500000} chainId={chainId} />
         </Box>
-        <Box className="flex space-x-3">
-          <LockerIcon />
-          <Typography variant="h6" className="text-stieglitz">
-            Withdrawals are {disabled ? 'disabled' : 'enabled'}
+        <Box className="flex justify-between">
+          <LockerIcon className="w-1/6" />
+          <Typography variant="h6" color="stieglitz" className="break-words">
+            Withdrawals are disabled till settlement
           </Typography>
         </Box>
         <CustomButton
           size="medium"
           className="w-full mt-4 !rounded-md"
           color={approved ? 'mineshaft' : 'primary'}
-          disabled={disabled}
+          disabled={disabled || value === '' || value === '0'}
           onClick={approved ? handleDeposit : handleApprove}
         >
           {approved ? 'Deposit' : 'Approve'}
