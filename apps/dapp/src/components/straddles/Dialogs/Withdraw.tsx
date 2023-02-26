@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
 import cx from 'classnames';
-import Countdown from 'react-countdown';
 
 import Box from '@mui/material/Box';
 import CloseIcon from '@mui/icons-material/Close';
@@ -155,30 +154,7 @@ const WithdrawModal = ({
                   disabled={!isWithdrawalEnabled}
                   color={isWithdrawalEnabled ? 'primary' : 'mineshaft'}
                 >
-                  {isWithdrawalEnabled || !straddlesData?.isEpochExpired ? (
-                    'Withdraw'
-                  ) : (
-                    <Countdown
-                      date={straddlesEpochData?.expiry.toNumber()}
-                      renderer={({ days, hours, minutes }) => {
-                        return (
-                          <Box className={'flex'}>
-                            <img
-                              src="/assets/timer.svg"
-                              className="h-[0.9rem] mr-2 ml-1"
-                              alt="Timer"
-                            />
-                            <Typography
-                              variant="inherit"
-                              className="ml-auto text-stieglitz mr-1"
-                            >
-                              {days}d {hours}h {minutes}m
-                            </Typography>
-                          </Box>
-                        );
-                      }}
-                    />
-                  )}
+                  Withdraw
                 </CustomButton>
               </Box>
             </Box>
