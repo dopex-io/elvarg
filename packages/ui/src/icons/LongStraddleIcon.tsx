@@ -1,6 +1,6 @@
 import React from "react";
 
-export const LongStraddleIcon = ({ className = "" }) => {
+const LongStraddleIcon = ({ className = "" }) => {
   return (
     <svg
       width="20"

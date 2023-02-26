@@ -1,6 +1,6 @@
 import React from "react";
 
-export const InsuredPerpsIcon = ({ className = "" }) => {
+const InsuredPerpsIcon = ({ className = "" }) => {
   return (
     <svg
       width="20"

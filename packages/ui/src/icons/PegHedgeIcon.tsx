@@ -1,6 +1,6 @@
 import React from "react";
 
-export const PegHedgeIcon = ({ className = "" }) => {
+const PegHedgeIcon = ({ className = "" }) => {
   return (
     <svg
       width="20"

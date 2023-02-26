@@ -3,9 +3,9 @@ import { ComponentMeta } from "@storybook/react";
 import { Menu as HeadlessMenu } from "@headlessui/react";
 
 import MenuItems, { ItemType } from "../src/MenuItems";
-import PegHedgeIcon from "../src/miscellaneous/icons/PegHedgeIcon";
-import InsuredPerpsIcon from "../src/miscellaneous/icons/InsuredPerpsIcon";
-import LongStraddleIcon from "../src/miscellaneous/icons/LongStraddleIcon";
+import PegHedgeIcon from "../src/icons/PegHedgeIcon";
+import InsuredPerpsIcon from "../src/icons/InsuredPerpsIcon";
+import LongStraddleIcon from "../src/icons/LongStraddleIcon";
 
 const meta: ComponentMeta<typeof MenuItems> = {
   title: "MenuItem",
