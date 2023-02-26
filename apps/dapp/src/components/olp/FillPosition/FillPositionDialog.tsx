@@ -1,28 +1,30 @@
 import { MouseEventHandler } from 'react';
+
 import { BigNumber } from 'ethers';
+
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import Switch from '@mui/material/Switch';
 import Tooltip from '@mui/material/Tooltip';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { styled } from '@mui/material/styles';
 
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButtonV2';
-import ApproveDepositButton from 'components/common/ApproveDepositButton';
-import Typography from 'components/UI/Typography';
+import { LpPosition } from 'store/Vault/olp';
+
 import Button from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
+import ApproveDepositButton from 'components/common/ApproveDepositButton';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButtonV2';
 import {
   DialogRow,
   LiquidityDialogRow,
   NumberLiquidityDialogRow,
 } from 'components/common/LpCommon/Table';
 
-import { LpPosition } from 'store/Vault/olp';
-
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import { DECIMALS_TOKEN, DECIMALS_STRIKE, DECIMALS_USD } from 'constants/index';
+import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
 interface Props {
   lpPositionSelected: LpPosition;

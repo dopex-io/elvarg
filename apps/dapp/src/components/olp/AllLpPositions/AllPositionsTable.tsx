@@ -1,17 +1,19 @@
 import { Dispatch, SetStateAction } from 'react';
+
 import { BigNumber } from 'ethers';
+
 import Box from '@mui/material/Box';
 import TableRow from '@mui/material/TableRow';
 
-import {
-  getLiquidityBodyCell,
-  getUntransformedBodyCell,
-  StyleLeftCell,
-  StyleRightCell,
-} from 'components/common/LpCommon/Table';
 import CustomButton from 'components/UI/Button';
 import NumberDisplay from 'components/UI/NumberDisplay';
 import Typography from 'components/UI/Typography';
+import {
+  StyleLeftCell,
+  StyleRightCell,
+  getLiquidityBodyCell,
+  getUntransformedBodyCell,
+} from 'components/common/LpCommon/Table';
 import FillPosition from 'components/olp/FillPosition';
 
 import { DECIMALS_STRIKE } from 'constants/index';
