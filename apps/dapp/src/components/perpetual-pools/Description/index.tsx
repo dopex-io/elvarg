@@ -14,7 +14,7 @@ const Description = () => {
           </Typography>
         </Box>
         <Typography variant="h6" color="stieglitz">
-          Perpetual Pools writes Puts for DPXUSD Bonding.
+          Write Perpetual Puts for $DSC Bonding.
         </Typography>
       </Box>
       <a

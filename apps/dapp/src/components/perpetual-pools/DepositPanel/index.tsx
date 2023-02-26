@@ -42,8 +42,12 @@ const DepositPanel = () => {
     if (!collateralToken) return;
     setValue(
       getUserReadableAmount(
-        userAssetBalances[appContractData.underlyingSymbol] || '0',
-        getTokenDecimals(appContractData.underlyingSymbol, chainId)
+        userAssetBalances[appContractData.underlyingSymbol.toUpperCase()] ||
+          '0',
+        getTokenDecimals(
+          appContractData.underlyingSymbol.toUpperCase(),
+          chainId
+        )
       )
     );
   }, [appContractData, chainId, userAssetBalances]);
@@ -126,12 +130,14 @@ const DepositPanel = () => {
             <Box className="flex my-auto space-x-2">
               <Box className="flex bg-cod-gray rounded-full p-1 relative">
                 <img
-                  src={`/images/tokens/${appContractData.underlyingSymbol?.toLowerCase()}.svg`}
-                  alt={appContractData.underlyingSymbol.toLowerCase()}
+                  src={`/images/tokens/${
+                    appContractData.underlyingSymbol?.toLowerCase() || 'USDC'
+                  }.svg`}
+                  alt={appContractData.underlyingSymbol.toUpperCase()}
                   className="w-[2.2rem] mr-1"
                 />
                 <Typography variant="h5" className="my-auto w-[5.2rem]">
-                  {appContractData.underlyingSymbol}
+                  {appContractData.underlyingSymbol.toUpperCase()}
                 </Typography>
               </Box>
               <Box
@@ -153,13 +159,17 @@ const DepositPanel = () => {
           <Typography variant="h6">
             {formatAmount(
               getUserReadableAmount(
-                userAssetBalances[appContractData.underlyingSymbol] ?? '0',
-                TOKEN_DECIMALS[chainId]?.[appContractData.underlyingSymbol]
+                userAssetBalances[
+                  appContractData.underlyingSymbol.toUpperCase()
+                ] ?? '0',
+                TOKEN_DECIMALS[chainId]?.[
+                  appContractData.underlyingSymbol.toUpperCase()
+                ]
               ),
               3,
               true
             )}{' '}
-            {appContractData.underlyingSymbol}
+            {appContractData.underlyingSymbol.toUpperCase()}
           </Typography>
         </Box>
       </Box>

@@ -56,8 +56,11 @@ interface VaultData {
 interface APPContractData {
   contract?: PerpetualAtlanticVault;
   underlyingSymbol: string;
-  collateralToken?: USDC;
+  underlyingToken?: USDC; // todo: change to ERC20
+  collateralSymbol: string;
+  collateralToken?: USDC; // todo: change to ERC20
   vaultData: VaultData;
+  utilizationRate: BigNumber;
   latestFundingPaymentPointer: BigNumber;
 }
 
@@ -85,40 +88,6 @@ export interface APPSlice {
   updateAPPUserData: Function;
 }
 
-// todo: replace with contract data
-// const dummyAppContractData: APPContractData = {
-//   underlyingSymbol: 'RDPX',
-//   collateralToken: 'USDC',
-//   vaultData: {
-//     totalCollateral: BigNumber.from(10_000),
-//     activeCollateral: BigNumber.from(5_000),
-//     totalPremium: BigNumber.from(200),
-//     positionPointer: BigNumber.from(0),
-//     // totalRewardsCollected: [BigNumber.from(0), BigNumber.from(0)],
-//     // rewardDistributionRatios: [BigNumber.from(0), BigNumber.from(0)],
-//     // rewardTokensToDistribute: [BigNumber.from(0), BigNumber.from(0)],
-//   },
-//   latestFundingPaymentPointer: BigNumber.from(15),
-// };
-
-// todo: replace with contract data
-// const dummyAppUserData: APPUserData = [
-//   {
-//     writePosition: {
-//       totalCollateral: BigNumber.from(1000),
-//       activeCollateral: BigNumber.from(500),
-//       accuredPremium: BigNumber.from(50),
-//       withdrawableCollateral: BigNumber.from(500),
-//       rewardDistributionRatios: [BigNumber.from(0), BigNumber.from(0)],
-//       // strikes: [BigNumber.from(17), BigNumber.from(20)],
-//       // lastUpdatedTime: 1671644513,
-//       // lastUpdatedFundingPercentage: BigNumber.from(2),
-//       // user: '0x0abcdef123456789abcdef123456789abcdef1234',
-//       positionId: 1,
-//     },
-//   },
-// ];
-
 export const createAppSlice: StateCreator<
   APPSlice & WalletSlice & AssetsSlice,
   [['zustand/devtools', never]],
@@ -127,6 +96,8 @@ export const createAppSlice: StateCreator<
 > = (set, get) => ({
   appContractData: {
     underlyingSymbol: '',
+    collateralSymbol: '',
+    utilizationRate: BigNumber.from(0),
     vaultData: {
       totalCollateral: BigNumber.from(0),
       activeCollateral: BigNumber.from(0),
@@ -161,22 +132,22 @@ export const createAppSlice: StateCreator<
       _contract.latestFundingPaymentPointer(),
     ]);
 
-    console.log(
-      underlyingSymbol,
-      collateralToken,
-      vaultData,
-      latestFundingPaymentPointer
-    );
+    const collateralContract = USDC__factory.connect(collateralToken, signer);
+
+    const collateralSymbol = await collateralContract.symbol();
+
+    const utilizationRate = vaultData.activeCollateral
+      .mul(100)
+      .div(vaultData.totalCollateral);
 
     set((prevState) => ({
       ...prevState,
       appContractData: {
         contract: _contract,
         underlyingSymbol,
-        collateralToken: USDC__factory.connect(
-          '0xa85233c63b9ee964add6f2cffe00fd84eb32338f', // Local node USDC Address
-          signer
-        ),
+        collateralSymbol,
+        utilizationRate,
+        collateralToken: collateralContract,
         vaultData,
         latestFundingPaymentPointer,
       },
@@ -229,8 +200,6 @@ export const createAppSlice: StateCreator<
         positionId: writePositionIds[i]!,
       });
     }
-
-    // console.log(writePositionIds, writePositions);
 
     set((prevState) => ({
       ...prevState,

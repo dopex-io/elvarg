@@ -114,7 +114,7 @@ const DepositTable = () => {
           </Table>
         </TableContainer>
       ) : (
-        <Box className="bg-umbra w-full p-3 text-center rounded-xl">
+        <Box className="bg-cod-gray w-full px-3 py-10 text-center rounded-xl">
           <Typography variant="h5" color="stieglitz">
             Nothing to show
           </Typography>

@@ -1,13 +1,21 @@
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
+import InfoTooltip from 'components/UI/InfoTooltip';
+
+import { StatsType } from 'pages/rdpx-v2/perpetual-pools';
+
+import { smartTrim } from 'utils/general';
+
+import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
 
 interface Props {
-  statsObject: Record<string, string | number>;
+  statsObject: Record<string, StatsType>;
+  chainId?: number;
 }
 
 const Stats = (props: Props) => {
-  const { statsObject } = props;
+  const { statsObject, chainId = 42161 } = props;
 
   return (
     <Box className="grid grid-flow-row grid-cols-2">
@@ -33,8 +41,36 @@ const Stats = (props: Props) => {
           >
             <Typography variant="h6" color="stieglitz">
               {key}
+              {Object(statsObject[key])['tooltip'] ? (
+                <InfoTooltip
+                  id={key}
+                  title={Object(statsObject[key])['tooltip']}
+                  className="p-1"
+                  arrow
+                />
+              ) : null}
             </Typography>
-            <Typography variant="h6">{statsObject[key]}</Typography>
+            {key.includes('Contract') ? (
+              <a
+                href={`${CHAIN_ID_TO_EXPLORER[chainId]}/address/${String(
+                  Object(statsObject[key])['value'] || ''
+                )}`}
+                className="cursor-pointer"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Typography variant="h6">
+                  {smartTrim(
+                    String(Object(statsObject[key])['value'] || ''),
+                    10
+                  )}
+                </Typography>
+              </a>
+            ) : (
+              <Typography variant="h6">
+                {Object(statsObject[key])?.['value']}
+              </Typography>
+            )}
           </Box>
         );
       })}

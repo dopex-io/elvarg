@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
@@ -10,6 +10,9 @@ import DepositPanel from 'components/perpetual-pools/DepositPanel';
 import DepositTable from 'components/perpetual-pools/DepositTable';
 
 import { useBoundStore } from 'store';
+
+import { getUserReadableAmount } from 'utils/contracts';
+import { formatAmount } from 'utils/general';
 
 /*
 Top component
@@ -31,15 +34,37 @@ const statsKeys = [
   'Contract',
 ];
 
-const statsValues = ['-', '-', '-', '-', '-', '-'];
+// const statsValues = ['-', '-', '-', '-', '-', '-'];
+
+export type StatsType = Record<string, string | number | undefined>;
 
 const PerpetualPutsPage = () => {
   const {
     provider,
+    chainId,
     updateAPPContractData,
     updateAPPUserData,
     appContractData,
   } = useBoundStore();
+
+  const stats = useMemo(() => {
+    if (!appContractData || !appContractData.contract) return;
+    const utilizationRate = getUserReadableAmount(
+      appContractData.utilizationRate
+    );
+    return [
+      { value: '-' },
+      { value: '-' },
+      { value: '-' },
+      { value: '-' },
+      {
+        value: formatAmount(utilizationRate, 3),
+        tooltip:
+          'Ratio of active collateral from purchased options to total collateral in the pool',
+      },
+      { value: appContractData.contract.address },
+    ] as StatsType[];
+  }, [appContractData]);
 
   useEffect(() => {
     updateAPPContractData().then(() => {
@@ -59,13 +84,18 @@ const PerpetualPutsPage = () => {
             <Box className="flex flex-col space-y-8 w-full sm:w-full lg:w-3/4 h-full">
               <Title
                 title="Perpetual Pools"
-                subtitle={appContractData.underlyingSymbol || 'USDC'}
+                subtitle={
+                  appContractData.underlyingSymbol.toUpperCase() || 'USDC'
+                }
               />
               <Description />
               <Stats
                 statsObject={Object.fromEntries(
-                  statsKeys.map((_, i) => [statsKeys[i], statsValues[i]])
+                  statsKeys.map((_, i) =>
+                    stats ? [statsKeys[i], stats[i]] : [statsKeys[i], '-']
+                  )
                 )}
+                chainId={chainId}
               />
               <DepositTable />
             </Box>
