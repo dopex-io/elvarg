@@ -1,13 +1,14 @@
 import React from 'react';
-import { Area, AreaChart, ResponsiveContainer, Tooltip, YAxis } from 'recharts';
+
 import Box from '@mui/material/Box';
+import { Area, AreaChart, ResponsiveContainer, Tooltip, YAxis } from 'recharts';
 
 import { LendingStats } from 'store/Vault/lending';
 
 import Typography from 'components/UI/Typography';
 
-import { formatAmount } from 'utils/general';
 import { getReadableTime } from 'utils/contracts';
+import { formatAmount } from 'utils/general';
 
 // TODO: remove
 const fakeData = [
@@ -55,7 +56,7 @@ const CustomizedTooltip = ({ active, payload }: any) => {
   ) : null;
 };
 
-export const Chart = (props: ChartProps) => {
+const Chart = (props: ChartProps) => {
   const { loanType, totalLoan } = props;
 
   return (

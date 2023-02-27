@@ -1,17 +1,17 @@
-import React, { useEffect } from 'react';
 import Head from 'next/head';
-import Box from '@mui/material/Box';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
+import React, { useEffect } from 'react';
+
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import Box from '@mui/material/Box';
 import { useBoundStore } from 'store';
 
-import AppBar from 'components/common/AppBar';
-
-import { Chart } from './Stats/Chart';
-import { Markets } from './Markets/Markets';
-import { DebtPositions } from './Debt/DebtPositions';
 import { Typography } from 'components/UI';
-import { LendingPositions } from './Lend';
+import AppBar from 'components/common/AppBar';
+import DebtPositions from 'components/lending/Debt/DebtPositions';
+import LendingPositions from 'components/lending/Lend/LendingPositions';
+import Markets from 'components/lending/Markets/Markets';
+import Chart from 'components/lending/Stats/Chart';
 
 const LENDING_INTRO: string = 'https://app.dopex.io';
 

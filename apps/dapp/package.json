@@ -8,7 +8,7 @@
     "build": "next build",
     "lint": "next lint",
     "generate": "graphql-codegen",
-    "format": "prettier --write \"./src/components/olp/**/*.{ts,tsx}\""
+    "format": "prettier --write \"./src/components/lending/**/*.{ts,tsx}\""
   },
   "dependencies": {
     "@0xsequence/multicall": "^0.43.3",

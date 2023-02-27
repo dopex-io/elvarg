@@ -1,29 +1,30 @@
-import { useState, useCallback, useEffect, SyntheticEvent } from 'react';
-import { BigNumber, utils } from 'ethers';
-import { Box, Slider } from '@mui/material';
-import styled from '@emotion/styled';
-import { max, min } from 'lodash';
-import { ERC20__factory } from '@dopex-io/sdk';
-import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
+import { SyntheticEvent, useCallback, useEffect, useState } from 'react';
 
+import { BigNumber, utils } from 'ethers';
+
+import { ERC20__factory } from '@dopex-io/sdk';
+import styled from '@emotion/styled';
+import { Box, Slider } from '@mui/material';
+import useSendTx from 'hooks/useSendTx';
+import { max, min } from 'lodash';
+import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
 import { useBoundStore } from 'store';
+
 import { ISsovLendingData } from 'store/Vault/lending';
 
+import { CustomButton, Dialog, Input, Typography } from 'components/UI';
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import { Typography, Input, CustomButton, Dialog } from 'components/UI';
-
-import useSendTx from 'hooks/useSendTx';
 
 import {
   allowanceApproval,
-  getUserReadableAmount,
   getContractReadableAmount,
   getReadableTime,
+  getUserReadableAmount,
 } from 'utils/contracts';
 import { formatAmount } from 'utils/general';
 
-import { DECIMALS_TOKEN, ARBITRUM_CHAIN_ID, MAX_VALUE } from 'constants/index';
+import { ARBITRUM_CHAIN_ID, DECIMALS_TOKEN, MAX_VALUE } from 'constants/index';
 
 const CustomSlider = styled(Slider)(() => ({
   color: '#2D2D2D',

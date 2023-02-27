@@ -1,25 +1,27 @@
-import { useState, useCallback, useEffect } from 'react';
-import { BigNumber } from 'ethers';
-import { Box, SelectChangeEvent } from '@mui/material';
-import SouthEastRounded from '@mui/icons-material/SouthEastRounded';
-import { ERC20__factory } from '@dopex-io/sdk';
-import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
+import { useCallback, useEffect, useState } from 'react';
 
+import { BigNumber } from 'ethers';
+
+import { ERC20__factory } from '@dopex-io/sdk';
+import SouthEastRounded from '@mui/icons-material/SouthEastRounded';
+import { Box, SelectChangeEvent } from '@mui/material';
+import useSendTx from 'hooks/useSendTx';
+import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
 import { useBoundStore } from 'store';
+
 import { ISsovLendingData } from 'store/Vault/lending';
 
+import { Dialog, Typography } from 'components/UI';
+import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import SsovStrikeBox from 'components/common/SsovStrikeBox';
-import { Typography, Dialog } from 'components/UI';
-import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
-
-import useSendTx from 'hooks/useSendTx';
 
 import {
   allowanceApproval,
   getContractReadableAmount,
   getReadableTime,
 } from 'utils/contracts';
+
 import { DECIMALS_TOKEN, MAX_VALUE } from 'constants/index';
 
 import { BorrowButton } from './BorrowButton';

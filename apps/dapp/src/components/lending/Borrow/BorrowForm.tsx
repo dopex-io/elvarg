@@ -1,10 +1,12 @@
 import { BigNumber } from 'ethers';
+
 import { Box } from '@mui/material';
 
-import { Typography, Input } from 'components/UI';
+import { Input, Typography } from 'components/UI';
 
 import { getUserReadableAmount } from 'utils/contracts';
 import { formatAmount } from 'utils/general';
+
 import { DECIMALS_TOKEN } from 'constants/index';
 
 interface BorrowFormProps {

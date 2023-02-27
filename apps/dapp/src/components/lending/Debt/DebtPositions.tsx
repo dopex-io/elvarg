@@ -1,22 +1,22 @@
-import React, { useState, useCallback } from 'react';
-import { SsovV3LendingPut__factory } from 'mocks/factories/SsovV3LendingPut__factory';
-import isEmpty from 'lodash/isEmpty';
+import React, { useCallback, useMemo, useState } from 'react';
+
 import {
   Box,
   Table,
   TableBody,
   TableHead,
-  TableRow,
   TablePagination,
+  TableRow,
 } from '@mui/material';
-
+import isEmpty from 'lodash/isEmpty';
 import { useBoundStore } from 'store';
-import { ISsovLendingData, ISsovPosition } from 'store/Vault/lending';
+
+import { IDebtPosition } from 'store/Vault/lending';
 
 import {
+  CustomButton,
   TablePaginationActions,
   Typography,
-  CustomButton,
 } from 'components/UI';
 import {
   StyleCell,
@@ -28,24 +28,25 @@ import {
   StyleTableCell,
 } from 'components/common/LpCommon/Table';
 
-import useSendTx from 'hooks/useSendTx';
-
+import { getUserReadableAmount } from 'utils/contracts';
 import formatAmount from 'utils/general/formatAmount';
 
-import { ROWS_PER_PAGE } from 'constants/index';
+import { DECIMALS_TOKEN, ROWS_PER_PAGE } from 'constants/index';
 
-interface ISsovPositionTableData {
-  pos: ISsovPosition;
-  epochExpired: boolean;
-  handleWithdraw: () => void;
+import RepayDialog from './RepayDialog';
+
+interface IDebtPositionTableData {
+  selectedIndex: number;
+  debt: IDebtPosition;
 }
 
-const SsovPositionTableData = ({
-  pos,
-  epochExpired,
-  handleWithdraw,
-}: ISsovPositionTableData) => {
-  const { epoch, underlyingSymbol, strike, collateralAmount } = pos;
+const DebtPositionTableData = ({
+  selectedIndex,
+  debt,
+}: IDebtPositionTableData) => {
+  const { underlyingSymbol, supplied, borrowed } = debt;
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
   return (
     <TableRow className="text-white bg-cod-gray mb-2 rounded-lg w-full">
       <StyleLeftCell align="left">
@@ -61,44 +62,42 @@ const SsovPositionTableData = ({
         </Box>
       </StyleLeftCell>
       <StyleCell align="left">
-        <Typography variant="h6">{epoch}</Typography>
-      </StyleCell>
-      <StyleCell align="left">
-        <Typography variant="h6">${formatAmount(strike, 2)}</Typography>
+        <Typography variant="h6">
+          {formatAmount(getUserReadableAmount(supplied, DECIMALS_TOKEN), 2)}{' '}
+          {underlyingSymbol}
+        </Typography>
       </StyleCell>
       <StyleCell align="left">
         <Typography variant="h6">
-          {formatAmount(collateralAmount, 2)} 2CRV
+          {formatAmount(getUserReadableAmount(borrowed, DECIMALS_TOKEN), 2)}{' '}
+          2CRV
         </Typography>
       </StyleCell>
       <StyleRightCell align="right">
         <CustomButton
-          size="medium"
-          className="rounded-md"
-          color={epochExpired ? 'primary' : 'mineshaft'}
-          disabled={!epochExpired}
-          onClick={handleWithdraw}
+          className="cursor-pointer text-white"
+          color="primary"
+          onClick={(e) => setAnchorEl(e.currentTarget)}
         >
-          Withdraw
+          Repay
         </CustomButton>
+        {anchorEl && (
+          <RepayDialog
+            key={selectedIndex}
+            anchorEl={anchorEl}
+            setAnchorEl={setAnchorEl}
+            debt={debt}
+          />
+        )}
       </StyleRightCell>
     </TableRow>
   );
 };
 
-export default function LendingPositions() {
-  const {
-    userSsovPositions,
-    signer,
-    provider,
-    accountAddress,
-    assetToContractAddress,
-    getSsovLending,
-    lendingData,
-  } = useBoundStore();
+const DebtPositions = () => {
+  const { userDebtPositions } = useBoundStore();
 
   const [page, setPage] = useState(0);
-  const sendTx = useSendTx();
 
   const handleChangePage = useCallback(
     (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
@@ -107,53 +106,32 @@ export default function LendingPositions() {
     [setPage]
   );
 
-  const handleWithdraw = useCallback(
-    async (pos: ISsovPosition) => {
-      if (!signer || !provider) return;
-      try {
-        const contract = SsovV3LendingPut__factory.connect(
-          assetToContractAddress.get(pos.underlyingSymbol)!,
-          provider
-        );
-        await sendTx(contract.connect(signer), 'withdraw', [
-          pos.id,
-          accountAddress,
-        ]).then(() => getSsovLending());
-      } catch (e) {
-        console.log(e);
-        throw new Error('fail to withdraw');
-      }
-    },
-    [
-      sendTx,
-      provider,
-      signer,
-      assetToContractAddress,
-      getSsovLending,
-      accountAddress,
-    ]
-  );
-
-  const isExpired = (lendingData: ISsovLendingData[], pos: ISsovPosition) => {
-    if (!lendingData) return false;
-    const data = lendingData?.filter(
-      (d) => d.underlyingSymbol === pos.underlyingSymbol
-    )[0];
-    if (!data) return false;
-    const expiry =
-      typeof data.expiry === 'number' ? data.expiry : data.expiry.toNumber();
-    return expiry < Date.now() / 1000;
-  };
+  const debts: IDebtPositionTableData[] = useMemo(() => {
+    return userDebtPositions.map((debt, idx) => {
+      return {
+        selectedIndex: idx,
+        debt: {
+          id: debt?.id,
+          epoch: debt?.epoch,
+          expiry: debt?.expiry,
+          underlyingSymbol: debt?.underlyingSymbol,
+          strike: debt?.strike,
+          supplied: debt?.supplied,
+          borrowed: debt?.borrowed,
+        },
+      } as IDebtPositionTableData;
+    });
+  }, [userDebtPositions]);
 
   return (
     <Box className="flex flex-col w-full">
       <Typography variant="h4" color="white" className="my-2 mb-4">
-        Lending Positions
+        Debt Positions
       </Typography>
       <Box>
-        {isEmpty(userSsovPositions) ? (
+        {isEmpty(userDebtPositions) ? (
           <Box className="text-stieglitz text-center p-10">
-            Your lending positions will appear here.
+            Your debt positions will appear here.
           </Box>
         ) : (
           <StyleTable className="py-2">
@@ -167,17 +145,12 @@ export default function LendingPositions() {
                   </StyleLeftTableCell>
                   <StyleTableCell align="left" className="border-none">
                     <Typography variant="h6" color="stieglitz">
-                      Epoch
+                      Supplied
                     </Typography>
                   </StyleTableCell>
                   <StyleTableCell align="left" className="border-none">
                     <Typography variant="h6" color="stieglitz">
-                      Strike
-                    </Typography>
-                  </StyleTableCell>
-                  <StyleTableCell align="left" className="border-none">
-                    <Typography variant="h6" color="stieglitz">
-                      Collateral Amount
+                      Borrowed
                     </Typography>
                   </StyleTableCell>
                   <StyleRightTableCell align="right" className="border-none">
@@ -188,31 +161,28 @@ export default function LendingPositions() {
                 </TableRow>
               </TableHead>
               <TableBody className="rounded-lg bg-umbra w-full">
-                {userSsovPositions
+                {debts
                   .slice(
                     page * ROWS_PER_PAGE,
                     page * ROWS_PER_PAGE + ROWS_PER_PAGE
                   )
-                  .map((pos: ISsovPosition, i: number) => {
-                    return (
-                      <SsovPositionTableData
-                        key={i}
-                        pos={pos}
-                        epochExpired={isExpired(lendingData, pos)}
-                        handleWithdraw={() => handleWithdraw(pos)}
-                      />
-                    );
-                  })}
+                  ?.map((debt: IDebtPositionTableData, i: number) => (
+                    <DebtPositionTableData
+                      key={i}
+                      selectedIndex={i}
+                      debt={debt.debt}
+                    />
+                  ))}
               </TableBody>
             </Table>
           </StyleTable>
         )}
-        {userSsovPositions.length > ROWS_PER_PAGE ? (
+        {userDebtPositions.length > ROWS_PER_PAGE ? (
           <TablePagination
             component="div"
             id="stats"
             rowsPerPageOptions={[ROWS_PER_PAGE]}
-            count={userSsovPositions?.length}
+            count={userDebtPositions?.length}
             page={page}
             onPageChange={handleChangePage}
             rowsPerPage={ROWS_PER_PAGE}
@@ -223,4 +193,6 @@ export default function LendingPositions() {
       </Box>
     </Box>
   );
-}
+};
+
+export default DebtPositions;

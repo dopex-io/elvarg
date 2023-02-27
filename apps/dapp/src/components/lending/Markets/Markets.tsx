@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+
 import { Box, Table, TableBody, TableHead, TableRow } from '@mui/material';
 import { max, min } from 'lodash';
 
 import { ISsovLendingData } from 'store/Vault/lending';
 
-import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
 import {
   StyleCell,
   StyleLeftCell,
@@ -17,6 +18,7 @@ import {
 } from 'components/common/LpCommon/Table';
 
 import formatAmount from 'utils/general/formatAmount';
+
 import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
 
 import { BorrowDialog } from '../Borrow';
@@ -105,7 +107,7 @@ const AssetTableData = ({
   );
 };
 
-export const Markets = ({ data }: { data: any[] }) => {
+const Markets = ({ data }: { data: any[] }) => {
   return (
     <>
       <Typography variant="h4" className="mb-2">
