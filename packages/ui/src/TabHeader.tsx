@@ -1,9 +1,6 @@
+import cx from "./utils/cx";
 import { Tab as HeadlessTab } from "@headlessui/react";
 import React, { ReactNode, FC } from "react";
-
-function classNames(...classes: any) {
-  return classes.filter(Boolean).join(" ");
-}
 
 export interface TabHeaderProps {
   children: ReactNode;
@@ -17,8 +14,8 @@ export const TabHeader: FC<TabHeaderProps> = (props) => {
   return (
     <HeadlessTab
       disabled={disabled}
-      className={({ selected }) =>
-        classNames(
+      className={({ selected }: { selected: boolean }) =>
+        cx(
           "w-full rounded-lg text-sm font-medium text-white",
           "focus:outline-none",
           otherProps,
