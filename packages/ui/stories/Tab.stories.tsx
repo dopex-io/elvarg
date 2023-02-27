@@ -1,6 +1,6 @@
 import AlarmIcon from "../../../apps/dapp/src/svgs/icons/AlarmIcon";
+import Tabs from "../src/Tab";
 import TabHeader from "../src/TabHeader";
-import Tabs from "../src/Tabs";
 import { ComponentMeta } from "@storybook/react";
 import React from "react";
 
