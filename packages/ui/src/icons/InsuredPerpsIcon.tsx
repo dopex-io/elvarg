@@ -1,32 +1,28 @@
-import React from "react";
+import React, { SVGProps } from "react";
 
-const InsuredPerpsIcon = ({ className = "" }) => {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-    >
-      <g clip-path="url(#clip0_2599_22797)">
-        <path
-          d="M14.1667 9.16667C14.45 9.16667 14.725 9.20001 15 9.24167V6.31667C15 5.65001 14.6083 5.05001 14 4.79167L9.41667 2.79167C8.99167 2.60834 8.50833 2.60834 8.08333 2.79167L3.5 4.79167C2.89167 5.05834 2.5 5.65834 2.5 6.31667V9.31667C2.5 13.1 5.16667 16.6417 8.75 17.5C9.20833 17.3917 9.65 17.2333 10.0833 17.0417C9.50833 16.225 9.16667 15.2333 9.16667 14.1667C9.16667 11.4083 11.4083 9.16667 14.1667 9.16667Z"
-          fill="#8E8E8E"
-        />
-        <path
-          d="M14.1666 10.8333C12.325 10.8333 10.8333 12.325 10.8333 14.1666C10.8333 16.0083 12.325 17.5 14.1666 17.5C16.0083 17.5 17.5 16.0083 17.5 14.1666C17.5 12.325 16.0083 10.8333 14.1666 10.8333Z"
-          fill="#C3F8FF"
-        />
-      </g>
-      <defs>
-        <clipPath id="clip0_2599_22797">
-          <rect width="20" height="20" fill="white" />
-        </clipPath>
-      </defs>
-    </svg>
-  );
-};
-
+const InsuredPerpsIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg
+    width={20}
+    height={20}
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <g clipPath="url(#insured-perps-icon_svg__a)">
+      <path
+        d="M14.167 9.167c.283 0 .558.033.833.075V6.317a1.65 1.65 0 0 0-1-1.525l-4.583-2a1.685 1.685 0 0 0-1.334 0l-4.583 2c-.608.266-1 .866-1 1.525v3c0 3.783 2.667 7.325 6.25 8.183a7.64 7.64 0 0 0 1.333-.458 4.982 4.982 0 0 1-.916-2.875c0-2.759 2.241-5 5-5Z"
+        fill="#8E8E8E"
+      />
+      <path
+        d="M14.167 10.833a3.332 3.332 0 1 0 0 6.667 3.332 3.332 0 1 0 0-6.667Z"
+        fill="#C3F8FF"
+      />
+    </g>
+    <defs>
+      <clipPath id="insured-perps-icon_svg__a">
+        <path fill="#fff" d="M0 0h20v20H0z" />
+      </clipPath>
+    </defs>
+  </svg>
+);
 export default InsuredPerpsIcon;

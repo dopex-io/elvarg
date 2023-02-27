@@ -5,7 +5,7 @@ import Button from "../src/Button";
 import MenuItems, { dropdownVariants } from "../src/MenuItems";
 import { ItemType } from "../src/MenuItems";
 
-import DropdownArrowIcon from "./icons/DropdownIcon";
+import DropdownArrowIcon from "./icons/DropdownArrowIcon";
 
 interface MenuProps<T> {
   data: T[];
@@ -36,7 +36,7 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
           color="carbon"
           size="medium"
         >
-          {({ open }) => (
+          {({ open }: { open: boolean }) => (
             <div className="flex justify-between">
               {selection}
               <DropdownArrowIcon

@@ -73,7 +73,7 @@ const MenuItems: React.FC<MenuItemsProps<ItemType>> = <T extends ItemType>(
       >
         {data.map((dataItem) => (
           <Menu.Item>
-            {({ active }) => (
+            {({ active }: { active: boolean }) => (
               <button
                 className={`${
                   selectedVariant["padding"]
@@ -104,6 +104,6 @@ const MenuItems: React.FC<MenuItemsProps<ItemType>> = <T extends ItemType>(
   );
 };
 
-Menu.displayName = "MenuItems";
+MenuItems.displayName = "MenuItems";
 
 export default MenuItems;
