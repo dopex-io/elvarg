@@ -124,7 +124,7 @@ const SsovData = () => {
               'mb-6 mt-5 opacity-90 bg-white ml-auto mr-auto w-[5rem] rounded-md p-[0.3px]'
             }
           >
-            <Typography variant="h6" className="text-umbra text-[0.7rem]">
+            <Typography variant="h6" color="umbra" className="text-[0.7rem]">
               TVL ${formatAmount(tvl, 0)}
             </Typography>
           </Box>
