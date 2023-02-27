@@ -1,6 +1,6 @@
 import { BigNumber, BigNumberish, ethers } from 'ethers';
 
-import { INFURA_PROJECT_ID, ANKR_KEY } from './env';
+import { ANKR_KEY, INFURA_PROJECT_ID } from './env';
 
 export const DATE_FORMAT: string = 'd LLL yy';
 

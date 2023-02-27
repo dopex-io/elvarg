@@ -13,7 +13,7 @@ export interface TabProps {
   size?: string;
 }
 
-const Tabs: FC<TabProps> = (props: TabProps) => {
+const Tab: FC<TabProps> = (props: TabProps) => {
   const { children, className = "", size = "medium" } = props;
 
   return (
@@ -32,6 +32,6 @@ const Tabs: FC<TabProps> = (props: TabProps) => {
   );
 };
 
-Tabs.displayName = "Tabs";
+Tab.displayName = "Tab";
 
-export default Tabs;
+export default Tab;

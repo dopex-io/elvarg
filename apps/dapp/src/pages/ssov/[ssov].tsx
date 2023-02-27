@@ -1,11 +1,14 @@
-import React, { useEffect } from 'react';
 import Router from 'next/router';
+
+import React, { useEffect } from 'react';
+
+import { ethers } from 'ethers';
+
+import { useBoundStore } from 'store';
 
 import Manage from 'components/ssov/Manage';
 
-import { useBoundStore } from 'store';
-import { ethers } from 'ethers';
-import { PAGE_TO_SUPPORTED_CHAIN_IDS, CHAIN_ID_TO_RPC } from 'constants/index';
+import { CHAIN_ID_TO_RPC, PAGE_TO_SUPPORTED_CHAIN_IDS } from 'constants/index';
 
 const SsovV3Page = (props: { ssov: string }) => {
   const {

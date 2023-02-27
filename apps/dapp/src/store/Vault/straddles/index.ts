@@ -1,16 +1,17 @@
-import { StateCreator } from 'zustand';
 import { BigNumber } from 'ethers';
-import {
-  AtlanticStraddle__factory,
-  AtlanticStraddle,
-  SSOVOptionPricing__factory,
-  Addresses,
-  AtlanticStraddleV2__factory,
-  AtlanticStraddleV2,
-} from '@dopex-io/sdk';
 
-import { WalletSlice } from 'store/Wallet';
+import {
+  Addresses,
+  AtlanticStraddle,
+  AtlanticStraddleV2,
+  AtlanticStraddleV2__factory,
+  AtlanticStraddle__factory,
+  SSOVOptionPricing__factory,
+} from '@dopex-io/sdk';
+import { StateCreator } from 'zustand';
+
 import { CommonSlice } from 'store/Vault/common';
+import { WalletSlice } from 'store/Wallet';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 

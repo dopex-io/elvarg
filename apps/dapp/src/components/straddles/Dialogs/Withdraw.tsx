@@ -1,17 +1,15 @@
 import React, { useCallback, useMemo } from 'react';
-import cx from 'classnames';
 
-import Box from '@mui/material/Box';
 import CloseIcon from '@mui/icons-material/Close';
-import Typography from '@mui/material/Typography';
-import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-
+import Modal from '@mui/material/Modal';
+import Typography from '@mui/material/Typography';
+import cx from 'classnames';
+import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
-
-import useSendTx from 'hooks/useSendTx';
 
 export interface Props {
   open: boolean;

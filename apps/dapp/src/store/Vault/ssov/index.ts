@@ -1,24 +1,24 @@
-import { StateCreator } from 'zustand';
-import {
-  SsovV3__factory,
-  SsovV3,
-  SSOVOptionPricing,
-  SsovV3Viewer__factory,
-  SSOVOptionPricing__factory,
-  ERC20__factory,
-} from '@dopex-io/sdk';
 import { BigNumber, ethers } from 'ethers';
-import axios from 'axios';
 
-import { WalletSlice } from 'store/Wallet';
+import {
+  ERC20__factory,
+  SSOVOptionPricing,
+  SSOVOptionPricing__factory,
+  SsovV3,
+  SsovV3Viewer__factory,
+  SsovV3__factory,
+} from '@dopex-io/sdk';
+import axios from 'axios';
+import { TokenData } from 'types';
+import { StateCreator } from 'zustand';
+
 import { CommonSlice } from 'store/Vault/common';
+import { WalletSlice } from 'store/Wallet';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { TOKEN_ADDRESS_TO_DATA } from 'constants/tokens';
 import { DOPEX_API_BASE_URL } from 'constants/env';
-
-import { TokenData } from 'types';
+import { TOKEN_ADDRESS_TO_DATA } from 'constants/tokens';
 
 export interface SsovV3Signer {
   ssovContractWithSigner?: SsovV3;

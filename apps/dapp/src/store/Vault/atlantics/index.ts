@@ -1,21 +1,21 @@
-import { StateCreator } from 'zustand';
 import { BigNumber } from 'ethers';
+
 import {
-  ERC20,
-  ERC20__factory,
   AtlanticPutsPool,
   AtlanticPutsPool__factory,
-  AtlanticsViewer__factory,
   AtlanticsViewer,
+  AtlanticsViewer__factory,
+  ERC20,
+  ERC20__factory,
 } from '@dopex-io/sdk';
 import { CheckpointStructOutput } from '@dopex-io/sdk/dist/types/typechain/AtlanticPutsPool';
+import { StateCreator } from 'zustand';
 
 import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-
 import { getTokenDecimals } from 'utils/general';
 
 export enum OptionsState {

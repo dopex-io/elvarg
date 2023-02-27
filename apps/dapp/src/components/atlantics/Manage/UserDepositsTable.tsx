@@ -5,34 +5,32 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { formatDistance } from 'date-fns';
-import TableContainer from '@mui/material/TableContainer';
-import Table from '@mui/material/Table';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import TableBody from '@mui/material/TableBody';
-import TableCell, { TableCellProps } from '@mui/material/TableCell';
+
+import CheckIcon from '@mui/icons-material/Check';
+import ClearIcon from '@mui/icons-material/Clear';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import CheckIcon from '@mui/icons-material/Check';
-import ClearIcon from '@mui/icons-material/Clear';
-
-import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
-import WalletButton from 'components/common/WalletButton';
-
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell, { TableCellProps } from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import { formatDistance } from 'date-fns';
+import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
 
-import { useBoundStore } from 'store';
+import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
+import WalletButton from 'components/common/WalletButton';
 
-import useSendTx from 'hooks/useSendTx';
-
-import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 export const TableHeader = ({
   // @ts-ignore TODO: FIX

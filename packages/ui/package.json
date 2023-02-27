@@ -1,7 +1,7 @@
 {
   "name": "@dopex-io/ui",
   "author": "dopex",
-  "source": "./src/index.tsx",
+  "source": "./src/index.ts",
   "exports": {
     "require": "./dist/index.js",
     "default": "./dist/index.modern.mjs"
