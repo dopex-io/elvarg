@@ -1,17 +1,16 @@
-import { useState, useMemo } from 'react';
 import Head from 'next/head';
-import isEmpty from 'lodash/isEmpty';
+
+import { useMemo, useState } from 'react';
+
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import {
-  useQuery,
   QueryClient,
   QueryClientProvider,
+  useQuery,
 } from '@tanstack/react-query';
-
-import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
-import { DOPEX_API_BASE_URL } from 'constants/env';
+import isEmpty from 'lodash/isEmpty';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
@@ -19,6 +18,9 @@ import SsovCard from 'components/ssov/SsovCard';
 import SsovFilter from 'components/ssov/SsovFilter';
 
 import formatAmount from 'utils/general/formatAmount';
+
+import { DOPEX_API_BASE_URL } from 'constants/env';
+import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 
 const ssovStrategies: string[] = ['CALL', 'PUT'];
 const sortOptions: string[] = ['TVL', 'APY'];
@@ -74,7 +76,7 @@ const SsovData = () => {
 
   const keys = useMemo(() => {
     if (!ssovs) return [];
-    else return [42161];
+    else return [42161, 137];
   }, [ssovs]);
 
   const ssovsTokens = useMemo(() => {
@@ -160,6 +162,7 @@ const SsovData = () => {
 
         {!isEmpty(ssovs)
           ? keys.map((key) => {
+              console.log(key);
               return (
                 <Box key={key} className="mb-12">
                   <NetworkHeader chainId={Number(key)} />

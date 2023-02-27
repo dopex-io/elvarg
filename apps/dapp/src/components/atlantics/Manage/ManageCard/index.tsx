@@ -1,28 +1,27 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import Box from '@mui/material/Box';
-import { ERC20__factory } from '@dopex-io/sdk';
-import { BigNumber } from 'ethers';
-import Tooltip from '@mui/material/Tooltip';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import Typography from 'components/UI/Typography';
+import { BigNumber } from 'ethers';
+
+import { ERC20__factory } from '@dopex-io/sdk';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
+import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
+import LockerIcon from 'svgs/icons/LockerIcon';
+
+import CustomButton from 'components/UI/Button';
 import Input from 'components/UI/Input';
+import Switch from 'components/UI/Switch';
+import Typography from 'components/UI/Typography';
 import MaxStrikeInput from 'components/atlantics/Manage/ManageCard/MaxStrikeInput';
 import PoolStats from 'components/atlantics/Manage/ManageCard/PoolStats';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import CustomButton from 'components/UI/Button';
-import Switch from 'components/UI/Switch';
 
-import LockerIcon from 'svgs/icons/LockerIcon';
-
-import { useBoundStore } from 'store';
-
-import useSendTx from 'hooks/useSendTx';
-
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
 
 import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
 
@@ -39,7 +38,7 @@ const ManageCard = (props: ManageCardProps) => {
   const [value, setValue] = useState<number | string>('');
   const [maxStrike, setMaxStrike] = useState<number | string>('');
   const [maxApprove, setMaxApprove] = useState<boolean>(false);
-  const [rolloverEnabled, setRolloverEnabled] = useState<boolean>(false);
+  const [rolloverEnabled, setRolloverEnabled] = useState<boolean>(true);
   const [approved, setApproved] = useState<boolean>(false);
   const [currentPrice, setCurrentPrice] = useState<BigNumber>(
     BigNumber.from(0)

@@ -1,16 +1,18 @@
-import { BigNumber } from 'ethers';
 import Link from 'next/link';
-import { Box, TableRow } from '@mui/material';
 
-import { Typography, CustomButton, NumberDisplay } from 'components/UI';
+import { BigNumber } from 'ethers';
+
+import { Box, TableRow } from '@mui/material';
+import { IOlpApi } from 'pages/olp';
+
+import { CustomButton, NumberDisplay, Typography } from 'components/UI';
 import {
-  StyleLeftCell,
   StyleCell,
+  StyleLeftCell,
   StyleRightCell,
 } from 'components/common/LpCommon/Table';
-import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 
-import { IOlpApi } from 'pages/olp';
+import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 
 export const OlpTableRow = ({ olp, idx }: { olp: IOlpApi; idx: number }) => {
   const splitSymbol = olp.symbol.split('-');

@@ -1,6 +1,6 @@
 import { BigNumber, BigNumberish, ethers } from 'ethers';
 
-import { INFURA_PROJECT_ID, ANKR_KEY } from './env';
+import { ANKR_KEY, INFURA_PROJECT_ID } from './env';
 
 export const DATE_FORMAT: string = 'd LLL yy';
 
@@ -402,6 +402,8 @@ export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/tzwap': { default: 42161, all: [1, 42161] },
   '/straddles': { default: 42161, all: [42161, 137] },
   '/straddles/MATIC': { default: 137, all: [137] },
+  '/ssov': { default: 42161, all: [42161, 137] },
+  '/ssov/MATIC-WEEKLY-CALLS-SSOV-V3': { default: 137, all: [137] },
 };
 
 export const DISCLAIMER_MESSAGE = {

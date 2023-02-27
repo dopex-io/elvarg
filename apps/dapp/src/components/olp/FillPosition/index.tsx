@@ -1,13 +1,13 @@
-import { useCallback, useEffect, useState, useMemo } from 'react';
-import { ERC20__factory } from '@dopex-io/sdk';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
 import { BigNumber } from 'ethers';
+
+import { ERC20__factory } from '@dopex-io/sdk';
+import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
 
 import Dialog from 'components/UI/Dialog';
 import FillPositionDialog from 'components/olp/FillPosition/FillPositionDialog';
-
-import { useBoundStore } from 'store';
-
-import useSendTx from 'hooks/useSendTx';
 
 import {
   allowanceApproval,
@@ -15,7 +15,7 @@ import {
   getUserReadableAmount,
 } from 'utils/contracts';
 
-import { MAX_VALUE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
+import { DECIMALS_TOKEN, DECIMALS_USD, MAX_VALUE } from 'constants/index';
 
 const CHAIN_ID: number = 5;
 
