@@ -1606,11 +1606,6 @@
   resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-beta.48.tgz#1cbc7c7e70670b90e89664156f382b6030055141"
   integrity sha512-ZvvVpf5S35uew2vdepODXA/KKfEEu53KEMens/ZBCBloTo9wzlMBAH+NUKA85nb2IAThQqCMlwB9tAVgWtOhfA==
 
-"@dopex-io/ui@./packages/ui":
-  version "0.1.0"
-  dependencies:
-    "@headlessui/react" "^1.7.7"
-
 "@emotion/babel-plugin@^11.10.6":
   version "11.10.6"
   resolved "https://registry.yarnpkg.com/@emotion/babel-plugin/-/babel-plugin-11.10.6.tgz#a68ee4b019d661d6f37dec4b8903255766925ead"
