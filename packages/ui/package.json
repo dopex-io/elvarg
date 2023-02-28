@@ -1,13 +1,14 @@
 {
   "name": "@dopex-io/ui",
   "author": "dopex",
-  "source": "./src/index.tsx",
+  "source": "./src/index.ts",
   "exports": {
     "require": "./dist/index.js",
     "default": "./dist/index.modern.mjs"
   },
   "main": "./dist/index.cjs",
   "unpkg": "./dist/index.umd.js",
+  "types": "./dist/types/index.d.ts",
   "version": "0.1.0",
   "description": "Dopex UI",
   "files": [
@@ -15,9 +16,9 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build-ui": "microbundle --jsx React.createElement --jsxFragment React.Fragment --jsxImportSource react",
-    "storybook": "concurrently \"yarn:watch:*\"",
-    "build-storybook": "concurrently \"yarn:build:*\"",
+    "build": "microbundle --jsx React.createElement --jsxFragment React.Fragment --jsxImportSource react",
+    "storybook": "concurrently \"pnpm:watch:*\"",
+    "build-storybook": "concurrently \"pnpm:build:*\"",
     "build:css": "npx tailwindcss -i ./styles/tailwind.css -o ./storybook-static/tailwind.css",
     "build:storybook": "build-storybook",
     "watch:css": "npx tailwindcss -i ./styles/tailwind.css -o ./public/tailwind.css --watch",

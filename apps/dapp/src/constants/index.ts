@@ -1,6 +1,6 @@
 import { BigNumber, BigNumberish, ethers } from 'ethers';
 
-import { INFURA_PROJECT_ID, ANKR_KEY } from './env';
+import { ANKR_KEY, INFURA_PROJECT_ID } from './env';
 
 export const DATE_FORMAT: string = 'd LLL yy';
 
@@ -66,6 +66,7 @@ export const CURRENCIES_MAP: { [key: string]: string } = {
   '5': 'ETH',
   '42161': 'ETH',
   '56': 'BNB',
+  '137': 'MATIC',
   '43114': 'AVAX',
   '1088': 'METIS',
 };
@@ -298,6 +299,7 @@ export const DISPLAY_TOKENS: { [key: string | number]: string[] } = {
   56: ['BNB', 'VBNB'],
   43114: ['AVAX'],
   1088: ['METIS'],
+  137: ['MATIC'],
 };
 
 export const CHAIN_ID_TO_NETWORK_DATA: {
@@ -401,6 +403,8 @@ export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/tzwap': { default: 42161, all: [1, 42161] },
   '/straddles': { default: 42161, all: [42161, 137] },
   '/straddles/MATIC': { default: 137, all: [137] },
+  '/ssov': { default: 42161, all: [42161, 137] },
+  '/ssov/MATIC-WEEKLY-CALLS-SSOV-V3': { default: 137, all: [137] },
 };
 
 export const DISCLAIMER_MESSAGE = {

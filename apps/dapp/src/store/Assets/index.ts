@@ -153,6 +153,10 @@ export const createAssetsSlice: StateCreator<
       userAssetBalances['AVAX'] = (
         await provider.getBalance(accountAddress ?? '')
       ).toString();
+    } else if (chainId === 137) {
+      userAssetBalances['MATIC'] = (
+        await provider.getBalance(accountAddress ?? '')
+      ).toString();
     } else {
       userAssetBalances['ETH'] = (
         await provider.getBalance(accountAddress ?? '')

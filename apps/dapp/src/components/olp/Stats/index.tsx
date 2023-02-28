@@ -1,26 +1,26 @@
 import { BigNumber } from 'ethers';
-import { zipWith } from 'lodash';
+
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import LaunchIcon from '@mui/icons-material/Launch';
 import Box from '@mui/material/Box';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
-import LaunchIcon from '@mui/icons-material/Launch';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import { zipWith } from 'lodash';
+import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 import {
-  StyleTable,
-  StyleTableCell,
   StyleLeftTableCell,
   StyleRightTableCell,
+  StyleTable,
+  StyleTableCell,
 } from 'components/common/LpCommon/Table';
 import { LiquidityTable } from 'components/olp/Stats/LiquidityTable';
 
-import { useBoundStore } from 'store';
-
-import { formatAmount, displayAddress, getExplorerUrl } from 'utils/general';
 import { getUserReadableAmount } from 'utils/contracts';
+import { displayAddress, formatAmount, getExplorerUrl } from 'utils/general';
 
 import { DECIMALS_USD } from 'constants/index';
 

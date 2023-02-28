@@ -40,7 +40,8 @@ const StrategyDetails = (props: {
       strategyFee,
       fundingFees,
       feesWithoutDiscount,
-      availabeLiquidityForLongs,
+      availableLiquidityForLongs,
+      optionsPurchasable,
     },
     selectedToken,
     positionCollateral,
@@ -205,7 +206,7 @@ const StrategyDetails = (props: {
           />
           <ContentRow
             title="Available Liquidity (GMX)"
-            content={'$' + formatAmount(availabeLiquidityForLongs, 5)}
+            content={'$' + formatAmount(availableLiquidityForLongs, 5)}
           />
           {!swapFees.isZero() && (
             <ContentRow
@@ -247,8 +248,12 @@ const StrategyDetails = (props: {
             content={'$' + getUserReadableAmount(fundingFees, 6)}
           />
           <ContentRow
-            title="Options"
+            title="Options Purchased"
             content={formatAmount(getUserReadableAmount(optionsAmount, 18), 3)}
+          />
+          <ContentRow
+            title="Options Available"
+            content={formatAmount(optionsPurchasable, 5)}
           />
         </Box>
       </Box>

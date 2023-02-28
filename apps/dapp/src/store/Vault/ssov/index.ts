@@ -12,15 +12,15 @@ import {
 import { BigNumber, ethers } from 'ethers';
 import axios from 'axios';
 
-import { WalletSlice } from 'store/Wallet';
+import { TokenData } from 'types';
+
 import { CommonSlice } from 'store/Vault/common';
+import { WalletSlice } from 'store/Wallet';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { TOKEN_ADDRESS_TO_DATA } from 'constants/tokens';
 import { DOPEX_API_BASE_URL } from 'constants/env';
-
-import { TokenData } from 'types';
+import { TOKEN_ADDRESS_TO_DATA } from 'constants/tokens';
 
 export interface SsovV3Signer {
   ssovContractWithSigner?: SsovV3;
@@ -69,6 +69,7 @@ export interface WritePositionInterface {
   strike: BigNumber;
   accruedRewards: BigNumber[];
   accruedPremiums: BigNumber;
+  utilization: BigNumber;
   epoch: number;
   tokenId: BigNumber;
 }
@@ -158,6 +159,8 @@ export const createSsovV3Slice: StateCreator<
     if (!contractAddresses['SSOV-V3']) return;
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
+
+    if (!ssovAddress) return;
 
     const ssovContract = SsovV3__factory.connect(ssovAddress, provider);
 
@@ -276,6 +279,8 @@ export const createSsovV3Slice: StateCreator<
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
 
+    if (!ssovAddress) return;
+
     const ssov = SsovV3__factory.connect(ssovAddress, provider);
 
     const ssovViewerContract = SsovV3Viewer__factory.connect(
@@ -307,7 +312,9 @@ export const createSsovV3Slice: StateCreator<
         epoch: o.epoch.toNumber(),
         strike: o.strike,
         accruedRewards: moreData[i]?.rewardTokenWithdrawAmounts || [],
+
         accruedPremiums: moreData[i]?.accruedPremium || BigNumber.from(0),
+        utilization: moreData[i]?.estimatedCollateralUsage || BigNumber.from(0),
       };
     });
 
@@ -330,6 +337,8 @@ export const createSsovV3Slice: StateCreator<
     let _ssovData: SsovV3Data;
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
+
+    if (!ssovAddress) return;
 
     const _ssovContract = SsovV3__factory.connect(ssovAddress, provider);
 
