@@ -18,6 +18,8 @@
     "@dopex-io/ui": "workspace:*",
     "@emotion/react": "^11.8.1",
     "@emotion/styled": "^11.8.1",
+    "@ethersproject/abi": "^5.7.0",
+    "@ethersproject/providers": "^5.7.2",
     "@ianvs/prettier-plugin-sort-imports": "^3.7.1",
     "@mui/icons-material": "^5.8.2",
     "@mui/material": "^5.8.2",

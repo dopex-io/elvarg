@@ -23,6 +23,8 @@ importers:
       '@dopex-io/ui': workspace:*
       '@emotion/react': ^11.8.1
       '@emotion/styled': ^11.8.1
+      '@ethersproject/abi': ^5.7.0
+      '@ethersproject/providers': ^5.7.2
       '@graphql-codegen/cli': ^3.0.0
       '@graphql-codegen/typescript': ^3.0.0
       '@graphql-codegen/typescript-operations': ^3.0.0
@@ -82,6 +84,8 @@ importers:
       '@dopex-io/ui': link:../../packages/ui
       '@emotion/react': 11.10.6_pmekkgnqduwlme35zpnqhenc34
       '@emotion/styled': 11.10.6_oouaibmszuch5k64ms7uxp2aia
+      '@ethersproject/abi': 5.7.0
+      '@ethersproject/providers': 5.7.2
       '@ianvs/prettier-plugin-sort-imports': 3.7.1_prettier@2.8.4
       '@mui/icons-material': 5.11.9_ylmaxqh5wvme7ymgn4ys5vax6u
       '@mui/material': 5.11.10_xqeqsl5kvjjtyxwyi3jhw3yuli
