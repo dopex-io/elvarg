@@ -20,7 +20,7 @@
     // error out if import and file system have a casing mismatch. Recommended by TS
     "forceConsistentCasingInFileNames": true,
     // do not emit build when type-checking with tsc
-    "noEmit": true,
+    "noEmit": false,
     // resolve any JSON files imported
     "resolveJsonModule": true,
     // code best practices

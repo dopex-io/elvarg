@@ -1,14 +1,9 @@
 {
   "name": "@dopex-io/ui",
   "author": "dopex",
-  "source": "./src/index.ts",
-  "exports": {
-    "require": "./dist/index.js",
-    "default": "./dist/index.modern.mjs"
-  },
-  "main": "./dist/index.cjs",
-  "unpkg": "./dist/index.umd.js",
-  "types": "./dist/types/index.d.ts",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/types/index.d.ts",
   "version": "0.1.0",
   "description": "Dopex UI",
   "files": [
@@ -16,7 +11,8 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "microbundle --jsx React.createElement --jsxFragment React.Fragment --jsxImportSource react",
+    "build": "pnpm clean && node build.js && tsc --emitDeclarationOnly --outDir dist",
+    "clean": "rimraf dist",
     "storybook": "concurrently \"pnpm:watch:*\"",
     "build-storybook": "concurrently \"pnpm:build:*\"",
     "build:css": "npx tailwindcss -i ./styles/tailwind.css -o ./storybook-static/tailwind.css",
@@ -46,12 +42,14 @@
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
     "concurrently": "^7.6.0",
-    "microbundle": "^0.15.1",
+    "esbuild": "^0.17.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "rimraf": "^4.1.2",
     "storybook-dark-mode": "^2.0.5",
     "tailwindcss": "^3.2.4",
-    "typescript": "^4.9.4"
+    "tslib": "^2.5.0",
+    "typescript": "^4.9.5"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.7"
