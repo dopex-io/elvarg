@@ -17,8 +17,8 @@
   "license": "MIT",
   "scripts": {
     "build": "microbundle --jsx React.createElement --jsxFragment React.Fragment --jsxImportSource react",
-    "storybook": "concurrently \"yarn:watch:*\"",
-    "build-storybook": "concurrently \"yarn:build:*\"",
+    "storybook": "concurrently \"pnpm:watch:*\"",
+    "build-storybook": "concurrently \"pnpm:build:*\"",
     "build:css": "npx tailwindcss -i ./styles/tailwind.css -o ./storybook-static/tailwind.css",
     "build:storybook": "build-storybook",
     "watch:css": "npx tailwindcss -i ./styles/tailwind.css -o ./public/tailwind.css --watch",
