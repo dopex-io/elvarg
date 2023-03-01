@@ -2,7 +2,6 @@ import { StateCreator } from 'zustand';
 import { BigNumber } from 'ethers';
 import {
   CurveStableswapPair,
-  // DPXVotingEscrow,
   RdpxV2Treasury,
   RdpxV2Bond,
   RdpxV2Treasury__factory,
@@ -13,7 +12,6 @@ import {
   MockToken,
   MockToken__factory,
   // DPXVotingEscrow,
-  // DPXVotingEscrow__factory,
   // DPXVotingEscrow__factory,
 } from '@dopex-io/sdk';
 
@@ -60,10 +58,10 @@ interface RdpxV2TreasuryData {
 }
 
 export interface RdpxBond {
-  tokenId?: number;
+  tokenId: number;
   amount: BigNumber | number;
-  maturity: number;
-  timestamp: number;
+  maturity: BigNumber | number;
+  timestamp: BigNumber | number;
 }
 
 interface RdpxV2TreasuryUserData {
@@ -256,20 +254,20 @@ export const createDpxusdBondingSlice: StateCreator<
 
     if (!bond) return;
 
-    // const userBalance = (await bond.balanceOf(accountAddress)).toNumber();
+    const userBalance = (await bond.balanceOf(accountAddress)).toNumber();
 
-    // const bondCalls: Promise<RdpxBond>[] = [];
-    // const bondIds: number[] = [];
+    const bondCalls: Promise<any>[] = [];
+    const bondIds: number[] = [];
 
-    // for (let i = 0; i < userBalance; i++) {
-    //   const tokenID = await bond.tokenOfOwnerByIndex(accountAddress, i);
-    //   bondIds.push(tokenID.toNumber());
-    //   bondCalls.push(treasuryContractState.contracts.treasury.bond(tokenID));
-    // }
+    for (let i = 0; i < userBalance; i++) {
+      const tokenID = await bond.tokenOfOwnerByIndex(accountAddress, i);
+      bondIds.push(tokenID.toNumber());
+      bondCalls.push(treasuryContractState.contracts.treasury.bonds(tokenID));
+    }
 
-    // let bonds: RdpxBond[] = await Promise.all(bondCalls);
+    let bonds: RdpxBond[] = await Promise.all(bondCalls);
 
-    // bonds = bonds.map((bond, i) => ({ ...bond, id: bondIds[i] }));
+    bonds = bonds.map((bond, i) => ({ ...bond, tokenId: bondIds[i] || 0 }));
 
     // const veDPX: DPXVotingEscrow = DPXVotingEscrow__factory.connect(
     //   contractAddresses['WETH'], // todo change to veDPX
@@ -283,7 +281,7 @@ export const createDpxusdBondingSlice: StateCreator<
     set((prevState) => ({
       ...prevState,
       userDscBondsData: {
-        bonds: [], // bonds,
+        bonds, // bonds,
         isEligibleForMint: true,
       },
     }));

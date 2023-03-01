@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { formatDistance, format } from 'date-fns';
 import Box from '@mui/material/Box';
 import LaunchOutlinedIcon from '@mui/icons-material/LaunchOutlined';
 
@@ -13,8 +14,8 @@ import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
-// import formatAmount from 'utils/general/formatAmount';
-// import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 const Mint = () => {
   const sendTx = useSendTx();
@@ -38,6 +39,15 @@ const Mint = () => {
 
   const handleUpdateBondData = useCallback(() => {
     if (!userDscBondsData.bonds) return;
+
+    if (Number(value) < 0) {
+      setBondData({
+        tokenId: 0,
+        amount: 0,
+        maturity: 0,
+        timestamp: 0,
+      });
+    }
 
     const selectedBond = userDscBondsData.bonds.find(
       (bond) => bond.tokenId === Number(value)
@@ -84,7 +94,7 @@ const Mint = () => {
   useEffect(() => {
     if (treasuryContractState.bond_muturity.eq('0')) return;
     setRedeemable(
-      bondData.maturity - bondData.timestamp >
+      Number(bondData.maturity) - Number(bondData.timestamp) >
         Number(treasuryContractState.bond_muturity)
     );
   }, [
@@ -126,6 +136,41 @@ const Mint = () => {
               Bonds
             </Typography>
           </Box>
+        </Box>
+      </Box>
+      <Box className="flex flex-col space-y-2 px-2">
+        <Box className="flex justify-between">
+          <Typography variant="h6" color="stieglitz">
+            DSC Amount
+          </Typography>
+          <Typography variant="h6" color="stieglitz">
+            {bondData.amount
+              ? formatAmount(getUserReadableAmount(bondData.amount, 18), 3)
+              : '-'}
+          </Typography>
+        </Box>
+        <Box className="flex justify-between">
+          <Typography variant="h6" color="stieglitz">
+            Maturation Period
+          </Typography>
+          <Typography variant="h6" color="stieglitz">
+            {bondData.maturity
+              ? formatDistance(
+                  Number(bondData.maturity) * 1000,
+                  Number(bondData.timestamp) * 1000
+                )
+              : '-'}
+          </Typography>
+        </Box>
+        <Box className="flex justify-between">
+          <Typography variant="h6" color="stieglitz">
+            Bond Time
+          </Typography>
+          <Typography variant="h6" color="stieglitz">
+            {bondData.timestamp
+              ? format(Number(bondData.timestamp) * 1000, 'd LLLL, yyyy H :MM')
+              : '-'}
+          </Typography>
         </Box>
       </Box>
       <Box className="rounded-xl p-4 w-full bg-umbra">
