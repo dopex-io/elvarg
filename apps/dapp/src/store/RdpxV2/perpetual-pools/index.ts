@@ -6,12 +6,11 @@ import { AssetsSlice } from 'store/Assets';
 
 import {
   PerpetualAtlanticVault__factory,
-  // PerpetualAtlanticVault,
   PerpetualAtlanticVault,
   // ERC20,
   // ERC20__factory,
-  USDC, // replace with ERC20
-  USDC__factory, // replace with ERC20__factory
+  MockToken, // replace with ERC20
+  MockToken__factory, // replace with ERC20__factory
 } from '@dopex-io/sdk';
 
 /*
@@ -56,9 +55,9 @@ interface VaultData {
 interface APPContractData {
   contract?: PerpetualAtlanticVault;
   underlyingSymbol: string;
-  underlyingToken?: USDC; // todo: change to ERC20
+  underlyingToken?: MockToken; // todo: change to ERC20
   collateralSymbol: string;
-  collateralToken?: USDC; // todo: change to ERC20
+  collateralToken?: MockToken; // todo: change to ERC20
   vaultData: VaultData;
   utilizationRate: BigNumber;
   latestFundingPaymentPointer: BigNumber;
@@ -112,13 +111,21 @@ export const createAppSlice: StateCreator<
   updateAPPContractData: async () => {
     const { signer, provider, contractAddresses } = get();
 
-    if (!signer || !provider || !contractAddresses) return;
+    if (
+      !signer ||
+      !provider ||
+      !contractAddresses ||
+      !contractAddresses['RDPX-V2']
+    )
+      return;
+
+    const perpsAddress = contractAddresses['RDPX-V2']['PerpetualVault'];
 
     const _contract: PerpetualAtlanticVault =
-      PerpetualAtlanticVault__factory.connect(
-        '0xe6e340d132b5f46d1e472debcd681b2abc16e57e',
-        signer
-      );
+      PerpetualAtlanticVault__factory.connect(perpsAddress, signer);
+
+    console.log('CONTRACT', _contract);
+    console.log(await _contract.underlyingSymbol());
 
     const [
       underlyingSymbol,
@@ -132,13 +139,20 @@ export const createAppSlice: StateCreator<
       _contract.latestFundingPaymentPointer(),
     ]);
 
-    const collateralContract = USDC__factory.connect(collateralToken, signer);
+    const collateralContract = MockToken__factory.connect(
+      collateralToken,
+      signer
+    );
 
     const collateralSymbol = await collateralContract.symbol();
 
+    const totalCollateral = vaultData.totalCollateral.eq(BigNumber.from(0))
+      ? 1e8
+      : vaultData.totalCollateral;
+
     const utilizationRate = vaultData.activeCollateral
       .mul(100)
-      .div(vaultData.totalCollateral);
+      .div(totalCollateral);
 
     set((prevState) => ({
       ...prevState,

@@ -66,9 +66,7 @@ interface LiquidityLineChartProps {
 }
 
 const PriceChart = (props: LiquidityLineChartProps) => {
-  const { data, height } = props;
-
-  console.log(data);
+  const { height } = props;
 
   return (
     <Box className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra">
@@ -96,7 +94,7 @@ const PriceChart = (props: LiquidityLineChartProps) => {
             {/* <CartesianGrid strokeDasharray="3 3" /> */}
             <XAxis dataKey="name" hide />
             <YAxis hide />
-            <Tooltip
+            {/* <Tooltip
               contentStyle={{
                 borderColor: '#2D2D2D',
                 backgroundColor: '#2D2D2D',
@@ -106,7 +104,7 @@ const PriceChart = (props: LiquidityLineChartProps) => {
               cursor={{
                 fill: '#151515',
               }}
-            />
+            /> */}
             <defs>
               <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0.5%" stopColor="#22e1ff" stopOpacity={0.3} />
@@ -119,6 +117,7 @@ const PriceChart = (props: LiquidityLineChartProps) => {
               stackId="1"
               stroke="#22e1ff"
               fill="url(#colorUv)"
+              className="blur-sm cursor-not-allowed"
             />
             <defs>
               <linearGradient id="colorUv1" x1="0" y1="0" x2="0" y2="1">
@@ -132,6 +131,7 @@ const PriceChart = (props: LiquidityLineChartProps) => {
               stackId="1"
               stroke="#C3F8FF"
               fill="url(#colorUv1)"
+              className="blur-sm cursor-not-allowed"
             />
             <defs>
               <linearGradient id="colorUv2" x1="0" y1="0" x2="0" y2="1">
@@ -145,6 +145,7 @@ const PriceChart = (props: LiquidityLineChartProps) => {
               stackId="1"
               stroke="#7B61FF"
               fill="url(#colorUv2)"
+              className="blur-sm cursor-not-allowed"
             />
           </AreaChart>
         </ResponsiveContainer>

@@ -19,6 +19,7 @@ interface Props {
   withdrawableCollateral: string | number;
   positionId: number;
   withdrawable: boolean;
+  collateralSymbol: string;
 }
 
 const TableRowData = (props: Props) => {
@@ -29,6 +30,7 @@ const TableRowData = (props: Props) => {
     withdrawableCollateral,
     positionId,
     withdrawable,
+    collateralSymbol,
   } = props;
 
   const sendTx = useSendTx();
@@ -58,7 +60,7 @@ const TableRowData = (props: Props) => {
     <TableRow>
       <TableCell className="border-0">
         <Typography variant="h6">
-          ${formatAmount(totalCollateral, 3)}
+          {formatAmount(totalCollateral, 3)} {collateralSymbol}
         </Typography>
       </TableCell>
       <TableCell className={`border-0`}>
@@ -66,17 +68,17 @@ const TableRowData = (props: Props) => {
           variant="h6"
           color={Number(accruedPremium) > 0 ? 'emerald-500' : 'stieglitz'}
         >
-          ${formatAmount(accruedPremium, 3)}
+          {formatAmount(accruedPremium, 3)} {collateralSymbol}
         </Typography>
       </TableCell>
       <TableCell className="border-0" align="right">
         <Typography variant="h6">
-          ${formatAmount(activeCollateral, 3)}
+          {formatAmount(activeCollateral, 3)} {collateralSymbol}
         </Typography>
       </TableCell>
       <TableCell className="border-0" align="right">
         <Typography variant="h6">
-          ${formatAmount(withdrawableCollateral, 3)}
+          {formatAmount(withdrawableCollateral, 3)} {collateralSymbol}
         </Typography>
       </TableCell>
       <TableCell className="border-0" align="right">

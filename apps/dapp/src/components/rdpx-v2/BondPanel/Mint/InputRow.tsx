@@ -3,17 +3,16 @@ import Input from '@mui/material/Input';
 
 import Typography from 'components/UI/Typography';
 
+import formatAmount from 'utils/general/formatAmount';
+
 interface Props {
   tokenSymbol: string;
   inputAmount: string | number;
-  percentageReq: string;
-  handleChangeRecalculation: () => void;
-  index: number;
+  label: string;
 }
 
 const InputRow = (props: Props) => {
-  const { tokenSymbol, inputAmount, percentageReq, handleChangeRecalculation } =
-    props;
+  const { tokenSymbol, inputAmount, label } = props;
 
   return (
     <Box className="mt-3">
@@ -27,13 +26,17 @@ const InputRow = (props: Props) => {
         </Typography>
         <Box className="flex justify-between bg-mineshaft w-1/2 rounded-md px-2">
           <Typography variant="h6" className="my-1">
-            {inputAmount}
+            {formatAmount(inputAmount, 3)}
           </Typography>
-          <Typography variant="h6" className="my-1" color="stieglitz">
-            {percentageReq}%
+          <Typography
+            variant="h6"
+            className="my-1 text-right"
+            color="stieglitz"
+          >
+            {label}
           </Typography>
         </Box>
-        <Box className="w-1/4">
+        {/* <Box className="w-1/4">
           <Input
             disableUnderline={true}
             type="number"
@@ -43,7 +46,7 @@ const InputRow = (props: Props) => {
             placeholder="0"
             onChange={handleChangeRecalculation}
           />
-        </Box>
+        </Box> */}
       </Box>
     </Box>
   );

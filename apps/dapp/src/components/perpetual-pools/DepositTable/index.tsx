@@ -14,6 +14,7 @@ import { useBoundStore } from 'store';
 import { WritePosition } from 'store/RdpxV2/perpetual-pools';
 
 import { getUserReadableAmount } from 'utils/contracts';
+import { getTokenDecimals } from 'utils/general';
 
 // const writePositions = [
 //   {
@@ -36,25 +37,37 @@ import { getUserReadableAmount } from 'utils/contracts';
 // positionId: BigNumber | number;
 
 const DepositTable = () => {
-  const { appUserData } = useBoundStore();
+  const { appUserData, appContractData, chainId } = useBoundStore();
 
   const writePositions = useMemo(() => {
-    if (appUserData.writePositions.length === 0) return;
+    if (
+      appUserData.writePositions.length === 0 ||
+      !chainId ||
+      !appContractData.collateralSymbol
+    )
+      return;
     return appUserData.writePositions.map((writePosition: WritePosition) => ({
-      totalCollateral: getUserReadableAmount(writePosition.totalCollateral, 6),
+      totalCollateral: getUserReadableAmount(
+        writePosition.totalCollateral,
+        getTokenDecimals(appContractData.collateralSymbol, chainId)
+      ),
       activeCollateral: getUserReadableAmount(
         writePosition.activeCollateral,
         6
       ),
-      accruedPremium: getUserReadableAmount(writePosition.accuredPremium, 6),
+      accruedPremium: getUserReadableAmount(
+        writePosition.accuredPremium,
+        getTokenDecimals(appContractData.collateralSymbol, chainId)
+      ),
       withdrawableCollateral: getUserReadableAmount(
         writePosition.withdrawableCollateral,
-        6
+        getTokenDecimals(appContractData.collateralSymbol, chainId)
       ),
       positionId: Number(writePosition.positionId),
       withdrawable: writePosition.withdrawableCollateral.gt('0'),
+      collateralSymbol: appContractData.collateralSymbol,
     }));
-  }, [appUserData.writePositions]);
+  }, [appContractData.collateralSymbol, appUserData.writePositions, chainId]);
 
   return (
     <Box className="space-y-2">

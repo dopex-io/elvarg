@@ -10,19 +10,27 @@ import { useBoundStore } from 'store';
 const Mint = () => {
   const {
     provider,
-    bondsContracts,
-    updateBondsContracts,
+    setIsLoading,
+    updateTreasuryContractState,
+    updateTreasuryData,
     updateUserDscBondsData,
   } = useBoundStore();
 
   useEffect(() => {
-    updateBondsContracts();
-  }, [updateBondsContracts, provider]);
-
-  useEffect(() => {
-    if (!bondsContracts) return;
-    updateUserDscBondsData();
-  }, [bondsContracts, updateUserDscBondsData]);
+    setIsLoading(true);
+    updateTreasuryContractState().then(() => {
+      updateTreasuryData().then(() => {
+        updateUserDscBondsData();
+        setIsLoading(false);
+      });
+    });
+  }, [
+    provider,
+    updateTreasuryContractState,
+    updateTreasuryData,
+    updateUserDscBondsData,
+    setIsLoading,
+  ]);
 
   return (
     <Box className="bg-contain min-h-screen">

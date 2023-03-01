@@ -7,10 +7,10 @@ import Typography from 'components/UI/Typography';
 import Redeem from 'components/rdpx-v2/BondPanel/Redeem';
 import Mint from 'components/rdpx-v2/BondPanel/Mint';
 
-const buttonLabels = ['Mint', 'Redeem'];
+const buttonLabels = ['Bond', 'Redeem'];
 
 const BondPanel = () => {
-  const [active, setActive] = useState<string>('Mint');
+  const [active, setActive] = useState<string>('Bond');
 
   const handleClick = useCallback((e: any) => {
     setActive(e.target.textContent);
@@ -18,7 +18,7 @@ const BondPanel = () => {
 
   return (
     <Box className="p-3 bg-cod-gray rounded-xl space-y-3">
-      <Typography variant="h6">Bond</Typography>
+      <Typography variant="h6">Mint</Typography>
       <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-lg">
         {buttonLabels.map((label, index) => (
           <Button
@@ -35,7 +35,7 @@ const BondPanel = () => {
           </Button>
         ))}
       </ButtonGroup>
-      {active === 'Mint' ? <Mint /> : <Redeem />}
+      {active === 'Bond' ? <Mint /> : <Redeem />}
     </Box>
   );
 };

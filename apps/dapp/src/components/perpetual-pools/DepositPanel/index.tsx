@@ -22,8 +22,13 @@ import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
 const DepositPanel = () => {
   const sendTx = useSendTx();
 
-  const { chainId, accountAddress, userAssetBalances, appContractData } =
-    useBoundStore();
+  const {
+    chainId,
+    accountAddress,
+    userAssetBalances,
+    appContractData,
+    updateAPPUserData,
+  } = useBoundStore();
 
   const [value, setValue] = useState<number | string>('');
   const [disabled, setDisabled] = useState<boolean>(true);
@@ -55,14 +60,25 @@ const DepositPanel = () => {
   const handleDeposit = useCallback(async () => {
     if (!appContractData.contract || !accountAddress) return;
     const _contract = appContractData.contract;
-    const inputAmount = getContractReadableAmount(value, 6);
-
+    const _collateralToken = appContractData.collateralSymbol;
+    const decimals = getTokenDecimals(_collateralToken, chainId);
+    const inputAmount = getContractReadableAmount(value, decimals);
     try {
-      await sendTx(_contract, 'deposit', [inputAmount, accountAddress]);
+      await sendTx(_contract, 'deposit', [inputAmount, accountAddress]).then(
+        () => updateAPPUserData()
+      );
     } catch (e) {
       console.log(e);
     }
-  }, [accountAddress, appContractData.contract, sendTx, value]);
+  }, [
+    chainId,
+    appContractData.contract,
+    appContractData.collateralSymbol,
+    accountAddress,
+    updateAPPUserData,
+    value,
+    sendTx,
+  ]);
 
   const handleApprove = useCallback(async () => {
     if (
@@ -192,7 +208,7 @@ const DepositPanel = () => {
           size="medium"
           className="w-full mt-4 !rounded-md"
           color={approved ? 'mineshaft' : 'primary'}
-          disabled={disabled || value === '' || value === '0'}
+          disabled={disabled || value === '' || Number(value) <= 0}
           onClick={approved ? handleDeposit : handleApprove}
         >
           {approved ? 'Deposit' : 'Approve'}

@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import Box from '@mui/material/Box';
 
 import Title from 'components/rdpx-v2/Title';
@@ -6,7 +7,12 @@ import BondPanel from 'components/rdpx-v2/BondPanel';
 import Charts from 'components/rdpx-v2/Charts';
 import QuickLink from 'components/rdpx-v2/QuickLink';
 
-const statsKeys = ['Supply', 'Market Cap', 'Collateral Ratio', 'Bonded'];
+import { useBoundStore } from 'store';
+
+import formatAmount from 'utils/general/formatAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+
+const statsKeys = ['Total Supply', 'Market Cap', 'Price', 'rDPX Supply'];
 
 const statsValues = ['-', '-', '-', '-'];
 
@@ -27,18 +33,44 @@ const quickLink3Props = {
 };
 
 const RdpxV2Main = () => {
+  const { treasuryContractState, treasuryData } = useBoundStore();
+
+  const statsVals = useMemo(() => {
+    if (
+      !treasuryData ||
+      !treasuryContractState ||
+      !treasuryData.reserveA ||
+      !treasuryData.reserveB
+    )
+      return statsValues;
+
+    return [
+      getUserReadableAmount(treasuryData.dscSupply, 18),
+      '$' +
+        getUserReadableAmount(
+          treasuryData.dscPrice.mul(treasuryData.dscSupply),
+          26
+        ),
+      getUserReadableAmount(treasuryData.dscPrice, 8) + ' WETH',
+      formatAmount(getUserReadableAmount(treasuryData.rdpxSupply, 18), 3),
+    ];
+  }, [treasuryContractState, treasuryData]);
+
   return (
     <Box className="py-12 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
       <Box className="flex mt-20 lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">
-        <Box className="flex flex-col space-y-8 w-full sm:w-full lg:w-3/4 h-full">
+        <Box className="flex flex-col space-y-4 w-full sm:w-full lg:w-3/4 h-full">
           <Title
-            title={'Mint'}
-            description="Mint and Redeem DSC."
-            price={'-'}
+            title="Mint"
+            description="Mint and Redeem $DSC."
+            price={
+              String(getUserReadableAmount(treasuryData.dscPrice, 8) || 0) +
+              ' WETH'
+            }
           />
           <Stats
             statsObject={Object.fromEntries(
-              statsKeys.map((_, i) => [statsKeys[i], statsValues[i]])
+              statsKeys.map((_, i) => [statsKeys[i], statsVals[i]])
             )}
           />
           <Charts />

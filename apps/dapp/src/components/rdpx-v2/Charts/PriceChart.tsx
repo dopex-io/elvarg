@@ -61,8 +61,6 @@ interface LiquidityBarGraphProps {
 const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
   const { data, height } = props;
 
-  console.log(data);
-
   return (
     <Box className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra">
       <Box className="flex space-x-2 justify-start py-2 px-3">
@@ -88,7 +86,7 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
           >
             <XAxis dataKey="name" hide />
             <YAxis hide />
-            <RechartsTooltip
+            {/* <RechartsTooltip
               contentStyle={{
                 borderColor: '#2D2D2D',
                 backgroundColor: '#2D2D2D',
@@ -98,12 +96,13 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               cursor={{
                 fill: '#151515',
               }}
-            />
+            /> */}
             <Area
               type="linear"
               dataKey="amt"
               stroke="#C3F8FF"
               fill="url(#colorUv1)"
+              className="blur-sm cursor-not-allowed"
             />
           </AreaChart>
         </ResponsiveContainer>

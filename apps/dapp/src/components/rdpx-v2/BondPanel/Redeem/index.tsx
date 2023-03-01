@@ -1,22 +1,133 @@
-import { useState } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import LaunchOutlinedIcon from '@mui/icons-material/LaunchOutlined';
 
 import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CustomButton from 'components/UI/Button';
-import DisabledPanel from 'components/rdpx-v2/BondPanel/DisabledPanel';
+// import DisabledPanel from 'components/rdpx-v2/BondPanel/DisabledPanel';
+import Input from 'components/UI/Input';
 
+import { RdpxBond } from 'store/RdpxV2/dpxusd-bonding';
 import { useBoundStore } from 'store';
 
+import useSendTx from 'hooks/useSendTx';
+
+// import formatAmount from 'utils/general/formatAmount';
+// import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+
 const Mint = () => {
+  const sendTx = useSendTx();
   const [redeemDisabled, _] = useState<boolean>(true);
-  const { chainId } = useBoundStore();
+  const [value, setValue] = useState<number>(0);
+  const [bondData, setBondData] = useState<RdpxBond>({
+    tokenId: 0,
+    amount: 0,
+    maturity: 0,
+    timestamp: 0,
+  });
+  const [redeemable, setRedeemable] = useState<boolean>(false);
+
+  const {
+    accountAddress,
+    signer,
+    chainId,
+    userDscBondsData,
+    treasuryContractState,
+  } = useBoundStore();
+
+  const handleUpdateBondData = useCallback(() => {
+    if (!userDscBondsData.bonds) return;
+
+    const selectedBond = userDscBondsData.bonds.find(
+      (bond) => bond.tokenId === Number(value)
+    );
+
+    if (selectedBond === undefined) return;
+
+    setBondData(selectedBond);
+  }, [userDscBondsData.bonds, value]);
+
+  const handleChange = useCallback(
+    (e: any) => {
+      setValue(e.target.value);
+      handleUpdateBondData();
+    },
+    [handleUpdateBondData]
+  );
+
+  const handleRedeem = useCallback(async () => {
+    if (
+      !redeemable ||
+      !signer ||
+      !treasuryContractState.contracts ||
+      !accountAddress
+    )
+      return;
+
+    const treasury = treasuryContractState.contracts.treasury;
+
+    try {
+      await sendTx(treasury, 'redeem', [bondData.tokenId, accountAddress]);
+    } catch (e) {
+      console.log(e);
+    }
+  }, [
+    accountAddress,
+    bondData.tokenId,
+    redeemable,
+    sendTx,
+    signer,
+    treasuryContractState.contracts,
+  ]);
+
+  useEffect(() => {
+    if (treasuryContractState.bond_muturity.eq('0')) return;
+    setRedeemable(
+      bondData.maturity - bondData.timestamp >
+        Number(treasuryContractState.bond_muturity)
+    );
+  }, [
+    bondData.maturity,
+    bondData.timestamp,
+    treasuryContractState.bond_muturity,
+  ]);
 
   return (
     <Box className="space-y-3 relative">
-      {redeemDisabled ? <DisabledPanel isMint={false} /> : null}
-      <Box className="bg-umbra rounded-xl w-full h-[19.8rem]"></Box>
+      {/* {redeemDisabled ? <DisabledPanel isMint={false} /> : null} */}
+      <Box className="bg-umbra rounded-xl w-full h-fit">
+        {/* h-[19.8rem] */}
+        <Input
+          type="number"
+          size="small"
+          value={value}
+          onChange={handleChange}
+          placeholder="Bond ID"
+          leftElement={
+            <Box className="flex my-auto space-x-2 w-2/3">
+              <img
+                src={`/images/tokens/${'DSC'?.toLowerCase()}.svg`}
+                alt={'USDC'.toLowerCase()}
+                className="w-[30px] h-[30px]"
+              />
+            </Box>
+          }
+        />
+        <Box className="flex justify-between px-3 pb-3">
+          <Typography variant="h6" color="stieglitz">
+            Balance
+          </Typography>
+          <Box className="flex space-x-1">
+            <Typography variant="h6">
+              {userDscBondsData.bonds.length}
+            </Typography>
+            <Typography variant="h6" color="stieglitz">
+              Bonds
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
       <Box className="rounded-xl p-4 w-full bg-umbra">
         <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800 space-y-2">
           <EstimatedGasCostButton gas={500000} chainId={chainId} />
@@ -36,13 +147,13 @@ const Mint = () => {
             </Box>
           </Box>
         </Box>
-        {!redeemDisabled ? (
+        {redeemDisabled ? (
           <CustomButton
             size="medium"
             className="w-full mt-4 rounded-md"
             color={'mineshaft'}
-            disabled={redeemDisabled || true}
-            onClick={() => {}}
+            disabled={!redeemable}
+            onClick={handleRedeem}
           >
             Redeem
           </CustomButton>

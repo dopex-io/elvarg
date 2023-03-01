@@ -347,6 +347,11 @@ export const TOKEN_DECIMALS: {
     USDC: 6,
     WETH: 18,
   },
+  '421613': {
+    USDT: 6,
+    USDC: 6,
+    WETH: 18,
+  },
   '43114': {
     USDT: 6,
     USDC: 6,
@@ -375,10 +380,10 @@ export const CHAIN_ID_TO_RPC: { [key: number]: string } = {
   56: `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
   42161: `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   43114: `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
-  421613: `https://arb-goerli.g.alchemy.com/v2/${'###'}`,
+  421613: `https://arbitrum-goerli.infura.io/v3/${'c088bb4e4cc643d5a0d3bb668a400685'}`,
   421611: `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
   1088: 'https://andromeda.metis.io/?owner=1088',
-  1337: 'http://127.0.0.1:8545',
+  1337: 'http://127.0.0.1:8545/',
   137: `https://polygon-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
 };
 
