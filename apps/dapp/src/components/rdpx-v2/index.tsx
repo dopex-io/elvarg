@@ -17,20 +17,20 @@ const statsKeys = ['Total Supply', 'Market Cap', 'Price', 'rDPX Supply'];
 const statsValues = ['-', '-', '-', '-'];
 
 const quickLink1Props = {
-  text: 'Dune Analytics',
-  iconSymbol: '/assets/dune-dashboard.svg',
-  url: 'https://app.dopex.io/ssov',
-};
-const quickLink2Props = {
   text: 'RDPX Whitepaper',
   iconSymbol: '/images/tokens/rdpx.svg',
-  url: 'https://app.dopex.io/ssov',
+  url: 'https://docs.google.com/document/d/1005YPC8-tUJhuhzTZK__3KZss0o_-ix4/edit',
 };
-const quickLink3Props = {
-  text: 'What is DSC?',
-  iconSymbol: '/images/tokens/dsc.svg',
-  url: 'https://app.dopex.io/ssov',
+const quickLink2Props = {
+  text: 'Dune Analytics',
+  iconSymbol: '/assets/dune-dashboard.svg',
+  url: 'https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713',
 };
+// const quickLink3Props = {
+//   text: 'What is DSC?',
+//   iconSymbol: '/images/tokens/dsc.svg',
+//   url: 'https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713',
+// };
 
 const RdpxV2Main = () => {
   const { treasuryContractState, treasuryData } = useBoundStore();
@@ -76,7 +76,7 @@ const RdpxV2Main = () => {
           <Box className="flex space-x-2 w-full">
             <QuickLink {...quickLink1Props} />
             <QuickLink {...quickLink2Props} />
-            <QuickLink {...quickLink3Props} />
+            {/* <QuickLink {...quickLink3Props} /> */}
           </Box>
           {/* <DepositTable /> */}
         </Box>
