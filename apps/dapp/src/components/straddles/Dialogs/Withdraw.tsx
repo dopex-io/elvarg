@@ -56,10 +56,12 @@ const WithdrawModal = ({
       await sendTx(
         straddlesData?.straddlesContract.connect(signer),
         'withdraw',
-        [straddlesUserData?.writePositions![selectedPositionNftIndex!]!['id']],
-        {
-          gasLimit: 1000000,
-        }
+        [
+          straddlesUserData?.writePositions![selectedPositionNftIndex!]!['id'],
+          {
+            gasLimit: 1000000,
+          },
+        ]
       );
       await updateStraddlesUserData!();
     }

@@ -34,9 +34,11 @@ const Wrapper = ({ open, handleClose }: Props) => {
       signer
     );
 
-    await sendTx(weth, 'deposit', [], {
-      value: getContractReadableAmount(value, 18),
-    });
+    await sendTx(weth, 'deposit', [
+      {
+        value: getContractReadableAmount(value, 18),
+      },
+    ]);
   }, [signer, sendTx, value]);
 
   return (
