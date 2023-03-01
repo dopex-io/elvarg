@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { RdpxV2Bond__factory, RdpxV2Treasury__factory } from '@dopex-io/sdk';
 import { formatDistance, format } from 'date-fns';
 import Box from '@mui/material/Box';
 import LaunchOutlinedIcon from '@mui/icons-material/LaunchOutlined';
@@ -64,16 +65,25 @@ const Mint = () => {
 
   const handleRedeem = useCallback(async () => {
     if (
-      !redeemable ||
+      // !redeemable ||
       !signer ||
       !treasuryContractState.contracts ||
       !accountAddress
     )
       return;
 
-    const treasury = treasuryContractState.contracts.treasury;
+    const bond = RdpxV2Bond__factory.connect(
+      treasuryContractState.contracts.bond.address,
+      signer
+    );
+
+    const treasury = RdpxV2Treasury__factory.connect(
+      treasuryContractState.contracts.treasury.address,
+      signer
+    );
 
     try {
+      await sendTx(bond, 'approve', [treasury.address, bondData.tokenId]);
       await sendTx(treasury, 'redeem', [bondData.tokenId, accountAddress]);
     } catch (e) {
       console.log(e);
@@ -81,7 +91,6 @@ const Mint = () => {
   }, [
     accountAddress,
     bondData.tokenId,
-    redeemable,
     sendTx,
     signer,
     treasuryContractState.contracts,
@@ -197,7 +206,7 @@ const Mint = () => {
             size="medium"
             className="w-full mt-4 rounded-md"
             color={'mineshaft'}
-            disabled={!redeemable}
+            // disabled={!redeemable}
             onClick={handleRedeem}
           >
             Redeem

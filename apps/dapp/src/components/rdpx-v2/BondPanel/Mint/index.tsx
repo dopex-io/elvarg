@@ -24,8 +24,9 @@ const Mint = () => {
   const {
     chainId,
     signer,
-    contractAddresses,
+    provider,
     accountAddress,
+    contractAddresses,
     userAssetBalances,
     treasuryContractState,
     treasuryData,
@@ -122,7 +123,55 @@ const Mint = () => {
     value,
   ]);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    (async () => {
+      if (
+        !treasuryContractState.contracts ||
+        !provider ||
+        !accountAddress ||
+        !treasuryData.tokenA.address ||
+        !treasuryData.tokenB.address
+      )
+        return;
+
+      const _weth = MockToken__factory.connect(
+        treasuryData.tokenA.address,
+        provider
+      );
+      const _rdpx = MockToken__factory.connect(
+        treasuryData.tokenB.address,
+        provider
+      );
+
+      const allowances = await Promise.all([
+        _weth.allowance(
+          accountAddress,
+          treasuryContractState.contracts.treasury.address
+        ),
+        _rdpx.allowance(
+          accountAddress,
+          treasuryContractState.contracts.treasury.address
+        ),
+      ]);
+
+      const [rdpxReq, wethReq] = [
+        treasuryData.bondCostPerDsc[0].mul(value || 1),
+        treasuryData.bondCostPerDsc[1].mul(value || 1),
+      ];
+
+      setApproved(allowances[0].gte(wethReq) && allowances[1].gte(rdpxReq));
+    })();
+  }, [
+    accountAddress,
+    provider,
+    treasuryContractState,
+    treasuryData.bondCostPerDsc,
+    treasuryData.tokenA,
+    treasuryData.tokenA.address,
+    treasuryData.tokenB,
+    treasuryData.tokenB.address,
+    value,
+  ]);
 
   return (
     <Box className="space-y-3 relative">
