@@ -7,8 +7,8 @@ import {
   ERC20__factory,
 } from '@dopex-io/sdk';
 import { LoaderIcon } from 'react-hot-toast';
-import Countdown from 'react-countdown';
 import { BigNumber } from 'ethers';
+import Countdown from 'react-countdown';
 
 import Input from '@mui/material/Input';
 import Box from '@mui/material/Box';
@@ -42,11 +42,11 @@ import RedTriangleIcon from 'svgs/icons/RedTriangleIcon';
 import { useBoundStore } from 'store';
 
 import { CURRENCIES_MAP, MAX_VALUE } from 'constants/index';
+import isNativeToken from 'utils/general/isNativeToken';
 
 import { Order } from '../../types/tzwap';
 
 import styles from './styles.module.scss';
-import isNativeToken from 'utils/general/isNativeToken';
 
 function TabPanel(props: {
   children: ReactNode;

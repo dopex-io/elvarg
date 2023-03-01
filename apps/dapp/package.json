@@ -7,8 +7,7 @@
     "start": "next start",
     "build": "next build",
     "lint": "next lint",
-    "generate": "graphql-codegen",
-    "format": "prettier --write \"./src/components/olp/**/*.{ts,tsx}\""
+    "generate": "graphql-codegen"
   },
   "dependencies": {
     "@0xsequence/multicall": "^0.43.3",
@@ -56,6 +55,7 @@
     "@graphql-codegen/typescript-operations": "^3.0.0",
     "@graphql-codegen/typescript-react-apollo": "^3.2.8",
     "@next/eslint-plugin-next": "^13.0.1",
+    "@trivago/prettier-plugin-sort-imports": "^4.1.1",
     "@types/lodash": "^4.14.170",
     "@types/react": "^18.0.10",
     "@types/react-dom": "^18.0.0",
