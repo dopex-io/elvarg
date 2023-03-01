@@ -1595,9 +1595,10 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz#1d572bfbbe14b7704e0ba0f39b74815b84870d70"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
-"@dopex-io/sdk@https://github.com/dopex-io/sdk#feat/rdpx-v2-testnet":
-  version "1.0.0-beta.48"
-  resolved "https://github.com/dopex-io/sdk#3de006b534f180785e8720683fa6f5ed2854fb1e"
+"@dopex-io/sdk@^1.0.0-beta.49":
+  version "1.0.0-beta.49"
+  resolved "https://registry.yarnpkg.com/@dopex-io/sdk/-/sdk-1.0.0-beta.49.tgz#de2fcf4eb2e13e3719dab83605ce932294a6bdc3"
+  integrity sha512-aONXI5PIHkx3RMm60KgSobxfWdnFVH6pFvPYNOlmGxVeTGqUmszg5EtCyHHPTYB4Gll0g/I0KqQOIXZy6oysGw==
 
 "@emotion/babel-plugin@^11.10.5":
   version "11.10.5"
