@@ -9,7 +9,7 @@ import {
   XAxis,
   YAxis,
   // CartesianGrid,
-  Tooltip as RechartsTooltip,
+  // Tooltip as RechartsTooltip,
   // Legend,
   ResponsiveContainer,
 } from 'recharts';
@@ -59,7 +59,7 @@ interface LiquidityBarGraphProps {
 }
 
 const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
-  const { data, height } = props;
+  const { /*data,*/ height } = props;
 
   return (
     <Box className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra">

@@ -58,13 +58,9 @@ const Mint = () => {
     setBondData(selectedBond);
   }, [userDscBondsData.bonds, value]);
 
-  const handleChange = useCallback(
-    (e: any) => {
-      setValue(e.target.value);
-      handleUpdateBondData();
-    },
-    [handleUpdateBondData]
-  );
+  const handleChange = useCallback((e: any) => {
+    setValue(e.target.value);
+  }, []);
 
   const handleRedeem = useCallback(async () => {
     if (
@@ -102,6 +98,10 @@ const Mint = () => {
     bondData.timestamp,
     treasuryContractState.bond_muturity,
   ]);
+
+  useEffect(() => {
+    handleUpdateBondData();
+  }, [handleUpdateBondData, value]);
 
   return (
     <Box className="space-y-3 relative">
@@ -168,7 +168,7 @@ const Mint = () => {
           </Typography>
           <Typography variant="h6" color="stieglitz">
             {bondData.timestamp
-              ? format(Number(bondData.timestamp) * 1000, 'd LLLL, yyyy H :MM')
+              ? format(Number(bondData.timestamp) * 1000, 'd LLLL, yyyy H:mm')
               : '-'}
           </Typography>
         </Box>

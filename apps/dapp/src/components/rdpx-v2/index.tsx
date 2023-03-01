@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import Box from '@mui/material/Box';
-import { formatDistance } from 'date-fns';
 
 import Title from 'components/rdpx-v2/Title';
 import Stats from 'components/rdpx-v2/Stats';

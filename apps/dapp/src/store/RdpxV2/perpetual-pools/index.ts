@@ -124,9 +124,6 @@ export const createAppSlice: StateCreator<
     const _contract: PerpetualAtlanticVault =
       PerpetualAtlanticVault__factory.connect(perpsAddress, signer);
 
-    console.log('CONTRACT', _contract);
-    console.log(await _contract.underlyingSymbol());
-
     const [
       underlyingSymbol,
       collateralToken,

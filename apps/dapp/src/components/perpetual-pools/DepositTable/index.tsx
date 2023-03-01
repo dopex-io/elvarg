@@ -53,7 +53,7 @@ const DepositTable = () => {
       ),
       activeCollateral: getUserReadableAmount(
         writePosition.activeCollateral,
-        6
+        getTokenDecimals(appContractData.collateralSymbol, chainId)
       ),
       accruedPremium: getUserReadableAmount(
         writePosition.accuredPremium,
