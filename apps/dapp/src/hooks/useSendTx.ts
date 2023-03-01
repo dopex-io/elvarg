@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { ethers, BigNumber } from 'ethers';
-import BN from 'bignumber.js';
 
 import TransactionToast from 'components/UI/TransactionToast';
 
@@ -23,7 +22,7 @@ const useSendTx = () => {
       contractWithSigner: ethers.Contract,
       method: string,
       params: (any | BigNumber | string)[] = [],
-      value: BigNumber | string | number | BN | BigNumber | null = null,
+      overrides: ethers.PayableOverrides = {},
       waitingMessage: string = 'Please confirm the transaction...',
       loadingMessage: string = 'Transaction pending...',
       successMessage: string = 'Transaction confirmed',
@@ -42,10 +41,7 @@ const useSendTx = () => {
         return;
       }
       toastId = toast.loading(waitingMessage);
-      let transaction = contractWithSigner[method](...params);
-      if (value) {
-        transaction = contractWithSigner[method](...params, { value });
-      }
+      let transaction = contractWithSigner[method](...params, overrides);
       try {
         const tx = await transaction;
         toast.loading(

@@ -378,7 +378,7 @@ const Positions = ({
       userPositionManagerContract,
       'decreaseOrder',
       [decreaseOrder],
-      MIN_EXECUTION_FEE
+      { value: MIN_EXECUTION_FEE }
     ).then(() => {
       getUserPositions();
     });
@@ -459,7 +459,7 @@ const Positions = ({
       strategyContract,
       'createIncreaseManagedPositionOrder',
       [positionId],
-      MIN_EXECUTION_FEE
+      { value: MIN_EXECUTION_FEE }
     ).then(() => {
       getUserPositions();
     });
