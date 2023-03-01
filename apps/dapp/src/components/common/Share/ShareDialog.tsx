@@ -1,11 +1,11 @@
 import { useCallback, useRef, useState } from 'react';
 import { toPng } from 'html-to-image';
-import { Button } from '@dopex-io/ui';
+// import { Button } from '@dopex-io/ui';
 import { toast } from 'react-hot-toast';
 
-import DownloadIcon from '@mui/icons-material/Download';
-import TwitterIcon from '@mui/icons-material/Twitter';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+// import DownloadIcon from '@mui/icons-material/Download';
+// import TwitterIcon from '@mui/icons-material/Twitter';
+// import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 import { Typography } from 'components/UI';
 import Dialog from 'components/UI/Dialog';
@@ -116,7 +116,7 @@ const ShareDialog = (props: ShareDialogProps) => {
             <div className="text-white">Uploading image...</div>
           ) : null}
           <div className="flex space-x-4 mt-4">
-            <Button color="carbon" onClick={onDownload}>
+            {/* <Button color="carbon" onClick={onDownload}>
               <DownloadIcon /> Download
             </Button>
             <Button color="carbon" onClick={onCopy}>
@@ -124,7 +124,7 @@ const ShareDialog = (props: ShareDialogProps) => {
             </Button>
             <Button color="carbon" onClick={onTweet}>
               <TwitterIcon /> Tweet
-            </Button>
+            </Button> */}
           </div>
         </>
       </div>
