@@ -289,54 +289,6 @@ export const S3_BUCKET_RESOURCES = {
   RDPX: 'https://dopex-general.s3.us-east-2.amazonaws.com/image/tokens/rDPX.png',
 };
 
-export const DISPLAY_TOKENS: { [key: string | number]: string[] } = {
-  42161: ['DPX', 'RDPX', 'ETH'],
-  56: ['BNB', 'VBNB'],
-  43114: ['AVAX'],
-  1088: ['METIS'],
-  137: ['MATIC'],
-};
-
-export const TOKEN_DECIMALS: {
-  [key: string]: { [key: string]: number };
-} = {
-  '56': {
-    BNB: 18,
-    VBNB: 8,
-  },
-  '1337': {
-    WETH: 18,
-    USDT: 6,
-    USDC: 6,
-  },
-  '1': {
-    USDT: 6,
-    USDC: 6,
-  },
-  '5': {
-    USDT: 6,
-    USDC: 6,
-  },
-  '421613': {
-    USDT: 6,
-    USDC: 6,
-    WETH: 18,
-  },
-  '42161': {
-    USDT: 6,
-    USDC: 6,
-    WETH: 18,
-  },
-  '43114': {
-    USDT: 6,
-    USDC: 6,
-  },
-  '1088': {
-    USDT: 6,
-    USDC: 6,
-  },
-};
-
 export const DISCLAIMER_MESSAGE = {
   english:
     'I am not the person or entities who reside in, are citizens of, are incorporated in, or have a registered office in the United States of America and OFAC restricted localities.\nI will not in the future access this site or use Dopex dApp while located within the United States or OFAC restricted localities.\nI am not using, and will not in the future use, a VPN to mask my physical location from a restricted territory.\nI am lawfully permitted to access this site and use Dopex dApp under the laws of the jurisdiction on which I reside and am located.\nI understand the risks associated with using products by Dopex.',

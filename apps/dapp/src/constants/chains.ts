@@ -8,54 +8,86 @@ export const CHAINS: {
     explorer: string;
     nativeToken: string;
     icon: string;
+    tokenDecimals: { [key: string]: number };
+    displayTokens: string[];
   };
 } = {
   1: {
+    name: 'Ethereum',
     rpc: `https://mainnet.infura.io/v3${INFURA_PROJECT_ID}`,
     publicRpc: 'https://mainnet.infura.io/v3',
     explorer: 'https://etherscan.io/',
     nativeToken: 'ETH',
-    name: 'Ethereum',
     icon: 'images/tokens/eth.svg',
+    tokenDecimals: {
+      USDT: 6,
+      USDC: 6,
+      WETH: 18,
+    },
+    displayTokens: ['ETH'],
   },
   137: {
+    name: 'Polygon',
     rpc: `https://polygon-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
     publicRpc: 'https://polygon-mainnet.infura.io/v3',
     explorer: 'https://polygonscan.com/',
     nativeToken: 'MATIC',
-    name: 'Polygon',
     icon: 'images/tokens/matic.svg',
+    tokenDecimals: {
+      USDT: 6,
+      USDC: 6,
+      WETH: 18,
+    },
+    displayTokens: ['MATIC'],
   },
   1337: {
+    name: 'Localhost',
     rpc: 'http://127.0.0.1:8545',
     publicRpc: 'http://127.0.0.1:8545',
     explorer: '',
     nativeToken: 'ETH',
-    name: 'Localhost',
     icon: 'images/tokens/eth.svg',
+    tokenDecimals: {
+      USDT: 6,
+      USDC: 6,
+      WETH: 18,
+    },
+    displayTokens: ['ETH'],
   },
   42161: {
+    name: 'Arbitrum',
     rpc: `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
     publicRpc: 'https://arbitrum-mainnet.infura.io/v3',
     explorer: 'https://arbiscan.io/',
     nativeToken: 'ETH',
-    name: 'Arbitrum',
     icon: 'images/networks/arbitrum.svg',
+    tokenDecimals: {
+      USDT: 6,
+      USDC: 6,
+      WETH: 18,
+    },
+    displayTokens: ['ETH', 'DPX', 'RDPX'],
   },
   421613: {
+    name: 'Testnet',
     rpc: `https://arbitrum-goerli.infura.io/v3/${INFURA_PROJECT_ID}`,
     publicRpc: 'https://arbitrum-goerli.infura.io/v3',
     explorer: 'https://testnet.arbiscan.io/',
     nativeToken: 'ETH',
-    name: 'Testnet',
     icon: 'images/networks/arbitrum.svg',
+    tokenDecimals: {
+      USDT: 6,
+      USDC: 6,
+      WETH: 18,
+    },
+    displayTokens: ['ETH'],
   },
 };
 
-export const CHAIN_RPCS = Object.keys(CHAINS).reduce((acc, chainId) => {
+export const CHAIN_PUBLIC_RPCS = Object.keys(CHAINS).reduce((acc, chainId) => {
   return {
     ...acc,
-    [chainId]: CHAINS[Number(chainId)]?.rpc,
+    [chainId]: CHAINS[Number(chainId)]?.publicRpc,
   };
 }, {});
 
