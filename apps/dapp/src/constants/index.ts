@@ -1,6 +1,6 @@
 import { BigNumber, BigNumberish, ethers } from 'ethers';
 
-import { ALCHEMY_PROJECT_ID, ANKR_KEY, INFURA_PROJECT_ID } from './env';
+import { ANKR_KEY, INFURA_PROJECT_ID } from './env';
 
 export const DATE_FORMAT: string = 'd LLL yy';
 
@@ -376,7 +376,6 @@ export const CHAIN_ID_TO_RPC: { [key: number]: string } = {
   5: `https://goerli.infura.io/v3/${INFURA_PROJECT_ID}`,
   56: `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
   42161: `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
-  421613: `https://arb-goerli.g.alchemy.com/v2/${ALCHEMY_PROJECT_ID}`,
   43114: `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
   421613: `https://arbitrum-goerli.infura.io/v3/${INFURA_PROJECT_ID}`,
   1088: 'https://andromeda.metis.io/?owner=1088',
@@ -391,7 +390,6 @@ export const CHAIN_ID_TO_EXPLORER: { [key: number]: string } = {
   137: 'https://polygonscan.com/',
   1088: 'https://andromeda-explorer.metis.io/',
   42161: 'https://arbiscan.io/',
-  421613: 'https://goerli.arbiscan.io/',
   43114: 'https://snowtrace.io/',
   421613: 'https://testnet.arbiscan.io/',
 };
@@ -405,6 +403,7 @@ export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/sale': { default: 1, all: [1] },
   '/oracles': { default: 42161, all: [1, 42161, 137] },
   '/tzwap': { default: 42161, all: [1, 42161] },
+  '/lending': { default: 421613, all: [421613] },
   '/straddles': { default: 42161, all: [42161, 137] },
   '/straddles/MATIC': { default: 137, all: [137] },
   '/ssov': { default: 42161, all: [42161, 137] },

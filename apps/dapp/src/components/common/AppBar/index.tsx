@@ -160,7 +160,7 @@ const appLinks = {
     { name: 'faucet', to: '/faucet' },
     { name: 'Atlantics', to: '/atlantics' },
   ],
-  421613: [],
+  421613: [{ name: 'Lending', to: '/lending' }],
   42161: [
     { name: 'Portfolio', to: '/portfolio' },
     { name: 'Stake', to: '/farms' },
@@ -228,7 +228,6 @@ const appLinks = {
     { name: 'OLP', to: '/olp' },
   ],
   137: [{ name: 'Straddles', to: '/straddles' }],
-  421613: [{ name: 'Lending', to: '/lending' }],
 };
 
 const menuLinks = [
