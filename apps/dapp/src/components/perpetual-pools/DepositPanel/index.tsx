@@ -1,4 +1,5 @@
 import { useCallback, useState, useEffect } from 'react';
+import { MockToken__factory, MockToken } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
@@ -23,6 +24,7 @@ const DepositPanel = () => {
   const sendTx = useSendTx();
 
   const {
+    signer,
     chainId,
     accountAddress,
     userAssetBalances,
@@ -84,23 +86,27 @@ const DepositPanel = () => {
     if (
       !appContractData.contract ||
       !appContractData.collateralToken ||
-      !accountAddress
+      !accountAddress ||
+      !signer
     )
       return;
-    const _contract = appContractData.contract;
-    const _usdc = appContractData.collateralToken;
+
+    const _perpetualVault = appContractData.contract;
+
+    const collateralToken: MockToken = MockToken__factory.connect(
+      appContractData.collateralToken.address,
+      signer
+    );
 
     try {
-      await sendTx(_usdc, 'approve', [MAX_VALUE, _contract]);
+      await sendTx(collateralToken, 'approve', [
+        _perpetualVault.address,
+        MAX_VALUE,
+      ]);
     } catch (e) {
       console.log(e);
     }
-  }, [
-    accountAddress,
-    appContractData.collateralToken,
-    appContractData.contract,
-    sendTx,
-  ]);
+  }, [accountAddress, appContractData, sendTx, signer]);
 
   useEffect(() => {
     (async () => {
