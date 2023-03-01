@@ -83,7 +83,12 @@ export const createSsovLending: StateCreator<
     const lendingUrl = `${DOPEX_API_BASE_URL}/v2/lending`;
 
     const lendingData: ISsovLendingData[] = await axios
-      .get(lendingUrl)
+      .get(lendingUrl, {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      })
       .then((payload) => payload.data[chainId])
       .catch((err) => console.log(err));
 
@@ -92,7 +97,13 @@ export const createSsovLending: StateCreator<
         const { underlyingSymbol } = asset;
         return await axios
           .get(
-            `${lendingUrl}/debts?symbol=${underlyingSymbol.toLowerCase()}&owner=${accountAddress}`
+            `${lendingUrl}/debts?symbol=${underlyingSymbol.toLowerCase()}&owner=${accountAddress}`,
+            {
+              headers: {
+                'Access-Control-Allow-Origin': '*',
+                'X-Requested-With': 'XMLHttpRequest',
+              },
+            }
           )
           .then((payload) => {
             const rawDebts: IRawDebtPosition[] = payload.data.debts;
@@ -116,7 +127,13 @@ export const createSsovLending: StateCreator<
         const { underlyingSymbol } = asset;
         return await axios
           .get(
-            `${lendingUrl}/deposits?symbol=${underlyingSymbol.toLowerCase()}&owner=${accountAddress}`
+            `${lendingUrl}/deposits?symbol=${underlyingSymbol.toLowerCase()}&owner=${accountAddress}`,
+            {
+              headers: {
+                'Access-Control-Allow-Origin': '*',
+                'X-Requested-With': 'XMLHttpRequest',
+              },
+            }
           )
           .then((payload) => {
             const rawPositions: IRawSsovPosition[] = payload.data.deposits;
@@ -136,7 +153,12 @@ export const createSsovLending: StateCreator<
     );
 
     const { totalCollatTvl, totalBorrowingTvl } = await axios
-      .get(`${lendingUrl}/tvl`)
+      .get(`${lendingUrl}/tvl`, {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      })
       .then((payload) => payload.data)
       .catch((err) => console.log(err));
 
