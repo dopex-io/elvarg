@@ -28,7 +28,7 @@ const Mint = () => {
     maturity: 0,
     timestamp: 0,
   });
-  const [redeemable, setRedeemable] = useState<boolean>(false);
+  const [, /*redeemable*/ setRedeemable] = useState<boolean>(false);
 
   const {
     accountAddress,
