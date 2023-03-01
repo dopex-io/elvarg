@@ -35,7 +35,7 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import formatAmount from 'utils/general/formatAmount';
 import get1inchQuote from 'utils/general/get1inchQuote';
 
-import { MAX_VALUE, CHAIN_ID_TO_NATIVE, IS_NATIVE } from 'constants/index';
+import { MAX_VALUE, IS_NATIVE } from 'constants/index';
 
 import ZapIcon from 'svgs/icons/ZapIcon';
 import TransparentCrossIcon from 'svgs/icons/TransparentCrossIcon';
@@ -43,6 +43,7 @@ import LockerIcon from 'svgs/icons/LockerIcon';
 import WhiteLockerIcon from 'svgs/icons//WhiteLockerIcon';
 
 import styles from './styles.module.scss';
+import { CHAINS } from 'constants/chains';
 
 const SelectMenuProps = {
   PaperProps: {
@@ -310,13 +311,13 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     if (isZapActive) {
       setIsZapInVisible(true);
     } else {
-      const filteredTokens = [CHAIN_ID_TO_NATIVE[chainId]]
+      const filteredTokens = [CHAINS[chainId]?.nativeToken]
         .concat(tokens)
         .filter(function (item) {
           const address = item ? contractAddresses[item] : undefined;
           return (
             item !== ssovTokenName &&
-            address(address || CHAIN_ID_TO_NATIVE[chainId] === item)
+            address(address || CHAINS[chainId]?.nativeToken === item)
           );
         })
         .sort((a, b) => {

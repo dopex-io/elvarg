@@ -6,16 +6,13 @@ import { useBoundStore } from 'store';
 
 import smartTrim from 'utils/general/smartTrim';
 
-import {
-  CHAIN_ID_TO_NETWORK_DATA,
-  CHAIN_ID_TO_EXPLORER,
-} from 'constants/index';
+import { CHAINS } from 'constants/chains';
 
-interface ArbiscanLinkProps {
+interface ExplorerLinkProps {
   address: string;
 }
 
-const ExplorerLink = (props: ArbiscanLinkProps) => {
+const ExplorerLink = (props: ExplorerLinkProps) => {
   const { address } = props;
 
   const { chainId = 42161 } = useBoundStore();
@@ -23,14 +20,14 @@ const ExplorerLink = (props: ArbiscanLinkProps) => {
   return (
     <Box className="flex">
       <a
-        href={`${CHAIN_ID_TO_EXPLORER[chainId]}address/${address}`}
+        href={`${CHAINS[chainId]?.explorer}address/${address}`}
         target="_blank"
         rel="noopener noreferrer"
         className="flex space-x-2 bg-[#2D374B] rounded-lg p-2"
       >
         <img
-          src={CHAIN_ID_TO_NETWORK_DATA[chainId]?.icon}
-          alt={CHAIN_ID_TO_NETWORK_DATA[chainId]?.name}
+          src={CHAINS[chainId]?.explorer}
+          alt={CHAINS[chainId]?.name}
           className="h-[1rem] my-auto"
         />
         <Typography variant="h6" className="font-mono">

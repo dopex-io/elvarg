@@ -20,7 +20,7 @@ import SsovFilter from 'components/ssov/SsovFilter';
 import formatAmount from 'utils/general/formatAmount';
 
 import { DOPEX_API_BASE_URL } from 'constants/env';
-import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+import { CHAINS } from 'constants/chains';
 
 const ssovStrategies: string[] = ['CALL', 'PUT'];
 const sortOptions: string[] = ['TVL', 'APY'];
@@ -30,12 +30,10 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
     <Box className="flex space-x-4 mb-8">
       <img
         className="w-8 h-8"
-        src={CHAIN_ID_TO_NETWORK_DATA[chainId]!.icon}
-        alt={CHAIN_ID_TO_NETWORK_DATA[chainId]!.name}
+        src={CHAINS[chainId]!.icon}
+        alt={CHAINS[chainId]!.name}
       />
-      <Typography variant="h4">
-        {CHAIN_ID_TO_NETWORK_DATA[chainId]!.name}
-      </Typography>
+      <Typography variant="h4">{CHAINS[chainId]!.name}</Typography>
     </Box>
   );
 };
