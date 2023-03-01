@@ -13,7 +13,6 @@ import { RateVaultSlice, createRateVaultSlice } from './Vault/ir';
 import { VeDPXSlice, createVedpxSlice } from './VeDPX';
 import { StraddlesSlice, createStraddlesSlice } from './Vault/straddles';
 import { DpxBondsSlice, createDpxBondsSlice } from './Bonds';
-import { AmmSlice, createAmmSlice } from './RdpxV2/amm';
 import { APPSlice, createAppSlice } from './RdpxV2/perpetual-pools';
 import {
   DpxusdBondingSlice,
@@ -35,7 +34,6 @@ type T = WalletSlice &
   VeDPXSlice &
   StraddlesSlice &
   DpxBondsSlice &
-  AmmSlice &
   APPSlice &
   DpxusdBondingSlice &
   OlpSlice &
@@ -56,7 +54,6 @@ export const useBoundStore = create<T>()(
     ...createVedpxSlice(...a),
     ...createStraddlesSlice(...a),
     ...createDpxBondsSlice(...a),
-    ...createAmmSlice(...a),
     ...createAppSlice(...a),
     ...createDpxusdBondingSlice(...a),
     ...createOlpSlice(...a),
