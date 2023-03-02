@@ -160,16 +160,7 @@ const appLinks = {
     { name: 'faucet', to: '/faucet' },
     { name: 'Atlantics', to: '/atlantics' },
   ],
-  421611: [
-    // { name: 'options', to: '/' },
-    // { name: 'pools', to: '/pools' },
-    // { name: 'portfolio', to: '/portfolio' },
-    // { name: 'faucet', to: '/faucet' },
-    // { name: 'swap', to: '/swap' },
-    // { name: 'SSOV', to: '/ssov' },
-    { name: 'Atlantics', to: '/atlantics' },
-    { name: 'veDPX', to: '/governance/vedpx' },
-  ],
+  421613: [],
   42161: [
     { name: 'Portfolio', to: '/portfolio' },
     { name: 'Stake', to: '/farms' },

@@ -10,6 +10,7 @@
     "lint": {},
     "generate": { "outputs": ["src/graphql/generated/**"] },
     "build": {
+      "cache": false,
       "outputs": [".next/**"],
       "dependsOn": ["generate", "^build"]
     },

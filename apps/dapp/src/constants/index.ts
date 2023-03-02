@@ -310,7 +310,7 @@ export const CHAIN_ID_TO_NETWORK_DATA: {
   42: { name: 'Kovan', icon: '/images/tokens/eth.svg' },
   56: { name: 'BSC', icon: '/images/tokens/bnb.svg' },
   42161: { name: 'Arbitrum', icon: '/images/networks/arbitrum.svg' },
-  421611: { name: 'Testnet', icon: '/images/networks/arbitrum.svg' },
+  421613: { name: 'Testnet', icon: '/images/networks/arbitrum.svg' },
   43114: { name: 'Avalanche', icon: '/images/tokens/avax.svg' },
   1088: { name: 'Metis', icon: '/images/tokens/metis.svg' },
   1337: { name: 'Localhost', icon: '/images/tokens/eth.svg' },
@@ -337,7 +337,7 @@ export const TOKEN_DECIMALS: {
     USDT: 6,
     USDC: 6,
   },
-  '421611': {
+  '421613': {
     USDT: 6,
     USDC: 6,
     WETH: 18,
@@ -375,7 +375,7 @@ export const CHAIN_ID_TO_RPC: { [key: number]: string } = {
   56: `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
   42161: `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
   43114: `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
-  421611: `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
+  421613: `https://arbitrum-goerli.infura.io/v3/${INFURA_PROJECT_ID}`,
   1088: 'https://andromeda.metis.io/?owner=1088',
   1337: 'http://127.0.0.1:8545',
   137: `https://polygon-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
@@ -389,7 +389,7 @@ export const CHAIN_ID_TO_EXPLORER: { [key: number]: string } = {
   1088: 'https://andromeda-explorer.metis.io/',
   42161: 'https://arbiscan.io/',
   43114: 'https://snowtrace.io/',
-  421611: 'https://testnet.arbiscan.io/',
+  421613: 'https://testnet.arbiscan.io/',
 };
 
 export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
