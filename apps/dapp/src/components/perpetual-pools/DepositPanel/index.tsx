@@ -18,7 +18,7 @@ import { getContractReadableAmount } from 'utils/contracts';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
+import { TOKEN_DECIMALS } from 'constants/index';
 
 const DepositPanel = () => {
   const sendTx = useSendTx();
@@ -92,21 +92,28 @@ const DepositPanel = () => {
       return;
 
     const _perpetualVault = appContractData.contract;
-
     const collateralToken: MockToken = MockToken__factory.connect(
       appContractData.collateralToken.address,
       signer
     );
-
     try {
       await sendTx(collateralToken, 'approve', [
         _perpetualVault.address,
-        MAX_VALUE,
-      ]);
+        getContractReadableAmount(value, 18),
+      ]).then(() => {
+        setApproved(true);
+      });
     } catch (e) {
       console.log(e);
     }
-  }, [accountAddress, appContractData, sendTx, signer]);
+  }, [
+    accountAddress,
+    appContractData.collateralToken,
+    appContractData.contract,
+    sendTx,
+    signer,
+    value,
+  ]);
 
   useEffect(() => {
     (async () => {
@@ -120,7 +127,6 @@ const DepositPanel = () => {
     (async () => {
       if (
         !appContractData.contract ||
-        !appContractData.underlyingSymbol ||
         !appContractData.collateralToken ||
         !accountAddress
       )

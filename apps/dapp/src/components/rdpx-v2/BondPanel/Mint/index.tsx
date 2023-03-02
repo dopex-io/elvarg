@@ -137,7 +137,8 @@ const Mint = () => {
         !provider ||
         !accountAddress ||
         !treasuryData.tokenA.address ||
-        !treasuryData.tokenB.address
+        !treasuryData.tokenB.address ||
+        value === ''
       )
         return;
 
@@ -162,11 +163,15 @@ const Mint = () => {
       ]);
 
       const [rdpxReq, wethReq] = [
-        treasuryData.bondCostPerDsc[0].mul(value || 1),
-        treasuryData.bondCostPerDsc[1].mul(value || 1),
+        treasuryData.bondCostPerDsc[0]
+          .mul(getContractReadableAmount(value, 18))
+          .div(getContractReadableAmount(1, 18)),
+        treasuryData.bondCostPerDsc[1]
+          .mul(getContractReadableAmount(value, 18))
+          .div(getContractReadableAmount(1, 18)),
       ];
 
-      setApproved(allowances[0].gte(wethReq) && allowances[1].gte(rdpxReq));
+      setApproved(allowances[0].gte(rdpxReq) && allowances[1].gte(wethReq));
     })();
   }, [
     accountAddress,
