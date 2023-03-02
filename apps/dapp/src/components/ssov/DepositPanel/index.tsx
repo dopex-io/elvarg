@@ -175,13 +175,16 @@ const DepositPanel = () => {
       ? ssovSigner.ssovRouterWithSigner
       : ssovSigner.ssovContractWithSigner;
 
-    const msgValue = IS_NATIVE(fromTokenSymbol)
-      ? getContractReadableAmount(strikeDepositAmount, 18)
+    IS_NATIVE(fromTokenSymbol)
+      ? params.push({
+          value: getContractReadableAmount(strikeDepositAmount, 18),
+        })
       : 0;
-    const method = routerMode ? 'swapAndDeposit' : 'deposit';
+
+    const method = routerMode ? 'swapAndDeposit' : ('deposit' as any);
 
     try {
-      await sendTx(contractWithSigner, method, params, msgValue).then(() => {
+      await sendTx(contractWithSigner, method, params).then(() => {
         setStrikeDepositAmount(0);
         updateAssetBalances();
         updateSsovEpochData();

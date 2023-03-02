@@ -313,12 +313,12 @@ const PurchaseDialog = ({
         ]
       : [strikeIndex, _amount, accountAddress];
 
-    const msgValue = IS_NATIVE(fromTokenSymbol) ? _amount : 0;
+    IS_NATIVE(fromTokenSymbol) ? params.push({ value: _amount }) : 0;
 
-    const method = routerMode ? 'swapAndPurchase' : 'purchase';
+    const method = routerMode ? 'swapAndPurchase' : ('purchase' as any);
 
     try {
-      await sendTx(contractWithSigner, method, params, msgValue);
+      await sendTx(contractWithSigner, method, params);
       setRawOptionsAmount('0');
       updateAssetBalances();
       updateSsovV3UserData();
