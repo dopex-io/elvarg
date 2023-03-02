@@ -4,12 +4,12 @@ import {
   SetStateAction,
   useCallback,
   useEffect,
-  useMemo,
   useState,
 } from 'react';
 import Box from '@mui/material/Box';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import { ERC20__factory } from '@dopex-io/sdk';
 
 import Input from 'components/UI/Input';
 import Typography from 'components/UI/Typography';
@@ -49,36 +49,42 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
     overrides,
   } = props;
 
-  const { chainId, userAssetBalances } = useBoundStore();
+  const { chainId, getContractAddress, provider, accountAddress } =
+    useBoundStore();
 
   const [tokenSelectorOpen, setTokenSelectorOpen] = useState(false);
   const [selectedTokenBalance, setSelectedTokenBalance] = useState('0');
 
-  useEffect(() => {
-    if (!selectedTokenSymbol) return;
-
-    const assetBalance = userAssetBalances[selectedTokenSymbol];
-
-    if (!assetBalance) return;
-
-    setSelectedTokenBalance(assetBalance);
-  }, [userAssetBalances, selectedTokenBalance, selectedTokenSymbol]);
-
-  const information = useMemo(() => {
-    let defaultInfo = {
-      selectedTokenBalance: '0',
-    };
-    if (!chainId || !selectedTokenBalance) return;
-    defaultInfo.selectedTokenBalance = formatAmount(
-      getUserReadableAmount(
-        selectedTokenBalance,
-        getTokenDecimals(selectedTokenSymbol, chainId)
-      ),
-      5
+  const updateUserBalance = useCallback(async () => {
+    if (!provider || !accountAddress) return;
+    const token = ERC20__factory.connect(
+      getContractAddress(selectedTokenSymbol),
+      provider
     );
+    console.log(
+      await (await token.balanceOf(accountAddress)).toString(),
+      getTokenDecimals(selectedTokenSymbol, chainId)
+    );
+    setSelectedTokenBalance(
+      formatAmount(
+        getUserReadableAmount(
+          await token.balanceOf(accountAddress),
+          getTokenDecimals(selectedTokenSymbol, chainId)
+        ),
+        3
+      )
+    );
+  }, [
+    accountAddress,
+    chainId,
+    getContractAddress,
+    provider,
+    selectedTokenSymbol,
+  ]);
 
-    return defaultInfo;
-  }, [chainId, selectedTokenBalance, selectedTokenSymbol]);
+  useEffect(() => {
+    updateUserBalance();
+  }, [updateUserBalance]);
 
   const handleTokenSelectorClick = useCallback(() => {
     setTokenSelectorOpen((prev) => !prev);
@@ -148,7 +154,7 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
               className=" text-right flex-1 text-stieglitz"
               variant="h6"
             >
-              {information?.selectedTokenBalance}
+              {selectedTokenBalance}
             </Typography>
           </Box>
         }
