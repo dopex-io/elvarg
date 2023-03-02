@@ -346,31 +346,33 @@ const Tzwap = () => {
     let tickSize = amount * precision * (selectedTickSize / 100);
     let total = Math.round((amount * precision) / tickSize) * tickSize;
 
-    const params = [
-      {
-        creator: accountAddress,
-        srcToken:
-          fromTokenName === 'ETH'
-            ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-            : contractAddresses[fromTokenName],
-        dstToken:
-          toTokenName === 'ETH'
-            ? Addresses[chainId]['WETH']
-            : contractAddresses[toTokenName],
-        interval: seconds,
-        tickSize: getContractReadableAmount(
-          Math.round(tickSize) / precision,
-          getTokenDecimals(fromTokenName, chainId)
-        ),
-        total: getContractReadableAmount(
-          Math.round(total) / precision,
-          getTokenDecimals(fromTokenName, chainId)
-        ),
-        minFees: Math.round(minFees * 10 ** 3),
-        maxFees: Math.round(maxFees * 10 ** 3),
-        created: Math.round(new Date().getTime() / 1000),
-        killed: false,
-      },
+    const order = {
+      creator: accountAddress,
+      srcToken:
+        fromTokenName === 'ETH'
+          ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+          : contractAddresses[fromTokenName],
+      dstToken:
+        toTokenName === 'ETH'
+          ? Addresses[chainId]['WETH']
+          : contractAddresses[toTokenName],
+      interval: seconds,
+      tickSize: getContractReadableAmount(
+        Math.round(tickSize) / precision,
+        getTokenDecimals(fromTokenName, chainId)
+      ),
+      total: getContractReadableAmount(
+        Math.round(total) / precision,
+        getTokenDecimals(fromTokenName, chainId)
+      ),
+      minFees: Math.round(minFees * 10 ** 3),
+      maxFees: Math.round(maxFees * 10 ** 3),
+      created: Math.round(new Date().getTime() / 1000),
+      killed: false,
+    };
+
+    await sendTx(tzwapRouter.connect(signer), 'newOrder', [
+      order,
       {
         value:
           fromTokenName === 'ETH'
@@ -381,9 +383,7 @@ const Tzwap = () => {
             : 0,
         gasLimit: chainId === 1 ? 700000 : 1700000,
       },
-    ];
-
-    await sendTx(tzwapRouter.connect(signer), 'newOrder', params);
+    ]);
     updateOrders();
     updateAssetBalances();
   }, [

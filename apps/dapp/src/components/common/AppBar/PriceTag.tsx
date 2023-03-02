@@ -1,7 +1,6 @@
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 
-import Typography from 'components/UI/Typography';
 import getValueColorClass from 'utils/general/getValueColorClass';
 import formatAmount from 'utils/general/formatAmount';
 
@@ -26,23 +25,13 @@ const PriceTag = (props: Props) => {
         />
       ) : null}
       <Box className={cx('flex space-x-2 p-2 rounded-md', className)}>
-        <Typography variant="caption" component="span" className="text-white">
-          {asset}
-        </Typography>
-        <Typography
-          variant="caption"
-          component="span"
-          className="text-stieglitz"
-        >
+        <span className="text-white text-xs">{asset}</span>
+        <span className="text-stieglitz text-xs">
           ${formatAmount(price, 2)}
-        </Typography>
-        <Typography
-          variant="caption"
-          component="span"
-          className={getValueColorClass(change)}
-        >
+        </span>
+        <span className={`${getValueColorClass(change)} text-xs`}>
           {change.toFixed(1)}%
-        </Typography>
+        </span>
       </Box>
     </Box>
   );
