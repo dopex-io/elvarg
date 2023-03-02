@@ -152,10 +152,21 @@ const PurchaseDialog = ({
   const debouncedIsChartVisible = useDebounce(isChartVisible, 200);
 
   const updateQuote = useCallback(async () => {
-    if (!contractAddresses || !ssovData || !ssovData?.collateralSymbol) return;
+    if (
+      !contractAddresses ||
+      !ssovData ||
+      !ssovData?.collateralSymbol ||
+      !routerMode
+    )
+      return;
 
     const fromTokenAddress = getContractAddress(fromTokenSymbol);
-    const toTokenAddress = getContractAddress(ssovData.collateralSymbol);
+
+    const toTokenAddress = ssovData.isPut
+      ? fromTokenSymbol === 'USDC'
+        ? getContractAddress('USDT')
+        : getContractAddress('USDC')
+      : ssovData.collateralAddress;
 
     if (
       !chainId ||
@@ -170,7 +181,10 @@ const PurchaseDialog = ({
     )
       return;
 
-    const { toTokenAmount } = await get1inchQuote(
+    const {
+      toTokenAmount,
+      toToken: { decimals },
+    } = await get1inchQuote(
       fromTokenAddress,
       toTokenAddress,
       getContractReadableAmount(
@@ -182,11 +196,30 @@ const PurchaseDialog = ({
       '3'
     );
 
+    const collateralTokenDecimals = getTokenDecimals(
+      ssovData.collateralSymbol,
+      chainId
+    );
+
+    const fromTokenDecimals = getTokenDecimals(fromTokenSymbol, chainId);
+
+    let multiplier = BigNumber.from(1);
+    let divisor = BigNumber.from(1);
+
+    if (decimals < collateralTokenDecimals) {
+      multiplier = getContractReadableAmount(1, fromTokenDecimals);
+      divisor = getContractReadableAmount(
+        1,
+        collateralTokenDecimals - decimals
+      );
+    } else {
+      multiplier = getContractReadableAmount(1, fromTokenDecimals);
+    }
+
     const fromTokenAmountRequired = state.totalCost
-      .mul(
-        getContractReadableAmount(1, getTokenDecimals(fromTokenSymbol, chainId))
-      )
-      .div(toTokenAmount);
+      .mul(multiplier)
+      .div(toTokenAmount)
+      .div(divisor);
 
     if (fromTokenAmountRequired.isZero()) return;
 
@@ -205,6 +238,7 @@ const PurchaseDialog = ({
       swapData: swapData,
     });
   }, [
+    routerMode,
     accountAddress,
     getContractAddress,
     chainId,
@@ -260,11 +294,17 @@ const PurchaseDialog = ({
       ? ssovSigner.ssovRouterWithSigner
       : ssovContractWithSigner;
 
+    const toTokenAddress = ssovData.isPut
+      ? fromTokenSymbol === 'USDC'
+        ? getContractAddress('USDT')
+        : getContractAddress('USDC')
+      : ssovData.collateralAddress;
+
     const params = routerMode
       ? [
           ssovContractWithSigner.address,
           getContractAddress(fromTokenSymbol),
-          getContractAddress(ssovData.collateralSymbol),
+          toTokenAddress,
           accountAddress,
           strikeIndex,
           routerMode ? quote.amountOut : state.totalCost,
@@ -274,8 +314,6 @@ const PurchaseDialog = ({
       : [strikeIndex, _amount, accountAddress];
 
     const msgValue = IS_NATIVE(fromTokenSymbol) ? _amount : 0;
-    console.log(params);
-    console.log(contractWithSigner.address);
 
     const method = routerMode ? 'swapAndPurchase' : 'purchase';
 
@@ -290,6 +328,8 @@ const PurchaseDialog = ({
       setRawOptionsAmount('0');
     }
   }, [
+    ssovData.collateralAddress,
+    ssovData.isPut,
     accountAddress,
     optionsAmount,
     sendTx,
@@ -302,7 +342,6 @@ const PurchaseDialog = ({
     getContractAddress,
     quote.swapData,
     routerMode,
-    ssovData.collateralSymbol,
     ssovSigner,
     state.totalCost,
     quote.amountOut,
@@ -426,7 +465,7 @@ const PurchaseDialog = ({
       );
 
       const userAmount = await _token.balanceOf(accountAddress);
-      console.log('balance', userAmount.toString());
+
       setUserTokenBalance(userAmount);
 
       const allowance = await _token.allowance(accountAddress, spender);
@@ -503,11 +542,6 @@ const PurchaseDialog = ({
               .div(ssovData.collateralPrice!)
               .gt(userTokenBalance)
       ) {
-        console.log(
-          'Cost',
-          state.totalCost.gt(userTokenBalance).toString(),
-          state.totalCost.mul(1e8).div(ssovData.collateralPrice!).toString()
-        );
         children = 'Insufficient Balance';
       } else if (approved) {
         children = 'Purchase';

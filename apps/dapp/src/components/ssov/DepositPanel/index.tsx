@@ -151,13 +151,19 @@ const DepositPanel = () => {
       getTokenDecimals(fromTokenSymbol, chainId)
     );
 
+    const toTokenAddress = ssovData.isPut
+      ? fromTokenSymbol === 'USDC'
+        ? getContractAddress('USDT')
+        : getContractAddress('USDC')
+      : ssovData.collateralAddress;
+
     const params = routerMode
       ? [
           ssovSigner.ssovContractWithSigner.address,
           IS_NATIVE(fromTokenSymbol)
             ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-            : contractAddresses[fromTokenSymbol],
-          ssovData.collateralAddress,
+            : getContractAddress(fromTokenSymbol),
+          toTokenAddress,
           accountAddress,
           strike,
           depositAmount,
@@ -185,6 +191,7 @@ const DepositPanel = () => {
       console.log(err);
     }
   }, [
+    getContractAddress,
     sendTx,
     routerMode,
     accountAddress,
@@ -198,7 +205,6 @@ const DepositPanel = () => {
     ssovData,
     ssovSigner.ssovContractWithSigner,
     ssovSigner.ssovRouterWithSigner,
-    contractAddresses,
     quote.quoteData.toTokenAmount,
     quote.swapData,
     chainId,
@@ -252,7 +258,6 @@ const DepositPanel = () => {
 
   // Updates user token balance
   useEffect(() => {
-    console.log('Balace', userAssetBalances[fromTokenSymbol] ?? '0');
     setUserTokenBalance(
       BigNumber.from(userAssetBalances[fromTokenSymbol] ?? '0')
     );
@@ -262,7 +267,12 @@ const DepositPanel = () => {
     if (!ssovData || !ssovData?.collateralSymbol) return;
 
     const fromTokenAddress = getContractAddress(fromTokenSymbol);
-    const toTokenAddress = getContractAddress(ssovData.collateralSymbol);
+
+    const toTokenAddress = ssovData.isPut
+      ? fromTokenSymbol === 'USDC'
+        ? getContractAddress('USDT')
+        : getContractAddress('USDC')
+      : ssovData.collateralAddress;
 
     if (
       !chainId ||
@@ -285,6 +295,7 @@ const DepositPanel = () => {
         accountAddress,
         '3'
       ),
+
       swapData: (
         await get1inchSwap({
           fromTokenAddress,
@@ -466,7 +477,7 @@ const DepositPanel = () => {
                         ),
                         3
                       )}{' '}
-                      {quote.quoteData.toToken.symbol}
+                      {ssovData?.collateralSymbol}~
                     </Typography>
                   </Box>
                 </Box>
