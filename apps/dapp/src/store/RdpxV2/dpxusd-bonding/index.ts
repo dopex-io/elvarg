@@ -34,7 +34,7 @@ interface RdpxV2TreasuryContractState {
   dsc_upper_peg: BigNumber;
   dsc_first_lower_depeg: BigNumber;
   dsc_second_lower_depeg: BigNumber;
-  bond_muturity: BigNumber;
+  bond_maturity: BigNumber;
   discount_factor: BigNumber;
 }
 
@@ -77,7 +77,7 @@ const initialTreasuryContractState: RdpxV2TreasuryContractState = {
   dsc_upper_peg: BigNumber.from(0),
   dsc_first_lower_depeg: BigNumber.from(0),
   dsc_second_lower_depeg: BigNumber.from(0),
-  bond_muturity: BigNumber.from(0),
+  bond_maturity: BigNumber.from(0),
   discount_factor: BigNumber.from(0),
 };
 
@@ -128,7 +128,7 @@ export const createDpxusdBondingSlice: StateCreator<
       dsc_upper_peg,
       dsc_first_lower_depeg,
       dsc_second_lower_depeg,
-      bond_muturity,
+      bond_maturity,
       discount_factor,
     ] = await Promise.all([
       treasury.reLpFactor(),
@@ -158,7 +158,7 @@ export const createDpxusdBondingSlice: StateCreator<
         dsc_second_lower_depeg,
         alphatoken_reserve,
         re_lp_factor,
-        bond_muturity,
+        bond_maturity,
         discount_factor,
       },
     }));

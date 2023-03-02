@@ -17,7 +17,7 @@ const QuickLink = (props: Props) => {
 
   return (
     <a
-      className={`flex justify-between p-3 border rounded-xl w-1/3 transform ease-in-out duration-200 ${
+      className={`flex justify-between p-3 border rounded-xl transform ease-in-out duration-200 ${
         active ? 'border-mineshaft' : 'border-umbra'
       }`}
       href={url}

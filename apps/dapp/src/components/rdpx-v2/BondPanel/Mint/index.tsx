@@ -31,6 +31,8 @@ const Mint = () => {
     treasuryContractState,
     treasuryData,
     userDscBondsData,
+    updateUserDscBondsData,
+    updateTreasuryData,
     isLoading,
   } = useBoundStore();
 
@@ -110,17 +112,22 @@ const Mint = () => {
       await sendTx(treasury, 'bond', [
         getContractReadableAmount(value, 18),
         accountAddress,
-      ]);
+      ]).then(() => {
+        updateUserDscBondsData();
+        updateTreasuryData();
+      });
     } catch (e) {
       console.log(e);
     }
   }, [
+    treasuryContractState.contracts,
     accountAddress,
     contractAddresses,
-    sendTx,
     signer,
-    treasuryContractState.contracts,
+    sendTx,
     value,
+    updateUserDscBondsData,
+    updateTreasuryData,
   ]);
 
   useEffect(() => {
@@ -206,18 +213,36 @@ const Mint = () => {
         />
         <Box className="flex justify-between px-3 pb-3">
           <Typography variant="h6" color="stieglitz">
-            Balance
+            {treasuryData.tokenB.symbol} Balance
           </Typography>
           <Typography variant="h6">
             {formatAmount(
               getUserReadableAmount(
-                userAssetBalances['WETH'] ?? '0',
-                TOKEN_DECIMALS[chainId]?.['WETH']
+                userAssetBalances[treasuryData.tokenB.symbol.toUpperCase()] ??
+                  '0',
+                TOKEN_DECIMALS[chainId]?.[
+                  treasuryData.tokenB.symbol.toUpperCase()
+                ]
               ),
-              3,
-              true
+              3
+            )}
+          </Typography>
+        </Box>
+        <Box className="flex justify-between px-3 pb-3">
+          <Typography variant="h6" color="stieglitz">
+            {treasuryData.tokenA.symbol.toUpperCase()} Balance
+          </Typography>
+          <Typography variant="h6">
+            {formatAmount(
+              getUserReadableAmount(
+                userAssetBalances[treasuryData.tokenA.symbol.toUpperCase()] ??
+                  '0',
+                TOKEN_DECIMALS[chainId]?.[
+                  treasuryData.tokenA.symbol.toUpperCase()
+                ]
+              ),
+              3
             )}{' '}
-            {treasuryData.tokenA.symbol}
           </Typography>
         </Box>
       </Box>
@@ -233,7 +258,7 @@ const Mint = () => {
           <CustomButton
             size="medium"
             className="w-full mt-4 rounded-md"
-            color={approved ? 'mineshaft' : 'primary'}
+            color="primary"
             disabled={!userDscBondsData.isEligibleForMint || isLoading}
             onClick={approved ? handleBond : handleApprove}
           >

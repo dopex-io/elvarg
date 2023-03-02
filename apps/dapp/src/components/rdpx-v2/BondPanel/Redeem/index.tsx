@@ -97,15 +97,15 @@ const Mint = () => {
   ]);
 
   useEffect(() => {
-    if (treasuryContractState.bond_muturity.eq('0')) return;
+    if (treasuryContractState.bond_maturity.eq('0')) return;
     setRedeemable(
       Number(bondData.maturity) - Number(bondData.timestamp) >
-        Number(treasuryContractState.bond_muturity)
+        Number(treasuryContractState.bond_maturity)
     );
   }, [
     bondData.maturity,
     bondData.timestamp,
-    treasuryContractState.bond_muturity,
+    treasuryContractState.bond_maturity,
   ]);
 
   useEffect(() => {
@@ -195,7 +195,7 @@ const Mint = () => {
               </Typography>
               <img
                 src={`/images/tokens/${'DSC'?.toLowerCase()}.svg`}
-                alt={'USDC'.toLowerCase()}
+                alt={'DSC'.toLowerCase()}
                 className="w-[1rem] my-auto"
               />
             </Box>
@@ -205,7 +205,7 @@ const Mint = () => {
           <CustomButton
             size="medium"
             className="w-full mt-4 rounded-md"
-            color={'mineshaft'}
+            color="primary"
             // disabled={!redeemable}
             onClick={handleRedeem}
           >

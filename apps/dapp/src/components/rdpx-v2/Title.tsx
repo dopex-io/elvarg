@@ -2,25 +2,25 @@ import Box from '@mui/material/Box';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 import Typography from 'components/UI/Typography';
-import BetaIcon from 'svgs/icons/BetaIcon';
+// import BetaIcon from 'svgs/icons/BetaIcon';
 
-interface Props {
-  title: string;
-  description: string;
-  price: string;
-}
+// interface Props {
+//   title: string;
+//   description: string;
+//   price: string;
+// }
 
-const Title = (props: Props) => {
-  const { title, description, price } = props;
+const Title = (/*props: Props*/) => {
+  // const { title, description, price } = props;
 
   return (
     <Box>
-      <Box className="text-center mx-auto max-w-xl mb-8 flex flex-col items-center space-y-2">
-        <span className="z-1 mb-2 uppercase font-bold text-3xl tracking-[.5em]">
+      <Box className="text-center mx-auto max-w-xl flex flex-col items-center space-y-2">
+        <span className="z-1 uppercase font-bold text-3xl tracking-[.5em]">
           Mint DSC
         </span>
         <Typography variant="h5" className="text-stieglitz">
-          Burn RDPX, mint Dopex Synthetic Coins
+          Bond rDPX to mint Dopex Synthetic Coins
         </Typography>
         <Box className="flex w-48 justify-around">
           <a href={'Lorem'} target="_blank" rel="noopener noreferrer">
@@ -37,7 +37,7 @@ const Title = (props: Props) => {
           </a>
         </Box>
       </Box>
-      <Box className="flex bg-cod-gray divide-x divide-umbra rounded-xl py-2">
+      {/* <Box className="flex bg-cod-gray divide-x divide-umbra rounded-xl py-2">
         <Box className="flex justify-between w-1/2 px-3">
           <Box className="flex space-x-2 w-full">
             <img
@@ -60,7 +60,7 @@ const Title = (props: Props) => {
             Current Price
           </Typography>
         </Box>
-      </Box>
+      </Box> */}
     </Box>
   );
 };
