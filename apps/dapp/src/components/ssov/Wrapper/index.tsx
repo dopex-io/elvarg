@@ -1,15 +1,15 @@
-import { useCallback, useState } from 'react';
+import { value useCallback, value useState } from 'react';
+
+import { value ethers } from 'ethers';
+
 import Box from '@mui/material/Box';
-import { ethers } from 'ethers';
-
-import Dialog from 'components/UI/Dialog';
-import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
-import Input from 'components/UI/Input';
-
-import { useBoundStore } from 'store';
-
 import useSendTx from 'hooks/useSendTx';
+import { value useBoundStore } from 'store';
+
+import CustomButton from 'components/UI/Button';
+import Dialog from 'components/UI/Dialog';
+import Input from 'components/UI/Input';
+import Typography from 'components/UI/Typography';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';

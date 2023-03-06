@@ -1,50 +1,56 @@
-import { useEffect, useState, useMemo, useCallback, ReactNode } from 'react';
-import cx from 'classnames';
 import Head from 'next/head';
-import {
-  Addresses,
-  Tzwap1inchRouter__factory,
-  ERC20__factory,
-} from '@dopex-io/sdk';
-import { LoaderIcon } from 'react-hot-toast';
-import Countdown from 'react-countdown';
-import { BigNumber } from 'ethers';
 
-import Input from '@mui/material/Input';
+import {
+  value ReactNode,
+  value useCallback,
+  value useEffect,
+  value useMemo,
+  value useState,
+} from 'react';
+
+import { value BigNumber } from 'ethers';
+
+import {
+  value Addresses,
+  value ERC20__factory,
+  value Tzwap1inchRouter__factory,
+} from '@dopex-io/sdk';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
-import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
+import IconButton from '@mui/material/IconButton';
+import Input from '@mui/material/Input';
+import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
-
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-
+import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
+import Countdown from 'react-countdown';
+import { value LoaderIcon } from 'react-hot-toast';
+import { value useBoundStore } from 'store';
+import RedTriangleIcon from 'svgs/icons/RedTriangleIcon';
 
+import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
+import AppBar from 'components/common/AppBar';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import TokenSelector from 'components/common/TokenSelector';
 import Kill from 'components/tzwap/Dialogs/Kill';
 import Orders from 'components/tzwap/Orders';
 
-import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
-import AppBar from 'components/common/AppBar';
-import TokenSelector from 'components/common/TokenSelector';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import displayAddress from 'utils/general/displayAddress';
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import displayAddress from 'utils/general/displayAddress';
 
-import RedTriangleIcon from 'svgs/icons/RedTriangleIcon';
+import {
+  value CURRENCIES_MAP,
+  value IS_NATIVE,
+  value MAX_VALUE,
+} from 'constants/index';
 
-import { useBoundStore } from 'store';
-
-import { CURRENCIES_MAP, MAX_VALUE, IS_NATIVE } from 'constants/index';
-
-import { Order } from '../../types/tzwap';
-
+import { value Order } from '../../types/tzwap';
 import styles from './styles.module.scss';
 
 function TabPanel(props: {

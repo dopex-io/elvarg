@@ -64,6 +64,7 @@ importers:
       react-countdown: ^2.3.2
       react-dom: ^18.0.0
       react-hot-toast: ^2.0.0
+      react-tradingview-embed: ^3.0.6
       react-use: ^17.2.4
       recharts: 2.4.3
       sass: ^1.49.8
@@ -107,6 +108,7 @@ importers:
       react-countdown: 2.3.5_biqbaboplfbrettd7655fr4n2y
       react-dom: 18.2.0_react@18.2.0
       react-hot-toast: 2.4.0_biqbaboplfbrettd7655fr4n2y
+      react-tradingview-embed: 3.0.6_biqbaboplfbrettd7655fr4n2y
       react-use: 17.4.0_biqbaboplfbrettd7655fr4n2y
       recharts: 2.4.3_biqbaboplfbrettd7655fr4n2y
       sass: 1.58.3
@@ -16515,6 +16517,16 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-transition-group: 2.9.0_biqbaboplfbrettd7655fr4n2y
+    dev: false
+
+  /react-tradingview-embed/3.0.6_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-1qClGqBHOi7mvRFvhBxXSoyoPrNR8aPi/yfF/mYt8EWStA8LoWBl9ufemCyG+mc61iPmNGjJla0XB00FPENaPg==}
+    peerDependencies:
+      react: '>= 16.8.0'
+      react-dom: '>= 16.8.0'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
     dev: false
 
   /react-transition-group/2.9.0_biqbaboplfbrettd7655fr4n2y:

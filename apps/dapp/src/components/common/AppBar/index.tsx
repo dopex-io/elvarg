@@ -1,49 +1,53 @@
-import {
-  useCallback,
-  useMemo,
-  useState,
-  ReactNode,
-  MouseEvent,
-  Key,
-  useEffect,
-  SetStateAction,
-} from 'react';
-import Router from 'next/router';
-import { ethers } from 'ethers';
-import cx from 'classnames';
 import Link from 'next/link';
-import Button from '@mui/material/Button';
+import Router from 'next/router';
+
+import {
+  value Key,
+  value MouseEvent,
+  value ReactNode,
+  value SetStateAction,
+  value useCallback,
+  value useEffect,
+  value useMemo,
+  value useState,
+} from 'react';
+
+import { value ethers } from 'ethers';
+
+import MenuIcon from '@mui/icons-material/Menu';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import MenuIcon from '@mui/icons-material/Menu';
-import IconButton from '@mui/material/IconButton';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import axios from 'axios';
+import cx from 'classnames';
+import { value useBoundStore } from 'store';
+
+import { value getWeb3Modal } from 'store/Wallet/getWeb3Modal';
+
+import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
+import PriceCarousel from 'components/common/AppBar/PriceCarousel';
+import WalletDialog from 'components/common/AppBar/WalletDialog';
+import DisclaimerDialog from 'components/common/DisclaimerDialog';
+
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import displayAddress from 'utils/general/displayAddress';
+import formatAmount from 'utils/general/formatAmount';
+
+import { value DEFAULT_CHAIN_ID } from 'constants/env';
+import {
+  value CHAIN_ID_TO_RPC,
+  value CURRENCIES_MAP,
+  value DISCLAIMER_MESSAGE,
+  value OFAC_COMPLIANCE_LOCAL_STORAGE_KEY,
+  value PAGE_TO_SUPPORTED_CHAIN_IDS,
+} from 'constants/index';
 
 import ClaimRdpxDialog from './ClaimRdpxDialog';
 import NetworkButton from './NetworkButton';
-import Typography from 'components/UI/Typography';
-import WalletDialog from 'components/common/AppBar/WalletDialog';
-import CustomButton from 'components/UI/Button';
-import PriceCarousel from 'components/common/AppBar/PriceCarousel';
-import DisclaimerDialog from 'components/common/DisclaimerDialog';
-
-import { getWeb3Modal } from 'store/Wallet/getWeb3Modal';
-import { useBoundStore } from 'store';
-
-import {
-  CHAIN_ID_TO_RPC,
-  CURRENCIES_MAP,
-  DISCLAIMER_MESSAGE,
-  OFAC_COMPLIANCE_LOCAL_STORAGE_KEY,
-  PAGE_TO_SUPPORTED_CHAIN_IDS,
-} from 'constants/index';
-import { DEFAULT_CHAIN_ID } from 'constants/env';
-
-import formatAmount from 'utils/general/formatAmount';
-import displayAddress from 'utils/general/displayAddress';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 const AppLink = ({
   name,
@@ -219,6 +223,7 @@ const appLinks = {
         },
       ],
     },
+    { name: 'Scalps', to: '/scalps' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],
@@ -253,6 +258,7 @@ interface AppBarProps {
     | 'faucet'
     | 'Rate Vaults'
     | 'Straddles'
+    | 'Scalps'
     | 'OLPs'
     | 'SSOV'
     | 'leaderboard'

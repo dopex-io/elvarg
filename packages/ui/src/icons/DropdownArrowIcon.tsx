@@ -1,4 +1,4 @@
-import React, { SVGProps } from "react";
+import React, { value SVGProps } from "react";
 
 const DropdownArrowIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg

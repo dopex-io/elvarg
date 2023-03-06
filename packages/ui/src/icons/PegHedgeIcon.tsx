@@ -1,4 +1,4 @@
-import React, { SVGProps } from "react";
+import React, { value SVGProps } from "react";
 
 const PegHedgeIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg

@@ -1,12 +1,11 @@
-import React from "react";
-import { ComponentMeta } from "@storybook/react";
-
 import Menu from "../src/Menu";
-import PegHedgeIcon from "../src/icons/PegHedgeIcon";
+import CheckedIcon from "../src/icons/CheckedIcon";
+import ContentCopyIcon from "../src/icons/ContentCopyIcon";
 import InsuredPerpsIcon from "../src/icons/InsuredPerpsIcon";
 import LongStraddleIcon from "../src/icons/LongStraddleIcon";
-import ContentCopyIcon from "../src/icons/ContentCopyIcon";
-import CheckedIcon from "../src/icons/CheckedIcon";
+import PegHedgeIcon from "../src/icons/PegHedgeIcon";
+import { value ComponentMeta } from "@storybook/react";
+import React from "react";
 
 const meta: ComponentMeta<typeof Menu> = {
   title: "Menu",

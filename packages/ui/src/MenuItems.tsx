@@ -1,5 +1,5 @@
+import { value Menu } from "@headlessui/react";
 import React from "react";
-import { Menu } from "@headlessui/react";
 
 export type dropdownVariants = "basic" | "icon" | "dense";
 

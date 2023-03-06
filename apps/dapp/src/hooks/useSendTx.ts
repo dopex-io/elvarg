@@ -1,10 +1,11 @@
-import { useCallback } from 'react';
-import { Contract } from 'ethers';
+import { value useCallback } from 'react';
+
+import { value Contract } from 'ethers';
+
 import toast from 'react-hot-toast';
+import { value useBoundStore } from 'store';
 
 import TransactionToast from 'components/UI/TransactionToast';
-
-import { useBoundStore } from 'store';
 
 import getErrorBlobMessage from 'utils/general/getErrorBlobMessage';
 

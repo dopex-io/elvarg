@@ -1,8 +1,8 @@
-import cx from 'classnames';
 import Box from '@mui/material/Box';
+import cx from 'classnames';
 
-import getValueColorClass from 'utils/general/getValueColorClass';
 import formatAmount from 'utils/general/formatAmount';
+import getValueColorClass from 'utils/general/getValueColorClass';
 
 interface Props {
   asset: string;
