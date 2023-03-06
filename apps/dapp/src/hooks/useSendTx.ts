@@ -9,6 +9,8 @@ import TransactionToast from 'components/UI/TransactionToast';
 
 import getErrorBlobMessage from 'utils/general/getErrorBlobMessage';
 
+type MethodParams<T> = T extends (...args: infer P) => any ? P : never;
+
 const useSendTx = () => {
   const {
     wrongNetwork,
@@ -22,7 +24,7 @@ const useSendTx = () => {
     async <T extends Contract, K extends keyof T>(
       contractWithSigner: T,
       method: K,
-      params: Parameters<T[K]>,
+      params: MethodParams<T[K]>,
       waitingMessage: string = 'Please confirm the transaction...',
       loadingMessage: string = 'Transaction pending...',
       successMessage: string = 'Transaction confirmed',
