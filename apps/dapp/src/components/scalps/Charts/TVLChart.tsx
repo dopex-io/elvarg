@@ -1,10 +1,6 @@
 import React from 'react';
 
-import {
-  value Area,
-  value AreaChart,
-  value ResponsiveContainer,
-} from 'recharts';
+import { Area, AreaChart, ResponsiveContainer } from 'recharts';
 
 const data = [
   {

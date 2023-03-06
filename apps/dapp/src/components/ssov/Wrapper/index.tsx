@@ -1,10 +1,10 @@
-import { value useCallback, value useState } from 'react';
+import { useCallback, useState } from 'react';
 
-import { value ethers } from 'ethers';
+import { ethers } from 'ethers';
 
 import Box from '@mui/material/Box';
 import useSendTx from 'hooks/useSendTx';
-import { value useBoundStore } from 'store';
+import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
 import Dialog from 'components/UI/Dialog';

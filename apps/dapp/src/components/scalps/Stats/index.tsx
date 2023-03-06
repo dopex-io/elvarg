@@ -2,7 +2,7 @@ import React from 'react';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import { value useBoundStore } from 'store';
+import {  useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 

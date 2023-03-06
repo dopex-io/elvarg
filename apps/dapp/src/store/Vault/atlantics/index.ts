@@ -1,22 +1,22 @@
-import { value BigNumber } from 'ethers';
+import { BigNumber } from 'ethers';
 
 import {
-  value AtlanticPutsPool,
-  value AtlanticPutsPool__factory,
-  value AtlanticsViewer,
-  value AtlanticsViewer__factory,
-  value ERC20,
-  value ERC20__factory,
+  AtlanticPutsPool,
+  AtlanticPutsPool__factory,
+  AtlanticsViewer,
+  AtlanticsViewer__factory,
+  ERC20,
+  ERC20__factory,
 } from '@dopex-io/sdk';
-import { value CheckpointStructOutput } from '@dopex-io/sdk/dist/types/typechain/AtlanticPutsPool';
-import { value StateCreator } from 'zustand';
+import { CheckpointStructOutput } from '@dopex-io/sdk/dist/types/typechain/AtlanticPutsPool';
+import { StateCreator } from 'zustand';
 
-import { value CommonSlice } from 'store/Vault/common';
-import { value WalletSlice } from 'store/Wallet';
+import { CommonSlice } from 'store/Vault/common';
+import { WalletSlice } from 'store/Wallet';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import { value getTokenDecimals } from 'utils/general';
+import { getTokenDecimals } from 'utils/general';
 
 export enum OptionsState {
   Settled,

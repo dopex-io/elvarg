@@ -1,6 +1,6 @@
-import { value useCallback } from 'react';
+import { useCallback } from 'react';
 
-import { value BigNumber } from 'ethers';
+import { BigNumber } from 'ethers';
 
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
@@ -10,11 +10,11 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import useSendTx from 'hooks/useSendTx';
-import { value useBoundStore } from 'store';
+import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import { value TableHeader } from 'components/straddles/Deposits/DepositsTable';
+import { TableHeader } from 'components/straddles/Deposits/DepositsTable';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';

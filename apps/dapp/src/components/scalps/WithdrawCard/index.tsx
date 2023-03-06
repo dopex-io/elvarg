@@ -1,18 +1,13 @@
-import React, {
-  value useCallback,
-  value useEffect,
-  value useMemo,
-  value useState,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { value BigNumber } from 'ethers';
+import { BigNumber } from 'ethers';
 
-import { value ERC20__factory } from '@dopex-io/sdk';
+import { ERC20__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
-import { value useBoundStore } from 'store';
+import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';

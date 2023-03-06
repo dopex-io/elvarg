@@ -1,4 +1,4 @@
-import React, { value SVGProps } from "react";
+import React, {  SVGProps } from "react";
 
 const InsuredPerpsIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg

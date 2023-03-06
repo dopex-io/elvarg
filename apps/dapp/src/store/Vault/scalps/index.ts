@@ -1,9 +1,9 @@
-import { value BigNumber, value ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 
-import { value StateCreator } from 'zustand';
+import { StateCreator } from 'zustand';
 
-import { value CommonSlice } from 'store/Vault/common';
-import { value WalletSlice } from 'store/Wallet';
+import { CommonSlice } from 'store/Vault/common';
+import { WalletSlice } from 'store/Wallet';
 
 export interface optionScalpData {
   optionScalpContract: any | undefined;

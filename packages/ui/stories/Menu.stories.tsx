@@ -4,7 +4,7 @@ import ContentCopyIcon from "../src/icons/ContentCopyIcon";
 import InsuredPerpsIcon from "../src/icons/InsuredPerpsIcon";
 import LongStraddleIcon from "../src/icons/LongStraddleIcon";
 import PegHedgeIcon from "../src/icons/PegHedgeIcon";
-import { value ComponentMeta } from "@storybook/react";
+import {  ComponentMeta } from "@storybook/react";
 import React from "react";
 
 const meta: ComponentMeta<typeof Menu> = {

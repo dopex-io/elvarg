@@ -1,12 +1,9 @@
 import Button from "../src/Button";
-import MenuItems, { value dropdownVariants } from "../src/MenuItems";
-import { value ItemType } from "../src/MenuItems";
+import MenuItems, { dropdownVariants } from "../src/MenuItems";
+import { ItemType } from "../src/MenuItems";
 import DropdownArrowIcon from "./icons/DropdownArrowIcon";
-import {
-  value Menu as HeadlessMenu,
-  value Transition,
-} from "@headlessui/react";
-import React, { value ReactEventHandler } from "react";
+import { Menu as HeadlessMenu, Transition } from "@headlessui/react";
+import React, { ReactEventHandler } from "react";
 
 interface MenuProps<T> {
   data: T[];

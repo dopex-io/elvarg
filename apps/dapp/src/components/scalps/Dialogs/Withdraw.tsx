@@ -1,4 +1,4 @@
-import React, { value useCallback, value useMemo } from 'react';
+import React, {  useCallback,  useMemo } from 'react';
 
 import CloseIcon from '@mui/icons-material/Close';
 import Box from '@mui/material/Box';
@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
 import Countdown from 'react-countdown';
-import { value useBoundStore } from 'store';
+import {  useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
 

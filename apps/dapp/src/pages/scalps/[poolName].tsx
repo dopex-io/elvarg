@@ -1,9 +1,9 @@
 import Head from 'next/head';
 
-import { value useEffect } from 'react';
+import { useEffect } from 'react';
 
 import Box from '@mui/material/Box';
-import { value useBoundStore } from 'store';
+import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
@@ -16,7 +16,7 @@ import Stats from 'components/scalps/Stats';
 import TopBar from 'components/scalps/TopBar';
 import TradeCard from 'components/scalps/TradeCard';
 
-import { value CHAIN_ID_TO_EXPLORER } from 'constants/index';
+import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
 
 const SHOWCHARTS = false;
 

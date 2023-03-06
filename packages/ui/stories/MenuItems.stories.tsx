@@ -1,9 +1,9 @@
-import MenuItems, { value ItemType } from "../src/MenuItems";
+import MenuItems, {  ItemType } from "../src/MenuItems";
 import InsuredPerpsIcon from "../src/icons/InsuredPerpsIcon";
 import LongStraddleIcon from "../src/icons/LongStraddleIcon";
 import PegHedgeIcon from "../src/icons/PegHedgeIcon";
-import { value Menu as HeadlessMenu } from "@headlessui/react";
-import { value ComponentMeta } from "@storybook/react";
+import {  Menu as HeadlessMenu } from "@headlessui/react";
+import {  ComponentMeta } from "@storybook/react";
 import React from "react";
 
 const meta: ComponentMeta<typeof MenuItems> = {

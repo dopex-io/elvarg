@@ -1,9 +1,9 @@
-import { value useCallback } from 'react';
+import { useCallback } from 'react';
 
-import { value Contract } from 'ethers';
+import { Contract } from 'ethers';
 
 import toast from 'react-hot-toast';
-import { value useBoundStore } from 'store';
+import { useBoundStore } from 'store';
 
 import TransactionToast from 'components/UI/TransactionToast';
 

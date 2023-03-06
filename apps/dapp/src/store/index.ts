@@ -1,31 +1,22 @@
-import { value create } from 'zustand';
-import { value devtools } from 'zustand/middleware';
+import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
 
-import { value AssetsSlice, value createAssetsSlice } from './Assets';
-import { value DpxBondsSlice, value createDpxBondsSlice } from './Bonds';
-import { value FarmingSlice, value createFarmingSlice } from './Farming';
-import { value NftsSlice, value createNftsSlice } from './Nfts';
-import { value PortfolioSlice, value createPortfolioSlice } from './Portfolio';
-import { value TokenSaleSlice, value createTokenSaleSlice } from './TokenSale';
-import {
-  value AtlanticPoolsSlice,
-  value createAtlanticsSlice,
-} from './Vault/atlantics';
-import { value GmxSlice, value createGmxSlice } from './Vault/atlantics/gmx';
-import { value CommonSlice, value createCommonSlice } from './Vault/common';
-import { value RateVaultSlice, value createRateVaultSlice } from './Vault/ir';
-import { value OlpSlice, value createOlpSlice } from './Vault/olp';
-import {
-  value OptionScalpSlice,
-  value createOptionScalpSlice,
-} from './Vault/scalps';
-import { value SsovV3Slice, value createSsovV3Slice } from './Vault/ssov';
-import {
-  value StraddlesSlice,
-  value createStraddlesSlice,
-} from './Vault/straddles';
-import { value VeDPXSlice, value createVedpxSlice } from './VeDPX';
-import { value WalletSlice, value createWalletSlice } from './Wallet';
+import { AssetsSlice, createAssetsSlice } from './Assets';
+import { DpxBondsSlice, createDpxBondsSlice } from './Bonds';
+import { FarmingSlice, createFarmingSlice } from './Farming';
+import { NftsSlice, createNftsSlice } from './Nfts';
+import { PortfolioSlice, createPortfolioSlice } from './Portfolio';
+import { TokenSaleSlice, createTokenSaleSlice } from './TokenSale';
+import { AtlanticPoolsSlice, createAtlanticsSlice } from './Vault/atlantics';
+import { GmxSlice, createGmxSlice } from './Vault/atlantics/gmx';
+import { CommonSlice, createCommonSlice } from './Vault/common';
+import { RateVaultSlice, createRateVaultSlice } from './Vault/ir';
+import { OlpSlice, createOlpSlice } from './Vault/olp';
+import { OptionScalpSlice, createOptionScalpSlice } from './Vault/scalps';
+import { SsovV3Slice, createSsovV3Slice } from './Vault/ssov';
+import { StraddlesSlice, createStraddlesSlice } from './Vault/straddles';
+import { VeDPXSlice, createVedpxSlice } from './VeDPX';
+import { WalletSlice, createWalletSlice } from './Wallet';
 
 type T = WalletSlice &
   TokenSaleSlice &

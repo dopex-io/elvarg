@@ -1,6 +1,6 @@
-import { value FC } from 'react';
+import { FC } from 'react';
 
-import Box, { value BoxProps } from '@mui/material/Box';
+import Box, { BoxProps } from '@mui/material/Box';
 import cx from 'classnames';
 
 interface TypographyProps extends BoxProps {

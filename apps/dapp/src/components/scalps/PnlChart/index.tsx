@@ -1,21 +1,16 @@
-import {
-  value useCallback,
-  value useEffect,
-  value useMemo,
-  value useState,
-} from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import Box from '@mui/material/Box';
 import {
-  value Line,
-  value LineChart,
-  value ReferenceLine,
-  value ResponsiveContainer,
-  value Tooltip,
-  value XAxis,
-  value YAxis,
+  Line,
+  LineChart,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from 'recharts';
-import { value CategoricalChartFunc } from 'recharts/types/chart/generateCategoricalChart';
+import { CategoricalChartFunc } from 'recharts/types/chart/generateCategoricalChart';
 
 import Skeleton from 'components/UI/Skeleton';
 import Typography from 'components/UI/Typography';

@@ -1,4 +1,4 @@
-import { value AdvancedChart } from 'react-tradingview-embed';
+import {  AdvancedChart } from 'react-tradingview-embed';
 
 const SingleChart = () => {
   return (

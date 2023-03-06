@@ -1,11 +1,6 @@
 import React from 'react';
 
-import {
-  value Bar,
-  value ComposedChart,
-  value Line,
-  value ResponsiveContainer,
-} from 'recharts';
+import { Bar, ComposedChart, Line, ResponsiveContainer } from 'recharts';
 
 const data = [
   {

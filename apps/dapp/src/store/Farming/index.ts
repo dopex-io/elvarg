@@ -1,17 +1,17 @@
-import { value BigNumber } from 'ethers';
+import { BigNumber } from 'ethers';
 
 import {
-  value ERC20__factory,
-  value StakingRewardsV3__factory,
-  value UniswapPair__factory,
+  ERC20__factory,
+  StakingRewardsV3__factory,
+  UniswapPair__factory,
 } from '@dopex-io/sdk';
 import axios from 'axios';
 import BN from 'bignumber.js';
-import { value Farm, value LpData, value UserData } from 'types/farms';
-import { value StateCreator } from 'zustand';
+import { Farm, LpData, UserData } from 'types/farms';
+import { StateCreator } from 'zustand';
 
-import { value AssetsSlice } from 'store/Assets';
-import { value WalletSlice } from 'store/Wallet';
+import { AssetsSlice } from 'store/Assets';
+import { WalletSlice } from 'store/Wallet';
 
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 

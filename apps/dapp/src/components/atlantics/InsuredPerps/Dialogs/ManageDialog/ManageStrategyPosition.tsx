@@ -1,26 +1,26 @@
-import { value useCallback, value useEffect, value useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-import { value BigNumber } from 'ethers';
+import { BigNumber } from 'ethers';
 
 import {
-  value GmxVault__factory,
-  value InsuredLongsStrategy__factory,
+  GmxVault__factory,
+  InsuredLongsStrategy__factory,
 } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import useSendTx from 'hooks/useSendTx';
-import { value useBoundStore } from 'store';
+import { useBoundStore } from 'store';
 import LiquidationProtectionIcon from 'svgs/icons/LiquidationProtection';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
-import { value ActionState } from 'components/atlantics/InsuredPerps/Tables/Positions';
+import { ActionState } from 'components/atlantics/InsuredPerps/Tables/Positions';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import { value MIN_EXECUTION_FEE } from 'constants/gmx';
-import { value MAX_VALUE } from 'constants/index';
+import { MIN_EXECUTION_FEE } from 'constants/gmx';
+import { MAX_VALUE } from 'constants/index';
 
 const options: { [key: string]: string }[] = [
   {

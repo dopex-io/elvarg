@@ -2,17 +2,17 @@ import Link from 'next/link';
 import Router from 'next/router';
 
 import {
-  value Key,
-  value MouseEvent,
-  value ReactNode,
-  value SetStateAction,
-  value useCallback,
-  value useEffect,
-  value useMemo,
-  value useState,
+  Key,
+  MouseEvent,
+  ReactNode,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
 } from 'react';
 
-import { value ethers } from 'ethers';
+import { ethers } from 'ethers';
 
 import MenuIcon from '@mui/icons-material/Menu';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -23,9 +23,9 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import axios from 'axios';
 import cx from 'classnames';
-import { value useBoundStore } from 'store';
+import { useBoundStore } from 'store';
 
-import { value getWeb3Modal } from 'store/Wallet/getWeb3Modal';
+import { getWeb3Modal } from 'store/Wallet/getWeb3Modal';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
@@ -37,13 +37,13 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import displayAddress from 'utils/general/displayAddress';
 import formatAmount from 'utils/general/formatAmount';
 
-import { value DEFAULT_CHAIN_ID } from 'constants/env';
+import { DEFAULT_CHAIN_ID } from 'constants/env';
 import {
-  value CHAIN_ID_TO_RPC,
-  value CURRENCIES_MAP,
-  value DISCLAIMER_MESSAGE,
-  value OFAC_COMPLIANCE_LOCAL_STORAGE_KEY,
-  value PAGE_TO_SUPPORTED_CHAIN_IDS,
+  CHAIN_ID_TO_RPC,
+  CURRENCIES_MAP,
+  DISCLAIMER_MESSAGE,
+  OFAC_COMPLIANCE_LOCAL_STORAGE_KEY,
+  PAGE_TO_SUPPORTED_CHAIN_IDS,
 } from 'constants/index';
 
 import ClaimRdpxDialog from './ClaimRdpxDialog';

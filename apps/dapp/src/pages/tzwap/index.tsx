@@ -1,19 +1,13 @@
 import Head from 'next/head';
 
-import {
-  value ReactNode,
-  value useCallback,
-  value useEffect,
-  value useMemo,
-  value useState,
-} from 'react';
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { value BigNumber } from 'ethers';
+import { BigNumber } from 'ethers';
 
 import {
-  value Addresses,
-  value ERC20__factory,
-  value Tzwap1inchRouter__factory,
+  Addresses,
+  ERC20__factory,
+  Tzwap1inchRouter__factory,
 } from '@dopex-io/sdk';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import Box from '@mui/material/Box';
@@ -26,8 +20,8 @@ import Tooltip from '@mui/material/Tooltip';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
 import Countdown from 'react-countdown';
-import { value LoaderIcon } from 'react-hot-toast';
-import { value useBoundStore } from 'store';
+import { LoaderIcon } from 'react-hot-toast';
+import { useBoundStore } from 'store';
 import RedTriangleIcon from 'svgs/icons/RedTriangleIcon';
 
 import CustomButton from 'components/UI/Button';
@@ -44,13 +38,9 @@ import displayAddress from 'utils/general/displayAddress';
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 
-import {
-  value CURRENCIES_MAP,
-  value IS_NATIVE,
-  value MAX_VALUE,
-} from 'constants/index';
+import { CURRENCIES_MAP, IS_NATIVE, MAX_VALUE } from 'constants/index';
 
-import { value Order } from '../../types/tzwap';
+import { Order } from '../../types/tzwap';
 import styles from './styles.module.scss';
 
 function TabPanel(props: {

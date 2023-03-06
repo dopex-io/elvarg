@@ -1,17 +1,8 @@
-import React, { value SVGProps } from "react";
+import React, { SVGProps } from "react";
 
 const LongStraddleIcon = (props: SVGProps<SVGSVGElement>) => (
-  <svg
-    width={20}
-    height={20}
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <path
-      d="M3.077 9.23V3.078L6.923 9.23h6.538l3.462-5.723V9.23H3.077Z"
-      fill="#C3F8FF"
-    />
+  <svg width={20} height={20} fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <path d="M3.077 9.23V3.078L6.923 9.23h6.538l3.462-5.723V9.23H3.077Z" fill="#C3F8FF" />
     <path d="M10 11.539 8.846 8.462h2.308L10 11.539Z" fill="#FF617D" />
     <path
       fillRule="evenodd"

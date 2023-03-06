@@ -1,10 +1,10 @@
 import Link from 'next/link';
 
-import { value useMemo } from 'react';
+import { useMemo } from 'react';
 
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
-import { value styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import cx from 'classnames';
 import format from 'date-fns/format';
 import Coin from 'svgs/icons/Coin';

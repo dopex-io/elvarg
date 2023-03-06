@@ -1,5 +1,5 @@
-import { value Tab as HeadlessTab } from "@headlessui/react";
-import React, { value FC, value ReactNode } from "react";
+import { Tab as HeadlessTab } from "@headlessui/react";
+import React, { FC, ReactNode } from "react";
 
 const SIZES: { [key: string]: string } = {
   small: "h-[1.875rem] w-[41.625rem]",
@@ -18,15 +18,9 @@ const Tab: FC<TabProps> = (props: TabProps) => {
 
   return (
     <HeadlessTab.Group>
-      <HeadlessTab.List
-        className={`${className} flex mt-2 space-x-1 rounded-lg bg-umbra border border-carbon p-1 ${SIZES[size]}`}
-      >
-        {children}
-      </HeadlessTab.List>
+      <HeadlessTab.List className={`${className} flex mt-2 space-x-1 rounded-lg bg-umbra border border-carbon p-1 ${SIZES[size]}`}>{children}</HeadlessTab.List>
       <HeadlessTab.Panels className={`my-2 ${SIZES[size]}`}>
-        <HeadlessTab.Panel className="rounded-lg bg-umbra text-white p-1">
-          {size}
-        </HeadlessTab.Panel>
+        <HeadlessTab.Panel className="rounded-lg bg-umbra text-white p-1">{size}</HeadlessTab.Panel>
       </HeadlessTab.Panels>
     </HeadlessTab.Group>
   );
