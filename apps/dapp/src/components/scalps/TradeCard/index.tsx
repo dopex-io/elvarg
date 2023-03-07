@@ -13,7 +13,6 @@ import { useBoundStore } from 'store';
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import Manage from '../Manage';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -47,8 +46,6 @@ const TradeCard = () => {
   const [approved, setApproved] = useState(false);
 
   const [rawAmount, setRawAmount] = useState<string>('1000');
-
-  const [section, setSection] = useState<string>('TRADE');
 
   const [leverage, setLeverage] = useState<number>(2);
 
@@ -204,252 +201,202 @@ const TradeCard = () => {
 
   return (
     <Box>
-      <Box className="h-12 bg-cod-gray rounded-full flex flex-row justify-center items-center w-full">
-        <Box className="flex flex-1 text-center full rounded-lg">
+      <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
+        <Box className="flex flex-row justify-between">
+          <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
+            <Box className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
+              <p
+                className={cx(
+                  'font-medium mt-1 cursor-pointer hover:opacity-50',
+                  !isShort ? 'text-green-300' : 'text-stieglitz'
+                )}
+                onClick={() => setIsShort(false)}
+              >
+                Long
+              </p>
+            </Box>
+            <Box className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
+              <p
+                className={cx(
+                  'font-medium mt-1 cursor-pointer hover:opacity-50',
+                  isShort ? 'text-red-300' : 'text-stieglitz'
+                )}
+                onClick={() => setIsShort(true)}
+              >
+                Short
+              </p>
+            </Box>
+          </Box>
+          <Input
+            disableUnderline
+            id="notionalSize"
+            name="notionalSize"
+            placeholder="0"
+            type="number"
+            className="h-12 text-2xl text-white font-mono"
+            value={rawAmount}
+            onChange={(e) => setRawAmount(e.target.value)}
+            classes={{ input: 'text-right' }}
+          />
           <Typography
             variant="h6"
-            className={cx(
-              'font-medium cursor-pointer hover:opacity-50 text-center w-full rounded-l py-1',
-              section === 'LP' && 'bg-mineshaft'
-            )}
-            onClick={() => setSection('LP')}
+            className="text-stieglitz font-medium mt-3 mr-3 ml-1"
           >
-            LP
+            $
           </Typography>
         </Box>
-        <Box className="flex flex-1 text-center w-full">
-          <Typography
-            variant="h6"
-            className={cx(
-              'font-medium  cursor-pointer hover:opacity-50 text-center w-full rounded-r py-1',
-              section === 'TRADE' && 'bg-mineshaft'
-            )}
-            onClick={() => setSection('TRADE')}
-          >
-            Trade
-          </Typography>
+        <Box className="flex flex-row justify-between mt-2">
+          <Box>
+            <Typography
+              variant="h6"
+              className="text-stieglitz text-sm pl-1 pr-3"
+            >
+              Leverage {leverage}x
+            </Typography>
+          </Box>
+          <Box className="ml-auto mr-0">
+            <Typography
+              variant="h6"
+              className="text-stieglitz text-sm pl-1 pr-3"
+            >
+              Notional ~{' '}
+              {formatAmount(
+                amount / getUserReadableAmount(optionScalpData?.markPrice!, 8),
+                8
+              )}{' '}
+              ETH
+            </Typography>
+          </Box>
         </Box>
       </Box>
-      {section === 'TRADE' ? (
-        <div>
-          <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
-            <Box className="flex flex-row justify-between">
-              <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
-                <Box className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
-                  <p
-                    className={cx(
-                      'font-medium mt-1 cursor-pointer hover:opacity-50',
-                      !isShort ? 'text-green-300' : 'text-stieglitz'
-                    )}
-                    onClick={() => setIsShort(false)}
-                  >
-                    Long
-                  </p>
-                </Box>
-                <Box className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
-                  <p
-                    className={cx(
-                      'font-medium mt-1 cursor-pointer hover:opacity-50',
-                      isShort ? 'text-red-300' : 'text-stieglitz'
-                    )}
-                    onClick={() => setIsShort(true)}
-                  >
-                    Short
-                  </p>
-                </Box>
-              </Box>
-              <Input
-                disableUnderline
-                id="notionalSize"
-                name="notionalSize"
-                placeholder="0"
-                type="number"
-                className="h-12 text-2xl text-white font-mono"
-                value={rawAmount}
-                onChange={(e) => setRawAmount(e.target.value)}
-                classes={{ input: 'text-right' }}
-              />
-              <Typography
-                variant="h6"
-                className="text-stieglitz font-medium mt-3 mr-3 ml-1"
-              >
-                $
+      <Box className="flex mb-4">
+        {['5m', '15m', '30m'].map((time, i) => (
+          <Box
+            key={i}
+            className={
+              (i === 0
+                ? 'ml-auto mr-1.5'
+                : i === 2
+                ? 'mr-auto ml-1.5'
+                : 'mx-1.5') +
+              (time === selectedTimeWindow ? ' bg-mineshaft' : ' bg-umbra') +
+              ` text-center w-auto p-2 border-[1px] border-[#1E1E1E] rounded-md cursor-pointer group hover:bg-mineshaft hover:opacity-80`
+            }
+            onClick={() => setSelectedTimeWindow(time)}
+          >
+            <Typography variant="h6" className="text-xs font-normal">
+              {time}
+            </Typography>
+          </Box>
+        ))}
+      </Box>
+      <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
+        <Box className="flex flex-row justify-between">
+          <Box>
+            <Typography
+              variant="h6"
+              className="text-stieglitz text-sm pl-1 pr-3"
+            >
+              Leverage
+            </Typography>
+          </Box>
+          <Box className="ml-auto mr-0">
+            <Typography
+              variant="h6"
+              className="text-stieglitz text-sm pl-1 pr-3"
+            >
+              {leverage}x
+            </Typography>
+          </Box>
+        </Box>
+        <Box className="flex flex-row justify-between mt-2 pl-2 pr-3">
+          <Slider
+            aria-label="Leverage"
+            defaultValue={20}
+            step={1}
+            min={1}
+            max={50}
+            valueLabelDisplay="auto"
+            onChange={handleLeverageChange}
+          />
+        </Box>
+      </Box>
+      <Box className="bg-umbra rounded-2xl">
+        <Box className="flex flex-col mb-4 p-4 w-full">
+          <Box className={'flex mb-2'}>
+            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+              Margin
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography variant="h6" className="text-white mr-auto ml-0">
+                {formatAmount(getUserReadableAmount(margin, 6), 2)} USDC
               </Typography>
             </Box>
-            <Box className="flex flex-row justify-between mt-2">
-              <Box>
-                <Typography
-                  variant="h6"
-                  className="text-stieglitz text-sm pl-1 pr-3"
-                >
-                  Leverage {leverage}x
-                </Typography>
-              </Box>
-              <Box className="ml-auto mr-0">
-                <Typography
-                  variant="h6"
-                  className="text-stieglitz text-sm pl-1 pr-3"
-                >
-                  Notional ~{' '}
-                  {formatAmount(
-                    amount /
-                      getUserReadableAmount(optionScalpData?.markPrice!, 8),
-                    8
-                  )}{' '}
-                  ETH
+          </Box>
+          {premium.gt(0) ? (
+            <Box className={'flex mb-2'}>
+              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+                Premium
+              </Typography>
+              <Box className={'text-right'}>
+                <Typography variant="h6" className="text-white mr-auto ml-0">
+                  {formatAmount(getUserReadableAmount(premium, 6), 2)} USDC
                 </Typography>
               </Box>
             </Box>
-          </Box>
-          <Box className="flex mb-4">
-            {['5m', '15m', '30m'].map((time, i) => (
-              <Box
-                key={i}
-                className={
-                  (i === 0
-                    ? 'ml-auto mr-1.5'
-                    : i === 2
-                    ? 'mr-auto ml-1.5'
-                    : 'mx-1.5') +
-                  (time === selectedTimeWindow
-                    ? ' bg-mineshaft'
-                    : ' bg-umbra') +
-                  ` text-center w-auto p-2 border-[1px] border-[#1E1E1E] rounded-md cursor-pointer group hover:bg-mineshaft hover:opacity-80`
-                }
-                onClick={() => setSelectedTimeWindow(time)}
-              >
-                <Typography variant="h6" className="text-xs font-normal">
-                  {time}
-                </Typography>
-              </Box>
-            ))}
-          </Box>
-          <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
-            <Box className="flex flex-row justify-between">
-              <Box>
-                <Typography
-                  variant="h6"
-                  className="text-stieglitz text-sm pl-1 pr-3"
-                >
-                  Leverage
-                </Typography>
-              </Box>
-              <Box className="ml-auto mr-0">
-                <Typography
-                  variant="h6"
-                  className="text-stieglitz text-sm pl-1 pr-3"
-                >
-                  {leverage}x
-                </Typography>
-              </Box>
-            </Box>
-            <Box className="flex flex-row justify-between mt-2 pl-2 pr-3">
-              <Slider
-                aria-label="Leverage"
-                defaultValue={20}
-                step={1}
-                min={1}
-                max={50}
-                valueLabelDisplay="auto"
-                onChange={handleLeverageChange}
-              />
+          ) : null}
+          <Box className={'flex mb-2'}>
+            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+              Fees
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography variant="h6" className="text-white mr-auto ml-0">
+                {formatAmount(
+                  amount *
+                    getUserReadableAmount(
+                      optionScalpData?.feeOpenPosition!,
+                      10
+                    ),
+                  2
+                )}{' '}
+                USDC
+              </Typography>
             </Box>
           </Box>
-          <Box className="bg-umbra rounded-2xl">
-            <Box className="flex flex-col mb-4 p-4 w-full">
-              <Box className={'flex mb-2'}>
-                <Typography
-                  variant="h6"
-                  className="text-stieglitz ml-0 mr-auto"
-                >
-                  Margin
-                </Typography>
-                <Box className={'text-right'}>
-                  <Typography variant="h6" className="text-white mr-auto ml-0">
-                    {formatAmount(getUserReadableAmount(margin, 6), 2)} USDC
-                  </Typography>
-                </Box>
-              </Box>
-              {premium.gt(0) ? (
-                <Box className={'flex mb-2'}>
-                  <Typography
-                    variant="h6"
-                    className="text-stieglitz ml-0 mr-auto"
-                  >
-                    Premium
-                  </Typography>
-                  <Box className={'text-right'}>
-                    <Typography
-                      variant="h6"
-                      className="text-white mr-auto ml-0"
-                    >
-                      {formatAmount(getUserReadableAmount(premium, 6), 2)} USDC
-                    </Typography>
-                  </Box>
-                </Box>
-              ) : null}
-              <Box className={'flex mb-2'}>
-                <Typography
-                  variant="h6"
-                  className="text-stieglitz ml-0 mr-auto"
-                >
-                  Fees
-                </Typography>
-                <Box className={'text-right'}>
-                  <Typography variant="h6" className="text-white mr-auto ml-0">
-                    {formatAmount(
-                      amount *
-                        getUserReadableAmount(
-                          optionScalpData?.feeOpenPosition!,
-                          10
-                        ),
-                      2
-                    )}{' '}
-                    USDC
-                  </Typography>
-                </Box>
-              </Box>
-              <Box className={'flex mb-1'}>
-                <Typography
-                  variant="h6"
-                  className="text-stieglitz ml-0 mr-auto"
-                >
-                  Liquidation Price
-                </Typography>
-                <Box className={'text-right'}>
-                  <Typography variant="h6" className="text-white mr-auto ml-0">
-                    {formatAmount(liquidationPrice, 2)} USDC
-                  </Typography>
-                </Box>
-              </Box>
+          <Box className={'flex mb-1'}>
+            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+              Liquidation Price
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography variant="h6" className="text-white mr-auto ml-0">
+                {formatAmount(liquidationPrice, 2)} USDC
+              </Typography>
             </Box>
           </Box>
-          <Box className="rounded-lg bg-neutral-800">
-            <Box className="p-3">
-              <Box className="rounded-md flex flex-col mb-3 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-mineshaft">
-                <EstimatedGasCostButton gas={5000000} chainId={chainId} />
-              </Box>
-              <CustomButton
-                size="medium"
-                className="w-full !rounded-md"
-                color={
-                  !approved ||
-                  (amount > 0 &&
-                    amount <= getUserReadableAmount(userTokenBalance, 6))
-                    ? 'primary'
-                    : 'mineshaft'
-                }
-                disabled={amount <= 0}
-                onClick={approved ? handleTrade : handleApprove}
-              >
-                {depositButtonMessage}
-              </CustomButton>
-            </Box>
+        </Box>
+      </Box>
+      <Box className="rounded-lg bg-neutral-800">
+        <Box className="p-3">
+          <Box className="rounded-md flex flex-col mb-3 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-mineshaft">
+            <EstimatedGasCostButton gas={5000000} chainId={chainId} />
           </Box>
-        </div>
-      ) : (
-        <Manage />
-      )}
+          <CustomButton
+            size="medium"
+            className="w-full !rounded-md"
+            color={
+              !approved ||
+              (amount > 0 &&
+                amount <= getUserReadableAmount(userTokenBalance, 6))
+                ? 'primary'
+                : 'mineshaft'
+            }
+            disabled={amount <= 0}
+            onClick={approved ? handleTrade : handleApprove}
+          >
+            {depositButtonMessage}
+          </CustomButton>
+        </Box>
+      </Box>
     </Box>
   );
 };
