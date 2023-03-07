@@ -1,6 +1,7 @@
 import Head from 'next/head';
+import cx from 'classnames';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import Box from '@mui/material/Box';
 import { useBoundStore } from 'store';
@@ -14,6 +15,7 @@ import Positions from 'components/scalps/Positions';
 import Stats from 'components/scalps/Stats';
 import TopBar from 'components/scalps/TopBar';
 import TradeCard from 'components/scalps/TradeCard';
+import Manage from 'components/scalps/Manage';
 
 import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
 
@@ -32,6 +34,12 @@ const OptionScalps = ({ poolName }: Props) => {
     updateOptionScalpUserData,
   } = useBoundStore();
 
+  const [manageSection, setManageSection] = useState<string>('TRADE');
+
+  const TVChart = useMemo(() => {
+    return <TradingViewChart />;
+  }, []);
+
   useEffect(() => {
     if (poolName && setSelectedPoolName) setSelectedPoolName(poolName);
   }, [poolName, setSelectedPoolName]);
@@ -41,23 +49,21 @@ const OptionScalps = ({ poolName }: Props) => {
   }, [updateOptionScalp, updateOptionScalpUserData]);
 
   return (
-    <Box className="bg-black min-h-screen">
+    <Box className="bg-black min-h-screen w-full">
       <Head>
         <title>Option Scalps | Dopex</title>
       </Head>
       <AppBar active="Scalps" />
-      <Box className="md:flex pt-5">
-        <Box className="ml-auto lg:w-[45%]">
-          <Box className="lg:pt-28 sm:pt-20 pt-20 lg:max-w-4xl md:max-w-3xl sm:max-w-2xl max-w-md mx-auto px-4 lg:px-0">
+      <Box className="flex lg:flex-row md:flex-col sm:flex-col items-center justify-center w-full h-full">
+        {/* TV, STATS, POSITIONS */}
+        <Box className="lg:w-[80rem] md:w-[40rem] sm:w-[30rem] xs:border flex flex-col mt-[10rem]">
+          <Box className='xs:pb-[3rem]'>
             <TopBar />
           </Box>
-          <Box className="pt-5 lg:max-w-4xl md:max-w-3xl sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0 mb-6">
+          <Box>
             <Stats />
           </Box>
-          <Box className="pt-5 lg:max-w-4xl md:max-w-3xl sm:max-w-3xl max-w-md mx-auto px-2 lg:px-0 mb-6">
-            <TradingViewChart />
-          </Box>
-
+          <Box>{TVChart}</Box>
           {SHOWCHARTS ? (
             <Box>
               <Box className="pt-8 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0">
@@ -81,19 +87,46 @@ const OptionScalps = ({ poolName }: Props) => {
               </Box>
             </Box>
           ) : null}
-
-          <Box className="pt-2 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0">
+          <Box className="">
             <Typography variant="h6" className="-ml-1">
               Positions
             </Typography>
           </Box>
-          <Box className="mb-5 py-2 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0 flex-auto">
+          {/* OPEN POSITIONS */}
+          <Box className="sm:mt-[2rem] md:mt-[2rem]">
             <Positions />
           </Box>
         </Box>
-        <Box className="lg:pt-32 sm:pt-20 lg:mr-auto md:mx-0 mx-4 mb-8 px-2 lg:px-0 lg:ml-32">
+        {/* Manage section */}
+        <Box className="lg:pl-[2rem] md:pl-[2rem] sm:mt-[2rem]">
+          <Box className="h-12 bg-cod-gray rounded-full flex flex-row justify-center items-center w-full">
+            <Box className="flex flex-1 text-center full rounded-lg px-[1rem]">
+              <Typography
+                variant="h6"
+                className={cx(
+                  'font-medium cursor-pointer hover:opacity-50 text-center w-full rounded-l py-1',
+                  manageSection === 'LP' && 'bg-mineshaft'
+                )}
+                onClick={() => setManageSection('LP')}
+              >
+                LP
+              </Typography>
+            </Box>
+            <Box className="flex flex-1 text-center w-full">
+              <Typography
+                variant="h6"
+                className={cx(
+                  'font-medium  cursor-pointer hover:opacity-50 text-center w-full rounded-r py-1',
+                  manageSection === 'TRADE' && 'bg-mineshaft'
+                )}
+                onClick={() => setManageSection('TRADE')}
+              >
+                Trade
+              </Typography>
+            </Box>
+          </Box>
           <Box className="bg-cod-gray rounded-xl p-3 max-w-sm">
-            <TradeCard />
+            {manageSection === 'TRADE' ? <TradeCard /> : <Manage />}
           </Box>
         </Box>
       </Box>
