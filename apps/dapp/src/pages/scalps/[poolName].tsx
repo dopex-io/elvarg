@@ -10,7 +10,6 @@ import AppBar from 'components/common/AppBar';
 import TradingViewChart from 'components/common/TradingViewChart';
 import PoolCard from 'components/scalps/Charts/PoolCard';
 import TVLCard from 'components/scalps/Charts/TVLCard';
-import Manage from 'components/scalps/Manage';
 import Positions from 'components/scalps/Positions';
 import Stats from 'components/scalps/Stats';
 import TopBar from 'components/scalps/TopBar';
