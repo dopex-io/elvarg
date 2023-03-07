@@ -189,8 +189,8 @@ const DepositCard = () => {
               <Typography
                 variant="h6"
                 className={cx(
-                  'font-medium mt-1 cursor-pointer hover:opacity-50',
-                  isQuote ? 'text-white' : 'text-stieglitz'
+                  'font-medium mt-1 cursor-pointer',
+                  !isQuote && 'opacity-50'
                 )}
                 onClick={() => setisQuote(true)}
               >
@@ -201,8 +201,8 @@ const DepositCard = () => {
               <Typography
                 variant="h6"
                 className={cx(
-                  'font-medium mt-1 cursor-pointer hover:opacity-50',
-                  !isQuote ? 'text-white' : 'text-stieglitz'
+                  'font-medium mt-1 cursor-pointer',
+                  isQuote && 'opacity-50'
                 )}
                 onClick={() => setisQuote(false)}
               >
