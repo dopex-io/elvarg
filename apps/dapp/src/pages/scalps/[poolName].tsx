@@ -96,9 +96,6 @@ const OptionScalps = ({ poolName }: Props) => {
           <Box className="bg-cod-gray rounded-xl p-3 max-w-sm">
             <TradeCard />
           </Box>
-          <Box className="bg-cod-gray rounded-xl p-3 max-w-sm mt-4">
-            <Manage />
-          </Box>
         </Box>
       </Box>
       <Box className="flex justify-center space-x-2 my-8">
