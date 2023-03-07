@@ -1,19 +1,19 @@
 import React, {
-   useCallback,
-   useEffect,
-   useMemo,
-   useState,
+  value useCallback,
+  value useEffect,
+  value useMemo,
+  value useState,
 } from 'react';
 
-import {  BigNumber } from 'ethers';
+import { value BigNumber } from 'ethers';
 
-import {  ERC20__factory } from '@dopex-io/sdk';
+import { value ERC20__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import Slider from '@mui/material/Slider';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
-import {  useBoundStore } from 'store';
+import { value useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
@@ -23,7 +23,7 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import {  MAX_VALUE } from 'constants/index';
+import { value MAX_VALUE } from 'constants/index';
 
 const TradeCard = () => {
   const {
@@ -52,7 +52,7 @@ const TradeCard = () => {
 
   const [rawAmount, setRawAmount] = useState<string>('1000');
 
-  const [leverage, setLeverage] = useState<number>(20);
+  const [leverage, setLeverage] = useState<number>(2);
 
   const amount: number = useMemo(() => {
     return parseFloat(rawAmount) || 0;
@@ -101,14 +101,17 @@ const TradeCard = () => {
   }, [amount, leverage]);
 
   const liquidationPrice: number = useMemo(() => {
+    let _liquidationPrice = 0;
     const price = getUserReadableAmount(optionScalpData?.markPrice!, 8);
     const positions = amount / price;
-
-    if (isShort) {
-      return collateralAmount / positions + price;
-    } else {
-      return price - collateralAmount / positions;
+    if (positions || collateralAmount) {
+      if (isShort) {
+        _liquidationPrice = collateralAmount / positions + price;
+      } else {
+        _liquidationPrice = price - collateralAmount / positions;
+      }
     }
+    return _liquidationPrice;
   }, [isShort, amount, collateralAmount, optionScalpData]);
 
   const timeframeIndex = useMemo(() => {
