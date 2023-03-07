@@ -185,6 +185,19 @@ export const createOptionScalpSlice: StateCreator<
         anonymous: false,
         inputs: [
           {
+            indexed: true,
+            internalType: 'address',
+            name: 'receiver',
+            type: 'address',
+          },
+        ],
+        name: 'EmergencyWithdraw',
+        type: 'event',
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
             indexed: false,
             internalType: 'uint256',
             name: 'id',
@@ -480,6 +493,24 @@ export const createOptionScalpSlice: StateCreator<
           },
         ],
         stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          {
+            internalType: 'address[]',
+            name: 'tokens',
+            type: 'address[]',
+          },
+          {
+            internalType: 'bool',
+            name: 'transferNative',
+            type: 'bool',
+          },
+        ],
+        name: 'emergencyWithdraw',
+        outputs: [],
+        stateMutability: 'nonpayable',
         type: 'function',
       },
       {
@@ -1008,7 +1039,7 @@ export const createOptionScalpSlice: StateCreator<
     ];
 
     return new ethers.Contract(
-      '0x828dCf8F6Ce367eA102cdD61EC8F1BCac689BA81',
+      '0x08Db4584c9712beBcd698c4549857851cF0AE044',
       abi,
       provider
     );
