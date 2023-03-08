@@ -32,6 +32,7 @@ const PositionsTable = () => {
 
   const handleClose = useCallback(
     async (id: BigNumber) => {
+
       await sendTx(
         optionScalpData?.optionScalpContract.connect(signer),
         'closePosition',

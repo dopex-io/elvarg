@@ -3285,7 +3285,6 @@ export const createOptionScalpSlice: StateCreator<
     const { getOptionScalpContract } = get();
 
     const optionScalpContract = getOptionScalpContract();
-
     return await optionScalpContract.calcPnl(id);
   },
   updateOptionScalpUserData: async () => {
@@ -3298,7 +3297,7 @@ export const createOptionScalpSlice: StateCreator<
 
     const optionScalpContract = await getOptionScalpContract();
 
-    let scalpPositionsIndexes = [];
+    let scalpPositionsIndexes: any = [];
 
     try {
       scalpPositionsIndexes = await optionScalpContract['positionsOfOwner'](
@@ -3314,9 +3313,14 @@ export const createOptionScalpSlice: StateCreator<
       pnlsPromises.push(calcPnl(scalpPositionsIndexes[i]));
     }
 
-    const scalpPositions: ScalpPosition[] = await Promise.all(
+    let scalpPositions: ScalpPosition[] = await Promise.all(
       scalpPositionsPromises
     );
+
+    scalpPositions = scalpPositions.map((position, index) => ({
+      ...position,
+      id: scalpPositionsIndexes[index],
+    }));
 
     set((prevState) => ({
       ...prevState,
