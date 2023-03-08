@@ -144,7 +144,7 @@ const WithdrawCard = () => {
   ]);
 
   return (
-    <Box>
+    <Box className="mt-4">
       <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
         <Box className="flex flex-row justify-between">
           <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
@@ -179,7 +179,7 @@ const WithdrawCard = () => {
             name="notionalSize"
             placeholder="0"
             type="number"
-            className="h-12 text-2xl text-white font-mono"
+            className="h-12 text-2xl text-white font-mono mr-2"
             value={rawAmount}
             onChange={(e) => setRawAmount(e.target.value)}
             classes={{ input: 'text-right' }}

@@ -216,7 +216,7 @@ const DepositCard = () => {
             name="notionalSize"
             placeholder="0"
             type="number"
-            className="h-12 text-2xl text-white font-mono"
+            className="h-12 text-2xl text-white font-mono mr-2"
             value={rawAmount}
             onChange={(e) => setRawAmount(e.target.value)}
             classes={{ input: 'text-right' }}
