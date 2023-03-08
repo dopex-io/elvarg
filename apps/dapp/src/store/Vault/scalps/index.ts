@@ -3277,25 +3277,9 @@ export const createOptionScalpSlice: StateCreator<
     );
   },
   getScalpPosition: async (id: BigNumber) => {
-    const { accountAddress, getScalpPositionContract, getOptionScalpContract } =
-      get();
-
-    const scalpPositionContract = getScalpPositionContract();
+    const { getOptionScalpContract } = get();
     const optionScalpContract = getOptionScalpContract();
-
-    try {
-      const owner = await scalpPositionContract!['ownerOf'](id);
-      if (owner !== accountAddress) throw 'Invalid owner';
-
-      const data = await optionScalpContract!['scalpPositions'](id);
-
-      return data;
-    } catch (err) {
-      console.log(err);
-      return {
-        amount: BigNumber.from('0'),
-      };
-    }
+    return await optionScalpContract!['scalpPositions'](id);
   },
   calcPnl: async (id: BigNumber) => {
     const { getOptionScalpContract } = get();
@@ -3317,8 +3301,9 @@ export const createOptionScalpSlice: StateCreator<
     let scalpPositionsIndexes = [];
 
     try {
-      scalpPositionsIndexes =
-        optionScalpContract['positionsOfOwner'](accountAddress);
+      scalpPositionsIndexes = await optionScalpContract['positionsOfOwner'](
+        accountAddress
+      );
     } catch (err) {}
 
     const scalpPositionsPromises: any[] = [];
@@ -3332,13 +3317,6 @@ export const createOptionScalpSlice: StateCreator<
     const scalpPositions: ScalpPosition[] = await Promise.all(
       scalpPositionsPromises
     );
-
-    const pnls: BigNumber[] = await Promise.all(pnlsPromises);
-
-    for (let i in scalpPositions) {
-      scalpPositions[i]!['pnl'] = pnls[i]!;
-      scalpPositions[i]!['id'] = scalpPositionsIndexes[i]!;
-    }
 
     set((prevState) => ({
       ...prevState,

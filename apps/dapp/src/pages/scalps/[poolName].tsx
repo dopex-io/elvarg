@@ -134,8 +134,7 @@ const OptionScalps = ({ poolName }: Props) => {
         <Typography variant="h5" className="text-silver">
           Contract Address:
         </Typography>
-        <Typography
-          variant="h5"
+        <p
           className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text"
         >
           <a
@@ -147,7 +146,7 @@ const OptionScalps = ({ poolName }: Props) => {
           >
             {optionScalpData?.optionScalpContract?.address}
           </a>
-        </Typography>
+        </p>
       </Box>
     </Box>
   );

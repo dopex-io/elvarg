@@ -17,6 +17,7 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import { MINIMUM_MARGIN } from 'utils/contracts/option-scalps';
 
 import { MAX_VALUE } from 'constants/index';
 
@@ -47,7 +48,7 @@ const TradeCard = () => {
 
   const [rawAmount, setRawAmount] = useState<string>('1000');
 
-  const [leverage, setLeverage] = useState<number>(2);
+  const [leverage, setLeverage] = useState<number>(20);
 
   const amount: number = useMemo(() => {
     return parseFloat(rawAmount) || 0;
@@ -83,13 +84,20 @@ const TradeCard = () => {
     calcPremium();
   }, [calcPremium]);
 
+  const margin = useMemo(() => {
+    return getContractReadableAmount(amount, 8).div(leverage * 100);
+  }, [amount, leverage]);
+
   const depositButtonMessage: string = useMemo(() => {
+    console.log(margin.lt(MINIMUM_MARGIN), MINIMUM_MARGIN, margin.toString());
     if (!approved) return 'Approve';
     else if (amount == 0) return 'Insert an amount';
+    else if (margin.lt(MINIMUM_MARGIN))
+      return 'Minium Margin ' + getUserReadableAmount(MINIMUM_MARGIN, 6);
     else if (amount > getUserReadableAmount(userTokenBalance, 6))
       return 'Insufficient balance';
     return 'Deposit';
-  }, [approved, amount, userTokenBalance]);
+  }, [approved, amount, userTokenBalance, margin]);
 
   const collateralAmount: number = useMemo(() => {
     return amount / leverage;
@@ -119,10 +127,6 @@ const TradeCard = () => {
     return indexes[selectedTimeWindow];
   }, [selectedTimeWindow]);
 
-  const margin = useMemo(() => {
-    return getContractReadableAmount(amount, 8).div(leverage * 100);
-  }, [amount, leverage]);
-
   const handleApprove = useCallback(async () => {
     if (!optionScalpData?.optionScalpContract || !signer || !contractAddresses)
       return;
@@ -149,12 +153,15 @@ const TradeCard = () => {
       !updateOptionScalpUserData
     )
       return;
+
     try {
       await sendTx(
         optionScalpData.optionScalpContract.connect(signer),
         'openPosition',
         [isShort, getContractReadableAmount(amount, 8), timeframeIndex, margin]
-      );
+      )
+        .then(() => updateOptionScalpUserData())
+        .then(() => updateOptionScalp());
       await updateOptionScalp();
       await updateOptionScalpUserData();
     } catch (err) {
@@ -390,7 +397,7 @@ const TradeCard = () => {
                 ? 'primary'
                 : 'mineshaft'
             }
-            disabled={amount <= 0}
+            disabled={amount <= 0 || depositButtonMessage !== 'Deposit'}
             onClick={approved ? handleTrade : handleApprove}
           >
             {depositButtonMessage}

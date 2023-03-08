@@ -37,7 +37,6 @@ const PositionsTable = () => {
         'closePosition',
         [id]
       );
-
       await updateOptionScalp();
       await updateOptionScalpUserData();
     },
