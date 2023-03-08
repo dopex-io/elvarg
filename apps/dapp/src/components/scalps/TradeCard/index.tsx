@@ -88,13 +88,13 @@ const TradeCard = () => {
     return getContractReadableAmount(amount, 8).div(leverage * 100);
   }, [amount, leverage]);
 
-  const depositButtonMessage: string = useMemo(() => {
+  const tradeButtonMessage: string = useMemo(() => {
     if (!approved) return 'Approve';
     else if (amount == 0) return 'Insert an amount';
     else if (margin.lt(MINIMUM_MARGIN))
       return 'Minium Margin ' + getUserReadableAmount(MINIMUM_MARGIN, 6);
     else if (margin.gt(userTokenBalance)) return 'Insufficient balance';
-    return 'Deposit';
+    return 'Open position';
   }, [approved, amount, userTokenBalance, margin]);
 
   const collateralAmount: number = useMemo(() => {
@@ -396,7 +396,7 @@ const TradeCard = () => {
             disabled={!approved || userTokenBalance.gte(margin) ? false : true}
             onClick={approved ? handleTrade : handleApprove}
           >
-            {depositButtonMessage}
+            {tradeButtonMessage}
           </CustomButton>
         </Box>
       </Box>
