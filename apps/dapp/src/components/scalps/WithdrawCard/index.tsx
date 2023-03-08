@@ -220,8 +220,8 @@ const WithdrawCard = () => {
                 {formatAmount(
                   getUserReadableAmount(
                     isQuote
-                      ? optionScalpData!.totalQuoteAvailable
-                      : optionScalpData!.totalBaseAvailable,
+                      ? optionScalpData?.totalQuoteAvailable!
+                      : optionScalpData?.totalBaseAvailable!,
                     isQuote ? 6 : 18
                   ),
                   2
