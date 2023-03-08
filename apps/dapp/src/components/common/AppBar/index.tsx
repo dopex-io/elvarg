@@ -223,7 +223,7 @@ const appLinks = {
         },
       ],
     },
-    { name: 'Scalps', to: '/scalps' },
+    { name: 'Scalps', to: '/scalps/ETH' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],

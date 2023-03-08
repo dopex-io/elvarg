@@ -89,7 +89,6 @@ const TradeCard = () => {
   }, [amount, leverage]);
 
   const depositButtonMessage: string = useMemo(() => {
-    console.log(margin.lt(MINIMUM_MARGIN), MINIMUM_MARGIN, margin.toString());
     if (!approved) return 'Approve';
     else if (amount == 0) return 'Insert an amount';
     else if (margin.lt(MINIMUM_MARGIN))
