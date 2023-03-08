@@ -142,13 +142,13 @@ const PositionsTable = () => {
                             )
                           )
                         }
-                        renderer={({ days, hours, minutes }) => {
+                        renderer={({ minutes, seconds }) => {
                           return (
                             <Typography
                               variant="h5"
                               className="text-stieglitz mr-1"
                             >
-                              {days}d {hours}h {minutes}m
+                              {minutes}m {seconds}s
                             </Typography>
                           );
                         }}
@@ -158,7 +158,7 @@ const PositionsTable = () => {
                     )}
                   </Typography>
                 </TableCell>
-                {!position.isOpen ? (
+                {position.isOpen ? (
                   <TableCell className="flex justify-end border-0">
                     <CustomButton
                       className="cursor-pointer text-white"

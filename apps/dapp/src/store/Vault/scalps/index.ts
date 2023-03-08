@@ -20,7 +20,9 @@ export interface optionScalpData {
   shortOpenInterest: BigNumber;
   markPrice: BigNumber;
   totalQuoteDeposits: BigNumber;
+  totalQuoteAvailable: BigNumber;
   totalBaseDeposits: BigNumber;
+  totalBaseAvailable: BigNumber;
 }
 
 export interface ScalpPosition {
@@ -3374,6 +3376,8 @@ export const createOptionScalpSlice: StateCreator<
       markPrice,
       totalQuoteDeposits,
       totalBaseDeposits,
+      totalQuoteAvailable,
+      totalBaseAvailable,
     ] = await Promise.all([
       optionScalpContract!['expiryWindow'](),
       optionScalpContract!['minimumMargin'](),
@@ -3386,6 +3390,8 @@ export const createOptionScalpSlice: StateCreator<
       optionScalpContract!['getMarkPrice'](),
       quoteLpContract!['totalAssets'](),
       baseLpContract!['totalAssets'](),
+      quoteLpContract!['totalAvailableAssets'](),
+      baseLpContract!['totalAvailableAssets'](),
     ]);
 
     set((prevState) => ({
@@ -3407,6 +3413,8 @@ export const createOptionScalpSlice: StateCreator<
         markPrice: markPrice,
         totalQuoteDeposits: totalQuoteDeposits,
         totalBaseDeposits: totalBaseDeposits,
+        totalQuoteAvailable: totalQuoteAvailable,
+        totalBaseAvailable: totalBaseAvailable,
       },
     }));
   },

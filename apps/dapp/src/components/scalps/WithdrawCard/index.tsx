@@ -209,6 +209,29 @@ const WithdrawCard = () => {
           </Box>
         </Box>
       </Box>
+      <Box className="bg-umbra rounded-2xl">
+        <Box className="flex flex-col mb-4 p-4 w-full">
+          <Box className={'flex'}>
+            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+              Available to withdraw
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography variant="h6" className="text-white mr-auto ml-0">
+                {formatAmount(
+                  getUserReadableAmount(
+                    isQuote
+                      ? optionScalpData!.totalQuoteAvailable
+                      : optionScalpData!.totalBaseAvailable,
+                    isQuote ? 6 : 18
+                  ),
+                  2
+                )}{' '}
+                {isQuote ? 'USDC' : 'ETH'}
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
       {estimatedOut.gt(0) ? (
         <Box className="bg-umbra rounded-2xl">
           <Box className="flex flex-col mb-4 p-4 w-full">
