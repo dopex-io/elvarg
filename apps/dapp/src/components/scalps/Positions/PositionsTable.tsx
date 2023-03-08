@@ -1,6 +1,8 @@
 import { useCallback } from 'react';
 
 import { BigNumber } from 'ethers';
+import format from 'date-fns/format';
+import Countdown from 'react-countdown';
 
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
@@ -9,7 +11,9 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+
 import useSendTx from 'hooks/useSendTx';
+
 import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
@@ -32,7 +36,6 @@ const PositionsTable = () => {
 
   const handleClose = useCallback(
     async (id: BigNumber) => {
-
       await sendTx(
         optionScalpData?.optionScalpContract.connect(signer),
         'closePosition',
@@ -61,7 +64,7 @@ const PositionsTable = () => {
               <TableHeader label="PnL" />
               <TableHeader label="Margin" />
               <TableHeader label="Premium" />
-              <TableHeader label="Action" variant="text-end" />
+              <TableHeader label="Expiry" />
             </TableRow>
           </TableHead>
           <TableBody className="rounded-lg">
@@ -72,11 +75,20 @@ const PositionsTable = () => {
                     <Box
                       className={`rounded-md flex items-center px-2 py-2 w-fit`}
                     >
-                      <Typography variant="h6" className="pr-7 pt-[2px]">
-                        {formatAmount(
-                          getUserReadableAmount(position.positions, 8),
-                          8
-                        )}
+                      <Typography variant="h6" className={'pr-7 pt-[2px]'}>
+                        <span
+                          className={
+                            position.isShort
+                              ? 'text-[#FF617D]'
+                              : 'text-[#6DFFB9]'
+                          }
+                        >
+                          {position.isShort ? '-' : '+'}
+                          {formatAmount(
+                            getUserReadableAmount(position.positions, 8),
+                            8
+                          )}
+                        </span>
                       </Typography>
                     </Box>
                   </Box>
@@ -99,6 +111,32 @@ const PositionsTable = () => {
                 <TableCell className="pt-1 border-0">
                   <Typography variant="h6" color="white" className="text-left">
                     ${getUserReadableAmount(position.premium, 6).toFixed(2)}
+                  </Typography>
+                </TableCell>
+                <TableCell className="pt-1 border-0">
+                  <Typography variant="h6" color="white" className="text-left">
+                    <Countdown
+                      date={format(
+                        new Date(
+                          Number(
+                            BigNumber.from('1000').mul(
+                              position.openedAt.add(position.timeframe)
+                            )
+                          )
+                        ),
+                        'd LLL, yyyy'
+                      )}
+                      renderer={({ days, hours, minutes }) => {
+                        return (
+                          <Typography
+                            variant="h5"
+                            className="text-stieglitz mr-1"
+                          >
+                            {days}d {hours}h {minutes}m
+                          </Typography>
+                        );
+                      }}
+                    />
                   </Typography>
                 </TableCell>
                 <TableCell className="flex justify-end border-0">
