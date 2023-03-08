@@ -2,7 +2,7 @@ import React from 'react';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import {  useBoundStore } from 'store';
+import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 
@@ -16,7 +16,7 @@ const Stats = () => {
   const { chainId, optionScalpData } = useBoundStore();
 
   return (
-    <Box className="md:flex grid grid-cols-3 text-gray-400">
+    <Box className="md:flex grid grid-cols-3 text-gray-400 mt-6 mb-6">
       <Box className="w-full">
         <Box className="border flex justify-between border-neutral-800 p-2">
           <Typography variant="h6" className="text-gray-400">

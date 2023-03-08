@@ -93,8 +93,7 @@ const TradeCard = () => {
     else if (amount == 0) return 'Insert an amount';
     else if (margin.lt(MINIMUM_MARGIN))
       return 'Minium Margin ' + getUserReadableAmount(MINIMUM_MARGIN, 6);
-    else if (amount > getUserReadableAmount(userTokenBalance, 6))
-      return 'Insufficient balance';
+    else if (margin.gt(userTokenBalance)) return 'Insufficient balance';
     return 'Deposit';
   }, [approved, amount, userTokenBalance, margin]);
 
@@ -390,13 +389,11 @@ const TradeCard = () => {
             size="medium"
             className="w-full !rounded-md"
             color={
-              !approved ||
-              (amount > 0 &&
-                amount <= getUserReadableAmount(userTokenBalance, 6))
+              !approved || userTokenBalance.gte(margin)
                 ? 'primary'
                 : 'mineshaft'
             }
-            disabled={amount <= 0 || depositButtonMessage !== 'Deposit'}
+            disabled={!approved || userTokenBalance.gte(margin) ? false : true}
             onClick={approved ? handleTrade : handleApprove}
           >
             {depositButtonMessage}
