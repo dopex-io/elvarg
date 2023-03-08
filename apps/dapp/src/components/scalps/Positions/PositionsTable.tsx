@@ -99,8 +99,14 @@ const PositionsTable = () => {
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
-                  <Typography variant="h6" color="white" className="text-left">
-                    ${getUserReadableAmount(position.pnl, 6).toFixed(2)}
+                  <Typography variant="h6" className="text-left">
+                    <span
+                      className={
+                        position.pnl.lt(0) ? 'text-[#FF617D]' : 'text-[#6DFFB9]'
+                      }
+                    >
+                      ${getUserReadableAmount(position.pnl, 6).toFixed(2)}
+                    </span>
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
