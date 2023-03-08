@@ -3317,9 +3317,12 @@ export const createOptionScalpSlice: StateCreator<
       scalpPositionsPromises
     );
 
+    let pnls: BigNumber[] = await Promise.all(pnlsPromises);
+
     scalpPositions = scalpPositions.map((position, index) => ({
       ...position,
       id: scalpPositionsIndexes[index],
+      pnl: pnls[index]!,
     }));
 
     set((prevState) => ({
