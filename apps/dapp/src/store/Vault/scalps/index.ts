@@ -38,6 +38,7 @@ export interface ScalpPosition {
   pnl: BigNumber;
   openedAt: BigNumber;
   timeframe: BigNumber;
+  liquidationPrice: BigNumber;
 }
 export interface optionScalpUserData {
   scalpPositions?: ScalpPosition[];
@@ -55,6 +56,7 @@ export interface OptionScalpSlice {
   getQuoteLpContract: Function;
   getScalpPosition: Function;
   calcPnl: Function;
+  calcLiqPrice: Function;
 }
 
 export const createOptionScalpSlice: StateCreator<
@@ -3287,12 +3289,19 @@ export const createOptionScalpSlice: StateCreator<
     const optionScalpContract = getOptionScalpContract();
     return await optionScalpContract.calcPnl(id);
   },
+  calcLiqPrice: async (id: BigNumber) => {
+    const { getOptionScalpContract } = get();
+
+    const optionScalpContract = getOptionScalpContract();
+    return await optionScalpContract.getLiquidationPrice(id);
+  },
   updateOptionScalpUserData: async () => {
     const {
       accountAddress,
       getOptionScalpContract,
       getScalpPosition,
       calcPnl,
+      calcLiqPrice,
     } = get();
 
     const optionScalpContract = await getOptionScalpContract();
@@ -3307,10 +3316,12 @@ export const createOptionScalpSlice: StateCreator<
 
     const scalpPositionsPromises: any[] = [];
     const pnlsPromises: any[] = [];
+    const liquidationPricesPromises: any[] = [];
 
     for (let i in scalpPositionsIndexes) {
       scalpPositionsPromises.push(getScalpPosition(scalpPositionsIndexes[i]));
       pnlsPromises.push(calcPnl(scalpPositionsIndexes[i]));
+      liquidationPricesPromises.push(calcLiqPrice(scalpPositionsIndexes[i]));
     }
 
     let scalpPositions: ScalpPosition[] = await Promise.all(
@@ -3319,10 +3330,15 @@ export const createOptionScalpSlice: StateCreator<
 
     let pnls: BigNumber[] = await Promise.all(pnlsPromises);
 
+    let liquidationPrices: BigNumber[] = await Promise.all(
+      liquidationPricesPromises
+    );
+
     scalpPositions = scalpPositions.map((position, index) => ({
       ...position,
       id: scalpPositionsIndexes[index],
       pnl: pnls[index]!,
+      liquidationPrice: liquidationPrices[index]!,
     }));
 
     set((prevState) => ({

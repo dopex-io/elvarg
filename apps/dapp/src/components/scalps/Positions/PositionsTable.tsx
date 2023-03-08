@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 
 import { BigNumber } from 'ethers';
-import format from 'date-fns/format';
 import Countdown from 'react-countdown';
 
 import Box from '@mui/material/Box';
@@ -59,8 +58,9 @@ const PositionsTable = () => {
         <Table className="rounded-xl">
           <TableHead className="rounded-xl">
             <TableRow>
-              <TableHeader label="Positions" showArrowIcon />
+              <TableHeader label="Position Size" showArrowIcon />
               <TableHeader label="Average Open Price" />
+              <TableHeader label="Liquidation Price" />
               <TableHeader label="PnL" />
               <TableHeader label="Margin" />
               <TableHeader label="Premium" />
@@ -88,6 +88,7 @@ const PositionsTable = () => {
                             getUserReadableAmount(position.positions, 8),
                             8
                           )}
+                          {' ETH'}
                         </span>
                       </Typography>
                     </Box>
@@ -96,6 +97,15 @@ const PositionsTable = () => {
                 <TableCell className="pt-1 border-0">
                   <Typography variant="h6" color="white" className="text-left">
                     ${getUserReadableAmount(position.entry, 8).toFixed(2)}
+                  </Typography>
+                </TableCell>
+                <TableCell className="pt-1 border-0">
+                  <Typography variant="h6" color="white" className="text-left">
+                    $
+                    {getUserReadableAmount(
+                      position.liquidationPrice,
+                      8
+                    ).toFixed(2)}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
@@ -121,39 +131,44 @@ const PositionsTable = () => {
                 </TableCell>
                 <TableCell className="pt-1 border-0">
                   <Typography variant="h6" color="white" className="text-left">
-                    <Countdown
-                      date={format(
-                        new Date(
-                          Number(
-                            BigNumber.from('1000').mul(
-                              position.openedAt.add(position.timeframe)
+                    {position.isOpen ? (
+                      <Countdown
+                        date={
+                          new Date(
+                            Number(
+                              BigNumber.from('1000').mul(
+                                position.openedAt.add(position.timeframe)
+                              )
                             )
                           )
-                        ),
-                        'd LLL, yyyy'
-                      )}
-                      renderer={({ days, hours, minutes }) => {
-                        return (
-                          <Typography
-                            variant="h5"
-                            className="text-stieglitz mr-1"
-                          >
-                            {days}d {hours}h {minutes}m
-                          </Typography>
-                        );
-                      }}
-                    />
+                        }
+                        renderer={({ days, hours, minutes }) => {
+                          return (
+                            <Typography
+                              variant="h5"
+                              className="text-stieglitz mr-1"
+                            >
+                              {days}d {hours}h {minutes}m
+                            </Typography>
+                          );
+                        }}
+                      />
+                    ) : (
+                      <span className={'text-[#FF617D]'}>Closed</span>
+                    )}
                   </Typography>
                 </TableCell>
-                <TableCell className="flex justify-end border-0">
-                  <CustomButton
-                    className="cursor-pointer text-white"
-                    color={'primary'}
-                    onClick={() => handleClose(position.id)}
-                  >
-                    Close
-                  </CustomButton>
-                </TableCell>
+                {!position.isOpen ? (
+                  <TableCell className="flex justify-end border-0">
+                    <CustomButton
+                      className="cursor-pointer text-white"
+                      color={'primary'}
+                      onClick={() => handleClose(position.id)}
+                    >
+                      Close
+                    </CustomButton>
+                  </TableCell>
+                ) : null}
               </TableRow>
             ))}
           </TableBody>
