@@ -57,7 +57,7 @@ const OptionScalps = ({ poolName }: Props) => {
       </Head>
       <AppBar active="Scalps" />
 
-      <Box className="flex lg:flex-row md:flex-col sm:flex-col items-center justify-center mx-auto h-full lg:px-56">
+      <Box className="flex lg:flex-row md:flex-col sm:flex-col items-center justify-center mx-auto h-full lg:px-24">
         {/* TV, STATS, POSITIONS */}
         <Box className="lg:w-[80rem] md:w-[40rem] sm:w-[30rem] xs:border flex flex-col mt-[10rem]">
           <Box className="xs:pb-[3rem]">
