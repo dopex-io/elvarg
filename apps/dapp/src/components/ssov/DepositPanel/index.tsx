@@ -335,22 +335,15 @@ const DepositPanel = () => {
   const collateralCTA = useMemo(() => {
     if (ssovData?.isPut) {
       return (
-        <a
-          href="https://curve.fi/#/arbitrum/pools/2pool/deposit"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ml-auto mt-1"
+        <Box
+          role="button"
+          className="underline ml-auto mt-1"
+          onClick={() => setFromTokenSymbol(ssovData.collateralSymbol!)}
         >
-          <Box
-            role="button"
-            className="underline"
-            onClick={() => setFromTokenSymbol(ssovData.collateralSymbol!)}
-          >
-            <Typography variant="h6" className="text-stieglitz">
-              use 2CRV
-            </Typography>
-          </Box>
-        </a>
+          <Typography variant="h6" className="text-stieglitz">
+            Use 2CRV
+          </Typography>
+        </Box>
       );
     } else if (ssovData?.collateralSymbol === 'WETH') {
       return (
@@ -540,7 +533,7 @@ const DepositPanel = () => {
               {approved
                 ? strikeDepositAmount == 0
                   ? 'Insert an amount'
-                  : strikeDepositAmount >
+                  : strikeDepositAmount <=
                     getUserReadableAmount(
                       userTokenBalance,
                       getTokenDecimals(fromTokenSymbol, chainId)
