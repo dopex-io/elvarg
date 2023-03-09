@@ -191,11 +191,7 @@ const Stats = () => {
             Expiry window
           </Typography>
           <Typography variant="h6" className="text-white ml-auto mr-1">
-            {formatAmount(
-              getUserReadableAmount(optionScalpData?.expiryWindow!, 0),
-              0
-            )}
-            s
+            60s
           </Typography>
         </Box>
       </Box>
