@@ -95,8 +95,12 @@ const DepositPanel = () => {
   const spender = useMemo(() => {
     return routerMode
       ? ssovSigner?.ssovRouterWithSigner?.address
-      : ssovSigner?.ssovRouterWithSigner?.address;
-  }, [routerMode, ssovSigner?.ssovRouterWithSigner?.address]);
+      : ssovSigner?.ssovContractWithSigner?.address;
+  }, [
+    routerMode,
+    ssovSigner?.ssovRouterWithSigner?.address,
+    ssovSigner?.ssovContractWithSigner?.address,
+  ]);
 
   const strikes = epochStrikes.map((strike: string | number | BigNumber) =>
     getUserReadableAmount(strike, 8).toString()
@@ -222,7 +226,6 @@ const DepositPanel = () => {
     (async () => {
       if (
         !signer ||
-        !ssovData?.collateralAddress ||
         !accountAddress ||
         !spender ||
         !chainId ||
@@ -235,8 +238,6 @@ const DepositPanel = () => {
           strikeDepositAmount.toString(),
           getTokenDecimals(fromTokenSymbol, chainId)
         );
-
-        console.log(fromTokenSymbol, fromTokenSymbol);
         const allowance: BigNumber = await ERC20__factory.connect(
           getContractAddress(fromTokenSymbol),
           signer
@@ -267,7 +268,12 @@ const DepositPanel = () => {
   }, [accountAddress, signer, ssovData, userAssetBalances, fromTokenSymbol]);
 
   const updateQuote = useCallback(async () => {
-    if (!ssovData || !ssovData?.collateralSymbol) return;
+    if (
+      !ssovData ||
+      !ssovData?.collateralSymbol ||
+      fromTokenSymbol === ssovData?.collateralSymbol
+    )
+      return;
 
     const fromTokenAddress = getContractAddress(fromTokenSymbol);
 
@@ -335,9 +341,13 @@ const DepositPanel = () => {
           rel="noopener noreferrer"
           className="ml-auto mt-1"
         >
-          <Box role="button" className="underline">
+          <Box
+            role="button"
+            className="underline"
+            onClick={() => setFromTokenSymbol(ssovData.collateralSymbol!)}
+          >
             <Typography variant="h6" className="text-stieglitz">
-              Get 2CRV
+              use 2CRV
             </Typography>
           </Box>
         </a>
