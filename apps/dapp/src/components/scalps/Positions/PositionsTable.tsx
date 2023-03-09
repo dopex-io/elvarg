@@ -70,9 +70,9 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         <Table className="rounded-xl">
           <TableHead className="rounded-xl">
             <TableRow>
-              <TableHeader label="Position Size" showArrowIcon />
+              <TableHeader label="Pos. Size" showArrowIcon />
               <TableHeader label="Average Open Price" />
-              <TableHeader label="Liquidation Price" />
+              <TableHeader label="Liq. Price" />
               <TableHeader label="PnL" />
               <TableHeader label="Margin" />
               <TableHeader label="Premium" />

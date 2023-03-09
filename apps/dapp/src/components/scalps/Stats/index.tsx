@@ -179,7 +179,11 @@ const Stats = () => {
           </Typography>
           <Typography variant="h6" color="white">
             <span className="text-gray-400">$</span>{' '}
-            {formatAmount(getUserReadableAmount(0, 8), 0)}{' '}
+            {formatAmount(
+              getUserReadableAmount(optionScalpData?.longOpenInterest!, 8) +
+                getUserReadableAmount(optionScalpData?.shortOpenInterest!, 8),
+              0
+            )}{' '}
           </Typography>
         </Box>
         <Box className="border border-neutral-800 rounded-br-lg flex justify-between p-2">
