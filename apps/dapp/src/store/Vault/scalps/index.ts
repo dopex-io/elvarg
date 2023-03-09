@@ -2891,12 +2891,14 @@ export const createOptionScalpSlice: StateCreator<
       baseLpContract!['totalSupply'](),
     ]);
 
-    const quoteLpValue: BigNumber = BigNumber.from('1000000')
-      .mul(totalQuoteDeposits)
-      .div(quoteSupply);
-    const baseLpValue: BigNumber = BigNumber.from('1000000000000000000')
-      .mul(totalBaseDeposits)
-      .div(baseSupply);
+    const quoteLpValue: BigNumber = quoteSupply.gt(0)
+      ? BigNumber.from('1000000').mul(totalQuoteDeposits).div(quoteSupply)
+      : BigNumber.from('0');
+    const baseLpValue: BigNumber = baseSupply.gt(0)
+      ? BigNumber.from('1000000000000000000')
+          .mul(totalBaseDeposits)
+          .div(baseSupply)
+      : BigNumber.from('0');
 
     set((prevState) => ({
       ...prevState,
