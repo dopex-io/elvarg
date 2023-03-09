@@ -9,7 +9,6 @@ export interface optionScalpData {
   optionScalpContract: any | undefined;
   quoteLpContract: any | undefined;
   baseLpContract: any | undefined;
-  expiryWindow: BigNumber;
   minimumMargin: BigNumber;
   feeOpenPosition: BigNumber;
   minimumAbsoluteLiquidationThreshold: BigNumber;
@@ -2858,7 +2857,6 @@ export const createOptionScalpSlice: StateCreator<
     const baseLpContract = getBaseLpContract();
 
     const [
-      expiryWindow,
       minimumMargin,
       feeOpenPosition,
       minimumAbsoluteLiquidationThreshold,
@@ -2874,7 +2872,6 @@ export const createOptionScalpSlice: StateCreator<
       quoteSupply,
       baseSupply,
     ] = await Promise.all([
-      optionScalpContract!['expiryWindow'](),
       optionScalpContract!['minimumMargin'](),
       optionScalpContract!['feeOpenPosition'](),
       optionScalpContract!['minimumAbsoluteLiquidationThreshold'](),
@@ -2906,7 +2903,6 @@ export const createOptionScalpSlice: StateCreator<
         optionScalpContract: optionScalpContract,
         quoteLpContract: quoteLpContract,
         baseLpContract: baseLpContract,
-        expiryWindow: expiryWindow,
         minimumMargin: minimumMargin,
         feeOpenPosition: feeOpenPosition,
         minimumAbsoluteLiquidationThreshold:

@@ -62,9 +62,11 @@ const TradeCard = () => {
     if (!optionScalpData) return;
 
     const seconds: { [key: string]: number } = {
+      '1m': 1 * 60,
       '5m': 5 * 60,
       '15m': 15 * 60,
       '30m': 30 * 60,
+      '60m': 60 * 60,
     };
 
     try {
@@ -117,9 +119,11 @@ const TradeCard = () => {
 
   const timeframeIndex = useMemo(() => {
     const indexes: { [key: string]: number } = {
-      '5m': 0,
-      '15m': 1,
-      '30m': 2,
+      '1m': 0,
+      '5m': 1,
+      '15m': 2,
+      '30m': 3,
+      '60m': 4,
     };
 
     return indexes[selectedTimeWindow];
@@ -275,13 +279,13 @@ const TradeCard = () => {
         </Box>
       </Box>
       <Box className="flex mb-4">
-        {['5m', '15m', '30m'].map((time, i) => (
+        {['1m', '5m', '15m', '30m', '60m'].map((time, i) => (
           <Box
             key={i}
             className={
               (i === 0
                 ? 'ml-auto mr-1.5'
-                : i === 2
+                : i === 4
                 ? 'mr-auto ml-1.5'
                 : 'mx-1.5') +
               (time === selectedTimeWindow ? ' bg-mineshaft' : ' bg-umbra') +
