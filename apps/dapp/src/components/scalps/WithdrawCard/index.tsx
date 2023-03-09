@@ -17,6 +17,8 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
+import { MAX_VALUE } from 'constants/index';
+
 const WithdrawCard = () => {
   const {
     chainId,
@@ -29,6 +31,8 @@ const WithdrawCard = () => {
   } = useBoundStore();
 
   const sendTx = useSendTx();
+
+  const [approved, setApproved] = useState(false);
 
   const [userQuoteBalance, setUserQuoteBalance] = useState<BigNumber>(
     BigNumber.from('0')
@@ -55,11 +59,31 @@ const WithdrawCard = () => {
   }, [rawAmount]);
 
   const withdrawButtonMessage: string = useMemo(() => {
-    if (amount == 0) return 'Insert an amount';
+    if (!approved) return 'Approve';
+    else if (amount == 0) return 'Insert an amount';
     else if (amount > getUserReadableAmount(userTokenBalance, 6))
       return 'Insufficient balance';
     return 'Withdraw';
-  }, [amount, userTokenBalance]);
+  }, [amount, userTokenBalance, approved]);
+
+  const handleApprove = useCallback(async () => {
+    if (!optionScalpData?.optionScalpContract || !signer || !contractAddresses)
+      return;
+
+    try {
+      await sendTx(
+        (isQuote
+          ? optionScalpData?.quoteLpContract
+          : optionScalpData?.baseLpContract
+        ).connect(signer),
+        'approve',
+        [optionScalpData?.optionScalpContract?.address, MAX_VALUE]
+      );
+      setApproved(true);
+    } catch (err) {
+      console.log(err);
+    }
+  }, [sendTx, signer, optionScalpData, contractAddresses, isQuote]);
 
   // Handle deposit
   const handleWithdraw = useCallback(async () => {
@@ -133,6 +157,15 @@ const WithdrawCard = () => {
       } else {
         setUserBaseBalance(balance);
       }
+
+      const allowance: BigNumber = await (isQuote
+        ? optionScalpData?.quoteLpContract
+        : optionScalpData?.baseLpContract
+      ).allowance(
+        accountAddress,
+        optionScalpData?.optionScalpContract?.address
+      );
+      setApproved(allowance.gte(balance));
     })();
   }, [
     contractAddresses,
@@ -202,7 +235,7 @@ const WithdrawCard = () => {
               Balance ~{' '}
               {formatAmount(
                 getUserReadableAmount(userTokenBalance, isQuote ? 6 : 18),
-                isQuote ? 0 : 3
+                8
               )}{' '}
               {isQuote ? 'USDC' : 'WETH'} LP
             </Typography>
@@ -210,7 +243,7 @@ const WithdrawCard = () => {
         </Box>
       </Box>
       <Box className="bg-umbra rounded-2xl">
-        <Box className="flex flex-col mb-4 p-4 w-full">
+        <Box className="flex flex-col mb-1 p-4 pb-0 w-full">
           <Box className={'flex'}>
             <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
               Available to withdraw
@@ -225,6 +258,27 @@ const WithdrawCard = () => {
                     isQuote ? 6 : 18
                   ),
                   2
+                )}{' '}
+                {isQuote ? 'USDC' : 'ETH'}
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+        <Box className="flex flex-col mb-4 p-4 w-full">
+          <Box className={'flex'}>
+            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+              1 {isQuote ? 'USDC' : 'ETH'} LP
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography variant="h6" className="text-white mr-auto ml-0">
+                {formatAmount(
+                  getUserReadableAmount(
+                    isQuote
+                      ? optionScalpData?.quoteLpValue!
+                      : optionScalpData?.baseLpValue!,
+                    isQuote ? 6 : 18
+                  ),
+                  9
                 )}{' '}
                 {isQuote ? 'USDC' : 'ETH'}
               </Typography>
@@ -266,7 +320,7 @@ const WithdrawCard = () => {
                 : 'mineshaft'
             }
             disabled={amount <= 0}
-            onClick={handleWithdraw}
+            onClick={approved ? handleWithdraw : handleApprove}
           >
             {withdrawButtonMessage}
           </CustomButton>

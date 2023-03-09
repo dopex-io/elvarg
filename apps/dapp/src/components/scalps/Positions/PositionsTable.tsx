@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { BigNumber } from 'ethers';
 import Countdown from 'react-countdown';
@@ -52,6 +52,18 @@ const PositionsTable = ({ tab }: { tab: string }) => {
     ]
   );
 
+  const positions = useMemo(() => {
+    const filtered: any = [];
+    optionScalpUserData?.scalpPositions?.map((position) => {
+      if (
+        (tab === 'Open' && position.isOpen) ||
+        (tab === 'Closed' && !position.isOpen)
+      )
+        filtered.push(position);
+    });
+    return filtered;
+  }, [optionScalpUserData, tab]);
+
   return (
     <Box>
       <TableContainer className="rounded-xl">
@@ -65,139 +77,128 @@ const PositionsTable = ({ tab }: { tab: string }) => {
               <TableHeader label="Margin" />
               <TableHeader label="Premium" />
               <TableHeader label="Expiry" />
+              <TableHeader label="Timeframe" />
             </TableRow>
           </TableHead>
           <TableBody className="rounded-lg">
-            {optionScalpUserData?.scalpPositions?.map((position, i) =>
-              (tab === 'Open' && position.isOpen) ||
-              (tab === 'Closed' && !position.isOpen) ? (
-                <TableRow key={i}>
-                  <TableCell className="pt-2 border-0">
-                    <Box>
-                      <Box
-                        className={`rounded-md flex items-center px-2 py-2 w-fit`}
-                      >
-                        <Typography variant="h6" className={'pr-7 pt-[2px]'}>
-                          <span
-                            className={
-                              position.isShort
-                                ? 'text-[#FF617D]'
-                                : 'text-[#6DFFB9]'
-                            }
-                          >
-                            {position.isShort ? '-' : '+'}
-                            {formatAmount(
-                              getUserReadableAmount(position.positions, 8),
-                              8
-                            )}
-                            {' ETH'}
-                          </span>
-                        </Typography>
-                      </Box>
+            {positions.map((position: any, i: number) => (
+              <TableRow key={i}>
+                <TableCell className="pt-2 border-0">
+                  <Box>
+                    <Box
+                      className={`rounded-md flex items-center px-2 py-2 w-fit`}
+                    >
+                      <Typography variant="h6" className={'pr-7 pt-[2px]'}>
+                        <span
+                          className={
+                            position.isShort
+                              ? 'text-[#FF617D]'
+                              : 'text-[#6DFFB9]'
+                          }
+                        >
+                          {position.isShort ? '-' : '+'}
+                          {formatAmount(
+                            getUserReadableAmount(position.positions, 8),
+                            8
+                          )}
+                          {' ETH'}
+                        </span>
+                      </Typography>
                     </Box>
-                  </TableCell>
-                  <TableCell className="pt-1 border-0">
-                    <Typography
-                      variant="h6"
-                      color="white"
-                      className="text-left"
+                  </Box>
+                </TableCell>
+                <TableCell className="pt-1 border-0">
+                  <Typography variant="h6" color="white" className="text-left">
+                    ${getUserReadableAmount(position.entry, 8).toFixed(2)}
+                  </Typography>
+                </TableCell>
+                <TableCell className="pt-1 border-0">
+                  <Typography variant="h6" color="white" className="text-left">
+                    $
+                    {getUserReadableAmount(
+                      position.liquidationPrice,
+                      8
+                    ).toFixed(2)}
+                  </Typography>
+                </TableCell>
+                <TableCell className="pt-1 border-0">
+                  <Typography variant="h6" className="text-left">
+                    <span
+                      className={
+                        position.pnl.lt(0) ? 'text-[#FF617D]' : 'text-[#6DFFB9]'
+                      }
                     >
-                      ${getUserReadableAmount(position.entry, 8).toFixed(2)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell className="pt-1 border-0">
-                    <Typography
-                      variant="h6"
-                      color="white"
-                      className="text-left"
-                    >
-                      $
-                      {getUserReadableAmount(
-                        position.liquidationPrice,
-                        8
-                      ).toFixed(2)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell className="pt-1 border-0">
-                    <Typography variant="h6" className="text-left">
-                      <span
-                        className={
-                          position.pnl.lt(0)
-                            ? 'text-[#FF617D]'
-                            : 'text-[#6DFFB9]'
-                        }
-                      >
-                        ${getUserReadableAmount(position.pnl, 6).toFixed(2)}
-                      </span>
-                    </Typography>
-                  </TableCell>
-                  <TableCell className="pt-1 border-0">
-                    <Typography
-                      variant="h6"
-                      color="white"
-                      className="text-left"
-                    >
-                      ${getUserReadableAmount(position.margin, 6).toFixed(2)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell className="pt-1 border-0">
-                    <Typography
-                      variant="h6"
-                      color="white"
-                      className="text-left"
-                    >
-                      ${getUserReadableAmount(position.premium, 6).toFixed(2)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell className="pt-1 border-0">
-                    <Typography
-                      variant="h6"
-                      color="white"
-                      className="text-left"
-                    >
-                      {position.isOpen ? (
-                        <Countdown
-                          date={
-                            new Date(
-                              Number(
-                                BigNumber.from('1000').mul(
-                                  position.openedAt.add(position.timeframe)
-                                )
+                      ${getUserReadableAmount(position.pnl, 6).toFixed(2)}
+                    </span>
+                  </Typography>
+                </TableCell>
+                <TableCell className="pt-1 border-0">
+                  <Typography variant="h6" color="white" className="text-left">
+                    ${getUserReadableAmount(position.margin, 6).toFixed(2)}
+                  </Typography>
+                </TableCell>
+                <TableCell className="pt-1 border-0">
+                  <Typography variant="h6" color="white" className="text-left">
+                    ${getUserReadableAmount(position.premium, 6).toFixed(2)}
+                  </Typography>
+                </TableCell>
+                <TableCell className="pt-1 border-0">
+                  <Typography variant="h6" color="white" className="text-left">
+                    {position.isOpen ? (
+                      <Countdown
+                        date={
+                          new Date(
+                            Number(
+                              BigNumber.from('1000').mul(
+                                position.openedAt.add(position.timeframe)
                               )
                             )
-                          }
-                          renderer={({ minutes, seconds }) => {
-                            return (
-                              <Typography
-                                variant="h5"
-                                className="text-stieglitz mr-1"
-                              >
-                                {minutes}m {seconds}s
-                              </Typography>
-                            );
-                          }}
-                        />
-                      ) : (
-                        <span className={'text-[#FF617D]'}>Closed</span>
-                      )}
-                    </Typography>
+                          )
+                        }
+                        renderer={({ minutes, seconds }) => {
+                          return (
+                            <Typography
+                              variant="h5"
+                              className="text-stieglitz mr-1"
+                            >
+                              {minutes}m {seconds}s
+                            </Typography>
+                          );
+                        }}
+                      />
+                    ) : (
+                      <span className={'text-[#FF617D]'}>Closed</span>
+                    )}
+                  </Typography>
+                </TableCell>
+                <TableCell className="pt-1 border-0">
+                  <Typography variant="h6" color="white" className="text-left">
+                    {Number(position.timeframe) / 60}m
+                  </Typography>
+                </TableCell>
+                {position.isOpen ? (
+                  <TableCell className="flex justify-end border-0">
+                    <CustomButton
+                      className="cursor-pointer text-white"
+                      color={'primary'}
+                      onClick={() => handleClose(position.id)}
+                    >
+                      Close
+                    </CustomButton>
                   </TableCell>
-                  {position.isOpen ? (
-                    <TableCell className="flex justify-end border-0">
-                      <CustomButton
-                        className="cursor-pointer text-white"
-                        color={'primary'}
-                        onClick={() => handleClose(position.id)}
-                      >
-                        Close
-                      </CustomButton>
-                    </TableCell>
-                  ) : null}
-                </TableRow>
-              ) : null
-            )}
+                ) : null}
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
+        {positions.length === 0 ? (
+          <Box className="w-full flex my-8">
+            <span className="ml-auto mr-auto">
+              Your {tab === 'Open' ? 'active' : 'closed'} positions will appear
+              here
+            </span>
+          </Box>
+        ) : null}
       </TableContainer>
       <Box className="flex">
         {optionScalpUserData?.scalpPositions?.length === 0 ? (
