@@ -76,7 +76,11 @@ const PositionsTable = ({ tab }: { tab: string }) => {
               <TableHeader label="PnL" />
               <TableHeader label="Margin" />
               <TableHeader label="Premium" />
-              <TableHeader label="Expiry" />
+              {tab === 'Open' ? (
+                <TableHeader label="Expiry" />
+              ) : (
+                <TableHeader label="Close Price" />
+              )}
               <TableHeader label="Timeframe" />
             </TableRow>
           </TableHead>
@@ -167,7 +171,29 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                         }}
                       />
                     ) : (
-                      <span className={'text-[#FF617D]'}>Closed</span>
+                      <Typography
+                        variant="h6"
+                        color="white"
+                        className="text-left"
+                      >
+                        $
+                        {getUserReadableAmount(
+                          position.isShort
+                            ? position.entry.add(
+                                position.positions
+                                  .abs()
+                                  .mul(position.pnl)
+                                  .div('1000000')
+                              )
+                            : position.entry.sub(
+                                position.positions
+                                  .abs()
+                                  .mul(position.pnl)
+                                  .div('1000000')
+                              ),
+                          8
+                        ).toFixed(2)}
+                      </Typography>
                     )}
                   </Typography>
                 </TableCell>
