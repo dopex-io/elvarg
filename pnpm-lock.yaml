@@ -131,7 +131,7 @@ importers:
       postcss: 8.4.21
       prettier: 2.8.4
       shelljs: 0.8.5
-      tailwindcss: 3.2.7_ts-node@10.9.1
+      tailwindcss: 3.2.7_aesdjsunmf4wiehhujt67my7tu
       ts-node: 10.9.1_typescript@4.9.5
       typescript: 4.9.5
 
@@ -18224,10 +18224,12 @@ packages:
       - ts-node
     dev: true
 
-  /tailwindcss/3.2.7_ts-node@10.9.1:
+  /tailwindcss/3.2.7_aesdjsunmf4wiehhujt67my7tu:
     resolution: {integrity: sha512-B6DLqJzc21x7wntlH/GsZwEXTBttVSl1FtCzC8WP4oBc/NKef7kaax5jeihkkCEWc831/5NDJ9gRNDK6NEioQQ==}
     engines: {node: '>=12.13.0'}
     hasBin: true
+    peerDependencies:
+      postcss: ^8.0.9
     dependencies:
       arg: 5.0.2
       chokidar: 3.5.3
