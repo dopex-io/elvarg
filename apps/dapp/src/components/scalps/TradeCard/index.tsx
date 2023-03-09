@@ -119,8 +119,6 @@ const TradeCard = () => {
 
   const timeframeIndex = useMemo(() => {
     const indexes: { [key: string]: number } = {
-      '1m': 0,
-      '5m': 1,
       '15m': 2,
       '30m': 3,
       '60m': 4,
@@ -279,13 +277,13 @@ const TradeCard = () => {
         </Box>
       </Box>
       <Box className="flex mb-4">
-        {['1m', '5m', '15m', '30m', '60m'].map((time, i) => (
+        {['15m', '30m', '60m'].map((time, i) => (
           <Box
             key={i}
             className={
               (i === 0
                 ? 'ml-auto mr-1.5'
-                : i === 4
+                : i === 2
                 ? 'mr-auto ml-1.5'
                 : 'mx-1.5') +
               (time === selectedTimeWindow ? ' bg-mineshaft' : ' bg-umbra') +
