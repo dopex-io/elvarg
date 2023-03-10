@@ -179,17 +179,15 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                         $
                         {getUserReadableAmount(
                           position.isShort
-                            ? position.entry.add(
-                                position.positions
-                                  .abs()
-                                  .mul(position.pnl)
-                                  .div('1000000')
+                            ? position.entry.sub(
+                                position.pnl
+                                  .mul('10000000000')
+                                  .div(position.positions.abs())
                               )
-                            : position.entry.sub(
-                                position.positions
-                                  .abs()
-                                  .mul(position.pnl)
-                                  .div('1000000')
+                            : position.entry.add(
+                                position.pnl
+                                  .mul('10000000000')
+                                  .div(position.positions.abs())
                               ),
                           8
                         ).toFixed(2)}
