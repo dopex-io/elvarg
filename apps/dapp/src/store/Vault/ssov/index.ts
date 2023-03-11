@@ -59,6 +59,7 @@ export interface SsovV3EpochData {
   TVL: number;
   rewards: Reward[];
   collateralExchangeRate: BigNumber;
+  strikeToIdx: Map<string, number>;
 }
 
 export interface WritePositionInterface {
@@ -190,15 +191,17 @@ export const createSsovV3Slice: StateCreator<
     ]);
 
     const epochStrikes = epochData.strikes;
+    const strikeToIdx = new Map<string, number>();
 
     const epochStrikeDataArray = await Promise.all(
-      epochStrikes.map((strike) =>
-        ssovContract.getEpochStrikeData(selectedEpoch, strike)
-      )
+      epochStrikes.map(async (strike, idx) => {
+        strikeToIdx.set(strike.toString(), idx);
+        return ssovContract.getEpochStrikeData(selectedEpoch, strike);
+      })
     );
 
     const availableCollateralForStrikes = epochStrikeDataArray.map((item) => {
-      return item.totalCollateral.sub(item.activeCollateral);
+      return item?.totalCollateral.sub(item?.activeCollateral);
     });
 
     const totalEpochDeposits = totalEpochStrikeDeposits.reduce(
@@ -236,6 +239,7 @@ export const createSsovV3Slice: StateCreator<
       TVL: totalEpochDepositsInUSD,
       rewards: rewardsPayLoad.data.rewards,
       collateralExchangeRate: epochData.collateralExchangeRate,
+      strikeToIdx: strikeToIdx,
     };
 
     set((prevState) => ({ ...prevState, ssovEpochData: _ssovEpochData }));
@@ -248,6 +252,7 @@ export const createSsovV3Slice: StateCreator<
       selectedEpoch,
       selectedPoolName,
       getSsovViewerAddress,
+      ssovData,
     } = get();
 
     const ssovViewerAddress = getSsovViewerAddress();
@@ -285,6 +290,16 @@ export const createSsovV3Slice: StateCreator<
       })
     );
 
+    const checkpointData = await Promise.all(
+      data.map((pos) => {
+        return ssov.checkpoints(
+          ssovData!.currentEpoch!,
+          pos.strike,
+          pos.checkpointIndex
+        );
+      })
+    );
+
     const moreData = await Promise.all(
       writePositions.map((i) => {
         return ssovViewerContract.getWritePositionValue(i, ssovAddress);
@@ -292,15 +307,20 @@ export const createSsovV3Slice: StateCreator<
     );
 
     const _writePositions = data.map((o, i) => {
+      const utilization = checkpointData[i]?.activeCollateral.isZero()
+        ? BigNumber.from(0)
+        : checkpointData[i]?.activeCollateral
+            .mul(1e2)
+            .div(checkpointData[i]?.totalCollateral!);
+
       return {
         tokenId: writePositions[i] as BigNumber,
         collateralAmount: o.collateralAmount,
         epoch: o.epoch.toNumber(),
         strike: o.strike,
         accruedRewards: moreData[i]?.rewardTokenWithdrawAmounts || [],
-
         accruedPremiums: moreData[i]?.accruedPremium || BigNumber.from(0),
-        utilization: moreData[i]?.estimatedCollateralUsage || BigNumber.from(0),
+        utilization: utilization!,
       };
     });
 
@@ -379,9 +399,7 @@ export const createSsovV3Slice: StateCreator<
       };
 
       set((prevState) => ({ ...prevState, ssovData: _ssovData }));
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   },
   selectedEpoch: 1,
   getSsovViewerAddress: () => {
