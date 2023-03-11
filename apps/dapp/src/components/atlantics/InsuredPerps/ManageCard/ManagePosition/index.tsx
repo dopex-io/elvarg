@@ -62,9 +62,10 @@ import {
   OPTIONS_TOKEN_DECIMALS,
 } from 'utils/contracts/atlantics/pool';
 
-import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
+import { MAX_VALUE } from 'constants/index';
 import { MIN_EXECUTION_FEE } from 'constants/gmx';
 import { DOPEX_API_BASE_URL } from 'constants/env';
+import { CHAINS } from 'constants/chains';
 
 const steps = 0.1;
 const minMarks = 2;
@@ -904,7 +905,7 @@ const ManagePosition = () => {
             {formatAmount(
               getUserReadableAmount(
                 userAssetBalances[selectedToken] ?? '0',
-                TOKEN_DECIMALS[chainId]?.[selectedToken]
+                CHAINS[chainId]?.tokenDecimals[selectedToken]
               ),
               3,
               true

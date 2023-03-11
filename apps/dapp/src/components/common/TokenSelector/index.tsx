@@ -15,7 +15,7 @@ import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
 
 import { TOKEN_DATA } from 'constants/tokens';
-import { CHAIN_ID_TO_NATIVE } from 'constants/index';
+import { CHAINS } from 'constants/chains';
 
 export interface Props {
   open: boolean;
@@ -98,7 +98,7 @@ const TokenSelector = ({
             })
             .map((symbol) =>
               (Addresses[chainId][symbol] ||
-                CHAIN_ID_TO_NATIVE[chainId] === symbol) &&
+                CHAINS[chainId]?.nativeToken === symbol) &&
               symbol.includes(searchTerm.toUpperCase()) &&
               !tokensToExclude.includes(symbol.toUpperCase()) ? (
                 <Box

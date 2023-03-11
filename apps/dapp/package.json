@@ -7,8 +7,7 @@
     "start": "next start",
     "build": "next build",
     "lint": "next lint",
-    "generate": "graphql-codegen",
-    "format": "prettier --write \"./src/components/olp/**/*.{ts,tsx}\""
+    "generate": "graphql-codegen"
   },
   "dependencies": {
     "@0xsequence/multicall": "^0.43.3",
@@ -18,7 +17,6 @@
     "@dopex-io/ui": "workspace:*",
     "@emotion/react": "^11.8.1",
     "@emotion/styled": "^11.8.1",
-    "@ianvs/prettier-plugin-sort-imports": "^3.7.1",
     "@mui/icons-material": "^5.8.2",
     "@mui/material": "^5.8.2",
     "@mui/styles": "^5.4.4",
@@ -56,6 +54,7 @@
     "@graphql-codegen/typescript-operations": "^3.0.0",
     "@graphql-codegen/typescript-react-apollo": "^3.2.8",
     "@next/eslint-plugin-next": "^13.0.1",
+    "@ianvs/prettier-plugin-sort-imports": "^3.7.1",
     "@types/lodash": "^4.14.170",
     "@types/react": "^18.0.10",
     "@types/react-dom": "^18.0.0",

@@ -1,6 +1,6 @@
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 
-import { CHAIN_ID_TO_RPC } from 'constants/index';
+import { CHAINS } from 'constants/chains';
 
 const NETWORKS = {
   1: {
@@ -129,7 +129,7 @@ export default async function changeOrAddNetwork(chainId: number) {
       appLogoUrl: '/images/tokens/dpx.svg',
     });
 
-    let rpcUrl = CHAIN_ID_TO_RPC[chainId];
+    let rpcUrl = CHAINS[chainId]?.publicRpc;
 
     window.ethereum = coinbaseWallet.makeWeb3Provider(rpcUrl, chainId);
   }

@@ -10,8 +10,7 @@ import Typography from 'components/UI/Typography';
 import { useBoundStore } from 'store';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-
-import { TOKEN_DECIMALS } from 'constants/index';
+import { CHAINS } from 'constants/chains';
 
 interface MaxStrikeInputProps {
   token: string;
@@ -45,7 +44,7 @@ const MaxStrikeInput = (props: MaxStrikeInputProps) => {
 
       const _input = getContractReadableAmount(
         Number(e.target.value),
-        TOKEN_DECIMALS[chainId]?.[token] ?? 18
+        CHAINS[chainId]?.tokenDecimals[token] ?? 18
       ).mul(1e2);
       let _mod = _input.mod(tickSize ?? BigNumber.from(0));
       if (_mod.eq('0') && _input.gt('0')) {

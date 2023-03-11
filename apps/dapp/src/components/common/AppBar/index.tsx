@@ -33,13 +33,12 @@ import { getWeb3Modal } from 'store/Wallet/getWeb3Modal';
 import { useBoundStore } from 'store';
 
 import {
-  CHAIN_ID_TO_RPC,
   CURRENCIES_MAP,
   DISCLAIMER_MESSAGE,
   OFAC_COMPLIANCE_LOCAL_STORAGE_KEY,
-  PAGE_TO_SUPPORTED_CHAIN_IDS,
 } from 'constants/index';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
+import { PAGE_TO_SUPPORTED_CHAIN_IDS, CHAINS } from 'constants/chains';
 
 import formatAmount from 'utils/general/formatAmount';
 import displayAddress from 'utils/general/displayAddress';
@@ -404,10 +403,10 @@ export default function AppBar(props: AppBarProps) {
     } else {
       updateState({
         provider: new ethers.providers.StaticJsonRpcProvider(
-          CHAIN_ID_TO_RPC[
+          CHAINS[
             PAGE_TO_SUPPORTED_CHAIN_IDS[Router.asPath]?.default ||
               DEFAULT_CHAIN_ID
-          ]
+          ]?.rpc
         ),
       });
     }
