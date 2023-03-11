@@ -252,7 +252,7 @@ export const createSsovV3Slice: StateCreator<
       selectedEpoch,
       selectedPoolName,
       getSsovViewerAddress,
-      ssovEpochData,
+      ssovData,
     } = get();
 
     const ssovViewerAddress = getSsovViewerAddress();
@@ -290,6 +290,16 @@ export const createSsovV3Slice: StateCreator<
       })
     );
 
+    const checkpointData = await Promise.all(
+      data.map((pos) => {
+        return ssov.checkpoints(
+          ssovData!.currentEpoch!,
+          pos.strike,
+          pos.checkpointIndex
+        );
+      })
+    );
+
     const moreData = await Promise.all(
       writePositions.map((i) => {
         return ssovViewerContract.getWritePositionValue(i, ssovAddress);
@@ -297,13 +307,12 @@ export const createSsovV3Slice: StateCreator<
     );
 
     const _writePositions = data.map((o, i) => {
-      const strikeIdx =
-        ssovEpochData!.strikeToIdx!.get(o.strike!.toString()!) || 0;
-      const permiumPerStrike =
-        ssovEpochData!.totalEpochPremium[strikeIdx] || BigNumber.from(0);
-      const util =
-        moreData[i]?.accruedPremium.mul(100).div(permiumPerStrike) ||
-        BigNumber.from(0);
+      const utilization = checkpointData[i]?.activeCollateral.isZero()
+        ? BigNumber.from(0)
+        : checkpointData[i]?.activeCollateral
+            .mul(1e2)
+            .div(checkpointData[i]?.totalCollateral!);
+
       return {
         tokenId: writePositions[i] as BigNumber,
         collateralAmount: o.collateralAmount,
@@ -311,7 +320,7 @@ export const createSsovV3Slice: StateCreator<
         strike: o.strike,
         accruedRewards: moreData[i]?.rewardTokenWithdrawAmounts || [],
         accruedPremiums: moreData[i]?.accruedPremium || BigNumber.from(0),
-        utilization: util,
+        utilization: utilization!,
       };
     });
 
