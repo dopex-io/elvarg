@@ -191,6 +191,11 @@ const appLinks = {
           to: '/rdpx-v2/mint',
           description: 'Bond rDPX, mint $DSC',
         },
+        {
+          name: 'Swap',
+          to: '/rdpx-v2/curve-swap',
+          description: 'Swap between $DSC & WETH',
+        },
       ],
     },
   ],
@@ -326,6 +331,7 @@ interface AppBarProps {
     | 'vaults'
     | 'APP'
     | 'Mint'
+    | 'Swap'
     | 'Atlantics';
 }
 

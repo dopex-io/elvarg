@@ -15,7 +15,7 @@ interface Props {
   setApproved: Function;
 }
 
-const RequiredCollatPanel = (props: Props) => {
+const CollateralInputPanel = (props: Props) => {
   const { inputAmount, setApproved } = props;
 
   const { accountAddress, provider, treasuryData, treasuryContractState } =
@@ -39,11 +39,12 @@ const RequiredCollatPanel = (props: Props) => {
 
   useEffect(() => {
     (async () => {
-      if (!treasuryContractState.contracts || !accountAddress) return;
+      if (!treasuryContractState.contracts || !accountAddress || !amounts[0])
+        return;
 
       const treasury = treasuryContractState.contracts.treasury.address;
 
-      if (!treasuryData.tokenA.address || treasuryData.tokenB.address) return;
+      if (treasuryData.dscPrice.eq('0')) return;
 
       const [rdpxAllowance, wethAllowance] = await Promise.all([
         MockToken__factory.connect(
@@ -55,6 +56,24 @@ const RequiredCollatPanel = (props: Props) => {
           provider
         ).allowance(accountAddress, treasury),
       ]);
+      // todo: display premium instead of amount of perpetual options
+
+      const rdpxPrice = treasuryData.rdpxPriceInAlpha;
+
+      const nextFundingTimestamp =
+        await treasuryContractState.contracts.vault.nextFundingPaymentTimestamp();
+
+      const timeTillExpiry = nextFundingTimestamp.sub(
+        Math.ceil(Number(new Date()) / 1000)
+      );
+
+      const premium =
+        await treasuryContractState.contracts.vault.calculatePremium(
+          rdpxPrice.sub(rdpxPrice.div(4)),
+          getContractReadableAmount(amounts[0], 18),
+          timeTillExpiry
+        );
+      console.log(premium);
 
       setApproved(
         rdpxAllowance.gte(getContractReadableAmount(amounts[0] || 0, 18)) &&
@@ -110,4 +129,4 @@ const RequiredCollatPanel = (props: Props) => {
   );
 };
 
-export default RequiredCollatPanel;
+export default CollateralInputPanel;

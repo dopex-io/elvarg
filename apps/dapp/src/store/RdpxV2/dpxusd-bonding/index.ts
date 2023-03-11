@@ -11,6 +11,9 @@ import {
   DscToken,
   MockToken,
   MockToken__factory,
+  PerpetualAtlanticVault,
+  PerpetualAtlanticVault__factory,
+  CurveStableswapPair__factory,
   // DPXVotingEscrow,
   // DPXVotingEscrow__factory,
 } from '@dopex-io/sdk';
@@ -26,6 +29,7 @@ interface RdpxV2TreasuryContractState {
     curvePool?: CurveStableswapPair;
     dsc: DscToken;
     rdpx: MockToken;
+    vault: PerpetualAtlanticVault;
   };
   re_lp_factor: BigNumber;
   rdpx_reserve: BigNumber;
@@ -111,13 +115,26 @@ export const createDpxusdBondingSlice: StateCreator<
     const treasuryAddress = contractAddresses['RDPX-V2']['Treasury'];
     const bondAddress = contractAddresses['RDPX-V2']['Bond'];
     const dscAddress = contractAddresses['RDPX-V2']['DSC'];
+    const curvePoolAddress = contractAddresses['RDPX-V2']['Curve2Pool'];
     const rdpxAddress = contractAddresses['RDPX'];
     const treasury: RdpxV2Treasury = RdpxV2Treasury__factory.connect(
       treasuryAddress,
       provider
     );
+    const curvePool: CurveStableswapPair = CurveStableswapPair__factory.connect(
+      curvePoolAddress,
+      provider
+    );
+    const perpetualAtlanticVaultAddress =
+      contractAddresses['RDPX-V2']['PerpetualVault'];
+
     const bond: RdpxV2Bond = RdpxV2Bond__factory.connect(bondAddress, provider);
     const dsc: DscToken = DscToken__factory.connect(dscAddress, provider);
+    const vault: PerpetualAtlanticVault =
+      PerpetualAtlanticVault__factory.connect(
+        perpetualAtlanticVaultAddress,
+        provider
+      );
     const rdpx: MockToken = MockToken__factory.connect(rdpxAddress, provider);
 
     const [
@@ -150,6 +167,8 @@ export const createDpxusdBondingSlice: StateCreator<
           bond,
           dsc,
           rdpx,
+          vault,
+          curvePool,
         },
         rdpx_reserve,
         lp_reserve,
