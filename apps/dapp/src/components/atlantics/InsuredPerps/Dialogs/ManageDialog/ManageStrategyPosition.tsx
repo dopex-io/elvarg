@@ -180,6 +180,7 @@ const ManageStrategyPositionDialog = (props: Props) => {
       await sendTx(atlanticPool.contracts.baseToken, 'approve', [
         contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'],
         options,
+        {},
       ]);
     } catch (e) {
       console.log(e);
