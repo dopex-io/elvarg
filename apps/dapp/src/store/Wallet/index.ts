@@ -149,7 +149,7 @@ export const createWalletSlice: StateCreator<
     }
 
     const multicallProvider = new providers.MulticallProvider(
-      new ethers.providers.StaticJsonRpcProvider(CHAINS[chainId]?.explorer)
+      new ethers.providers.StaticJsonRpcProvider(CHAINS[chainId]?.rpc)
     );
     let signer: Signer | undefined;
     let address: string | undefined;
