@@ -9,19 +9,31 @@ import { useBoundStore } from 'store';
 
 const Swap = () => {
   const {
+    provider,
     isLoading,
     setIsLoading,
     updateTreasuryContractState,
+    updateUserDscBondsData,
     updateTreasuryData,
   } = useBoundStore();
 
   useEffect(() => {
+    if (!provider) return;
+
     setIsLoading(true);
     updateTreasuryContractState().then(() => {
-      updateTreasuryData();
-      setIsLoading(false);
+      updateTreasuryData().then(() => {
+        updateUserDscBondsData();
+        setIsLoading(false);
+      });
     });
-  }, [updateTreasuryContractState, updateTreasuryData, setIsLoading]);
+  }, [
+    provider,
+    updateTreasuryContractState,
+    updateTreasuryData,
+    updateUserDscBondsData,
+    setIsLoading,
+  ]);
 
   return (
     <div className="bg-contain min-h-screen bg-gradient-to-b from-[#062125] to-[#000000]">
