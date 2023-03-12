@@ -95,7 +95,9 @@ const SwapPanel = () => {
       await sendTx(_tokenContract, 'approve', [
         treasuryContractState.contracts.curvePool.address,
         MAX_VALUE,
-      ]);
+      ]).then(() => {
+        setApproved(true);
+      });
     } catch (e) {
       console.log(e);
     }
