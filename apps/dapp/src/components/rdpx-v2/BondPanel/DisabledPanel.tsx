@@ -32,7 +32,7 @@ const DisabledPanel = (props: Props) => {
   const { isLoading } = useBoundStore();
 
   return (
-    <Box className="z-10 absolute top-0 flex flex-col h-[270px] backdrop-blur-md text-center border rounded-xl bg-transparent border-[#F09242] p-3 space-y-2 justify-center w-full">
+    <Box className="z-10 absolute top-0 flex flex-col h-2/3 backdrop-blur-md text-center border rounded-xl bg-transparent border-[#F09242] p-3 space-y-2 justify-center w-full">
       {!isLoading ? (
         <>
           <Box className="flex w-2/3 self-center space-x-2">
