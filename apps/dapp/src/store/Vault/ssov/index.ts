@@ -252,7 +252,6 @@ export const createSsovV3Slice: StateCreator<
       selectedEpoch,
       selectedPoolName,
       getSsovViewerAddress,
-      ssovData,
     } = get();
 
     const ssovViewerAddress = getSsovViewerAddress();
@@ -292,11 +291,7 @@ export const createSsovV3Slice: StateCreator<
 
     const checkpointData = await Promise.all(
       data.map((pos) => {
-        return ssov.checkpoints(
-          ssovData!.currentEpoch!,
-          pos.strike,
-          pos.checkpointIndex
-        );
+        return ssov.checkpoints(pos.epoch, pos.strike, pos.checkpointIndex);
       })
     );
 
