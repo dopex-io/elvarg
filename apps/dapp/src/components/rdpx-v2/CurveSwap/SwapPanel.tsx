@@ -22,10 +22,11 @@ import { useBoundStore } from 'store';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import { smartTrim } from 'utils/general';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { MAX_VALUE } from 'constants/index';
+import { CHAIN_ID_TO_EXPLORER, MAX_VALUE } from 'constants/index';
 
 const TOKEN_DATA_KEYS = ['symbol', 'address', 'totalSupply', 'balance'];
 
@@ -51,14 +52,31 @@ const SwapPanel = () => {
   // const [tokenA, tokenB] = tokens;
   const sendTx = useSendTx();
 
-  const { accountAddress, signer, contractAddresses, treasuryContractState } =
-    useBoundStore();
+  const {
+    accountAddress,
+    signer,
+    chainId,
+    contractAddresses,
+    treasuryContractState,
+    treasuryData,
+  } = useBoundStore();
 
   const [pair, setPair] = useState<TokenData[]>([]);
   const [amountIn, setAmountIn] = useState('0');
   const [amountOut, setAmountOut] = useState('');
   const [inverted, setInverted] = useState<boolean>(false);
   const [approved, setApproved] = useState<boolean>(false);
+  const [reserves, setReserves] = useState<Record<string, number>[]>([
+    {
+      value: 0,
+      percentage: 0,
+    },
+    {
+      value: 0,
+      percentage: 0,
+    },
+  ]);
+  const [fee, setFee] = useState<number>(0);
 
   const path: TokenData[] = useMemo(() => {
     if (!pair[0] || !pair[1]) return [INIT_TOKEN_DATA, INIT_TOKEN_DATA];
@@ -182,9 +200,28 @@ const SwapPanel = () => {
         }, INIT_TOKEN_DATA);
       });
 
+      const [reserveA, reserveB, fee] = await Promise.all([
+        treasuryContractState.contracts.curvePool?.balances(0),
+        treasuryContractState.contracts.curvePool?.balances(1),
+        treasuryContractState.contracts.curvePool?.fee(),
+      ]).then((res) => res.map((val) => getUserReadableAmount(val || 0)));
+
+      if (!reserveA || !reserveB) return;
+
+      const [shareA, shareB] = [
+        (reserveA / (reserveA + reserveB)) * 100,
+        (reserveB / (reserveA + reserveB)) * 100,
+      ];
+
+      setReserves([
+        { value: reserveA, percentage: shareA },
+        { value: reserveB, percentage: shareB },
+      ]);
       setPair([tokenA, tokenB]);
+      setFee((fee || 0) * 1e10);
     })();
   }, [
+    treasuryData,
     accountAddress,
     contractAddresses,
     inverted,
@@ -201,8 +238,8 @@ const SwapPanel = () => {
       )
         return;
       const dy = await treasuryContractState.contracts.curvePool.get_dy(
-        inverted ? 1 : 0,
         inverted ? 0 : 1,
+        inverted ? 1 : 0,
         getContractReadableAmount(amountIn, 18)
       );
       setAmountOut(getUserReadableAmount(dy, 18).toString());
@@ -305,6 +342,52 @@ const SwapPanel = () => {
             </div>
           }
         />
+        <div className="bg-umbra py-2 px-3 rounded-xl border border-carbon">
+          <span className="underline decoration-dashed text-sm">Pool Data</span>
+          <div className="flex justify-between">
+            <span className="text-sm text-stieglitz">{pair[0]?.symbol}</span>
+            <div className="space-x-1">
+              <span className="text-sm">
+                {formatAmount(reserves[0]?.['value'], 3)}
+              </span>
+              <span className="text-sm text-stieglitz">
+                ({formatAmount(reserves[0]?.['percentage'], 3)}%)
+              </span>
+            </div>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-sm text-stieglitz">{pair[1]?.symbol}</span>
+            <div className="space-x-1">
+              <span className="text-sm">
+                {formatAmount(reserves[1]?.['value'], 3)}
+              </span>
+              <span className="text-sm text-stieglitz">
+                ({formatAmount(reserves[1]?.['percentage'], 3)}%)
+              </span>
+            </div>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-sm text-stieglitz">Swap Fee</span>
+            <div>
+              <span className="text-sm">{fee}</span>
+              <span className="text-sm text-stieglitz">%</span>
+            </div>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-sm text-stieglitz">Pool</span>
+            <a
+              className="text-sm underline"
+              href={`${CHAIN_ID_TO_EXPLORER[chainId]}address/${treasuryContractState.contracts?.curvePool?.address}`}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              {smartTrim(
+                treasuryContractState.contracts?.curvePool?.address || '-',
+                10
+              )}
+            </a>
+          </div>
+        </div>
       </div>
       <button
         onClick={approved ? handleSwap : handleApprove}

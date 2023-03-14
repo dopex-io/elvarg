@@ -171,7 +171,7 @@ const appLinks = {
         {
           name: 'Mint',
           to: '/rdpx-v2/mint',
-          description: 'Bond rDPX, mint $DSC',
+          description: 'Bond rDPX, mint $dpxETH',
         },
       ],
     },
@@ -189,12 +189,12 @@ const appLinks = {
         {
           name: 'Mint',
           to: '/rdpx-v2/mint',
-          description: 'Bond rDPX, mint $DSC',
+          description: 'Bond rDPX, mint $dpxETH',
         },
         {
           name: 'Swap',
           to: '/rdpx-v2/curve-swap',
-          description: 'Swap between $DSC & WETH',
+          description: 'Swap between $dpxETH & WETH',
         },
       ],
     },
@@ -285,7 +285,7 @@ const appLinks = {
         {
           name: 'Mint',
           to: '/rdpx-v2/mint',
-          description: 'Bond rDPX, mint $DSC',
+          description: 'Bond rDPX, mint $dpxETH',
         },
       ],
     },

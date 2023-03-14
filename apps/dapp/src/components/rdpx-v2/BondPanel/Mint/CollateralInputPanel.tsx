@@ -1,6 +1,8 @@
 import { useCallback, useState, useEffect } from 'react';
 import { MockToken__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 // import Slider from '@mui/material/Slider';
 
 import Typography from 'components/UI/Typography';
@@ -73,7 +75,11 @@ const CollateralInputPanel = (props: Props) => {
           getContractReadableAmount(amounts[0], 18),
           timeTillExpiry
         );
-      console.log(premium);
+      console.log(
+        premium
+        // .mul(getContractReadableAmount(amounts[0], 18))
+        // .div(getContractReadableAmount(1, 32))
+      );
 
       setApproved(
         rdpxAllowance.gte(getContractReadableAmount(amounts[0] || 0, 18)) &&
@@ -91,7 +97,17 @@ const CollateralInputPanel = (props: Props) => {
 
   return (
     <Box className="p-3 bg-umbra rounded-xl space-y-2">
-      <Typography variant="caption">Collateral Required</Typography>
+      <Box className="flex space-x-1">
+        <Typography variant="caption" className="my-auto">
+          Collateral Required
+        </Typography>
+        <Tooltip
+          title="rDPX / WETH cost including 25% OTM put option premium"
+          arrow
+        >
+          <InfoOutlinedIcon className="fill-current text-stieglitz w-[0.9rem]" />
+        </Tooltip>
+      </Box>
       {/* <Slider
         defaultValue={50}
         aria-label="Default"
@@ -120,11 +136,11 @@ const CollateralInputPanel = (props: Props) => {
         inputAmount={amounts[1] || 0}
         label="75%"
       />
-      <InputRow
-        tokenSymbol="APP"
+      {/* <InputRow
+        tokenSymbol="PUT"
         inputAmount={amounts[0] || 0}
         label={'OTM 25%'}
-      />
+      /> */}
     </Box>
   );
 };

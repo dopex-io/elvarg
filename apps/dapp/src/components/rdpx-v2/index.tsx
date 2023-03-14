@@ -13,9 +13,16 @@ import { useBoundStore } from 'store';
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-const statsKeys = ['Total Supply', 'Market Cap', 'Price', 'rDPX Supply'];
+const statsKeys = [
+  'Total Supply',
+  'Market Cap',
+  'dpxETH Price',
+  'rDPX Supply',
+  'rDPX Price',
+  '',
+];
 
-const statsValues = ['-', '-', '-', '-'];
+const statsValues = ['-', '-', '-', '-', '-', '-'];
 
 const quickLink1Props = {
   text: 'RDPX Whitepaper',
@@ -53,6 +60,8 @@ const RdpxV2Main = () => {
       ) + ' WETH',
       getUserReadableAmount(treasuryData.dscPrice, 8) + ' WETH',
       formatAmount(getUserReadableAmount(treasuryData.rdpxSupply, 18), 3),
+      formatAmount(getUserReadableAmount(treasuryData.rdpxPriceInAlpha, 8), 3) +
+        ' WETH',
     ];
   }, [treasuryContractState, treasuryData]);
 
@@ -74,14 +83,12 @@ const RdpxV2Main = () => {
           />
           <Charts />
           <UserBonds />
-          {/* <DepositTable /> */}
         </Box>
         <Box className="flex flex-col w-full sm:w-full lg:w-1/4 h-full mt-4 lg:mt-0">
           <BondPanel />
           <Box className="flex flex-col space-y-3 my-3">
             <QuickLink {...quickLink1Props} />
             <QuickLink {...quickLink2Props} />
-            {/* <QuickLink {...quickLink3Props} /> */}
           </Box>
         </Box>
       </Box>

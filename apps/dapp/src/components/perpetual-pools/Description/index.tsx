@@ -14,7 +14,7 @@ const Description = () => {
           </Typography>
         </Box>
         <Typography variant="h6" color="stieglitz">
-          Write Perpetual Puts for $DSC Bonding.
+          Write Perpetual Puts for $dpxETH Bonding.
         </Typography>
       </Box>
       <a

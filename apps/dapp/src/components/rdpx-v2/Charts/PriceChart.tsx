@@ -65,9 +65,9 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
     <Box className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra">
       <Box className="flex space-x-2 justify-start py-2 px-3">
         <Typography variant="h6" className="align-center" color="stieglitz">
-          DSC Price
+          dpxETH Price
         </Typography>
-        <Tooltip title="DSC price over time">
+        <Tooltip title="$dpxETH price over time">
           <InfoOutlinedIcon className="fill-current text-stieglitz w-[1.2rem]" />
         </Tooltip>
       </Box>

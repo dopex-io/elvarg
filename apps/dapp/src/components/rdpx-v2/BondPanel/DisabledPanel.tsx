@@ -13,15 +13,15 @@ interface Props {
 
 const popupText: Record<string, Record<string, string>> = {
   mint: {
-    title: 'DSC Price Too Low',
+    title: '$dpxETH Price Too Low',
     description:
-      'Minting is only available when DSC trades above 0.985. Consider buying DSC on Curve.',
+      'Minting is only available when $dpxETH trades above 0.985. Consider buying $dpxETH on Curve.',
     link: 'https://app.dopex.io/ssov',
   },
   redeem: {
-    title: 'DSC Price Too High',
+    title: '$dpxETH Price Too High',
     description:
-      'Redemptions are only available when DSC trades below 1.01. Consider selling DSC on Curve.',
+      'Redemptions are only available when $dpxETH trades below 1.01. Consider selling $dpxETH on Curve.',
     link: 'https://app.dopex.io/ssov',
   },
 };

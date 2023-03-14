@@ -150,7 +150,7 @@ const Mint = () => {
       <Box className="flex flex-col space-y-2 px-2">
         <Box className="flex justify-between">
           <Typography variant="h6" color="stieglitz">
-            DSC Amount
+            dpxETH Amount
           </Typography>
           <Typography variant="h6" color="stieglitz">
             {bondData.amount
@@ -225,7 +225,7 @@ const Mint = () => {
                 alt="crv"
                 className="w-4 my-auto"
               />
-              <Typography variant="h6">Sell DSC</Typography>
+              <Typography variant="h6">Sell dpxETH</Typography>
             </span>
             <LaunchOutlinedIcon className="fill-current text-white w-[1.1rem]" />
           </a>

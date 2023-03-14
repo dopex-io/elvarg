@@ -28,6 +28,10 @@ const Stats = (props: Props) => {
         } else if (index === len - 1) {
           border = 'border-b border-r';
           rounding = 'rounded-br-lg';
+        } else if (index % 2 === 0) {
+          border = 'border-l border-r border-b';
+        } else if (index % 2 === 1) {
+          border = 'border-r border-b';
         }
 
         return (

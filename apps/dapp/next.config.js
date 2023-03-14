@@ -20,6 +20,11 @@ module.exports = {
         destination: '/ssov/:path*',
         permanent: false,
       },
+      {
+        source: '/',
+        destination: '/rdpx-v2/mint',
+        permanent: false,
+      },
     ];
   },
 };

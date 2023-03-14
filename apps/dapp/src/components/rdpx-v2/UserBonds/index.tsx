@@ -72,7 +72,7 @@ const UserBonds = () => {
         Number(bond.maturity) * 1000 > Math.ceil(Number(new Date()));
       return {
         tokenId: '#' + Number(bond.tokenId),
-        amount: getUserReadableAmount(bond.amount, 18) + ' DSC',
+        amount: getUserReadableAmount(bond.amount, 18) + ' dpxETH',
         timestamp: format(Number(bond.timestamp) * 1000, 'HH:mm, dd LLL'),
         timeLeft: (
           <Countdown

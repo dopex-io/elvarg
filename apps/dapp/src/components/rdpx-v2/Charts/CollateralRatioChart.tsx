@@ -74,7 +74,7 @@ const PriceChart = (props: LiquidityLineChartProps) => {
         <Typography variant="h6" className="align-center" color="stieglitz">
           Collateral Ratio Overtime
         </Typography>
-        <MuiTooltip title="DSC:Alpha token ratio over time">
+        <MuiTooltip title="$dpxETH:WETH ratio over time">
           <InfoOutlinedIcon className="fill-current text-stieglitz w-[1.2rem]" />
         </MuiTooltip>
       </Box>

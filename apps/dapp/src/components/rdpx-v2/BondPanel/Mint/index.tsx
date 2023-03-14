@@ -187,7 +187,7 @@ const Mint = () => {
 
   return (
     <Box className="space-y-3 relative">
-      {!userDscBondsData.isEligibleForMint ? (
+      {!userDscBondsData.isEligibleForMint || isLoading ? (
         <DisabledPanel isMint={true} />
       ) : null}
       <Box className="bg-umbra rounded-xl w-full h-fit">
@@ -283,7 +283,7 @@ const Mint = () => {
                 alt="crv"
                 className="w-4 my-auto"
               />
-              <Typography variant="h6">Buy DSC</Typography>
+              <Typography variant="h6">Buy $dpxETH</Typography>
             </span>
             <LaunchOutlinedIcon className="fill-current text-white w-[1.1rem]" />
           </a>
