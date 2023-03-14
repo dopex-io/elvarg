@@ -47,7 +47,7 @@ interface Props extends BasicManageDialogProps {
 const ManageDialog = (props: Props) => {
   const { data, open, handleClose } = props;
 
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(1);
   const [error, setError] = useState('');
   const [value, setValue] = useState('');
   const [allowance, setAllowance] = useState(BigNumber.from(0));
@@ -169,7 +169,6 @@ const ManageDialog = (props: Props) => {
   }, [allowance, value]);
 
   const _handleClose = () => {
-    setActiveTab(0);
     setError('');
     setValue('');
     setAllowance(BigNumber.from(0));
@@ -185,7 +184,7 @@ const ManageDialog = (props: Props) => {
           <Tab
             active={activeTab === 0}
             onClick={() => setActiveTab(0)}
-            disabled={data.status !== 'ACTIVE'}
+            disabled={true}
             title="Deposit"
           />
           <Tab

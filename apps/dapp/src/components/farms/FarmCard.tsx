@@ -1,13 +1,8 @@
-import { ReactNode, useMemo } from 'react';
+import { ReactNode, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { BigNumber, utils } from 'ethers';
 import BN from 'bignumber.js';
-import {
-  ERC20__factory,
-  StakingRewards__factory,
-  StakingRewardsV3__factory,
-} from '@dopex-io/sdk';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
@@ -24,9 +19,7 @@ import getExplorerUrl from 'utils/general/getExplorerUrl';
 
 import { FarmStatus, LpData } from 'types/farms';
 
-import useSendTx from 'hooks/useSendTx';
-
-import { MAX_VALUE } from 'constants/index';
+import SushiMigrationStepper from './SushiMigrationStepper';
 
 const Header = ({
   stakingTokenSymbol,
@@ -34,14 +27,14 @@ const Header = ({
   onManage,
   onMigrate,
   status,
-  version,
+  userStakingRewardsBalance,
 }: {
   stakingTokenSymbol: string;
   type: 'SINGLE' | 'LP';
   status: FarmStatus;
   onManage: any;
   onMigrate: any;
-  version: number;
+  userStakingRewardsBalance: BigNumber;
 }) => {
   return (
     <Box className="flex justify-between">
@@ -62,8 +55,8 @@ const Header = ({
           </Typography>
         </Box>
       </Box>
-      {version === 2 && type === 'LP' ? (
-        <CustomButton size="small" onClick={onMigrate} className="mr-1">
+      {type === 'LP' && userStakingRewardsBalance.gt(0) ? (
+        <CustomButton size="small" onClick={onMigrate}>
           Migrate
         </CustomButton>
       ) : null}
@@ -109,7 +102,6 @@ interface Props {
   status: FarmStatus;
   type: 'SINGLE' | 'LP';
   version: number;
-  newStakingRewardsAddress?: string | undefined;
 }
 
 const FarmCard = (props: Props) => {
@@ -117,11 +109,10 @@ const FarmCard = (props: Props) => {
     farmsDataLoading,
     userDataLoading,
     TVL,
-    APR,
+    // APR,
     stakingTokenSymbol,
     userStakingRewardsBalance,
     stakingRewardsAddress,
-    newStakingRewardsAddress,
     stakingTokenAddress,
     userStakingTokenBalance,
     type,
@@ -132,9 +123,9 @@ const FarmCard = (props: Props) => {
     version,
   } = props;
 
-  const { accountAddress, chainId, signer } = useBoundStore();
+  const [sushiMigrationOpen, setSushiMigrationOpen] = useState(false);
 
-  const sendTx = useSendTx();
+  const { accountAddress, chainId, signer } = useBoundStore();
 
   const onManage = () => {
     setDialog({
@@ -152,29 +143,8 @@ const FarmCard = (props: Props) => {
   };
 
   const onMigrate = async () => {
-    if (!signer || !newStakingRewardsAddress) return;
-    const oldStakingRewards = StakingRewards__factory.connect(
-      stakingRewardsAddress,
-      signer
-    );
-
-    const newStakingRewards = StakingRewardsV3__factory.connect(
-      newStakingRewardsAddress,
-      signer
-    );
-
-    const stakingToken = ERC20__factory.connect(stakingTokenAddress, signer);
-
-    try {
-      await sendTx(oldStakingRewards, 'withdraw', [userStakingRewardsBalance]); // Withdraw
-      await sendTx(stakingToken, 'approve', [
-        newStakingRewardsAddress,
-        MAX_VALUE,
-      ]); // Approve
-      await sendTx(newStakingRewards, 'stake', [userStakingRewardsBalance]); // Stake in new farm
-    } catch (err) {
-      console.log('Something went wrong', err);
-    }
+    if (!signer) return;
+    setSushiMigrationOpen(true);
   };
 
   const stakingTokenPrice = useMemo(() => {
@@ -193,13 +163,28 @@ const FarmCard = (props: Props) => {
 
   return (
     <Box className="bg-cod-gray text-red rounded-2xl p-3 flex flex-col space-y-3 w-[343px]">
+      <SushiMigrationStepper
+        data={{
+          status,
+          stakingTokenSymbol,
+          stakingTokenAddress,
+          stakingRewardsAddress,
+          userStakingTokenBalance,
+          userStakingRewardsBalance,
+          version,
+        }}
+        open={sushiMigrationOpen}
+        handleClose={(_e, reason) => {
+          if (reason !== 'backdropClick') setSushiMigrationOpen(false);
+        }}
+      />
       <Header
         stakingTokenSymbol={stakingTokenSymbol}
         type={type}
         status={status}
         onManage={onManage}
         onMigrate={onMigrate}
-        version={version}
+        userStakingRewardsBalance={userStakingRewardsBalance}
       />
       <Box className="flex space-x-3">
         {farmsDataLoading ? (
@@ -209,7 +194,7 @@ const FarmCard = (props: Props) => {
           </>
         ) : (
           <>
-            <Stat name="APR" value={APR === 0 ? '--' : APR.toFixed(2) + '%'} />
+            <Stat name="APR" value="--" />
             <Stat
               name="TVL"
               value={TVL === 0 ? '--' : `$${formatAmount(TVL, 2)}`}
