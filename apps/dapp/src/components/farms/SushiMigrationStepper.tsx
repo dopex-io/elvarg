@@ -210,12 +210,15 @@ export default function SushiMigrationStepper(props: Props) {
       </Stepper>
       <Button
         variant="contained"
-        onClick={(e: any) => {
-          handleClose(e, 'complete');
-        }}
         disabled={activeStep < 4}
+        onClick={() =>
+          window.open(
+            `https://sushi.com/earn/arb1:${data.stakingTokenAddress.toLowerCase()}`,
+            '_blank'
+          )
+        }
       >
-        Complete
+        Go to Sushi
       </Button>
     </Dialog>
   );

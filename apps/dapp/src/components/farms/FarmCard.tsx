@@ -109,7 +109,7 @@ const FarmCard = (props: Props) => {
     farmsDataLoading,
     userDataLoading,
     TVL,
-    APR,
+    // APR,
     stakingTokenSymbol,
     userStakingRewardsBalance,
     stakingRewardsAddress,
@@ -194,7 +194,7 @@ const FarmCard = (props: Props) => {
           </>
         ) : (
           <>
-            <Stat name="APR" value={APR === 0 ? '--' : APR.toFixed(2) + '%'} />
+            <Stat name="APR" value="--" />
             <Stat
               name="TVL"
               value={TVL === 0 ? '--' : `$${formatAmount(TVL, 2)}`}
