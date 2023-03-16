@@ -25,29 +25,35 @@ const Stats = () => {
           <Typography variant="h6" className="text-white">
             {getUserReadableAmount(
               optionScalpData?.feeOpenPosition!,
-              8
+              optionScalpData?.quoteDecimals!.toNumber()
             ).toString()}
             %
           </Typography>
         </Box>
         <Box className="border border-neutral-800 flex justify-between p-2">
           <Typography variant="h6" className="text-gray-400">
-            Total deposits (ETH)
+            Total deposits ({optionScalpData?.baseSymbol})
           </Typography>
           <Typography variant="h6" className="text-white ml-auto mr-1">
             {formatAmount(
-              getUserReadableAmount(optionScalpData?.totalBaseDeposits!, 18),
+              getUserReadableAmount(
+                optionScalpData?.totalBaseDeposits!,
+                optionScalpData?.baseDecimals!.toNumber()
+              ),
               0
             )}{' '}
           </Typography>
         </Box>
         <Box className="border border-neutral-800 flex justify-between p-2">
           <Typography variant="h6" className="text-gray-400">
-            Total deposits (USDC)
+            Total deposits ({optionScalpData?.quoteSymbol})
           </Typography>
           <Typography variant="h6" className="text-white ml-auto mr-1">
             {formatAmount(
-              getUserReadableAmount(optionScalpData?.totalQuoteDeposits!, 6),
+              getUserReadableAmount(
+                optionScalpData?.totalQuoteDeposits!,
+                optionScalpData?.quoteDecimals!.toNumber()
+              ),
               0
             )}{' '}
           </Typography>
@@ -57,9 +63,14 @@ const Stats = () => {
             Total long
           </Typography>
           <Typography variant="h6" className="text-white ml-auto mr-1">
-            <span className="text-gray-400">$</span>{' '}
+            <span className="text-gray-400">
+              {optionScalpData?.quoteSymbol!}
+            </span>{' '}
             {formatAmount(
-              getUserReadableAmount(optionScalpData?.longOpenInterest!, 8),
+              getUserReadableAmount(
+                optionScalpData?.longOpenInterest!,
+                optionScalpData?.quoteDecimals!.toNumber()
+              ),
               0
             )}{' '}
           </Typography>
@@ -69,9 +80,14 @@ const Stats = () => {
             Total short
           </Typography>
           <Typography variant="h6" className="text-white ml-auto mr-1">
-            <span className="text-gray-400">$</span>{' '}
+            <span className="text-gray-400">
+              {optionScalpData?.quoteSymbol!}
+            </span>{' '}
             {formatAmount(
-              getUserReadableAmount(optionScalpData?.shortOpenInterest!, 8),
+              getUserReadableAmount(
+                optionScalpData?.shortOpenInterest!,
+                optionScalpData?.quoteDecimals!.toNumber()
+              ),
               0
             )}{' '}
           </Typography>
@@ -117,7 +133,9 @@ const Stats = () => {
             Min. Abs. Liq. Threshold
           </Typography>
           <Typography variant="h6" className="text-white">
-            <span className="text-gray-400">$</span>{' '}
+            <span className="text-gray-400">
+              {optionScalpData?.quoteSymbol!}
+            </span>{' '}
             {getUserReadableAmount(
               optionScalpData?.minimumAbsoluteLiquidationThreshold!,
               6
@@ -132,7 +150,9 @@ const Stats = () => {
             Min. Margin
           </Typography>
           <Typography variant="h6" className="text-white">
-            <span className="text-gray-400">$</span>{' '}
+            <span className="text-gray-400">
+              {optionScalpData?.quoteSymbol!}
+            </span>{' '}
             {getUserReadableAmount(optionScalpData?.minimumMargin!, 6)}
           </Typography>
         </Box>
@@ -144,7 +164,9 @@ const Stats = () => {
             Max. Size
           </Typography>
           <Typography variant="h6" className="text-white">
-            <span className="text-gray-400">$</span>{' '}
+            <span className="text-gray-400">
+              {optionScalpData?.quoteSymbol!}
+            </span>{' '}
             {formatAmount(getUserReadableAmount(optionScalpData?.maxSize!, 8))}
           </Typography>
         </Box>
@@ -167,7 +189,9 @@ const Stats = () => {
             Max. OI
           </Typography>
           <Typography variant="h6" className="text-white">
-            <span className="text-gray-400">$</span>{' '}
+            <span className="text-gray-400">
+              {optionScalpData?.quoteSymbol!}
+            </span>{' '}
             {formatAmount(
               getUserReadableAmount(optionScalpData?.maxOpenInterest!, 8)
             )}
@@ -178,7 +202,9 @@ const Stats = () => {
             Open Interest
           </Typography>
           <Typography variant="h6" color="white">
-            <span className="text-gray-400">$</span>{' '}
+            <span className="text-gray-400">
+              {optionScalpData?.quoteSymbol!}
+            </span>{' '}
             {formatAmount(
               getUserReadableAmount(optionScalpData?.longOpenInterest!, 8) +
                 getUserReadableAmount(optionScalpData?.shortOpenInterest!, 8),

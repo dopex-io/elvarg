@@ -39,7 +39,10 @@ const TopBar = () => {
         <Typography variant="h4" className="ml-4 self-start">
           $
           {formatAmount(
-            getUserReadableAmount(optionScalpData?.markPrice!, 8),
+            getUserReadableAmount(
+              optionScalpData?.markPrice!,
+              optionScalpData?.quoteDecimals!.toNumber()
+            ),
             2
           )}
         </Typography>

@@ -23,6 +23,10 @@ export interface optionScalpData {
   totalBaseAvailable: BigNumber;
   quoteLpValue: BigNumber;
   baseLpValue: BigNumber;
+  quoteDecimals: BigNumber;
+  baseDecimals: BigNumber;
+  quoteSymbol: string;
+  baseSymbol: string;
 }
 
 export interface ScalpPosition {
@@ -86,19 +90,14 @@ export const createOptionScalpSlice: StateCreator<
             type: 'address',
           },
           {
-            internalType: 'address',
-            name: '_optionPricing',
-            type: 'address',
+            internalType: 'uint256',
+            name: '_baseDecimals',
+            type: 'uint256',
           },
           {
-            internalType: 'address',
-            name: '_volatilityOracle',
-            type: 'address',
-          },
-          {
-            internalType: 'address',
-            name: '_priceOracle',
-            type: 'address',
+            internalType: 'uint256',
+            name: '_quoteDecimals',
+            type: 'uint256',
           },
           {
             internalType: 'address',
@@ -111,14 +110,56 @@ export const createOptionScalpSlice: StateCreator<
             type: 'address',
           },
           {
-            internalType: 'uint256',
-            name: '_minimumMargin',
-            type: 'uint256',
-          },
-          {
-            internalType: 'address',
-            name: '_insuranceFund',
-            type: 'address',
+            components: [
+              {
+                internalType: 'uint256',
+                name: 'maxSize',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'maxOpenInterest',
+                type: 'uint256',
+              },
+              {
+                internalType: 'contract IOptionPricing',
+                name: 'optionPricing',
+                type: 'address',
+              },
+              {
+                internalType: 'contract IVolatilityOracle',
+                name: 'volatilityOracle',
+                type: 'address',
+              },
+              {
+                internalType: 'contract IPriceOracle',
+                name: 'priceOracle',
+                type: 'address',
+              },
+              {
+                internalType: 'address',
+                name: 'insuranceFund',
+                type: 'address',
+              },
+              {
+                internalType: 'uint256',
+                name: 'minimumMargin',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'feeOpenPosition',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'minimumAbsoluteLiquidationThreshold',
+                type: 'uint256',
+              },
+            ],
+            internalType: 'struct OptionScalp.Configuration',
+            name: 'config',
+            type: 'tuple',
           },
         ],
         stateMutability: 'nonpayable',
@@ -195,56 +236,6 @@ export const createOptionScalpSlice: StateCreator<
           },
         ],
         name: 'EmergencyWithdraw',
-        type: 'event',
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'int256',
-            name: 'pnl',
-            type: 'int256',
-          },
-          {
-            indexed: true,
-            internalType: 'address',
-            name: 'sender',
-            type: 'address',
-          },
-        ],
-        name: 'ExpirePosition',
-        type: 'event',
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: false,
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-          {
-            indexed: false,
-            internalType: 'int256',
-            name: 'pnl',
-            type: 'int256',
-          },
-          {
-            indexed: true,
-            internalType: 'address',
-            name: 'liquidator',
-            type: 'address',
-          },
-        ],
-        name: 'LiquidatePosition',
         type: 'event',
       },
       {
@@ -350,6 +341,19 @@ export const createOptionScalpSlice: StateCreator<
             internalType: 'contract IERC20',
             name: '',
             type: 'address',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'baseDecimals',
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: '',
+            type: 'uint256',
           },
         ],
         stateMutability: 'view',
@@ -718,12 +722,22 @@ export const createOptionScalpSlice: StateCreator<
             name: 'margin',
             type: 'uint256',
           },
+          {
+            internalType: 'uint256',
+            name: 'entryLimit',
+            type: 'uint256',
+          },
         ],
         name: 'openPosition',
         outputs: [
           {
             internalType: 'uint256',
             name: 'id',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'entry',
             type: 'uint256',
           },
         ],
@@ -809,6 +823,19 @@ export const createOptionScalpSlice: StateCreator<
             internalType: 'contract IERC20',
             name: '',
             type: 'address',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'quoteDecimals',
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: '',
+            type: 'uint256',
           },
         ],
         stateMutability: 'view',
@@ -974,14 +1001,56 @@ export const createOptionScalpSlice: StateCreator<
       {
         inputs: [
           {
-            internalType: 'uint256',
-            name: 'newMaxSize',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'newMaxOpenInterest',
-            type: 'uint256',
+            components: [
+              {
+                internalType: 'uint256',
+                name: 'maxSize',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'maxOpenInterest',
+                type: 'uint256',
+              },
+              {
+                internalType: 'contract IOptionPricing',
+                name: 'optionPricing',
+                type: 'address',
+              },
+              {
+                internalType: 'contract IVolatilityOracle',
+                name: 'volatilityOracle',
+                type: 'address',
+              },
+              {
+                internalType: 'contract IPriceOracle',
+                name: 'priceOracle',
+                type: 'address',
+              },
+              {
+                internalType: 'address',
+                name: 'insuranceFund',
+                type: 'address',
+              },
+              {
+                internalType: 'uint256',
+                name: 'minimumMargin',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'feeOpenPosition',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'minimumAbsoluteLiquidationThreshold',
+                type: 'uint256',
+              },
+            ],
+            internalType: 'struct OptionScalp.Configuration',
+            name: 'config',
+            type: 'tuple',
           },
         ],
         name: 'updateConfig',
@@ -1029,7 +1098,9 @@ export const createOptionScalpSlice: StateCreator<
     ];
 
     return new ethers.Contract(
-      '0x80D58C0B7E8561F96b0bAcEeE9248101e08E1240',
+      selectedPoolName === 'ETH'
+        ? '0x11ad9f33421Dc5C8d327a6c084712C3Ccb3443b7'
+        : '0xB01f745dDAdF161Fb4F0dD774a7F43b2B630Ef3b',
       abi,
       provider
     );
@@ -1894,7 +1965,9 @@ export const createOptionScalpSlice: StateCreator<
     ];
 
     return new ethers.Contract(
-      '0x04d331f28c29e3950351819b2add3fcee20a45c2',
+      selectedPoolName === 'ETH'
+        ? '0x3ad0e8be94d45d413aea1f8c135b26d32b3b66b6'
+        : '0x04d331f28c29e3950351819b2add3fcee20a45c2',
       abi,
       provider
     );
@@ -2759,7 +2832,9 @@ export const createOptionScalpSlice: StateCreator<
     ];
 
     return new ethers.Contract(
-      '0x39b1486956447d4b026ee1dc936b69dd727f4537',
+      selectedPoolName === 'ETH'
+        ? '0x62b9748041758490afdb702ddeb05d98fc3247a1'
+        : '0x0447d7666f4c2079de8bdac99f900f17b70e599a',
       abi,
       provider
     );
@@ -2836,8 +2911,12 @@ export const createOptionScalpSlice: StateCreator<
     }));
   },
   updateOptionScalp: async () => {
-    const { getOptionScalpContract, getQuoteLpContract, getBaseLpContract } =
-      get();
+    const {
+      getOptionScalpContract,
+      getQuoteLpContract,
+      getBaseLpContract,
+      selectedPoolName,
+    } = get();
 
     const optionScalpContract = getOptionScalpContract();
     const quoteLpContract = getQuoteLpContract();
@@ -2858,6 +2937,8 @@ export const createOptionScalpSlice: StateCreator<
       totalBaseAvailable,
       quoteSupply,
       baseSupply,
+      quoteDecimals,
+      baseDecimals,
     ] = await Promise.all([
       optionScalpContract!['minimumMargin'](),
       optionScalpContract!['feeOpenPosition'](),
@@ -2873,6 +2954,8 @@ export const createOptionScalpSlice: StateCreator<
       baseLpContract!['totalAvailableAssets'](),
       quoteLpContract!['totalSupply'](),
       baseLpContract!['totalSupply'](),
+      selectedPoolName === 'ETH' ? BigNumber.from('6') : BigNumber.from('18'),
+      selectedPoolName === 'ETH' ? BigNumber.from('18') : BigNumber.from('8'),
     ]);
 
     const quoteLpValue: BigNumber = quoteSupply.gt(0)
@@ -2905,6 +2988,10 @@ export const createOptionScalpSlice: StateCreator<
         totalBaseAvailable: totalBaseAvailable,
         quoteLpValue: quoteLpValue,
         baseLpValue: baseLpValue,
+        quoteDecimals: quoteDecimals,
+        baseDecimals: baseDecimals,
+        quoteSymbol: selectedPoolName === 'ETH' ? 'USDC' : 'ETH',
+        baseSymbol: selectedPoolName === 'ETH' ? 'ETH' : 'BTC',
       },
     }));
   },

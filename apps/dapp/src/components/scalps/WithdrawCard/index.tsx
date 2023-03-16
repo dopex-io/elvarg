@@ -61,10 +61,16 @@ const WithdrawCard = () => {
   const withdrawButtonMessage: string = useMemo(() => {
     if (!approved) return 'Approve';
     else if (amount == 0) return 'Insert an amount';
-    else if (amount > getUserReadableAmount(userTokenBalance, 6))
+    else if (
+      amount >
+      getUserReadableAmount(
+        userTokenBalance,
+        Number(!optionScalpData?.quoteDecimals!)
+      )
+    )
       return 'Insufficient balance';
     return 'Withdraw';
-  }, [amount, userTokenBalance, approved]);
+  }, [amount, userTokenBalance, approved, optionScalpData]);
 
   const handleApprove = useCallback(async () => {
     if (!optionScalpData?.optionScalpContract || !signer || !contractAddresses)
@@ -100,7 +106,15 @@ const WithdrawCard = () => {
       await sendTx(
         optionScalpData.optionScalpContract.connect(signer),
         'withdraw',
-        [isQuote, getContractReadableAmount(amount, isQuote ? 6 : 18)]
+        [
+          isQuote,
+          getContractReadableAmount(
+            amount,
+            isQuote
+              ? Number(!optionScalpData?.quoteDecimals!)
+              : Number(!optionScalpData?.baseDecimals!)
+          ),
+        ]
       );
       await updateOptionScalp();
       await updateOptionScalpUserData();
@@ -125,7 +139,12 @@ const WithdrawCard = () => {
       const estimatedOutput =
         await optionScalpData.optionScalpContract.callStatic.withdraw(
           isQuote,
-          getContractReadableAmount(amount, isQuote ? 6 : 18)
+          getContractReadableAmount(
+            amount,
+            isQuote
+              ? Number(!optionScalpData?.quoteDecimals!)
+              : Number(!optionScalpData?.baseDecimals!)
+          )
         );
       setEstimatedOut(estimatedOutput);
     } catch (e) {}
@@ -234,7 +253,12 @@ const WithdrawCard = () => {
             >
               Balance ~{' '}
               {formatAmount(
-                getUserReadableAmount(userTokenBalance, isQuote ? 6 : 18),
+                getUserReadableAmount(
+                  userTokenBalance,
+                  isQuote
+                    ? Number(!optionScalpData?.quoteDecimals!)
+                    : Number(!optionScalpData?.baseDecimals!)
+                ),
                 8
               )}{' '}
               {isQuote ? 'USDC' : 'WETH'} LP
@@ -255,7 +279,9 @@ const WithdrawCard = () => {
                     isQuote
                       ? optionScalpData?.totalQuoteAvailable!
                       : optionScalpData?.totalBaseAvailable!,
-                    isQuote ? 6 : 18
+                    isQuote
+                      ? Number(!optionScalpData?.quoteDecimals!)
+                      : Number(!optionScalpData?.baseDecimals!)
                   ),
                   2
                 )}{' '}
@@ -276,7 +302,9 @@ const WithdrawCard = () => {
                     isQuote
                       ? optionScalpData?.quoteLpValue!
                       : optionScalpData?.baseLpValue!,
-                    isQuote ? 6 : 18
+                    isQuote
+                      ? Number(!optionScalpData?.quoteDecimals!)
+                      : Number(!optionScalpData?.baseDecimals!)
                   ),
                   9
                 )}{' '}
@@ -296,7 +324,12 @@ const WithdrawCard = () => {
               <Box className={'text-right'}>
                 <Typography variant="h6" className="text-white mr-auto ml-0">
                   {formatAmount(
-                    getUserReadableAmount(estimatedOut, isQuote ? 6 : 18),
+                    getUserReadableAmount(
+                      estimatedOut,
+                      isQuote
+                        ? Number(!optionScalpData?.quoteDecimals!)
+                        : Number(!optionScalpData?.baseDecimals!)
+                    ),
                     2
                   )}{' '}
                   {isQuote ? 'USDC' : 'ETH'}
@@ -315,7 +348,12 @@ const WithdrawCard = () => {
             size="medium"
             className="w-full !rounded-md"
             color={
-              amount > 0 && amount <= getUserReadableAmount(userTokenBalance, 6)
+              amount > 0 &&
+              amount <=
+                getUserReadableAmount(
+                  userTokenBalance,
+                  Number(!optionScalpData?.quoteDecimals!)
+                )
                 ? 'primary'
                 : 'mineshaft'
             }

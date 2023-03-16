@@ -66,7 +66,13 @@ const DepositCard = () => {
   const depositButtonMessage: string = useMemo(() => {
     if (!approved) return 'Approve';
     else if (amount == 0) return 'Insert an amount';
-    else if (amount > getUserReadableAmount(userTokenBalance, 6))
+    else if (
+      amount >
+      getUserReadableAmount(
+        userTokenBalance,
+        Number(!optionScalpData?.quoteDecimals!)
+      )
+    )
       return 'Insufficient balance';
     return 'Deposit';
   }, [approved, amount, userTokenBalance]);
@@ -106,7 +112,15 @@ const DepositCard = () => {
       await sendTx(
         optionScalpData.optionScalpContract.connect(signer),
         'deposit',
-        [isQuote, getContractReadableAmount(amount, isQuote ? 6 : 18)]
+        [
+          isQuote,
+          getContractReadableAmount(
+            amount,
+            isQuote
+              ? Number(!optionScalpData?.quoteDecimals!)
+              : Number(!optionScalpData?.baseDecimals!)
+          ),
+        ]
       );
       await updateOptionScalp();
       await updateOptionScalpUserData();
@@ -132,7 +146,12 @@ const DepositCard = () => {
         .connect(signer)
         .callStatic.deposit(
           isQuote,
-          getContractReadableAmount(amount, isQuote ? 6 : 18)
+          getContractReadableAmount(
+            amount,
+            isQuote
+              ? Number(!optionScalpData?.quoteDecimals!)
+              : Number(!optionScalpData?.baseDecimals!)
+          )
         );
       setEstimatedLpTokens(estimatedOutput);
     } catch (e) {}
@@ -238,7 +257,12 @@ const DepositCard = () => {
             >
               Balance ~{' '}
               {formatAmount(
-                getUserReadableAmount(userTokenBalance, isQuote ? 6 : 18),
+                getUserReadableAmount(
+                  userTokenBalance,
+                  isQuote
+                    ? Number(!optionScalpData?.quoteDecimals!)
+                    : Number(!optionScalpData?.baseDecimals!)
+                ),
                 isQuote ? 0 : 3
               )}{' '}
               {isQuote ? 'USDC' : 'WETH'}
@@ -256,7 +280,12 @@ const DepositCard = () => {
               <Box className={'text-right'}>
                 <Typography variant="h6" className="text-white mr-auto ml-0">
                   {formatAmount(
-                    getUserReadableAmount(estimatedLpTokens, isQuote ? 6 : 18),
+                    getUserReadableAmount(
+                      estimatedLpTokens,
+                      isQuote
+                        ? Number(!optionScalpData?.quoteDecimals!)
+                        : Number(!optionScalpData?.baseDecimals!)
+                    ),
                     2
                   )}{' '}
                   {isQuote ? 'USDC' : 'ETH'} LP
@@ -277,7 +306,11 @@ const DepositCard = () => {
             color={
               !approved ||
               (amount > 0 &&
-                amount <= getUserReadableAmount(userTokenBalance, 6))
+                amount <=
+                  getUserReadableAmount(
+                    userTokenBalance,
+                    Number(!optionScalpData?.quoteDecimals!)
+                  ))
                 ? 'primary'
                 : 'mineshaft'
             }

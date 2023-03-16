@@ -73,7 +73,10 @@ const TradeCard = () => {
       const estimatedPremium =
         await optionScalpData.optionScalpContract.calcPremium(
           optionScalpData?.markPrice!,
-          getContractReadableAmount(amount, 8),
+          getContractReadableAmount(
+            amount,
+            Number(!optionScalpData?.quoteDecimals!)
+          ),
           seconds[selectedTimeWindow]
         );
       setPremium(estimatedPremium);
@@ -87,17 +90,26 @@ const TradeCard = () => {
   }, [calcPremium]);
 
   const margin = useMemo(() => {
-    return getContractReadableAmount(amount, 8).div(leverage * 100);
-  }, [amount, leverage]);
+    return getContractReadableAmount(
+      amount,
+      Number(!optionScalpData?.quoteDecimals!)
+    ).div(leverage * 100);
+  }, [amount, leverage, optionScalpData]);
 
   const tradeButtonMessage: string = useMemo(() => {
     if (!approved) return 'Approve';
     else if (amount == 0) return 'Insert an amount';
     else if (margin.lt(MINIMUM_MARGIN))
-      return 'Minium Margin ' + getUserReadableAmount(MINIMUM_MARGIN, 6);
+      return (
+        'Minium Margin ' +
+        getUserReadableAmount(
+          MINIMUM_MARGIN,
+          Number(!optionScalpData?.quoteDecimals!)
+        )
+      );
     else if (margin.gt(userTokenBalance)) return 'Insufficient balance';
     return 'Open position';
-  }, [approved, amount, userTokenBalance, margin]);
+  }, [approved, amount, userTokenBalance, margin, optionScalpData]);
 
   const collateralAmount: number = useMemo(() => {
     return amount / leverage;
@@ -105,7 +117,10 @@ const TradeCard = () => {
 
   const liquidationPrice: number = useMemo(() => {
     let _liquidationPrice = 0;
-    const price = getUserReadableAmount(optionScalpData?.markPrice!, 8);
+    const price = getUserReadableAmount(
+      optionScalpData?.markPrice!,
+      Number(!optionScalpData?.quoteDecimals!)
+    );
     const positions = amount / price;
     if (positions || collateralAmount) {
       if (isShort) {
@@ -115,7 +130,7 @@ const TradeCard = () => {
       }
     }
     return _liquidationPrice;
-  }, [isShort, amount, collateralAmount, optionScalpData]);
+  }, [isShort, amount, collateralAmount, optionScalpData, optionScalpData]);
 
   const timeframeIndex = useMemo(() => {
     const indexes: { [key: string]: number } = {
@@ -158,7 +173,15 @@ const TradeCard = () => {
       await sendTx(
         optionScalpData.optionScalpContract.connect(signer),
         'openPosition',
-        [isShort, getContractReadableAmount(amount, 8), timeframeIndex, margin]
+        [
+          isShort,
+          getContractReadableAmount(
+            amount,
+            Number(!optionScalpData?.quoteDecimals!)
+          ),
+          timeframeIndex,
+          margin,
+        ]
       )
         .then(() => updateOptionScalpUserData())
         .then(() => updateOptionScalp());
@@ -186,7 +209,10 @@ const TradeCard = () => {
       if (!accountAddress || !signer || !optionScalpData?.optionScalpContract)
         return;
 
-      const finalAmount: BigNumber = getContractReadableAmount(amount, 6);
+      const finalAmount: BigNumber = getContractReadableAmount(
+        amount,
+        Number(!optionScalpData?.quoteDecimals!)
+      );
       const token = ERC20__factory.connect(contractAddresses['USDC'], signer);
       const allowance: BigNumber = await token.allowance(
         accountAddress,

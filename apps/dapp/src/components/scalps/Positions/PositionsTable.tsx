@@ -102,10 +102,13 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                         >
                           {position.isShort ? '-' : '+'}
                           {formatAmount(
-                            getUserReadableAmount(position.positions, 8),
+                            getUserReadableAmount(
+                              position.positions,
+                              Number(!optionScalpData?.quoteDecimals!)
+                            ),
                             8
                           )}
-                          {' ETH'}
+                          {' ' + optionScalpData?.baseSymbol!}
                         </span>
                       </Typography>
                     </Box>
@@ -113,7 +116,11 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                 </TableCell>
                 <TableCell className="pt-1 border-0">
                   <Typography variant="h6" color="white" className="text-left">
-                    ${getUserReadableAmount(position.entry, 8).toFixed(2)}
+                    $
+                    {getUserReadableAmount(
+                      position.entry,
+                      Number(!optionScalpData?.quoteDecimals!)
+                    ).toFixed(2)}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
@@ -121,7 +128,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                     $
                     {getUserReadableAmount(
                       position.liquidationPrice,
-                      8
+                      Number(!optionScalpData?.quoteDecimals!)
                     ).toFixed(2)}
                   </Typography>
                 </TableCell>
@@ -132,18 +139,30 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                         position.pnl.lt(0) ? 'text-[#FF617D]' : 'text-[#6DFFB9]'
                       }
                     >
-                      ${getUserReadableAmount(position.pnl, 6).toFixed(2)}
+                      $
+                      {getUserReadableAmount(
+                        position.pnl,
+                        Number(!optionScalpData?.quoteDecimals!)
+                      ).toFixed(2)}
                     </span>
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
                   <Typography variant="h6" color="white" className="text-left">
-                    ${getUserReadableAmount(position.margin, 6).toFixed(2)}
+                    $
+                    {getUserReadableAmount(
+                      position.margin,
+                      Number(!optionScalpData?.quoteDecimals!)
+                    ).toFixed(2)}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
                   <Typography variant="h6" color="white" className="text-left">
-                    ${getUserReadableAmount(position.premium, 6).toFixed(2)}
+                    $
+                    {getUserReadableAmount(
+                      position.premium,
+                      Number(!optionScalpData?.quoteDecimals!)
+                    ).toFixed(2)}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
@@ -189,7 +208,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                                   .mul('10000000000')
                                   .div(position.positions.abs())
                               ),
-                          8
+                          Number(!optionScalpData?.quoteDecimals!)
                         ).toFixed(2)}
                       </Typography>
                     )}
