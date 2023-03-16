@@ -115,8 +115,6 @@ export const createSsovV3Slice: StateCreator<
 
     const ssovRouterAddress = contractAddresses['SSOV-V3']['ROUTER'];
 
-    console.log(ssovRouterAddress);
-
     let ssovRouterWithSigner = SsovV3Router__factory.connect(
       ssovRouterAddress,
       signer

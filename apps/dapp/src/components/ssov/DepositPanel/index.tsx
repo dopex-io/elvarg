@@ -5,6 +5,7 @@ import { BigNumber, utils } from 'ethers';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
+import { CircularProgress } from '@mui/material';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 import { useBoundStore } from 'store';
@@ -61,8 +62,10 @@ const DepositPanel = () => {
     getContractAddress,
   } = useBoundStore();
 
-  const [wrapOpen, setWrapOpen] = useState(false);
   const sendTx = useSendTx();
+
+  const [wrapOpen, setWrapOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [quote, setQuote] = useState({
     quoteData: defaultQuoteData,
     swapData: '',
@@ -292,6 +295,8 @@ const DepositPanel = () => {
     )
       return;
 
+    setLoading(true);
+
     setQuote({
       quoteData: await get1inchQuote(
         fromTokenAddress,
@@ -318,6 +323,8 @@ const DepositPanel = () => {
         })
       ).tx.data,
     });
+
+    setLoading(false);
   }, [
     getContractAddress,
     accountAddress,
@@ -527,20 +534,26 @@ const DepositPanel = () => {
                   ? 'primary'
                   : 'mineshaft'
               }
-              disabled={strikeDepositAmount <= 0 || hasExpiryElapsed}
+              disabled={strikeDepositAmount <= 0 || hasExpiryElapsed || loading}
               onClick={approved ? handleDeposit : handleApprove}
             >
-              {approved
-                ? strikeDepositAmount == 0
-                  ? 'Insert an amount'
-                  : strikeDepositAmount <=
-                    getUserReadableAmount(
-                      userTokenBalance,
-                      getTokenDecimals(fromTokenSymbol, chainId)
-                    )
-                  ? 'Insufficient balance'
-                  : 'Deposit'
-                : 'Approve'}
+              {approved ? (
+                strikeDepositAmount == 0 ? (
+                  'Insert an amount'
+                ) : strikeDepositAmount >
+                  getUserReadableAmount(
+                    userTokenBalance,
+                    getTokenDecimals(fromTokenSymbol, chainId)
+                  ) ? (
+                  'Insufficient balance'
+                ) : loading ? (
+                  <CircularProgress className="text-white p-3" />
+                ) : (
+                  'Deposit'
+                )
+              ) : (
+                'Approve'
+              )}
             </CustomButton>
           </Box>
         </Box>

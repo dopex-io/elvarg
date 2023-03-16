@@ -61,10 +61,7 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
       getContractAddress(selectedTokenSymbol),
       provider
     );
-    console.log(
-      await (await token.balanceOf(accountAddress)).toString(),
-      getTokenDecimals(selectedTokenSymbol, chainId)
-    );
+
     setSelectedTokenBalance(
       formatAmount(
         getUserReadableAmount(

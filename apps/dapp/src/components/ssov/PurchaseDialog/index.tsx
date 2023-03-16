@@ -5,6 +5,7 @@ import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import Slide from '@mui/material/Slide';
+import { CircularProgress } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { BigNumber, ethers } from 'ethers';
@@ -68,6 +69,7 @@ const PurchaseDialog = ({
 
   const { epochStrikes, availableCollateralForStrikes } = ssovEpochData;
 
+  const [quoteDataLoading, setQuoteDataLoading] = useState(false);
   const [fromTokenSymbol, setFromTokenSymbol] = useState(
     ssovData.collateralSymbol ?? ''
   );
@@ -181,6 +183,8 @@ const PurchaseDialog = ({
     )
       return;
 
+    setQuoteDataLoading(true);
+
     const {
       toTokenAmount,
       toToken: { decimals },
@@ -237,6 +241,8 @@ const PurchaseDialog = ({
       amountOut: fromTokenAmountRequired,
       swapData: swapData,
     });
+
+    setQuoteDataLoading(false);
   }, [
     routerMode,
     accountAddress,
@@ -506,7 +512,8 @@ const PurchaseDialog = ({
           : totalCost
               .mul(1e8)
               .div(ssovData.collateralPrice!)
-              .gt(userTokenBalance))
+              .gt(userTokenBalance)) ||
+        quoteDataLoading
     );
 
     let onClick = () => {};
@@ -559,6 +566,7 @@ const PurchaseDialog = ({
       onClick,
     };
   }, [
+    quoteDataLoading,
     quote.amountOut,
     routerMode,
     optionsAmount,
