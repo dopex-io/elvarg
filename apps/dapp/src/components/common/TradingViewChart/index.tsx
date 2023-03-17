@@ -1,12 +1,20 @@
 import dynamic from 'next/dynamic';
 
+type ChartType = {
+  symbol: string;
+};
+
 // @ts-ignore
-const Chart = dynamic(() => import('./SingleChart.tsx'), {
+const Chart = dynamic<ChartType>(() => import('./SingleChart.tsx'), {
   ssr: false,
 });
 
-const TradingViewChart = () => {
-  return <Chart />;
+interface Props {
+  symbol: string;
+}
+
+const TradingViewChart = (props: Props) => {
+  return <Chart symbol={props.symbol} />;
 };
 
 export default TradingViewChart;

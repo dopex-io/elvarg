@@ -70,7 +70,7 @@ const DepositCard = () => {
       amount >
       getUserReadableAmount(
         userTokenBalance,
-        Number(!optionScalpData?.quoteDecimals!)
+        optionScalpData?.quoteDecimals!.toNumber()!
       )
     )
       return 'Insufficient balance';
@@ -81,8 +81,14 @@ const DepositCard = () => {
     if (!optionScalpData?.optionScalpContract || !signer || !contractAddresses)
       return;
 
-    const quote = ERC20__factory.connect(contractAddresses['USDC'], signer);
-    const base = ERC20__factory.connect(contractAddresses['WETH'], signer);
+    const quote = ERC20__factory.connect(
+      contractAddresses[optionScalpData!.quoteSymbol!],
+      signer
+    );
+    const base = ERC20__factory.connect(
+      contractAddresses[optionScalpData!.baseSymbol!],
+      signer
+    );
 
     try {
       await sendTx(isQuote ? quote : base, 'approve', [
@@ -110,15 +116,15 @@ const DepositCard = () => {
 
     try {
       await sendTx(
-        optionScalpData.optionScalpContract.connect(signer),
+        optionScalpData!.optionScalpContract.connect(signer),
         'deposit',
         [
           isQuote,
           getContractReadableAmount(
             amount,
             isQuote
-              ? Number(!optionScalpData?.quoteDecimals!)
-              : Number(!optionScalpData?.baseDecimals!)
+              ? optionScalpData?.quoteDecimals!.toNumber()!
+              : optionScalpData?.baseDecimals!.toNumber()!
           ),
         ]
       );
@@ -142,15 +148,15 @@ const DepositCard = () => {
     if (!optionScalpData) return;
 
     try {
-      const estimatedOutput = await optionScalpData.optionScalpContract
+      const estimatedOutput = await optionScalpData!.optionScalpContract
         .connect(signer)
         .callStatic.deposit(
           isQuote,
           getContractReadableAmount(
             amount,
             isQuote
-              ? Number(!optionScalpData?.quoteDecimals!)
-              : Number(!optionScalpData?.baseDecimals!)
+              ? optionScalpData?.quoteDecimals!.toNumber()!
+              : optionScalpData?.baseDecimals!.toNumber()!
           )
         );
       setEstimatedLpTokens(estimatedOutput);
@@ -168,8 +174,14 @@ const DepositCard = () => {
       if (!accountAddress || !signer || !optionScalpData?.optionScalpContract)
         return;
 
-      const quote = ERC20__factory.connect(contractAddresses['USDC'], signer);
-      const base = ERC20__factory.connect(contractAddresses['WETH'], signer);
+      const quote = ERC20__factory.connect(
+        contractAddresses[optionScalpData!.quoteSymbol!],
+        signer
+      );
+      const base = ERC20__factory.connect(
+        contractAddresses[optionScalpData!.baseSymbol!],
+        signer
+      );
       const quoteAllowance: BigNumber = await quote.allowance(
         accountAddress,
         optionScalpData?.optionScalpContract?.address
@@ -213,7 +225,7 @@ const DepositCard = () => {
                 )}
                 onClick={() => setisQuote(true)}
               >
-                USDC
+                {optionScalpData?.quoteSymbol!}
               </Typography>
             </Box>
             <Box className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
@@ -225,7 +237,7 @@ const DepositCard = () => {
                 )}
                 onClick={() => setisQuote(false)}
               >
-                WETH
+                {optionScalpData?.baseSymbol!}
               </Typography>
             </Box>
           </Box>
@@ -260,12 +272,14 @@ const DepositCard = () => {
                 getUserReadableAmount(
                   userTokenBalance,
                   isQuote
-                    ? Number(!optionScalpData?.quoteDecimals!)
-                    : Number(!optionScalpData?.baseDecimals!)
+                    ? optionScalpData?.quoteDecimals!.toNumber()!
+                    : optionScalpData?.baseDecimals!.toNumber()!
                 ),
                 isQuote ? 0 : 3
               )}{' '}
-              {isQuote ? 'USDC' : 'WETH'}
+              {isQuote
+                ? optionScalpData?.quoteSymbol!
+                : optionScalpData?.baseSymbol!}
             </Typography>
           </Box>
         </Box>
@@ -283,12 +297,15 @@ const DepositCard = () => {
                     getUserReadableAmount(
                       estimatedLpTokens,
                       isQuote
-                        ? Number(!optionScalpData?.quoteDecimals!)
-                        : Number(!optionScalpData?.baseDecimals!)
+                        ? optionScalpData?.quoteDecimals!.toNumber()!
+                        : optionScalpData?.baseDecimals!.toNumber()!
                     ),
                     2
                   )}{' '}
-                  {isQuote ? 'USDC' : 'ETH'} LP
+                  {isQuote
+                    ? optionScalpData?.quoteSymbol!
+                    : optionScalpData?.baseSymbol!}{' '}
+                  LP
                 </Typography>
               </Box>
             </Box>
@@ -309,7 +326,7 @@ const DepositCard = () => {
                 amount <=
                   getUserReadableAmount(
                     userTokenBalance,
-                    Number(!optionScalpData?.quoteDecimals!)
+                    optionScalpData?.quoteDecimals!.toNumber()!
                   ))
                 ? 'primary'
                 : 'mineshaft'

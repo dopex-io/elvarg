@@ -21,13 +21,13 @@ const TopBar = () => {
         <Box sx={{ p: 1 }} className="flex -space-x-4">
           <img
             className="w-9 h-9 z-10 border border-gray-500 rounded-full"
-            src={`/images/tokens/${selectedPoolName.toLowerCase()}.svg`}
-            alt={selectedPoolName}
+            src={`/images/tokens/${optionScalpData?.baseSymbol!.toLowerCase()}.svg`}
+            alt={optionScalpData?.baseSymbol!}
           />
           <img
             className="w-9 h-9 z-0"
-            src="/images/tokens/usdc.svg"
-            alt="USDC"
+            src={`/images/tokens/${optionScalpData?.quoteSymbol!.toLowerCase()}.svg`}
+            alt={optionScalpData?.quoteSymbol!}
           />
         </Box>
         <Box className="ml-4">
@@ -37,7 +37,7 @@ const TopBar = () => {
           </Typography>
         </Box>
         <Typography variant="h4" className="ml-4 self-start">
-          $
+          {optionScalpData?.quoteSymbol}{' '}
           {formatAmount(
             getUserReadableAmount(
               optionScalpData?.markPrice!,

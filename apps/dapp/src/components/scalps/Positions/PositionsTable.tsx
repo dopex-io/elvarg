@@ -104,7 +104,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                           {formatAmount(
                             getUserReadableAmount(
                               position.positions,
-                              Number(!optionScalpData?.quoteDecimals!)
+                              optionScalpData?.quoteDecimals!.toNumber()!
                             ),
                             8
                           )}
@@ -119,7 +119,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                     $
                     {getUserReadableAmount(
                       position.entry,
-                      Number(!optionScalpData?.quoteDecimals!)
+                      optionScalpData?.quoteDecimals!.toNumber()!
                     ).toFixed(2)}
                   </Typography>
                 </TableCell>
@@ -128,7 +128,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                     $
                     {getUserReadableAmount(
                       position.liquidationPrice,
-                      Number(!optionScalpData?.quoteDecimals!)
+                      optionScalpData?.quoteDecimals!.toNumber()!
                     ).toFixed(2)}
                   </Typography>
                 </TableCell>
@@ -142,7 +142,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                       $
                       {getUserReadableAmount(
                         position.pnl,
-                        Number(!optionScalpData?.quoteDecimals!)
+                        optionScalpData?.quoteDecimals!.toNumber()!
                       ).toFixed(2)}
                     </span>
                   </Typography>
@@ -152,7 +152,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                     $
                     {getUserReadableAmount(
                       position.margin,
-                      Number(!optionScalpData?.quoteDecimals!)
+                      optionScalpData?.quoteDecimals!.toNumber()!
                     ).toFixed(2)}
                   </Typography>
                 </TableCell>
@@ -161,7 +161,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                     $
                     {getUserReadableAmount(
                       position.premium,
-                      Number(!optionScalpData?.quoteDecimals!)
+                      optionScalpData?.quoteDecimals!.toNumber()!
                     ).toFixed(2)}
                   </Typography>
                 </TableCell>
@@ -208,7 +208,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                                   .mul('10000000000')
                                   .div(position.positions.abs())
                               ),
-                          Number(!optionScalpData?.quoteDecimals!)
+                          optionScalpData?.quoteDecimals!.toNumber()!
                         ).toFixed(2)}
                       </Typography>
                     )}

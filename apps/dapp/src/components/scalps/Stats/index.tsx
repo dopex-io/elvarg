@@ -25,7 +25,7 @@ const Stats = () => {
           <Typography variant="h6" className="text-white">
             {getUserReadableAmount(
               optionScalpData?.feeOpenPosition!,
-              optionScalpData?.quoteDecimals!.toNumber()
+              8
             ).toString()}
             %
           </Typography>
@@ -138,7 +138,7 @@ const Stats = () => {
             </span>{' '}
             {getUserReadableAmount(
               optionScalpData?.minimumAbsoluteLiquidationThreshold!,
-              6
+              optionScalpData?.quoteDecimals!.toNumber()
             )}
           </Typography>
         </Box>
@@ -153,7 +153,10 @@ const Stats = () => {
             <span className="text-gray-400">
               {optionScalpData?.quoteSymbol!}
             </span>{' '}
-            {getUserReadableAmount(optionScalpData?.minimumMargin!, 6)}
+            {getUserReadableAmount(
+              optionScalpData?.minimumMargin!,
+              optionScalpData?.quoteDecimals!.toNumber()
+            )}
           </Typography>
         </Box>
         <Box className="border border-neutral-800 flex justify-between p-2">
@@ -167,7 +170,12 @@ const Stats = () => {
             <span className="text-gray-400">
               {optionScalpData?.quoteSymbol!}
             </span>{' '}
-            {formatAmount(getUserReadableAmount(optionScalpData?.maxSize!, 8))}
+            {formatAmount(
+              getUserReadableAmount(
+                optionScalpData?.maxSize!,
+                optionScalpData?.quoteDecimals!.toNumber()
+              )
+            )}
           </Typography>
         </Box>
       </Box>
@@ -193,7 +201,10 @@ const Stats = () => {
               {optionScalpData?.quoteSymbol!}
             </span>{' '}
             {formatAmount(
-              getUserReadableAmount(optionScalpData?.maxOpenInterest!, 8)
+              getUserReadableAmount(
+                optionScalpData?.maxOpenInterest!,
+                optionScalpData?.quoteDecimals!.toNumber()
+              )
             )}
           </Typography>
         </Box>
@@ -206,8 +217,14 @@ const Stats = () => {
               {optionScalpData?.quoteSymbol!}
             </span>{' '}
             {formatAmount(
-              getUserReadableAmount(optionScalpData?.longOpenInterest!, 8) +
-                getUserReadableAmount(optionScalpData?.shortOpenInterest!, 8),
+              getUserReadableAmount(
+                optionScalpData?.longOpenInterest!,
+                optionScalpData?.quoteDecimals!.toNumber()
+              ) +
+                getUserReadableAmount(
+                  optionScalpData?.shortOpenInterest!,
+                  optionScalpData?.quoteDecimals!.toNumber()
+                ),
               0
             )}{' '}
           </Typography>

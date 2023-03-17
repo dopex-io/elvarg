@@ -1,9 +1,13 @@
-import {  AdvancedChart } from 'react-tradingview-embed';
+import { AdvancedChart } from 'react-tradingview-embed';
 
-const SingleChart = () => {
+interface Props {
+  symbol: string;
+}
+
+const SingleChart = (props: Props) => {
   return (
     <AdvancedChart
-      widgetProps={{ theme: 'dark', symbol: 'ETHUSD', height: 400 }}
+      widgetProps={{ theme: 'dark', symbol: props.symbol, height: 400 }}
     />
   );
 };

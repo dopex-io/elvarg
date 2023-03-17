@@ -75,7 +75,7 @@ const TradeCard = () => {
           optionScalpData?.markPrice!,
           getContractReadableAmount(
             amount,
-            Number(!optionScalpData?.quoteDecimals!)
+            optionScalpData?.quoteDecimals!.toNumber()!
           ),
           seconds[selectedTimeWindow]
         );
@@ -90,10 +90,12 @@ const TradeCard = () => {
   }, [calcPremium]);
 
   const margin = useMemo(() => {
+    if (!optionScalpData) return BigNumber.from('0');
+
     return getContractReadableAmount(
       amount,
-      Number(!optionScalpData?.quoteDecimals!)
-    ).div(leverage * 100);
+      optionScalpData?.quoteDecimals!.toNumber()!
+    ).div(leverage);
   }, [amount, leverage, optionScalpData]);
 
   const tradeButtonMessage: string = useMemo(() => {
@@ -104,7 +106,7 @@ const TradeCard = () => {
         'Minium Margin ' +
         getUserReadableAmount(
           MINIMUM_MARGIN,
-          Number(!optionScalpData?.quoteDecimals!)
+          optionScalpData?.quoteDecimals!.toNumber()!
         )
       );
     else if (margin.gt(userTokenBalance)) return 'Insufficient balance';
@@ -119,7 +121,7 @@ const TradeCard = () => {
     let _liquidationPrice = 0;
     const price = getUserReadableAmount(
       optionScalpData?.markPrice!,
-      Number(!optionScalpData?.quoteDecimals!)
+      optionScalpData?.quoteDecimals!.toNumber()!
     );
     const positions = amount / price;
     if (positions || collateralAmount) {
@@ -134,6 +136,8 @@ const TradeCard = () => {
 
   const timeframeIndex = useMemo(() => {
     const indexes: { [key: string]: number } = {
+      '1m': 0,
+      '5m': 1,
       '15m': 2,
       '30m': 3,
       '60m': 4,
@@ -148,7 +152,10 @@ const TradeCard = () => {
 
     try {
       await sendTx(
-        ERC20__factory.connect(contractAddresses['USDC'], signer),
+        ERC20__factory.connect(
+          contractAddresses[optionScalpData.quoteSymbol!],
+          signer
+        ),
         'approve',
         [optionScalpData?.optionScalpContract?.address, MAX_VALUE]
       );
@@ -177,7 +184,7 @@ const TradeCard = () => {
           isShort,
           getContractReadableAmount(
             amount,
-            Number(!optionScalpData?.quoteDecimals!)
+            optionScalpData?.quoteDecimals!.toNumber()!
           ),
           timeframeIndex,
           margin,
@@ -211,9 +218,12 @@ const TradeCard = () => {
 
       const finalAmount: BigNumber = getContractReadableAmount(
         amount,
-        Number(!optionScalpData?.quoteDecimals!)
+        optionScalpData?.quoteDecimals!.toNumber()!
       );
-      const token = ERC20__factory.connect(contractAddresses['USDC'], signer);
+      const token = ERC20__factory.connect(
+        contractAddresses[optionScalpData.quoteSymbol!],
+        signer
+      );
       const allowance: BigNumber = await token.allowance(
         accountAddress,
         optionScalpData?.optionScalpContract?.address
@@ -275,7 +285,7 @@ const TradeCard = () => {
             variant="h6"
             className="text-stieglitz font-medium mt-3 mr-3 ml-1"
           >
-            $
+            {optionScalpData?.quoteSymbol}
           </Typography>
         </Box>
         <Box className="flex flex-row justify-between mt-2">
@@ -297,19 +307,19 @@ const TradeCard = () => {
                 amount / getUserReadableAmount(optionScalpData?.markPrice!, 8),
                 8
               )}{' '}
-              ETH
+              {optionScalpData?.baseSymbol}
             </Typography>
           </Box>
         </Box>
       </Box>
       <Box className="flex mb-4">
-        {['15m', '30m', '60m'].map((time, i) => (
+        {['1m', '5m', '15m', '30m', '60m'].map((time, i) => (
           <Box
             key={i}
             className={
               (i === 0
                 ? 'ml-auto mr-1.5'
-                : i === 2
+                : i === 4
                 ? 'mr-auto ml-1.5'
                 : 'mx-1.5') +
               (time === selectedTimeWindow ? ' bg-mineshaft' : ' bg-umbra') +
@@ -348,7 +358,7 @@ const TradeCard = () => {
             defaultValue={20}
             step={1}
             min={1}
-            max={50}
+            max={110}
             valueLabelDisplay="auto"
             onChange={handleLeverageChange}
           />
@@ -362,7 +372,14 @@ const TradeCard = () => {
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(getUserReadableAmount(margin, 6), 2)} USDC
+                {formatAmount(
+                  getUserReadableAmount(
+                    margin,
+                    optionScalpData?.quoteDecimals!.toNumber()
+                  ),
+                  2
+                )}{' '}
+                {optionScalpData?.quoteSymbol}
               </Typography>
             </Box>
           </Box>
@@ -373,7 +390,14 @@ const TradeCard = () => {
               </Typography>
               <Box className={'text-right'}>
                 <Typography variant="h6" className="text-white mr-auto ml-0">
-                  {formatAmount(getUserReadableAmount(premium, 6), 2)} USDC
+                  {formatAmount(
+                    getUserReadableAmount(
+                      premium,
+                      optionScalpData?.quoteDecimals!.toNumber()
+                    ),
+                    2
+                  )}{' '}
+                  {optionScalpData?.quoteSymbol}
                 </Typography>
               </Box>
             </Box>
@@ -392,7 +416,7 @@ const TradeCard = () => {
                     ),
                   2
                 )}{' '}
-                USDC
+                {optionScalpData?.quoteSymbol}
               </Typography>
             </Box>
           </Box>
@@ -402,7 +426,8 @@ const TradeCard = () => {
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(liquidationPrice, 2)} USDC
+                {formatAmount(liquidationPrice, 2)}{' '}
+                {optionScalpData?.quoteSymbol}
               </Typography>
             </Box>
           </Box>

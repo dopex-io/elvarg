@@ -34,13 +34,18 @@ const OptionScalps = ({ poolName }: Props) => {
     optionScalpData,
     updateOptionScalp,
     updateOptionScalpUserData,
+    selectedPoolName,
   } = useBoundStore();
 
   const [manageSection, setManageSection] = useState<string>('Trade');
 
   const TVChart = useMemo(() => {
-    return <TradingViewChart />;
-  }, []);
+    return (
+      <TradingViewChart
+        symbol={selectedPoolName === 'ETH' ? 'ETHUSD' : 'BTCETH'}
+      />
+    );
+  }, [selectedPoolName]);
 
   useEffect(() => {
     if (poolName && setSelectedPoolName) setSelectedPoolName(poolName);

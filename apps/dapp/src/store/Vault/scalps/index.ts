@@ -2990,8 +2990,8 @@ export const createOptionScalpSlice: StateCreator<
         baseLpValue: baseLpValue,
         quoteDecimals: quoteDecimals,
         baseDecimals: baseDecimals,
-        quoteSymbol: selectedPoolName === 'ETH' ? 'USDC' : 'ETH',
-        baseSymbol: selectedPoolName === 'ETH' ? 'ETH' : 'BTC',
+        quoteSymbol: selectedPoolName === 'ETH' ? 'USDC' : 'WETH',
+        baseSymbol: selectedPoolName === 'ETH' ? 'WETH' : 'WBTC',
       },
     }));
   },
