@@ -28,7 +28,9 @@ import AllPositionsTable from 'components/olp/AllLpPositions/AllPositionsTable';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import { DECIMALS_STRIKE, ROWS_PER_PAGE } from 'constants/index';
+import { DECIMALS_STRIKE } from 'constants/index';
+
+const ROWS_PER_PAGE = 5;
 
 const AllLpPositions = () => {
   const { olpData, olpEpochData, setSelectedPositionIdx } = useBoundStore();

@@ -7,8 +7,7 @@ import Typography from 'components/UI/Typography';
 import { useBoundStore } from 'store';
 
 import changeOrAddNetwork from 'utils/general/changeOrAddNetwork';
-
-import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+import { CHAINS } from 'constants/chains';
 
 interface Props {
   imgSrc: string;
@@ -73,7 +72,7 @@ const ChangeNetworkDialog = () => {
       </Typography>
       <Box className="grid grid-cols-2 gap-4 mb-4">
         {supportedChainIds?.map((chainId) => {
-          const data = CHAIN_ID_TO_NETWORK_DATA[chainId];
+          const data = CHAINS[chainId];
           return (
             <NetworkOption
               key={chainId}

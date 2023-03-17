@@ -14,7 +14,7 @@ import getExplorerUrl from 'utils/general/getExplorerUrl';
 import displayAddress from 'utils/general/displayAddress';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { DISPLAY_TOKENS } from 'constants/index';
+import { CHAINS } from 'constants/chains';
 
 interface Props {
   open: boolean;
@@ -101,10 +101,10 @@ const WalletDialog = ({ open, handleClose, userBalances }: Props) => {
           Disconnect
         </Typography>
       </Box>
-      {(DISPLAY_TOKENS[chainId]?.length ?? []) > 0 ? (
+      {(CHAINS[chainId]?.displayTokens?.length ?? []) > 0 ? (
         <Box className="bg-umbra rounded-2xl border border-mineshaft border-opacity-50 p-2">
           <Box className="flex flex-col space-y-4">
-            {DISPLAY_TOKENS[chainId]?.map((key: string, index) => {
+            {CHAINS[chainId]?.displayTokens?.map((key: string, index) => {
               return (
                 <BalanceItem
                   key={index}

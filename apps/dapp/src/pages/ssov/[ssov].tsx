@@ -8,7 +8,7 @@ import { useBoundStore } from 'store';
 
 import Manage from 'components/ssov/Manage';
 
-import { CHAIN_ID_TO_RPC, PAGE_TO_SUPPORTED_CHAIN_IDS } from 'constants/index';
+import { CHAINS, PAGE_TO_SUPPORTED_CHAIN_IDS } from 'constants/chains';
 
 const SsovV3Page = (props: { ssov: string }) => {
   const {
@@ -29,9 +29,9 @@ const SsovV3Page = (props: { ssov: string }) => {
       await updateState({
         isUser: false,
         provider: new ethers.providers.StaticJsonRpcProvider(
-          CHAIN_ID_TO_RPC[
+          CHAINS[
             PAGE_TO_SUPPORTED_CHAIN_IDS[Router.asPath]?.default || 42161
-          ]
+          ]?.rpc
         ),
       });
     })();

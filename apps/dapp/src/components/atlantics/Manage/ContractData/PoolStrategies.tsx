@@ -9,7 +9,7 @@ import Typography from 'components/UI/Typography';
 
 import { useBoundStore } from 'store';
 
-import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
+import { CHAINS } from 'constants/chains';
 import { AP_STRATEGIES } from 'constants/atlanticPoolsInfo';
 
 const PoolStrategies = ({
@@ -79,7 +79,7 @@ const PoolStrategies = ({
             >
               <Link
                 target="_blank"
-                href={`${CHAIN_ID_TO_EXPLORER[chainId]}address/${contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY']}`}
+                href={`${CHAINS[chainId]?.explorer}address/${contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY']}`}
               >
                 <LaunchIcon className="fill-current text-stieglitz p-1" />
               </Link>

@@ -14,57 +14,60 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import axios from 'axios';
+
 import { BigNumber, ethers } from 'ethers';
+
 import {
   ERC20__factory,
   GmxVault__factory,
   InsuredLongsStrategy__factory,
 } from '@dopex-io/sdk';
-import { useDebounce } from 'use-debounce';
-// import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import KeyboardArrowUpRoundedIcon from '@mui/icons-material/KeyboardArrowUpRounded';
 import Box from '@mui/material/Box';
-import Slider from '@mui/material/Slider';
 import CircularProgress from '@mui/material/CircularProgress';
-
-import Typography from 'components/UI/Typography';
-// import TokenSelector from 'components/atlantics/TokenSelector';
-import Input from 'components/UI/Input';
-import CustomButton from 'components/UI/Button';
-import StrategyDetails from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/StrategyDetails';
-
-import { useBoundStore } from 'store';
-import { IAtlanticPoolEpochStrikeData } from 'store/Vault/atlantics';
+import Slider from '@mui/material/Slider';
+import axios from 'axios';
 import { AtlanticsContext } from 'contexts/Atlantics';
-
 import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
+import { useDebounce } from 'use-debounce';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
-import formatAmount from 'utils/general/formatAmount';
-import { getBlockTime } from 'utils/general/getBlocktime';
-import {
-  getPositionFee,
-  getSwapFees,
-  LIQUIDATION_FEE_USD,
-  tokenToUsdMin,
-  usdToTokenMin,
-} from 'utils/contracts/gmx';
+import { IAtlanticPoolEpochStrikeData } from 'store/Vault/atlantics';
+
+import CustomButton from 'components/UI/Button';
+import Input from 'components/UI/Input';
+import Typography from 'components/UI/Typography';
+import StrategyDetails from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/StrategyDetails';
+import TokenSelector from 'components/atlantics/TokenSelector';
+
 import {
   getEligiblePutStrike,
   getStrategyFee,
 } from 'utils/contracts/atlantics/insuredPerps';
 import {
   BLACKOUT_WINDOW,
+  OPTIONS_TOKEN_DECIMALS,
   getFundingFees,
   getPurchaseFees,
-  OPTIONS_TOKEN_DECIMALS,
 } from 'utils/contracts/atlantics/pool';
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import {
+  LIQUIDATION_FEE_USD,
+  getPositionFee,
+  getSwapFees,
+  tokenToUsdMin,
+  usdToTokenMin,
+} from 'utils/contracts/gmx';
+import formatAmount from 'utils/general/formatAmount';
+import { getBlockTime } from 'utils/general/getBlocktime';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
 
-import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
-import { MIN_EXECUTION_FEE } from 'constants/gmx';
+import { CHAINS } from 'constants/chains';
 import { DOPEX_API_BASE_URL } from 'constants/env';
+import { MIN_EXECUTION_FEE } from 'constants/gmx';
+import { MAX_VALUE } from 'constants/index';
 
 const steps = 0.1;
 const minMarks = 2;
@@ -152,8 +155,8 @@ const ManagePosition = () => {
     quote: false,
     base: false,
   });
-  // const [openTokenSelector, setOpenTokenSelector] = useState<boolean>(false);
-  const [selectedToken /* setSelectedToken */] = useState<string>('USDC');
+  const [openTokenSelector, setOpenTokenSelector] = useState<boolean>(false);
+  const [selectedToken, setSelectedToken] = useState<string>('USDC');
   const [positionBalance, setPositionBalance] = useState<string>('');
   const [strategyDetails, setStrategyDetails] = useState<IStrategyDetails>({
     positionSize: BigNumber.from(0),
@@ -313,9 +316,9 @@ const ManagePosition = () => {
     return tokens;
   }, [selectedPool, contractAddresses]);
 
-  // const selectToken = (token: string) => {
-  //   setSelectedToken(() => token);
-  // };
+  const selectToken = (token: string) => {
+    setSelectedToken(() => token);
+  };
 
   const updatePurchasableOptionsForMaxStrike = useCallback(async () => {
     if (
@@ -435,13 +438,10 @@ const ManagePosition = () => {
 
       const selectedTokenDecimals = getTokenDecimals(selectedToken, chainId);
       const collateralTokenDecimals = getTokenDecimals(depositToken, chainId);
-      const selectedTokenInputAmount = getContractReadableAmount(inputAmount, 6)
-        .mul(getContractReadableAmount(1, selectedTokenDecimals))
-        .div(1e6);
-
-      let sizeUsd = selectedTokenInputAmount
-        .mul(leverage)
-        .div(getContractReadableAmount(1, selectedTokenDecimals));
+      const selectedTokenInputAmount = getContractReadableAmount(
+        inputAmount,
+        selectedTokenDecimals
+      );
 
       if (selectedTokenInputAmount.eq(0)) {
         setStrategyDetailsLoading(false);
@@ -463,6 +463,10 @@ const ManagePosition = () => {
         selectedTokenInputAmount,
         selectedTokenDecimals
       );
+
+      let sizeUsd = collateralUsd
+        .mul(leverage)
+        .div(getContractReadableAmount(1, 30));
 
       const positionFeeUsd = getPositionFee(sizeUsd);
 
@@ -746,37 +750,57 @@ const ManagePosition = () => {
     }
   }, [signer, atlanticPool, contractAddresses, sendTx]);
 
+  const checkApprove = useCallback(async () => {
+    const { putOptionsPremium, putOptionsfees, strategyFee, fundingFees } =
+      strategyDetails;
+
+    if (!atlanticPool || !accountAddress) return;
+    const quoteToken = ERC20__factory.connect(
+      contractAddresses[atlanticPool.tokens.depositToken],
+      provider
+    );
+    const baseToken = ERC20__factory.connect(
+      contractAddresses[atlanticPool.tokens.underlying],
+      provider
+    );
+
+    const strategyAddress =
+      contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
+
+    const quoteTokenAllowance = await quoteToken.allowance(
+      accountAddress,
+      strategyAddress
+    );
+    const baseTokenAllowance = await baseToken.allowance(
+      accountAddress,
+      strategyAddress
+    );
+
+    setApproved(() => ({
+      quote: quoteTokenAllowance.gte(
+        putOptionsPremium.add(putOptionsfees.add(fundingFees))
+      ),
+      base:
+        increaseOrderParams.path.length === 1
+          ? baseTokenAllowance.gte(
+              increaseOrderParams.collateralDelta.add(strategyFee)
+            )
+          : true,
+    }));
+  }, [
+    accountAddress,
+    atlanticPool,
+    contractAddresses,
+    increaseOrderParams.collateralDelta,
+    increaseOrderParams.path.length,
+    provider,
+    strategyDetails,
+  ]);
+
   // check approved
   useEffect(() => {
-    (async () => {
-      if (!atlanticPool || !accountAddress) return;
-      const quoteToken = ERC20__factory.connect(
-        contractAddresses[atlanticPool.tokens.depositToken],
-        provider
-      );
-      const baseToken = ERC20__factory.connect(
-        contractAddresses[atlanticPool.tokens.underlying],
-        provider
-      );
-
-      const strategyAddress =
-        contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'];
-
-      const quoteTokenAllowance = await quoteToken.allowance(
-        accountAddress,
-        strategyAddress
-      );
-      const baseTokenAllowance = await baseToken.allowance(
-        accountAddress,
-        strategyAddress
-      );
-
-      setApproved(() => ({
-        quote: !quoteTokenAllowance.isZero(),
-        base: !baseTokenAllowance.isZero(),
-      }));
-    })();
-  }, [accountAddress, atlanticPool, contractAddresses, provider]);
+    checkApprove();
+  }, [checkApprove]);
 
   useEffect(() => {
     handleStrategyCalculations();
@@ -868,30 +892,23 @@ const ManagePosition = () => {
           value={positionBalance}
           onChange={handlePositionBalanceChange}
           leftElement={
-            <Box className="flex my-auto space-x-2">
-              <Box
-                className="flex w-full bg-cod-gray rounded-full space-x-2 pr-1"
-                // role="button"
-                // onClick={() => setOpenTokenSelector(() => true)}
-              >
+            <Box
+              className="flex my-auto w-full space-x-2 rounded-lg cursor-pointer bg-carbon"
+              role="button"
+              onClick={() => setOpenTokenSelector((prev) => !prev)}
+            >
+              <Box className="flex w-full bg-carbon rounded-full space-x-2 pr-1 items-center justify-center">
                 <img
                   src={`/images/tokens/${selectedToken.toLowerCase()}.svg`}
                   alt={selectedToken}
-                  className="w-24"
+                  className="w-10"
                 />
-              </Box>
-              {/* <KeyboardArrowDownRoundedIcon className="fill-current text-mineshaft my-auto" /> */}
-              {/* <Typography variant="h6" className="my-auto">
-                {selectedToken}
-              </Typography> */}
-              <Box
-                role="button"
-                className="rounded-md bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto p-2"
-                onClick={handleMax}
-              >
-                <Typography variant="caption" color="stieglitz">
-                  MAX
-                </Typography>
+                <h6>{selectedToken}</h6>
+                {openTokenSelector ? (
+                  <KeyboardArrowUpRoundedIcon className="fill-current text-white my-auto" />
+                ) : (
+                  <KeyboardArrowDownRoundedIcon className="fill-current text-white my-auto" />
+                )}
               </Box>
             </Box>
           }
@@ -900,11 +917,16 @@ const ManagePosition = () => {
           <Typography variant="h6" color="stieglitz">
             Balance
           </Typography>
-          <Typography variant="h6">
+          <Typography
+            variant="h6"
+            className="underline cursor-pointer"
+            role="button"
+            onClick={handleMax}
+          >
             {formatAmount(
               getUserReadableAmount(
                 userAssetBalances[selectedToken] ?? '0',
-                TOKEN_DECIMALS[chainId]?.[selectedToken]
+                CHAINS[chainId]?.tokenDecimals[selectedToken]
               ),
               3,
               true
@@ -912,13 +934,13 @@ const ManagePosition = () => {
             {selectedToken}
           </Typography>
         </Box>
-        {/* <TokenSelector
+        <TokenSelector
           setSelection={selectToken}
           open={openTokenSelector}
           setOpen={setOpenTokenSelector}
           tokens={allowedTokens}
           containerRef={containerRef}
-        /> */}
+        />
       </Box>
       <Box className="w-full flex flex-col border-t-2 border-cod-gray space-y-2">
         <Box className="flex flex-col items-center p-3 bg-umbra rounded-b-lg">
@@ -972,38 +994,7 @@ const ManagePosition = () => {
           baseToken={selectedPoolTokens.underlying}
         />
         <Box className="flex flex-col w-full space-y-3 mt-2">
-          {!approved.quote ? (
-            <Box className="flex flex-row w-full justify-around space-x-2">
-              {false && !approved.base ? (
-                <CustomButton
-                  onClick={handleApproveBaseToken}
-                  disabled={
-                    positionBalance === '' ||
-                    parseInt(positionBalance) === 0 ||
-                    error !== ''
-                  }
-                  className={`${
-                    !false &&
-                    increaseOrderParams.path[0] !== allowedTokens[1]?.address &&
-                    'hidden'
-                  }  w-full ${approved.base && 'hidden'}`}
-                >
-                  Approve {selectedPoolTokens.underlying}
-                </CustomButton>
-              ) : null}
-              <CustomButton
-                onClick={handleApproveQuoteToken}
-                disabled={
-                  positionBalance === '' ||
-                  parseInt(positionBalance) === 0 ||
-                  error !== ''
-                }
-                className={` ${approved.quote && 'hidden'} w-full`}
-              >
-                Approve {selectedPoolTokens.deposit}
-              </CustomButton>
-            </Box>
-          ) : (
+          {approved.quote && approved.base ? (
             <CustomButton
               disabled={
                 error !== '' ||
@@ -1021,6 +1012,31 @@ const ManagePosition = () => {
                 'Long'
               )}
             </CustomButton>
+          ) : (
+            <Box className="flex space-x-2 items-center justify-content border w-full">
+              {!approved.quote ? (
+                <CustomButton
+                  className="flex-1 w-[10rem]"
+                  onClick={handleApproveQuoteToken}
+                  disabled={
+                    increaseOrderParams.collateralDelta.isZero() || error !== ''
+                  }
+                >
+                  Approve {selectedPoolTokens.deposit}
+                </CustomButton>
+              ) : null}
+              {!approved.base ? (
+                <CustomButton
+                  className="flex-1 w-[10rem]"
+                  onClick={handleApproveBaseToken}
+                  disabled={
+                    increaseOrderParams.collateralDelta.isZero() || error !== ''
+                  }
+                >
+                  Approve {selectedPoolTokens.underlying}
+                </CustomButton>
+              ) : null}
+            </Box>
           )}
         </Box>
       </Box>
