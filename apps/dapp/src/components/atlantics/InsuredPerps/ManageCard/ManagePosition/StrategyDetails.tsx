@@ -258,7 +258,7 @@ const StrategyDetails = (props: {
           />
         </Box>
       </Box>
-      <Box className="bg-umbra border-umbra rounded-lg p-3 mt-2">
+      <Box className="bg-umbra rounded-lg p-3 mt-2">
         <Box className="bg-carbon rounded-lg p-3">
           <EstimatedGasCostButton gas={500000} chainId={chainId} />
           <ContentRow
