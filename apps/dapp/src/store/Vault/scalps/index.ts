@@ -157,6 +157,11 @@ export const createOptionScalpSlice: StateCreator<
                 name: 'minimumAbsoluteLiquidationThreshold',
                 type: 'uint256',
               },
+              {
+                internalType: 'uint256',
+                name: 'withdrawTimeout',
+                type: 'uint256',
+              },
             ],
             internalType: 'struct OptionScalp.Configuration',
             name: 'config',
@@ -468,6 +473,49 @@ export const createOptionScalpSlice: StateCreator<
       },
       {
         inputs: [
+          {
+            internalType: 'address',
+            name: '',
+            type: 'address',
+          },
+        ],
+        name: 'cumulativePnl',
+        outputs: [
+          {
+            internalType: 'int256',
+            name: '',
+            type: 'int256',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          {
+            internalType: 'address',
+            name: '',
+            type: 'address',
+          },
+        ],
+        name: 'cumulativeVolume',
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: '',
+            type: 'uint256',
+          },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+      },
+      {
+        inputs: [
+          {
+            internalType: 'address',
+            name: 'receiver',
+            type: 'address',
+          },
           {
             internalType: 'bool',
             name: 'isQuote',
@@ -1048,6 +1096,11 @@ export const createOptionScalpSlice: StateCreator<
                 name: 'minimumAbsoluteLiquidationThreshold',
                 type: 'uint256',
               },
+              {
+                internalType: 'uint256',
+                name: 'withdrawTimeout',
+                type: 'uint256',
+              },
             ],
             internalType: 'struct OptionScalp.Configuration',
             name: 'config',
@@ -1094,6 +1147,19 @@ export const createOptionScalpSlice: StateCreator<
           },
         ],
         stateMutability: 'nonpayable',
+        type: 'function',
+      },
+      {
+        inputs: [],
+        name: 'withdrawTimeout',
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: '',
+            type: 'uint256',
+          },
+        ],
+        stateMutability: 'view',
         type: 'function',
       },
     ];
