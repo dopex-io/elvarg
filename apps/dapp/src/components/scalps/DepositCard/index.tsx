@@ -70,12 +70,14 @@ const DepositCard = () => {
       amount >
       getUserReadableAmount(
         userTokenBalance,
-        optionScalpData?.quoteDecimals!.toNumber()!
+        isQuote
+          ? optionScalpData?.quoteDecimals!.toNumber()!
+          : optionScalpData?.baseDecimals!.toNumber()!
       )
     )
       return 'Insufficient balance';
     return 'Deposit';
-  }, [approved, amount, userTokenBalance]);
+  }, [approved, amount, userTokenBalance, isQuote]);
 
   const handleApprove = useCallback(async () => {
     if (!optionScalpData?.optionScalpContract || !signer || !contractAddresses)
