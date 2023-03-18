@@ -3004,8 +3004,6 @@ export const createOptionScalpSlice: StateCreator<
       totalBaseAvailable,
       quoteSupply,
       baseSupply,
-      quoteDecimals,
-      baseDecimals,
     ] = await Promise.all([
       optionScalpContract!['minimumMargin'](),
       optionScalpContract!['feeOpenPosition'](),
@@ -3021,18 +3019,21 @@ export const createOptionScalpSlice: StateCreator<
       baseLpContract!['totalAvailableAssets'](),
       quoteLpContract!['totalSupply'](),
       baseLpContract!['totalSupply'](),
-      selectedPoolName === 'ETH' ? BigNumber.from('6') : BigNumber.from('18'),
-      selectedPoolName === 'ETH' ? BigNumber.from('18') : BigNumber.from('8'),
     ]);
 
+    const quoteDecimals: BigNumber =
+      selectedPoolName === 'ETH' ? BigNumber.from('6') : BigNumber.from('18');
+    const baseDecimals: BigNumber =
+      selectedPoolName === 'ETH' ? BigNumber.from('18') : BigNumber.from('8');
+
     const quoteLpValue: BigNumber = quoteSupply.gt(0)
-      ? BigNumber.from((10 ** quoteDecimals).toString())
+      ? BigNumber.from((10 ** quoteDecimals.toNumber()).toString())
           .mul(totalQuoteDeposits)
           .div(quoteSupply)
       : BigNumber.from('0');
 
     const baseLpValue: BigNumber = baseSupply.gt(0)
-      ? BigNumber.from((10 ** baseDecimals).toString())
+      ? BigNumber.from((10 ** baseDecimals.toNumber()).toString())
           .mul(totalBaseDeposits)
           .div(baseSupply)
       : BigNumber.from('0');
