@@ -176,6 +176,14 @@ const TradeCard = () => {
     )
       return;
 
+    const entryLimit = isShort
+      ? optionScalpData
+          .markPrice!.mul(BigNumber.from(995))
+          .div(BigNumber.from(1000))
+      : optionScalpData
+          .markPrice!.mul(BigNumber.from(1005))
+          .div(BigNumber.from(1000));
+
     try {
       await sendTx(
         optionScalpData.optionScalpContract.connect(signer),
@@ -188,6 +196,7 @@ const TradeCard = () => {
           ),
           timeframeIndex,
           margin,
+          entryLimit,
         ]
       )
         .then(() => updateOptionScalpUserData())
@@ -304,7 +313,11 @@ const TradeCard = () => {
             >
               Notional ~{' '}
               {formatAmount(
-                amount / getUserReadableAmount(optionScalpData?.markPrice!, 8),
+                amount /
+                  getUserReadableAmount(
+                    optionScalpData?.markPrice!,
+                    optionScalpData?.quoteDecimals!.toNumber()
+                  ),
                 8
               )}{' '}
               {optionScalpData?.baseSymbol}
@@ -428,6 +441,16 @@ const TradeCard = () => {
               <Typography variant="h6" className="text-white mr-auto ml-0">
                 {formatAmount(liquidationPrice, 2)}{' '}
                 {optionScalpData?.quoteSymbol}
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={'flex mb-1'}>
+            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+              Max. Slippage
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography variant="h6" className="text-white mr-auto ml-0">
+                0.5%
               </Typography>
             </Box>
           </Box>

@@ -1,6 +1,6 @@
 import Head from 'next/head';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import ButtonGroup from '@mui/material/ButtonGroup';
@@ -47,13 +47,25 @@ const OptionScalps = ({ poolName }: Props) => {
     );
   }, [selectedPoolName]);
 
+  const updateAll = useCallback(() => {
+    updateOptionScalp().then(() => updateOptionScalpUserData());
+  }, [updateOptionScalp, updateOptionScalpUserData]);
+
   useEffect(() => {
     if (poolName && setSelectedPoolName) setSelectedPoolName(poolName);
   }, [poolName, setSelectedPoolName]);
 
   useEffect(() => {
-    updateOptionScalp().then(() => updateOptionScalpUserData());
+    updateAll();
   }, [updateOptionScalp, updateOptionScalpUserData]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      updateAll();
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <Box className="bg-black min-h-screen w-full">
