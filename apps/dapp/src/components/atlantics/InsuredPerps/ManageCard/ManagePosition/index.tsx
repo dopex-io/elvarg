@@ -1013,7 +1013,7 @@ const ManagePosition = () => {
               )}
             </CustomButton>
           ) : (
-            <Box className="flex space-x-2 items-center justify-content border w-full">
+            <Box className="flex space-x-2 items-center justify-content w-full">
               {!approved.quote ? (
                 <CustomButton
                   className="flex-1 w-[10rem]"
