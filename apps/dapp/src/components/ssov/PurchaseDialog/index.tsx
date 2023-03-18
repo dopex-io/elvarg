@@ -296,6 +296,38 @@ const PurchaseDialog = ({
     []
   );
 
+  const collateralCTA = useMemo(() => {
+    if (ssovData?.isPut) {
+      return (
+        <Box
+          role="button"
+          className="underline ml-auto mt-1"
+          onClick={() => setFromTokenSymbol(ssovData.collateralSymbol!)}
+        >
+          <Typography variant="h6" className="text-stieglitz underline">
+            Use 2CRV
+          </Typography>
+        </Box>
+      );
+    } else if (ssovData?.collateralSymbol === 'wstETH') {
+      return (
+        <a
+          href="https://app.1inch.io/#/42161/unified/swap/ETH/wstETH"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-auto mt-1"
+        >
+          <Box role="button" className="underline">
+            <Typography variant="h6" className="text-stieglitz">
+              Get wstETH
+            </Typography>
+          </Box>
+        </a>
+      );
+    }
+    return <React.Fragment />;
+  }, [ssovData]);
+
   useEffect(() => {
     updateQuote();
   }, [updateQuote]);
@@ -600,7 +632,10 @@ const PurchaseDialog = ({
     >
       <>
         <Box className="flex flex-row items-center mb-4">
-          <Typography variant="h5">Buy Options</Typography>
+          <Box className='flex w-full justify-between'>
+            <Typography variant="h5">Buy Options</Typography>
+            <Box className="flex mb-3 mr-3">{collateralCTA}</Box>
+          </Box>
           <IconButton
             className={'p-0 pb-1 mr-0 mt-0.5 ml-auto'}
             onClick={handleClose}
