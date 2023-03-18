@@ -253,6 +253,55 @@ const DepositPanel = () => {
     strikeDepositAmount,
   ]);
 
+  const depositButtonProps = useMemo(() => {
+    let disable = false;
+    let text = 'Deposit';
+    let color = 'primary';
+
+    if (Number(strikeDepositAmount) === 0) {
+      disable = true;
+      text = 'Insert an amount';
+      color = 'mineshaft';
+    }
+
+    if (!approved) {
+      disable = false;
+      text = 'Approve';
+      color = 'primary';
+    }
+
+    if (
+      strikeDepositAmount >
+      getUserReadableAmount(
+        userTokenBalance,
+        getTokenDecimals(fromTokenSymbol, chainId)
+      )
+    ) {
+      disable = true;
+      text = 'Insufficient Balance';
+      color = 'mineshaft';
+    }
+
+    if (hasExpiryElapsed) {
+      disable = true;
+      text = 'Pool expired';
+      color = 'mineshaft';
+    }
+
+    return {
+      disable,
+      text,
+      color,
+    };
+  }, [
+    approved,
+    chainId,
+    fromTokenSymbol,
+    strikeDepositAmount,
+    userTokenBalance,
+    hasExpiryElapsed,
+  ]);
+
   // Updates approved state
   useEffect(() => {
     checkApproved();
@@ -520,37 +569,11 @@ const DepositPanel = () => {
             <CustomButton
               size="medium"
               className="w-full mt-4 !rounded-md"
-              color={
-                !approved ||
-                (strikeDepositAmount > 0 &&
-                  strikeDepositAmount <=
-                    getUserReadableAmount(
-                      userTokenBalance,
-                      getTokenDecimals(fromTokenSymbol, chainId)
-                    ))
-                  ? 'primary'
-                  : 'mineshaft'
-              }
-              disabled={strikeDepositAmount <= 0 || hasExpiryElapsed || loading}
+              color={depositButtonProps.color}
+              disabled={depositButtonProps.disable}
               onClick={approved ? handleDeposit : handleApprove}
             >
-              {approved ? (
-                strikeDepositAmount == 0 ? (
-                  'Insert an amount'
-                ) : strikeDepositAmount >
-                  getUserReadableAmount(
-                    userTokenBalance,
-                    getTokenDecimals(fromTokenSymbol, chainId)
-                  ) ? (
-                  'Insufficient balance'
-                ) : loading ? (
-                  <CircularProgress className="text-white p-3" />
-                ) : (
-                  'Deposit'
-                )
-              ) : (
-                'Approve'
-              )}
+              {loading ?  <CircularProgress className="text-white p-3" /> : depositButtonProps.text}
             </CustomButton>
           </Box>
         </Box>
