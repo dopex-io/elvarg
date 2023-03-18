@@ -35,11 +35,13 @@ const PositionsTable = ({ tab }: { tab: string }) => {
 
   const handleClose = useCallback(
     async (id: BigNumber) => {
-      await sendTx(
-        optionScalpData?.optionScalpContract.connect(signer),
-        'closePosition',
-        [id]
-      );
+      try {
+        await sendTx(
+          optionScalpData?.optionScalpContract.connect(signer),
+          'closePosition',
+          [id]
+        );
+      } catch (e) {}
       await updateOptionScalp();
       await updateOptionScalpUserData();
     },

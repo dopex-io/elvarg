@@ -206,9 +206,7 @@ const TradeCard = () => {
           margin,
           entryLimit,
         ]
-      )
-        .then(() => updateOptionScalpUserData())
-        .then(() => updateOptionScalp());
+      );
       await updateOptionScalp();
       await updateOptionScalpUserData();
     } catch (err) {

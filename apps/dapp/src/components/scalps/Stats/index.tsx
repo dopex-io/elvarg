@@ -130,23 +130,6 @@ const Stats = () => {
             variant="h6"
             className="flex justify-center items-center text-gray-400"
           >
-            Min. Abs. Liq. Threshold
-          </Typography>
-          <Typography variant="h6" className="text-white">
-            <span className="text-gray-400">
-              {optionScalpData?.quoteSymbol!}
-            </span>{' '}
-            {getUserReadableAmount(
-              optionScalpData?.minimumAbsoluteLiquidationThreshold!,
-              optionScalpData?.quoteDecimals!.toNumber()
-            )}
-          </Typography>
-        </Box>
-        <Box className="border border-neutral-800 flex justify-between p-2">
-          <Typography
-            variant="h6"
-            className="flex justify-center items-center text-gray-400"
-          >
             Min. Margin
           </Typography>
           <Typography variant="h6" className="text-white">
@@ -227,14 +210,6 @@ const Stats = () => {
                 ),
               0
             )}{' '}
-          </Typography>
-        </Box>
-        <Box className="border border-neutral-800 rounded-br-lg flex justify-between p-2">
-          <Typography variant="h6" className="text-gray-400">
-            Expiry window
-          </Typography>
-          <Typography variant="h6" className="text-white ml-auto mr-1">
-            60s
           </Typography>
         </Box>
       </Box>
