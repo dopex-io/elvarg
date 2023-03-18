@@ -1,3 +1,6 @@
+import { useMemo } from 'react';
+import { ethers } from 'ethers';
+
 import Box from '@mui/material/Box';
 import { useBoundStore } from 'store';
 
@@ -8,6 +11,36 @@ import formatAmount from 'utils/general/formatAmount';
 
 const TopBar = () => {
   const { optionScalpData, selectedPoolName } = useBoundStore();
+
+  const markPrice = useMemo(() => {
+    if (selectedPoolName === 'ETH')
+      return (
+        <Box>
+          {optionScalpData?.quoteSymbol}{' '}
+          {formatAmount(
+            getUserReadableAmount(
+              optionScalpData?.markPrice!,
+              optionScalpData?.quoteDecimals!.toNumber()
+            ),
+            2
+          )}
+        </Box>
+      );
+    else if (selectedPoolName === 'BTC')
+      return (
+        <Box>
+          {optionScalpData?.baseSymbol}{' '}
+          {getUserReadableAmount(
+            ethers.utils
+              .parseUnits('1000000', 'ether')
+              .div(optionScalpData?.markPrice!),
+            6
+          )}
+        </Box>
+      );
+
+    return '';
+  }, []);
 
   return (
     <Box className="flex justify-between">
@@ -37,14 +70,7 @@ const TopBar = () => {
           </Typography>
         </Box>
         <Typography variant="h4" className="ml-4 self-start">
-          {optionScalpData?.quoteSymbol}{' '}
-          {formatAmount(
-            getUserReadableAmount(
-              optionScalpData?.markPrice!,
-              optionScalpData?.quoteDecimals!.toNumber()
-            ),
-            2
-          )}
+          {markPrice}
         </Typography>
       </Box>
     </Box>

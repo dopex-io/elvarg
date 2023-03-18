@@ -30,6 +30,7 @@ const TradeCard = () => {
     optionScalpData,
     updateOptionScalp,
     updateOptionScalpUserData,
+    selectedPoolName,
   } = useBoundStore();
 
   const sendTx = useSendTx();
@@ -40,8 +41,6 @@ const TradeCard = () => {
 
   const [selectedTimeWindow, setSelectedTimeWindow] = useState<string>('30m');
 
-  const [isShort, setIsShort] = useState<boolean>(false);
-
   const [premium, setPremium] = useState<BigNumber>(BigNumber.from(0));
 
   const [approved, setApproved] = useState(false);
@@ -49,6 +48,13 @@ const TradeCard = () => {
   const [rawAmount, setRawAmount] = useState<string>('1000');
 
   const [leverage, setLeverage] = useState<number>(20);
+
+  const [isShort, setIsShort] = useState<boolean>(false);
+
+  const isShortAfterAdjustments = useMemo(() => {
+    if (selectedPoolName === 'BTC') return !isShort;
+    return isShort;
+  }, [isShort, selectedPoolName]);
 
   const amount: number = useMemo(() => {
     return parseFloat(rawAmount) || 0;
@@ -125,14 +131,24 @@ const TradeCard = () => {
     );
     const positions = amount / price;
     if (positions || collateralAmount) {
-      if (isShort) {
+      if (isShortAfterAdjustments) {
         _liquidationPrice = collateralAmount / positions + price;
       } else {
         _liquidationPrice = price - collateralAmount / positions;
       }
     }
+
+    if (selectedPoolName === 'BTC') return 1 / _liquidationPrice;
+
     return _liquidationPrice;
-  }, [isShort, amount, collateralAmount, optionScalpData, optionScalpData]);
+  }, [
+    isShortAfterAdjustments,
+    amount,
+    collateralAmount,
+    optionScalpData,
+    optionScalpData,
+    selectedPoolName,
+  ]);
 
   const timeframeIndex = useMemo(() => {
     const indexes: { [key: string]: number } = {
@@ -176,7 +192,7 @@ const TradeCard = () => {
     )
       return;
 
-    const entryLimit = isShort
+    const entryLimit = isShortAfterAdjustments
       ? optionScalpData
           .markPrice!.mul(BigNumber.from(995))
           .div(BigNumber.from(1000))
@@ -189,7 +205,7 @@ const TradeCard = () => {
         optionScalpData.optionScalpContract.connect(signer),
         'openPosition',
         [
-          isShort,
+          isShortAfterAdjustments,
           getContractReadableAmount(
             amount,
             optionScalpData?.quoteDecimals!.toNumber()!
@@ -216,7 +232,7 @@ const TradeCard = () => {
     sendTx,
     timeframeIndex,
     margin,
-    isShort,
+    isShortAfterAdjustments,
   ]);
 
   // Updates approved state and user balance
@@ -271,7 +287,7 @@ const TradeCard = () => {
               <p
                 className={cx(
                   'font-medium mt-1 cursor-pointer hover:opacity-50',
-                  isShort ? 'text-red-300' : 'text-stieglitz'
+                  isShort ? 'text-red-400' : 'text-stieglitz'
                 )}
                 onClick={() => setIsShort(true)}
               >
@@ -433,14 +449,13 @@ const TradeCard = () => {
               </Typography>
             </Box>
           </Box>
-          <Box className={'flex mb-1'}>
+          <Box className={'flex mb-2'}>
             <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
               Liquidation Price
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(liquidationPrice, 2)}{' '}
-                {optionScalpData?.quoteSymbol}
+                {formatAmount(liquidationPrice, 6)}{' '}
               </Typography>
             </Box>
           </Box>
