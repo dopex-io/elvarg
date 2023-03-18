@@ -1,7 +1,9 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { ethers } from 'ethers';
 
+import Select from '@mui/material/Select';
 import Box from '@mui/material/Box';
+import MenuItem from '@mui/material/MenuItem';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
@@ -10,7 +12,22 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 const TopBar = () => {
-  const { optionScalpData, selectedPoolName } = useBoundStore();
+  const {
+    optionScalpData,
+    selectedPoolName,
+    setSelectedPoolName,
+    updateOptionScalp,
+    updateOptionScalpUserData,
+  } = useBoundStore();
+
+  const handleSelectChange = useCallback(
+    // @ts-ignore TODO: FIX
+    async (e) => {
+      await setSelectedPoolName(e.target.value.toString());
+      await updateOptionScalpUserData().then(() => updateOptionScalp());
+    },
+    [setSelectedPoolName]
+  );
 
   const markPrice = useMemo(() => {
     if (selectedPoolName === 'ETH')
@@ -40,7 +57,7 @@ const TopBar = () => {
       );
 
     return '';
-  }, []);
+  }, [selectedPoolName, optionScalpData]);
 
   return (
     <Box className="flex justify-between">
@@ -65,11 +82,46 @@ const TopBar = () => {
         </Box>
         <Box className="ml-4">
           <Typography variant="h5">Option Scalps</Typography>
-          <Typography variant="h6" className="text-gray-500">
-            {selectedPoolName}
-          </Typography>
         </Box>
-        <Typography variant="h4" className="ml-4 self-start">
+        <Box className="ml-4">
+          <Select
+            className="text-white h-8 bg-gradient-to-r from-cyan-500 to-blue-700"
+            MenuProps={{
+              sx: {
+                '.MuiMenu-paper': {
+                  background: '#151515',
+                  color: 'white',
+                  fill: 'white',
+                },
+                '.Mui-selected': {
+                  background:
+                    'linear-gradient(to right bottom, #06b6d4, #1d4ed8)',
+                },
+                height: 150,
+              },
+              PaperProps: {
+                style: {
+                  width: 120,
+                },
+              },
+            }}
+            classes={{
+              icon: 'text-white',
+            }}
+            displayEmpty
+            autoWidth
+            value={selectedPoolName}
+            onChange={handleSelectChange}
+          >
+            <MenuItem value={'ETH'} key={'ETH'} className="text-white">
+              ETH/USDC
+            </MenuItem>
+            <MenuItem value={'BTC'} key={'BTC'} className="text-white">
+              ETH/BTC
+            </MenuItem>
+          </Select>
+        </Box>
+        <Typography variant="h4" className="ml-4 mt-3 self-start">
           {markPrice}
         </Typography>
       </Box>
