@@ -95,12 +95,23 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                       <Typography variant="h6" className={'pr-7 pt-[2px]'}>
                         <span
                           className={
-                            position.isShort
+                            (
+                              optionScalpData?.inverted
+                                ? !position.isShort
+                                : position.isShort
+                            )
                               ? 'text-[#FF617D]'
                               : 'text-[#6DFFB9]'
                           }
                         >
-                          {position.isShort ? '-' : '+'}
+                          {(
+                            optionScalpData?.inverted
+                              ? !position.isShort
+                              : position.isShort
+                          )
+                            ? '-'
+                            : '+'}
+
                           {formatAmount(
                             getUserReadableAmount(
                               position.positions,
@@ -116,20 +127,34 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                 </TableCell>
                 <TableCell className="pt-1 border-0">
                   <Typography variant="h6" color="white" className="text-left">
-                    $
-                    {getUserReadableAmount(
-                      position.entry,
-                      optionScalpData?.quoteDecimals!.toNumber()!
-                    ).toFixed(2)}
+                    {optionScalpData?.inverted
+                      ? 1 /
+                        Number(
+                          getUserReadableAmount(
+                            position.entry,
+                            optionScalpData?.quoteDecimals!.toNumber()!
+                          )
+                        )
+                      : getUserReadableAmount(
+                          position.entry,
+                          optionScalpData?.quoteDecimals!.toNumber()!
+                        ).toFixed(2)}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
                   <Typography variant="h6" color="white" className="text-left">
-                    $
-                    {getUserReadableAmount(
-                      position.liquidationPrice,
-                      optionScalpData?.quoteDecimals!.toNumber()!
-                    ).toFixed(2)}
+                    {optionScalpData?.inverted
+                      ? 1 /
+                        Number(
+                          getUserReadableAmount(
+                            position.liquidationPrice,
+                            optionScalpData?.quoteDecimals!.toNumber()!
+                          )
+                        )
+                      : getUserReadableAmount(
+                          position.liquidationPrice,
+                          optionScalpData?.quoteDecimals!.toNumber()!
+                        ).toFixed(2)}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
@@ -139,7 +164,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                         position.pnl.lt(0) ? 'text-[#FF617D]' : 'text-[#6DFFB9]'
                       }
                     >
-                      $
+                      {optionScalpData?.quoteSymbol}{' '}
                       {getUserReadableAmount(
                         position.pnl,
                         optionScalpData?.quoteDecimals!.toNumber()!
@@ -149,7 +174,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                 </TableCell>
                 <TableCell className="pt-1 border-0">
                   <Typography variant="h6" color="white" className="text-left">
-                    $
+                    {optionScalpData?.quoteSymbol}{' '}
                     {getUserReadableAmount(
                       position.margin,
                       optionScalpData?.quoteDecimals!.toNumber()!
@@ -158,7 +183,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                 </TableCell>
                 <TableCell className="pt-1 border-0">
                   <Typography variant="h6" color="white" className="text-left">
-                    $
+                    {optionScalpData?.quoteSymbol}{' '}
                     {getUserReadableAmount(
                       position.premium,
                       optionScalpData?.quoteDecimals!.toNumber()!
@@ -195,7 +220,6 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                         color="white"
                         className="text-left"
                       >
-                        $
                         {getUserReadableAmount(
                           position.isShort
                             ? position.entry.sub(

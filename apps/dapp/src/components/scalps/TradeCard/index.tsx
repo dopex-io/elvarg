@@ -30,7 +30,6 @@ const TradeCard = () => {
     optionScalpData,
     updateOptionScalp,
     updateOptionScalpUserData,
-    selectedPoolName,
   } = useBoundStore();
 
   const sendTx = useSendTx();
@@ -52,9 +51,9 @@ const TradeCard = () => {
   const [isShort, setIsShort] = useState<boolean>(false);
 
   const isShortAfterAdjustments = useMemo(() => {
-    if (selectedPoolName === 'BTC') return !isShort;
+    if (optionScalpData?.inverted) return !isShort;
     return isShort;
-  }, [isShort, selectedPoolName]);
+  }, [isShort, optionScalpData]);
 
   const amount: number = useMemo(() => {
     return parseFloat(rawAmount) || 0;
@@ -138,17 +137,10 @@ const TradeCard = () => {
       }
     }
 
-    if (selectedPoolName === 'BTC') return 1 / _liquidationPrice;
+    if (optionScalpData?.inverted) return 1 / _liquidationPrice;
 
     return _liquidationPrice;
-  }, [
-    isShortAfterAdjustments,
-    amount,
-    collateralAmount,
-    optionScalpData,
-    optionScalpData,
-    selectedPoolName,
-  ]);
+  }, [isShortAfterAdjustments, amount, collateralAmount, optionScalpData]);
 
   const timeframeIndex = useMemo(() => {
     const indexes: { [key: string]: number } = {

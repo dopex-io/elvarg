@@ -27,6 +27,7 @@ export interface optionScalpData {
   baseDecimals: BigNumber;
   quoteSymbol: string;
   baseSymbol: string;
+  inverted: boolean;
 }
 
 export interface ScalpPosition {
@@ -2992,6 +2993,7 @@ export const createOptionScalpSlice: StateCreator<
         baseDecimals: baseDecimals,
         quoteSymbol: selectedPoolName === 'ETH' ? 'USDC' : 'WETH',
         baseSymbol: selectedPoolName === 'ETH' ? 'WETH' : 'WBTC',
+        inverted: selectedPoolName === 'BTC',
       },
     }));
   },
