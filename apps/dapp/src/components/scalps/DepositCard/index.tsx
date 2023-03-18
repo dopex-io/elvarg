@@ -121,6 +121,7 @@ const DepositCard = () => {
         optionScalpData!.optionScalpContract.connect(signer),
         'deposit',
         [
+          accountAddress,
           isQuote,
           getContractReadableAmount(
             amount,
