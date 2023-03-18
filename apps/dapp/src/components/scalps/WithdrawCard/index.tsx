@@ -72,7 +72,7 @@ const WithdrawCard = () => {
     )
       return 'Insufficient balance';
     return 'Withdraw';
-  }, [amount, userTokenBalance, approved, optionScalpData]);
+  }, [amount, userTokenBalance, approved, optionScalpData, isQuote]);
 
   const handleApprove = useCallback(async () => {
     if (!optionScalpData?.optionScalpContract || !signer || !contractAddresses)
