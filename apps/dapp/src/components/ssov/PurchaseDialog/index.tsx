@@ -5,7 +5,6 @@ import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import Slide from '@mui/material/Slide';
-import { CircularProgress } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { BigNumber, ethers } from 'ethers';
@@ -35,8 +34,10 @@ import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 import { SsovV3Data, SsovV3EpochData } from 'store/Vault/ssov';
 
-import { IS_NATIVE, MAX_VALUE, OPTION_TOKEN_DECIMALS } from 'constants/index';
+import { MAX_VALUE, OPTION_TOKEN_DECIMALS } from 'constants/index';
+
 import get1inchSwap from 'utils/general/get1inchSwap';
+import isNativeToken from 'utils/general/isNativeToken';
 
 export interface Props {
   open: boolean;
@@ -153,6 +154,36 @@ const PurchaseDialog = ({
 
   const debouncedIsChartVisible = useDebounce(isChartVisible, 200);
 
+  const checkApproved = useCallback(async () => {
+    if (!ssovData || !accountAddress || !spender) return;
+
+    const finalAmount = state.totalCost;
+    const _token = ERC20__factory.connect(
+      getContractAddress(fromTokenSymbol),
+      provider
+    );
+
+    const userAmount = await _token.balanceOf(accountAddress);
+
+    setUserTokenBalance(userAmount);
+
+    const allowance = await _token.allowance(accountAddress, spender);
+
+    if (finalAmount.lte(allowance) || isNativeToken(fromTokenSymbol)) {
+      setApproved(true);
+    } else {
+      setApproved(false);
+    }
+  }, [
+    accountAddress,
+    fromTokenSymbol,
+    getContractAddress,
+    provider,
+    spender,
+    ssovData,
+    state.totalCost,
+  ]);
+
   const updateQuote = useCallback(async () => {
     if (
       !contractAddresses ||
@@ -242,6 +273,7 @@ const PurchaseDialog = ({
       swapData: swapData,
     });
 
+    await checkApproved();
     setQuoteDataLoading(false);
   }, [
     routerMode,
@@ -254,6 +286,7 @@ const PurchaseDialog = ({
     ssovContractWithSigner,
     ssovSigner,
     state.totalCost,
+    checkApproved,
   ]);
 
   const handleInputChange = useCallback(
@@ -319,7 +352,7 @@ const PurchaseDialog = ({
         ]
       : [strikeIndex, _amount, accountAddress];
 
-    IS_NATIVE(fromTokenSymbol) ? params.push({ value: _amount }) : 0;
+    isNativeToken(fromTokenSymbol) ? params.push({ value: _amount }) : 0;
 
     const method = routerMode ? 'swapAndPurchase' : ('purchase' as any);
 
@@ -461,38 +494,8 @@ const PurchaseDialog = ({
 
   // Updates the approved and user balance state
   useEffect(() => {
-    (async function () {
-      if (!ssovData || !accountAddress || !spender) return;
-
-      const finalAmount = state.totalCost;
-      const _token = ERC20__factory.connect(
-        getContractAddress(fromTokenSymbol),
-        provider
-      );
-
-      const userAmount = await _token.balanceOf(accountAddress);
-
-      setUserTokenBalance(userAmount);
-
-      const allowance = await _token.allowance(accountAddress, spender);
-
-      if (finalAmount.lte(allowance) || IS_NATIVE(fromTokenSymbol)) {
-        setApproved(true);
-      } else {
-        setApproved(false);
-      }
-    })();
-  }, [
-    fromTokenSymbol,
-    accountAddress,
-    state.totalCost,
-    getContractAddress,
-    isPut,
-    provider,
-    spender,
-    contractAddresses,
-    ssovData,
-  ]);
+    checkApproved();
+  }, [checkApproved]);
 
   const purchaseButtonProps = useMemo(() => {
     const totalCost = routerMode ? quote.amountOut : state.totalCost;

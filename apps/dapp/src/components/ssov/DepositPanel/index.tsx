@@ -26,12 +26,13 @@ import formatAmount from 'utils/general/formatAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { IS_NATIVE, MAX_VALUE } from 'constants/index';
+import { MAX_VALUE } from 'constants/index';
 
 import get1inchQuote, { defaultQuoteData } from 'utils/general/get1inchQuote';
 import get1inchSwap from 'utils/general/get1inchSwap';
 
 import { getTokenDecimals } from 'utils/general';
+import isNativeToken from 'utils/general/isNativeToken';
 
 const SelectMenuProps = {
   PaperProps: {
@@ -167,7 +168,7 @@ const DepositPanel = () => {
     const params = routerMode
       ? [
           ssovSigner.ssovContractWithSigner.address,
-          IS_NATIVE(fromTokenSymbol)
+          isNativeToken(fromTokenSymbol)
             ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
             : getContractAddress(fromTokenSymbol),
           toTokenAddress,
@@ -182,7 +183,7 @@ const DepositPanel = () => {
       ? ssovSigner.ssovRouterWithSigner
       : ssovSigner.ssovContractWithSigner;
 
-    IS_NATIVE(fromTokenSymbol)
+    isNativeToken(fromTokenSymbol)
       ? params.push({
           value: getContractReadableAmount(strikeDepositAmount, 18),
         })
@@ -224,44 +225,38 @@ const DepositPanel = () => {
     setStrikeDepositAmount(utils.formatEther(userTokenBalance));
   }, [userTokenBalance]);
 
-  // Updates approved state
-  useEffect(() => {
-    (async () => {
-      if (
-        !signer ||
-        !accountAddress ||
-        !spender ||
-        !chainId ||
-        !fromTokenSymbol
-      )
-        return;
+  const checkApproved = useCallback(async () => {
+    if (!signer || !accountAddress || !spender || !chainId || !fromTokenSymbol)
+      return;
 
-      if (!IS_NATIVE(fromTokenSymbol)) {
-        const finalAmount: BigNumber = getContractReadableAmount(
-          strikeDepositAmount.toString(),
-          getTokenDecimals(fromTokenSymbol, chainId)
-        );
-        const allowance: BigNumber = await ERC20__factory.connect(
-          getContractAddress(fromTokenSymbol),
-          signer
-        ).allowance(accountAddress, spender);
+    if (!isNativeToken(fromTokenSymbol)) {
+      const finalAmount: BigNumber = getContractReadableAmount(
+        strikeDepositAmount.toString(),
+        getTokenDecimals(fromTokenSymbol, chainId)
+      );
+      const allowance: BigNumber = await ERC20__factory.connect(
+        getContractAddress(fromTokenSymbol),
+        signer
+      ).allowance(accountAddress, spender);
 
-        setApproved(allowance.gte(finalAmount));
-      } else {
-        setApproved(true);
-      }
-    })();
+      setApproved(allowance.gte(finalAmount));
+    } else {
+      setApproved(true);
+    }
   }, [
-    getContractAddress,
-    chainId,
     accountAddress,
+    chainId,
+    fromTokenSymbol,
+    getContractAddress,
     signer,
     spender,
     strikeDepositAmount,
-    ssovData,
-    fromTokenSymbol,
-    contractAddresses,
   ]);
+
+  // Updates approved state
+  useEffect(() => {
+    checkApproved();
+  }, [checkApproved]);
 
   // Updates user token balance
   useEffect(() => {
@@ -324,6 +319,7 @@ const DepositPanel = () => {
       ).tx.data,
     });
 
+    await checkApproved();
     setLoading(false);
   }, [
     getContractAddress,
@@ -333,6 +329,7 @@ const DepositPanel = () => {
     fromTokenSymbol,
     ssovData,
     ssovSigner,
+    checkApproved,
   ]);
 
   useEffect(() => {
