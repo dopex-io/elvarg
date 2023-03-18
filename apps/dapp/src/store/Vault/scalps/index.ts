@@ -1100,8 +1100,8 @@ export const createOptionScalpSlice: StateCreator<
 
     return new ethers.Contract(
       selectedPoolName === 'ETH'
-        ? '0x11ad9f33421Dc5C8d327a6c084712C3Ccb3443b7'
-        : '0xB01f745dDAdF161Fb4F0dD774a7F43b2B630Ef3b',
+        ? '0x62Fe4250c5eAEc09875fF6D8BE20086946CAE0eA'
+        : '0xf808574A0f2D3f24ff8f5D60938F83CB1B0AE589',
       abi,
       provider
     );
@@ -1967,8 +1967,8 @@ export const createOptionScalpSlice: StateCreator<
 
     return new ethers.Contract(
       selectedPoolName === 'ETH'
-        ? '0x3ad0e8be94d45d413aea1f8c135b26d32b3b66b6'
-        : '0x0447D7666f4c2079dE8BDac99F900F17B70e599A',
+        ? '0xffc10c27581f7b9e4e4e432fe7c60929375961ef'
+        : '0xd62ebec238b6eec7882a39aaa77e758f8b7df3e7',
       abi,
       provider
     );
@@ -2834,8 +2834,8 @@ export const createOptionScalpSlice: StateCreator<
 
     return new ethers.Contract(
       selectedPoolName === 'ETH'
-        ? '0x62b9748041758490afdb702ddeb05d98fc3247a1'
-        : '0xa5dc5a907a783aeb278f9dcde9f64316a84a63fc',
+        ? '0x2804bcd45692d3c016d0c47e742b9a5804192c75'
+        : '0x8665cb4f6491dfcf08779edde48cb86db6848a95',
       abi,
       provider
     );
