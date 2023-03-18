@@ -2960,10 +2960,13 @@ export const createOptionScalpSlice: StateCreator<
     ]);
 
     const quoteLpValue: BigNumber = quoteSupply.gt(0)
-      ? BigNumber.from('1000000').mul(totalQuoteDeposits).div(quoteSupply)
+      ? BigNumber.from((10 ** quoteDecimals).toString())
+          .mul(totalQuoteDeposits)
+          .div(quoteSupply)
       : BigNumber.from('0');
+
     const baseLpValue: BigNumber = baseSupply.gt(0)
-      ? BigNumber.from('1000000000000000000')
+      ? BigNumber.from((10 ** baseDecimals).toString())
           .mul(totalBaseDeposits)
           .div(baseSupply)
       : BigNumber.from('0');

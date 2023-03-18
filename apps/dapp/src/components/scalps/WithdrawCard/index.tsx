@@ -65,7 +65,9 @@ const WithdrawCard = () => {
       amount >
       getUserReadableAmount(
         userTokenBalance,
-        optionScalpData?.quoteDecimals!.toNumber()!
+        isQuote
+          ? optionScalpData?.quoteDecimals!.toNumber()!
+          : optionScalpData?.baseDecimals!.toNumber()!
       )
     )
       return 'Insufficient balance';
@@ -365,7 +367,9 @@ const WithdrawCard = () => {
               amount <=
                 getUserReadableAmount(
                   userTokenBalance,
-                  optionScalpData?.quoteDecimals!.toNumber()!
+                  isQuote
+                    ? optionScalpData?.quoteDecimals!.toNumber()!
+                    : optionScalpData?.baseDecimals!.toNumber()!
                 )
                 ? 'primary'
                 : 'mineshaft'
