@@ -26,7 +26,7 @@ const TopBar = () => {
       await setSelectedPoolName(e.target.value.toString());
       await updateOptionScalpUserData().then(() => updateOptionScalp());
     },
-    [setSelectedPoolName]
+    [setSelectedPoolName, updateOptionScalp, updateOptionScalpUserData]
   );
 
   const markPrice = useMemo(() => {

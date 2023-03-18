@@ -77,7 +77,7 @@ const DepositCard = () => {
     )
       return 'Insufficient balance';
     return 'Deposit';
-  }, [approved, amount, userTokenBalance, isQuote]);
+  }, [approved, amount, userTokenBalance, isQuote, optionScalpData]);
 
   const handleApprove = useCallback(async () => {
     if (!optionScalpData?.optionScalpContract || !signer || !contractAddresses)
@@ -328,7 +328,9 @@ const DepositCard = () => {
                 amount <=
                   getUserReadableAmount(
                     userTokenBalance,
-                    optionScalpData?.quoteDecimals!.toNumber()!
+                    isQuote
+                      ? optionScalpData?.quoteDecimals!.toNumber()!
+                      : optionScalpData?.baseDecimals!.toNumber()!
                   ))
                 ? 'primary'
                 : 'mineshaft'

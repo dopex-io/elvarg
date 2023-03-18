@@ -57,7 +57,7 @@ const OptionScalps = ({ poolName }: Props) => {
 
   useEffect(() => {
     updateAll();
-  }, [updateOptionScalp, updateOptionScalpUserData]);
+  }, [updateAll]);
 
   useEffect(() => {
     const interval = setInterval(() => {
