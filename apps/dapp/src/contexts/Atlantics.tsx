@@ -513,7 +513,6 @@ export const AtlanticsProvider = (props: any) => {
     )
       return;
 
-    console.log(contractAddresses['ATLANTICS-VIEWER']);
     const poolAddress =
       contractAddresses['ATLANTIC-POOLS'][selectedPool.asset][poolType][
         selectedPool.duration

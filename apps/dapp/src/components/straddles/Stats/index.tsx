@@ -30,8 +30,6 @@ const Stats = () => {
     tokenPrices,
   } = useBoundStore();
 
-  console.log(tokenPrices);
-
   const currentEpoch = straddlesData?.currentEpoch || 0;
 
   const epochEndTime: Date = useMemo(() => {

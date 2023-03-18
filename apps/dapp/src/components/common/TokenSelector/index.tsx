@@ -63,10 +63,9 @@ const TokenSelector = ({
 
   return open ? (
     <Box className="overflow-hidden">
-      <Box className="flex flex-row items-center mb-4">
-        <Typography variant="h5">Pay with</Typography>
+      <Box className="flex flex-row items-center">
         <IconButton
-          className="p-0 pb-1 mr-0 ml-auto"
+          className="p-0 mr-2 ml-auto"
           onClick={handleClose}
           size="large"
         >
@@ -79,7 +78,7 @@ const TokenSelector = ({
             disableUnderline={true}
             value={searchTerm}
             onChange={handleSearch}
-            className="h-11 text-lg text-white w-full bg-umbra pl-3 pr-3 rounded-md"
+            className="h-11 text-lg text-white w-full bg-umbra pl-3 pr-3 rounded-md text-[1rem]"
             placeholder="Search by token name"
             classes={{ input: 'text-white' }}
             startAdornment={
@@ -91,7 +90,7 @@ const TokenSelector = ({
         </Box>
       ) : null}
       <Slide direction="up" in={open} mountOnEnter unmountOnExit>
-        <Box className={isInDialog ? '' : 'h-[32rem] overflow-y-scroll'}>
+        <Box className={isInDialog ? '' : 'h-[20rem] overflow-y-scroll'}>
           {tokens
             .sort((a, b) => {
               return getValueInUsd(b) - getValueInUsd(a);
@@ -123,12 +122,12 @@ const TokenSelector = ({
                     </Box>
                     <Box className="ml-1">
                       <Typography
-                        variant="h5"
+                        variant="h6"
                         className="text-white font-medium"
                       >
                         {symbol}
                       </Typography>
-                      <Typography variant="h6" className="text-gray-400">
+                      <Typography variant="caption" className="text-gray-400">
                         {TOKEN_DATA[symbol]?.name}
                       </Typography>
                     </Box>{' '}

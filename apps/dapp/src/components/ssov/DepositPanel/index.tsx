@@ -5,6 +5,7 @@ import { BigNumber, utils } from 'ethers';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
+import { CircularProgress } from '@mui/material';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 import { useBoundStore } from 'store';
@@ -14,8 +15,8 @@ import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import InputHelpers from 'components/common/InputHelpers';
 import Wrapper from 'components/ssov/Wrapper';
+import InputWithTokenSelector from 'components/common/InputWithTokenSelector';
 
 import LockerIcon from 'svgs/icons/LockerIcon';
 
@@ -26,6 +27,12 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { MAX_VALUE } from 'constants/index';
+
+import get1inchQuote, { defaultQuoteData } from 'utils/general/get1inchQuote';
+import get1inchSwap from 'utils/general/get1inchSwap';
+
+import { getTokenDecimals } from 'utils/general';
+import isNativeToken from 'utils/general/isNativeToken';
 
 const SelectMenuProps = {
   PaperProps: {
@@ -51,11 +58,19 @@ const DepositPanel = () => {
     ssovEpochData,
     ssovSigner,
     selectedEpoch,
+    contractAddresses,
+    userAssetBalances,
+    getContractAddress,
   } = useBoundStore();
 
-  const [wrapOpen, setWrapOpen] = useState(false);
-
   const sendTx = useSendTx();
+
+  const [wrapOpen, setWrapOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [quote, setQuote] = useState({
+    quoteData: defaultQuoteData,
+    swapData: '',
+  });
 
   const [strikeDepositAmount, setStrikeDepositAmount] = useState<
     number | string
@@ -64,6 +79,12 @@ const DepositPanel = () => {
     BigNumber.from('0')
   );
 
+  const [fromTokenSymbol, setFromTokenSymbol] = useState(
+    ssovData?.collateralSymbol ?? ''
+  );
+
+  const [isTokenSelectorOpen, setTokenSelectorOpen] = useState(false);
+
   const { ssovContractWithSigner } = ssovSigner;
 
   const { epochTimes, epochStrikes } = ssovEpochData as SsovV3EpochData;
@@ -71,9 +92,19 @@ const DepositPanel = () => {
   const [approved, setApproved] = useState<boolean>(false);
   const [strike, setStrike] = useState(0);
 
+  const routerMode = useMemo(() => {
+    return fromTokenSymbol !== ssovData?.collateralSymbol;
+  }, [fromTokenSymbol, ssovData]);
+
   const spender = useMemo(() => {
-    return ssovContractWithSigner?.address;
-  }, [ssovContractWithSigner]);
+    return routerMode
+      ? ssovSigner?.ssovRouterWithSigner?.address
+      : ssovSigner?.ssovContractWithSigner?.address;
+  }, [
+    routerMode,
+    ssovSigner?.ssovRouterWithSigner?.address,
+    ssovSigner?.ssovContractWithSigner?.address,
+  ]);
 
   const strikes = epochStrikes.map((strike: string | number | BigNumber) =>
     getUserReadableAmount(strike, 8).toString()
@@ -84,8 +115,9 @@ const DepositPanel = () => {
   }, []);
 
   const handleDepositAmount = useCallback(
-    (e: { target: { value: React.SetStateAction<string | number> } }) =>
-      setStrikeDepositAmount(e.target.value),
+    (e: { target: { value: React.SetStateAction<string | number> } }) => {
+      setStrikeDepositAmount(e.target.value);
+    },
     []
   );
 
@@ -99,7 +131,7 @@ const DepositPanel = () => {
     if (!ssovData?.collateralAddress || !signer || !spender) return;
     try {
       await sendTx(
-        ERC20__factory.connect(ssovData.collateralAddress, signer),
+        ERC20__factory.connect(contractAddresses[fromTokenSymbol], signer),
         'approve',
         [spender, MAX_VALUE]
       );
@@ -107,17 +139,60 @@ const DepositPanel = () => {
     } catch (err) {
       console.log(err);
     }
-  }, [sendTx, signer, spender, ssovData]);
+  }, [sendTx, signer, spender, ssovData, fromTokenSymbol, contractAddresses]);
 
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
-    if (!ssovContractWithSigner || !accountAddress) return;
+    if (
+      !ssovContractWithSigner ||
+      !accountAddress ||
+      !ssovData ||
+      !ssovData.collateralSymbol ||
+      !ssovSigner.ssovContractWithSigner ||
+      !ssovSigner.ssovRouterWithSigner ||
+      !chainId
+    )
+      return;
+
+    const depositAmount = getContractReadableAmount(
+      strikeDepositAmount,
+      getTokenDecimals(fromTokenSymbol, chainId)
+    );
+
+    const toTokenAddress = ssovData.isPut
+      ? fromTokenSymbol === 'USDC'
+        ? getContractAddress('USDT')
+        : getContractAddress('USDC')
+      : ssovData.collateralAddress;
+
+    const params = routerMode
+      ? [
+          ssovSigner.ssovContractWithSigner.address,
+          isNativeToken(fromTokenSymbol)
+            ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+            : getContractAddress(fromTokenSymbol),
+          toTokenAddress,
+          accountAddress,
+          strike,
+          depositAmount,
+          quote.quoteData.toTokenAmount,
+          quote.swapData,
+        ]
+      : [strike, depositAmount, accountAddress];
+    const contractWithSigner = routerMode
+      ? ssovSigner.ssovRouterWithSigner
+      : ssovSigner.ssovContractWithSigner;
+
+    isNativeToken(fromTokenSymbol)
+      ? params.push({
+          value: getContractReadableAmount(strikeDepositAmount, 18),
+        })
+      : 0;
+
+    const method = routerMode ? 'swapAndDeposit' : ('deposit' as any);
+
     try {
-      await sendTx(ssovContractWithSigner, 'deposit', [
-        strike,
-        getContractReadableAmount(strikeDepositAmount, 18),
-        accountAddress,
-      ]).then(() => {
+      await sendTx(contractWithSigner, method, params).then(() => {
         setStrikeDepositAmount(0);
         updateAssetBalances();
         updateSsovEpochData();
@@ -127,7 +202,9 @@ const DepositPanel = () => {
       console.log(err);
     }
   }, [
+    getContractAddress,
     sendTx,
+    routerMode,
     accountAddress,
     ssovContractWithSigner,
     strike,
@@ -135,61 +212,191 @@ const DepositPanel = () => {
     updateAssetBalances,
     updateSsovEpochData,
     updateSsovUserData,
+    fromTokenSymbol,
+    ssovData,
+    ssovSigner.ssovContractWithSigner,
+    ssovSigner.ssovRouterWithSigner,
+    quote.quoteData.toTokenAmount,
+    quote.swapData,
+    chainId,
   ]);
 
   const handleMax = useCallback(() => {
     setStrikeDepositAmount(utils.formatEther(userTokenBalance));
   }, [userTokenBalance]);
 
-  // Updates approved state
-  useEffect(() => {
-    (async () => {
-      if (
-        !signer ||
-        !ssovData?.collateralAddress ||
-        !accountAddress ||
-        !spender
-      )
-        return;
+  const checkApproved = useCallback(async () => {
+    if (!signer || !accountAddress || !spender || !chainId || !fromTokenSymbol)
+      return;
+
+    if (!isNativeToken(fromTokenSymbol)) {
       const finalAmount: BigNumber = getContractReadableAmount(
         strikeDepositAmount.toString(),
-        18
+        getTokenDecimals(fromTokenSymbol, chainId)
       );
       const allowance: BigNumber = await ERC20__factory.connect(
-        ssovData.collateralAddress,
+        getContractAddress(fromTokenSymbol),
         signer
       ).allowance(accountAddress, spender);
+
       setApproved(allowance.gte(finalAmount));
-    })();
-  }, [accountAddress, signer, spender, strikeDepositAmount, ssovData]);
+    } else {
+      setApproved(true);
+    }
+  }, [
+    accountAddress,
+    chainId,
+    fromTokenSymbol,
+    getContractAddress,
+    signer,
+    spender,
+    strikeDepositAmount,
+  ]);
+
+  const depositButtonProps = useMemo(() => {
+    let disable = false;
+    let text = 'Deposit';
+    let color = 'primary';
+
+    if (Number(strikeDepositAmount) === 0) {
+      disable = true;
+      text = 'Insert an amount';
+      color = 'mineshaft';
+    }
+
+    if (!approved) {
+      disable = false;
+      text = 'Approve';
+      color = 'primary';
+    }
+
+    if (
+      strikeDepositAmount >
+      getUserReadableAmount(
+        userTokenBalance,
+        getTokenDecimals(fromTokenSymbol, chainId)
+      )
+    ) {
+      disable = true;
+      text = 'Insufficient Balance';
+      color = 'mineshaft';
+    }
+
+    if (hasExpiryElapsed) {
+      disable = true;
+      text = 'Pool expired';
+      color = 'mineshaft';
+    }
+
+    return {
+      disable,
+      text,
+      color,
+    };
+  }, [
+    approved,
+    chainId,
+    fromTokenSymbol,
+    strikeDepositAmount,
+    userTokenBalance,
+    hasExpiryElapsed,
+  ]);
+
+  // Updates approved state
+  useEffect(() => {
+    checkApproved();
+  }, [checkApproved]);
 
   // Updates user token balance
   useEffect(() => {
-    (async function () {
-      if (!accountAddress || !ssovData?.collateralAddress || !signer) return;
-      const bal = await ERC20__factory.connect(
-        ssovData?.collateralAddress,
-        signer
-      ).balanceOf(accountAddress);
-      setUserTokenBalance(bal);
-    })();
-  }, [accountAddress, signer, ssovData]);
+    setUserTokenBalance(
+      BigNumber.from(userAssetBalances[fromTokenSymbol] ?? '0')
+    );
+  }, [accountAddress, signer, ssovData, userAssetBalances, fromTokenSymbol]);
+
+  const updateQuote = useCallback(async () => {
+    if (
+      !ssovData ||
+      !ssovData?.collateralSymbol ||
+      fromTokenSymbol === ssovData?.collateralSymbol
+    )
+      return;
+
+    const fromTokenAddress = getContractAddress(fromTokenSymbol);
+
+    const toTokenAddress = ssovData.isPut
+      ? fromTokenSymbol === 'USDC'
+        ? getContractAddress('USDT')
+        : getContractAddress('USDC')
+      : ssovData.collateralAddress;
+
+    if (
+      !chainId ||
+      !accountAddress ||
+      !strikeDepositAmount ||
+      fromTokenAddress === toTokenAddress ||
+      !ssovSigner.ssovRouterWithSigner
+    )
+      return;
+
+    setLoading(true);
+
+    setQuote({
+      quoteData: await get1inchQuote(
+        fromTokenAddress,
+        toTokenAddress,
+        getContractReadableAmount(
+          strikeDepositAmount,
+          getTokenDecimals(fromTokenSymbol, chainId)
+        ).toString(),
+        chainId,
+        accountAddress,
+        '3'
+      ),
+
+      swapData: (
+        await get1inchSwap({
+          fromTokenAddress,
+          toTokenAddress,
+          amount: getContractReadableAmount(
+            strikeDepositAmount,
+            getTokenDecimals(fromTokenSymbol, chainId)
+          ),
+          chainId,
+          accountAddress: ssovSigner.ssovRouterWithSigner.address,
+        })
+      ).tx.data,
+    });
+
+    await checkApproved();
+    setLoading(false);
+  }, [
+    getContractAddress,
+    accountAddress,
+    strikeDepositAmount,
+    chainId,
+    fromTokenSymbol,
+    ssovData,
+    ssovSigner,
+    checkApproved,
+  ]);
+
+  useEffect(() => {
+    updateQuote();
+  }, [updateQuote]);
 
   const collateralCTA = useMemo(() => {
     if (ssovData?.isPut) {
       return (
-        <a
-          href="https://curve.fi/#/arbitrum/pools/2pool/deposit"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ml-auto mt-1"
+        <Box
+          role="button"
+          className="underline ml-auto mt-1"
+          onClick={() => setFromTokenSymbol(ssovData.collateralSymbol!)}
         >
-          <Box role="button" className="underline">
-            <Typography variant="h6" className="text-stieglitz">
-              Get 2CRV
-            </Typography>
-          </Box>
-        </a>
+          <Typography variant="h6" className="text-stieglitz">
+            Use 2CRV
+          </Typography>
+        </Box>
       );
     } else if (ssovData?.collateralSymbol === 'WETH') {
       return (
@@ -221,7 +428,7 @@ const DepositPanel = () => {
   }, [ssovData]);
 
   return (
-    <Box className="bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 w-full md:w-[350px]">
+    <Box className="bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 w-full md:w-[400px] h-full">
       <Box className="flex mb-3">
         <Typography variant="h3" className="text-stieglitz">
           Deposit
@@ -230,150 +437,147 @@ const DepositPanel = () => {
         <Wrapper open={wrapOpen} handleClose={() => setWrapOpen(false)} />
       </Box>
       <Box>
-        <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full bg-umbra">
-          <Box className="flex">
-            <Typography
-              variant="h6"
-              className="text-stieglitz ml-0 mr-auto text-[0.72rem]"
-            >
-              Balance
-            </Typography>
-            <Typography
-              variant="h6"
-              className="text-white ml-auto mr-0 text-[0.72rem]"
-            >
-              {formatAmount(getUserReadableAmount(userTokenBalance, 18), 8)}{' '}
-              {ssovData?.collateralSymbol}
-            </Typography>
-          </Box>
-          <Box className="mt-2 flex">
-            <Box className={'w-full'}>
-              <Select
-                className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
-                fullWidth
-                value={strike}
-                onChange={handleSelectStrike}
-                input={<Input />}
-                variant="outlined"
-                placeholder="Select Strike Prices"
-                MenuProps={SelectMenuProps}
-                classes={{
-                  icon: 'absolute right-7 text-white',
-                  select: 'overflow-hidden',
-                }}
-                disableUnderline
-                label="strikes"
-              >
-                {strikes.map((strike: string, index: number) => (
-                  <MenuItem key={index} value={index} className="pb-2 pt-2">
-                    <Typography
-                      variant="h5"
-                      className="text-white text-left w-full relative ml-3"
-                    >
-                      ${formatAmount(strike, 4)}
-                    </Typography>
-                  </MenuItem>
-                ))}
-              </Select>
-            </Box>
-          </Box>
-          <Box className="mt-3">
-            <Box className="flex mb-3 group">
-              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-                Amount
-              </Typography>
-              <Box className="relative">
-                <InputHelpers handleMax={handleMax} />
-                <Input
-                  disableUnderline={true}
-                  type="number"
-                  className="w-[11.3rem] lg:w-[9.3rem] border-[#545454] border-t-[1.5px] border-b-[1.5px] border-l-[1.5px] border-r-[1.5px] rounded-md pl-2 pr-2"
-                  classes={{ input: 'text-white text-xs text-right' }}
-                  value={strikeDepositAmount}
-                  placeholder="0"
-                  onChange={handleDepositAmount}
-                />
+        <InputWithTokenSelector
+          topRightTag="Deposit Amount"
+          topLeftTag="Deposit With"
+          selectedTokenSymbol={fromTokenSymbol}
+          setSelectedToken={setFromTokenSymbol}
+          handleMax={handleMax}
+          inputAmount={strikeDepositAmount}
+          handleInputAmountChange={handleDepositAmount}
+          overrides={{ setTokenSelectorOpen }}
+        />
+      </Box>
+      {!isTokenSelectorOpen && (
+        <Box>
+          <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full">
+            <Box className="mt-2 flex">
+              <Box className={'w-full'}>
+                <Select
+                  className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
+                  fullWidth
+                  value={strike}
+                  onChange={handleSelectStrike}
+                  input={<Input />}
+                  variant="outlined"
+                  placeholder="Select Strike Prices"
+                  MenuProps={SelectMenuProps}
+                  classes={{
+                    icon: 'absolute right-7 text-white',
+                    select: 'overflow-hidden',
+                  }}
+                  disableUnderline
+                  label="strikes"
+                >
+                  {strikes.map((strike: string, index: number) => (
+                    <MenuItem key={index} value={index} className="pb-2 pt-2">
+                      <Typography
+                        variant="h5"
+                        className="text-white text-left w-full relative ml-3"
+                      >
+                        ${formatAmount(strike, 4)}
+                      </Typography>
+                    </MenuItem>
+                  ))}
+                </Select>
               </Box>
             </Box>
           </Box>
-        </Box>
-        <Box className="mt-3.5">
-          <Box className="rounded-xl flex flex-col mb-0 p-3 border border-neutral-800 w-full">
-            <Box className={'flex mb-1'}>
-              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-                Epoch
-              </Typography>
-              <Box className={'text-right'}>
-                <Typography variant="h6" className="text-white mr-auto ml-0">
-                  {selectedEpoch}
+          <Box className="mt-3.5">
+            <Box className="rounded-xl flex flex-col mb-0 p-3 border border-neutral-800 w-full">
+              <Box className={'flex mb-1'}>
+                <Typography
+                  variant="h6"
+                  className="text-stieglitz ml-0 mr-auto"
+                >
+                  Epoch
                 </Typography>
+                <Box className={'text-right'}>
+                  <Typography variant="h6" className="text-white mr-auto ml-0">
+                    {selectedEpoch}
+                  </Typography>
+                </Box>
               </Box>
+              <Box className={'flex mb-1'}>
+                <Typography
+                  variant="h6"
+                  className="text-stieglitz ml-0 mr-auto"
+                >
+                  Withdrawable
+                </Typography>
+                <Box className={'text-right'}>
+                  <Typography variant="h6" className="text-white mr-auto ml-0">
+                    {epochTimes[1]
+                      ? format(
+                          new Date(epochTimes[1].toNumber() * 1000),
+                          'd LLL yyyy'
+                        )
+                      : '-'}
+                  </Typography>
+                </Box>
+              </Box>
+              {fromTokenSymbol !== ssovData?.collateralSymbol && (
+                <Box className={'flex mb-1'}>
+                  <Typography
+                    variant="h6"
+                    className="text-stieglitz ml-0 mr-auto"
+                  >
+                    Deposit amount
+                  </Typography>
+                  <Box className={'text-right'}>
+                    <Typography
+                      variant="h6"
+                      className="text-white mr-auto ml-0"
+                    >
+                      {formatAmount(
+                        getUserReadableAmount(
+                          quote.quoteData.toTokenAmount,
+                          quote.quoteData.toToken.decimals
+                        ),
+                        3
+                      )}{' '}
+                      {ssovData?.collateralSymbol}~
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
             </Box>
-            <Box className={'flex mb-1'}>
-              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-                Withdrawable
-              </Typography>
-              <Box className={'text-right'}>
-                <Typography variant="h6" className="text-white mr-auto ml-0">
+          </Box>
+          <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra mt-4">
+            <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
+              <EstimatedGasCostButton gas={500000} chainId={chainId} />
+            </Box>
+            <Box className="flex">
+              <Box className="flex text-center p-2 mr-2 mt-1">
+                <LockerIcon />
+              </Box>
+              <Typography variant="h6" className="text-stieglitz">
+                Withdrawals are locked until end of Epoch{' '}
+                {ssovData?.currentEpoch || 0}{' '}
+                <span className="text-white">
+                  ({' '}
                   {epochTimes[1]
                     ? format(
                         new Date(epochTimes[1].toNumber() * 1000),
-                        'd LLL yyyy'
+                        'd MMM yyyy HH:mm'
                       )
                     : '-'}
-                </Typography>
-              </Box>
+                  )
+                </span>
+              </Typography>
             </Box>
+            <CustomButton
+              size="medium"
+              className="w-full mt-4 !rounded-md"
+              color={depositButtonProps.color}
+              disabled={depositButtonProps.disable}
+              onClick={approved ? handleDeposit : handleApprove}
+            >
+              {loading ?  <CircularProgress className="text-white p-3" /> : depositButtonProps.text}
+            </CustomButton>
           </Box>
         </Box>
-        <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra mt-4">
-          <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
-            <EstimatedGasCostButton gas={500000} chainId={chainId} />
-          </Box>
-          <Box className="flex">
-            <Box className="flex text-center p-2 mr-2 mt-1">
-              <LockerIcon />
-            </Box>
-            <Typography variant="h6" className="text-stieglitz">
-              Withdrawals are locked until end of Epoch{' '}
-              {ssovData?.currentEpoch || 0}{' '}
-              <span className="text-white">
-                ({' '}
-                {epochTimes[1]
-                  ? format(
-                      new Date(epochTimes[1].toNumber() * 1000),
-                      'd MMM yyyy HH:mm'
-                    )
-                  : '-'}
-                )
-              </span>
-            </Typography>
-          </Box>
-          <CustomButton
-            size="medium"
-            className="w-full mt-4 !rounded-md"
-            color={
-              !approved ||
-              (strikeDepositAmount > 0 &&
-                strikeDepositAmount <=
-                  getUserReadableAmount(userTokenBalance, 18))
-                ? 'primary'
-                : 'mineshaft'
-            }
-            disabled={strikeDepositAmount <= 0 || hasExpiryElapsed}
-            onClick={approved ? handleDeposit : handleApprove}
-          >
-            {approved
-              ? strikeDepositAmount == 0
-                ? 'Insert an amount'
-                : strikeDepositAmount >
-                  getUserReadableAmount(userTokenBalance, 18)
-                ? 'Insufficient balance'
-                : 'Deposit'
-              : 'Approve'}
-          </CustomButton>
-        </Box>
-      </Box>
+      )}
     </Box>
   );
 };

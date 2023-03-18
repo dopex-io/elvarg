@@ -18020,7 +18020,7 @@ packages:
     dev: true
 
   /strip-hex-prefix/1.0.0:
-    resolution: {integrity: sha1-DF8VX+8RUTczd96du1iNoFUA428=}
+    resolution: {integrity: sha512-q8d4ue7JGEiVcypji1bALTos+0pWtyGlivAWyPuTkHzuTCJqrK9sWxYQZUq6Nq3cuyv3bm734IhHvHtGGURU6A==}
     engines: {node: '>=6.5.0', npm: '>=3'}
     dependencies:
       is-hex-prefixed: 1.0.0

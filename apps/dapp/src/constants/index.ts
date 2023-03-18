@@ -8,7 +8,8 @@ export const DECIMALS_USD: number = 6;
 
 export const ASC = 'asc';
 export const DESC = 'desc';
-export const NULL: string = '0x0000000000000000000000000000000000000000';
+export const ZERO_ADDRESS: string =
+  '0x0000000000000000000000000000000000000000';
 export const PERCENT: BigNumber = BigNumber.from(100);
 
 export const FEE_BPS_MAP: Record<

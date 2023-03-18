@@ -1,16 +1,18 @@
-import { BigNumber, ethers } from 'ethers';
-
-import {
-  ERC20__factory,
-  SSOVOptionPricing,
-  SSOVOptionPricing__factory,
-  SsovV3,
-  SsovV3Viewer__factory,
-  SsovV3__factory,
-} from '@dopex-io/sdk';
-import axios from 'axios';
-import { TokenData } from 'types';
 import { StateCreator } from 'zustand';
+import {
+  SsovV3__factory,
+  SsovV3,
+  SSOVOptionPricing,
+  SsovV3Viewer__factory,
+  SSOVOptionPricing__factory,
+  ERC20__factory,
+  SsovV3Router__factory,
+  SsovV3Router,
+} from '@dopex-io/sdk';
+import { BigNumber, ethers } from 'ethers';
+import axios from 'axios';
+
+import { TokenData } from 'types';
 
 import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';
@@ -22,6 +24,7 @@ import { TOKEN_ADDRESS_TO_DATA } from 'constants/tokens';
 
 export interface SsovV3Signer {
   ssovContractWithSigner?: SsovV3;
+  ssovRouterWithSigner?: SsovV3Router;
 }
 
 export interface SsovV3Data {
@@ -111,7 +114,12 @@ export const createSsovV3Slice: StateCreator<
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
 
-    if (!ssovAddress) return;
+    const ssovRouterAddress = contractAddresses['SSOV-V3']['ROUTER'];
+
+    let ssovRouterWithSigner = SsovV3Router__factory.connect(
+      ssovRouterAddress,
+      signer
+    );
 
     const _ssovContractWithSigner = SsovV3__factory.connect(
       ssovAddress,
@@ -120,9 +128,13 @@ export const createSsovV3Slice: StateCreator<
 
     _ssovSigner = {
       ssovContractWithSigner: _ssovContractWithSigner,
+      ssovRouterWithSigner,
     };
 
-    set((prevState) => ({ ...prevState, ssovSigner: _ssovSigner }));
+    set((prevState) => ({
+      ...prevState,
+      ssovSigner: _ssovSigner,
+    }));
   },
   updateSsovV3EpochData: async () => {
     const {
