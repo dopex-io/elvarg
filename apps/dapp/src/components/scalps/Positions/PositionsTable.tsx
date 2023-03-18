@@ -200,12 +200,18 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                           position.isShort
                             ? position.entry.sub(
                                 position.pnl
-                                  .mul('10000000000')
+                                  .mul(
+                                    10 **
+                                      optionScalpData!.quoteDecimals!.toNumber()
+                                  )
                                   .div(position.positions.abs())
                               )
                             : position.entry.add(
                                 position.pnl
-                                  .mul('10000000000')
+                                  .mul(
+                                    10 **
+                                      optionScalpData!.quoteDecimals!.toNumber()
+                                  )
                                   .div(position.positions.abs())
                               ),
                           optionScalpData?.quoteDecimals!.toNumber()!
