@@ -47,6 +47,7 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
     topLeftTag,
     topRightTag,
     overrides,
+    handleMax,
   } = props;
 
   const { chainId, getContractAddress, provider, accountAddress } =
@@ -148,8 +149,9 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
               Balance
             </Typography>
             <Typography
-              className=" text-right flex-1 text-stieglitz"
+              className=" text-right flex-1 text-stieglitz underline cursor-pointer"
               variant="h6"
+              onClick={handleMax}
             >
               {selectedTokenBalance}
             </Typography>
