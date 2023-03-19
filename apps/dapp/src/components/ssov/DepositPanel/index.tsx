@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ERC20__factory } from '@dopex-io/sdk';
 import format from 'date-fns/format';
-import { BigNumber, utils } from 'ethers';
+import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
 import { CircularProgress } from '@mui/material';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import { useDebounce } from 'use-debounce';
 
 import { useBoundStore } from 'store';
 import { SsovV3EpochData } from 'store/Vault/ssov';
@@ -71,6 +72,8 @@ const DepositPanel = () => {
     quoteData: defaultQuoteData,
     swapData: '',
   });
+
+  const [debouncedQuote] = useDebounce(quote, 1000);
 
   const [strikeDepositAmount, setStrikeDepositAmount] = useState<
     number | string
@@ -141,6 +144,54 @@ const DepositPanel = () => {
     }
   }, [sendTx, signer, spender, ssovData, fromTokenSymbol, contractAddresses]);
 
+  const depositButtonProps = useMemo(() => {
+    let disable = false;
+    let text = 'Deposit';
+    let color = 'primary';
+
+    if (Number(strikeDepositAmount) === 0) {
+      disable = true;
+      text = 'Insert an amount';
+      color = 'mineshaft';
+    }
+
+    if (!approved) {
+      disable = false;
+      text = 'Approve';
+      color = 'primary';
+    }
+    if (
+      strikeDepositAmount >
+      getUserReadableAmount(
+        userTokenBalance,
+        getTokenDecimals(fromTokenSymbol, chainId)
+      )
+    ) {
+      disable = true;
+      text = 'Insufficient Balance';
+      color = 'mineshaft';
+    }
+
+    if (hasExpiryElapsed) {
+      disable = true;
+      text = 'Pool expired';
+      color = 'mineshaft';
+    }
+
+    return {
+      disable,
+      text,
+      color,
+    };
+  }, [
+    approved,
+    chainId,
+    fromTokenSymbol,
+    strikeDepositAmount,
+    userTokenBalance,
+    hasExpiryElapsed,
+  ]);
+
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
     if (
@@ -150,10 +201,11 @@ const DepositPanel = () => {
       !ssovData.collateralSymbol ||
       !ssovSigner.ssovContractWithSigner ||
       !ssovSigner.ssovRouterWithSigner ||
-      !chainId
+      !chainId ||
+      loading ||
+      depositButtonProps.disable
     )
       return;
-
     const depositAmount = getContractReadableAmount(
       strikeDepositAmount,
       getTokenDecimals(fromTokenSymbol, chainId)
@@ -175,8 +227,8 @@ const DepositPanel = () => {
           accountAddress,
           strike,
           depositAmount,
-          quote.quoteData.toTokenAmount,
-          quote.swapData,
+          debouncedQuote.quoteData.toTokenAmount,
+          debouncedQuote.swapData,
         ]
       : [strike, depositAmount, accountAddress];
     const contractWithSigner = routerMode
@@ -216,13 +268,15 @@ const DepositPanel = () => {
     ssovData,
     ssovSigner.ssovContractWithSigner,
     ssovSigner.ssovRouterWithSigner,
-    quote.quoteData.toTokenAmount,
-    quote.swapData,
+    debouncedQuote.quoteData.toTokenAmount,
+    debouncedQuote.swapData,
     chainId,
+    depositButtonProps.disable,
+    loading,
   ]);
 
   const handleMax = useCallback(() => {
-    setStrikeDepositAmount(utils.formatEther(userTokenBalance));
+    setStrikeDepositAmount(userTokenBalance.toString());
   }, [userTokenBalance]);
 
   const checkApproved = useCallback(async () => {
@@ -253,55 +307,6 @@ const DepositPanel = () => {
     strikeDepositAmount,
   ]);
 
-  const depositButtonProps = useMemo(() => {
-    let disable = false;
-    let text = 'Deposit';
-    let color = 'primary';
-
-    if (Number(strikeDepositAmount) === 0) {
-      disable = true;
-      text = 'Insert an amount';
-      color = 'mineshaft';
-    }
-
-    if (!approved) {
-      disable = false;
-      text = 'Approve';
-      color = 'primary';
-    }
-
-    if (
-      strikeDepositAmount >
-      getUserReadableAmount(
-        userTokenBalance,
-        getTokenDecimals(fromTokenSymbol, chainId)
-      )
-    ) {
-      disable = true;
-      text = 'Insufficient Balance';
-      color = 'mineshaft';
-    }
-
-    if (hasExpiryElapsed) {
-      disable = true;
-      text = 'Pool expired';
-      color = 'mineshaft';
-    }
-
-    return {
-      disable,
-      text,
-      color,
-    };
-  }, [
-    approved,
-    chainId,
-    fromTokenSymbol,
-    strikeDepositAmount,
-    userTokenBalance,
-    hasExpiryElapsed,
-  ]);
-
   // Updates approved state
   useEffect(() => {
     checkApproved();
@@ -309,18 +314,26 @@ const DepositPanel = () => {
 
   // Updates user token balance
   useEffect(() => {
-    setUserTokenBalance(
-      BigNumber.from(userAssetBalances[fromTokenSymbol] ?? '0')
-    );
-  }, [accountAddress, signer, ssovData, userAssetBalances, fromTokenSymbol]);
+    (async () => {
+      if (!accountAddress || !signer) return;
+      setUserTokenBalance(
+        await ERC20__factory.connect(
+          getContractAddress(fromTokenSymbol),
+          signer
+        ).balanceOf(accountAddress)
+      );
+    })();
+  }, [
+    accountAddress,
+    signer,
+    ssovData,
+    userAssetBalances,
+    getContractAddress,
+    fromTokenSymbol,
+  ]);
 
   const updateQuote = useCallback(async () => {
-    if (
-      !ssovData ||
-      !ssovData?.collateralSymbol ||
-      fromTokenSymbol === ssovData?.collateralSymbol
-    )
-      return;
+    if (!ssovData || fromTokenSymbol === ssovData?.collateralSymbol) return;
 
     const fromTokenAddress = getContractAddress(fromTokenSymbol);
 
@@ -341,8 +354,13 @@ const DepositPanel = () => {
 
     setLoading(true);
 
-    setQuote({
-      quoteData: await get1inchQuote(
+    const [
+      quoteData,
+      {
+        tx: { data },
+      },
+    ] = await Promise.all([
+      get1inchQuote(
         fromTokenAddress,
         toTokenAddress,
         getContractReadableAmount(
@@ -353,23 +371,24 @@ const DepositPanel = () => {
         accountAddress,
         '3'
       ),
-
-      swapData: (
-        await get1inchSwap({
-          fromTokenAddress,
-          toTokenAddress,
-          amount: getContractReadableAmount(
-            strikeDepositAmount,
-            getTokenDecimals(fromTokenSymbol, chainId)
-          ),
-          chainId,
-          accountAddress: ssovSigner.ssovRouterWithSigner.address,
-        })
-      ).tx.data,
+      get1inchSwap({
+        fromTokenAddress,
+        toTokenAddress,
+        amount: getContractReadableAmount(
+          strikeDepositAmount,
+          getTokenDecimals(fromTokenSymbol, chainId)
+        ),
+        chainId,
+        accountAddress: ssovSigner.ssovRouterWithSigner.address,
+      }),
+    ]).then((res) => {
+      setQuote({
+        quoteData: quoteData,
+        swapData: data,
+      });
+      setLoading(false);
+      return res;
     });
-
-    await checkApproved();
-    setLoading(false);
   }, [
     getContractAddress,
     accountAddress,
@@ -378,7 +397,6 @@ const DepositPanel = () => {
     fromTokenSymbol,
     ssovData,
     ssovSigner,
-    checkApproved,
   ]);
 
   useEffect(() => {
@@ -531,8 +549,8 @@ const DepositPanel = () => {
                     >
                       {formatAmount(
                         getUserReadableAmount(
-                          quote.quoteData.toTokenAmount,
-                          quote.quoteData.toToken.decimals
+                          debouncedQuote.quoteData.toTokenAmount,
+                          debouncedQuote.quoteData.toToken.decimals
                         ),
                         3
                       )}{' '}
@@ -570,10 +588,14 @@ const DepositPanel = () => {
               size="medium"
               className="w-full mt-4 !rounded-md"
               color={depositButtonProps.color}
-              disabled={depositButtonProps.disable}
+              disabled={depositButtonProps.disable || loading}
               onClick={approved ? handleDeposit : handleApprove}
             >
-              {loading ?  <CircularProgress className="text-white p-3" /> : depositButtonProps.text}
+              {loading ? (
+                <CircularProgress className="text-white p-3" />
+              ) : (
+                depositButtonProps.text
+              )}
             </CustomButton>
           </Box>
         </Box>

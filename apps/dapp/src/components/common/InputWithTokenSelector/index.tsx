@@ -47,6 +47,7 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
     topLeftTag,
     topRightTag,
     overrides,
+    handleMax,
   } = props;
 
   const { chainId, getContractAddress, provider, accountAddress } =
@@ -57,6 +58,7 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
 
   const updateUserBalance = useCallback(async () => {
     if (!provider || !accountAddress) return;
+
     const token = ERC20__factory.connect(
       getContractAddress(selectedTokenSymbol),
       provider
@@ -84,12 +86,13 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
   }, [updateUserBalance]);
 
   const handleTokenSelectorClick = useCallback(() => {
+    if (chainId === 137) return;
     setTokenSelectorOpen((prev) => !prev);
 
     // overrides
     overrides?.setTokenSelectorOpen &&
       overrides?.setTokenSelectorOpen((prev) => !prev);
-  }, [overrides]);
+  }, [overrides, chainId]);
 
   return (
     <Box className="bg-umbra rounded-md">
@@ -120,7 +123,7 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
           <Box className="flex my-auto w-full space-x-2">
             <Box
               className="flex w-fit bg-cod-gray rounded-md justify-content items-center space-x-2 py-2 px-2"
-              role="button"
+              role={`${chainId === 137 ? 'Box' : 'Button'}`}
               onClick={handleTokenSelectorClick}
             >
               <img
@@ -131,11 +134,12 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
               <Typography variant="h6" className="my-auto">
                 {selectedTokenSymbol}
               </Typography>{' '}
-              {tokenSelectorOpen ? (
-                <KeyboardArrowUpIcon className="text-white" />
-              ) : (
-                <KeyboardArrowDownIcon className="text-white" />
-              )}
+              {chainId !== 137 &&
+                (tokenSelectorOpen ? (
+                  <KeyboardArrowUpIcon className="text-white" />
+                ) : (
+                  <KeyboardArrowDownIcon className="text-white" />
+                ))}
             </Box>
           </Box>
         }
@@ -148,8 +152,9 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
               Balance
             </Typography>
             <Typography
-              className=" text-right flex-1 text-stieglitz"
+              className="text-right flex-1 text-stieglitz underline cursor-pointer"
               variant="h6"
+              onClick={handleMax}
             >
               {selectedTokenBalance}
             </Typography>

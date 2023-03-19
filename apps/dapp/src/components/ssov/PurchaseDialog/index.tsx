@@ -104,6 +104,8 @@ const PurchaseDialog = ({
 
   const [isChartVisible, setIsChartVisible] = useState<boolean>(false);
 
+  const [debouncedQuote] = useDebounce(quote, 1000);
+
   const amountPayable = useMemo(() => {
     let _amountPayable = '0';
     if (!chainId) return _amountPayable;
@@ -111,7 +113,7 @@ const PurchaseDialog = ({
     return formatAmount(
       getUserReadableAmount(
         fromTokenSymbol !== ssovData.collateralSymbol
-          ? quote.amountOut
+          ? debouncedQuote.amountOut
           : state.totalCost,
         getTokenDecimals(fromTokenSymbol, chainId)
       ),
@@ -121,7 +123,7 @@ const PurchaseDialog = ({
     chainId,
     fromTokenSymbol,
     state.totalCost,
-    quote.amountOut,
+    debouncedQuote.amountOut,
     ssovData.collateralSymbol,
   ]);
 
@@ -258,7 +260,7 @@ const PurchaseDialog = ({
 
     if (fromTokenAmountRequired.isZero()) return;
 
-    const swapData = (
+    (
       await get1inchSwap({
         fromTokenAddress,
         toTokenAddress,
@@ -266,15 +268,14 @@ const PurchaseDialog = ({
         chainId,
         accountAddress: ssovSigner.ssovRouterWithSigner.address,
       })
-    ).tx.data;
-
-    setQuote({
-      amountOut: fromTokenAmountRequired,
-      swapData: swapData,
-    });
-
-    await checkApproved();
-    setQuoteDataLoading(false);
+    )
+      .then((res: any) => {
+        setQuote({
+          amountOut: fromTokenAmountRequired,
+          swapData: res.tx.data,
+        });
+      })
+      .then(() => setQuoteDataLoading(false));
   }, [
     routerMode,
     accountAddress,
@@ -286,7 +287,6 @@ const PurchaseDialog = ({
     ssovContractWithSigner,
     ssovSigner,
     state.totalCost,
-    checkApproved,
   ]);
 
   const handleInputChange = useCallback(
@@ -378,9 +378,9 @@ const PurchaseDialog = ({
           toTokenAddress,
           accountAddress,
           strikeIndex,
-          routerMode ? quote.amountOut : state.totalCost,
+          routerMode ? debouncedQuote.amountOut : state.totalCost,
           '0',
-          quote.swapData,
+          debouncedQuote.swapData,
         ]
       : [strikeIndex, _amount, accountAddress];
 
@@ -411,11 +411,11 @@ const PurchaseDialog = ({
     updateSsovV3EpochData,
     fromTokenSymbol,
     getContractAddress,
-    quote.swapData,
     routerMode,
     ssovSigner,
     state.totalCost,
-    quote.amountOut,
+    debouncedQuote.amountOut,
+    debouncedQuote.swapData,
   ]);
 
   // Calculate the Option Price & Fees
@@ -530,7 +530,7 @@ const PurchaseDialog = ({
   }, [checkApproved]);
 
   const purchaseButtonProps = useMemo(() => {
-    const totalCost = routerMode ? quote.amountOut : state.totalCost;
+    const totalCost = routerMode ? debouncedQuote.amountOut : state.totalCost;
 
     const disabled = Boolean(
       optionsAmount <= 0 ||
@@ -602,7 +602,7 @@ const PurchaseDialog = ({
     };
   }, [
     quoteDataLoading,
-    quote.amountOut,
+    debouncedQuote.amountOut,
     routerMode,
     optionsAmount,
     isPurchaseStatsLoading,
@@ -632,7 +632,7 @@ const PurchaseDialog = ({
     >
       <>
         <Box className="flex flex-row items-center mb-4">
-          <Box className='flex w-full justify-between'>
+          <Box className="flex w-full justify-between">
             <Typography variant="h5">Buy Options</Typography>
             <Box className="flex mb-3 mr-3">{collateralCTA}</Box>
           </Box>

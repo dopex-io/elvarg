@@ -24,7 +24,7 @@ import { TOKEN_ADDRESS_TO_DATA } from 'constants/tokens';
 
 export interface SsovV3Signer {
   ssovContractWithSigner?: SsovV3;
-  ssovRouterWithSigner?: SsovV3Router;
+  ssovRouterWithSigner?: SsovV3Router | undefined;
 }
 
 export interface SsovV3Data {
@@ -104,7 +104,7 @@ export const createSsovV3Slice: StateCreator<
   },
   ssovSigner: {},
   updateSsovV3Signer: async () => {
-    const { contractAddresses, signer, selectedPoolName } = get();
+    const { contractAddresses, signer, selectedPoolName, chainId } = get();
 
     if (!contractAddresses || !signer || !selectedPoolName) return;
 
@@ -116,10 +116,13 @@ export const createSsovV3Slice: StateCreator<
 
     const ssovRouterAddress = contractAddresses['SSOV-V3']['ROUTER'];
 
-    let ssovRouterWithSigner = SsovV3Router__factory.connect(
-      ssovRouterAddress,
-      signer
-    );
+    let ssovRouterWithSigner;
+
+    if (chainId !== 137)
+      ssovRouterWithSigner = SsovV3Router__factory.connect(
+        ssovRouterAddress,
+        signer
+      );
 
     const _ssovContractWithSigner = SsovV3__factory.connect(
       ssovAddress,
