@@ -260,7 +260,7 @@ const PurchaseDialog = ({
 
     if (fromTokenAmountRequired.isZero()) return;
 
-    const swapData = (
+    (
       await get1inchSwap({
         fromTokenAddress,
         toTokenAddress,
@@ -268,15 +268,14 @@ const PurchaseDialog = ({
         chainId,
         accountAddress: ssovSigner.ssovRouterWithSigner.address,
       })
-    ).tx.data;
-
-    setQuote({
-      amountOut: fromTokenAmountRequired,
-      swapData: swapData,
-    });
-
-    await checkApproved();
-    setQuoteDataLoading(false);
+    )
+      .then((res: any) => {
+        setQuote({
+          amountOut: fromTokenAmountRequired,
+          swapData: res.tx.data,
+        });
+      })
+      .then(() => setQuoteDataLoading(false));
   }, [
     routerMode,
     accountAddress,
@@ -288,7 +287,6 @@ const PurchaseDialog = ({
     ssovContractWithSigner,
     ssovSigner,
     state.totalCost,
-    checkApproved,
   ]);
 
   const handleInputChange = useCallback(

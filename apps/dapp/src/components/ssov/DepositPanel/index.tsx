@@ -144,6 +144,54 @@ const DepositPanel = () => {
     }
   }, [sendTx, signer, spender, ssovData, fromTokenSymbol, contractAddresses]);
 
+  const depositButtonProps = useMemo(() => {
+    let disable = false;
+    let text = 'Deposit';
+    let color = 'primary';
+
+    if (Number(strikeDepositAmount) === 0) {
+      disable = true;
+      text = 'Insert an amount';
+      color = 'mineshaft';
+    }
+
+    if (!approved) {
+      disable = false;
+      text = 'Approve';
+      color = 'primary';
+    }
+    if (
+      strikeDepositAmount >
+      getUserReadableAmount(
+        userTokenBalance,
+        getTokenDecimals(fromTokenSymbol, chainId)
+      )
+    ) {
+      disable = true;
+      text = 'Insufficient Balance';
+      color = 'mineshaft';
+    }
+
+    if (hasExpiryElapsed) {
+      disable = true;
+      text = 'Pool expired';
+      color = 'mineshaft';
+    }
+
+    return {
+      disable,
+      text,
+      color,
+    };
+  }, [
+    approved,
+    chainId,
+    fromTokenSymbol,
+    strikeDepositAmount,
+    userTokenBalance,
+    hasExpiryElapsed,
+  ]);
+
   // Handle Deposit
   const handleDeposit = useCallback(async () => {
     if (
@@ -153,7 +201,9 @@ const DepositPanel = () => {
       !ssovData.collateralSymbol ||
       !ssovSigner.ssovContractWithSigner ||
       !ssovSigner.ssovRouterWithSigner ||
-      !chainId
+      !chainId ||
+      loading ||
+      depositButtonProps.disable
     )
       return;
     const depositAmount = getContractReadableAmount(
@@ -221,6 +271,8 @@ const DepositPanel = () => {
     debouncedQuote.quoteData.toTokenAmount,
     debouncedQuote.swapData,
     chainId,
+    depositButtonProps.disable,
+    loading,
   ]);
 
   const handleMax = useCallback(() => {
@@ -253,54 +305,6 @@ const DepositPanel = () => {
     signer,
     spender,
     strikeDepositAmount,
-  ]);
-
-  const depositButtonProps = useMemo(() => {
-    let disable = false;
-    let text = 'Deposit';
-    let color = 'primary';
-
-    if (Number(strikeDepositAmount) === 0) {
-      disable = true;
-      text = 'Insert an amount';
-      color = 'mineshaft';
-    }
-
-    if (!approved) {
-      disable = false;
-      text = 'Approve';
-      color = 'primary';
-    }
-    if (
-      strikeDepositAmount >
-      getUserReadableAmount(
-        userTokenBalance,
-        getTokenDecimals(fromTokenSymbol, chainId)
-      )
-    ) {
-      disable = true;
-      text = 'Insufficient Balance';
-      color = 'mineshaft';
-    }
-
-    if (hasExpiryElapsed) {
-      disable = true;
-      text = 'Pool expired';
-      color = 'mineshaft';
-    }
-
-    return {
-      disable,
-      text,
-      color,
-    };
-  }, [
-    approved,
-    chainId,
-    fromTokenSymbol,
-    strikeDepositAmount,
-    userTokenBalance,
-    hasExpiryElapsed,
   ]);
 
   // Updates approved state
@@ -377,12 +381,14 @@ const DepositPanel = () => {
         chainId,
         accountAddress: ssovSigner.ssovRouterWithSigner.address,
       }),
-    ]);
-    setQuote({
-      quoteData: quoteData,
-      swapData: data,
+    ]).then((res) => {
+      setQuote({
+        quoteData: quoteData,
+        swapData: data,
+      });
+      setLoading(false);
+      return res;
     });
-    setLoading(false);
   }, [
     getContractAddress,
     accountAddress,
