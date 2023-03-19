@@ -377,7 +377,6 @@ const DepositPanel = () => {
        accountAddress: ssovSigner.ssovRouterWithSigner.address,
      }),
    ]).then((res) => {
-     console.log(res);
      setQuote({
        quoteData: res[0],
        swapData: res[1].tx.data,
