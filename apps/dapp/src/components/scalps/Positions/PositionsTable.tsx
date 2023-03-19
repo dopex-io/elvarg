@@ -1,7 +1,6 @@
-import { useCallback, useMemo } from 'react';
+import {  useCallback,  useMemo } from 'react';
 
-import { BigNumber } from 'ethers';
-import Countdown from 'react-countdown';
+import {  BigNumber } from 'ethers';
 
 import { Tooltip } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -11,14 +10,13 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-
 import useSendTx from 'hooks/useSendTx';
-
+import Countdown from 'react-countdown';
 import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import { TableHeader } from 'components/straddles/Deposits/DepositsTable';
+import {  TableHeader } from 'components/straddles/Deposits/DepositsTable';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
