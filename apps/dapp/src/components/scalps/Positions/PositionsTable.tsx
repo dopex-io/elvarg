@@ -1,8 +1,8 @@
-import {  useCallback,  useMemo } from 'react';
+import { SetStateAction, useCallback, useMemo, useState } from 'react';
 
-import {  BigNumber } from 'ethers';
+import { BigNumber } from 'ethers';
 
-import { Tooltip } from '@mui/material';
+import { IconButton, Menu, MenuItem, Tooltip } from '@mui/material';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -10,13 +10,18 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import useSendTx from 'hooks/useSendTx';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+
 import Countdown from 'react-countdown';
+
 import { useBoundStore } from 'store';
+
+import useSendTx from 'hooks/useSendTx';
+import useShare from 'hooks/useShare';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import {  TableHeader } from 'components/straddles/Deposits/DepositsTable';
+import { TableHeader } from 'components/straddles/Deposits/DepositsTable';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -32,6 +37,60 @@ const PositionsTable = ({ tab }: { tab: string }) => {
     updateOptionScalp,
     updateOptionScalpUserData,
   } = useBoundStore();
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const share = useShare((state) => state.open);
+
+  const handleShare = useCallback(
+    (position: any) => {
+      const { entry, pnl, margin, positions } = position;
+      console.log(
+        Number(positions),
+        Number(entry.replace(',', '')),
+        Number(margin)
+      );
+      const leverage =
+        (Number(positions) * Number(entry.replace(',', ''))) / Number(margin);
+
+      const _pnl = (Number(pnl) / Number(margin)) * 100;
+
+      if (!optionScalpData) return;
+      const { baseSymbol, quoteSymbol, markPrice } = optionScalpData;
+
+      if (!baseSymbol || !quoteSymbol || !markPrice) return;
+
+      share({
+        title: (
+          <Typography variant="h5" className="font-bold shadow-2xl">
+            <span className="text-green-500">Long</span>
+            {' | '}
+            <span>{leverage.toFixed(0)}x</span>
+            {' | '}
+            <span>{`${baseSymbol}${quoteSymbol}`}</span>
+          </Typography>
+        ),
+        percentage: _pnl,
+        customPath: '/scalps',
+        stats: [
+          { name: 'Entry Price', value: `$${entry}` },
+          {
+            name: 'Mark Price',
+            value: `$${formatAmount(getUserReadableAmount(markPrice, 6), 2)}`,
+          },
+        ],
+      });
+    },
+    [share, optionScalpData]
+  );
+
+  const handleClickMenu = useCallback(
+    (event: { currentTarget: SetStateAction<HTMLElement | null> }) =>
+      setAnchorEl(event.currentTarget),
+    []
+  );
+
+  const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
 
   const handleClose = useCallback(
     async (id: BigNumber) => {
@@ -71,7 +130,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
             ? 1 /
                 getUserReadableAmount(position.entry, quoteDecimals.toNumber())
             : getUserReadableAmount(position.entry, quoteDecimals.toNumber()),
-          5
+          2
         );
 
         const liquidationPrice = formatAmount(
@@ -120,6 +179,23 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           5
         );
 
+        const margin = formatAmount(
+          getUserReadableAmount(position.margin, quoteDecimals.toNumber()),
+          5
+        );
+
+        {
+          getUserReadableAmount(
+            position.premium,
+            optionScalpData?.quoteDecimals!.toNumber()!
+          ).toFixed(2);
+        }
+
+        const premium = formatAmount(
+          getUserReadableAmount(position.premium, quoteDecimals.toNumber()),
+          5
+        );
+
         filtered.push({
           ...position,
           entry,
@@ -127,6 +203,8 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           positions,
           pnl,
           closePrice,
+          margin,
+          premium,
         });
       }
     });
@@ -214,20 +292,12 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                 </TableCell>
                 <TableCell className="pt-1 border-0">
                   <Typography variant="h6" color="white" className="text-left">
-                    {optionScalpData?.quoteSymbol}{' '}
-                    {getUserReadableAmount(
-                      position.margin,
-                      optionScalpData?.quoteDecimals!.toNumber()!
-                    ).toFixed(2)}
+                    {optionScalpData?.quoteSymbol} {position.margin}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
                   <Typography variant="h6" color="white" className="text-left">
-                    {optionScalpData?.quoteSymbol}{' '}
-                    {getUserReadableAmount(
-                      position.premium,
-                      optionScalpData?.quoteDecimals!.toNumber()!
-                    ).toFixed(2)}
+                    {optionScalpData?.quoteSymbol} {position.premium}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
@@ -279,6 +349,32 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                     >
                       Close
                     </CustomButton>
+                    <IconButton
+                      aria-label="more"
+                      aria-controls="long-menu"
+                      aria-haspopup="true"
+                      onClick={handleClickMenu}
+                      className="long-menu rounded-md bg-mineshaft mx-1 p-0 hover:bg-opacity-80 hover:bg-mineshaft flex"
+                      size="large"
+                    >
+                      <MoreVertIcon className="fill-current text-white" />
+                    </IconButton>
+                    <Box>
+                      <Menu
+                        anchorEl={anchorEl}
+                        open={Boolean(anchorEl)}
+                        onClose={handleCloseMenu}
+                        classes={{ paper: 'bg-umbra' }}
+                      >
+                        <MenuItem
+                          key="share"
+                          onClick={() => handleShare(position)}
+                          className="text-white"
+                        >
+                          Share
+                        </MenuItem>
+                      </Menu>
+                    </Box>
                   </TableCell>
                 ) : null}
               </TableRow>
@@ -304,4 +400,3 @@ const PositionsTable = ({ tab }: { tab: string }) => {
 };
 
 export default PositionsTable;
-
