@@ -253,22 +253,20 @@ const PurchaseDialog = ({
       multiplier = getContractReadableAmount(1, fromTokenDecimals);
     }
 
-    const fromTokenAmountRequired = state.totalCost
+    const fromTokenAmountRequired: BigNumber = state.totalCost
       .mul(multiplier)
       .div(toTokenAmount)
       .div(divisor);
 
     if (fromTokenAmountRequired.isZero()) return;
 
-    (
-      await get1inchSwap({
-        fromTokenAddress,
-        toTokenAddress,
-        amount: fromTokenAmountRequired,
-        chainId,
-        accountAddress: ssovSigner.ssovRouterWithSigner.address,
-      })
-    )
+    await get1inchSwap({
+      fromTokenAddress,
+      toTokenAddress,
+      amount: fromTokenAmountRequired,
+      chainId,
+      accountAddress: ssovSigner.ssovRouterWithSigner.address,
+    })
       .then((res: any) => {
         setQuote({
           amountOut: fromTokenAmountRequired,
@@ -550,6 +548,8 @@ const PurchaseDialog = ({
               .gt(userTokenBalance)) ||
         quoteDataLoading
     );
+
+    console.log(optionsAmount <= 0);
 
     let onClick = () => {};
 
@@ -917,7 +917,7 @@ const PurchaseDialog = ({
               </Typography>
               <Box className={'text-right'}>
                 <Typography variant="h6" className="text-white mr-auto ml-0">
-                  ${' '}
+                  $
                   {formatAmount(
                     isPut
                       ? getUserReadableAmount(
@@ -939,7 +939,7 @@ const PurchaseDialog = ({
               </Typography>
               <Box className={'text-right'}>
                 <Typography variant="h6" className="text-white mr-auto ml-0">
-                  $ {formatAmount(getUserReadableAmount(state.premium, 8), 5)}{' '}
+                  ${formatAmount(getUserReadableAmount(state.premium, 8), 5)}{' '}
                 </Typography>
               </Box>
             </Box>
