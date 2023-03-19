@@ -13,7 +13,8 @@
     "@0xsequence/multicall": "^0.43.3",
     "@apollo/client": "^3.6.6",
     "@coinbase/wallet-sdk": "^3.2.0",
-    "@dopex-io/sdk": "^1.0.0-beta.44",
+    "@dopex-io/sdk": "1.0.0-beta.51",
+    "@dopex-io/ui": "workspace:*",
     "@emotion/react": "^11.8.1",
     "@emotion/styled": "^11.8.1",
     "@mui/icons-material": "^5.8.2",
@@ -30,15 +31,18 @@
     "ethers": "^5.6.6",
     "formik": "^2.2.6",
     "graphql": "^16.0.1",
+    "html-to-image": "^1.11.11",
     "lightweight-charts": "^3.8.0",
     "lodash": "^4.17.20",
     "next": "^13.0.1",
+    "next-seo": "^5.15.0",
+    "qrcode.react": "^3.1.0",
     "react": "^18.0.0",
     "react-countdown": "^2.3.2",
     "react-dom": "^18.0.0",
     "react-hot-toast": "^2.0.0",
     "react-use": "^17.2.4",
-    "recharts": "2.3.2",
+    "recharts": "2.4.3",
     "sass": "^1.49.8",
     "use-debounce": "^9.0.0",
     "web3modal": "^1.9.4",
@@ -50,6 +54,7 @@
     "@graphql-codegen/typescript-operations": "^3.0.0",
     "@graphql-codegen/typescript-react-apollo": "^3.2.8",
     "@next/eslint-plugin-next": "^13.0.1",
+    "@ianvs/prettier-plugin-sort-imports": "^3.7.1",
     "@types/lodash": "^4.14.170",
     "@types/react": "^18.0.10",
     "@types/react-dom": "^18.0.0",
@@ -59,21 +64,12 @@
     "autoprefixer": "^10.4.0",
     "eslint": "^8.11.0",
     "eslint-config-next": "^13.0.1",
-    "lint-staged": "^13.0.0",
     "postcss": "^8.3.11",
-    "prettier": "^2.1.1",
+    "prettier": "^2.8.4",
     "shelljs": "^0.8.4",
     "tailwindcss": "^3.0.23",
     "ts-node": "^10.9.1",
     "typescript": "^4.1.2"
-  },
-  "lint-staged": {
-    "*.+(js|jsx|ts|tsx|json|css|md)": [
-      "prettier --write"
-    ],
-    "*.+(js|jsx|ts|tsx)": [
-      "eslint --max-warnings=0"
-    ]
   },
   "browserslist": {
     "production": [

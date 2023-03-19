@@ -8,7 +8,7 @@ import { ProviderController } from 'web3modal';
 import { AssetsSlice } from 'store/Assets';
 import { getWeb3Modal } from 'store/Wallet/getWeb3Modal';
 
-import { CHAIN_ID_TO_RPC, PAGE_TO_SUPPORTED_CHAIN_IDS } from 'constants/index';
+import { CHAINS, PAGE_TO_SUPPORTED_CHAIN_IDS } from 'constants/chains';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 import { FarmingSlice } from 'store/Farming';
 
@@ -18,6 +18,7 @@ export interface WalletSlice {
   ensName?: string;
   ensAvatar?: string;
   contractAddresses: { [key: string]: any };
+  getContractAddress: Function;
   provider: ethers.providers.Provider;
   signer?: Signer;
   wrongNetwork: boolean;
@@ -84,7 +85,7 @@ export const createWalletSlice: StateCreator<
         accountAddress: '',
         provider: new providers.MulticallProvider(
           new ethers.providers.StaticJsonRpcProvider(
-            CHAIN_ID_TO_RPC[DEFAULT_CHAIN_ID]
+            CHAINS[DEFAULT_CHAIN_ID]?.rpc
           )
         ),
       };
@@ -103,7 +104,7 @@ export const createWalletSlice: StateCreator<
       .catch(async () => {
         await updateState({
           provider: new ethers.providers.StaticJsonRpcProvider(
-            CHAIN_ID_TO_RPC[chainId]
+            CHAINS[chainId]?.rpc
           ),
           isUser: false,
         });
@@ -149,7 +150,7 @@ export const createWalletSlice: StateCreator<
     }
 
     const multicallProvider = new providers.MulticallProvider(
-      new ethers.providers.StaticJsonRpcProvider(CHAIN_ID_TO_RPC[chainId])
+      new ethers.providers.StaticJsonRpcProvider(CHAINS[chainId]?.rpc)
     );
     let signer: Signer | undefined;
     let address: string | undefined;
@@ -188,8 +189,12 @@ export const createWalletSlice: StateCreator<
   supportedChainIds: [DEFAULT_CHAIN_ID],
   contractAddresses: Addresses[Number(DEFAULT_CHAIN_ID)],
   provider: new providers.MulticallProvider(
-    new ethers.providers.StaticJsonRpcProvider(
-      CHAIN_ID_TO_RPC[DEFAULT_CHAIN_ID]
-    )
+    new ethers.providers.StaticJsonRpcProvider(CHAINS[DEFAULT_CHAIN_ID]?.rpc)
   ),
+  getContractAddress: (key: string) => {
+    const { contractAddresses } = get();
+    if (key.toUpperCase() === 'WSTETH') return contractAddresses['STETH'];
+    if (key.toUpperCase() === 'STMATIC') return contractAddresses['WMATIC'];
+    return contractAddresses[key.toUpperCase()];
+  },
 });

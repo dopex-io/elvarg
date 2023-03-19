@@ -1,30 +1,30 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import Box from '@mui/material/Box';
-import { ERC20__factory } from '@dopex-io/sdk';
-import { BigNumber } from 'ethers';
-import Tooltip from '@mui/material/Tooltip';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import Typography from 'components/UI/Typography';
+import { BigNumber } from 'ethers';
+
+import { ERC20__factory } from '@dopex-io/sdk';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
+import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
+import LockerIcon from 'svgs/icons/LockerIcon';
+
+import CustomButton from 'components/UI/Button';
 import Input from 'components/UI/Input';
+import Switch from 'components/UI/Switch';
+import Typography from 'components/UI/Typography';
 import MaxStrikeInput from 'components/atlantics/Manage/ManageCard/MaxStrikeInput';
 import PoolStats from 'components/atlantics/Manage/ManageCard/PoolStats';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import CustomButton from 'components/UI/Button';
-import Switch from 'components/UI/Switch';
 
-import LockerIcon from 'svgs/icons/LockerIcon';
-
-import { useBoundStore } from 'store';
-
-import useSendTx from 'hooks/useSendTx';
-
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
 
-import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
+import { MAX_VALUE } from 'constants/index';
+import { CHAINS } from 'constants/chains';
 
 interface ManageCardProps {
   tokenId: string;
@@ -39,6 +39,7 @@ const ManageCard = (props: ManageCardProps) => {
   const [value, setValue] = useState<number | string>('');
   const [maxStrike, setMaxStrike] = useState<number | string>('');
   const [maxApprove, setMaxApprove] = useState<boolean>(false);
+  const [rolloverEnabled, setRolloverEnabled] = useState<boolean>(true);
   const [approved, setApproved] = useState<boolean>(false);
   const [currentPrice, setCurrentPrice] = useState<BigNumber>(
     BigNumber.from(0)
@@ -87,6 +88,12 @@ const ManageCard = (props: ManageCardProps) => {
     []
   );
 
+  const handleRolloverEnableCheck = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setRolloverEnabled(event.target.checked);
+  };
+
   const handleApprove = useCallback(async () => {
     if (
       !signer ||
@@ -105,7 +112,7 @@ const ManageCard = (props: ManageCardProps) => {
 
       const customApproveAmount = getContractReadableAmount(
         value,
-        TOKEN_DECIMALS[chainId]?.[depositToken] ?? 18
+        CHAINS[chainId]?.tokenDecimals[depositToken] ?? 18
       );
 
       await sendTx(token, 'approve', [
@@ -149,7 +156,7 @@ const ManageCard = (props: ManageCardProps) => {
       allowance.gte(
         getContractReadableAmount(
           value,
-          TOKEN_DECIMALS[chainId]?.[deposit] ?? 18
+          CHAINS[chainId]?.tokenDecimals[deposit] ?? 18
         )
       )
     );
@@ -167,6 +174,7 @@ const ManageCard = (props: ManageCardProps) => {
         getContractReadableAmount(maxStrike, 8),
         getContractReadableAmount(value, 6),
         accountAddress,
+        rolloverEnabled,
       ]).then(() => {
         updateAtlanticPoolEpochData();
         updateUserPositions();
@@ -176,6 +184,7 @@ const ManageCard = (props: ManageCardProps) => {
       console.log(err);
     }
   }, [
+    rolloverEnabled,
     signer,
     accountAddress,
     atlanticPool,
@@ -271,7 +280,7 @@ const ManageCard = (props: ManageCardProps) => {
             {formatAmount(
               getUserReadableAmount(
                 userAssetBalances[depositToken] ?? '0',
-                TOKEN_DECIMALS[chainId]?.[depositToken]
+                CHAINS[chainId]?.tokenDecimals[depositToken]
               ),
               3,
               true
@@ -287,6 +296,23 @@ const ManageCard = (props: ManageCardProps) => {
         maxStrikes={atlanticPoolEpochData?.maxStrikes}
         setMaxStrike={setMaxStrike}
       />
+      <Box className="my-4 w-full rounded-lg border border-neutral-800">
+        <Box className="flex justify-between m-2">
+          <Switch
+            checked={rolloverEnabled}
+            onChange={handleRolloverEnableCheck}
+            inputProps={{ 'aria-label': 'controlled' }}
+          />
+          <Typography variant="h6" className="mx-2 py-2">
+            Rollover
+          </Typography>
+        </Box>
+        <Typography variant="h6" className="mx-2 pb-2 text-gray-400">
+          Enabling rollover will automatically transfer your deposits to the
+          next epoch after the other except for premiums and funding which will
+          be sent back.
+        </Typography>
+      </Box>
       <PoolStats poolType={poolType} />
       {!approved ? (
         <Box className="flex justify-between px-4">

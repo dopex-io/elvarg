@@ -33,13 +33,12 @@ import { getWeb3Modal } from 'store/Wallet/getWeb3Modal';
 import { useBoundStore } from 'store';
 
 import {
-  CHAIN_ID_TO_RPC,
   CURRENCIES_MAP,
   DISCLAIMER_MESSAGE,
   OFAC_COMPLIANCE_LOCAL_STORAGE_KEY,
-  PAGE_TO_SUPPORTED_CHAIN_IDS,
 } from 'constants/index';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
+import { PAGE_TO_SUPPORTED_CHAIN_IDS, CHAINS } from 'constants/chains';
 
 import formatAmount from 'utils/general/formatAmount';
 import displayAddress from 'utils/general/displayAddress';
@@ -160,16 +159,7 @@ const appLinks = {
     { name: 'faucet', to: '/faucet' },
     { name: 'Atlantics', to: '/atlantics' },
   ],
-  421611: [
-    // { name: 'options', to: '/' },
-    // { name: 'pools', to: '/pools' },
-    // { name: 'portfolio', to: '/portfolio' },
-    // { name: 'faucet', to: '/faucet' },
-    // { name: 'swap', to: '/swap' },
-    // { name: 'SSOV', to: '/ssov' },
-    { name: 'Atlantics', to: '/atlantics' },
-    { name: 'veDPX', to: '/governance/vedpx' },
-  ],
+  421613: [],
   42161: [
     { name: 'Portfolio', to: '/portfolio' },
     { name: 'Stake', to: '/farms' },
@@ -235,7 +225,10 @@ const appLinks = {
     { name: 'faucet', to: '/faucet' },
     { name: 'OLP', to: '/olp' },
   ],
-  137: [{ name: 'Straddles', to: '/straddles' }],
+  137: [
+    { name: 'SSOV', to: '/ssov' },
+    { name: 'Straddles', to: '/straddles' },
+  ],
 };
 
 const menuLinks = [
@@ -410,10 +403,10 @@ export default function AppBar(props: AppBarProps) {
     } else {
       updateState({
         provider: new ethers.providers.StaticJsonRpcProvider(
-          CHAIN_ID_TO_RPC[
+          CHAINS[
             PAGE_TO_SUPPORTED_CHAIN_IDS[Router.asPath]?.default ||
               DEFAULT_CHAIN_ID
-          ]
+          ]?.rpc
         ),
       });
     }

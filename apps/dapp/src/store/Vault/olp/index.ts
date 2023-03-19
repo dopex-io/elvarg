@@ -14,7 +14,7 @@ import {
   DECIMALS_TOKEN,
   DECIMALS_USD,
   DESC,
-  NULL,
+  ZERO_ADDRESS,
   PERCENT,
 } from '../../../constants';
 
@@ -139,8 +139,8 @@ export const createOlpSlice: StateCreator<
         olpContract.getTokenVaultRegistry(tokenAddress, false),
       ]);
 
-      const hasPut = ssovPutAddress !== NULL;
-      const hasCall = ssovCallAddress !== NULL;
+      const hasPut = ssovPutAddress !== ZERO_ADDRESS;
+      const hasCall = ssovCallAddress !== ZERO_ADDRESS;
 
       let isPut: boolean = selectedIsPut;
       if (hasPut && !hasCall) {

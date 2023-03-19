@@ -2,7 +2,7 @@ import Web3Modal from 'web3modal';
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 
-import { CHAIN_ID_TO_RPC } from 'constants/index';
+import { CHAIN_PUBLIC_RPCS } from 'constants/chains';
 
 export const getWeb3Modal = () => {
   let web3Modal: Web3Modal | undefined;
@@ -12,18 +12,22 @@ export const getWeb3Modal = () => {
       walletconnect: {
         package: WalletConnectProvider,
         options: {
-          rpc: CHAIN_ID_TO_RPC,
+          rpc: CHAIN_PUBLIC_RPCS,
         },
       },
       walletlink: {
         package: CoinbaseWalletSDK,
         options: {
           appName: 'Dopex',
-          rpc: CHAIN_ID_TO_RPC,
+          rpc: CHAIN_PUBLIC_RPCS,
         },
       },
       bitkeep: {
         package: true,
+        display: {
+          name: 'BitKeep Wallet',
+          description: 'Connect to your BitKeep Wallet',
+        },
       },
       ...((window as any).clover && {
         injected: {

@@ -4,17 +4,15 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "dependsOn": ["generate", "build-ui"]
-    },
-    "build": {
-      "outputs": [".next/**"],
-      "dependsOn": ["generate", "build-ui"]
+      "dependsOn": ["generate", "^build"]
     },
     "storybook": { "cache": false, "persistent": true },
     "lint": {},
     "generate": { "outputs": ["src/graphql/generated/**"] },
-    "build-ui": {
-      "outputs": ["dist/**"]
+    "build": {
+      "cache": false,
+      "outputs": [".next/**"],
+      "dependsOn": ["generate", "^build"]
     },
     "build-storybook": {
       "outputs": ["storybook-static/**"]

@@ -1,21 +1,22 @@
 import { useMemo } from 'react';
-import Box from '@mui/material/Box';
-import Tooltip from '@mui/material/Tooltip';
+
+import { BigNumber } from 'ethers';
+
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import SouthEastRoundedIcon from '@mui/icons-material/SouthEastRounded';
-import { BigNumber } from 'ethers';
+import { CircularProgress } from '@mui/material';
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
+import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 import { IStrategyDetails } from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition';
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
-import { useBoundStore } from 'store';
-
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
-import { CircularProgress } from '@mui/material';
 
 const StrategyDetails = (props: {
   data: IStrategyDetails;
@@ -40,7 +41,8 @@ const StrategyDetails = (props: {
       strategyFee,
       fundingFees,
       feesWithoutDiscount,
-      availabeLiquidityForLongs,
+      availableLiquidityForLongs,
+      optionsPurchasable,
     },
     selectedToken,
     positionCollateral,
@@ -205,7 +207,7 @@ const StrategyDetails = (props: {
           />
           <ContentRow
             title="Available Liquidity (GMX)"
-            content={'$' + formatAmount(availabeLiquidityForLongs, 5)}
+            content={'$' + formatAmount(availableLiquidityForLongs, 5)}
           />
           {!swapFees.isZero() && (
             <ContentRow
@@ -247,8 +249,12 @@ const StrategyDetails = (props: {
             content={'$' + getUserReadableAmount(fundingFees, 6)}
           />
           <ContentRow
-            title="Options"
+            title="Options Purchased"
             content={formatAmount(getUserReadableAmount(optionsAmount, 18), 3)}
+          />
+          <ContentRow
+            title="Options Available"
+            content={formatAmount(optionsPurchasable, 5)}
           />
         </Box>
       </Box>
@@ -280,12 +286,11 @@ const StrategyDetails = (props: {
           />
           <ContentRow
             title="Position Fee"
-            content={`${selectedToken === 'USDC' ? '$' : ''}${formatAmount(
-              getUserReadableAmount(
-                positionFee,
-                getTokenDecimals(selectedToken, chainId)
-              ),
-              3
+            content={`${
+              selectedToken === 'USDC' ? '$' : ''
+            }${getUserReadableAmount(
+              positionFee,
+              getTokenDecimals(selectedToken, chainId)
             )}`}
           />
           <ContentRow

@@ -19,6 +19,7 @@ import { useBoundStore } from 'store';
 import { FARMS } from 'constants/farms';
 
 import { Farm, FarmData, UserData } from 'types/farms';
+import SushiMigrationBanner from 'components/common/Banners/SushiMigrationBanner';
 
 const CustomBox = styled(Box)`
   @media (min-width: 1100px) {
@@ -106,7 +107,8 @@ const Farms = () => {
       </Head>
       {chainId !== 42161 ? <FarmingMigrationBanner /> : null}
       <AppBar active="Stake" />
-      <Box className="flex my-32 justify-end lg:mx-6 lg:space-x-reverse lg:flex-row-reverse flex-col">
+      <SushiMigrationBanner />
+      <Box className="flex mb-32 justify-end lg:mx-6 lg:space-x-reverse lg:flex-row-reverse flex-col">
         <Box className="mb-4 xl:mb-0 mx-4">
           <Typography variant="h5" className="mb-6">
             Farms
@@ -131,7 +133,6 @@ const Farms = () => {
                   userDataLoading={userDataLoading}
                   stakingTokenSymbol={farm.stakingTokenSymbol}
                   stakingRewardsAddress={farm.stakingRewardsAddress}
-                  newStakingRewardsAddress={farm?.newStakingRewardsAddress}
                   stakingTokenAddress={farm.stakingTokenAddress}
                   type={farm.type}
                   status={farm.status}
