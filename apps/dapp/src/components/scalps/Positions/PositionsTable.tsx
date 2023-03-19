@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 import Countdown from 'react-countdown';
 
+import { Tooltip } from '@mui/material';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -21,6 +22,7 @@ import { TableHeader } from 'components/straddles/Deposits/DepositsTable';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+import { getContractReadableAmount } from 'utils/contracts';
 
 const PositionsTable = ({ tab }: { tab: string }) => {
   const sendTx = useSendTx();
@@ -56,15 +58,82 @@ const PositionsTable = ({ tab }: { tab: string }) => {
 
   const positions = useMemo(() => {
     const filtered: any = [];
+    if (!optionScalpData) return filtered;
+    let { quoteDecimals, baseDecimals, inverted } = optionScalpData;
+
+    if (!quoteDecimals || !baseDecimals) return;
+
     optionScalpUserData?.scalpPositions?.map((position) => {
       if (
         (tab === 'Open' && position.isOpen) ||
         (tab === 'Closed' && !position.isOpen)
-      )
-        filtered.push(position);
+      ) {
+        const entry = formatAmount(
+          inverted
+            ? 1 /
+                getUserReadableAmount(position.entry, quoteDecimals.toNumber())
+            : getUserReadableAmount(position.entry, quoteDecimals.toNumber()),
+          5
+        );
+
+        const liquidationPrice = formatAmount(
+          inverted
+            ? 1 /
+                getUserReadableAmount(
+                  position.liquidationPrice,
+                  quoteDecimals.toNumber()
+                )
+            : getUserReadableAmount(
+                position.liquidationPrice,
+                quoteDecimals.toNumber()
+              ),
+          5
+        );
+
+        const positions = formatAmount(
+          getUserReadableAmount(position.positions, quoteDecimals.toNumber()),
+          5
+        );
+
+        const pnl = getUserReadableAmount(
+          position.pnl,
+          quoteDecimals.toNumber()
+        );
+
+        const closePrice = formatAmount(
+          getUserReadableAmount(
+            position.isShort
+              ? position.entry.sub(
+                  position.pnl
+                    .mul(
+                      getContractReadableAmount(quoteDecimals.toNumber(), 10)
+                    )
+                    .div(position.positions.abs())
+                )
+              : position.entry.add(
+                  position.pnl
+                    .mul(
+                      getContractReadableAmount(quoteDecimals.toNumber(), 10)
+                    )
+                    .div(position.positions.abs())
+                ),
+            quoteDecimals.toNumber()
+          ),
+          5
+        );
+
+        filtered.push({
+          ...position,
+          entry,
+          liquidationPrice,
+          positions,
+          pnl,
+          closePrice,
+        });
+      }
     });
     return filtered;
-  }, [optionScalpUserData, tab]);
+  }, [optionScalpUserData, tab, optionScalpData]);
 
   return (
     <Box>
@@ -114,13 +183,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                             ? '-'
                             : '+'}
 
-                          {formatAmount(
-                            getUserReadableAmount(
-                              position.positions,
-                              optionScalpData?.quoteDecimals!.toNumber()!
-                            ),
-                            8
-                          )}
+                          {position.positions}
                           {' ' + optionScalpData?.baseSymbol!}
                         </span>
                       </Typography>
@@ -129,49 +192,26 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                 </TableCell>
                 <TableCell className="pt-1 border-0">
                   <Typography variant="h6" color="white" className="text-left">
-                    {optionScalpData?.inverted
-                      ? 1 /
-                        Number(
-                          getUserReadableAmount(
-                            position.entry,
-                            optionScalpData?.quoteDecimals!.toNumber()!
-                          )
-                        )
-                      : getUserReadableAmount(
-                          position.entry,
-                          optionScalpData?.quoteDecimals!.toNumber()!
-                        ).toFixed(2)}
+                    {position.entry}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
                   <Typography variant="h6" color="white" className="text-left">
-                    {optionScalpData?.inverted
-                      ? 1 /
-                        Number(
-                          getUserReadableAmount(
-                            position.liquidationPrice,
-                            optionScalpData?.quoteDecimals!.toNumber()!
-                          )
-                        )
-                      : getUserReadableAmount(
-                          position.liquidationPrice,
-                          optionScalpData?.quoteDecimals!.toNumber()!
-                        ).toFixed(2)}
+                    {position.liquidationPrice}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
                   <Typography variant="h6" className="text-left">
-                    <span
-                      className={
-                        position.pnl.lt(0) ? 'text-[#FF617D]' : 'text-[#6DFFB9]'
-                      }
-                    >
-                      {optionScalpData?.quoteSymbol}{' '}
-                      {getUserReadableAmount(
-                        position.pnl,
-                        optionScalpData?.quoteDecimals!.toNumber()!
-                      ).toFixed(2)}
-                    </span>
+                    <Tooltip title={position.pnl}>
+                      <span
+                        className={
+                          position.pnl < 0 ? 'text-[#FF617D]' : 'text-[#6DFFB9]'
+                        }
+                      >
+                        {optionScalpData?.quoteSymbol}{' '}
+                        {formatAmount(position.pnl, 5)}
+                      </span>
+                    </Tooltip>
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
@@ -222,26 +262,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                         color="white"
                         className="text-left"
                       >
-                        {getUserReadableAmount(
-                          position.isShort
-                            ? position.entry.sub(
-                                position.pnl
-                                  .mul(
-                                    10 **
-                                      optionScalpData!.quoteDecimals!.toNumber()
-                                  )
-                                  .div(position.positions.abs())
-                              )
-                            : position.entry.add(
-                                position.pnl
-                                  .mul(
-                                    10 **
-                                      optionScalpData!.quoteDecimals!.toNumber()
-                                  )
-                                  .div(position.positions.abs())
-                              ),
-                          optionScalpData?.quoteDecimals!.toNumber()!
-                        ).toFixed(2)}
+                        {position.closePrice}
                       </Typography>
                     )}
                   </Typography>
@@ -285,3 +306,4 @@ const PositionsTable = ({ tab }: { tab: string }) => {
 };
 
 export default PositionsTable;
+
