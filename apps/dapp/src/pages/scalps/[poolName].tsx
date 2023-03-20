@@ -114,7 +114,7 @@ const OptionScalps = ({ poolName }: Props) => {
             </Box>
           </Box>
           {/* Manage section */}
-          <Box className="lg:pl-[2rem] md:pl-[2rem] sm:mt-[2rem]">
+          <Box className="lg:pl-[2rem] md:pl-[2rem]">
             <Box className="bg-cod-gray rounded-xl p-3 max-w-sm">
               <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-lg mb-3">
                 {['LP', 'Trade'].map((label, index) => (
