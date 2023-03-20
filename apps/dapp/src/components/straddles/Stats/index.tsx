@@ -1,21 +1,23 @@
 import React, { useCallback, useMemo } from 'react';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Countdown from 'react-countdown';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
+
 import { BigNumber } from 'ethers';
 
-import Typography from 'components/UI/Typography';
-import InfoBox from './InfoBox';
-
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import Countdown from 'react-countdown';
 import { useBoundStore } from 'store';
 
-import getExtendedLogoFromChainId from 'utils/general/getExtendedLogoFromChainId';
-import getExplorerUrl from 'utils/general/getExplorerUrl';
+import Typography from 'components/UI/Typography';
+
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import displayAddress from 'utils/general/displayAddress';
 import formatAmount from 'utils/general/formatAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import getExplorerUrl from 'utils/general/getExplorerUrl';
+import getExtendedLogoFromChainId from 'utils/general/getExtendedLogoFromChainId';
+
+import InfoBox from './InfoBox';
 
 const Stats = () => {
   const {
@@ -29,8 +31,6 @@ const Stats = () => {
     straddlesData,
     tokenPrices,
   } = useBoundStore();
-
-  console.log(tokenPrices);
 
   const currentEpoch = straddlesData?.currentEpoch || 0;
 

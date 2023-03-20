@@ -6,6 +6,11 @@ module.exports = {
   async redirects() {
     return [
       {
+        source: '/',
+        destination: '/rdpx-v2/mint',
+        permanent: false,
+      },
+      {
         source: '/ir',
         destination: '/straddles',
         permanent: false,
@@ -18,11 +23,6 @@ module.exports = {
       {
         source: '/ssov-v3/:path*',
         destination: '/ssov/:path*',
-        permanent: false,
-      },
-      {
-        source: '/',
-        destination: '/rdpx-v2/mint',
         permanent: false,
       },
     ];

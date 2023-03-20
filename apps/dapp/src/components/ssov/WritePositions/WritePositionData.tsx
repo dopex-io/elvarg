@@ -1,18 +1,17 @@
 import React from 'react';
-import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
 
-import Typography from 'components/UI/Typography';
+import TableCell from '@mui/material/TableCell';
+import TableRow from '@mui/material/TableRow';
+import { TokenData } from 'types';
 
 import { WritePositionInterface } from 'store/Vault/ssov';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
-
 import NumberDisplay from 'components/UI/NumberDisplay';
 import SplitButton from 'components/UI/SplitButton';
+import Typography from 'components/UI/Typography';
 
-import { TokenData } from 'types';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 interface Props extends WritePositionInterface {
   collateralSymbol: string;
@@ -72,7 +71,7 @@ const WritePositionTableData = (props: Props) => {
       </TableCell>
       <TableCell>
         <Typography variant="h6">
-          <NumberDisplay n={utilization} decimals={18} rightText={'%'} />{' '}
+          {formatAmount(utilization.toNumber(), 2)}%
         </Typography>
       </TableCell>
       {/* <TableCell>

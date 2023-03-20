@@ -1,23 +1,22 @@
-// import { useCallback, useRef, useState } from 'react';
-import { useRef } from 'react';
-// import { toPng } from 'html-to-image';
-// import { Button } from '@dopex-io/ui';
-// import { toast } from 'react-hot-toast';
+import { useCallback, useRef, useState } from 'react';
 
-// import DownloadIcon from '@mui/icons-material/Download';
-// import TwitterIcon from '@mui/icons-material/Twitter';
-// import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { Button } from '@dopex-io/ui';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import DownloadIcon from '@mui/icons-material/Download';
+import TwitterIcon from '@mui/icons-material/Twitter';
+import { toPng } from 'html-to-image';
+import { toast } from 'react-hot-toast';
 
 import { Typography } from 'components/UI';
 import Dialog from 'components/UI/Dialog';
 
+import getShareURL from 'utils/general/getShareURL';
+import getTwitterIntentURL from 'utils/general/getTwitterIntentURL';
+import imageUpload from 'utils/general/imageUpload';
+
+import { CLOUDINARY_API_KEY } from 'constants/env';
+
 import ShareImage, { ShareImageProps } from './ShareImage';
-
-// import imageUpload from 'utils/general/imageUpload';
-// import getTwitterIntentURL from 'utils/general/getTwitterIntentURL';
-// import getShareURL from 'utils/general/getShareURL';
-
-// import { CLOUDINARY_API_KEY } from 'constants/env';
 
 interface ShareDialogProps {
   open: boolean;
@@ -28,74 +27,74 @@ interface ShareDialogProps {
 const ShareDialog = (props: ShareDialogProps) => {
   const { open, handleClose, shareImageProps } = props;
 
-  // const [loading, setLoading] = useState(false);
-  // const [imageID, setImageID] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [imageID, setImageID] = useState('');
 
   const ref = useRef<HTMLDivElement>(null);
 
-  // const uploadImage = useCallback(async () => {
-  //   if (ref.current === null) {
-  //     return;
-  //   }
+  const uploadImage = useCallback(async () => {
+    if (ref.current === null) {
+      return;
+    }
 
-  //   const image = await toPng(ref.current, { cacheBust: true });
+    const image = await toPng(ref.current, { cacheBust: true });
 
-  //   if (CLOUDINARY_API_KEY) {
-  //     setLoading(true);
-  //     const response = await imageUpload({
-  //       file: image,
-  //       upload_preset: 'rjhw5klp',
-  //       api_key: CLOUDINARY_API_KEY,
-  //     });
-  //     const _imageID = response.public_id.split('share_images/')[1];
-  //     setImageID(_imageID);
-  //     setLoading(false);
-  //     return _imageID;
-  //   }
-  // }, []);
+    if (CLOUDINARY_API_KEY) {
+      setLoading(true);
+      const response = await imageUpload({
+        file: image,
+        upload_preset: 'rjhw5klp',
+        api_key: CLOUDINARY_API_KEY,
+      });
+      const _imageID = response.public_id.split('share_images/')[1];
+      setImageID(_imageID);
+      setLoading(false);
+      return _imageID;
+    }
+  }, []);
 
-  // const onTweet = useCallback(async () => {
-  //   let _imageID = imageID;
-  //   if (!_imageID) {
-  //     _imageID = await uploadImage();
-  //   }
-  //   window.open(
-  //     getTwitterIntentURL(
-  //       'Latest trade on @dopex_io ',
-  //       getShareURL(_imageID, shareImageProps.customPath || '/')
-  //     ),
-  //     '_blank'
-  //   );
-  // }, [imageID, uploadImage, shareImageProps.customPath]);
+  const onTweet = useCallback(async () => {
+    let _imageID = imageID;
+    if (!_imageID) {
+      _imageID = await uploadImage();
+    }
+    window.open(
+      getTwitterIntentURL(
+        'Latest trade on @dopex_io ',
+        getShareURL(_imageID, shareImageProps.customPath || '/')
+      ),
+      '_blank'
+    );
+  }, [imageID, uploadImage, shareImageProps.customPath]);
 
-  // const onDownload = useCallback(() => {
-  //   if (ref.current === null) {
-  //     return;
-  //   }
+  const onDownload = useCallback(() => {
+    if (ref.current === null) {
+      return;
+    }
 
-  //   toPng(ref.current, { cacheBust: true })
-  //     .then((dataUrl: string) => {
-  //       const link = document.createElement('a');
-  //       link.download = 'dopex-share.png';
-  //       link.href = dataUrl;
-  //       link.click();
-  //     })
-  //     .catch((err: Error) => {
-  //       console.log(err);
-  //     });
-  // }, [ref]);
+    toPng(ref.current, { cacheBust: true })
+      .then((dataUrl: string) => {
+        const link = document.createElement('a');
+        link.download = 'dopex-share.png';
+        link.href = dataUrl;
+        link.click();
+      })
+      .catch((err: Error) => {
+        console.log(err);
+      });
+  }, [ref]);
 
-  // const onCopy = useCallback(async () => {
-  //   let _imageID = imageID;
+  const onCopy = useCallback(async () => {
+    let _imageID = imageID;
 
-  //   if (!_imageID) {
-  //     _imageID = await uploadImage();
-  //   }
-  //   navigator.clipboard.writeText(
-  //     getShareURL(_imageID, shareImageProps.customPath || '/')
-  //   );
-  //   toast.success('Copied!!! ');
-  // }, [imageID, uploadImage, shareImageProps.customPath]);
+    if (!_imageID) {
+      _imageID = await uploadImage();
+    }
+    navigator.clipboard.writeText(
+      getShareURL(_imageID, shareImageProps.customPath || '/')
+    );
+    toast.success('Copied!!! ');
+  }, [imageID, uploadImage, shareImageProps.customPath]);
 
   return (
     <Dialog
@@ -113,11 +112,11 @@ const ShareDialog = (props: ShareDialogProps) => {
           <div className="border-2 border-carbon">
             <ShareImage ref={ref} {...shareImageProps} />
           </div>
-          {/* {loading ? (
+          {loading ? (
             <div className="text-white">Uploading image...</div>
-          ) : null} */}
+          ) : null}
           <div className="flex space-x-4 mt-4">
-            {/* <Button color="carbon" onClick={onDownload}>
+            <Button color="carbon" onClick={onDownload}>
               <DownloadIcon /> Download
             </Button>
             <Button color="carbon" onClick={onCopy}>
@@ -125,7 +124,7 @@ const ShareDialog = (props: ShareDialogProps) => {
             </Button>
             <Button color="carbon" onClick={onTweet}>
               <TwitterIcon /> Tweet
-            </Button> */}
+            </Button>
           </div>
         </>
       </div>

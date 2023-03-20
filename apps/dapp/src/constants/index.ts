@@ -1,18 +1,15 @@
 import { BigNumber, BigNumberish, ethers } from 'ethers';
 
-import { INFURA_PROJECT_ID, ANKR_KEY } from './env';
-
 export const DATE_FORMAT: string = 'd LLL yy';
 
 export const DECIMALS_TOKEN: number = 18;
 export const DECIMALS_STRIKE: number = 8;
 export const DECIMALS_USD: number = 6;
 
-export const ROWS_PER_PAGE: number = 5;
-
 export const ASC = 'asc';
 export const DESC = 'desc';
-export const NULL: string = '0x0000000000000000000000000000000000000000';
+export const ZERO_ADDRESS: string =
+  '0x0000000000000000000000000000000000000000';
 export const PERCENT: BigNumber = BigNumber.from(100);
 
 export const FEE_BPS_MAP: Record<
@@ -372,19 +369,6 @@ export const CHAIN_ID_TO_NATIVE: { [key: number]: number | string } = {
 
 export const IS_NATIVE = (asset: string) => {
   return ['ETH', 'BNB', 'AVAX'].includes(asset);
-};
-
-export const CHAIN_ID_TO_RPC: { [key: number]: string } = {
-  1: `https://rpc.ankr.com/eth/${ANKR_KEY}`,
-  5: `https://goerli.infura.io/v3/${INFURA_PROJECT_ID}`,
-  56: `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
-  42161: `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
-  43114: `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
-  421613: `https://arbitrum-goerli.infura.io/v3/${'c088bb4e4cc643d5a0d3bb668a400685'}`,
-  421611: `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
-  1088: 'https://andromeda.metis.io/?owner=1088',
-  1337: 'http://127.0.0.1:8545/',
-  137: `https://polygon-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
 };
 
 export const CHAIN_ID_TO_EXPLORER: { [key: number]: string } = {

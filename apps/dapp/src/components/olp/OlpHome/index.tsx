@@ -1,36 +1,39 @@
 import { useCallback, useMemo, useState } from 'react';
+
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import {
   Box,
-  TableBody,
+  Paper,
   Table,
-  TableHead,
-  TableRow,
+  TableBody,
   TableCell,
   TableContainer,
+  TableHead,
   TablePagination,
-  Paper,
+  TableRow,
 } from '@mui/material';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { styled } from '@mui/material/styles';
 import _ from 'lodash';
 import { isEmpty } from 'lodash';
+import { IOlpApi } from 'pages/olp';
 
-import { Typography, TablePaginationActions } from 'components/UI';
+import { TablePaginationActions, Typography } from 'components/UI';
 import {
-  StyleTableCell,
   StyleLeftTableCell,
   StyleRightTableCell,
+  StyleTableCell,
 } from 'components/common/LpCommon/Table';
 import SsovFilter from 'components/ssov/SsovFilter';
 
 import { getReadableTime } from 'utils/contracts';
 
+import { CHAINS } from 'constants/chains';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
-import { CHAIN_ID_TO_NETWORK_DATA, ROWS_PER_PAGE } from 'constants/index';
 
-import { IOlpApi } from 'pages/olp';
 import { FeaturedOlp } from './FeaturedOlp';
 import { OlpTableRow } from './OlpTableRow';
+
+const ROWS_PER_PAGE: number = 5;
 
 const StyleSecondHeaderTable = styled(TableContainer)`
   table {
@@ -99,7 +102,7 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
 
   const olpNetworks = useMemo(() => {
     if (!olps) return [];
-    return chainIds.map((c) => CHAIN_ID_TO_NETWORK_DATA[Number(c)]?.name || '');
+    return chainIds.map((c) => CHAINS[Number(c)]?.name || '');
   }, [olps, chainIds]);
 
   const filteredMarket = useMemo(() => {
@@ -109,9 +112,7 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
 
     if (!isEmpty(selectedOlpNetworks)) {
       filtered = filtered.filter((o) =>
-        selectedOlpNetworks.includes(
-          CHAIN_ID_TO_NETWORK_DATA[o.chainId!]?.name || ''
-        )
+        selectedOlpNetworks.includes(CHAINS[o.chainId!]?.name || '')
       );
     }
 

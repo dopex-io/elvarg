@@ -1,49 +1,52 @@
+import Link from 'next/link';
+import Router from 'next/router';
+
 import {
+  Key,
+  MouseEvent,
+  ReactNode,
+  SetStateAction,
   useCallback,
+  useEffect,
   useMemo,
   useState,
-  ReactNode,
-  MouseEvent,
-  Key,
-  useEffect,
-  SetStateAction,
 } from 'react';
-import Router from 'next/router';
+
 import { ethers } from 'ethers';
-import cx from 'classnames';
-import Link from 'next/link';
-import Button from '@mui/material/Button';
+
+import MenuIcon from '@mui/icons-material/Menu';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import MenuIcon from '@mui/icons-material/Menu';
-import IconButton from '@mui/material/IconButton';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import axios from 'axios';
-
-import ClaimRdpxDialog from './ClaimRdpxDialog';
-import NetworkButton from './NetworkButton';
-import Typography from 'components/UI/Typography';
-import WalletDialog from 'components/common/AppBar/WalletDialog';
-import CustomButton from 'components/UI/Button';
-import PriceCarousel from 'components/common/AppBar/PriceCarousel';
-import DisclaimerDialog from 'components/common/DisclaimerDialog';
-
-import { getWeb3Modal } from 'store/Wallet/getWeb3Modal';
+import cx from 'classnames';
 import { useBoundStore } from 'store';
 
+import { getWeb3Modal } from 'store/Wallet/getWeb3Modal';
+
+import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
+import PriceCarousel from 'components/common/AppBar/PriceCarousel';
+import WalletDialog from 'components/common/AppBar/WalletDialog';
+import DisclaimerDialog from 'components/common/DisclaimerDialog';
+
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import displayAddress from 'utils/general/displayAddress';
+import formatAmount from 'utils/general/formatAmount';
+
+import { CHAINS, PAGE_TO_SUPPORTED_CHAIN_IDS } from 'constants/chains';
+import { DEFAULT_CHAIN_ID } from 'constants/env';
 import {
-  CHAIN_ID_TO_RPC,
   CURRENCIES_MAP,
   DISCLAIMER_MESSAGE,
   OFAC_COMPLIANCE_LOCAL_STORAGE_KEY,
-  PAGE_TO_SUPPORTED_CHAIN_IDS,
 } from 'constants/index';
-import { DEFAULT_CHAIN_ID } from 'constants/env';
 
-import formatAmount from 'utils/general/formatAmount';
-import displayAddress from 'utils/general/displayAddress';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import ClaimRdpxDialog from './ClaimRdpxDialog';
+import NetworkButton from './NetworkButton';
 
 const AppLink = ({
   name,
@@ -210,7 +213,7 @@ const appLinks = {
     { name: 'veDPX', to: '/governance/vedpx' },
   ],
   42161: [
-    // { name: 'Rate Vaults', to: '/ir' },
+    { name: 'Portfolio', to: '/portfolio' },
     { name: 'Stake', to: '/farms' },
     {
       name: 'Governance',
@@ -276,12 +279,6 @@ const appLinks = {
           description:
             'Write perpetual puts, receive funding till settlement by our treasury',
         },
-        // todo remove AMM
-        // {
-        //   name: 'AMM',
-        //   to: '/rdpx-v2/amm',
-        //   description: 'Privileged AMM for whitelisted addresses',
-        // },
         {
           name: 'Mint',
           to: '/rdpx-v2/mint',
@@ -296,7 +293,10 @@ const appLinks = {
     { name: 'faucet', to: '/faucet' },
     { name: 'OLP', to: '/olp' },
   ],
-  137: [{ name: 'Straddles', to: '/straddles' }],
+  137: [
+    { name: 'SSOV', to: '/ssov' },
+    { name: 'Straddles', to: '/straddles' },
+  ],
 };
 
 const menuLinks = [
@@ -474,10 +474,10 @@ export default function AppBar(props: AppBarProps) {
     } else {
       updateState({
         provider: new ethers.providers.StaticJsonRpcProvider(
-          CHAIN_ID_TO_RPC[
+          CHAINS[
             PAGE_TO_SUPPORTED_CHAIN_IDS[Router.asPath]?.default ||
               DEFAULT_CHAIN_ID
-          ]
+          ]?.rpc
         ),
       });
     }

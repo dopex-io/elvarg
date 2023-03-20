@@ -1,26 +1,26 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
-import { WalletSlice, createWalletSlice } from './Wallet';
-import { TokenSaleSlice, createTokenSaleSlice } from './TokenSale';
-import { PortfolioSlice, createPortfolioSlice } from './Portfolio';
 import { AssetsSlice, createAssetsSlice } from './Assets';
+import { DpxBondsSlice, createDpxBondsSlice } from './Bonds';
 import { FarmingSlice, createFarmingSlice } from './Farming';
 import { NftsSlice, createNftsSlice } from './Nfts';
-import { CommonSlice, createCommonSlice } from './Vault/common';
-import { SsovV3Slice, createSsovV3Slice } from './Vault/ssov';
-import { RateVaultSlice, createRateVaultSlice } from './Vault/ir';
-import { VeDPXSlice, createVedpxSlice } from './VeDPX';
-import { StraddlesSlice, createStraddlesSlice } from './Vault/straddles';
-import { DpxBondsSlice, createDpxBondsSlice } from './Bonds';
-import { APPSlice, createAppSlice } from './RdpxV2/perpetual-pools';
+import { PortfolioSlice, createPortfolioSlice } from './Portfolio';
 import {
   DpxusdBondingSlice,
   createDpxusdBondingSlice,
 } from './RdpxV2/dpxusd-bonding';
+import { APPSlice, createAppSlice } from './RdpxV2/perpetual-pools';
+import { TokenSaleSlice, createTokenSaleSlice } from './TokenSale';
 import { AtlanticPoolsSlice, createAtlanticsSlice } from './Vault/atlantics';
 import { GmxSlice, createGmxSlice } from './Vault/atlantics/gmx';
+import { CommonSlice, createCommonSlice } from './Vault/common';
+import { RateVaultSlice, createRateVaultSlice } from './Vault/ir';
 import { OlpSlice, createOlpSlice } from './Vault/olp';
+import { SsovV3Slice, createSsovV3Slice } from './Vault/ssov';
+import { StraddlesSlice, createStraddlesSlice } from './Vault/straddles';
+import { VeDPXSlice, createVedpxSlice } from './VeDPX';
+import { WalletSlice, createWalletSlice } from './Wallet';
 
 type T = WalletSlice &
   TokenSaleSlice &

@@ -7,8 +7,8 @@ import {
   ERC20__factory,
 } from '@dopex-io/sdk';
 import { LoaderIcon } from 'react-hot-toast';
-import Countdown from 'react-countdown';
 import { BigNumber } from 'ethers';
+import Countdown from 'react-countdown';
 
 import Input from '@mui/material/Input';
 import Box from '@mui/material/Box';
@@ -41,7 +41,8 @@ import RedTriangleIcon from 'svgs/icons/RedTriangleIcon';
 
 import { useBoundStore } from 'store';
 
-import { CURRENCIES_MAP, MAX_VALUE, IS_NATIVE } from 'constants/index';
+import { CURRENCIES_MAP, MAX_VALUE } from 'constants/index';
+import isNativeToken from 'utils/general/isNativeToken';
 
 import { Order } from '../../types/tzwap';
 
@@ -346,31 +347,33 @@ const Tzwap = () => {
     let tickSize = amount * precision * (selectedTickSize / 100);
     let total = Math.round((amount * precision) / tickSize) * tickSize;
 
-    const params = [
-      {
-        creator: accountAddress,
-        srcToken:
-          fromTokenName === 'ETH'
-            ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-            : contractAddresses[fromTokenName],
-        dstToken:
-          toTokenName === 'ETH'
-            ? Addresses[chainId]['WETH']
-            : contractAddresses[toTokenName],
-        interval: seconds,
-        tickSize: getContractReadableAmount(
-          Math.round(tickSize) / precision,
-          getTokenDecimals(fromTokenName, chainId)
-        ),
-        total: getContractReadableAmount(
-          Math.round(total) / precision,
-          getTokenDecimals(fromTokenName, chainId)
-        ),
-        minFees: Math.round(minFees * 10 ** 3),
-        maxFees: Math.round(maxFees * 10 ** 3),
-        created: Math.round(new Date().getTime() / 1000),
-        killed: false,
-      },
+    const order = {
+      creator: accountAddress,
+      srcToken:
+        fromTokenName === 'ETH'
+          ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+          : contractAddresses[fromTokenName],
+      dstToken:
+        toTokenName === 'ETH'
+          ? Addresses[chainId]['WETH']
+          : contractAddresses[toTokenName],
+      interval: seconds,
+      tickSize: getContractReadableAmount(
+        Math.round(tickSize) / precision,
+        getTokenDecimals(fromTokenName, chainId)
+      ),
+      total: getContractReadableAmount(
+        Math.round(total) / precision,
+        getTokenDecimals(fromTokenName, chainId)
+      ),
+      minFees: Math.round(minFees * 10 ** 3),
+      maxFees: Math.round(maxFees * 10 ** 3),
+      created: Math.round(new Date().getTime() / 1000),
+      killed: false,
+    };
+
+    await sendTx(tzwapRouter.connect(signer), 'newOrder', [
+      order,
       {
         value:
           fromTokenName === 'ETH'
@@ -381,9 +384,7 @@ const Tzwap = () => {
             : 0,
         gasLimit: chainId === 1 ? 700000 : 1700000,
       },
-    ];
-
-    await sendTx(tzwapRouter.connect(signer), 'newOrder', params);
+    ]);
     updateOrders();
     updateAssetBalances();
   }, [
@@ -475,7 +476,7 @@ const Tzwap = () => {
         signer
       );
 
-      const userAmount = IS_NATIVE(fromTokenName)
+      const userAmount = isNativeToken(fromTokenName)
         ? BigNumber.from(userAssetBalances[CURRENCIES_MAP[chainId.toString()]!])
         : await ERC20__factory.connect(
             contractAddresses[fromTokenName],
@@ -484,7 +485,7 @@ const Tzwap = () => {
 
       setUserTokenBalance(userAmount);
 
-      let allowance = IS_NATIVE(fromTokenName)
+      let allowance = isNativeToken(fromTokenName)
         ? BigNumber.from(0)
         : await ERC20__factory.connect(
             contractAddresses[fromTokenName],
@@ -494,7 +495,7 @@ const Tzwap = () => {
       if (!allowance.eq(0)) {
         setApproved(true);
       } else {
-        if (IS_NATIVE(fromTokenName)) {
+        if (isNativeToken(fromTokenName)) {
           setApproved(true);
         } else {
           setApproved(false);

@@ -1,24 +1,26 @@
-import { useEffect, useState } from 'react';
 import Head from 'next/head';
-import Box from '@mui/material/Box';
-import { BigNumber } from 'ethers';
-import { styled } from '@mui/material/styles';
 
+import { useEffect, useState } from 'react';
+
+import { BigNumber } from 'ethers';
+
+import Box from '@mui/material/Box';
+import { styled } from '@mui/material/styles';
+import { useBoundStore } from 'store';
+import { Farm, FarmData, UserData } from 'types/farms';
+
+import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import FarmingMigrationBanner from 'components/common/Banners/FarmingMigrationBanner';
+import SushiMigrationBanner from 'components/common/Banners/SushiMigrationBanner';
+import ClaimCard from 'components/farms/ClaimCard';
 import FarmCard from 'components/farms/FarmCard';
 import ManageDialog, {
   BasicManageDialogProps,
 } from 'components/farms/ManageDialog';
-import Typography from 'components/UI/Typography';
-import ClaimCard from 'components/farms/ClaimCard';
 import QuickLinks from 'components/farms/QuickLinks';
 
-import { useBoundStore } from 'store';
-
 import { FARMS } from 'constants/farms';
-
-import { Farm, FarmData, UserData } from 'types/farms';
 
 const CustomBox = styled(Box)`
   @media (min-width: 1100px) {
@@ -106,7 +108,8 @@ const Farms = () => {
       </Head>
       {chainId !== 42161 ? <FarmingMigrationBanner /> : null}
       <AppBar active="Stake" />
-      <Box className="flex my-32 justify-end lg:mx-6 lg:space-x-reverse lg:flex-row-reverse flex-col">
+      <SushiMigrationBanner />
+      <Box className="flex mb-32 justify-end lg:mx-6 lg:space-x-reverse lg:flex-row-reverse flex-col">
         <Box className="mb-4 xl:mb-0 mx-4">
           <Typography variant="h5" className="mb-6">
             Farms
@@ -131,7 +134,6 @@ const Farms = () => {
                   userDataLoading={userDataLoading}
                   stakingTokenSymbol={farm.stakingTokenSymbol}
                   stakingRewardsAddress={farm.stakingRewardsAddress}
-                  newStakingRewardsAddress={farm?.newStakingRewardsAddress}
                   stakingTokenAddress={farm.stakingTokenAddress}
                   type={farm.type}
                   status={farm.status}

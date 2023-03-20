@@ -17,6 +17,9 @@ const CLASSES = {
   caption: 'text-xs',
 };
 
+/**
+ * @deprecated
+ */
 const Typography: FC<TypographyProps> = (props) => {
   const {
     children,

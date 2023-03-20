@@ -1,10 +1,12 @@
-import { useEffect, ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
+
 import Box from '@mui/material/Box';
 import MuiInput, { InputProps as MuiInputProps } from '@mui/material/Input';
 
 interface InputProps extends MuiInputProps {
-  leftElement: ReactNode;
+  leftElement?: ReactNode;
   bottomElement?: ReactNode;
+  topElement?: ReactNode;
   variant?: string;
   outline?: 'mineshaft' | 'down-bad' | 'umbra';
   placeholder?: string;
@@ -27,12 +29,13 @@ const variants: Record<string, Record<string, string>> = {
 
 const Input = (props: InputProps) => {
   const {
-    leftElement,
-    bottomElement,
+    leftElement = '',
+    bottomElement = '',
     className,
     variant = 'default',
     outline = 'umbra',
     placeholder = '',
+    topElement,
     ...rest
   } = props;
 
@@ -56,8 +59,9 @@ const Input = (props: InputProps) => {
 
   return (
     <Box
-      className={`${variants[variant]?.['box']} ${className} border border-${outline}`}
+      className={`${variants[variant]?.['box']} ${className} border border-${outline} flex-col`}
     >
+      <Box>{topElement}</Box>
       <Box className="flex justify-between items-center">
         {leftElement}
         <MuiInput
@@ -74,7 +78,7 @@ const Input = (props: InputProps) => {
           placeholder={placeholder}
         />
       </Box>
-      {bottomElement}
+      <Box>{bottomElement}</Box>
     </Box>
   );
 };

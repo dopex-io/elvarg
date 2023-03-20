@@ -1,16 +1,17 @@
-import { StateCreator } from 'zustand';
 import { BigNumber } from 'ethers';
-import {
-  AtlanticStraddle__factory,
-  AtlanticStraddle,
-  SSOVOptionPricing__factory,
-  Addresses,
-  AtlanticStraddleV2__factory,
-  AtlanticStraddleV2,
-} from '@dopex-io/sdk';
 
-import { WalletSlice } from 'store/Wallet';
+import {
+  Addresses,
+  AtlanticStraddle,
+  AtlanticStraddleV2,
+  AtlanticStraddleV2__factory,
+  AtlanticStraddle__factory,
+  SSOVOptionPricing__factory,
+} from '@dopex-io/sdk';
+import { StateCreator } from 'zustand';
+
 import { CommonSlice } from 'store/Vault/common';
+import { WalletSlice } from 'store/Wallet';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
@@ -114,9 +115,14 @@ export const createStraddlesSlice: StateCreator<
 
     if (selectedEpoch === null || !straddlesContract) return;
 
-    const epochData = await straddlesContract!['epochData'](
-      Math.max(selectedEpoch, 1)
-    );
+    // Make all calls
+    let [epochData, x, currentPrice] = await Promise.all([
+      straddlesContract!['epochData'](Math.max(selectedEpoch, 1)),
+      chainId !== 137
+        ? straddlesContract!['epochCollectionsData'](selectedEpoch)
+        : () => {},
+      straddlesContract!['getUnderlyingPrice'](),
+    ]);
 
     let usdFunding: BigNumber;
     let usdPremiums: BigNumber;
@@ -127,15 +133,10 @@ export const createStraddlesSlice: StateCreator<
       usdPremiums = epochData['usdPremiums'];
       totalSold = epochData['totalSold'];
     } else {
-      const epochCollectionsData = await straddlesContract![
-        'epochCollectionsData'
-      ](selectedEpoch);
-      usdFunding = epochCollectionsData['usdFunding'];
-      usdPremiums = epochCollectionsData['usdPremiums'];
-      totalSold = epochCollectionsData['totalSold'];
+      usdFunding = x['usdFunding'];
+      usdPremiums = x['usdPremiums'];
+      totalSold = x['totalSold'];
     }
-
-    const currentPrice = await straddlesContract!['getUnderlyingPrice']();
 
     let straddlePrice: BigNumber;
     let aprFunding: BigNumber;
@@ -310,72 +311,81 @@ export const createStraddlesSlice: StateCreator<
 
     const straddlesContract = getStraddlesContract();
 
-    let currentEpoch = 0;
-    let isEpochExpired: boolean;
-
     try {
-      currentEpoch = Number(await straddlesContract!['currentEpoch']());
+      let isEpochExpired: boolean;
+
+      // Make all epoch agnostic calls first
+      // x below could be vaultVariables or blackoutPeriodBeforeExpiry
+      let [currentEpoch, addresses, x] = await Promise.all([
+        straddlesContract!['currentEpoch'](),
+        straddlesContract!['addresses'](),
+        chainId === 137
+          ? straddlesContract!['vaultVariables']()
+          : straddlesContract!['blackoutPeriodBeforeExpiry'](),
+      ]);
+
+      // Make all epoch calls
+      // y below could be epochStatus or isEpochExpired
+      // z is isVaultReady is the version is 1
+      let [y, z, epochData] = await Promise.all([
+        chainId === 137
+          ? straddlesContract!['epochStatus'](currentEpoch)
+          : straddlesContract!['isEpochExpired'](currentEpoch),
+        chainId === 137
+          ? () => {}
+          : straddlesContract!['isVaultReady'](currentEpoch),
+        straddlesContract!['epochData'](currentEpoch),
+      ]);
 
       if (chainId === 137) {
-        let epochStatus = await straddlesContract!['epochStatus'](currentEpoch);
-
         // Epoch Status 3 = Expired
-        if (epochStatus === 3) currentEpoch = currentEpoch + 1;
+        if (y === 3) currentEpoch = currentEpoch + 1;
       } else {
-        isEpochExpired = await straddlesContract!['isEpochExpired'](
-          currentEpoch
-        );
-        if (isEpochExpired) currentEpoch = currentEpoch + 1;
+        if (y) currentEpoch = currentEpoch + 1;
       }
+
+      const params = window.location.search.split('?epoch=');
+
+      if (params.length === 2) currentEpoch = Number(params[1]!);
+
+      const underlying = addresses['underlying'];
+
+      const usd = addresses['usd'];
+      let isVaultReady: boolean;
+
+      if (chainId === 137) {
+        isVaultReady = y === 1;
+      } else {
+        isVaultReady = z;
+      }
+
+      let blackOut: BigNumber;
+
+      if (chainId === 137) {
+        blackOut = x.blackoutPeriodBeforeExpiry;
+      } else {
+        blackOut = x;
+      }
+
+      setSelectedEpoch(currentEpoch);
+
+      set((prevState) => ({
+        ...prevState,
+        straddlesData: {
+          usd: usd,
+          underlying: underlying,
+          currentEpoch: Number(currentEpoch),
+          currentExpiry: epochData.expiry,
+          straddlesContract: straddlesContract,
+          isVaultReady: isVaultReady,
+          isEpochExpired: isEpochExpired,
+          blackoutPeriodBeforeExpiry: blackOut,
+        },
+      }));
     } catch (err) {
       console.log(err);
       return;
     }
-
-    const params = window.location.search.split('?epoch=');
-
-    if (params.length === 2) currentEpoch = Number(params[1]!);
-
-    const addresses = await straddlesContract!['addresses']();
-
-    const underlying = addresses['underlying'];
-
-    const usd = addresses['usd'];
-    let isVaultReady: boolean;
-
-    if (chainId === 137) {
-      let status = await straddlesContract!['epochStatus'](currentEpoch);
-      isVaultReady = status === 1;
-    } else {
-      isVaultReady = await straddlesContract!['isVaultReady'](currentEpoch);
-    }
-
-    let blackOut: BigNumber;
-
-    if (chainId === 137) {
-      let vars = await straddlesContract!['vaultVariables']();
-      blackOut = vars.blackoutPeriodBeforeExpiry;
-    } else {
-      blackOut = await straddlesContract!['blackoutPeriodBeforeExpiry']();
-    }
-
-    const epochData = await straddlesContract!['epochData'](currentEpoch);
-
-    setSelectedEpoch(currentEpoch);
-
-    set((prevState) => ({
-      ...prevState,
-      straddlesData: {
-        usd: usd,
-        underlying: underlying,
-        currentEpoch: Number(currentEpoch),
-        currentExpiry: epochData.expiry,
-        straddlesContract: straddlesContract,
-        isVaultReady: isVaultReady,
-        isEpochExpired: isEpochExpired,
-        blackoutPeriodBeforeExpiry: blackOut,
-      },
-    }));
   },
   getStraddlesContract: () => {
     const { selectedPoolName, provider, chainId } = get();
@@ -415,10 +425,12 @@ export const createStraddlesSlice: StateCreator<
     const straddlesContract = getStraddlesContract();
 
     try {
-      const owner = await straddlesContract!['ownerOf'](id);
-      if (owner !== accountAddress) throw 'Invalid owner';
+      const [owner, data] = await Promise.all([
+        straddlesContract!['ownerOf'](id),
+        straddlesContract!['writePositions'](id),
+      ]);
 
-      const data = await straddlesContract!['writePositions'](id);
+      if (owner !== accountAddress) throw 'Invalid owner';
 
       const totalPremiumFunding = straddlesEpochData!.usdPremiums.add(
         straddlesEpochData!.usdFunding
@@ -455,10 +467,13 @@ export const createStraddlesSlice: StateCreator<
     const optionsPricingContract = getOptionPricingContract();
 
     try {
-      const owner = await straddlesContract!['ownerOf'](id);
+      const [owner, data] = await Promise.all([
+        straddlesContract!['ownerOf'](id),
+        straddlesContract!['straddlePositions'](id),
+      ]);
+
       if (owner !== accountAddress) throw 'Invalid owner';
 
-      const data = await straddlesContract!['straddlePositions'](id);
       const currentPrice = straddlesEpochData!.currentPrice;
       const volatility = straddlesEpochData!.volatility;
       const timeToExpiry = straddlesEpochData!.expiry;

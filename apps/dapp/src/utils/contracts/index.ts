@@ -8,7 +8,6 @@ export { default as getTokenUri } from './getTokenUri';
 export { default as getUniquePoolIdentifier } from './getUniquePoolIdentifier';
 export { default as getUserReadableAmount } from './getUserReadableAmount';
 export { default as getReadableTime } from './getReadableTime';
-export { default as isNativeSsov } from './isNativeSsov';
 export { default as isValidStrike } from './isValidStrike';
 export { default as isZeroAddress } from './isZeroAddress';
 export { default as sanitizeValue } from './sanitizeValue';

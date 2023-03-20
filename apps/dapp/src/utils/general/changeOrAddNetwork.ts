@@ -1,6 +1,6 @@
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 
-import { CHAIN_ID_TO_RPC } from 'constants/index';
+import { CHAINS } from 'constants/chains';
 
 const NETWORKS = {
   1: {
@@ -26,7 +26,7 @@ const NETWORKS = {
     chainId: '0x38',
     params: [
       {
-        chainId: '0x38', // A 0x-prefixed hexadecimal string
+        chainId: '0x38',
         chainName: 'Binance Smart Chain Mainnet',
         nativeCurrency: {
           name: 'Binance Coin',
@@ -42,7 +42,7 @@ const NETWORKS = {
     chainId: '0xA4B1',
     params: [
       {
-        chainId: '0xA4B1', // A 0x-prefixed hexadecimal string
+        chainId: '0xA4B1',
         chainName: 'Arbitrum',
         nativeCurrency: {
           name: 'Arbitrum One',
@@ -54,18 +54,18 @@ const NETWORKS = {
       },
     ],
   },
-  421611: {
-    chainId: '0x66EEB',
+  421613: {
+    chainId: '0x66EED',
     params: [
       {
-        chainId: '0x66EEB',
+        chainId: '0x66EED',
         chainName: 'Arbitrum Testnet',
         nativeCurrency: {
           name: 'Arbitrum Testnet',
           symbol: 'ETH',
           decimals: 18,
         },
-        rpcUrls: ['https://rinkeby.arbitrum.io/rpc'],
+        rpcUrls: ['https://goerli-rollup.arbitrum.io/rpc'],
         blockExplorerUrls: ['https://testnet.arbiscan.io/'],
       },
     ],
@@ -129,7 +129,7 @@ export default async function changeOrAddNetwork(chainId: number) {
       appLogoUrl: '/images/tokens/dpx.svg',
     });
 
-    let rpcUrl = CHAIN_ID_TO_RPC[chainId];
+    let rpcUrl = CHAINS[chainId]?.publicRpc;
 
     window.ethereum = coinbaseWallet.makeWeb3Provider(rpcUrl, chainId);
   }

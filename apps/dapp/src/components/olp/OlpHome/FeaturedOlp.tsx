@@ -1,9 +1,13 @@
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import axios from 'axios';
-import Box from '@mui/material/Box';
-import { Divider } from '@mui/material';
+
+import { useEffect, useState } from 'react';
+
 import { BigNumber } from 'ethers';
+
+import { Divider } from '@mui/material';
+import Box from '@mui/material/Box';
+import axios from 'axios';
+import { IOlpApi } from 'pages/olp';
 import {
   Area,
   AreaChart,
@@ -12,15 +16,13 @@ import {
   YAxis,
 } from 'recharts';
 
-import Typography from 'components/UI/Typography';
 import { NumberDisplay } from 'components/UI';
+import Typography from 'components/UI/Typography';
 
 import { getReadableTime } from 'utils/contracts';
 
+import { CHAINS } from 'constants/chains';
 import { DOPEX_API_BASE_URL } from 'constants/env';
-import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
-
-import { IOlpApi } from 'pages/olp';
 
 // TODO: remove
 const fakeData = [1, 2, 3, 4, 5, 6, 7, 6, 5, 6, 7, 8, 9, 7, 5, 6, 9];
@@ -72,8 +74,8 @@ export const FeaturedOlp = ({ olp }: { olp: IOlpApi | undefined }) => {
           </Typography>
           <Box className="ml-auto">
             <img
-              src={CHAIN_ID_TO_NETWORK_DATA[olp.chainId]?.icon}
-              alt={CHAIN_ID_TO_NETWORK_DATA[olp.chainId]?.name}
+              src={CHAINS[olp.chainId]?.icon}
+              alt={CHAINS[olp.chainId]?.name}
               className="w-6 h-auto"
             />
           </Box>

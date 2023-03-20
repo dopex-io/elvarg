@@ -1,5 +1,5 @@
-import Box from '@mui/material/Box';
 import LaunchIcon from '@mui/icons-material/Launch';
+import Box from '@mui/material/Box';
 
 const QuickLink = ({ text, href }: { text: string; href: string }) => {
   return (
@@ -17,7 +17,14 @@ const QuickLinks = () => {
     <Box className="lg:fixed lg:bottom-6 mx-4 w-80">
       <Box className="mb-4 text-stieglitz">Quick Links</Box>
       <Box className="flex flex-col space-y-2">
-        <QuickLink text="Buy DPX or rDPX" href="https://www.sushi.com/swap" />
+        <QuickLink
+          text="Buy DPX on Bybit"
+          href="https://www.bybit.com/en-US/trade/spot/DPX/USDT?affiliate_id=50505"
+        />
+        <QuickLink
+          text="Buy DPX or rDPX on Sushiswap"
+          href="https://www.sushi.com/swap"
+        />
         <QuickLink
           text="Add DPX/ETH Liquidity"
           href="https://www.sushi.com/earn/arb1:0x0c1cf6883efa1b496b01f654e247b9b419873054/add"

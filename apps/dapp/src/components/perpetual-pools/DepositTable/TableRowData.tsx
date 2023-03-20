@@ -1,16 +1,15 @@
 import { useCallback } from 'react';
+
+import TableCell from '@mui/material/TableCell';
 // import { BigNumber } from 'ethers';
 import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
+import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
 
 import Button from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 
-import { useBoundStore } from 'store';
-
 import formatAmount from 'utils/general/formatAmount';
-
-import useSendTx from 'hooks/useSendTx';
 
 interface Props {
   totalCollateral: string | number;
@@ -40,7 +39,7 @@ const TableRowData = (props: Props) => {
 
   const handleWithdraw = useCallback(async () => {
     const contract = appContractData.contract;
-    if (!signer || !appUserData || !contract) return;
+    if (!signer || !appUserData || !contract || !accountAddress) return;
 
     try {
       await sendTx(contract, 'withdraw', [positionId, accountAddress]);

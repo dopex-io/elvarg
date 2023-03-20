@@ -1,16 +1,18 @@
-import { BigNumber } from 'ethers';
 import Link from 'next/link';
-import { Box, TableRow } from '@mui/material';
 
-import { Typography, CustomButton, NumberDisplay } from 'components/UI';
+import { BigNumber } from 'ethers';
+
+import { Box, TableRow } from '@mui/material';
+import { IOlpApi } from 'pages/olp';
+
+import { CustomButton, NumberDisplay, Typography } from 'components/UI';
 import {
-  StyleLeftCell,
   StyleCell,
+  StyleLeftCell,
   StyleRightCell,
 } from 'components/common/LpCommon/Table';
-import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
 
-import { IOlpApi } from 'pages/olp';
+import { CHAINS } from 'constants/chains';
 
 export const OlpTableRow = ({ olp, idx }: { olp: IOlpApi; idx: number }) => {
   const splitSymbol = olp.symbol.split('-');
@@ -47,8 +49,8 @@ export const OlpTableRow = ({ olp, idx }: { olp: IOlpApi; idx: number }) => {
       <StyleCell align="left">
         <Typography variant="h6" color="white" className="capitalize">
           <img
-            src={CHAIN_ID_TO_NETWORK_DATA[olp.chainId]?.icon}
-            alt={CHAIN_ID_TO_NETWORK_DATA[olp.chainId]?.name}
+            src={CHAINS[olp.chainId]?.icon}
+            alt={CHAINS[olp.chainId]?.name}
             className="w-6 h-auto"
           />
         </Typography>

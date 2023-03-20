@@ -1,16 +1,17 @@
-import { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
 import Head from 'next/head';
-import Box from '@mui/material/Box';
 
+import { useCallback, useEffect, useState } from 'react';
+
+import Box from '@mui/material/Box';
+import axios from 'axios';
 import { useBoundStore } from 'store';
 
+import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import Filter from 'components/common/Filter';
-import Typography from 'components/UI/Typography';
 import VaultCard from 'components/straddles/VaultCard';
 
-import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+import { CHAINS } from 'constants/chains';
 import { DOPEX_API_BASE_URL } from 'constants/env';
 
 const states: string[] = ['Active', 'Retired'];
@@ -20,12 +21,10 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
     <Box className="flex space-x-4 mb-8">
       <img
         className="w-8 h-8"
-        src={CHAIN_ID_TO_NETWORK_DATA[chainId]?.icon}
-        alt={CHAIN_ID_TO_NETWORK_DATA[chainId]?.name}
+        src={CHAINS[chainId]?.icon}
+        alt={CHAINS[chainId]?.name}
       />
-      <Typography variant="h4">
-        {CHAIN_ID_TO_NETWORK_DATA[chainId]?.name}
-      </Typography>
+      <Typography variant="h4">{CHAINS[chainId]?.name}</Typography>
     </Box>
   );
 };

@@ -1,27 +1,30 @@
-import { StateCreator } from 'zustand';
-import {
-  SsovV3__factory,
-  SsovV3,
-  SSOVOptionPricing,
-  SsovV3Viewer__factory,
-  SSOVOptionPricing__factory,
-  ERC20__factory,
-} from '@dopex-io/sdk';
 import { BigNumber, ethers } from 'ethers';
-import axios from 'axios';
 
-import { WalletSlice } from 'store/Wallet';
+import {
+  ERC20__factory,
+  SSOVOptionPricing,
+  SSOVOptionPricing__factory,
+  SsovV3,
+  SsovV3Router,
+  SsovV3Router__factory,
+  SsovV3Viewer__factory,
+  SsovV3__factory,
+} from '@dopex-io/sdk';
+import axios from 'axios';
+import { TokenData } from 'types';
+import { StateCreator } from 'zustand';
+
 import { CommonSlice } from 'store/Vault/common';
+import { WalletSlice } from 'store/Wallet';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { TOKEN_ADDRESS_TO_DATA } from 'constants/tokens';
 import { DOPEX_API_BASE_URL } from 'constants/env';
-
-import { TokenData } from 'types';
+import { TOKEN_ADDRESS_TO_DATA } from 'constants/tokens';
 
 export interface SsovV3Signer {
   ssovContractWithSigner?: SsovV3;
+  ssovRouterWithSigner?: SsovV3Router | undefined;
 }
 
 export interface SsovV3Data {
@@ -59,6 +62,7 @@ export interface SsovV3EpochData {
   TVL: number;
   rewards: Reward[];
   collateralExchangeRate: BigNumber;
+  strikeToIdx: Map<string, number>;
 }
 
 export interface WritePositionInterface {
@@ -100,7 +104,7 @@ export const createSsovV3Slice: StateCreator<
   },
   ssovSigner: {},
   updateSsovV3Signer: async () => {
-    const { contractAddresses, signer, selectedPoolName } = get();
+    const { contractAddresses, signer, selectedPoolName, chainId } = get();
 
     if (!contractAddresses || !signer || !selectedPoolName) return;
 
@@ -110,6 +114,16 @@ export const createSsovV3Slice: StateCreator<
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
 
+    const ssovRouterAddress = contractAddresses['SSOV-V3']['ROUTER'];
+
+    let ssovRouterWithSigner;
+
+    if (chainId !== 137)
+      ssovRouterWithSigner = SsovV3Router__factory.connect(
+        ssovRouterAddress,
+        signer
+      );
+
     const _ssovContractWithSigner = SsovV3__factory.connect(
       ssovAddress,
       signer
@@ -117,9 +131,13 @@ export const createSsovV3Slice: StateCreator<
 
     _ssovSigner = {
       ssovContractWithSigner: _ssovContractWithSigner,
+      ssovRouterWithSigner,
     };
 
-    set((prevState) => ({ ...prevState, ssovSigner: _ssovSigner }));
+    set((prevState) => ({
+      ...prevState,
+      ssovSigner: _ssovSigner,
+    }));
   },
   updateSsovV3EpochData: async () => {
     const {
@@ -143,6 +161,8 @@ export const createSsovV3Slice: StateCreator<
     if (!contractAddresses['SSOV-V3']) return;
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
+
+    if (!ssovAddress) return;
 
     const ssovContract = SsovV3__factory.connect(ssovAddress, provider);
 
@@ -186,15 +206,17 @@ export const createSsovV3Slice: StateCreator<
     ]);
 
     const epochStrikes = epochData.strikes;
+    const strikeToIdx = new Map<string, number>();
 
     const epochStrikeDataArray = await Promise.all(
-      epochStrikes.map((strike) =>
-        ssovContract.getEpochStrikeData(selectedEpoch, strike)
-      )
+      epochStrikes.map(async (strike, idx) => {
+        strikeToIdx.set(strike.toString(), idx);
+        return ssovContract.getEpochStrikeData(selectedEpoch, strike);
+      })
     );
 
     const availableCollateralForStrikes = epochStrikeDataArray.map((item) => {
-      return item.totalCollateral.sub(item.activeCollateral);
+      return item?.totalCollateral.sub(item?.activeCollateral);
     });
 
     const totalEpochDeposits = totalEpochStrikeDeposits.reduce(
@@ -232,6 +254,7 @@ export const createSsovV3Slice: StateCreator<
       TVL: totalEpochDepositsInUSD,
       rewards: rewardsPayLoad.data.rewards,
       collateralExchangeRate: epochData.collateralExchangeRate,
+      strikeToIdx: strikeToIdx,
     };
 
     set((prevState) => ({ ...prevState, ssovEpochData: _ssovEpochData }));
@@ -261,6 +284,8 @@ export const createSsovV3Slice: StateCreator<
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
 
+    if (!ssovAddress) return;
+
     const ssov = SsovV3__factory.connect(ssovAddress, provider);
 
     const ssovViewerContract = SsovV3Viewer__factory.connect(
@@ -279,6 +304,12 @@ export const createSsovV3Slice: StateCreator<
       })
     );
 
+    const checkpointData = await Promise.all(
+      data.map((pos) => {
+        return ssov.checkpoints(pos.epoch, pos.strike, pos.checkpointIndex);
+      })
+    );
+
     const moreData = await Promise.all(
       writePositions.map((i) => {
         return ssovViewerContract.getWritePositionValue(i, ssovAddress);
@@ -286,6 +317,12 @@ export const createSsovV3Slice: StateCreator<
     );
 
     const _writePositions = data.map((o, i) => {
+      const utilization = checkpointData[i]?.activeCollateral.isZero()
+        ? BigNumber.from(0)
+        : checkpointData[i]?.activeCollateral
+            .mul(1e2)
+            .div(checkpointData[i]?.totalCollateral!);
+
       return {
         tokenId: writePositions[i] as BigNumber,
         collateralAmount: o.collateralAmount,
@@ -294,7 +331,7 @@ export const createSsovV3Slice: StateCreator<
         accruedRewards: moreData[i]?.rewardTokenWithdrawAmounts || [],
 
         accruedPremiums: moreData[i]?.accruedPremium || BigNumber.from(0),
-        utilization: moreData[i]?.estimatedCollateralUsage || BigNumber.from(0),
+        utilization: utilization!,
       };
     });
 
@@ -317,6 +354,8 @@ export const createSsovV3Slice: StateCreator<
     let _ssovData: SsovV3Data;
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
+
+    if (!ssovAddress) return;
 
     const _ssovContract = SsovV3__factory.connect(ssovAddress, provider);
 
@@ -371,9 +410,7 @@ export const createSsovV3Slice: StateCreator<
       };
 
       set((prevState) => ({ ...prevState, ssovData: _ssovData }));
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   },
   selectedEpoch: 1,
   getSsovViewerAddress: () => {

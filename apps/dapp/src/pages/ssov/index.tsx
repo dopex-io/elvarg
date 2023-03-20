@@ -1,17 +1,16 @@
-import { useState, useMemo } from 'react';
 import Head from 'next/head';
-import isEmpty from 'lodash/isEmpty';
+
+import { useMemo, useState } from 'react';
+
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import {
-  useQuery,
   QueryClient,
   QueryClientProvider,
+  useQuery,
 } from '@tanstack/react-query';
-
-import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
-import { DOPEX_API_BASE_URL } from 'constants/env';
+import isEmpty from 'lodash/isEmpty';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
@@ -19,6 +18,9 @@ import SsovCard from 'components/ssov/SsovCard';
 import SsovFilter from 'components/ssov/SsovFilter';
 
 import formatAmount from 'utils/general/formatAmount';
+
+import { CHAINS } from 'constants/chains';
+import { DOPEX_API_BASE_URL } from 'constants/env';
 
 const ssovStrategies: string[] = ['CALL', 'PUT'];
 const sortOptions: string[] = ['TVL', 'APY'];
@@ -28,12 +30,10 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
     <Box className="flex space-x-4 mb-8">
       <img
         className="w-8 h-8"
-        src={CHAIN_ID_TO_NETWORK_DATA[chainId]!.icon}
-        alt={CHAIN_ID_TO_NETWORK_DATA[chainId]!.name}
+        src={CHAINS[chainId]!.icon}
+        alt={CHAINS[chainId]!.name}
       />
-      <Typography variant="h4">
-        {CHAIN_ID_TO_NETWORK_DATA[chainId]!.name}
-      </Typography>
+      <Typography variant="h4">{CHAINS[chainId]!.name}</Typography>
     </Box>
   );
 };
@@ -74,7 +74,7 @@ const SsovData = () => {
 
   const keys = useMemo(() => {
     if (!ssovs) return [];
-    else return [42161];
+    else return [42161, 137];
   }, [ssovs]);
 
   const ssovsTokens = useMemo(() => {
@@ -122,7 +122,7 @@ const SsovData = () => {
               'mb-6 mt-5 opacity-90 bg-white ml-auto mr-auto w-[5rem] rounded-md p-[0.3px]'
             }
           >
-            <Typography variant="h6" className="text-umbra text-[0.7rem]">
+            <Typography variant="h6" color="umbra" className="text-[0.7rem]">
               TVL ${formatAmount(tvl, 0)}
             </Typography>
           </Box>
@@ -160,6 +160,7 @@ const SsovData = () => {
 
         {!isEmpty(ssovs)
           ? keys.map((key) => {
+              console.log(key);
               return (
                 <Box key={key} className="mb-12">
                   <NetworkHeader chainId={Number(key)} />

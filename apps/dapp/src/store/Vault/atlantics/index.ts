@@ -1,21 +1,21 @@
-import { StateCreator } from 'zustand';
 import { BigNumber } from 'ethers';
+
 import {
-  ERC20,
-  ERC20__factory,
   AtlanticPutsPool,
   AtlanticPutsPool__factory,
-  AtlanticsViewer__factory,
   AtlanticsViewer,
+  AtlanticsViewer__factory,
+  ERC20,
+  ERC20__factory,
 } from '@dopex-io/sdk';
 import { CheckpointStructOutput } from '@dopex-io/sdk/dist/types/typechain/AtlanticPutsPool';
+import { StateCreator } from 'zustand';
 
 import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-
 import { getTokenDecimals } from 'utils/general';
 
 export enum OptionsState {
@@ -103,6 +103,7 @@ export interface IUserPosition {
   premiumsEarned: BigNumber;
   fundingEarned: BigNumber;
   underlyingEarned?: BigNumber;
+  rollover: boolean;
   apy: number;
 }
 
@@ -403,7 +404,7 @@ export const createAtlanticsSlice: StateCreator<
     const poolAddress = atlanticPool.contracts.atlanticPool.address;
 
     const atlanticsViewer = AtlanticsViewer__factory.connect(
-      '0xD8D6A6CAB18440aEfBfc0BBf811e672730D22177',
+      contractAddresses['ATLANTICS-VIEWER'],
       provider
     );
 
@@ -440,7 +441,10 @@ export const createAtlanticsSlice: StateCreator<
 
     let depositCheckpoints = await Promise.all(depositCheckpointCalls);
     const _userDeposits = userDeposits.map(
-      ({ strike, liquidity, checkpoint, depositor }, index: number) => {
+      (
+        { strike, liquidity, checkpoint, depositor, rollover },
+        index: number
+      ) => {
         const fundingEarned: BigNumber = liquidity
           .mul(depositCheckpoints[index]?.borrowFeesAccrued ?? 0)
           .div(depositCheckpoints[index]?.totalLiquidity ?? 1);
@@ -476,6 +480,7 @@ export const createAtlanticsSlice: StateCreator<
           premiumsEarned,
           depositor,
           apy,
+          rollover,
         };
       }
     );

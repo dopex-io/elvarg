@@ -1,37 +1,37 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { BigNumber } from 'ethers';
+
 import {
   DopexPositionManager__factory,
   GmxVault__factory,
   InsuredLongsStrategy__factory,
   InsuredLongsUtils__factory,
 } from '@dopex-io/sdk';
-import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import CircularProgress from '@mui/material/CircularProgress';
-import Select from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
 import { styled } from '@mui/styles';
+import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import WalletButton from 'components/common/WalletButton';
-import {
-  TableHeader,
-  TableBodyCell,
-} from 'components/atlantics/Manage/UserDepositsTable';
 import ManageModal from 'components/atlantics/InsuredPerps/Dialogs/ManageDialog';
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
-
-import { useBoundStore } from 'store';
-
-import useSendTx from 'hooks/useSendTx';
+import {
+  TableBodyCell,
+  TableHeader,
+} from 'components/atlantics/Manage/UserDepositsTable';
+import WalletButton from 'components/common/WalletButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -374,12 +374,10 @@ const Positions = ({
       signer
     );
 
-    await sendTx(
-      userPositionManagerContract,
-      'decreaseOrder',
-      [decreaseOrder],
-      MIN_EXECUTION_FEE
-    ).then(() => {
+    await sendTx(userPositionManagerContract, 'decreaseOrder', [
+      decreaseOrder,
+      { value: MIN_EXECUTION_FEE },
+    ]).then(() => {
       getUserPositions();
     });
   }, [
@@ -455,12 +453,10 @@ const Positions = ({
       strategyContract.userPositionManagers(accountAddress),
     ]);
 
-    await sendTx(
-      strategyContract,
-      'createIncreaseManagedPositionOrder',
-      [positionId],
-      MIN_EXECUTION_FEE
-    ).then(() => {
+    await sendTx(strategyContract, 'createIncreaseManagedPositionOrder', [
+      positionId,
+      { value: MIN_EXECUTION_FEE },
+    ]).then(() => {
       getUserPositions();
     });
   }, [

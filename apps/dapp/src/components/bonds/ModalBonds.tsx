@@ -22,8 +22,9 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import displayAddress from 'utils/general/displayAddress';
 import formatAmount from 'utils/general/formatAmount';
 
-import { CHAIN_ID_TO_EXPLORER, MAX_VALUE } from 'constants/index';
+import { MAX_VALUE } from 'constants/index';
 import { DOPEX_API_BASE_URL } from 'constants/env';
+import { CHAINS } from 'constants/chains';
 
 export interface ModalBondsProps {
   modalOpen: boolean;
@@ -334,7 +335,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
               Contract
               <a
                 href={
-                  `${CHAIN_ID_TO_EXPLORER[chainId ?? 42161]}/address/` +
+                  `${CHAINS[chainId ?? 42161]?.explorer}/address/` +
                   dpxBondsAddress
                 }
                 rel="noopener noreferrer"
