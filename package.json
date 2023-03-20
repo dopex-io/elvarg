@@ -2,10 +2,6 @@
   "name": "elvarg",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
     "postinstall": "husky install",
     "dev": "turbo run dev",
@@ -16,10 +12,16 @@
     "build-ui": "turbo run build-ui",
     "build-storybook": "turbo run build-storybook"
   },
-  "packageManager": "yarn@1.22.19",
+  "packageManager": "pnpm@7.28.0",
   "devDependencies": {
     "@commitlint/cli": "^17.0.3",
     "@commitlint/config-conventional": "^17.0.3",
-    "husky": "^8.0.3"
+    "husky": "^8.0.3",
+    "lint-staged": "^13.0.0"
+  },
+  "lint-staged": {
+    "*.+(js|jsx|ts|tsx|json|css|md)": [
+      "prettier --write"
+    ]
   }
 }

@@ -33,6 +33,7 @@ const WritePositionTableData = (props: Props) => {
     openTransfer,
     openWithdraw,
     rewardTokens,
+    utilization,
     // estimatedPnl,
     epochExpired,
   } = props;
@@ -68,6 +69,11 @@ const WritePositionTableData = (props: Props) => {
             </Typography>
           );
         })}
+      </TableCell>
+      <TableCell>
+        <Typography variant="h6">
+          {formatAmount(utilization.toNumber(), 2)}%
+        </Typography>
       </TableCell>
       {/* <TableCell>
         <Typography variant="h6">

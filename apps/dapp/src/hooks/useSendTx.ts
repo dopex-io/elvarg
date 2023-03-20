@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
+import { Contract } from 'ethers';
 import toast from 'react-hot-toast';
-import { ethers, BigNumber } from 'ethers';
-import BN from 'bignumber.js';
 
 import TransactionToast from 'components/UI/TransactionToast';
 
@@ -19,11 +18,10 @@ const useSendTx = () => {
   } = useBoundStore();
 
   const sendTx = useCallback(
-    async (
-      contractWithSigner: ethers.Contract,
-      method: string,
-      params: (any | BigNumber | string)[] = [],
-      value: BigNumber | string | number | BN | BigNumber | null = null,
+    async <T extends Contract, K extends keyof T>(
+      contractWithSigner: T,
+      method: K,
+      params: Parameters<T[K]>,
       waitingMessage: string = 'Please confirm the transaction...',
       loadingMessage: string = 'Transaction pending...',
       successMessage: string = 'Transaction confirmed',
@@ -32,10 +30,10 @@ const useSendTx = () => {
       if (!signer) {
         return;
       }
-      if (!userCompliant) {
-        setOpenComplianceDialog(true);
-        return;
-      }
+      // if (!userCompliant) {
+      //   setOpenComplianceDialog(true);
+      //   return;
+      // }
       let toastId: string;
       if (wrongNetwork) {
         toast.error('Wrong Network');
@@ -43,9 +41,6 @@ const useSendTx = () => {
       }
       toastId = toast.loading(waitingMessage);
       let transaction = contractWithSigner[method](...params);
-      if (value) {
-        transaction = contractWithSigner[method](...params, { value });
-      }
       try {
         const tx = await transaction;
         toast.loading(

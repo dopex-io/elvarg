@@ -1,3 +1,3 @@
 #!/bin/sh
 
-git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD | grep -q "yarn.lock" && echo "run yarn to update dependencies!"
+git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD | grep -q "pnpm-lock.yaml" && echo "run pnpm i to update dependencies!"

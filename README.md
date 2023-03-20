@@ -8,32 +8,24 @@ The Dopex frontend monorepo
 
 Please have these installed on your machine:
 
-- [Node.js 16+](https://nodejs.org/)
-- [Yarn v1](https://classic.yarnpkg.com/lang/)
+- [node.js 16+](https://nodejs.org/)
+- [pnpm](https://pnpm.io/)
 
 ### Install dependencies:
 
 ```
-yarn
+pnpm i
 ```
 
 ### Install `turbo` globally:
 
 ```
-yarn global add turbo
+pnpm add -g turbo
 ```
 
 ### Turbo pipeline commands
 
 `dev` - Runs the dapp in dev mode
-
-Via yarn:
-
-```
-yarn dev
-```
-
-Via turbo:
 
 ```
 turbo dev
@@ -41,27 +33,11 @@ turbo dev
 
 `build` - Builds the dapp
 
-Via yarn:
-
-```
-yarn build
-```
-
-Via turbo:
-
 ```
 turbo build
 ```
 
 `storybook` - Run the storybook in dev mode
-
-Via yarn:
-
-```
-yarn storybook
-```
-
-Via turbo:
 
 ```
 turbo storybook
@@ -69,27 +45,11 @@ turbo storybook
 
 `lint` - Runs linting
 
-Via yarn:
-
-```
-yarn lint
-```
-
-Via turbo:
-
 ```
 turbo lint
 ```
 
 `generate` - Runs the graphql codegen in dapp
-
-Via yarn:
-
-```
-yarn generate
-```
-
-Via turbo:
 
 ```
 turbo generate
@@ -97,27 +57,11 @@ turbo generate
 
 `build-ui` - Builds the UI package
 
-Via yarn:
-
-```
-yarn build-ui
-```
-
-Via turbo:
-
 ```
 turbo build-ui
 ```
 
 `build-storybook` - Builds the storybook
-
-Via yarn:
-
-```
-yarn build-storybook
-```
-
-Via turbo:
 
 ```
 turbo build-storybook
@@ -125,7 +69,7 @@ turbo build-storybook
 
 ### Installing dependencies into a workspace
 
-Since this is a monorepo configured via yarn workspaces adding dependencies to a workspace should be done in the following manner - https://turbo.build/repo/docs/handbook/package-installation#addingremovingupgrading-packages
+Since this is a monorepo configured via pnpm workspaces adding dependencies to a workspace should be done in the following manner - https://turbo.build/repo/docs/handbook/package-installation#addingremovingupgrading-packages
 
 ### Starting individual workspaces
 

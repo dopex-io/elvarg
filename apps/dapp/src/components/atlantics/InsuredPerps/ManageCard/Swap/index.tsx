@@ -18,7 +18,8 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
+import { MAX_VALUE } from 'constants/index';
+import { CHAINS } from 'constants/chains';
 
 interface SwapProps {
   underlying: string;
@@ -61,12 +62,12 @@ const Swap = (props: SwapProps) => {
 
     const underlyingBalance = getUserReadableAmount(
       userAssetBalances[underlying.toUpperCase() ?? ''] ?? '0',
-      TOKEN_DECIMALS[chainId.toString()]?.[underlying?.toUpperCase() ?? '']
+      CHAINS[chainId]?.tokenDecimals[underlying?.toUpperCase() ?? '']
     );
 
     const stableBalance = getUserReadableAmount(
       userAssetBalances[stable.toUpperCase() ?? ''] ?? '0',
-      TOKEN_DECIMALS[chainId.toString()]?.[stable?.toUpperCase() ?? '']
+      CHAINS[chainId]?.tokenDecimals[stable?.toUpperCase() ?? '']
     );
 
     return [underlyingBalance, stableBalance];
@@ -96,7 +97,7 @@ const Swap = (props: SwapProps) => {
 
     const maxValue = getUserReadableAmount(
       userAssetBalances[inputTokenSymbol] ?? '0',
-      TOKEN_DECIMALS[chainId.toString()]?.[inputTokenSymbol]
+      CHAINS[chainId]?.tokenDecimals[inputTokenSymbol]
     ).toString();
 
     setAmountIn(maxValue);
@@ -118,8 +119,7 @@ const Swap = (props: SwapProps) => {
       !accountAddress ||
       !path ||
       !path[0] ||
-      !chainId ||
-      !TOKEN_DECIMALS
+      !chainId
     )
       return;
 
@@ -131,7 +131,7 @@ const Swap = (props: SwapProps) => {
 
     const amountInContractReadable = getContractReadableAmount(
       Number(amountIn),
-      TOKEN_DECIMALS[chainId.toString() ?? '']?.[
+      CHAINS[chainId]?.tokenDecimals[
         (inverted ? stable : underlying).toUpperCase() ?? ''
       ] || 18
     );

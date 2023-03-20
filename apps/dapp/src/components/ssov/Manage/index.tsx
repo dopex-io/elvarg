@@ -13,7 +13,7 @@ import Typography from 'components/UI/Typography';
 import { useBoundStore } from 'store';
 import WritePositions from 'components/ssov/WritePositions';
 
-import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
+import { CHAINS } from 'constants/chains';
 
 const Manage = (props: { ssov: string }) => {
   const { ssov } = props;
@@ -65,7 +65,7 @@ const Manage = (props: { ssov: string }) => {
             className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text"
           >
             <a
-              href={`${CHAIN_ID_TO_EXPLORER[chainId]}/address/${
+              href={`${CHAINS[chainId]?.explorer}/address/${
                 ssovData?.ssovContract?.address ?? ''
               }`}
               rel="noopener noreferrer"

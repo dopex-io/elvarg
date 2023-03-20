@@ -374,12 +374,10 @@ const Positions = ({
       signer
     );
 
-    await sendTx(
-      userPositionManagerContract,
-      'decreaseOrder',
-      [decreaseOrder],
-      MIN_EXECUTION_FEE
-    ).then(() => {
+    await sendTx(userPositionManagerContract, 'decreaseOrder', [
+      decreaseOrder,
+      { value: MIN_EXECUTION_FEE },
+    ]).then(() => {
       getUserPositions();
     });
   }, [
@@ -455,12 +453,10 @@ const Positions = ({
       strategyContract.userPositionManagers(accountAddress),
     ]);
 
-    await sendTx(
-      strategyContract,
-      'createIncreaseManagedPositionOrder',
-      [positionId],
-      MIN_EXECUTION_FEE
-    ).then(() => {
+    await sendTx(strategyContract, 'createIncreaseManagedPositionOrder', [
+      positionId,
+      { value: MIN_EXECUTION_FEE },
+    ]).then(() => {
       getUserPositions();
     });
   }, [

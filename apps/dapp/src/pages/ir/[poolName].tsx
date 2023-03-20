@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
-import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
+import { CHAINS } from 'constants/chains';
 
 import AppBar from 'components/common/AppBar';
 import PageLoader from 'components/common/PageLoader';
@@ -162,7 +162,7 @@ const Manage = ({ poolName }: Props) => {
           className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text"
         >
           <a
-            href={`${CHAIN_ID_TO_EXPLORER[chainId]}/address/${rateVaultData?.rateVaultContract.address}`}
+            href={`${CHAINS[chainId]?.explorer}/address/${rateVaultData?.rateVaultContract.address}`}
             rel="noopener noreferrer"
             target={'_blank'}
           >

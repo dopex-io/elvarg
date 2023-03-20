@@ -1,27 +1,26 @@
 import { useCallback, useState } from 'react';
+
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
 import TablePagination from '@mui/material/TablePagination';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-
-import {
-  StyleTable,
-  StyleTableCell,
-  StyleLeftTableCell,
-  StyleRightTableCell,
-} from 'components/common/LpCommon/Table';
-import Typography from 'components/UI/Typography';
-import TablePaginationActions from 'components/UI/TablePaginationActions';
-import UserPositionsTable from 'components/olp/UserLpPositions/UserPositionsTable';
-
+import TableRow from '@mui/material/TableRow';
+import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
-import useSendTx from 'hooks/useSendTx';
+import TablePaginationActions from 'components/UI/TablePaginationActions';
+import Typography from 'components/UI/Typography';
+import {
+  StyleLeftTableCell,
+  StyleRightTableCell,
+  StyleTable,
+  StyleTableCell,
+} from 'components/common/LpCommon/Table';
+import UserPositionsTable from 'components/olp/UserLpPositions/UserPositionsTable';
 
-import { ROWS_PER_PAGE } from 'constants/index';
+const ROWS_PER_PAGE = 5;
 
 const UserLpPositions = () => {
   const sendTx = useSendTx();
