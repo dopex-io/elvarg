@@ -1,11 +1,13 @@
 import {
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
   SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
 } from 'react';
+
 import { BigNumber } from 'ethers';
+
 import {
   CurveStableswapPair__factory,
   DscToken,
@@ -13,18 +15,16 @@ import {
   MockToken__factory,
 } from '@dopex-io/sdk';
 import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
+import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
 
 import { Input } from 'components/UI';
 import Typography from 'components/UI/Typography';
 
-import { useBoundStore } from 'store';
-
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
 import { smartTrim } from 'utils/general';
-
-import useSendTx from 'hooks/useSendTx';
+import formatAmount from 'utils/general/formatAmount';
 
 import { CHAIN_ID_TO_EXPLORER, MAX_VALUE } from 'constants/index';
 
@@ -77,6 +77,7 @@ const SwapPanel = () => {
     },
   ]);
   const [fee, setFee] = useState<number>(0);
+  const [virtualPrice, setVirtualPrice] = useState<number>(0);
 
   const path: TokenData[] = useMemo(() => {
     if (!pair[0] || !pair[1]) return [INIT_TOKEN_DATA, INIT_TOKEN_DATA];
@@ -269,6 +270,11 @@ const SwapPanel = () => {
         treasuryContractState.contracts.curvePool.address
       );
 
+      const _virtualPrice =
+        await treasuryContractState.contracts.curvePool.get_virtual_price();
+
+      setVirtualPrice(getUserReadableAmount(_virtualPrice, 18));
+
       setApproved(allowance.gte(getContractReadableAmount(amountIn, 18)));
     })();
   }, [accountAddress, amountIn, path, signer, treasuryContractState.contracts]);
@@ -299,13 +305,10 @@ const SwapPanel = () => {
           }
         />
         <div className="relative bg-cod-gray text-center">
-          <button
-            className={`absolute -top-4 bg-umbra hover:bg-umbra ${
-              inverted ? 'transform rotate-180' : null
-            }`}
-            onClick={handleInvert}
-          >
-            <ArrowDownwardRoundedIcon className="w-7 h-7 rounded-full fill-current text-stieglitz border-4 border-cod-gray" />
+          <button className={`absolute -top-4 bg-umbra`} onClick={handleInvert}>
+            <ArrowDownwardRoundedIcon
+              className={`w-7 h-7 rounded-full fill-current text-white hover:bg-opacity-80 transition ease-in duration-75 bg-primary border-4 border-cod-gray`}
+            />
           </button>
         </div>
         <Input
@@ -386,6 +389,12 @@ const SwapPanel = () => {
                 10
               )}
             </a>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-sm text-stieglitz">Virtual Price</span>
+            <div>
+              <span className="text-sm">{virtualPrice}</span>
+            </div>
           </div>
         </div>
       </div>

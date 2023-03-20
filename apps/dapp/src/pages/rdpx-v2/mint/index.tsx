@@ -1,11 +1,12 @@
-import { useEffect } from 'react';
-import Box from '@mui/material/Box';
 import Head from 'next/head';
+
+import { useEffect } from 'react';
+
+import Box from '@mui/material/Box';
+import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
 import RdpxV2Main from 'components/rdpx-v2';
-
-import { useBoundStore } from 'store';
 
 const Mint = () => {
   const {
@@ -18,12 +19,11 @@ const Mint = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    updateTreasuryContractState().then(() => {
-      updateTreasuryData().then(() => {
-        updateUserDscBondsData();
-        setIsLoading(false);
-      });
-    });
+    updateTreasuryContractState().then(() =>
+      updateTreasuryData().then(() =>
+        updateUserDscBondsData().then(() => setIsLoading(false))
+      )
+    );
   }, [
     provider,
     updateTreasuryContractState,

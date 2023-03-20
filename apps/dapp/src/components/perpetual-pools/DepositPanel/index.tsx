@@ -1,22 +1,21 @@
-import { useCallback, useState, useEffect } from 'react';
-import { MockToken__factory, MockToken } from '@dopex-io/sdk';
-import Box from '@mui/material/Box';
+import { useCallback, useEffect, useState } from 'react';
 
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
-import PoolStats from 'components/perpetual-pools/DepositPanel/PoolStats';
-import Input from 'components/UI/Input';
+import { MockToken, MockToken__factory } from '@dopex-io/sdk';
+import Box from '@mui/material/Box';
+import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
 import LockerIcon from 'svgs/icons/LockerIcon';
 
-import { useBoundStore } from 'store';
+import CustomButton from 'components/UI/Button';
+import Input from 'components/UI/Input';
+import Typography from 'components/UI/Typography';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import PoolStats from 'components/perpetual-pools/DepositPanel/PoolStats';
 
-import formatAmount from 'utils/general/formatAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
 import { getContractReadableAmount } from 'utils/contracts';
-
-import useSendTx from 'hooks/useSendTx';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
 
 import { TOKEN_DECIMALS } from 'constants/index';
 
@@ -219,7 +218,7 @@ const DepositPanel = () => {
         <CustomButton
           size="medium"
           className="w-full mt-4 !rounded-md"
-          color={approved ? 'mineshaft' : 'primary'}
+          color="primary"
           disabled={disabled || value === '' || Number(value) <= 0}
           onClick={approved ? handleDeposit : handleApprove}
         >

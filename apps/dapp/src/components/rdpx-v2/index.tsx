@@ -1,17 +1,17 @@
 import { useMemo } from 'react';
-import Box from '@mui/material/Box';
 
-import Title from 'components/rdpx-v2/Title';
-import Stats from 'components/rdpx-v2/Stats';
+import Box from '@mui/material/Box';
+import { useBoundStore } from 'store';
+
 import BondPanel from 'components/rdpx-v2/BondPanel';
 import Charts from 'components/rdpx-v2/Charts';
 import QuickLink from 'components/rdpx-v2/QuickLink';
+import Stats from 'components/rdpx-v2/Stats';
+import Title from 'components/rdpx-v2/Title';
 import UserBonds from 'components/rdpx-v2/UserBonds';
 
-import { useBoundStore } from 'store';
-
-import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 const statsKeys = [
   'Total Supply',
@@ -67,13 +67,7 @@ const RdpxV2Main = () => {
 
   return (
     <Box className="py-12 mt-12 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
-      <Title
-      // title="Mint"
-      // description="Mint and Redeem $DSC."
-      // price={
-      //   String(getUserReadableAmount(treasuryData.dscPrice, 8) || 0) + ' WETH'
-      // }
-      />
+      <Title />
       <Box className="flex mt-8 lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">
         <Box className="flex flex-col space-y-4 w-full sm:w-full lg:w-3/4 h-full">
           <Stats
