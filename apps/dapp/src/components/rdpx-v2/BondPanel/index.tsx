@@ -1,44 +1,40 @@
-// import { useCallback, useState } from 'react';
-import Box from '@mui/material/Box';
-// import ButtonGroup from '@mui/material/ButtonGroup';
-// import Button from '@mui/material/Button';
+import { useCallback, useState } from 'react';
 
-import Typography from 'components/UI/Typography';
-// import Redeem from 'components/rdpx-v2/BondPanel/Redeem';
-import Mint from 'components/rdpx-v2/BondPanel/Mint';
+import ButtonGroup from '@mui/material/ButtonGroup';
 
-// const BUTTON_LABELS = ['Bond', 'Redeem'];
+import Bond from 'components/rdpx-v2/BondPanel/Bond';
+import Delegate from 'components/rdpx-v2/BondPanel/Delegate';
+
+const BUTTON_LABELS = ['Bond', 'Delegate'];
 
 const BondPanel = () => {
-  // const [active, setActive] = useState<string>('Bond');
+  const [active, setActive] = useState<string>('Bond');
 
-  // const handleClick = useCallback((e: any) => {
-  //   setActive(e.target.textContent);
-  // }, []);
+  const handleClick = useCallback((e: any) => {
+    setActive(e.target.textContent);
+  }, []);
 
   return (
-    <Box className="p-3 bg-cod-gray rounded-xl space-y-3">
-      <Typography variant="h5">Mint</Typography>
-      {/* <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-lg"> 
-       {BUTTON_LABELS.map((label, index) => (
-          <Button
+    <div className="p-3 bg-cod-gray rounded-xl space-y-3">
+      <span className="text-base">Mint</span>
+      <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-lg">
+        {BUTTON_LABELS.map((label, index) => (
+          <button
+            disabled={label === 'Delegate'}
             key={index}
-            className={`border-0 hover:border-0 w-full m-1 p-1 transition ease-in-out duration-500 ${
+            className={`border-0 hover:border-0 w-full m-1 pb-1 transition ease-in-out duration-500 rounded-md ${
               active === label
                 ? 'text-white bg-carbon hover:bg-carbon'
                 : 'text-stieglitz bg-transparent hover:bg-transparent'
             } hover:text-white`}
-            disableRipple
             onClick={handleClick}
           >
-            <Typography variant="caption">{label}</Typography>
-          </Button>
+            <span className="text-xs">{label}</span>
+          </button>
         ))}
-      </ButtonGroup> */}
-      {/* {active === 'Bond' ?  */}
-      <Mint />
-      {/* : <Redeem />} */}
-    </Box>
+      </ButtonGroup>
+      {active === 'Bond' ? <Bond /> : <Delegate />}
+    </div>
   );
 };
 

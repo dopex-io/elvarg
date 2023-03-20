@@ -1,26 +1,29 @@
-import { useCallback, useState, useEffect } from 'react';
-import { MockToken__factory, RdpxV2Treasury__factory } from '@dopex-io/sdk';
-import Box from '@mui/material/Box';
+import { useCallback, useEffect, useState } from 'react';
+
+import {
+  DPXVotingEscrow__factory,
+  MockToken__factory,
+  RdpxV2Treasury__factory,
+} from '@dopex-io/sdk';
 import LaunchOutlinedIcon from '@mui/icons-material/LaunchOutlined';
-
-import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
-import Input from 'components/UI/Input';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import CollateralInputPanel from 'components/rdpx-v2/BondPanel/Mint/CollateralInputPanel';
-import DisabledPanel from 'components/rdpx-v2/BondPanel/DisabledPanel';
-
+import Box from '@mui/material/Box';
+import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
-import formatAmount from 'utils/general/formatAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import { getContractReadableAmount } from 'utils/contracts';
+import CustomButton from 'components/UI/Button';
+import Input from 'components/UI/Input';
+import Typography from 'components/UI/Typography';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import CollateralInputPanel from 'components/rdpx-v2/BondPanel/Bond/CollateralInputPanel';
+import DisabledPanel from 'components/rdpx-v2/BondPanel/DisabledPanel';
 
-import useSendTx from 'hooks/useSendTx';
+import { getContractReadableAmount } from 'utils/contracts';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
 
-const Mint = () => {
+const Bond = () => {
   const {
     chainId,
     signer,
@@ -40,6 +43,7 @@ const Mint = () => {
 
   const [value, setValue] = useState<number | string>('');
   const [approved, setApproved] = useState<boolean>(false);
+  const [mintDisabled, setMintDisabled] = useState<boolean>(false);
 
   const handleChange = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) => {
@@ -171,23 +175,38 @@ const Mint = () => {
           .div(getContractReadableAmount(1, 18)),
       ];
 
+      const [upper, lower, second_lower] = [
+        treasuryContractState.dsc_upper_peg,
+        treasuryContractState.dsc_first_lower_depeg,
+        treasuryContractState.dsc_second_lower_depeg,
+      ];
+
+      let eligibleUser = true;
+
+      if (treasuryData.dscPrice.lt(second_lower)) {
+        const veDpx = DPXVotingEscrow__factory.connect(
+          '0x37b2786EAfD3EC4794A1863B4A11C0B7EA03F78b',
+          provider
+        );
+        const userVeDpxBalance = await veDpx.balanceOf(accountAddress);
+        eligibleUser = userVeDpxBalance.gte(
+          getContractReadableAmount(1000, 18)
+        );
+      }
+
+      setMintDisabled(
+        treasuryData.dscPrice.gte(upper) ||
+          treasuryData.dscPrice.lte(lower) ||
+          !eligibleUser
+      );
+
       setApproved(allowances[0].gte(rdpxReq) && allowances[1].gte(wethReq));
     })();
-  }, [
-    accountAddress,
-    provider,
-    treasuryContractState,
-    treasuryData.bondCostPerDsc,
-    treasuryData.tokenA,
-    treasuryData.tokenA.address,
-    treasuryData.tokenB,
-    treasuryData.tokenB.address,
-    value,
-  ]);
+  }, [accountAddress, provider, treasuryContractState, treasuryData, value]);
 
   return (
     <Box className="space-y-3 relative">
-      {!userDscBondsData.isEligibleForMint || isLoading ? (
+      {!userDscBondsData.isEligibleForMint || isLoading || mintDisabled ? (
         <DisabledPanel isMint={true} />
       ) : null}
       <Box className="bg-umbra rounded-xl w-full h-fit">
@@ -293,4 +312,4 @@ const Mint = () => {
   );
 };
 
-export default Mint;
+export default Bond;

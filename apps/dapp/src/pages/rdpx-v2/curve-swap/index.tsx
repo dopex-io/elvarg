@@ -1,11 +1,12 @@
-import { useEffect } from 'react';
 import Head from 'next/head';
+
+import { useEffect } from 'react';
+
 import CircularProgress from '@mui/material/CircularProgress';
+import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
 import CurveSwap from 'components/rdpx-v2/CurveSwap';
-
-import { useBoundStore } from 'store';
 
 const Swap = () => {
   const {
@@ -36,7 +37,7 @@ const Swap = () => {
   ]);
 
   return (
-    <div className="bg-contain min-h-screen bg-gradient-to-b from-[#062125] to-[#000000]">
+    <div className="bg-contain min-h-screen">
       <Head>
         <title>Swap | Dopex</title>
       </Head>

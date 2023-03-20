@@ -1,16 +1,18 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+
 import { MockToken__factory } from '@dopex-io/sdk';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { useBoundStore } from 'store';
+
 // import Slider from '@mui/material/Slider';
 
 import Typography from 'components/UI/Typography';
-import InputRow from 'components/rdpx-v2/BondPanel/Mint/InputRow';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import InputRow from 'components/rdpx-v2/BondPanel/Bond/InputRow';
 
-import { useBoundStore } from 'store';
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 interface Props {
   inputAmount: number;
@@ -108,24 +110,6 @@ const CollateralInputPanel = (props: Props) => {
           <InfoOutlinedIcon className="fill-current text-stieglitz w-[0.9rem]" />
         </Tooltip>
       </Box>
-      {/* <Slider
-        defaultValue={50}
-        aria-label="Default"
-        valueLabelDisplay="auto"
-        sx={{
-          '& .MuiSlider-thumb': {
-            backgroundColor: '#fff',
-          },
-          '& .MuiSlider-track': {
-            backgroundColor: '#22E1FF',
-            border: 'none',
-          },
-          '& .MuiSlider-rail': {
-            opacity: 0.2,
-            backgroundColor: '#22E1FF',
-          },
-        }}
-      /> */}
       <InputRow
         tokenSymbol={treasuryData.tokenA.symbol}
         inputAmount={amounts[0] || 0}
