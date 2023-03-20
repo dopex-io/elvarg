@@ -1,7 +1,11 @@
 import React, { ReactEventHandler, ReactNode } from "react";
 import cx from "classnames";
 
-interface InputProps {
+interface InputProps
+  extends React.DetailedHTMLProps<
+    React.InputHTMLAttributes<HTMLInputElement>,
+    HTMLInputElement
+  > {
   leftElement?: ReactNode;
   bottomElement?: ReactNode;
   rightElement?: ReactNode;
