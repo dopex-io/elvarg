@@ -110,11 +110,12 @@ const StraddleCard = ({
 const FeeSpecification = () => {
   const [ssovs, setSsovs] = useState<any[]>([]);
   const [straddles, setStraddles] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [ssovsLoading, setSsovsLoading] = useState(false);
+  const [straddlesLoading, setStraddlesLoading] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
     async function updateSsovsData() {
+      setSsovsLoading(true);
       const response = await axios.get(
         `${DOPEX_API_BASE_URL}/v2/ssov?groupBy=none`
       );
@@ -150,11 +151,14 @@ const FeeSpecification = () => {
       });
 
       setSsovs(_ssovs);
+      setSsovsLoading(false);
     }
 
     updateSsovsData();
 
     async function updateStraddlesData() {
+      setStraddlesLoading(true);
+
       const response = await axios.get(`${DOPEX_API_BASE_URL}/v2/straddles`);
 
       let _straddles = response.data[42161];
@@ -204,13 +208,11 @@ const FeeSpecification = () => {
 
       setStraddles(_straddles);
 
-      setLoading(false);
+      setStraddlesLoading(false);
     }
 
     updateStraddlesData();
   }, []);
-
-  console.log(loading);
 
   return (
     <div className="min-h-screen">
@@ -219,11 +221,14 @@ const FeeSpecification = () => {
       </Head>
       <AppBar />
       <div className="pb-28 pt-40 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 to-">
+        <div className="mb-8 font-bold text-2xl">
+          Protocol Fee Specification
+        </div>
         <div className="mb-8 font-bold text-lg">
           Single Staking Option Vaults
         </div>
         <div className="grid md:grid-cols-2 grid-cols-1 gap-8 mb-8">
-          {loading
+          {ssovsLoading
             ? [0, 1, 2, 3].map((i) => {
                 return (
                   <Skeleton
@@ -251,7 +256,7 @@ const FeeSpecification = () => {
         </div>
         <div className="mb-8 font-bold text-lg">Atlantic Straddles</div>
         <div className="grid md:grid-cols-2 grid-cols-1 gap-8">
-          {loading
+          {straddlesLoading
             ? [0, 1, 2, 3].map((i) => {
                 return (
                   <Skeleton
