@@ -93,8 +93,9 @@ const StraddleCard = ({
         </div>
 
         <div className="font-bold">
-          Purchase Fee: {ethers.utils.formatUnits(purchaseFeePercentage, 6)}%{' '}
-          <span className="text-xs"> of underlying price per option</span>
+          Purchase Fee:{' '}
+          {ethers.utils.formatUnits(purchaseFeePercentage.mul(2), 6)}%{' '}
+          <span className="text-xs"> of underlying price per straddle</span>
         </div>
         <div className="font-bold">
           Settlement Fee: {ethers.utils.formatUnits(settlementFeePercentage, 6)}
@@ -207,7 +208,7 @@ const FeeSpecification = () => {
   return (
     <div className="min-h-screen">
       <Head>
-        <title>Fee Specification | Dopex</title>
+        <title>Protocol Fee Specification | Dopex</title>
       </Head>
       <AppBar />
       <div className="pb-28 pt-40 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 to-">
