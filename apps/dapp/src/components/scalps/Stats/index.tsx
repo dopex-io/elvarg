@@ -112,7 +112,7 @@ const Stats = () => {
       </Box>
       <Box className="ml-14">
         <Typography variant="h1">
-          <span className="text-white h-6 text-[0.9rem] flex">
+          <span className="text-white h-6 text-[0.75rem] flex">
             {formatAmount(
               getUserReadableAmount(
                 optionScalpData?.longOpenInterest!,
@@ -128,33 +128,33 @@ const Stats = () => {
           </span>
         </Typography>
         <Typography variant="h1">
-          <span className="text-stieglitz h-6 text-[0.9rem] flex">
+          <span className="text-stieglitz h-6 text-[0.75rem] flex">
             Open Interest
           </span>
         </Typography>
       </Box>
       <Box className="ml-14">
         <Typography variant="h1">
-          <span className="text-white h-6 text-[0.9rem] flex">
+          <span className="text-white h-6 text-[0.75rem] flex">
             {formatAmount(
               getUserReadableAmount(
                 optionScalpData?.longOpenInterest!,
-                optionScalpData?.quoteDecimals!.toNumber()
+                optionScalpData?.baseDecimals!.toNumber()
               ),
               0
             )}{' '}
-            {optionScalpData?.quoteSymbol}
+            {optionScalpData?.baseSymbol}
           </span>
         </Typography>
         <Typography variant="h1">
-          <span className="text-stieglitz h-6 text-[0.9rem] flex">
+          <span className="text-stieglitz h-6 text-[0.75rem] flex">
             Total Long
           </span>
         </Typography>
       </Box>
       <Box className="ml-14">
         <Typography variant="h1">
-          <span className="text-white h-6 text-[0.9rem] flex">
+          <span className="text-white h-6 text-[0.75rem] flex">
             {formatAmount(
               getUserReadableAmount(
                 optionScalpData?.shortOpenInterest!,
@@ -166,14 +166,14 @@ const Stats = () => {
           </span>
         </Typography>
         <Typography variant="h1">
-          <span className="text-stieglitz h-6 text-[0.9rem] flex">
+          <span className="text-stieglitz h-6 text-[0.75rem] flex">
             Total Short
           </span>
         </Typography>
       </Box>
       <Box className="ml-14">
         <Typography variant="h1">
-          <span className="text-white h-6 text-[0.9rem] flex">
+          <span className="text-white h-6 text-[0.75rem] flex">
             {formatAmount(
               getUserReadableAmount(
                 optionScalpData?.totalBaseDeposits!,
@@ -193,7 +193,7 @@ const Stats = () => {
           </span>
         </Typography>
         <Typography variant="h1">
-          <span className="text-stieglitz h-6 text-[0.9rem] flex">
+          <span className="text-stieglitz h-6 text-[0.75rem] flex">
             Total Deposits
           </span>
         </Typography>

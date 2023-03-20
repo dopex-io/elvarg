@@ -70,7 +70,7 @@ const WithdrawCard = () => {
           : optionScalpData?.baseDecimals!.toNumber()!
       )
     )
-      return 'Insufficient balance';
+      return 'Amount exceeds balance';
     return 'Withdraw';
   }, [amount, userTokenBalance, approved, optionScalpData, isQuote]);
 
@@ -200,13 +200,14 @@ const WithdrawCard = () => {
   return (
     <Box className="mt-4">
       <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
+        <p className="text-[1rem] mb-3">Withdraw</p>
         <Box className="flex flex-row justify-between">
           <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
-            <Box className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
+            <Box className="flex flex-row h-8 w-auto p-1 pl-3 pr-2">
               <Typography
                 variant="h6"
                 className={cx(
-                  'font-medium mt-1 cursor-pointer',
+                  'font-medium mt-1 cursor-pointer text-[0.8rem]',
                   !isQuote && 'opacity-50'
                 )}
                 onClick={() => setisQuote(true)}
@@ -214,11 +215,11 @@ const WithdrawCard = () => {
                 {optionScalpData?.quoteSymbol!}
               </Typography>
             </Box>
-            <Box className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
+            <Box className="flex flex-row h-8 w-auto p-1 pr-3 pl-2">
               <Typography
                 variant="h6"
                 className={cx(
-                  'font-medium mt-1 cursor-pointer',
+                  'font-medium mt-1 cursor-pointer text-[0.8rem]',
                   isQuote && 'opacity-50'
                 )}
                 onClick={() => setisQuote(false)}
@@ -233,7 +234,7 @@ const WithdrawCard = () => {
             name="notionalSize"
             placeholder="0"
             type="number"
-            className="h-12 text-2xl text-white font-mono mr-2"
+            className="h-8 text-md text-white font-mono mr-2"
             value={rawAmount}
             onChange={(e) => setRawAmount(e.target.value)}
             classes={{ input: 'text-right' }}
@@ -243,7 +244,7 @@ const WithdrawCard = () => {
           <Box>
             <Typography
               variant="h6"
-              className="text-stieglitz text-sm pl-1 pr-3"
+              className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]"
             >
               Token to withdraw
             </Typography>
@@ -251,7 +252,7 @@ const WithdrawCard = () => {
           <Box className="ml-auto mr-0">
             <Typography
               variant="h6"
-              className="text-stieglitz text-sm pl-1 pr-3"
+              className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]"
             >
               Balance ~{' '}
               {formatAmount(
@@ -274,11 +275,17 @@ const WithdrawCard = () => {
       <Box className="bg-umbra rounded-2xl">
         <Box className="flex flex-col mb-1 p-4 pb-0 w-full">
           <Box className={'flex'}>
-            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+            <Typography
+              variant="h6"
+              className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
+            >
               Available to withdraw
             </Typography>
             <Box className={'text-right'}>
-              <Typography variant="h6" className="text-white mr-auto ml-0">
+              <Typography
+                variant="h6"
+                className="text-white mr-auto ml-0 text-[0.8rem]"
+              >
                 {formatAmount(
                   getUserReadableAmount(
                     isQuote
@@ -299,7 +306,10 @@ const WithdrawCard = () => {
         </Box>
         <Box className="flex flex-col mb-4 p-4 w-full">
           <Box className={'flex'}>
-            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+            <Typography
+              variant="h6"
+              className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
+            >
               1{' '}
               {isQuote
                 ? optionScalpData?.quoteSymbol!
@@ -307,7 +317,10 @@ const WithdrawCard = () => {
               LP
             </Typography>
             <Box className={'text-right'}>
-              <Typography variant="h6" className="text-white mr-auto ml-0">
+              <Typography
+                variant="h6"
+                className="text-white mr-auto ml-0 text-[0.8rem]"
+              >
                 {formatAmount(
                   getUserReadableAmount(
                     isQuote
@@ -331,11 +344,17 @@ const WithdrawCard = () => {
         <Box className="bg-umbra rounded-2xl">
           <Box className="flex flex-col mb-4 p-4 w-full">
             <Box className={'flex mb-0.5'}>
-              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+              <Typography
+                variant="h6"
+                className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
+              >
                 Estimated out
               </Typography>
               <Box className={'text-right'}>
-                <Typography variant="h6" className="text-white mr-auto ml-0">
+                <Typography
+                  variant="h6"
+                  className="text-white mr-auto ml-0 text-[0.8rem]"
+                >
                   {formatAmount(
                     getUserReadableAmount(
                       estimatedOut,
@@ -356,11 +375,11 @@ const WithdrawCard = () => {
       ) : null}
       <Box className="rounded-lg bg-neutral-800">
         <Box className="p-3">
-          <Box className="rounded-md flex flex-col mb-3 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-mineshaft">
-            <EstimatedGasCostButton gas={5000000} chainId={chainId} />
+          <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
+            <EstimatedGasCostButton gas={500000} chainId={chainId} />
           </Box>
           <CustomButton
-            size="medium"
+            size="small"
             className="w-full !rounded-md"
             color={
               amount > 0 &&
@@ -377,7 +396,7 @@ const WithdrawCard = () => {
             disabled={amount <= 0}
             onClick={approved ? handleWithdraw : handleApprove}
           >
-            {withdrawButtonMessage}
+            <p className="text-[0.8rem]">{withdrawButtonMessage}</p>
           </CustomButton>
         </Box>
       </Box>
