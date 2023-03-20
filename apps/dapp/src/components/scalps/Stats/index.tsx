@@ -23,8 +23,7 @@ const Stats = () => {
   } = useBoundStore();
 
   const handleSelectChange = useCallback(
-    // @ts-ignore TODO: FIX
-    async (e) => {
+    async (e: any) => {
       await setSelectedPoolName(e.target.value.toString());
       await updateOptionScalpUserData().then(() => updateOptionScalp());
     },
@@ -32,7 +31,7 @@ const Stats = () => {
   );
 
   const markPrice = useMemo(() => {
-    if (selectedPoolName === 'ETH')
+    if (selectedPoolName.toUpperCase() === 'ETH')
       return (
         <Box>
           {formatAmount(
@@ -44,7 +43,7 @@ const Stats = () => {
           )}
         </Box>
       );
-    else if (selectedPoolName === 'BTC')
+    else if (selectedPoolName.toUpperCase() === 'BTC')
       return (
         <Box>
           {getUserReadableAmount(
@@ -60,10 +59,10 @@ const Stats = () => {
   }, [selectedPoolName, optionScalpData]);
 
   return (
-    <Box className="md:flex mt-12 mb-12">
-      <Box className="">
+    <Box className="md:flex my-[2rem] items-center">
+      <Box>
         <Select
-          className="text-white h-8 text-xl"
+          className="text-white h-8 text-[1rem] pr-[1rem] bg-gradient-to-r from-[#06b6d4] to-[#1d4ed8]"
           MenuProps={{
             sx: {
               '.MuiMenu-paper': {
@@ -101,12 +100,19 @@ const Stats = () => {
       </Box>
       <Box className="ml-14">
         <Typography variant="h5">
-          <span className="text-white h-8 text-xl">{markPrice}</span>
+          <span className="text-white h-6 text-[1rem] flex items-center">
+            {markPrice}{' '}
+            <img
+              className="w-9 h-6 z-0"
+              src={`/images/tokens/${optionScalpData?.quoteSymbol!.toLowerCase()}.svg`}
+              alt={optionScalpData?.quoteSymbol!}
+            />
+          </span>
         </Typography>
       </Box>
       <Box className="ml-14">
-        <Typography variant="h5">
-          <span className="text-white h-8 text-xl flex">
+        <Typography variant="h1">
+          <span className="text-white h-6 text-[0.9rem] flex">
             {formatAmount(
               getUserReadableAmount(
                 optionScalpData?.longOpenInterest!,
@@ -121,16 +127,15 @@ const Stats = () => {
             {optionScalpData?.quoteSymbol!}
           </span>
         </Typography>
-        <Typography variant="h6">
-          <span className="text-stieglitz h-8 text-[1.2rem] flex">
+        <Typography variant="h1">
+          <span className="text-stieglitz h-6 text-[0.9rem] flex">
             Open Interest
           </span>
         </Typography>
       </Box>
-
       <Box className="ml-14">
-        <Typography variant="h5">
-          <span className="text-white h-8 text-xl flex">
+        <Typography variant="h1">
+          <span className="text-white h-6 text-[0.9rem] flex">
             {formatAmount(
               getUserReadableAmount(
                 optionScalpData?.longOpenInterest!,
@@ -141,16 +146,15 @@ const Stats = () => {
             {optionScalpData?.quoteSymbol}
           </span>
         </Typography>
-        <Typography variant="h6">
-          <span className="text-stieglitz h-8 text-[1.2rem] flex">
+        <Typography variant="h1">
+          <span className="text-stieglitz h-6 text-[0.9rem] flex">
             Total Long
           </span>
         </Typography>
       </Box>
-
       <Box className="ml-14">
-        <Typography variant="h5">
-          <span className="text-white h-8 text-xl flex">
+        <Typography variant="h1">
+          <span className="text-white h-6 text-[0.9rem] flex">
             {formatAmount(
               getUserReadableAmount(
                 optionScalpData?.shortOpenInterest!,
@@ -161,16 +165,15 @@ const Stats = () => {
             {optionScalpData?.quoteSymbol}
           </span>
         </Typography>
-        <Typography variant="h6">
-          <span className="text-stieglitz h-8 text-[1.2rem] flex">
+        <Typography variant="h1">
+          <span className="text-stieglitz h-6 text-[0.9rem] flex">
             Total Short
           </span>
         </Typography>
       </Box>
-
       <Box className="ml-14">
-        <Typography variant="h5">
-          <span className="text-white h-8 text-xl flex">
+        <Typography variant="h1">
+          <span className="text-white h-6 text-[0.9rem] flex">
             {formatAmount(
               getUserReadableAmount(
                 optionScalpData?.totalBaseDeposits!,
@@ -189,8 +192,8 @@ const Stats = () => {
             {optionScalpData?.quoteSymbol}
           </span>
         </Typography>
-        <Typography variant="h6">
-          <span className="text-stieglitz h-8 text-[1.2rem] flex">
+        <Typography variant="h1">
+          <span className="text-stieglitz h-6 text-[0.9rem] flex">
             Total Deposits
           </span>
         </Typography>
