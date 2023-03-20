@@ -5,6 +5,7 @@ import {
   AtlanticStraddleV2__factory,
   AtlanticStraddle__factory,
 } from '@dopex-io/sdk';
+import Skeleton from '@mui/material/Skeleton';
 import { BigNumber, ethers } from 'ethers';
 import { providers } from '@0xsequence/multicall';
 
@@ -109,8 +110,10 @@ const StraddleCard = ({
 const FeeSpecification = () => {
   const [ssovs, setSsovs] = useState<any[]>([]);
   const [straddles, setStraddles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     async function updateSsovsData() {
       const response = await axios.get(
         `${DOPEX_API_BASE_URL}/v2/ssov?groupBy=none`
@@ -200,10 +203,14 @@ const FeeSpecification = () => {
       });
 
       setStraddles(_straddles);
+
+      setLoading(false);
     }
 
     updateStraddlesData();
   }, []);
+
+  console.log(loading);
 
   return (
     <div className="min-h-screen">
@@ -216,33 +223,57 @@ const FeeSpecification = () => {
           Single Staking Option Vaults
         </div>
         <div className="grid md:grid-cols-2 grid-cols-1 gap-8 mb-8">
-          {ssovs.map((s) => {
-            return (
-              <SsovCard
-                key={s.symbol}
-                name={s.symbol}
-                tokenSymbol={s.underlyingSymbol}
-                duration={s.duration}
-                type={s.type}
-                purchaseFeePercentage={s.purchaseFeePercentage}
-                settlementFeePercentage={s.settlementFeePercentage}
-              />
-            );
-          })}
+          {loading
+            ? [0, 1, 2, 3].map((i) => {
+                return (
+                  <Skeleton
+                    key={i}
+                    variant="rectangular"
+                    className="bg-umbra rounded-2xl"
+                    height={128}
+                    width={496}
+                  />
+                );
+              })
+            : ssovs.map((s) => {
+                return (
+                  <SsovCard
+                    key={s.symbol}
+                    name={s.symbol}
+                    tokenSymbol={s.underlyingSymbol}
+                    duration={s.duration}
+                    type={s.type}
+                    purchaseFeePercentage={s.purchaseFeePercentage}
+                    settlementFeePercentage={s.settlementFeePercentage}
+                  />
+                );
+              })}
         </div>
         <div className="mb-8 font-bold text-lg">Atlantic Straddles</div>
         <div className="grid md:grid-cols-2 grid-cols-1 gap-8">
-          {straddles.map((s) => {
-            return (
-              <StraddleCard
-                key={s.symbol}
-                name={s.symbol}
-                tokenSymbol={s.underlyingSymbol}
-                purchaseFeePercentage={s.purchaseFeePercentage}
-                settlementFeePercentage={s.settlementFeePercentage}
-              />
-            );
-          })}
+          {loading
+            ? [0, 1, 2, 3].map((i) => {
+                return (
+                  <Skeleton
+                    key={i}
+                    variant="rectangular"
+                    className="bg-umbra rounded-2xl"
+                    height={128}
+                    width={496}
+                  />
+                );
+              })
+            : straddles.map((s) => {
+                return (
+                  <StraddleCard
+                    key={s.symbol}
+                    name={s.symbol}
+                    tokenSymbol={s.underlyingSymbol}
+                    purchaseFeePercentage={s.purchaseFeePercentage}
+                    settlementFeePercentage={s.settlementFeePercentage}
+                  />
+                );
+              })}
         </div>
       </div>
     </div>
