@@ -55,13 +55,34 @@ const TradeCard = () => {
     return isShort;
   }, [isShort, optionScalpData]);
 
-  const amount: number = useMemo(() => {
+  const margin: number = useMemo(() => {
     return parseFloat(rawAmount) || 0;
   }, [rawAmount]);
 
   const handleLeverageChange = (event: any) => {
     setLeverage(event.target.value);
   };
+
+  const posSize = useMemo(() => {
+    if (!optionScalpData) return BigNumber.from('0');
+
+    const minAbsThreshold = getUserReadableAmount(
+      optionScalpData?.minimumAbsoluteLiquidationThreshold!,
+      optionScalpData?.quoteDecimals!.toNumber()
+    );
+
+    const positions =
+      (margin * leverage) /
+      getUserReadableAmount(
+        optionScalpData?.markPrice,
+        optionScalpData?.quoteDecimals!.toNumber()
+      );
+
+    return getContractReadableAmount(
+      (margin * leverage - minAbsThreshold * positions).toFixed(6),
+      optionScalpData?.quoteDecimals!.toNumber()!
+    );
+  }, [margin, leverage, optionScalpData]);
 
   const calcPremium = useCallback(async () => {
     if (!optionScalpData) return;
@@ -78,35 +99,30 @@ const TradeCard = () => {
       const estimatedPremium =
         await optionScalpData.optionScalpContract.calcPremium(
           optionScalpData?.markPrice!,
-          getContractReadableAmount(
-            amount,
-            optionScalpData?.quoteDecimals!.toNumber()!
-          ),
+          posSize,
           seconds[selectedTimeWindow]
         );
       setPremium(estimatedPremium);
     } catch (e) {
       console.log(e);
     }
-  }, [amount, optionScalpData, selectedTimeWindow]);
+  }, [posSize, optionScalpData, selectedTimeWindow]);
 
   useEffect(() => {
     calcPremium();
   }, [calcPremium]);
 
-  const margin = useMemo(() => {
-    if (!optionScalpData) return BigNumber.from('0');
-
-    return getContractReadableAmount(
-      amount,
-      optionScalpData?.quoteDecimals!.toNumber()!
-    ).div(leverage);
-  }, [amount, leverage, optionScalpData]);
-
   const tradeButtonMessage: string = useMemo(() => {
+    if (!optionScalpData) return '';
+
+    const _margin = getContractReadableAmount(
+      margin,
+      optionScalpData.quoteDecimals!.toNumber()
+    );
+
     if (!approved) return 'Approve';
-    else if (amount == 0) return 'Insert an amount';
-    else if (margin.lt(MINIMUM_MARGIN))
+    else if (margin == 0) return 'Insert an amount';
+    else if (_margin.lt(MINIMUM_MARGIN))
       return (
         'Minium Margin ' +
         getUserReadableAmount(
@@ -114,13 +130,9 @@ const TradeCard = () => {
           optionScalpData?.quoteDecimals!.toNumber()!
         )
       );
-    else if (margin.gt(userTokenBalance)) return 'Insufficient balance';
+    else if (_margin.gt(userTokenBalance)) return 'Insufficient balance';
     return 'Open position';
-  }, [approved, amount, userTokenBalance, margin, optionScalpData]);
-
-  const collateralAmount: number = useMemo(() => {
-    return amount / leverage;
-  }, [amount, leverage]);
+  }, [approved, margin, userTokenBalance, margin, optionScalpData]);
 
   const liquidationPrice: number = useMemo(() => {
     let _liquidationPrice = 0;
@@ -128,25 +140,27 @@ const TradeCard = () => {
       optionScalpData?.markPrice!,
       optionScalpData?.quoteDecimals!.toNumber()!
     );
-    const positions = amount / price;
-    if (positions || collateralAmount) {
+    const positions =
+      getUserReadableAmount(
+        posSize,
+        optionScalpData?.quoteDecimals!.toNumber()!
+      ) / price;
+    if (positions || margin) {
       const minAbsThreshold = getUserReadableAmount(
         optionScalpData?.minimumAbsoluteLiquidationThreshold!,
         optionScalpData?.quoteDecimals!.toNumber()
       );
       if (isShortAfterAdjustments) {
-        _liquidationPrice =
-          collateralAmount / positions + minAbsThreshold + price;
+        _liquidationPrice = margin / positions + minAbsThreshold + price;
       } else {
-        _liquidationPrice =
-          price - collateralAmount / positions - minAbsThreshold;
+        _liquidationPrice = price - margin / positions - minAbsThreshold;
       }
     }
 
     if (optionScalpData?.inverted) return 1 / _liquidationPrice;
 
     return _liquidationPrice;
-  }, [isShortAfterAdjustments, amount, collateralAmount, optionScalpData]);
+  }, [isShortAfterAdjustments, margin, posSize, optionScalpData]);
 
   const timeframeIndex = useMemo(() => {
     const indexes: { [key: string]: number } = {
@@ -204,12 +218,12 @@ const TradeCard = () => {
         'openPosition',
         [
           isShortAfterAdjustments,
-          getContractReadableAmount(
-            amount,
-            optionScalpData?.quoteDecimals!.toNumber()!
-          ),
+          posSize,
           timeframeIndex,
-          margin,
+          getContractReadableAmount(
+            margin,
+            optionScalpData?.quoteDecimals!.toNumber()
+          ),
           entryLimit,
         ]
       );
@@ -222,7 +236,7 @@ const TradeCard = () => {
     accountAddress,
     optionScalpData,
     signer,
-    amount,
+    posSize,
     updateOptionScalp,
     updateOptionScalpUserData,
     sendTx,
@@ -238,7 +252,7 @@ const TradeCard = () => {
         return;
 
       const finalAmount: BigNumber = getContractReadableAmount(
-        amount,
+        margin,
         optionScalpData?.quoteDecimals!.toNumber()!
       );
       const token = ERC20__factory.connect(
@@ -257,7 +271,7 @@ const TradeCard = () => {
     contractAddresses,
     accountAddress,
     approved,
-    amount,
+    margin,
     signer,
     chainId,
     optionScalpData,
@@ -293,8 +307,6 @@ const TradeCard = () => {
           </Box>
           <Input
             disableUnderline
-            id="notionalSize"
-            name="notionalSize"
             placeholder="0"
             type="number"
             className="h-12 text-2xl text-white font-mono"
@@ -323,16 +335,15 @@ const TradeCard = () => {
               variant="h6"
               className="text-stieglitz text-sm pl-1 pr-3"
             >
-              Notional ~{' '}
+              Balance ~{' '}
               {formatAmount(
-                amount /
-                  getUserReadableAmount(
-                    optionScalpData?.markPrice!,
-                    optionScalpData?.quoteDecimals!.toNumber()
-                  ),
+                getUserReadableAmount(
+                  userTokenBalance,
+                  optionScalpData?.quoteDecimals!.toNumber()
+                ),
                 8
               )}{' '}
-              {optionScalpData?.baseSymbol}
+              {optionScalpData?.quoteSymbol}
             </Typography>
           </Box>
         </Box>
@@ -393,16 +404,13 @@ const TradeCard = () => {
         <Box className="flex flex-col mb-4 p-4 w-full">
           <Box className={'flex mb-2'}>
             <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-              Margin
+              Pos. Size
             </Typography>
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
-                {formatAmount(
-                  getUserReadableAmount(
-                    margin,
-                    optionScalpData?.quoteDecimals!.toNumber()
-                  ),
-                  2
+                {getUserReadableAmount(
+                  posSize,
+                  optionScalpData?.quoteDecimals!.toNumber()
                 )}{' '}
                 {optionScalpData?.quoteSymbol}
               </Typography>
@@ -434,7 +442,10 @@ const TradeCard = () => {
             <Box className={'text-right'}>
               <Typography variant="h6" className="text-white mr-auto ml-0">
                 {formatAmount(
-                  amount *
+                  getUserReadableAmount(
+                    posSize,
+                    optionScalpData?.quoteDecimals!.toNumber()
+                  ) *
                     getUserReadableAmount(
                       optionScalpData?.feeOpenPosition!,
                       10
@@ -476,11 +487,23 @@ const TradeCard = () => {
             size="medium"
             className="w-full !rounded-md"
             color={
-              !approved || userTokenBalance.gte(margin)
+              !approved ||
+              getUserReadableAmount(
+                userTokenBalance,
+                optionScalpData?.quoteDecimals!.toNumber()
+              ) > margin
                 ? 'primary'
                 : 'mineshaft'
             }
-            disabled={!approved || userTokenBalance.gte(margin) ? false : true}
+            disabled={
+              !approved ||
+              getUserReadableAmount(
+                userTokenBalance,
+                optionScalpData?.quoteDecimals!.toNumber()
+              ) > margin
+                ? false
+                : true
+            }
             onClick={approved ? handleTrade : handleApprove}
           >
             {tradeButtonMessage}
