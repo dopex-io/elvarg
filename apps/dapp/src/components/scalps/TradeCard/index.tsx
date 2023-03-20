@@ -130,10 +130,16 @@ const TradeCard = () => {
     );
     const positions = amount / price;
     if (positions || collateralAmount) {
+      const minAbsThreshold = getUserReadableAmount(
+        optionScalpData?.minimumAbsoluteLiquidationThreshold!,
+        optionScalpData?.quoteDecimals!.toNumber()
+      );
       if (isShortAfterAdjustments) {
-        _liquidationPrice = collateralAmount / positions + price;
+        _liquidationPrice =
+          collateralAmount / positions + minAbsThreshold + price;
       } else {
-        _liquidationPrice = price - collateralAmount / positions;
+        _liquidationPrice =
+          price - collateralAmount / positions - minAbsThreshold;
       }
     }
 
