@@ -7,7 +7,14 @@ interface Props {
 const SingleChart = (props: Props) => {
   return (
     <AdvancedChart
-      widgetProps={{ theme: 'dark', symbol: props.symbol, height: 400 }}
+      widgetProps={{
+        theme: 'dark',
+        symbol: props.symbol,
+        height: 800,
+        interval: '1m',
+        style: '9',
+        range: '1D',
+      }}
     />
   );
 };
