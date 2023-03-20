@@ -4,6 +4,7 @@ import cx from "classnames";
 interface InputProps {
   leftElement?: ReactNode;
   bottomElement?: ReactNode;
+  rightElement?: ReactNode;
   variant?: string;
   color?: string;
   outline?: "mineshaft" | "down-bad" | "umbra";
@@ -12,20 +13,20 @@ interface InputProps {
 }
 
 const variants: Record<string, Record<string, string>> = {
-  default: {
+  xl: {
     box: "flex flex-col w-fit p-3 rounded-xl space-y-2",
     font: "h-10 text-2xl text-white ml-2 font-mono",
     textPosition: "text-right",
     alignment: "flex justify-between items-center",
   },
-  variant1: {
+  small: {
     box: "flex flex-col w-fit rounded-md px-2 py-1 content-center",
     font: "h-auto text-white",
     textPosition: "text-left text-sm",
     alignment: "flex justify-between items-center",
   },
-  variant2: {
-    box: "flex flex-col w-fit rounded-md px-3 py-2 content-center",
+  medium: {
+    box: "flex flex-col w-fit rounded-md p-2 content-center",
     font: "h-auto text-white",
     textPosition: "text-left text-sm",
     alignment: "flex justify-between items-center",
@@ -40,9 +41,10 @@ const bgColors: Record<string, string> = {
 const Input = (props: InputProps) => {
   const {
     leftElement,
+    rightElement,
     bottomElement,
     color = "umbra",
-    variant = "default",
+    variant = "xl",
     outline = "umbra",
     placeholder = "",
     handleChange,
@@ -70,6 +72,7 @@ const Input = (props: InputProps) => {
           placeholder={placeholder}
           {...rest}
         />
+        {rightElement}
       </div>
       {bottomElement}
     </div>

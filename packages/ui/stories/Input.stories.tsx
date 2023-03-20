@@ -3,7 +3,6 @@ import { ComponentMeta } from "@storybook/react";
 
 import Input from "../src/Input";
 import Menu from "../src/Menu";
-import MenuItems from "../src/MenuItems";
 import Usdc from "../src/icons/Usdc";
 
 const meta: ComponentMeta<typeof Input> = {
@@ -28,7 +27,7 @@ export const Default = () => {
     >
       <div className="fixed top-16 bg-cod-gray p-32">
         <Input
-          variant="default"
+          variant="xl"
           handleChange={handleChange}
           leftElement={
             <Usdc className="h-12 w-auto border border-mineshaft rounded-full" />
@@ -84,40 +83,56 @@ export const Variant = () => {
     >
       <div className="fixed top-16 bg-cod-gray p-32 flex flex-col space-y-8">
         <Input
-          variant="variant1"
+          variant="small"
           color="cod-gray"
           outline="umbra"
           handleChange={handleChange}
           placeholder="Small"
         />
         <Input
-          variant="variant1"
+          variant="small"
           color="umbra"
           handleChange={handleChange}
           placeholder="Small"
         />
         <Input
-          variant="variant2"
+          variant="medium"
           color="cod-gray"
           outline="umbra"
           handleChange={handleChange}
           placeholder="Medium"
         />
         <Input
-          variant="variant2"
-          color="umbra"
+          variant="medium"
+          color="cod-gray"
+          outline="umbra"
           handleChange={handleChange}
           placeholder="Medium"
         />
         <Input
-          variant="default"
+          variant="medium"
+          color="umbra"
+          rightElement={
+            <Menu
+              data={data}
+              selection={selection}
+              dropdownVariant="icon"
+              color="umbra"
+              handleSelection={handleSelection}
+            />
+          }
+          handleChange={handleChange}
+          placeholder="Medium"
+        />
+        <Input
+          variant="xl"
           color="umbra"
           outline="mineshaft"
           handleChange={handleChange}
           placeholder="XL"
         />
         <Input
-          variant="default"
+          variant="xl"
           handleChange={handleChange}
           leftElement={
             <Usdc className="h-12 w-auto border border-mineshaft rounded-full" />
@@ -131,7 +146,7 @@ export const Variant = () => {
           placeholder="XL"
         />
         <Input
-          variant="default"
+          variant="xl"
           handleChange={handleChange}
           leftElement={
             <div>
@@ -171,26 +186,34 @@ export const Outlines = () => {
     >
       <div className="fixed top-16 bg-cod-gray p-32 flex flex-col space-y-8">
         <Input
-          variant="variant1"
+          variant="small"
+          outline="mineshaft"
           handleChange={handleChange}
           placeholder="Outlined"
         />
         <Input
-          variant="variant1"
+          variant="small"
+          outline="umbra"
+          color="cod-gray"
+          handleChange={handleChange}
+          placeholder="Outlined"
+        />
+        <Input
+          variant="small"
           color="cod-gray"
           outline="down-bad"
           handleChange={handleChange}
           placeholder="Validation"
         />
         <Input
-          variant="default"
+          variant="xl"
           color="cod-gray"
           outline="down-bad"
           handleChange={handleChange}
           placeholder="Validation"
         />
         <Input
-          variant="default"
+          variant="xl"
           outline="down-bad"
           leftElement={
             <Usdc className="h-12 w-auto border border-mineshaft rounded-full" />
