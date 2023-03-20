@@ -13,13 +13,19 @@ interface InputProps {
 
 const variants: Record<string, Record<string, string>> = {
   default: {
-    box: "flex flex-col p-3 rounded-xl space-y-2",
+    box: "flex flex-col w-fit p-3 rounded-xl space-y-2",
     font: "h-10 text-2xl text-white ml-2 font-mono",
     textPosition: "text-right",
     alignment: "flex justify-between items-center",
   },
   variant1: {
-    box: "flex flex-col rounded-md px-2 py-1 content-center",
+    box: "flex flex-col w-fit rounded-md px-2 py-1 content-center",
+    font: "h-auto text-white",
+    textPosition: "text-left text-sm",
+    alignment: "flex justify-between items-center",
+  },
+  variant2: {
+    box: "flex flex-col w-fit rounded-md px-3 py-2 content-center",
     font: "h-auto text-white",
     textPosition: "text-left text-sm",
     alignment: "flex justify-between items-center",
