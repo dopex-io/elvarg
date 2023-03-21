@@ -27,6 +27,7 @@ const TradeCard = () => {
     accountAddress,
     signer,
     contractAddresses,
+    selectedPoolName,
     optionScalpData,
     updateOptionScalp,
     updateOptionScalpUserData,
@@ -44,7 +45,7 @@ const TradeCard = () => {
 
   const [approved, setApproved] = useState(false);
 
-  const [rawAmount, setRawAmount] = useState<string>('1');
+  const [rawAmount, setRawAmount] = useState<string>('10');
 
   const [leverage, setLeverage] = useState<number>(20);
 
@@ -59,6 +60,32 @@ const TradeCard = () => {
     return parseFloat(rawAmount) || 0;
   }, [rawAmount]);
 
+  const positionDetails = useMemo(() => {
+    let _positionDetails = {
+      margin: '0',
+      size: '0',
+    };
+
+    if (!optionScalpData) return _positionDetails;
+
+    const { markPrice, quoteDecimals } = optionScalpData;
+    if (!markPrice) return _positionDetails;
+    let _markPrice = Number(markPrice) / 10 ** quoteDecimals.toNumber();
+
+    _positionDetails = {
+      margin: formatAmount(
+        isNaN(parseFloat(rawAmount)) ? 0 : parseFloat(rawAmount) * _markPrice,
+        3
+      ),
+      size: formatAmount(
+        isNaN(parseFloat(rawAmount))
+          ? 0
+          : parseFloat(rawAmount) * leverage * _markPrice,
+        3
+      ),
+    };
+    return _positionDetails;
+  }, [leverage, optionScalpData, rawAmount]);
   const handleLeverageChange = (event: any) => {
     setLeverage(event.target.value);
   };
@@ -103,24 +130,23 @@ const TradeCard = () => {
   const tradeButtonMessage: string = useMemo(() => {
     if (!optionScalpData) return '';
 
-    const _margin = getContractReadableAmount(
-      margin,
-      optionScalpData.quoteDecimals!.toNumber()
-    );
+    const minMargin = MINIMUM_MARGIN[selectedPoolName];
+    if (!minMargin) return '';
 
     if (!approved) return 'Approve';
     else if (margin == 0) return 'Insert an amount';
-    else if (_margin.lt(MINIMUM_MARGIN))
-      return (
-        'Minium Margin ' +
-        getUserReadableAmount(
-          MINIMUM_MARGIN,
-          optionScalpData?.quoteDecimals!.toNumber()!
-        )
-      );
-    else if (_margin.gt(userTokenBalance)) return 'Insufficient balance';
+    else if (margin < minMargin)
+      return 'Minium Margin ' + minMargin + ' ' + optionScalpData?.quoteSymbol;
+    else if (
+      margin >
+      getUserReadableAmount(
+        userTokenBalance,
+        optionScalpData.quoteDecimals.toNumber()
+      )
+    )
+      return 'Insufficient balance';
     return 'Open position';
-  }, [approved, margin, userTokenBalance, optionScalpData]);
+  }, [approved, margin, userTokenBalance, optionScalpData, selectedPoolName]);
 
   const liquidationPrice: number = useMemo(() => {
     let _liquidationPrice = 0;
@@ -233,6 +259,8 @@ const TradeCard = () => {
     isShortAfterAdjustments,
   ]);
 
+  const handleMax = useCallback(() => {}, []);
+
   // Updates approved state and user balance
   useEffect(() => {
     (async () => {
@@ -281,7 +309,7 @@ const TradeCard = () => {
                 Long
               </p>
             </Box>
-            <Box className="flex flex-row h-8 w-auto p-1 pr-3 pl-2">
+            <Box className="flex flex-row h- w-auto p-1 pr-3 pl-2">
               <p
                 className={cx(
                   'text-[0.8rem] mt-1 cursor-pointer hover:opacity-50',
@@ -293,21 +321,20 @@ const TradeCard = () => {
               </p>
             </Box>
           </Box>
-          <Input
-            disableUnderline
-            placeholder="0"
-            type="number"
-            className="h-8 text-md text-white font-mono"
-            value={rawAmount}
-            onChange={(e) => setRawAmount(e.target.value)}
-            classes={{ input: 'text-right' }}
-          />
-          <Typography
-            variant="h6"
-            className="text-stieglitz text-[0.8rem] font-medium mt-2 mr-3 ml-1"
-          >
-            {optionScalpData?.quoteSymbol}
-          </Typography>
+          <Box className="flex items-center">
+            <Input
+              disableUnderline
+              placeholder="0"
+              type="number"
+              className="text-md text-white font-mono"
+              value={rawAmount}
+              onChange={(e) => setRawAmount(e.target.value)}
+              classes={{ input: 'text-right' }}
+            />
+            <Typography variant="h6" className="text-stieglitz mr-3 ml-1 mb-1">
+              {selectedPoolName}
+            </Typography>
+          </Box>
         </Box>
         <Box className="flex flex-row justify-between mt-2">
           <Box>
@@ -321,7 +348,9 @@ const TradeCard = () => {
           <Box className="ml-auto mr-0">
             <Typography
               variant="h6"
-              className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]"
+              onClick={handleMax}
+              className="text-stieglitz text-sm pl-1 pr-3 text-[12px] underline"
+              role="button"
             >
               Balance ~{' '}
               {formatAmount(
@@ -395,6 +424,22 @@ const TradeCard = () => {
               variant="h6"
               className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
             >
+              Margin
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography
+                variant="h6"
+                className="text-white mr-auto ml-0 text-[0.8rem]"
+              >
+                {positionDetails.margin} {optionScalpData?.quoteSymbol}
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={'flex mb-2'}>
+            <Typography
+              variant="h6"
+              className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
+            >
               Pos. Size
             </Typography>
             <Box className={'text-right'}>
@@ -402,36 +447,30 @@ const TradeCard = () => {
                 variant="h6"
                 className="text-white mr-auto ml-0 text-[0.8rem]"
               >
-                {getUserReadableAmount(
-                  posSize,
-                  optionScalpData?.quoteDecimals!.toNumber()
+                {positionDetails.size} {selectedPoolName}
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={'flex mb-2'}>
+            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+              Premium
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography
+                variant="h6"
+                className="text-white mr-auto ml-0 text-[0.8rem]"
+              >
+                {formatAmount(
+                  getUserReadableAmount(
+                    premium,
+                    optionScalpData?.quoteDecimals!.toNumber()
+                  ),
+                  2
                 )}{' '}
                 {optionScalpData?.quoteSymbol}
               </Typography>
             </Box>
           </Box>
-          {premium.gt(0) ? (
-            <Box className={'flex mb-2'}>
-              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-                Premium
-              </Typography>
-              <Box className={'text-right'}>
-                <Typography
-                  variant="h6"
-                  className="text-white mr-auto ml-0 text-[0.8rem]"
-                >
-                  {formatAmount(
-                    getUserReadableAmount(
-                      premium,
-                      optionScalpData?.quoteDecimals!.toNumber()
-                    ),
-                    2
-                  )}{' '}
-                  {optionScalpData?.quoteSymbol}
-                </Typography>
-              </Box>
-            </Box>
-          ) : null}
           <Box className={'flex mb-2'}>
             <Typography
               variant="h6"

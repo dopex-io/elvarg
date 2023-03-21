@@ -77,7 +77,7 @@ const DepositCard = () => {
     else if (amount == 0) return 'Insert an amount';
     else if (amount > readableUserTokenBalance) return 'Insufficient balance';
     return 'Deposit';
-  }, [approved, amount, readableUserTokenBalance, optionScalpData]);
+  }, [approved, amount, readableUserTokenBalance,]);
 
   const handleApprove = useCallback(async () => {
     if (!optionScalpData?.optionScalpContract || !signer || !contractAddresses)
