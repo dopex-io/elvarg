@@ -42,7 +42,9 @@ const OptionScalps = ({ poolName }: Props) => {
   const TVChart = useMemo(() => {
     return (
       <TradingViewChart
-        symbol={selectedPoolName === 'ETH' ? 'ETHUSD' : 'ETHBTC'}
+        symbol={
+          selectedPoolName === 'ETH' ? 'BINANCE:ETHUSD' : 'BINANCE:ETHBTC'
+        }
       />
     );
   }, [selectedPoolName]);
