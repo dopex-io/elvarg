@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMemo, useCallback } from 'react';
+import { useMemo } from 'react';
 
 import { ethers } from 'ethers';
 

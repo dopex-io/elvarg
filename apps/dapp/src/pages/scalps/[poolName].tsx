@@ -14,7 +14,6 @@ import TradingViewChart from 'components/common/TradingViewChart';
 import PoolCard from 'components/scalps/Charts/PoolCard';
 import TVLCard from 'components/scalps/Charts/TVLCard';
 import Positions from 'components/scalps/Positions';
-import Stats from 'components/scalps/Stats';
 import TopBar from 'components/scalps/TopBar';
 import TradeCard from 'components/scalps/TradeCard';
 import Manage from 'components/scalps/Manage';
