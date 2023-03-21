@@ -100,13 +100,13 @@ const Stats = () => {
       </Box>
       <Box className="ml-14">
         <Typography variant="h5">
-          <span className="text-white h-6 text-[1rem] flex items-center">
-            {markPrice}{' '}
+          <span className="text-white h-6 text-[1rem] flex items-center justify-center">
             <img
-              className="w-9 h-6 z-0"
+              className="w-9 h-6 mt-1"
               src={`/images/tokens/${optionScalpData?.quoteSymbol!.toLowerCase()}.svg`}
               alt={optionScalpData?.quoteSymbol!}
             />
+            {markPrice}
           </span>
         </Typography>
       </Box>
