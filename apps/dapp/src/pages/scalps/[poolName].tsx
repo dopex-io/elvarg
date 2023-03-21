@@ -82,9 +82,6 @@ const OptionScalps = ({ poolName }: Props) => {
             <Box className="xs:pb-[3rem]">
               <TopBar />
             </Box>
-            <Box>
-              <Stats />
-            </Box>
             <Box>{TVChart}</Box>
             {SHOWCHARTS ? (
               <Box>

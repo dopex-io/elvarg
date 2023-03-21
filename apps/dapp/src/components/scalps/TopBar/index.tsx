@@ -1,13 +1,32 @@
 import Box from '@mui/material/Box';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import { useCallback } from 'react';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 
+import Stats from '../Stats';
+
 const TopBar = () => {
-  const { optionScalpData, selectedPoolName } = useBoundStore();
+  const {
+    optionScalpData,
+    setSelectedPoolName,
+    updateOptionScalpUserData,
+    updateOptionScalp,
+    selectedPoolName,
+  } = useBoundStore();
+
+  const handleSelectChange = useCallback(
+    async (e: any) => {
+      await setSelectedPoolName(e.target.value.toString());
+      await updateOptionScalpUserData().then(() => updateOptionScalp());
+    },
+    [setSelectedPoolName, updateOptionScalp, updateOptionScalpUserData]
+  );
 
   return (
-    <Box className="flex justify-between">
+    <Box className="flex">
       <Box className="flex items-center">
         <Typography
           variant="h5"
@@ -29,13 +48,41 @@ const TopBar = () => {
         </Box>
         <Box className="ml-4">
           <Typography variant="h5">Option Scalps</Typography>
-          <Typography variant="h6">
-            <span className="text-stieglitz">
-              {selectedPoolName === 'ETH' ? 'ETH/USDC' : 'BTC/ETH'}
-            </span>
-          </Typography>
+          <Select
+            className="text-white h-8 text-[1rem] pr-[1rem] border-2 border-mineshaft mt-2"
+            MenuProps={{
+              sx: {
+                '.MuiMenu-paper': {
+                  background: '#151515',
+                  color: 'white',
+                  fill: 'white',
+                },
+                height: 150,
+              },
+              PaperProps: {
+                style: {
+                  width: 120,
+                },
+              },
+            }}
+            classes={{
+              icon: 'text-white',
+            }}
+            displayEmpty
+            autoWidth
+            value={selectedPoolName}
+            onChange={handleSelectChange}
+          >
+            <MenuItem value={'ETH'} key={'ETH'} className="text-white">
+              ETH/USDC
+            </MenuItem>
+            <MenuItem value={'BTC'} key={'BTC'} className="text-white">
+              ETH/BTC
+            </MenuItem>
+          </Select>
         </Box>
       </Box>
+      <Stats />
     </Box>
   );
 };
