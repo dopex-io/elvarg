@@ -76,9 +76,6 @@ const TopBar = () => {
             <MenuItem value={'ETH'} key={'ETH'} className="text-white">
               ETH/USDC
             </MenuItem>
-            <MenuItem value={'BTC'} key={'BTC'} className="text-white">
-              ETH/BTC
-            </MenuItem>
           </Select>
         </Box>
       </Box>
