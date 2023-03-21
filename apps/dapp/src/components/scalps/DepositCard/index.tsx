@@ -53,7 +53,7 @@ const DepositCard = () => {
     return isQuote ? isQuoteApproved : isBaseApproved;
   }, [isQuoteApproved, isBaseApproved, isQuote]);
 
-  const [rawAmount, setRawAmount] = useState<string>('1000');
+  const [rawAmount, setRawAmount] = useState<string>('1');
 
   const [estimatedLpTokens, setEstimatedLpTokens] = useState<BigNumber>(
     BigNumber.from(0)

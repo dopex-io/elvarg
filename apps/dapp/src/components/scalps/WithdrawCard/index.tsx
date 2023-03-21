@@ -48,7 +48,7 @@ const WithdrawCard = () => {
     return isQuote ? userQuoteBalance : userBaseBalance;
   }, [userQuoteBalance, userBaseBalance, isQuote]);
 
-  const [rawAmount, setRawAmount] = useState<string>('1000');
+  const [rawAmount, setRawAmount] = useState<string>('0');
 
   const [estimatedOut, setEstimatedOut] = useState<BigNumber>(
     BigNumber.from(0)
