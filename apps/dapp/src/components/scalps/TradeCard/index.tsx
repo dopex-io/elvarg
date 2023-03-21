@@ -56,10 +56,7 @@ const TradeCard = () => {
     return isShort;
   }, [isShort, optionScalpData]);
 
-  const margin: number = useMemo(() => {
-    return parseFloat(rawAmount) || 0;
-  }, [rawAmount]);
-
+ 
   const positionDetails = useMemo(() => {
     let _positionDetails = {
       margin: '0',
@@ -86,6 +83,11 @@ const TradeCard = () => {
     };
     return _positionDetails;
   }, [leverage, optionScalpData, rawAmount]);
+
+  const margin: number = useMemo(() => {
+    return parseFloat(positionDetails.margin) || 0;
+  }, [positionDetails.margin]);
+
   const handleLeverageChange = (event: any) => {
     setLeverage(event.target.value);
   };
@@ -94,10 +96,10 @@ const TradeCard = () => {
     if (!optionScalpData) return BigNumber.from('0');
 
     return getContractReadableAmount(
-      margin * leverage,
+      parseFloat(positionDetails.margin) * leverage,
       optionScalpData?.quoteDecimals!.toNumber()!
     );
-  }, [margin, leverage, optionScalpData]);
+  }, [positionDetails.margin, leverage, optionScalpData]);
 
   const calcPremium = useCallback(async () => {
     if (!optionScalpData) return;
@@ -127,26 +129,44 @@ const TradeCard = () => {
     calcPremium();
   }, [calcPremium]);
 
-  const tradeButtonMessage: string = useMemo(() => {
-    if (!optionScalpData) return '';
+  const tradeButtonProps = useMemo(() => {
+    let _props = {
+      text: 'Open Position',
+      disabled: false,
+    };
+
+    if (!optionScalpData) return _props;
 
     const minMargin = MINIMUM_MARGIN[selectedPoolName];
-    if (!minMargin) return '';
+    if (!minMargin) return _props;
 
-    if (!approved) return 'Approve';
-    else if (margin == 0) return 'Insert an amount';
-    else if (margin < minMargin)
-      return 'Minium Margin ' + minMargin + ' ' + optionScalpData?.quoteSymbol;
-    else if (
-      margin >
+    if (!approved) _props.text = 'Approve';
+    else if (parseFloat(positionDetails.margin) == 0) {
+      _props.disabled = true;
+      _props.text = 'Insert an Amount';
+    } else if (parseFloat(positionDetails.margin) < minMargin) {
+      _props.disabled = true;
+      _props.text =
+        'Minium Margin ' + minMargin + ' ' + optionScalpData?.quoteSymbol;
+    } else if (
+      parseFloat(positionDetails.margin) >
       getUserReadableAmount(
         userTokenBalance,
         optionScalpData.quoteDecimals.toNumber()
       )
-    )
-      return 'Insufficient balance';
-    return 'Open position';
-  }, [approved, margin, userTokenBalance, optionScalpData, selectedPoolName]);
+    ) {
+      _props.disabled = true;
+      _props.text = 'Insufficient balance';
+    }
+
+    return _props;
+  }, [
+    approved,
+    positionDetails.margin,
+    userTokenBalance,
+    optionScalpData,
+    selectedPoolName,
+  ]);
 
   const liquidationPrice: number = useMemo(() => {
     let _liquidationPrice = 0;
@@ -540,27 +560,11 @@ const TradeCard = () => {
           <CustomButton
             size="small"
             className="w-full !rounded-md"
-            color={
-              !approved ||
-              getUserReadableAmount(
-                userTokenBalance,
-                optionScalpData?.quoteDecimals!.toNumber()
-              ) > margin
-                ? 'primary'
-                : 'mineshaft'
-            }
-            disabled={
-              !approved ||
-              getUserReadableAmount(
-                userTokenBalance,
-                optionScalpData?.quoteDecimals!.toNumber()
-              ) > margin
-                ? false
-                : true
-            }
+            color={!tradeButtonProps.disabled ? 'primary' : 'mineshaft'}
+            disabled={tradeButtonProps.disabled}
             onClick={approved ? handleTrade : handleApprove}
           >
-            <p className="text-[0.8rem]">{tradeButtonMessage}</p>
+            <p className="text-[0.8rem]">{tradeButtonProps.text}</p>
           </CustomButton>
         </Box>
       </Box>
