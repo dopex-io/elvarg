@@ -75,11 +75,10 @@ const OptionScalps = ({ poolName }: Props) => {
         <title>Option Scalps | Dopex</title>
       </Head>
       <AppBar active="Scalps" />
-
       {optionScalpData?.markPrice ? (
         <Box className="flex lg:flex-row md:flex-col sm:flex-col items-center justify-center mx-auto h-full lg:px-24">
           {/* TV, STATS, POSITIONS */}
-          <Box className="lg:w-[80rem] md:w-[40rem] sm:w-[30rem] xs:border flex flex-col mt-[10rem]">
+          <Box className="lg:w-[70rem] md:w-[30rem] sm:w-[25rem] flex flex-col mt-[7rem]">
             <Box className="xs:pb-[3rem]">
               <TopBar />
             </Box>
@@ -117,25 +116,29 @@ const OptionScalps = ({ poolName }: Props) => {
           </Box>
           {/* Manage section */}
           <Box className="lg:pl-[2rem] md:pl-[2rem]">
-            <Box className="bg-cod-gray rounded-xl p-3 max-w-sm">
-              <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-lg mb-3">
-                {['LP', 'Trade'].map((label, index) => (
-                  <Button
-                    key={index}
-                    className={`border-0 hover:border-0 w-full m-1 p-1 transition ease-in-out duration-500 ${
-                      manageSection === label
-                        ? 'text-white bg-carbon hover:bg-carbon'
-                        : 'text-stieglitz bg-transparent hover:bg-transparent'
-                    } hover:text-white`}
-                    disableRipple
-                    onClick={() => setManageSection(label)}
-                  >
-                    <Typography variant="h6">{label}</Typography>
-                  </Button>
-                ))}
-              </ButtonGroup>
-              {manageSection === 'Trade' ? <TradeCard /> : <Manage />}
-            </Box>
+            <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-top-lg">
+              {['LP', 'Trade'].map((label, index) => (
+                <Button
+                  key={index}
+                  className={`border-0 hover:border-0 w-full m-1 p-1 transition ease-in-out duration-500 ${
+                    manageSection === label
+                      ? 'text-white bg-carbon hover:bg-carbon'
+                      : 'text-stieglitz bg-transparent hover:bg-transparent'
+                  } hover:text-white`}
+                  disableRipple
+                  onClick={() => setManageSection(label)}
+                >
+                  <Typography variant="h6">{label}</Typography>
+                </Button>
+              ))}
+            </ButtonGroup>
+            {manageSection === 'Trade' ? (
+              <Box className="bg-cod-gray rounded-b-xl p-3 max-w-sm">
+                <TradeCard />{' '}
+              </Box>
+            ) : (
+              <Manage />
+            )}
           </Box>
         </Box>
       ) : null}

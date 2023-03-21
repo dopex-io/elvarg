@@ -239,7 +239,10 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                     <Box
                       className={`rounded-md flex items-center px-2 py-2 w-fit`}
                     >
-                      <Typography variant="h6" className={'pr-7 pt-[2px]'}>
+                      <Typography
+                        variant="h6"
+                        className={'pr-7 pt-[2px] text-[0.8rem]'}
+                      >
                         <span
                           className={
                             (
@@ -267,17 +270,25 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                   </Box>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
-                  <Typography variant="h6" color="white" className="text-left">
+                  <Typography
+                    variant="h6"
+                    color="white"
+                    className="text-left text-[0.8rem]"
+                  >
                     {position.entry}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
-                  <Typography variant="h6" color="white" className="text-left">
+                  <Typography
+                    variant="h6"
+                    color="white"
+                    className="text-left text-[0.8rem]"
+                  >
                     {position.liquidationPrice}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
-                  <Typography variant="h6" className="text-left">
+                  <Typography variant="h6" className="text-left text-[0.8rem]">
                     <Tooltip title={position.pnl}>
                       <span
                         className={
@@ -291,17 +302,29 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
-                  <Typography variant="h6" color="white" className="text-left">
+                  <Typography
+                    variant="h6"
+                    color="white"
+                    className="text-left text-[0.8rem]"
+                  >
                     {optionScalpData?.quoteSymbol} {position.margin}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
-                  <Typography variant="h6" color="white" className="text-left">
+                  <Typography
+                    variant="h6"
+                    color="white"
+                    className="text-left text-[0.8rem]"
+                  >
                     {optionScalpData?.quoteSymbol} {position.premium}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
-                  <Typography variant="h6" color="white" className="text-left">
+                  <Typography
+                    variant="h6"
+                    color="white"
+                    className="text-left text-[0.8rem]"
+                  >
                     {position.isOpen ? (
                       <Countdown
                         date={
@@ -336,13 +359,18 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">
-                  <Typography variant="h6" color="white" className="text-left">
+                  <Typography
+                    variant="h6"
+                    color="white"
+                    className="text-left text-[0.8rem]"
+                  >
                     {Number(position.timeframe) / 60}m
                   </Typography>
                 </TableCell>
                 {position.isOpen ? (
                   <TableCell className="flex justify-end border-0">
                     <CustomButton
+                      size="small"
                       className="cursor-pointer text-white"
                       color={'primary'}
                       onClick={() => handleClose(position.id)}
@@ -383,7 +411,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         </Table>
         {positions.length === 0 ? (
           <Box className="w-full flex my-8">
-            <span className="ml-auto mr-auto">
+            <span className="ml-auto mr-auto text-[0.8rem]">
               Your {tab === 'Open' ? 'active' : 'closed'} positions will appear
               here
             </span>

@@ -21,7 +21,7 @@ const Positions = () => {
       <Box className="border rounded-t-xl border-cod-gray py-2 bg-umbra">
         <Box className="flex ml-3">
           <Box className="rounded-md bg-neutral-700 flex mb-2 mt-3 h-auto">
-            <Typography variant="h6" className="ml-auto p-1">
+            <Typography variant="h6" className="ml-auto p-1 text-[0.8rem]">
               {displayAddress(accountAddress, ensName)}
             </Typography>
           </Box>

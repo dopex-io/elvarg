@@ -216,14 +216,15 @@ const DepositCard = () => {
 
   return (
     <Box>
-      <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
+      <Box className="bg-umbra rounded-b-xl flex flex-col mb-4 p-3 pr-2">
+        <p className="text-[1rem] mb-3">Deposit</p>
         <Box className="flex flex-row justify-between">
           <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
             <Box className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
               <Typography
                 variant="h6"
                 className={cx(
-                  'font-medium mt-1 cursor-pointer',
+                  'font-medium mt-1 cursor-pointer text-[0.8rem]',
                   !isQuote && 'opacity-50'
                 )}
                 onClick={() => setisQuote(true)}
@@ -235,7 +236,7 @@ const DepositCard = () => {
               <Typography
                 variant="h6"
                 className={cx(
-                  'font-medium mt-1 cursor-pointer',
+                  'font-medium mt-1 cursor-pointer text-[0.8rem]',
                   isQuote && 'opacity-50'
                 )}
                 onClick={() => setisQuote(false)}
@@ -250,7 +251,7 @@ const DepositCard = () => {
             name="notionalSize"
             placeholder="0"
             type="number"
-            className="h-12 text-2xl text-white font-mono mr-2"
+            className="h-12 text-md text-white font-mono mr-2"
             value={rawAmount}
             onChange={(e) => setRawAmount(e.target.value)}
             classes={{ input: 'text-right' }}
@@ -260,7 +261,7 @@ const DepositCard = () => {
           <Box>
             <Typography
               variant="h6"
-              className="text-stieglitz text-sm pl-1 pr-3"
+              className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]"
             >
               Token to deposit
             </Typography>
@@ -268,7 +269,7 @@ const DepositCard = () => {
           <Box className="ml-auto mr-0">
             <Typography
               variant="h6"
-              className="text-stieglitz text-sm pl-1 pr-3"
+              className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]"
             >
               Balance ~{' '}
               {formatAmount(
@@ -291,11 +292,17 @@ const DepositCard = () => {
         <Box className="bg-umbra rounded-2xl">
           <Box className="flex flex-col mb-4 p-4 w-full">
             <Box className={'flex mb-0.5'}>
-              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+              <Typography
+                variant="h6"
+                className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
+              >
                 Estimated LP tokens
               </Typography>
               <Box className={'text-right'}>
-                <Typography variant="h6" className="text-white mr-auto ml-0">
+                <Typography
+                  variant="h6"
+                  className="text-white mr-auto ml-0 text-[0.8rem]"
+                >
                   {formatAmount(
                     getUserReadableAmount(
                       estimatedLpTokens,
@@ -317,11 +324,11 @@ const DepositCard = () => {
       ) : null}
       <Box className="rounded-lg bg-neutral-800">
         <Box className="p-3">
-          <Box className="rounded-md flex flex-col mb-3 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-mineshaft">
-            <EstimatedGasCostButton gas={5000000} chainId={chainId} />
+          <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
+            <EstimatedGasCostButton gas={500000} chainId={chainId} />
           </Box>
           <CustomButton
-            size="medium"
+            size="small"
             className="w-full !rounded-md"
             color={
               !approved ||
@@ -339,7 +346,7 @@ const DepositCard = () => {
             disabled={amount <= 0}
             onClick={approved ? handleDeposit : handleApprove}
           >
-            {depositButtonMessage}
+            <p className="text-[0.8rem]">{depositButtonMessage}</p>
           </CustomButton>
         </Box>
       </Box>

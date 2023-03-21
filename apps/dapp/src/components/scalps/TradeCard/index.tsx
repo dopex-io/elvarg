@@ -132,7 +132,7 @@ const TradeCard = () => {
       );
     else if (_margin.gt(userTokenBalance)) return 'Insufficient balance';
     return 'Open position';
-  }, [approved, margin, userTokenBalance, margin, optionScalpData]);
+  }, [approved, margin, userTokenBalance, optionScalpData]);
 
   const liquidationPrice: number = useMemo(() => {
     let _liquidationPrice = 0;
@@ -278,14 +278,14 @@ const TradeCard = () => {
   ]);
 
   return (
-    <Box>
+    <Box className="h-fit-content">
       <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
         <Box className="flex flex-row justify-between">
-          <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
-            <Box className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
+          <Box className="h-8 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
+            <Box className="flex flex-row h-8 w-auto p-1 pl-3 pr-2">
               <p
                 className={cx(
-                  'font-medium mt-1 cursor-pointer hover:opacity-50',
+                  'text-[0.8rem] mt-1 cursor-pointer hover:opacity-50',
                   !isShort ? 'text-green-300' : 'text-stieglitz'
                 )}
                 onClick={() => setIsShort(false)}
@@ -293,10 +293,10 @@ const TradeCard = () => {
                 Long
               </p>
             </Box>
-            <Box className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
+            <Box className="flex flex-row h-8 w-auto p-1 pr-3 pl-2">
               <p
                 className={cx(
-                  'font-medium mt-1 cursor-pointer hover:opacity-50',
+                  'text-[0.8rem] mt-1 cursor-pointer hover:opacity-50',
                   isShort ? 'text-red-400' : 'text-stieglitz'
                 )}
                 onClick={() => setIsShort(true)}
@@ -309,14 +309,14 @@ const TradeCard = () => {
             disableUnderline
             placeholder="0"
             type="number"
-            className="h-12 text-2xl text-white font-mono"
+            className="h-8 text-md text-white font-mono"
             value={rawAmount}
             onChange={(e) => setRawAmount(e.target.value)}
             classes={{ input: 'text-right' }}
           />
           <Typography
             variant="h6"
-            className="text-stieglitz font-medium mt-3 mr-3 ml-1"
+            className="text-stieglitz text-[0.8rem] font-medium mt-2 mr-3 ml-1"
           >
             {optionScalpData?.quoteSymbol}
           </Typography>
@@ -325,7 +325,7 @@ const TradeCard = () => {
           <Box>
             <Typography
               variant="h6"
-              className="text-stieglitz text-sm pl-1 pr-3"
+              className="text-stieglitz text-sm pl-3 pr-3 text-[0.8rem]"
             >
               Leverage {leverage}x
             </Typography>
@@ -333,7 +333,7 @@ const TradeCard = () => {
           <Box className="ml-auto mr-0">
             <Typography
               variant="h6"
-              className="text-stieglitz text-sm pl-1 pr-3"
+              className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]"
             >
               Balance ~{' '}
               {formatAmount(
@@ -374,7 +374,7 @@ const TradeCard = () => {
           <Box>
             <Typography
               variant="h6"
-              className="text-stieglitz text-sm pl-1 pr-3"
+              className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]"
             >
               Leverage
             </Typography>
@@ -382,7 +382,7 @@ const TradeCard = () => {
           <Box className="ml-auto mr-0">
             <Typography
               variant="h6"
-              className="text-stieglitz text-sm pl-1 pr-3"
+              className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]"
             >
               {leverage}x
             </Typography>
@@ -403,11 +403,17 @@ const TradeCard = () => {
       <Box className="bg-umbra rounded-2xl">
         <Box className="flex flex-col mb-4 p-4 w-full">
           <Box className={'flex mb-2'}>
-            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+            <Typography
+              variant="h6"
+              className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
+            >
               Pos. Size
             </Typography>
             <Box className={'text-right'}>
-              <Typography variant="h6" className="text-white mr-auto ml-0">
+              <Typography
+                variant="h6"
+                className="text-white mr-auto ml-0 text-[0.8rem]"
+              >
                 {getUserReadableAmount(
                   posSize,
                   optionScalpData?.quoteDecimals!.toNumber()
@@ -422,7 +428,10 @@ const TradeCard = () => {
                 Premium
               </Typography>
               <Box className={'text-right'}>
-                <Typography variant="h6" className="text-white mr-auto ml-0">
+                <Typography
+                  variant="h6"
+                  className="text-white mr-auto ml-0 text-[0.8rem]"
+                >
                   {formatAmount(
                     getUserReadableAmount(
                       premium,
@@ -436,11 +445,17 @@ const TradeCard = () => {
             </Box>
           ) : null}
           <Box className={'flex mb-2'}>
-            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+            <Typography
+              variant="h6"
+              className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
+            >
               Fees
             </Typography>
             <Box className={'text-right'}>
-              <Typography variant="h6" className="text-white mr-auto ml-0">
+              <Typography
+                variant="h6"
+                className="text-white mr-auto ml-0 text-[0.8rem]"
+              >
                 {formatAmount(
                   getUserReadableAmount(
                     posSize,
@@ -457,34 +472,46 @@ const TradeCard = () => {
             </Box>
           </Box>
           <Box className={'flex mb-2'}>
-            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+            <Typography
+              variant="h6"
+              className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
+            >
               Liquidation Price
             </Typography>
             <Box className={'text-right'}>
-              <Typography variant="h6" className="text-white mr-auto ml-0">
+              <Typography
+                variant="h6"
+                className="text-white mr-auto ml-0 text-[0.8rem]"
+              >
                 {formatAmount(liquidationPrice, 6)}{' '}
               </Typography>
             </Box>
           </Box>
           <Box className={'flex mb-1'}>
-            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
+            <Typography
+              variant="h6"
+              className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
+            >
               Max. Slippage
             </Typography>
             <Box className={'text-right'}>
-              <Typography variant="h6" className="text-white mr-auto ml-0">
+              <Typography
+                variant="h6"
+                className="text-white mr-auto ml-0 text-[0.8rem]"
+              >
                 0.5%
               </Typography>
             </Box>
           </Box>
         </Box>
       </Box>
+      <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
+        <EstimatedGasCostButton gas={500000} chainId={chainId} />
+      </Box>
       <Box className="rounded-lg bg-neutral-800">
         <Box className="p-3">
-          <Box className="rounded-md flex flex-col mb-3 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-mineshaft">
-            <EstimatedGasCostButton gas={5000000} chainId={chainId} />
-          </Box>
           <CustomButton
-            size="medium"
+            size="small"
             className="w-full !rounded-md"
             color={
               !approved ||
@@ -506,7 +533,7 @@ const TradeCard = () => {
             }
             onClick={approved ? handleTrade : handleApprove}
           >
-            {tradeButtonMessage}
+            <p className="text-[0.8rem]">{tradeButtonMessage}</p>
           </CustomButton>
         </Box>
       </Box>
