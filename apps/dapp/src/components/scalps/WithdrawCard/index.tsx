@@ -58,21 +58,21 @@ const WithdrawCard = () => {
     return parseFloat(rawAmount) || 0;
   }, [rawAmount]);
 
+  const readableUserTokenBalance = useMemo(() => {
+    return getUserReadableAmount(
+      userTokenBalance,
+      isQuote
+        ? optionScalpData?.quoteDecimals!.toNumber()!
+        : optionScalpData?.baseDecimals!.toNumber()!
+    );
+  }, [optionScalpData, userTokenBalance, isQuote]);
+
   const withdrawButtonMessage: string = useMemo(() => {
     if (!approved) return 'Approve';
     else if (amount == 0) return 'Insert an amount';
-    else if (
-      amount >
-      getUserReadableAmount(
-        userTokenBalance,
-        isQuote
-          ? optionScalpData?.quoteDecimals!.toNumber()!
-          : optionScalpData?.baseDecimals!.toNumber()!
-      )
-    )
-      return 'Amount exceeds balance';
+    else if (amount > readableUserTokenBalance) return 'Amount exceeds balance';
     return 'Withdraw';
-  }, [amount, userTokenBalance, approved, optionScalpData, isQuote]);
+  }, [amount, readableUserTokenBalance, approved, optionScalpData]);
 
   const handleApprove = useCallback(async () => {
     if (!optionScalpData?.optionScalpContract || !signer || !contractAddresses)
@@ -253,17 +253,9 @@ const WithdrawCard = () => {
             <Typography
               variant="h6"
               className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]"
+              onClick={() => setRawAmount(String(readableUserTokenBalance))}
             >
-              Balance ~{' '}
-              {formatAmount(
-                getUserReadableAmount(
-                  userTokenBalance,
-                  isQuote
-                    ? optionScalpData?.quoteDecimals!.toNumber()!
-                    : optionScalpData?.baseDecimals!.toNumber()!
-                ),
-                8
-              )}{' '}
+              Balance ~ {formatAmount(readableUserTokenBalance, 8)}{' '}
               {isQuote
                 ? optionScalpData?.quoteSymbol!
                 : optionScalpData?.baseSymbol!}{' '}
@@ -382,14 +374,7 @@ const WithdrawCard = () => {
             size="small"
             className="w-full !rounded-md"
             color={
-              amount > 0 &&
-              amount <=
-                getUserReadableAmount(
-                  userTokenBalance,
-                  isQuote
-                    ? optionScalpData?.quoteDecimals!.toNumber()!
-                    : optionScalpData?.baseDecimals!.toNumber()!
-                )
+              amount > 0 && amount <= readableUserTokenBalance
                 ? 'primary'
                 : 'mineshaft'
             }
