@@ -66,20 +66,8 @@ const TradeCard = () => {
   const posSize = useMemo(() => {
     if (!optionScalpData) return BigNumber.from('0');
 
-    const minAbsThreshold = getUserReadableAmount(
-      optionScalpData?.minimumAbsoluteLiquidationThreshold!,
-      optionScalpData?.quoteDecimals!.toNumber()
-    );
-
-    const positions =
-      (margin * leverage) /
-      getUserReadableAmount(
-        optionScalpData?.markPrice,
-        optionScalpData?.quoteDecimals!.toNumber()
-      );
-
     return getContractReadableAmount(
-      (margin * leverage - minAbsThreshold * positions).toFixed(6),
+      margin * leverage,
       optionScalpData?.quoteDecimals!.toNumber()!
     );
   }, [margin, leverage, optionScalpData]);

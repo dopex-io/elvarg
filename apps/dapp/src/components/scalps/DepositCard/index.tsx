@@ -63,21 +63,21 @@ const DepositCard = () => {
     return parseFloat(rawAmount) || 0;
   }, [rawAmount]);
 
+  const readableUserTokenBalance = useMemo(() => {
+    return getUserReadableAmount(
+      userTokenBalance,
+      isQuote
+        ? optionScalpData?.quoteDecimals!.toNumber()!
+        : optionScalpData?.baseDecimals!.toNumber()!
+    );
+  }, [optionScalpData, userTokenBalance, isQuote]);
+
   const depositButtonMessage: string = useMemo(() => {
     if (!approved) return 'Approve';
     else if (amount == 0) return 'Insert an amount';
-    else if (
-      amount >
-      getUserReadableAmount(
-        userTokenBalance,
-        isQuote
-          ? optionScalpData?.quoteDecimals!.toNumber()!
-          : optionScalpData?.baseDecimals!.toNumber()!
-      )
-    )
-      return 'Insufficient balance';
+    else if (amount > readableUserTokenBalance) return 'Insufficient balance';
     return 'Deposit';
-  }, [approved, amount, userTokenBalance, isQuote, optionScalpData]);
+  }, [approved, amount, readableUserTokenBalance, optionScalpData]);
 
   const handleApprove = useCallback(async () => {
     if (!optionScalpData?.optionScalpContract || !signer || !contractAddresses)
@@ -270,17 +270,10 @@ const DepositCard = () => {
             <Typography
               variant="h6"
               className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]"
+              onClick={() => setRawAmount(String(readableUserTokenBalance))}
             >
               Balance ~{' '}
-              {formatAmount(
-                getUserReadableAmount(
-                  userTokenBalance,
-                  isQuote
-                    ? optionScalpData?.quoteDecimals!.toNumber()!
-                    : optionScalpData?.baseDecimals!.toNumber()!
-                ),
-                isQuote ? 0 : 3
-              )}{' '}
+              {formatAmount(readableUserTokenBalance, isQuote ? 0 : 3)}{' '}
               {isQuote
                 ? optionScalpData?.quoteSymbol!
                 : optionScalpData?.baseSymbol!}
@@ -331,15 +324,7 @@ const DepositCard = () => {
             size="small"
             className="w-full !rounded-md"
             color={
-              !approved ||
-              (amount > 0 &&
-                amount <=
-                  getUserReadableAmount(
-                    userTokenBalance,
-                    isQuote
-                      ? optionScalpData?.quoteDecimals!.toNumber()!
-                      : optionScalpData?.baseDecimals!.toNumber()!
-                  ))
+              !approved || (amount > 0 && amount <= readableUserTokenBalance)
                 ? 'primary'
                 : 'mineshaft'
             }
