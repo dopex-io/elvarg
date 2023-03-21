@@ -44,7 +44,7 @@ const TradeCard = () => {
 
   const [approved, setApproved] = useState(false);
 
-  const [rawAmount, setRawAmount] = useState<string>('1000');
+  const [rawAmount, setRawAmount] = useState<string>('1');
 
   const [leverage, setLeverage] = useState<number>(20);
 
