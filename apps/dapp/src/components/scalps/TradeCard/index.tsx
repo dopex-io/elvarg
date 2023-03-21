@@ -75,18 +75,12 @@ const TradeCard = () => {
         3
       ),
       size: formatAmount(
-        isNaN(parseFloat(rawAmount))
-          ? 0
-          : parseFloat(rawAmount) * leverage * _markPrice,
+        isNaN(parseFloat(rawAmount)) ? 0 : parseFloat(rawAmount) * leverage,
         3
       ),
     };
     return _positionDetails;
   }, [leverage, optionScalpData, rawAmount]);
-
-  const margin: number = useMemo(() => {
-    return parseFloat(positionDetails.margin) || 0;
-  }, [positionDetails.margin]);
 
   const handleLeverageChange = (event: any) => {
     setLeverage(event.target.value);
@@ -169,6 +163,7 @@ const TradeCard = () => {
   ]);
 
   const liquidationPrice: number = useMemo(() => {
+    const _margin = parseFloat(positionDetails.margin);
     let _liquidationPrice = 0;
     const price = getUserReadableAmount(
       optionScalpData?.markPrice!,
@@ -179,22 +174,27 @@ const TradeCard = () => {
         posSize,
         optionScalpData?.quoteDecimals!.toNumber()!
       ) / price;
-    if (positions || margin) {
+    if (positions || _margin) {
       const minAbsThreshold = getUserReadableAmount(
         optionScalpData?.minimumAbsoluteLiquidationThreshold!,
         optionScalpData?.quoteDecimals!.toNumber()
       );
       if (isShortAfterAdjustments) {
-        _liquidationPrice = margin / positions + minAbsThreshold + price;
+        _liquidationPrice = _margin / positions + minAbsThreshold + price;
       } else {
-        _liquidationPrice = price - margin / positions - minAbsThreshold;
+        _liquidationPrice = price - _margin / positions - minAbsThreshold;
       }
     }
 
     if (optionScalpData?.inverted) return 1 / _liquidationPrice;
 
     return _liquidationPrice;
-  }, [isShortAfterAdjustments, margin, posSize, optionScalpData]);
+  }, [
+    isShortAfterAdjustments,
+    positionDetails.margin,
+    posSize,
+    optionScalpData,
+  ]);
 
   const timeframeIndex = useMemo(() => {
     const indexes: { [key: string]: number } = {
@@ -255,7 +255,7 @@ const TradeCard = () => {
           posSize,
           timeframeIndex,
           getContractReadableAmount(
-            margin,
+            parseFloat(positionDetails.margin),
             optionScalpData?.quoteDecimals!.toNumber()
           ),
           entryLimit,
@@ -275,7 +275,7 @@ const TradeCard = () => {
     updateOptionScalpUserData,
     sendTx,
     timeframeIndex,
-    margin,
+    positionDetails.margin,
     isShortAfterAdjustments,
   ]);
 
@@ -288,7 +288,7 @@ const TradeCard = () => {
         return;
 
       const finalAmount: BigNumber = getContractReadableAmount(
-        margin,
+        parseFloat(positionDetails.margin),
         optionScalpData?.quoteDecimals!.toNumber()!
       );
       const token = ERC20__factory.connect(
@@ -307,7 +307,7 @@ const TradeCard = () => {
     contractAddresses,
     accountAddress,
     approved,
-    margin,
+    positionDetails.margin,
     signer,
     chainId,
     optionScalpData,
