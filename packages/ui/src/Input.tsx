@@ -1,5 +1,5 @@
 import React, { ReactEventHandler, ReactNode } from "react";
-import cx from "classnames";
+import cx from "./utils/cx";
 
 interface InputProps
   extends React.DetailedHTMLProps<
