@@ -2921,7 +2921,11 @@ export const createOptionScalpSlice: StateCreator<
     const { getOptionScalpContract } = get();
 
     const optionScalpContract = getOptionScalpContract();
-    return await optionScalpContract.getLiquidationPrice(id);
+    try {
+      return await optionScalpContract.getLiquidationPrice(id);
+    } catch (e) {
+      return BigNumber.from('0');
+    }
   },
   updateOptionScalpUserData: async () => {
     const {
