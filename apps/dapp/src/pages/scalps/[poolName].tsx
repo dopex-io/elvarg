@@ -44,7 +44,9 @@ const OptionScalps = ({ poolName }: Props) => {
     return (
       <TradingViewChart
         symbol={
-          selectedPoolName === 'ETH' ? 'BINANCE:ETHUSD' : 'BINANCE:ETHBTC'
+          selectedPoolName === 'ETH'
+            ? 'UNISWAP3ARBITRUM:WETHUSDC'
+            : 'BINANCE:ETHBTC'
         }
       />
     );
