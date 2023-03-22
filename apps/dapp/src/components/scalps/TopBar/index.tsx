@@ -26,11 +26,11 @@ const TopBar = () => {
   );
 
   return (
-    <Box className="flex">
+    <Box className="flex lg:flex-row md:flex-col items-center">
       <Box className="flex items-center">
         <Typography
           variant="h5"
-          className="bg-primary rounded-lg p-2 font-bold h-[fit-content]"
+          className="bg-primary rounded-lg p-2 font-bold h-[fit-content] text-[0.7rem]"
         >
           BETA
         </Typography>
@@ -47,9 +47,11 @@ const TopBar = () => {
           />
         </Box>
         <Box className="ml-4">
-          <Typography variant="h5">Option Scalps</Typography>
+          <Typography variant="h5" className="text-[0.8rem]">
+            Option Scalps
+          </Typography>
           <Select
-            className="text-white h-8 text-[1rem] pr-[1rem] border-2 border-mineshaft mt-2"
+            className="text-white h-8 text-[0.7rem] pr-[1rem] border-2 border-mineshaft mt-2"
             MenuProps={{
               sx: {
                 '.MuiMenu-paper': {
