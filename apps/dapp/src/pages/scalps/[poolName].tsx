@@ -42,7 +42,9 @@ const OptionScalps = ({ poolName }: Props) => {
     return (
       <TradingViewChart
         symbol={
-          selectedPoolName === 'ETH' ? 'BINANCE:ETHUSD' : 'BINANCE:ETHBTC'
+          selectedPoolName === 'ETH'
+            ? 'UNISWAP3ARBITRUM:WETHUSDC'
+            : 'BINANCE:ETHBTC'
         }
       />
     );
@@ -82,7 +84,7 @@ const OptionScalps = ({ poolName }: Props) => {
               <Box className="xs:pb-[3rem]">
                 <TopBar />
               </Box>
-              <Box className='w-max-[80rem]'>{TVChart}</Box>
+              <Box className="w-max-[80rem]">{TVChart}</Box>
               {SHOWCHARTS ? (
                 <Box>
                   <Box className="pt-8 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0">
