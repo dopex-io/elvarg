@@ -20,6 +20,7 @@ import formatAmount from 'utils/general/formatAmount';
 import { MINIMUM_MARGIN } from 'utils/contracts/option-scalps';
 
 import { MAX_VALUE } from 'constants/index';
+import { Checkbox } from '@mui/material';
 
 const TradeCard = () => {
   const {
@@ -51,12 +52,13 @@ const TradeCard = () => {
 
   const [isShort, setIsShort] = useState<boolean>(false);
 
+  const [showAsQuote, setShowAsQuote] = useState<boolean>(false);
+
   const isShortAfterAdjustments = useMemo(() => {
     if (optionScalpData?.inverted) return !isShort;
     return isShort;
   }, [isShort, optionScalpData]);
 
- 
   const positionDetails = useMemo(() => {
     let _positionDetails = {
       sizeInQuote: 0,
@@ -67,15 +69,17 @@ const TradeCard = () => {
 
     const { markPrice, quoteDecimals } = optionScalpData;
     if (!markPrice) return _positionDetails;
-    let _markPrice = Number(markPrice) / 10 ** quoteDecimals.toNumber();
+    let _markPrice = showAsQuote
+      ? 1
+      : Number(markPrice) / 10 ** quoteDecimals.toNumber();
 
     _positionDetails = {
-      marginInQuote: (parseFloat(rawAmount) ?? 0) * _markPrice,
-      sizeInQuote: (parseFloat(rawAmount) ?? 0 * _markPrice) * leverage,
+      marginInQuote: ((parseFloat(rawAmount) ?? 0) * _markPrice) / leverage,
+      sizeInQuote: parseFloat(rawAmount) ?? 0 * _markPrice,
     };
 
     return _positionDetails;
-  }, [leverage, optionScalpData, rawAmount]);
+  }, [leverage, optionScalpData, rawAmount, showAsQuote]);
 
   const handleLeverageChange = (event: any) => {
     setLeverage(event.target.value);
@@ -240,7 +244,7 @@ const TradeCard = () => {
           .div(BigNumber.from(1000))
       : optionScalpData
           .markPrice!.mul(BigNumber.from(1005))
-        .div(BigNumber.from(1000));
+          .div(BigNumber.from(1000));
 
     try {
       await sendTx(
@@ -310,9 +314,25 @@ const TradeCard = () => {
     optionScalpData,
   ]);
 
+  const handleCheckbox = useCallback((event: any) => {
+    setShowAsQuote(event.target.checked);
+  }, []);
+
   return (
     <Box className="h-fit-content">
       <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
+        <Box className="w-full flex items-center justify-center px-3">
+          <p className="text-xs text-stieglitz mr-2 ml-auto">
+            Show as {optionScalpData?.quoteSymbol}
+          </p>
+          <Checkbox
+            // @ts-ignore
+            size="xs"
+            className={showAsQuote ? 'p-0 text-white' : 'p-0 text-white border'}
+            checked={showAsQuote}
+            onChange={handleCheckbox}
+          />
+        </Box>
         <Box className="flex flex-row justify-between">
           <Box className="h-8 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
             <Box className="flex flex-row h-8 w-auto p-1 pl-3 pr-2">
@@ -351,19 +371,11 @@ const TradeCard = () => {
               classes={{ input: 'text-right' }}
             />
             <Typography variant="h6" className="text-stieglitz mr-3 ml-1 mb-1">
-              {selectedPoolName}
+              {showAsQuote ? optionScalpData?.quoteSymbol : selectedPoolName}
             </Typography>
           </Box>
         </Box>
         <Box className="flex flex-row justify-between mt-2">
-          <Box>
-            <Typography
-              variant="h6"
-              className="text-stieglitz text-sm pl-3 pr-3 text-[0.8rem]"
-            >
-              Leverage {leverage}x
-            </Typography>
-          </Box>
           <Box className="ml-auto mr-0">
             <Typography
               variant="h6"
@@ -428,7 +440,7 @@ const TradeCard = () => {
             aria-label="Leverage"
             defaultValue={20}
             step={1}
-            min={1}
+            min={1.1}
             max={110}
             valueLabelDisplay="auto"
             onChange={handleLeverageChange}
@@ -467,7 +479,7 @@ const TradeCard = () => {
                 className="text-white mr-auto ml-0 text-[0.8rem]"
               >
                 {formatAmount(positionDetails.sizeInQuote, 3)}{' '}
-                {selectedPoolName}
+                {showAsQuote ? optionScalpData?.quoteSymbol : selectedPoolName}
               </Typography>
             </Box>
           </Box>
