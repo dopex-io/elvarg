@@ -2969,7 +2969,7 @@ export const createOptionScalpSlice: StateCreator<
     scalpPositions = scalpPositions.map((position, index) => ({
       ...position,
       id: scalpPositionsIndexes[index],
-      pnl: pnls[index]!,
+      pnl: pnls[index]!.sub(position.premium).sub(position.fees),
       liquidationPrice: liquidationPrices[index]!,
     }));
 
