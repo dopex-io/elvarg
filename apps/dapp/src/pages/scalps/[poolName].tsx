@@ -19,6 +19,7 @@ import TradeCard from 'components/scalps/TradeCard';
 import Manage from 'components/scalps/Manage';
 
 import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
+import { ethers } from 'ethers';
 
 const SHOWCHARTS = false;
 
@@ -34,6 +35,7 @@ const OptionScalps = ({ poolName }: Props) => {
     updateOptionScalp,
     updateOptionScalpUserData,
     selectedPoolName,
+    setUniPrice,
   } = useBoundStore();
 
   const [manageSection, setManageSection] = useState<string>('Trade');
@@ -60,13 +62,30 @@ const OptionScalps = ({ poolName }: Props) => {
     updateAll();
   }, [updateAll]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      updateAll();
-    }, 3000);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     updateAll();
+  //   }, 3000);
 
-    return () => clearInterval(interval);
-  }, []);
+  //   return () => clearInterval(interval);
+  // }, []);
+
+  useEffect(() => {
+    const ws = new WebSocket(
+      'wss://io.dexscreener.com/dex/screener/pair/arbitrum/0xc31e54c7a869b9fcbecc14363cf510d1c41fa443'
+    );
+
+    ws.onmessage = function (event) {
+      const data = JSON.parse(event.data);
+      try {
+        if (data.pair) {
+          setUniPrice(ethers.utils.parseUnits(String(data.pair.price), 6));
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+  }, [setUniPrice]);
 
   return (
     <Box className="bg-black min-h-screen w-full">
@@ -82,7 +101,7 @@ const OptionScalps = ({ poolName }: Props) => {
               <Box className="xs:pb-[3rem]">
                 <TopBar />
               </Box>
-              <Box className='w-max-[80rem]'>{TVChart}</Box>
+              <Box className="w-max-[80rem]">{TVChart}</Box>
               {SHOWCHARTS ? (
                 <Box>
                   <Box className="pt-8 lg:max-w-4xl md:max-w-3xl md:m-0 mx-3 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0">

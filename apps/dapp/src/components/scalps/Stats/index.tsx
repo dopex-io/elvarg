@@ -12,7 +12,7 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 const Stats = () => {
-  const { optionScalpData, selectedPoolName } = useBoundStore();
+  const { optionScalpData, selectedPoolName, uniPrice } = useBoundStore();
 
   const markPrice = useMemo(() => {
     if (selectedPoolName.toUpperCase() === 'ETH')
@@ -20,7 +20,7 @@ const Stats = () => {
         <Box>
           {formatAmount(
             getUserReadableAmount(
-              optionScalpData?.markPrice!,
+              uniPrice,
               optionScalpData?.quoteDecimals!.toNumber()
             ),
             2
@@ -31,16 +31,14 @@ const Stats = () => {
       return (
         <Box>
           {getUserReadableAmount(
-            ethers.utils
-              .parseUnits('1000000', 'ether')
-              .div(optionScalpData?.markPrice!),
+            ethers.utils.parseUnits('1000000', 'ether').div(uniPrice),
             6
           )}
         </Box>
       );
 
     return '';
-  }, [selectedPoolName, optionScalpData]);
+  }, [selectedPoolName, optionScalpData, uniPrice]);
 
   const stats = useMemo(() => {
     let _stats = {

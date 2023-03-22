@@ -32,6 +32,7 @@ const TradeCard = () => {
     optionScalpData,
     updateOptionScalp,
     updateOptionScalpUserData,
+    uniPrice: markPrice,
   } = useBoundStore();
 
   const sendTx = useSendTx();
@@ -67,7 +68,7 @@ const TradeCard = () => {
 
     if (!optionScalpData) return _positionDetails;
 
-    const { markPrice, quoteDecimals } = optionScalpData;
+    const { quoteDecimals } = optionScalpData;
     if (!markPrice) return _positionDetails;
     let _markPrice = showAsQuote
       ? 1
@@ -79,7 +80,7 @@ const TradeCard = () => {
     };
 
     return _positionDetails;
-  }, [leverage, optionScalpData, rawAmount, showAsQuote]);
+  }, [leverage, optionScalpData, rawAmount, showAsQuote, markPrice]);
 
   const handleLeverageChange = (event: any) => {
     setLeverage(event.target.value);

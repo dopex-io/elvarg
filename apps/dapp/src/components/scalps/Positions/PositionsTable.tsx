@@ -36,6 +36,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
     optionScalpData,
     updateOptionScalp,
     updateOptionScalpUserData,
+    uniPrice: markPrice,
   } = useBoundStore();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -56,7 +57,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       const _pnl = (Number(pnl) / Number(margin)) * 100;
 
       if (!optionScalpData) return;
-      const { baseSymbol, quoteSymbol, markPrice } = optionScalpData;
+      const { baseSymbol, quoteSymbol } = optionScalpData;
 
       if (!baseSymbol || !quoteSymbol || !markPrice) return;
 
@@ -81,7 +82,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         ],
       });
     },
-    [share, optionScalpData]
+    [share, optionScalpData, markPrice]
   );
 
   const handleClickMenu = useCallback(
