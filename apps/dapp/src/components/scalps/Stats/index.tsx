@@ -54,8 +54,6 @@ const Stats = () => {
     const { longOpenInterest, shortOpenInterest, quoteDecimals, markPrice } =
       optionScalpData;
 
-    console.log(longOpenInterest.toString(), shortOpenInterest.toString());
-
     const _totalLongs = longOpenInterest.mul(1e6).div(markPrice);
     const _totalShorts = shortOpenInterest.mul(1e6).div(markPrice);
 
