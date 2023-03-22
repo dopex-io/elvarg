@@ -46,11 +46,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
   const handleShare = useCallback(
     (position: any) => {
       const { entry, pnl, margin, positions } = position;
-      console.log(
-        Number(positions),
-        Number(entry.replace(',', '')),
-        Number(margin)
-      );
+   
       const leverage =
         (Number(positions) * Number(entry.replace(',', ''))) / Number(margin);
 
