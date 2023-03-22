@@ -59,8 +59,8 @@ const TradeCard = () => {
  
   const positionDetails = useMemo(() => {
     let _positionDetails = {
-      margin: '0',
-      size: '0',
+      sizeInQuote: 0,
+      marginInQuote: 0,
     };
 
     if (!optionScalpData) return _positionDetails;
@@ -70,15 +70,10 @@ const TradeCard = () => {
     let _markPrice = Number(markPrice) / 10 ** quoteDecimals.toNumber();
 
     _positionDetails = {
-      margin: formatAmount(
-        isNaN(parseFloat(rawAmount)) ? 0 : parseFloat(rawAmount) * _markPrice,
-        3
-      ),
-      size: formatAmount(
-        isNaN(parseFloat(rawAmount)) ? 0 : parseFloat(rawAmount) * leverage,
-        3
-      ),
+      marginInQuote: (parseFloat(rawAmount) ?? 0) * _markPrice,
+      sizeInQuote: (parseFloat(rawAmount) ?? 0 * _markPrice) * leverage,
     };
+
     return _positionDetails;
   }, [leverage, optionScalpData, rawAmount]);
 
@@ -87,13 +82,13 @@ const TradeCard = () => {
   };
 
   const posSize = useMemo(() => {
-    if (!optionScalpData) return BigNumber.from('0');
-
+    if (!optionScalpData || positionDetails.marginInQuote === 0)
+      return BigNumber.from('0');
     return getContractReadableAmount(
-      parseFloat(positionDetails.margin) * leverage,
+      (positionDetails.marginInQuote * leverage).toFixed(5),
       optionScalpData?.quoteDecimals!.toNumber()!
     );
-  }, [positionDetails.margin, leverage, optionScalpData]);
+  }, [positionDetails.marginInQuote, leverage, optionScalpData]);
 
   const calcPremium = useCallback(async () => {
     if (!optionScalpData) return;
@@ -135,15 +130,15 @@ const TradeCard = () => {
     if (!minMargin) return _props;
 
     if (!approved) _props.text = 'Approve';
-    else if (parseFloat(positionDetails.margin) == 0) {
+    else if (positionDetails.marginInQuote === 0) {
       _props.disabled = true;
       _props.text = 'Insert an Amount';
-    } else if (parseFloat(positionDetails.margin) < minMargin) {
+    } else if (positionDetails.marginInQuote < minMargin) {
       _props.disabled = true;
       _props.text =
         'Minium Margin ' + minMargin + ' ' + optionScalpData?.quoteSymbol;
     } else if (
-      parseFloat(positionDetails.margin) >
+      positionDetails.marginInQuote >
       getUserReadableAmount(
         userTokenBalance,
         optionScalpData.quoteDecimals.toNumber()
@@ -156,14 +151,13 @@ const TradeCard = () => {
     return _props;
   }, [
     approved,
-    positionDetails.margin,
+    positionDetails.marginInQuote,
     userTokenBalance,
     optionScalpData,
     selectedPoolName,
   ]);
 
   const liquidationPrice: number = useMemo(() => {
-    const _margin = parseFloat(positionDetails.margin);
     let _liquidationPrice = 0;
     const price = getUserReadableAmount(
       optionScalpData?.markPrice!,
@@ -174,15 +168,17 @@ const TradeCard = () => {
         posSize,
         optionScalpData?.quoteDecimals!.toNumber()!
       ) / price;
-    if (positions || _margin) {
+    if (positions || positionDetails.marginInQuote) {
       const minAbsThreshold = getUserReadableAmount(
         optionScalpData?.minimumAbsoluteLiquidationThreshold!,
         optionScalpData?.quoteDecimals!.toNumber()
       );
       if (isShortAfterAdjustments) {
-        _liquidationPrice = _margin / positions + minAbsThreshold + price;
+        _liquidationPrice =
+          positionDetails.marginInQuote / positions + minAbsThreshold + price;
       } else {
-        _liquidationPrice = price - _margin / positions - minAbsThreshold;
+        _liquidationPrice =
+          price - positionDetails.marginInQuote / positions - minAbsThreshold;
       }
     }
 
@@ -191,7 +187,7 @@ const TradeCard = () => {
     return _liquidationPrice;
   }, [
     isShortAfterAdjustments,
-    positionDetails.margin,
+    positionDetails.marginInQuote,
     posSize,
     optionScalpData,
   ]);
@@ -244,7 +240,7 @@ const TradeCard = () => {
           .div(BigNumber.from(1000))
       : optionScalpData
           .markPrice!.mul(BigNumber.from(1005))
-          .div(BigNumber.from(1000));
+        .div(BigNumber.from(1000));
 
     try {
       await sendTx(
@@ -255,7 +251,7 @@ const TradeCard = () => {
           posSize,
           timeframeIndex,
           getContractReadableAmount(
-            parseFloat(positionDetails.margin),
+            positionDetails.marginInQuote.toFixed(5),
             optionScalpData?.quoteDecimals!.toNumber()
           ),
           entryLimit,
@@ -275,7 +271,7 @@ const TradeCard = () => {
     updateOptionScalpUserData,
     sendTx,
     timeframeIndex,
-    positionDetails.margin,
+    positionDetails.marginInQuote,
     isShortAfterAdjustments,
   ]);
 
@@ -286,9 +282,10 @@ const TradeCard = () => {
     (async () => {
       if (!accountAddress || !signer || !optionScalpData?.optionScalpContract)
         return;
+      if (positionDetails.marginInQuote === 0) return;
 
       const finalAmount: BigNumber = getContractReadableAmount(
-        parseFloat(positionDetails.margin),
+        positionDetails.marginInQuote.toFixed(5),
         optionScalpData?.quoteDecimals!.toNumber()!
       );
       const token = ERC20__factory.connect(
@@ -307,7 +304,7 @@ const TradeCard = () => {
     contractAddresses,
     accountAddress,
     approved,
-    positionDetails.margin,
+    positionDetails.marginInQuote,
     signer,
     chainId,
     optionScalpData,
@@ -348,7 +345,9 @@ const TradeCard = () => {
               type="number"
               className="text-md text-white font-mono"
               value={rawAmount}
-              onChange={(e) => setRawAmount(e.target.value)}
+              onChange={(e) =>
+                setRawAmount(e.target.value === '' ? '0' : e.target.value)
+              }
               classes={{ input: 'text-right' }}
             />
             <Typography variant="h6" className="text-stieglitz mr-3 ml-1 mb-1">
@@ -369,8 +368,7 @@ const TradeCard = () => {
             <Typography
               variant="h6"
               onClick={handleMax}
-              className="text-stieglitz text-sm pl-1 pr-3 text-[12px] underline"
-              role="button"
+              className="text-stieglitz text-sm pl-1 pr-3 text-[12px]"
             >
               Balance ~{' '}
               {formatAmount(
@@ -451,7 +449,8 @@ const TradeCard = () => {
                 variant="h6"
                 className="text-white mr-auto ml-0 text-[0.8rem]"
               >
-                {positionDetails.margin} {optionScalpData?.quoteSymbol}
+                {formatAmount(positionDetails.marginInQuote, 3)}{' '}
+                {optionScalpData?.quoteSymbol}
               </Typography>
             </Box>
           </Box>
@@ -467,7 +466,8 @@ const TradeCard = () => {
                 variant="h6"
                 className="text-white mr-auto ml-0 text-[0.8rem]"
               >
-                {positionDetails.size} {selectedPoolName}
+                {formatAmount(positionDetails.sizeInQuote, 3)}{' '}
+                {selectedPoolName}
               </Typography>
             </Box>
           </Box>
