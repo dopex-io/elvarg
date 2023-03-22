@@ -83,12 +83,7 @@ export const createSsovLending: StateCreator<
     const lendingUrl = `${DOPEX_API_BASE_URL}/v2/lending`;
 
     const lendingData: ISsovLendingData[] = await axios
-      .get(lendingUrl, {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'X-Requested-With': 'XMLHttpRequest',
-        },
-      })
+      .get(lendingUrl)
       .then((payload) => payload.data[chainId])
       .catch((err) => console.log(err));
 
