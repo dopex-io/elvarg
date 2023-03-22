@@ -18,7 +18,7 @@ export const CHAINS: {
     publicRpc: 'https://mainnet.infura.io/v3',
     explorer: 'https://etherscan.io/',
     nativeToken: 'ETH',
-    icon: 'images/tokens/eth.svg',
+    icon: '/images/tokens/eth.svg',
     tokenDecimals: {
       USDT: 6,
       USDC: 6,
@@ -32,7 +32,7 @@ export const CHAINS: {
     publicRpc: 'https://polygon-mainnet.infura.io/v3',
     explorer: 'https://polygonscan.com/',
     nativeToken: 'MATIC',
-    icon: 'images/tokens/matic.svg',
+    icon: '/images/tokens/matic.svg',
     tokenDecimals: {
       USDT: 6,
       USDC: 6,
@@ -46,7 +46,7 @@ export const CHAINS: {
     publicRpc: 'http://127.0.0.1:8545',
     explorer: '',
     nativeToken: 'ETH',
-    icon: 'images/tokens/eth.svg',
+    icon: '/images/tokens/eth.svg',
     tokenDecimals: {
       USDT: 6,
       USDC: 6,
@@ -60,7 +60,7 @@ export const CHAINS: {
     publicRpc: 'https://arbitrum-mainnet.infura.io/v3',
     explorer: 'https://arbiscan.io/',
     nativeToken: 'ETH',
-    icon: 'images/networks/arbitrum.svg',
+    icon: '/images/networks/arbitrum.svg',
     tokenDecimals: {
       USDT: 6,
       USDC: 6,
@@ -74,7 +74,7 @@ export const CHAINS: {
     publicRpc: 'https://arbitrum-goerli.infura.io/v3',
     explorer: 'https://testnet.arbiscan.io/',
     nativeToken: 'ETH',
-    icon: 'images/networks/arbitrum.svg',
+    icon: '/images/networks/arbitrum.svg',
     tokenDecimals: {
       USDT: 6,
       USDC: 6,
