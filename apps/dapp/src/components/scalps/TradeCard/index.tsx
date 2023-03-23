@@ -346,13 +346,12 @@ const TradeCard = () => {
         ).toString()
       );
 
-      console.log('userTokenBalance', userTokenBalance.toString());
     },
     [optionScalpData, showAsQuote, userTokenBalance, leverage, premium, posSize]
   );
 
   return (
-    <Box className="px-4">
+    <Box className="px-4 pb-4">
       <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
         <Box className="w-full flex items-center justify-center px-3">
           <p className="text-xs text-stieglitz mr-2 ml-auto">
@@ -513,10 +512,11 @@ const TradeCard = () => {
                 {formatAmount(
                   getUserReadableAmount(
                     isShort
-                      ? optionScalpData?.totalBaseAvailable!
-                      : optionScalpData!.totalQuoteAvailable
-                          .mul(1e6)
-                          .div(markPrice.isZero() ? 1 : markPrice),
+                      ? optionScalpData?.totalBaseAvailable ?? BigNumber.from(0)
+                      : optionScalpData?.totalQuoteAvailable ??
+                          BigNumber.from(0)
+                            .mul(1e6)
+                            .div(markPrice.isZero() ? 1 : markPrice),
                     isShort
                       ? optionScalpData?.baseDecimals!.toNumber()!
                       : optionScalpData?.quoteDecimals!.toNumber()!

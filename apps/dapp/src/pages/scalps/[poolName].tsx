@@ -126,7 +126,7 @@ const OptionScalps = ({ poolName }: Props) => {
           <title>Option Scalps | Dopex</title>
         </Head>
         <AppBar active="Scalps" />
-        <Box className="px-2 pt-5 ">
+        <Box className="px-2 pt-8 ">
           <Box className="mt-8 sm:mt-14 lg:mr-full">
             <TopBar />
           </Box>
