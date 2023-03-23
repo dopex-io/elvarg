@@ -513,17 +513,17 @@ const TradeCard = () => {
                 {formatAmount(
                   getUserReadableAmount(
                     isShort
-                      ? optionScalpData?.totalQuoteAvailable!
-                      : optionScalpData?.totalBaseAvailable!,
+                      ? optionScalpData?.totalBaseAvailable!
+                      : optionScalpData!.totalQuoteAvailable
+                          .mul(1e6)
+                          .div(markPrice.isZero() ? 1 : markPrice),
                     isShort
-                      ? optionScalpData?.quoteDecimals!.toNumber()!
-                      : optionScalpData?.baseDecimals!.toNumber()!
+                      ? optionScalpData?.baseDecimals!.toNumber()!
+                      : optionScalpData?.quoteDecimals!.toNumber()!
                   ),
                   2
                 )}{' '}
-                {isShort
-                  ? optionScalpData?.quoteSymbol!
-                  : optionScalpData?.baseSymbol!}
+                {optionScalpData?.baseSymbol!}
               </Typography>
             </Box>
           </Box>
