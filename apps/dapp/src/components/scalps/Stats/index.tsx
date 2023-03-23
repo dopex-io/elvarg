@@ -6,8 +6,6 @@ import { ethers } from 'ethers';
 import Box from '@mui/material/Box';
 import { useBoundStore } from 'store';
 
-import Typography from 'components/UI/Typography';
-
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
@@ -79,82 +77,62 @@ const Stats = () => {
   }, [optionScalpData]);
 
   return (
-    <Box className="flex my-[2rem] justify-center items-center space-x-5">
-      <Box className="ml-5">
-        <Typography variant="h5">
-          <span className="text-white h-6 text-[0.8rem] flex items-center justify-center mr-2">
-            <img
-              className="w-9 h-6 mt-1"
-              src={`/images/tokens/${optionScalpData?.quoteSymbol!.toLowerCase()}.svg`}
-              alt={optionScalpData?.quoteSymbol!}
-            />
+    <Box className="flex mt-[2rem] justify-center items-center">
+      <Box className="flex flex-row space-x-3">
+        <Box>
+          <span className="text-white  text-[0.5rem] sm:text-[0.8rem] flex">
             {markPrice}
           </span>
-        </Typography>
-      </Box>
-      <Box className="flex flex-row space-x-5">
-        <Box>
-          <Typography variant="h6">
-            <span className="text-white  text-[0.75rem] flex">
-              {stats.openInterest} {selectedPoolName}
-            </span>
-          </Typography>
-          <Typography variant="h6">
-            <span className="text-stieglitz  text-[0.75rem] flex">
-              Open Interest
-            </span>
-          </Typography>
+          <span className="text-stieglitz  text-[0.5rem] sm:text-[0.8rem] flex">
+            Mark Price
+          </span>
         </Box>
         <Box>
-          <Typography variant="h6">
-            <span className="text-white  text-[0.75rem] flex">
-              {stats.totalLongs} {selectedPoolName}
-            </span>
-          </Typography>
-          <Typography variant="h6">
-            <span className="text-stieglitz  text-[0.75rem] flex">
-              Total Long
-            </span>
-          </Typography>
+          <span className="text-white  text-[0.5rem] sm:text-[0.8rem] flex">
+            {stats.openInterest} {selectedPoolName}
+          </span>
+          <span className="text-stieglitz  text-[0.5rem] sm:text-[0.8rem] flex">
+            Open Interest
+          </span>
         </Box>
         <Box>
-          <Typography variant="h6">
-            <span className="text-white  text-[0.75rem] flex">
-              {stats.totalShorts} {selectedPoolName}
-            </span>
-          </Typography>
-          <Typography variant="h6">
-            <span className="text-stieglitz  text-[0.75rem] flex">
-              Total Short
-            </span>
-          </Typography>
+          <span className="text-white  text-[0.5rem] sm:text-[0.8rem] flex">
+            {stats.totalLongs} {selectedPoolName}
+          </span>
+          <span className="text-stieglitz  text-[0.5rem] sm:text-[0.8rem] flex">
+            Total Long
+          </span>
         </Box>
         <Box>
-          <Typography variant="h6">
-            <span className="text-white  text-[0.75rem] flex">
-              {formatAmount(
-                getUserReadableAmount(
-                  optionScalpData?.totalBaseDeposits!,
-                  optionScalpData?.baseDecimals!.toNumber()
-                ),
-                0
-              )}{' '}
-              {optionScalpData?.baseSymbol} /{' '}
-              {formatAmount(
-                getUserReadableAmount(
-                  optionScalpData?.totalQuoteDeposits!,
-                  optionScalpData?.quoteDecimals!.toNumber()
-                ),
-                0
-              )}{' '}
-              {optionScalpData?.quoteSymbol}
-            </span>
-          </Typography>
-          <Typography variant="h6">
-            <span className="text-stieglitz  text-[0.75rem] flex">
-              Total Deposits
-            </span>
-          </Typography>
+          <span className="text-white  text-[0.5rem] sm:text-[0.8rem] flex">
+            {stats.totalShorts} {selectedPoolName}
+          </span>
+          <span className="text-stieglitz  text-[0.5rem] sm:text-[0.8rem] flex">
+            Total Short
+          </span>
+        </Box>
+        <Box>
+          <span className="text-white  text-[0.5rem] sm:text-[0.8rem] flex">
+            {formatAmount(
+              getUserReadableAmount(
+                optionScalpData?.totalBaseDeposits!,
+                optionScalpData?.baseDecimals!.toNumber()
+              ),
+              0
+            )}{' '}
+            {optionScalpData?.baseSymbol} /{' '}
+            {formatAmount(
+              getUserReadableAmount(
+                optionScalpData?.totalQuoteDeposits!,
+                optionScalpData?.quoteDecimals!.toNumber()
+              ),
+              0
+            )}{' '}
+            {optionScalpData?.quoteSymbol}
+          </span>
+          <span className="text-stieglitz  text-[0.5rem] sm:text-[0.8rem] flex">
+            Total Deposits
+          </span>
         </Box>
       </Box>
     </Box>
