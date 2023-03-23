@@ -2936,6 +2936,7 @@ export const createOptionScalpSlice: StateCreator<
   updateOptionScalpUserData: async () => {
     const {
       accountAddress,
+      provider,
       getOptionScalpContract,
       getScalpPosition,
       calcPnl,
@@ -2945,14 +2946,36 @@ export const createOptionScalpSlice: StateCreator<
     const optionScalpContract = await getOptionScalpContract();
 
     let scalpPositionsIndexes: any = [];
+    let positionsOfOwner: any = [];
 
     try {
-      scalpPositionsIndexes = await optionScalpContract['positionsOfOwner'](
+      positionsOfOwner = await optionScalpContract['positionsOfOwner'](
         accountAddress
       );
+
+      for (let i in positionsOfOwner)
+        scalpPositionsIndexes.push(positionsOfOwner[i]);
     } catch (err) {}
 
     const scalpPositionsPromises: any[] = [];
+
+    const blockNumber = await provider.getBlockNumber();
+
+    const events = await optionScalpContract?.queryFilter(
+      optionScalpContract.filters.OpenPosition(null, null, null),
+      72264883,
+      blockNumber
+    );
+
+    for (let i in events) {
+      if (
+        scalpPositionsIndexes.indexOf(events[i]['args'][0]) < 0 &&
+        scalpPositionsIndexes.indexOf(events[i]['args'][2] === accountAddress)
+      ) {
+        scalpPositionsIndexes.push(events[i]['args'][0]);
+      }
+    }
+
     const pnlsPromises: any[] = [];
     const liquidationPricesPromises: any[] = [];
 

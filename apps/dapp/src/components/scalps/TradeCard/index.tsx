@@ -503,6 +503,35 @@ const TradeCard = () => {
               variant="h6"
               className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
             >
+              Available Liquidity
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography
+                variant="h6"
+                className="text-white mr-auto ml-0 text-[0.8rem]"
+              >
+                {formatAmount(
+                  getUserReadableAmount(
+                    isShort
+                      ? optionScalpData?.totalBaseAvailable!
+                      : optionScalpData!.totalQuoteAvailable
+                          .mul(1e6)
+                          .div(markPrice.isZero() ? 1 : markPrice),
+                    isShort
+                      ? optionScalpData?.baseDecimals!.toNumber()!
+                      : optionScalpData?.quoteDecimals!.toNumber()!
+                  ),
+                  2
+                )}{' '}
+                {optionScalpData?.baseSymbol!}
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={'flex mb-2'}>
+            <Typography
+              variant="h6"
+              className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
+            >
               Margin
             </Typography>
             <Box className={'text-right'}>
@@ -512,23 +541,6 @@ const TradeCard = () => {
               >
                 {formatAmount(positionDetails.marginInQuote, 3)}{' '}
                 {optionScalpData?.quoteSymbol}
-              </Typography>
-            </Box>
-          </Box>
-          <Box className={'flex mb-2'}>
-            <Typography
-              variant="h6"
-              className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
-            >
-              Pos. Size
-            </Typography>
-            <Box className={'text-right'}>
-              <Typography
-                variant="h6"
-                className="text-white mr-auto ml-0 text-[0.8rem]"
-              >
-                {formatAmount(positionDetails.sizeInQuote, 3)}{' '}
-                {showAsQuote ? optionScalpData?.quoteSymbol : selectedPoolName}
               </Typography>
             </Box>
           </Box>

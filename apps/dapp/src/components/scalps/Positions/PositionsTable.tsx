@@ -46,7 +46,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
   const handleShare = useCallback(
     (position: any) => {
       const { entry, pnl, margin, positions } = position;
-   
+
       const leverage =
         (Number(positions) * Number(entry.replace(',', ''))) / Number(margin);
 
@@ -293,7 +293,12 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                         }
                       >
                         {optionScalpData?.quoteSymbol}{' '}
-                        {formatAmount(position.pnl, 5)}
+                        {formatAmount(position.pnl, 5)} ({' '}
+                        {formatAmount(
+                          (position.pnl / position.margin) * 100,
+                          2
+                        )}
+                        %)
                       </span>
                     </Tooltip>
                   </Typography>
@@ -304,7 +309,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                     color="white"
                     className="text-left text-[0.8rem]"
                   >
-                    {optionScalpData?.quoteSymbol} {position.margin}
+                    {optionScalpData?.quoteSymbol} {position.margin}{' '}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">

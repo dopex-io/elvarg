@@ -72,7 +72,7 @@ const WithdrawCard = () => {
     else if (amount == 0) return 'Insert an amount';
     else if (amount > readableUserTokenBalance) return 'Amount exceeds balance';
     return 'Withdraw';
-  }, [amount, readableUserTokenBalance, approved, optionScalpData]);
+  }, [amount, readableUserTokenBalance, approved]);
 
   const handleApprove = useCallback(async () => {
     if (!optionScalpData?.optionScalpContract || !signer || !contractAddresses)
@@ -198,11 +198,11 @@ const WithdrawCard = () => {
   ]);
 
   return (
-    <Box className="mt-4">
+    <Box className="">
       <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
         <p className="text-[1rem] mb-3">Withdraw</p>
         <Box className="flex flex-row justify-between">
-          <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
+          <Box className="h-12 bg-cod-gray rounded-full flex flex-row items-center">
             <Box className="flex flex-row h-8 w-auto p-1 pl-3 pr-2">
               <Typography
                 variant="h6"
@@ -271,7 +271,42 @@ const WithdrawCard = () => {
               variant="h6"
               className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
             >
-              Available to withdraw
+              Locked
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography
+                variant="h6"
+                className="text-white mr-auto ml-0 text-[0.8rem]"
+              >
+                {formatAmount(
+                  getUserReadableAmount(
+                    isQuote
+                      ? optionScalpData!.totalQuoteDeposits!.sub(
+                          optionScalpData!.totalQuoteAvailable!
+                        )
+                      : optionScalpData!.totalBaseDeposits!.sub(
+                          optionScalpData!.totalBaseAvailable!
+                        ),
+                    isQuote
+                      ? optionScalpData?.quoteDecimals!.toNumber()!
+                      : optionScalpData?.baseDecimals!.toNumber()
+                  ),
+                  0
+                )}{' '}
+                {isQuote
+                  ? optionScalpData?.quoteSymbol
+                  : optionScalpData?.baseSymbol}
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+        <Box className="flex flex-col mb-1 p-4 pb-0 w-full">
+          <Box className={'flex'}>
+            <Typography
+              variant="h6"
+              className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
+            >
+              Available
             </Typography>
             <Box className={'text-right'}>
               <Typography
