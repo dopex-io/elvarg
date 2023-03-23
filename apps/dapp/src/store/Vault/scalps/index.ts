@@ -2970,7 +2970,7 @@ export const createOptionScalpSlice: StateCreator<
     for (let i in events) {
       if (
         scalpPositionsIndexes.indexOf(events[i]['args'][0]) < 0 &&
-        scalpPositionsIndexes.indexOf(events[i]['args'][2] === accountAddress)
+        events[i]['args'][2] === accountAddress
       ) {
         scalpPositionsIndexes.push(events[i]['args'][0]);
       }

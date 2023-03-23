@@ -25,7 +25,6 @@ import { TableHeader } from 'components/straddles/Deposits/DepositsTable';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import { getContractReadableAmount } from 'utils/contracts';
 
 const PositionsTable = ({ tab }: { tab: string }) => {
   const sendTx = useSendTx();
@@ -154,27 +153,20 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           quoteDecimals.toNumber()
         );
 
-        const closePrice = formatAmount(
-          getUserReadableAmount(
-            position.isShort
-              ? position.entry.sub(
-                  position.pnl
-                    .mul(
-                      getContractReadableAmount(quoteDecimals.toNumber(), 10)
-                    )
-                    .div(position.positions.abs())
-                )
-              : position.entry.add(
-                  position.pnl
-                    .mul(
-                      getContractReadableAmount(quoteDecimals.toNumber(), 10)
-                    )
-                    .div(position.positions.abs())
-                ),
-            quoteDecimals.toNumber()
-          ),
-          5
-        );
+        const closePrice = getUserReadableAmount(
+          position.isShort
+            ? position.entry.sub(
+                position.pnl
+                  .mul(10 ** optionScalpData!.quoteDecimals!.toNumber())
+                  .div(position.positions.abs())
+              )
+            : position.entry.add(
+                position.pnl
+                  .mul(10 ** optionScalpData!.quoteDecimals!.toNumber())
+                  .div(position.positions.abs())
+              ),
+          optionScalpData?.quoteDecimals!.toNumber()!
+        ).toFixed(2);
 
         const margin = formatAmount(
           getUserReadableAmount(position.margin, quoteDecimals.toNumber()),
@@ -216,7 +208,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
             <TableRow>
               <TableHeader label="Pos. Size" showArrowIcon />
               <TableHeader label="Average Open Price" />
-              <TableHeader label="Liq. Price" />
+              {tab === 'Open' ? <TableHeader label="Liq. Price" /> : null}
               <TableHeader label="PnL" />
               <TableHeader label="Margin" />
               <TableHeader label="Premium" />
@@ -275,15 +267,17 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                     {position.entry}
                   </Typography>
                 </TableCell>
-                <TableCell className="pt-1 border-0">
-                  <Typography
-                    variant="h6"
-                    color="white"
-                    className="text-left text-[0.8rem]"
-                  >
-                    {position.liquidationPrice}
-                  </Typography>
-                </TableCell>
+                {tab === 'Open' ? (
+                  <TableCell className="pt-1 border-0">
+                    <Typography
+                      variant="h6"
+                      color="white"
+                      className="text-left text-[0.8rem]"
+                    >
+                      {position.liquidationPrice}
+                    </Typography>
+                  </TableCell>
+                ) : null}
                 <TableCell className="pt-1 border-0">
                   <Typography variant="h6" className="text-left text-[0.8rem]">
                     <Tooltip title={position.pnl}>
@@ -295,7 +289,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                         {optionScalpData?.quoteSymbol}{' '}
                         {formatAmount(position.pnl, 5)} ({' '}
                         {formatAmount(
-                          (position.pnl / position.margin) * 100,
+                          (position.pnl / parseFloat(position.margin)) * 100,
                           2
                         )}
                         %)
