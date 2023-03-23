@@ -2954,7 +2954,7 @@ export const createOptionScalpSlice: StateCreator<
       );
 
       for (let i in positionsOfOwner)
-        scalpPositionsIndexes.push(positionsOfOwner[i]);
+        scalpPositionsIndexes.push(positionsOfOwner[i].toNumber());
     } catch (err) {}
 
     const scalpPositionsPromises: any[] = [];
@@ -2969,7 +2969,7 @@ export const createOptionScalpSlice: StateCreator<
 
     for (let i in events) {
       if (
-        scalpPositionsIndexes.indexOf(events[i]['args'][0]) < 0 &&
+        !scalpPositionsIndexes.includes(Number(events[i]['args'][0])) &&
         events[i]['args'][2] === accountAddress
       ) {
         scalpPositionsIndexes.push(events[i]['args'][0]);
@@ -2998,7 +2998,9 @@ export const createOptionScalpSlice: StateCreator<
     scalpPositions = scalpPositions.map((position, index) => ({
       ...position,
       id: scalpPositionsIndexes[index],
-      pnl: pnls[index]!.sub(position.premium).sub(position.fees),
+      pnl: (position.isOpen ? pnls[index]! : position.pnl)
+        .sub(position.premium)
+        .sub(position.fees),
       liquidationPrice: liquidationPrices[index]!,
     }));
 
