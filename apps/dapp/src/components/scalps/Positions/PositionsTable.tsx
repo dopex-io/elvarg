@@ -297,7 +297,8 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                         }
                       >
                         {optionScalpData?.quoteSymbol}{' '}
-                        {formatAmount(position.pnl, 5)}
+                        {formatAmount(position.pnl, 5)} ({' '}
+                        {(position.pnl / position.margin) * 100}%)
                       </span>
                     </Tooltip>
                   </Typography>
@@ -308,7 +309,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                     color="white"
                     className="text-left text-[0.8rem]"
                   >
-                    {optionScalpData?.quoteSymbol} {position.margin}
+                    {optionScalpData?.quoteSymbol} {position.margin}{' '}
                   </Typography>
                 </TableCell>
                 <TableCell className="pt-1 border-0">

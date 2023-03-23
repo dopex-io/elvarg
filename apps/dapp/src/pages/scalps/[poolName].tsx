@@ -154,7 +154,7 @@ const OptionScalps = ({ poolName }: Props) => {
               </ButtonGroup>
               {manageSection === 'Trade' ? (
                 <Box className="bg-cod-gray rounded-b-xl p-2">
-                  <TradeCard />{' '}
+                  <TradeCard />
                 </Box>
               ) : (
                 <Manage />
