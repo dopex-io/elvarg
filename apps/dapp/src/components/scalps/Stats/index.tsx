@@ -15,7 +15,10 @@ const Stats = () => {
   const { optionScalpData, selectedPoolName, uniPrice } = useBoundStore();
 
   const markPrice = useMemo(() => {
-    if (selectedPoolName.toUpperCase() === 'ETH')
+    if (
+      selectedPoolName.toUpperCase() === 'ETH' ||
+      selectedPoolName.toUpperCase() === 'ARB'
+    )
       return (
         <Box>
           {formatAmount(

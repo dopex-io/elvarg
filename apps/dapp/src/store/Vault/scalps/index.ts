@@ -3060,9 +3060,13 @@ export const createOptionScalpSlice: StateCreator<
     ]);
 
     const quoteDecimals: BigNumber =
-      selectedPoolName === 'ETH' ? BigNumber.from('6') : BigNumber.from('18');
+      selectedPoolName === 'ETH' || selectedPoolName === 'ARB'
+        ? BigNumber.from('6')
+        : BigNumber.from('18');
     const baseDecimals: BigNumber =
-      selectedPoolName === 'ETH' ? BigNumber.from('18') : BigNumber.from('8');
+      selectedPoolName === 'ETH' || selectedPoolName === 'ARB'
+        ? BigNumber.from('18')
+        : BigNumber.from('8');
 
     const quoteLpValue: BigNumber = quoteSupply.gt(0)
       ? BigNumber.from((10 ** quoteDecimals.toNumber()).toString())
@@ -3075,6 +3079,21 @@ export const createOptionScalpSlice: StateCreator<
           .mul(totalBaseDeposits)
           .div(baseSupply)
       : BigNumber.from('0');
+
+    let quoteSymbol: string;
+    let baseSymbol: string;
+
+    if (selectedPoolName === 'ETH' || selectedPoolName === 'ARB') {
+      quoteSymbol = 'USDC';
+    }
+
+    if (selectedPoolName === 'ETH') {
+      baseSymbol = 'ETH';
+    }
+
+    if (selectedPoolName === 'ARB') {
+      baseSymbol = 'ETH';
+    }
 
     set((prevState) => ({
       ...prevState,
@@ -3099,8 +3118,8 @@ export const createOptionScalpSlice: StateCreator<
         baseLpValue: baseLpValue,
         quoteDecimals: quoteDecimals,
         baseDecimals: baseDecimals,
-        quoteSymbol: selectedPoolName === 'ETH' ? 'USDC' : 'WETH',
-        baseSymbol: selectedPoolName === 'ETH' ? 'WETH' : 'WBTC',
+        quoteSymbol: quoteSymbol,
+        baseSymbol: baseSymbol,
         inverted: selectedPoolName === 'BTC',
       },
     }));
