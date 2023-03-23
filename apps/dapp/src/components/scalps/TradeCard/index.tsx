@@ -319,8 +319,40 @@ const TradeCard = () => {
     setShowAsQuote(event.target.checked);
   }, []);
 
+  const setSelectedMargin = useCallback(
+    (option: number) => {
+      if (!optionScalpData) return;
+      const { markPrice, quoteDecimals } = optionScalpData;
+      if (!markPrice || !quoteDecimals) return;
+
+      const fee =
+        getUserReadableAmount(
+          posSize,
+          optionScalpData?.quoteDecimals!.toNumber()
+        ) * getUserReadableAmount(optionScalpData?.feeOpenPosition!, 10);
+
+      const _premium = getUserReadableAmount(premium, quoteDecimals.toNumber());
+
+      const balance = getUserReadableAmount(
+        userTokenBalance,
+        quoteDecimals.toNumber()
+      );
+      const price = showAsQuote ? 1 : Number(markPrice) / 1e6;
+
+      setRawAmount(
+        (
+          (((balance - _premium - fee) / price) * leverage * option) /
+          100
+        ).toString()
+      );
+
+      console.log('userTokenBalance', userTokenBalance.toString());
+    },
+    [optionScalpData, showAsQuote, userTokenBalance, leverage, premium, posSize]
+  );
+
   return (
-    <Box className="h-fit-content">
+    <Box className="h-fit-content w-min-30">
       <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
         <Box className="w-full flex items-center justify-center px-3">
           <p className="text-xs text-stieglitz mr-2 ml-auto">
@@ -335,8 +367,8 @@ const TradeCard = () => {
           />
         </Box>
         <Box className="flex flex-row justify-between">
-          <Box className="h-8 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
-            <Box className="flex flex-row h-8 w-auto p-1 pl-3 pr-2">
+          <Box className="bg-cod-gray rounded-full pl-1 pr-1 flex pb-2 flex-row items-center">
+            <Box className="flex flex-row w-auto p-1 pl-3 pr-2">
               <p
                 className={cx(
                   'text-[0.8rem] mt-1 cursor-pointer hover:opacity-50',
@@ -347,7 +379,7 @@ const TradeCard = () => {
                 Long
               </p>
             </Box>
-            <Box className="flex flex-row h- w-auto p-1 pr-3 pl-2">
+            <Box className="flex flex-row w-auto p-1 pr-3 pl-2">
               <p
                 className={cx(
                   'text-[0.8rem] mt-1 cursor-pointer hover:opacity-50',
@@ -376,14 +408,30 @@ const TradeCard = () => {
             </Typography>
           </Box>
         </Box>
-        <Box className="flex flex-row justify-between mt-2">
-          <Box className="ml-auto mr-0">
+        <Box className="flex flex-row justify-between items-center mt-2">
+          <Box className=" flex mr-2 border border-mineshaft rounded-md ">
+            {[10, 25, 50, 75, 100].map((option, i) => (
+              <Box
+                key={i}
+                className={`text-center w-auto cursor-pointer group hover:bg-mineshaft hover:opacity-80`}
+                onClick={() => setSelectedMargin(option)}
+              >
+                <Typography
+                  variant="h6"
+                  className="text-xs font-light py-2 px-2"
+                >
+                  {option}%
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+
+          <Box className="ml-auto mr-0 flex">
             <Typography
               variant="h6"
               onClick={handleMax}
-              className="text-stieglitz text-sm pl-1 pr-3 text-[12px]"
+              className="text-stieglitz text-xs font-light pl-1 pr-3 text-[12px]"
             >
-              Balance ~{' '}
               {formatAmount(
                 getUserReadableAmount(
                   userTokenBalance,
