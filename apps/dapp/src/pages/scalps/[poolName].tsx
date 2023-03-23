@@ -74,9 +74,7 @@ const OptionScalps = ({ poolName }: Props) => {
     return (
       <TradingViewChart
         symbol={
-          selectedPoolName === 'ETH'
-            ? 'UNISWAP3ARBITRUM:WETHUSDC'
-            : 'BINANCE:ETHBTC'
+          selectedPoolName === 'ETH' ? 'UNISWAP3ARBITRUM:WETHUSDC' : 'ARBUSDC'
         }
       />
     );
@@ -104,7 +102,9 @@ const OptionScalps = ({ poolName }: Props) => {
 
   useEffect(() => {
     const ws = new WebSocket(
-      'wss://io.dexscreener.com/dex/screener/pair/arbitrum/0xc31e54c7a869b9fcbecc14363cf510d1c41fa443'
+      selectedPoolName === 'ETH'
+        ? 'wss://io.dexscreener.com/dex/screener/pair/arbitrum/0xc31e54c7a869b9fcbecc14363cf510d1c41fa443'
+        : 'wss://io.dexscreener.com/dex/screener/pair/arbitrum/0xa8328bf492ba1b77ad6381b3f7567d942b000baf'
     );
 
     ws.onmessage = function (event) {
@@ -117,7 +117,7 @@ const OptionScalps = ({ poolName }: Props) => {
         console.log(err);
       }
     };
-  }, [setUniPrice]);
+  }, [setUniPrice, selectedPoolName]);
 
   return (
     <>

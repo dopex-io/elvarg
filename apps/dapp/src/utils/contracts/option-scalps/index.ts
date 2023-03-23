@@ -1,7 +1,6 @@
-
-type ScalpPools = 'ETH' | 'BTC' | string
+type ScalpPools = 'ETH' | 'BTC' | string;
 export const MINIMUM_MARGIN: Record<ScalpPools, number> = {
-    'ETH': 10,
-    'BTC': 0.0005
-}
-
+  ETH: 10,
+  BTC: 0.0005,
+  ARB: 10,
+};

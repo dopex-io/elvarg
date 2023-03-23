@@ -375,7 +375,7 @@ const TradeCard = () => {
                 )}
                 onClick={() => setIsShort(false)}
               >
-                Long
+                Call
               </p>
             </Box>
             <Box className="flex flex-row w-auto p-1 pr-3 pl-2">
@@ -386,7 +386,7 @@ const TradeCard = () => {
                 )}
                 onClick={() => setIsShort(true)}
               >
-                Short
+                Put
               </p>
             </Box>
           </Box>
