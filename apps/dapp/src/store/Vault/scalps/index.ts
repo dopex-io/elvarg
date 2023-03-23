@@ -3092,7 +3092,7 @@ export const createOptionScalpSlice: StateCreator<
     }
 
     if (selectedPoolName === 'ARB') {
-      baseSymbol = 'ETH';
+      baseSymbol = 'ARB';
     }
 
     set((prevState) => ({
