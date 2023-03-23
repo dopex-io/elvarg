@@ -96,7 +96,7 @@ const OptionScalps = ({ poolName }: Props) => {
       </Head>
       <AppBar active="Scalps" />
       {optionScalpData?.markPrice ? (
-        <Box className="flex lg:flex-row md:flex-col sm:flex-col items-center  mx-auto h-full lg:px-20">
+        <Box className="flex lg:flex-row md:flex-col sm:flex-col  mx-auto h-full lg:px-20 items-center justify-center">
           {/* TV, STATS, POSITIONS */}
           <Box className="w-[80rem] flex flex-col mt-[7rem]">
             <Box>
