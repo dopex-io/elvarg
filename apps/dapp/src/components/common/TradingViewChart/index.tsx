@@ -1,4 +1,5 @@
 import dynamic from 'next/dynamic';
+import { SingleChartProps } from './SingleChart';
 
 type ChartType = {
   symbol: string;
@@ -9,11 +10,7 @@ const Chart = dynamic<ChartType>(() => import('./SingleChart.tsx'), {
   ssr: false,
 });
 
-interface Props {
-  symbol: string;
-}
-
-const TradingViewChart = (props: Props) => {
+const TradingViewChart = (props: SingleChartProps) => {
   return <Chart symbol={props.symbol} />;
 };
 
