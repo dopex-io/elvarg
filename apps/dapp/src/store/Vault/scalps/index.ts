@@ -1172,8 +1172,8 @@ export const createOptionScalpSlice: StateCreator<
 
     return new ethers.Contract(
       selectedPoolName === 'ETH'
-        ? '0xeDe5aD2D3c1E774DFE3EAb2CAFecF2e8347c9635'
-        : '0x',
+        ? '0xAba7a4cF6CFAd82bc31FfE08944dA79cAb715A85'
+        : '0x165584c98A95e77124736307F1Dee6a1DB5b3C49',
       abi,
       provider
     );
@@ -2039,8 +2039,8 @@ export const createOptionScalpSlice: StateCreator<
 
     return new ethers.Contract(
       selectedPoolName === 'ETH'
-        ? '0x7e9c9b61df3ab2d182d6686b5de2a9ee3e401609'
-        : '0x',
+        ? '0x547538e8cedcbcfe2562dcb72bfbe05276ecac04'
+        : '0x677eed6f072a1534bcdc38bf80533afa02ab18d9',
       abi,
       provider
     );
@@ -2906,8 +2906,8 @@ export const createOptionScalpSlice: StateCreator<
 
     return new ethers.Contract(
       selectedPoolName === 'ETH'
-        ? '0x23e115dbc797ee28eef70d02e0d711fa9f4b5f0a'
-        : '0x',
+        ? '0xf2b524c725a8bd3f22849ed100d4865c410af26c'
+        : '0xcd79a76411ee65e33cfb97a4e2223bfb19e4a31e',
       abi,
       provider
     );
@@ -2953,16 +2953,19 @@ export const createOptionScalpSlice: StateCreator<
         accountAddress
       );
 
-      for (let i in positionsOfOwner)
+      for (let i in positionsOfOwner) {
         scalpPositionsIndexes.push(positionsOfOwner[i].toNumber());
-    } catch (err) {}
+      }
+    } catch (err) {
+      console.log(err);
+    }
 
     const scalpPositionsPromises: any[] = [];
 
     const blockNumber = await provider.getBlockNumber();
 
     const events = await optionScalpContract?.queryFilter(
-      optionScalpContract.filters.OpenPosition(null, null, null),
+      optionScalpContract.filters.OpenPosition(null, null, accountAddress),
       72264883,
       blockNumber
     );

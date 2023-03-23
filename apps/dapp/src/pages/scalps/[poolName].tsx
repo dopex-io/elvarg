@@ -64,13 +64,13 @@ const OptionScalps = ({ poolName }: Props) => {
     updateAll();
   }, [updateAll]);
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     updateAll();
-  //   }, 3000);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      updateAll();
+    }, 3000);
 
-  //   return () => clearInterval(interval);
-  // }, []);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const ws = new WebSocket(
