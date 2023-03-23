@@ -123,6 +123,11 @@ const TradeCard = () => {
     calcPremium();
   }, [calcPremium]);
 
+  const handleInputChange = useCallback((e: any) => {
+    if (parseFloat(e.target.value) < 0) return;
+    setRawAmount(e.target.value === '' ? '0' : e.target.value);
+  }, []);
+
   const tradeButtonProps = useMemo(() => {
     let _props = {
       text: 'Open Position',
@@ -178,6 +183,8 @@ const TradeCard = () => {
         optionScalpData?.minimumAbsoluteLiquidationThreshold!,
         optionScalpData?.quoteDecimals!.toNumber()
       );
+
+      console.log(minAbsThreshold.toString);
       if (isShortAfterAdjustments) {
         _liquidationPrice =
           positionDetails.marginInQuote / positions + minAbsThreshold + price;
@@ -320,7 +327,7 @@ const TradeCard = () => {
   }, []);
 
   const setSelectedMargin = useCallback(
-    (option: number) => {
+    async (option: number) => {
       if (!optionScalpData) return;
       const { markPrice, quoteDecimals } = optionScalpData;
       if (!markPrice || !quoteDecimals) return;
@@ -331,13 +338,17 @@ const TradeCard = () => {
           optionScalpData?.quoteDecimals!.toNumber()
         ) * getUserReadableAmount(optionScalpData?.feeOpenPosition!, 10);
 
+      await calcPremium();
       const _premium = getUserReadableAmount(premium, quoteDecimals.toNumber());
 
       const balance = getUserReadableAmount(
         userTokenBalance,
         quoteDecimals.toNumber()
       );
+
       const price = showAsQuote ? 1 : Number(markPrice) / 1e6;
+
+      if (!balance) setRawAmount('0');
 
       setRawAmount(
         (
@@ -345,9 +356,16 @@ const TradeCard = () => {
           100
         ).toString()
       );
-
     },
-    [optionScalpData, showAsQuote, userTokenBalance, leverage, premium, posSize]
+    [
+      optionScalpData,
+      showAsQuote,
+      userTokenBalance,
+      leverage,
+      premium,
+      posSize,
+      calcPremium,
+    ]
   );
 
   return (
@@ -397,9 +415,7 @@ const TradeCard = () => {
               type="number"
               className="text-md text-white font-mono"
               value={rawAmount}
-              onChange={(e) =>
-                setRawAmount(e.target.value === '' ? '0' : e.target.value)
-              }
+              onChange={handleInputChange}
               classes={{ input: 'text-right' }}
             />
             <Typography variant="h6" className="text-stieglitz mr-3 ml-1 mb-1">
