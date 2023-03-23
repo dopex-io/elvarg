@@ -77,8 +77,8 @@ const Stats = () => {
   }, [optionScalpData]);
 
   return (
-    <Box className="flex mt-[2rem] justify-center items-center">
-      <Box className="flex flex-row space-x-3">
+    <Box className="flex mt-[2rem] md:mt-0 justify-center items-center">
+      <Box className="flex flex-row space-x-3 md:space-x-5 md:ml-4">
         <Box>
           <span className="text-white  text-[0.5rem] sm:text-[0.8rem] flex">
             {markPrice}

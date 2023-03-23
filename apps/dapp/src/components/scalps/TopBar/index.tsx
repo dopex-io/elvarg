@@ -26,7 +26,7 @@ const TopBar = () => {
 
   return (
     <Box className="flex items-center">
-      <Box className="flex items-center">
+      <Box className="flex items-center justify-center">
         <Typography
           variant="h5"
           className="bg-primary rounded-md px-2 font-bold text-[0.5rem] sm:text-[0.8rem] mr-2"
@@ -48,7 +48,7 @@ const TopBar = () => {
         <Box className="flex flex-col mr-2">
           <span className="text-[0.5rem] sm:text-[0.8rem]">Option Scalps</span>
           <Select
-            className="text-white h-5 text-[0.4rem] sm:text-[0.8rem] sm:mt-1 border-2 border-mineshaft"
+            className="text-white h-5 lg:h-8 text-[0.4rem] sm:text-[0.8rem] sm:mt-1 border-2 border-mineshaft"
             MenuProps={{
               sx: {
                 '.MuiMenu-paper': {
@@ -68,11 +68,15 @@ const TopBar = () => {
             <MenuItem
               value={'ETH'}
               key={'ETH'}
-              className="text-white text-[0.5rem] sm:text-[0.8rem] py-0 m-0"
+              className="text-white text-[0.5rem] sm:text-[0.8rem] py-1 m-0"
             >
               ETH/USDC
             </MenuItem>
-            <MenuItem value={'ARB'} key={'ARB'} className="text-white">
+            <MenuItem
+              value={'ARB'}
+              key={'ARB'}
+              className="text-white text-[0.5rem] sm:text-[0.8rem] py-1 m-0"
+            >
               ARB/USDC
             </MenuItem>
           </Select>
