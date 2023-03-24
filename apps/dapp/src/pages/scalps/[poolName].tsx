@@ -27,7 +27,7 @@ const ManageComponent = () => {
   const [manageSection, setManageSection] = useState<string>('Trade');
 
   return (
-    <Box className="w-auto">
+    <Box className="w-full lg:w-[22rem]">
       <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-top-lg">
         {['LP', 'Trade'].map((label, index) => (
           <Button
@@ -40,7 +40,7 @@ const ManageComponent = () => {
             disableRipple
             onClick={() => setManageSection(label)}
           >
-            <Typography variant="h6">{label}</Typography>
+            <Typography variant="h6" className='text-xs pb-1'>{label}</Typography>
           </Button>
         ))}
       </ButtonGroup>
@@ -131,27 +131,27 @@ const OptionScalps = ({ poolName }: Props) => {
             <TopBar />
           </Box>
           <Box className="w-full h-full flex flex-col space-y-2 lg:flex-row lg:space-x-5">
-            <Box className="flex flex-col w-auto space-y-4">
+            <Box className="flex flex-col w-auto space-y-4 h-full">
               <Box className="flex-1 mt-4">{TVChart}</Box>
               <Positions />
-              <Box className="flex-1 flex justify-center mt-8">
-                <Typography variant="h5" className="text-silver">
-                  Contract Address:
-                </Typography>
-                <p className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text">
-                  <a
-                    href={`${CHAIN_ID_TO_EXPLORER[chainId]}/address/${
-                      optionScalpData?.optionScalpContract?.address ?? ''
-                    }`}
-                    rel="noopener noreferrer"
-                    target={'_blank'}
-                  >
-                    {optionScalpData?.optionScalpContract?.address}
-                  </a>
-                </p>
-              </Box>
             </Box>
             <ManageComponent />
+          </Box>
+          <Box className="flex justify-center w-full mt-10">
+            <Typography variant="h5" className="text-silver">
+              Contract Address:
+            </Typography>
+            <p className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text">
+              <a
+                href={`${CHAIN_ID_TO_EXPLORER[chainId]}/address/${
+                  optionScalpData?.optionScalpContract?.address ?? ''
+                }`}
+                rel="noopener noreferrer"
+                target={'_blank'}
+              >
+                {optionScalpData?.optionScalpContract?.address}
+              </a>
+            </p>
           </Box>
         </Box>
       </Box>

@@ -215,11 +215,10 @@ const DepositCard = () => {
   ]);
 
   return (
-    <Box>
+    <Box className="h-full flex flex-col">
       <Box className="bg-umbra rounded-b-xl flex flex-col mb-4 p-3 pr-2">
-        <p className="text-[1rem] mb-3">Deposit</p>
         <Box className="flex flex-row justify-between">
-          <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
+          <Box className="bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
             <Box className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
               <Typography
                 variant="h6"
@@ -315,14 +314,22 @@ const DepositCard = () => {
           </Box>
         </Box>
       ) : null}
-      <Box className="rounded-lg bg-neutral-800">
+      <Box>
+        <p className="text-justify h-full p-2 px-3 m-1 text-sm font-light">
+          After depositing you will receive ERC4626 tokens representing your
+          share in this pool. On withdrawal of deposited funds the same ERC4626
+          tokens will be burnt in exchange for the deposited funds along with
+          earnings.
+        </p>
+      </Box>
+      <Box className="rounded-lg bg-neutral-800 mx-2">
         <Box className="p-3">
           <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
             <EstimatedGasCostButton gas={500000} chainId={chainId} />
           </Box>
           <CustomButton
             size="small"
-            className="w-full !rounded-md"
+            className="w-full"
             color={
               !approved || (amount > 0 && amount <= readableUserTokenBalance)
                 ? 'primary'

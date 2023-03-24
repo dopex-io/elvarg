@@ -198,9 +198,8 @@ const WithdrawCard = () => {
   ]);
 
   return (
-    <Box className="">
+    <Box>
       <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
-        <p className="text-[1rem] mb-3">Withdraw</p>
         <Box className="flex flex-row justify-between">
           <Box className="h-12 bg-cod-gray rounded-full flex flex-row items-center">
             <Box className="flex flex-row h-8 w-auto p-1 pl-3 pr-2">
