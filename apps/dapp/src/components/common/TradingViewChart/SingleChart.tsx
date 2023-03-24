@@ -10,7 +10,7 @@ const SingleChart = (props: SingleChartProps) => {
       widgetProps={{
         theme: 'dark',
         symbol: props.symbol,
-        height: '35rem',
+        height: '30rem',
         interval: '1m',
         style: '9',
         range: '1D',

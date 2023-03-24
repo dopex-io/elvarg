@@ -27,7 +27,7 @@ const ManageComponent = () => {
   const [manageSection, setManageSection] = useState<string>('Trade');
 
   return (
-    <Box className="w-full sm:w-full lg:w-[25rem]">
+    <Box className="w-auto">
       <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-top-lg">
         {['LP', 'Trade'].map((label, index) => (
           <Button
@@ -121,23 +121,19 @@ const OptionScalps = ({ poolName }: Props) => {
 
   return (
     <>
-      <Box className="bg-black flex items-center justify-center">
+      <Box className="bg-black flex h-screen w-screen items-center justify-center">
         <Head>
           <title>Option Scalps | Dopex</title>
         </Head>
         <AppBar active="Scalps" />
-        <Box className="px-2 pt-10">
-          <Box className="mt-8 sm:mt-14 lg:mr-full">
+        <Box className="px-2 py-10">
+          <Box className="mt-8 sm:mt-14 md:mt-18 lg:mr-full">
             <TopBar />
           </Box>
           <Box className="w-full h-full flex flex-col space-y-4 lg:flex-row lg:space-x-5">
-            <Box className="flex flex-col space-y-4">
-              <Box className="flex-1 w-full lg:w-[80rem] h-[40rem] mt-4">
-                {TVChart}
-              </Box>
-              <Box className="w-full lg:w-[80rem]">
-                <Positions />
-              </Box>
+            <Box className="flex flex-col w-auto space-y-4">
+              <Box className="flex-1  mt-4">{TVChart}</Box>
+              <Positions />
             </Box>
             <ManageComponent />
           </Box>
