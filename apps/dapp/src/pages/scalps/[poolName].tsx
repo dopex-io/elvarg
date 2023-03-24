@@ -27,7 +27,7 @@ const ManageComponent = () => {
   const [manageSection, setManageSection] = useState<string>('Trade');
 
   return (
-    <Box className="w-full lg:w-[35rem]">
+    <Box className="w-full lg:w-[35rem] pt-2">
       <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-top-lg">
         {['LP', 'Trade'].map((label, index) => (
           <Button
