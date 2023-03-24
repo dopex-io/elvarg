@@ -394,9 +394,9 @@ export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/tzwap': { default: 42161, all: [1, 42161] },
   '/straddles': { default: 42161, all: [42161, 137] },
   '/straddles/MATIC': { default: 137, all: [137] },
-  '/rdpx-v2/mint': { default: 421613, all: [421613] },
+  '/rdpx-v2/mint': { default: 421613, all: [421613, 1337] },
   '/rdpx-v2/curve-swap': { default: 421613, all: [421613] },
-  '/rdpx-v2/perpetual-pools': { default: 421613, all: [421613] },
+  '/rdpx-v2/perpetual-pools': { default: 421613, all: [421613, 1337] },
 };
 
 export const DISCLAIMER_MESSAGE = {

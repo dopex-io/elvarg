@@ -20,7 +20,6 @@ const BondPanel = () => {
       <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-lg">
         {BUTTON_LABELS.map((label, index) => (
           <button
-            disabled={label === 'Delegate'}
             key={index}
             className={`border-0 hover:border-0 w-full m-1 pb-1 transition ease-in-out duration-500 rounded-md ${
               active === label

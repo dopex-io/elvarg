@@ -6,13 +6,14 @@ import {
   RdpxV2Treasury__factory,
 } from '@dopex-io/sdk';
 import LaunchOutlinedIcon from '@mui/icons-material/LaunchOutlined';
-import Box from '@mui/material/Box';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
+import { Switch } from '@dopex-io/ui';
+import InfoOutlined from '@mui/icons-material/InfoOutlined';
+import Tooltip from '@mui/material/Tooltip';
 
 import CustomButton from 'components/UI/Button';
 import Input from 'components/UI/Input';
-import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CollateralInputPanel from 'components/rdpx-v2/BondPanel/Bond/CollateralInputPanel';
 import DisabledPanel from 'components/rdpx-v2/BondPanel/DisabledPanel';
@@ -22,6 +23,23 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
+import DelegatePanel from './DelegatePanel';
+
+export type Delegate = {
+  _id: number | string;
+  delegate: string;
+  amount: number | string;
+  fee: number | string;
+  activeCollateral: number | string;
+};
+
+export const DEFAULT_DELEGATE: Delegate = {
+  _id: '',
+  delegate: '',
+  amount: '',
+  fee: '',
+  activeCollateral: '',
+};
 
 const Bond = () => {
   const {
@@ -44,6 +62,8 @@ const Bond = () => {
   const [value, setValue] = useState<number | string>('');
   const [approved, setApproved] = useState<boolean>(false);
   const [mintDisabled, setMintDisabled] = useState<boolean>(false);
+  const [delegated, setDelegated] = useState<boolean>(false);
+  const [delegate, setDelegate] = useState<Delegate>(DEFAULT_DELEGATE);
 
   const handleChange = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) => {
@@ -113,13 +133,20 @@ const Bond = () => {
       signer
     );
     try {
-      await sendTx(treasury, 'bond', [
-        getContractReadableAmount(value, 18),
-        accountAddress,
-      ]).then(() => {
-        updateUserDscBondsData();
-        updateTreasuryData();
-      });
+      if (!delegated)
+        await sendTx(treasury, 'bond', [
+          getContractReadableAmount(value, 18),
+          accountAddress,
+        ]).then(() => {
+          updateUserDscBondsData();
+          updateTreasuryData();
+        });
+      else
+        await sendTx(treasury, 'bondWithDelegate', [
+          getContractReadableAmount(value, 18),
+          accountAddress,
+          delegate._id,
+        ]);
     } catch (e) {
       console.log(e);
     }
@@ -132,6 +159,8 @@ const Bond = () => {
     value,
     updateUserDscBondsData,
     updateTreasuryData,
+    delegated,
+    delegate,
   ]);
 
   useEffect(() => {
@@ -205,11 +234,11 @@ const Bond = () => {
   }, [accountAddress, provider, treasuryContractState, treasuryData, value]);
 
   return (
-    <Box className="space-y-3 relative">
+    <div className="space-y-3 relative">
       {!userDscBondsData.isEligibleForMint || isLoading || mintDisabled ? (
         <DisabledPanel isMint={true} />
       ) : null}
-      <Box className="bg-umbra rounded-xl w-full h-fit">
+      <div className="bg-umbra rounded-xl w-full h-fit">
         <Input
           type="number"
           size="small"
@@ -217,73 +246,102 @@ const Bond = () => {
           onChange={handleChange}
           placeholder="0.0"
           leftElement={
-            <Box className="flex my-auto space-x-2 w-2/3">
+            <div className="flex my-auto space-x-2 w-2/3">
               <img
                 src={`/images/tokens/${'DSC'?.toLowerCase()}.svg`}
                 alt={'USDC'.toLowerCase()}
                 className="w-[30px] h-[30px]"
               />
-              {/* <Box
+              {/* <div
                 className="rounded-md bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto p-2"
                 role="button"
                 onClick={handleMax}
               >
-                <Typography variant="caption" color="stieglitz">
+                <span className="text-xs text-stieglitz">
                   MAX
-                </Typography>
-              </Box> */}
-            </Box>
+                </span>
+              </div> */}
+            </div>
           }
         />
-        <Box className="flex justify-between px-3 pb-3">
-          <Typography variant="h6" color="stieglitz">
-            {treasuryData.tokenB.symbol} Balance
-          </Typography>
-          <Typography variant="h6">
-            {formatAmount(
-              getUserReadableAmount(
-                userAssetBalances[treasuryData.tokenB.symbol.toUpperCase()] ??
-                  '0',
-                TOKEN_DECIMALS[chainId]?.[
-                  treasuryData.tokenB.symbol.toUpperCase()
-                ]
-              ),
-              3
-            )}
-          </Typography>
-        </Box>
-        <Box className="flex justify-between px-3 pb-3">
-          <Typography variant="h6" color="stieglitz">
-            {treasuryData.tokenA.symbol.toUpperCase()} Balance
-          </Typography>
-          <Typography variant="h6">
-            {formatAmount(
-              getUserReadableAmount(
-                userAssetBalances[treasuryData.tokenA.symbol.toUpperCase()] ??
-                  '0',
-                TOKEN_DECIMALS[chainId]?.[
-                  treasuryData.tokenA.symbol.toUpperCase()
-                ]
-              ),
-              3
-            )}{' '}
-          </Typography>
-        </Box>
-      </Box>
+        <div className="px-3 pb-3 space-y-1">
+          <div className="flex justify-between">
+            <span className="text-sm text-stieglitz">
+              {treasuryData.tokenB.symbol} Balance
+            </span>
+            <span className="text-sm">
+              {formatAmount(
+                getUserReadableAmount(
+                  userAssetBalances[treasuryData.tokenB.symbol.toUpperCase()] ??
+                    '0',
+                  TOKEN_DECIMALS[chainId]?.[
+                    treasuryData.tokenB.symbol.toUpperCase()
+                  ]
+                ),
+                3
+              )}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-sm text-stieglitz">
+              {treasuryData.tokenA.symbol.toUpperCase()} Balance
+            </span>
+            <span className="text-sm">
+              {formatAmount(
+                getUserReadableAmount(
+                  userAssetBalances[treasuryData.tokenA.symbol.toUpperCase()] ??
+                    '0',
+                  TOKEN_DECIMALS[chainId]?.[
+                    treasuryData.tokenA.symbol.toUpperCase()
+                  ]
+                ),
+                3
+              )}{' '}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col p-2 bg-umbra rounded-xl">
+        <div className="flex justify-between px-2">
+          <div>
+            <span className="text-sm text-stieglitz">Delegate</span>
+            <Tooltip
+              title="Borrow WETH and receive a 25% share of dpxWETH. The remaining 75% plus an additional fee will be received by the delegating user."
+              enterTouchDelay={0}
+              leaveTouchDelay={1000}
+            >
+              <InfoOutlined className="fill-current text-stieglitz p-1" />
+            </Tooltip>
+          </div>
+          <div className="my-auto">
+            <Switch
+              size="medium"
+              checked={Boolean(delegated)}
+              onChange={() => setDelegated(!delegated)}
+              color="jaffa"
+            />
+          </div>
+        </div>
+        {delegated ? (
+          <DelegatePanel delegate={delegate} setDelegate={setDelegate} />
+        ) : null}
+      </div>
       <CollateralInputPanel
         inputAmount={Number(value)}
         setApproved={setApproved}
       />
-      <Box className="rounded-xl p-4 w-full bg-umbra">
-        <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800 space-y-2">
+      <div className="rounded-xl p-4 w-full bg-umbra">
+        <div className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800 space-y-2">
           <EstimatedGasCostButton gas={500000} chainId={chainId} />
-        </Box>
+        </div>
         {userDscBondsData.isEligibleForMint || isLoading ? (
           <CustomButton
             size="medium"
             className="w-full mt-4 rounded-md"
             color="primary"
-            disabled={!userDscBondsData.isEligibleForMint || isLoading}
+            disabled={
+              !userDscBondsData.isEligibleForMint || isLoading || delegated
+            }
             onClick={approved ? handleBond : handleApprove}
           >
             {approved ? 'Bond' : 'Approve'}
@@ -302,13 +360,13 @@ const Bond = () => {
                 alt="crv"
                 className="w-4 my-auto"
               />
-              <Typography variant="h6">Buy $dpxETH</Typography>
+              <span className="text-sm">Buy $dpxETH</span>
             </span>
             <LaunchOutlinedIcon className="fill-current text-white w-[1.1rem]" />
           </a>
         )}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 

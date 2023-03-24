@@ -4,7 +4,6 @@ import { RdpxV2Bond__factory, RdpxV2Treasury__factory } from '@dopex-io/sdk';
 import Countdown from 'react-countdown';
 import format from 'date-fns/format';
 
-import Typography from 'components/UI/Typography';
 import Button from 'components/UI/Button';
 
 import { useBoundStore } from 'store';
@@ -85,13 +84,9 @@ const UserBonds = () => {
                     className="h-[1rem] my-1 "
                     alt="Timer"
                   />
-                  <Typography
-                    variant="h6"
-                    className="ml-auto my-auto"
-                    color="stieglitz"
-                  >
+                  <span className="ml-auto my-auto text-sm text-stieglitz">
                     {days}d {hours}h {minutes}m
-                  </Typography>
+                  </span>
                 </div>
               );
             }}
@@ -155,13 +150,11 @@ const UserBonds = () => {
                   key={index}
                   className="px-3 py-4"
                 >
-                  <Typography
-                    variant="h6"
-                    className={`font-normal ${textAlignment}`}
-                    color="stieglitz"
+                  <span
+                    className={`text-sm text-stieglitz font-normal ${textAlignment}`}
                   >
                     {column.render('Header')}
-                  </Typography>
+                  </span>
                 </th>
               );
             })}
@@ -182,9 +175,7 @@ const UserBonds = () => {
                     key={index}
                     className={`m-3 py-2 px-3 ${textAlignment}`}
                   >
-                    <Typography variant="h6" color="white">
-                      {cell.render('Cell')}
-                    </Typography>
+                    <span className="text-sm">{cell.render('Cell')}</span>
                   </td>
                 );
               })}
@@ -195,9 +186,7 @@ const UserBonds = () => {
     </table>
   ) : (
     <div className="flex justify-center my-auto w-full bg-cod-gray rounded-lg py-8">
-      <Typography variant="h6" color="stieglitz">
-        Nothing to show
-      </Typography>
+      <span className="text-sm text-stieglitz">Nothing to show</span>
     </div>
   );
 };

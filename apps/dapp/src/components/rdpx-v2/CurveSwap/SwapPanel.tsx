@@ -359,7 +359,8 @@ const SwapPanel = () => {
             </div>
           </div>
           <div className="flex justify-between">
-            <span className="text-sm text-stieglitz">{pair[1]?.symbol}</span>
+            {/* <span className="text-sm text-stieglitz">{pair[1]?.symbol}</span> */}
+            <span className="text-sm text-stieglitz">{'dpxWETH'}</span>
             <div className="space-x-1">
               <span className="text-sm">
                 {formatAmount(reserves[1]?.['value'], 3)}
