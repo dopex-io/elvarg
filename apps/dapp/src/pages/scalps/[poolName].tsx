@@ -121,7 +121,7 @@ const OptionScalps = ({ poolName }: Props) => {
 
   return (
     <>
-      <Box className="bg-black flex h-fit-content w-screen items-center justify-center">
+      <Box className="bg-black flex w-screen items-center justify-center">
         <Head>
           <title>Option Scalps | Dopex</title>
         </Head>
@@ -130,30 +130,30 @@ const OptionScalps = ({ poolName }: Props) => {
           <Box className="mt-8 sm:mt-14 md:mt-20 lg:mr-full">
             <TopBar />
           </Box>
-          <Box className="w-full h-full flex flex-col space-y-4 lg:flex-row lg:space-x-5">
+          <Box className="w-full h-full flex flex-col space-y-2 lg:flex-row lg:space-x-5">
             <Box className="flex flex-col w-auto space-y-4">
-              <Box className="flex-1  mt-4">{TVChart}</Box>
+              <Box className="flex-1 mt-4">{TVChart}</Box>
               <Positions />
+              <Box className="flex-1 flex justify-center mt-8">
+                <Typography variant="h5" className="text-silver">
+                  Contract Address:
+                </Typography>
+                <p className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text">
+                  <a
+                    href={`${CHAIN_ID_TO_EXPLORER[chainId]}/address/${
+                      optionScalpData?.optionScalpContract?.address ?? ''
+                    }`}
+                    rel="noopener noreferrer"
+                    target={'_blank'}
+                  >
+                    {optionScalpData?.optionScalpContract?.address}
+                  </a>
+                </p>
+              </Box>
             </Box>
             <ManageComponent />
           </Box>
         </Box>
-      </Box>
-      <Box className="flex justify-center space-x-2 my-8">
-        <Typography variant="h5" className="text-silver">
-          Contract Address:
-        </Typography>
-        <p className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text">
-          <a
-            href={`${CHAIN_ID_TO_EXPLORER[chainId]}/address/${
-              optionScalpData?.optionScalpContract?.address ?? ''
-            }`}
-            rel="noopener noreferrer"
-            target={'_blank'}
-          >
-            {optionScalpData?.optionScalpContract?.address}
-          </a>
-        </p>
       </Box>
     </>
   );
