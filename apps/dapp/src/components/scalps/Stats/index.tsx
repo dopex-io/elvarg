@@ -1,8 +1,6 @@
 import React from 'react';
 import { useMemo } from 'react';
 
-import { ethers } from 'ethers';
-
 import Box from '@mui/material/Box';
 import { useBoundStore } from 'store';
 
@@ -10,7 +8,8 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 const Stats = () => {
-  const { optionScalpData, selectedPoolName, uniPrice } = useBoundStore();
+  const { optionScalpData, selectedPoolName, uniWethPrice, uniArbPrice } =
+    useBoundStore();
 
   const markPrice = useMemo(() => {
     if (
@@ -21,25 +20,16 @@ const Stats = () => {
         <Box>
           {formatAmount(
             getUserReadableAmount(
-              uniPrice,
+              selectedPoolName === 'ETH' ? uniWethPrice : uniArbPrice,
               optionScalpData?.quoteDecimals!.toNumber()
             ),
             2
           )}
         </Box>
       );
-    else if (selectedPoolName.toUpperCase() === 'BTC')
-      return (
-        <Box>
-          {getUserReadableAmount(
-            ethers.utils.parseUnits('1000000', 'ether').div(uniPrice),
-            6
-          )}
-        </Box>
-      );
 
     return '';
-  }, [selectedPoolName, optionScalpData, uniPrice]);
+  }, [selectedPoolName, optionScalpData, uniWethPrice, uniArbPrice]);
 
   const stats = useMemo(() => {
     let _stats = {

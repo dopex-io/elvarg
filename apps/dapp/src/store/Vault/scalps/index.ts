@@ -63,8 +63,10 @@ export interface OptionScalpSlice {
   getScalpPosition: Function;
   calcPnl: Function;
   calcLiqPrice: Function;
-  uniPrice: BigNumber;
-  setUniPrice: Function;
+  uniWethPrice: BigNumber;
+  uniArbPrice: BigNumber;
+  setUniWethPrice: Function;
+  setUniArbPrice: Function;
 }
 
 export const createOptionScalpSlice: StateCreator<
@@ -73,10 +75,14 @@ export const createOptionScalpSlice: StateCreator<
   [],
   OptionScalpSlice
 > = (set, get) => ({
-  setUniPrice: (uniPrice: BigNumber) => {
-    set((prevState) => ({ ...prevState, uniPrice }));
+  setUniWethPrice: (uniWethPrice: BigNumber) => {
+    set((prevState) => ({ ...prevState, uniWethPrice }));
   },
-  uniPrice: BigNumber.from(0),
+  setUniArbPrice: (uniArbPrice: BigNumber) => {
+    set((prevState) => ({ ...prevState, uniArbPrice }));
+  },
+  uniWethPrice: BigNumber.from(0),
+  uniArbPrice: BigNumber.from(0),
   optionScalpUserData: {},
   getOptionScalpContract: () => {
     const { selectedPoolName, provider } = get();

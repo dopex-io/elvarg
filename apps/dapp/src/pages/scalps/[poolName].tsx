@@ -27,7 +27,7 @@ const ManageComponent = () => {
   const [manageSection, setManageSection] = useState<string>('Trade');
 
   return (
-    <Box className="w-full lg:w-[25rem]">
+    <Box className="w-full lg:w-[35rem]">
       <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-top-lg">
         {['LP', 'Trade'].map((label, index) => (
           <Button
@@ -40,7 +40,9 @@ const ManageComponent = () => {
             disableRipple
             onClick={() => setManageSection(label)}
           >
-            <Typography variant="h6" className='text-xs pb-1'>{label}</Typography>
+            <Typography variant="h6" className="text-xs pb-1">
+              {label}
+            </Typography>
           </Button>
         ))}
       </ButtonGroup>
@@ -67,7 +69,8 @@ const OptionScalps = ({ poolName }: Props) => {
     updateOptionScalp,
     updateOptionScalpUserData,
     selectedPoolName,
-    setUniPrice,
+    setUniWethPrice,
+    setUniArbPrice,
   } = useBoundStore();
 
   const TVChart = useMemo(() => {
@@ -101,23 +104,36 @@ const OptionScalps = ({ poolName }: Props) => {
   }, []);
 
   useEffect(() => {
-    const ws = new WebSocket(
-      selectedPoolName === 'ETH'
-        ? 'wss://io.dexscreener.com/dex/screener/pair/arbitrum/0xc31e54c7a869b9fcbecc14363cf510d1c41fa443'
-        : 'wss://io.dexscreener.com/dex/screener/pair/arbitrum/0xa8328bf492ba1b77ad6381b3f7567d942b000baf'
+    const wethWs = new WebSocket(
+      'wss://io.dexscreener.com/dex/screener/pair/arbitrum/0xc31e54c7a869b9fcbecc14363cf510d1c41fa443'
     );
 
-    ws.onmessage = function (event) {
+    wethWs.onmessage = function (event) {
       const data = JSON.parse(event.data);
       try {
         if (data.pair) {
-          setUniPrice(ethers.utils.parseUnits(String(data.pair.price), 6));
+          setUniWethPrice(ethers.utils.parseUnits(String(data.pair.price), 6));
         }
       } catch (err) {
         console.log(err);
       }
     };
-  }, [setUniPrice, selectedPoolName]);
+
+    const arbWs = new WebSocket(
+      'wss://io.dexscreener.com/dex/screener/pair/arbitrum/0xa8328bf492ba1b77ad6381b3f7567d942b000baf'
+    );
+
+    arbWs.onmessage = function (event) {
+      const data = JSON.parse(event.data);
+      try {
+        if (data.pair) {
+          setUniArbPrice(ethers.utils.parseUnits(String(data.pair.price), 6));
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+  }, [setUniWethPrice]);
 
   return (
     <>
@@ -126,12 +142,12 @@ const OptionScalps = ({ poolName }: Props) => {
           <title>Option Scalps | Dopex</title>
         </Head>
         <AppBar active="Scalps" />
-        <Box className="px-2 py-10">
+        <Box className="my-12 mx-[10%] w-full">
           <Box className="mt-8 sm:mt-14 md:mt-20 lg:mr-full">
             <TopBar />
           </Box>
           <Box className="w-full h-full flex flex-col space-y-2 lg:flex-row lg:space-x-5">
-            <Box className="flex flex-col w-auto space-y-4 h-full">
+            <Box className="flex flex-col w-full space-y-4 h-full">
               <Box className="flex-1 mt-4">{TVChart}</Box>
               <Positions />
             </Box>

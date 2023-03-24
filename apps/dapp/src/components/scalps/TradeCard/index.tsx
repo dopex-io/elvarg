@@ -32,7 +32,8 @@ const TradeCard = () => {
     optionScalpData,
     updateOptionScalp,
     updateOptionScalpUserData,
-    uniPrice: markPrice,
+    uniWethPrice,
+    uniArbPrice,
   } = useBoundStore();
 
   const sendTx = useSendTx();
@@ -54,6 +55,12 @@ const TradeCard = () => {
   const [isShort, setIsShort] = useState<boolean>(false);
 
   const [showAsQuote, setShowAsQuote] = useState<boolean>(false);
+
+  const markPrice = useMemo(() => {
+    if (selectedPoolName === 'ETH') return uniWethPrice;
+    else if (selectedPoolName === 'ARB') return uniArbPrice;
+    return BigNumber.from('0');
+  }, [uniWethPrice, uniArbPrice, selectedPoolName]);
 
   const isShortAfterAdjustments = useMemo(() => {
     if (optionScalpData?.inverted) return !isShort;

@@ -19,7 +19,9 @@ const TopBar = () => {
 
   const handleSelectChange = useCallback(
     async (e: any) => {
-      window.location.replace('/scalps/' + e.target.value.toString());
+      setSelectedPoolName(e.target.value.toString());
+      await updateOptionScalp();
+      await updateOptionScalpUserData();
     },
     [setSelectedPoolName, updateOptionScalp, updateOptionScalpUserData]
   );
