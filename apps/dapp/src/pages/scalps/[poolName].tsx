@@ -77,7 +77,9 @@ const OptionScalps = ({ poolName }: Props) => {
     return (
       <TradingViewChart
         symbol={
-          selectedPoolName === 'ETH' ? 'UNISWAP3ARBITRUM:WETHUSDC' : 'ARBUSDC'
+          selectedPoolName === 'ETH'
+            ? 'UNISWAP3ARBITRUM:WETHUSDC'
+            : 'COINBASE:ARBUSD'
         }
       />
     );
