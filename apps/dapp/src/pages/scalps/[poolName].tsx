@@ -121,13 +121,13 @@ const OptionScalps = ({ poolName }: Props) => {
 
   return (
     <>
-      <Box className="bg-black flex h-screen w-screen items-center justify-center">
+      <Box className="bg-black flex h-fit-content w-screen items-center justify-center">
         <Head>
           <title>Option Scalps | Dopex</title>
         </Head>
         <AppBar active="Scalps" />
         <Box className="px-2 py-10">
-          <Box className="mt-8 sm:mt-14 md:mt-18 lg:mr-full">
+          <Box className="mt-8 sm:mt-14 md:mt-20 lg:mr-full">
             <TopBar />
           </Box>
           <Box className="w-full h-full flex flex-col space-y-4 lg:flex-row lg:space-x-5">
