@@ -268,10 +268,10 @@ const DepositCard = () => {
           <Box className="ml-auto mr-0">
             <Typography
               variant="h6"
-              className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]"
+              role="button"
+              className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem] underline"
               onClick={() => setRawAmount(String(readableUserTokenBalance))}
             >
-              Balance ~{' '}
               {formatAmount(readableUserTokenBalance, isQuote ? 0 : 3)}{' '}
               {isQuote
                 ? optionScalpData?.quoteSymbol!

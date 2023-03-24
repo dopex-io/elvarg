@@ -251,10 +251,11 @@ const WithdrawCard = () => {
           <Box className="ml-auto mr-0">
             <Typography
               variant="h6"
-              className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]"
+              role="button"
+              className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem] underline"
               onClick={() => setRawAmount(String(readableUserTokenBalance))}
             >
-              Balance ~ {formatAmount(readableUserTokenBalance, 8)}{' '}
+              {formatAmount(readableUserTokenBalance, 8)}{' '}
               {isQuote
                 ? optionScalpData?.quoteSymbol!
                 : optionScalpData?.baseSymbol!}{' '}
