@@ -35,8 +35,16 @@ const PositionsTable = ({ tab }: { tab: string }) => {
     optionScalpData,
     updateOptionScalp,
     updateOptionScalpUserData,
-    uniPrice: markPrice,
+    uniArbPrice,
+    uniWethPrice,
+    selectedPoolName,
   } = useBoundStore();
+
+  const markPrice = useMemo(() => {
+    if (selectedPoolName === 'ETH') return uniWethPrice;
+    else if (selectedPoolName === 'ARB') return uniArbPrice;
+    return BigNumber.from('0');
+  }, [uniWethPrice, uniArbPrice, selectedPoolName]);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
