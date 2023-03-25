@@ -55,9 +55,9 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       const { entry, pnl, margin, positions } = position;
 
       const leverage =
-        (Number(positions) * Number(entry.replace(',', ''))) / Number(margin);
+        (parseFloat(positions) * parseFloat(entry)) / parseFloat(margin);
 
-      const _pnl = (Number(pnl) / Number(margin)) * 100;
+      const _pnl = (parseFloat(pnl) / parseFloat(margin)) * 100;
 
       if (!optionScalpData) return;
       const { baseSymbol, quoteSymbol } = optionScalpData;
@@ -408,7 +408,36 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                       </Menu>
                     </Box>
                   </TableCell>
-                ) : null}
+                ) : (
+                  <TableCell className="flex justify-end border-0">
+                    <IconButton
+                      aria-label="more"
+                      aria-controls="long-menu"
+                      aria-haspopup="true"
+                      onClick={handleClickMenu}
+                      className="long-menu rounded-md bg-mineshaft mx-1 p-0 hover:bg-opacity-80 hover:bg-mineshaft flex"
+                      size="large"
+                    >
+                      <MoreVertIcon className="fill-current text-white" />
+                    </IconButton>
+                    <Box>
+                      <Menu
+                        anchorEl={anchorEl}
+                        open={Boolean(anchorEl)}
+                        onClose={handleCloseMenu}
+                        classes={{ paper: 'bg-umbra' }}
+                      >
+                        <MenuItem
+                          key="share"
+                          onClick={() => handleShare(position)}
+                          className="text-white"
+                        >
+                          Share
+                        </MenuItem>
+                      </Menu>
+                    </Box>
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>
