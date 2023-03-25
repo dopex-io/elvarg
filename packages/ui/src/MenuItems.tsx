@@ -1,5 +1,5 @@
-import { Menu } from "@headlessui/react";
 import React from "react";
+import { Menu } from "@headlessui/react"
 
 export type dropdownVariants = "basic" | "icon" | "dense";
 
@@ -8,10 +8,14 @@ const COMMON_CLASSES = {
   textSize: "text-xs",
   textColor: "text-white",
   ddFill: "bg-umbra",
-  dropDownPaper: "absolute left-0 mt-2 w-56 origin-top-right rounded-lg bg-umbra shadow-lg focus:outline-none",
+  dropDownPaper:
+  "absolute left-0 mt-2 w-56 origin-top-right rounded-lg bg-umbra shadow-lg focus:outline-none",
 };
 
-const VARIANT_CLASSES: Record<dropdownVariants, Record<string, string | boolean | null>> = {
+const VARIANT_CLASSES: Record<
+  dropdownVariants,
+  Record<string, string | boolean | null>
+  > = {
   basic: {
     icons: null,
     padding: "p-2",

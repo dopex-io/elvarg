@@ -1,9 +1,11 @@
+import React, { ReactEventHandler } from "react"
+import { Menu as HeadlessMenu, Transition } from "@headlessui/react";
+
 import Button from "../src/Button";
 import MenuItems, { dropdownVariants } from "../src/MenuItems";
 import { ItemType } from "../src/MenuItems";
+
 import DropdownArrowIcon from "./icons/DropdownArrowIcon";
-import { Menu as HeadlessMenu, Transition } from "@headlessui/react";
-import React, { ReactEventHandler } from "react";
 
 type colors =
   | "primary"
