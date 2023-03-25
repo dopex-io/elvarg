@@ -27,7 +27,7 @@ const Manage = () => {
           </Button>
         ))}
       </ButtonGroup>
-      <Box className="bg-cod-gray rounded-b-xl w-inherit h-[22rem]">
+      <Box className="bg-cod-gray rounded-b-xl w-[23rem] pb-3">
         {section === 'Deposit' ? <DepositCard /> : <WithdrawCard />}
       </Box>
     </Box>

@@ -77,7 +77,7 @@ const DepositCard = () => {
     else if (amount == 0) return 'Insert an amount';
     else if (amount > readableUserTokenBalance) return 'Insufficient balance';
     return 'Deposit';
-  }, [approved, amount, readableUserTokenBalance,]);
+  }, [approved, amount, readableUserTokenBalance]);
 
   const handleApprove = useCallback(async () => {
     if (!optionScalpData?.optionScalpContract || !signer || !contractAddresses)
@@ -215,8 +215,8 @@ const DepositCard = () => {
   ]);
 
   return (
-    <Box className="h-full flex flex-col">
-      <Box className="bg-umbra rounded-b-xl flex flex-col mb-4 p-3 pr-2">
+    <Box className="h-full flex flex-col pt-2">
+      <Box className="bg-umbra rounded-xl flex flex-col mb-1 mx-2 p-3 pr-2">
         <Box className="flex flex-row justify-between">
           <Box className="bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
             <Box className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
@@ -315,7 +315,7 @@ const DepositCard = () => {
         </Box>
       ) : null}
       <Box>
-        <p className="text-justify h-full p-2 px-3 m-1 text-sm font-light">
+        <p className="text-justify h-full p-2 px-3 m-1 text-sm font-light mb-1.5">
           After depositing you will receive ERC4626 tokens representing your
           share in this pool. On withdrawal of deposited funds the same ERC4626
           tokens will be burnt in exchange for the deposited funds along with

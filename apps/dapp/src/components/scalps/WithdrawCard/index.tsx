@@ -198,11 +198,11 @@ const WithdrawCard = () => {
   ]);
 
   return (
-    <Box>
-      <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
+    <Box className="pt-2">
+      <Box className="bg-umbra rounded-xl flex flex-col mb-4 p-3 pr-2 mx-2">
         <Box className="flex flex-row justify-between">
-          <Box className="h-12 bg-cod-gray rounded-full flex flex-row items-center">
-            <Box className="flex flex-row h-8 w-auto p-1 pl-3 pr-2">
+          <Box className="bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
+            <Box className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
               <Typography
                 variant="h6"
                 className={cx(
@@ -214,7 +214,7 @@ const WithdrawCard = () => {
                 {optionScalpData?.quoteSymbol!}
               </Typography>
             </Box>
-            <Box className="flex flex-row h-8 w-auto p-1 pr-3 pl-2">
+            <Box className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
               <Typography
                 variant="h6"
                 className={cx(
@@ -233,7 +233,7 @@ const WithdrawCard = () => {
             name="notionalSize"
             placeholder="0"
             type="number"
-            className="h-8 text-md text-white font-mono mr-2"
+            className="h-12 text-md text-white font-mono mr-2"
             value={rawAmount}
             onChange={(e) => setRawAmount(e.target.value)}
             classes={{ input: 'text-right' }}
@@ -264,7 +264,7 @@ const WithdrawCard = () => {
           </Box>
         </Box>
       </Box>
-      <Box className="bg-umbra rounded-2xl">
+      <Box className="bg-umbra rounded-2xl mx-2">
         <Box className="flex flex-col mb-1 p-4 pb-0 w-full">
           <Box className={'flex'}>
             <Typography
@@ -400,7 +400,7 @@ const WithdrawCard = () => {
           </Box>
         </Box>
       ) : null}
-      <Box className="rounded-lg bg-neutral-800">
+      <Box className="rounded-lg bg-neutral-800 mx-2">
         <Box className="p-3">
           <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
             <EstimatedGasCostButton gas={500000} chainId={chainId} />

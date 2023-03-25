@@ -376,7 +376,7 @@ const TradeCard = () => {
   );
 
   return (
-    <Box className="px-4 pb-4 pt-5">
+    <Box className="px-4 pb-4 pt-5 w-[23rem]">
       <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
         <Box className="w-full flex items-center justify-center px-3">
           <p className="text-xs text-stieglitz mr-2 ml-auto">
