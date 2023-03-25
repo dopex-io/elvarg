@@ -17,7 +17,7 @@ const Positions = () => {
   const [activeTab, setActiveTab] = useState<string>('Open');
 
   return (
-    <Box className="text-gray-400 w-full rounded-lg">
+    <Box className="text-gray-400 min-w-[60vw] rounded-lg">
       <Box className="border rounded-t-xl border-cod-gray py-2 bg-umbra">
         <Box className="flex ml-3">
           <Box className="rounded-md bg-neutral-700 flex mb-2 mt-3 h-auto">
