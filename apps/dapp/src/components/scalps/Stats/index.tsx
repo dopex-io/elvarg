@@ -23,7 +23,7 @@ const Stats = () => {
               selectedPoolName === 'ETH' ? uniWethPrice : uniArbPrice,
               optionScalpData?.quoteDecimals!.toNumber()
             ),
-            2
+            4
           )}
         </Box>
       );
