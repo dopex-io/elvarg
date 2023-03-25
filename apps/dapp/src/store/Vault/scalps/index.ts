@@ -210,6 +210,8 @@ export const createOptionScalpSlice: StateCreator<
       liquidationPrice: liquidationPrices[index]!,
     }));
 
+    scalpPositions.reverse();
+
     set((prevState) => ({
       ...prevState,
       optionScalpUserData: {
