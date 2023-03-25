@@ -546,7 +546,9 @@ const TradeCard = () => {
                   ),
                   2
                 )}{' '}
-                {optionScalpData?.baseSymbol!}
+                {isShort
+                  ? optionScalpData?.baseSymbol!
+                  : optionScalpData?.quoteSymbol!}
               </Typography>
             </Box>
           </Box>
