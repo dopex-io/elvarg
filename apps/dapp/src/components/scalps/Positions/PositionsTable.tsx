@@ -85,7 +85,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         ],
       });
     },
-    [share, optionScalpData, markPrice]
+    [share, optionScalpData, markPrice, selectedPoolName]
   );
 
   const handleClickMenu = useCallback(
