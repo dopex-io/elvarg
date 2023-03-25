@@ -18,7 +18,7 @@ import TopBar from 'components/scalps/TopBar';
 import TradeCard from 'components/scalps/TradeCard';
 import Manage from 'components/scalps/Manage';
 
-import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
+import { CHAINS } from 'constants/chains';
 import { ethers } from 'ethers';
 
 // const SHOWCHARTS = false;
@@ -161,7 +161,7 @@ const OptionScalps = ({ poolName }: Props) => {
             </Typography>
             <p className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text">
               <a
-                href={`${CHAIN_ID_TO_EXPLORER[chainId]}/address/${
+                href={`${CHAINS[chainId]?.explorer}/address/${
                   optionScalpData?.optionScalpContract?.address ?? ''
                 }`}
                 rel="noopener noreferrer"
