@@ -75,7 +75,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           </Typography>
         ),
         percentage: _pnl,
-        customPath: '/scalps',
+        customPath: `https://dapp-git-feat-option-scalps-dopex-io.vercel.app/scalps/${selectedPoolName}`,
         stats: [
           { name: 'Entry Price', value: `$${entry}` },
           {
