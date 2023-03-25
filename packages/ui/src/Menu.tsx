@@ -1,4 +1,4 @@
-import React, { ReactEventHandler } from "react"
+import React, { ReactEventHandler } from "react";
 import { Menu as HeadlessMenu, Transition } from "@headlessui/react";
 
 import Button from "../src/Button";
