@@ -8,6 +8,7 @@ import {
   ERC20__factory,
 } from '@dopex-io/sdk';
 import { useQuery } from '@tanstack/react-query';
+import { useDebounce } from 'use-debounce';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -152,9 +153,11 @@ const PurchaseCard = () => {
 
   const [rawAmount, setRawAmount] = useState<string>('1');
 
+  const [debouncedRawAmount] = useDebounce(rawAmount, 1000);
+
   const amount: number = useMemo(() => {
-    return parseFloat(rawAmount) || 0;
-  }, [rawAmount]);
+    return parseFloat(debouncedRawAmount) || 0;
+  }, [debouncedRawAmount]);
 
   useEffect(() => {
     async function updateFinalCostV1() {

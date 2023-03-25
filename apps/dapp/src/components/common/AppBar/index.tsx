@@ -39,12 +39,11 @@ import formatAmount from 'utils/general/formatAmount';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 import {
-  CHAIN_ID_TO_RPC,
   CURRENCIES_MAP,
   DISCLAIMER_MESSAGE,
   OFAC_COMPLIANCE_LOCAL_STORAGE_KEY,
-  PAGE_TO_SUPPORTED_CHAIN_IDS,
 } from 'constants/index';
+import { PAGE_TO_SUPPORTED_CHAIN_IDS, CHAINS } from 'constants/chains';
 
 import ClaimRdpxDialog from './ClaimRdpxDialog';
 import NetworkButton from './NetworkButton';
@@ -231,7 +230,10 @@ const appLinks = {
     { name: 'faucet', to: '/faucet' },
     { name: 'OLP', to: '/olp' },
   ],
-  137: [{ name: 'Straddles', to: '/straddles' }],
+  137: [
+    { name: 'SSOV', to: '/ssov' },
+    { name: 'Straddles', to: '/straddles' },
+  ],
 };
 
 const menuLinks = [
@@ -407,10 +409,10 @@ export default function AppBar(props: AppBarProps) {
     } else {
       updateState({
         provider: new ethers.providers.StaticJsonRpcProvider(
-          CHAIN_ID_TO_RPC[
+          CHAINS[
             PAGE_TO_SUPPORTED_CHAIN_IDS[Router.asPath]?.default ||
               DEFAULT_CHAIN_ID
-          ]
+          ]?.rpc
         ),
       });
     }

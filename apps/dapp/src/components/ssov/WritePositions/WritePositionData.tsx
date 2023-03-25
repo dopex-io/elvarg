@@ -72,7 +72,7 @@ const WritePositionTableData = (props: Props) => {
       </TableCell>
       <TableCell>
         <Typography variant="h6">
-          <NumberDisplay n={utilization} decimals={18} rightText={'%'} />{' '}
+          {formatAmount(utilization.toNumber(), 2)}%
         </Typography>
       </TableCell>
       {/* <TableCell>

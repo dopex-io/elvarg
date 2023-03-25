@@ -1,9 +1,6 @@
 import Head from 'next/head';
-
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
-
 import { BigNumber } from 'ethers';
-
 import {
   Addresses,
   ERC20__factory,
@@ -19,10 +16,10 @@ import Select from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
-import Countdown from 'react-countdown';
 import { LoaderIcon } from 'react-hot-toast';
 import { useBoundStore } from 'store';
 import RedTriangleIcon from 'svgs/icons/RedTriangleIcon';
+import Countdown from 'react-countdown';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
@@ -37,8 +34,9 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import displayAddress from 'utils/general/displayAddress';
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
+import isNativeToken from 'utils/general/isNativeToken';
 
-import { CURRENCIES_MAP, IS_NATIVE, MAX_VALUE } from 'constants/index';
+import { CURRENCIES_MAP, MAX_VALUE } from 'constants/index';
 
 import { Order } from '../../types/tzwap';
 import styles from './styles.module.scss';
@@ -471,7 +469,7 @@ const Tzwap = () => {
         signer
       );
 
-      const userAmount = IS_NATIVE(fromTokenName)
+      const userAmount = isNativeToken(fromTokenName)
         ? BigNumber.from(userAssetBalances[CURRENCIES_MAP[chainId.toString()]!])
         : await ERC20__factory.connect(
             contractAddresses[fromTokenName],
@@ -480,7 +478,7 @@ const Tzwap = () => {
 
       setUserTokenBalance(userAmount);
 
-      let allowance = IS_NATIVE(fromTokenName)
+      let allowance = isNativeToken(fromTokenName)
         ? BigNumber.from(0)
         : await ERC20__factory.connect(
             contractAddresses[fromTokenName],
@@ -490,7 +488,7 @@ const Tzwap = () => {
       if (!allowance.eq(0)) {
         setApproved(true);
       } else {
-        if (IS_NATIVE(fromTokenName)) {
+        if (isNativeToken(fromTokenName)) {
           setApproved(true);
         } else {
           setApproved(false);
