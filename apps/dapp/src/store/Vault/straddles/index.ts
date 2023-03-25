@@ -346,7 +346,9 @@ export const createStraddlesSlice: StateCreator<
 
       const params = window.location.search.split('?epoch=');
 
-      if (params.length === 2) currentEpoch = Number(params[1]!);
+      let _selectedEpoch = currentEpoch;
+
+      if (params.length === 2) _selectedEpoch = Number(params[1]!);
 
       const underlying = addresses['underlying'];
 
@@ -367,7 +369,7 @@ export const createStraddlesSlice: StateCreator<
         blackOut = x;
       }
 
-      setSelectedEpoch(currentEpoch);
+      setSelectedEpoch(_selectedEpoch);
 
       set((prevState) => ({
         ...prevState,

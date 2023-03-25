@@ -28,10 +28,12 @@ import SsovFilter from 'components/ssov/SsovFilter';
 import { getReadableTime } from 'utils/contracts';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
-import { CHAIN_ID_TO_NETWORK_DATA, ROWS_PER_PAGE } from 'constants/index';
+import { CHAINS } from 'constants/chains';
 
 import { FeaturedOlp } from './FeaturedOlp';
 import { OlpTableRow } from './OlpTableRow';
+
+const ROWS_PER_PAGE: number = 5;
 
 const StyleSecondHeaderTable = styled(TableContainer)`
   table {
@@ -100,7 +102,7 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
 
   const olpNetworks = useMemo(() => {
     if (!olps) return [];
-    return chainIds.map((c) => CHAIN_ID_TO_NETWORK_DATA[Number(c)]?.name || '');
+    return chainIds.map((c) => CHAINS[Number(c)]?.name || '');
   }, [olps, chainIds]);
 
   const filteredMarket = useMemo(() => {
@@ -110,9 +112,7 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
 
     if (!isEmpty(selectedOlpNetworks)) {
       filtered = filtered.filter((o) =>
-        selectedOlpNetworks.includes(
-          CHAIN_ID_TO_NETWORK_DATA[o.chainId!]?.name || ''
-        )
+        selectedOlpNetworks.includes(CHAINS[o.chainId!]?.name || '')
       );
     }
 

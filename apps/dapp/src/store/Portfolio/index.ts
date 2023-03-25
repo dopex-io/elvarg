@@ -258,7 +258,7 @@ export const createPortfolioSlice: StateCreator<
             epoch: epoch,
             strikePrice: userPosition.strikePrice,
             underlyingPurchased: userPosition.underlyingPurchased,
-            link: '/straddles/' + assetName.toUpperCase() + '?epoch=' + epoch,
+            link: '/straddles/' + assetName.toUpperCase(),
             vaultType: 'straddles',
             owner: accountAddress!,
           };

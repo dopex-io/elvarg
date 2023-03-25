@@ -20,7 +20,7 @@ import {
 } from 'components/common/LpCommon/Table';
 import UserPositionsTable from 'components/olp/UserLpPositions/UserPositionsTable';
 
-import { ROWS_PER_PAGE } from 'constants/index';
+const ROWS_PER_PAGE = 5;
 
 const UserLpPositions = () => {
   const sendTx = useSendTx();

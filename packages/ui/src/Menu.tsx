@@ -1,9 +1,19 @@
+import React, { ReactEventHandler } from "react";
+import { Menu as HeadlessMenu, Transition } from "@headlessui/react";
+
 import Button from "../src/Button";
 import MenuItems, { dropdownVariants } from "../src/MenuItems";
 import { ItemType } from "../src/MenuItems";
+
 import DropdownArrowIcon from "./icons/DropdownArrowIcon";
-import { Menu as HeadlessMenu, Transition } from "@headlessui/react";
-import React, { ReactEventHandler } from "react";
+
+type colors =
+  | "primary"
+  | "mineshaft"
+  | "carbon"
+  | "umbra"
+  | "success"
+  | "error";
 
 interface MenuProps<T> {
   data: T[];
@@ -12,6 +22,7 @@ interface MenuProps<T> {
   dropdownVariant?: dropdownVariants;
   scrollable?: boolean;
   topElement?: React.ReactNode;
+  color?: colors;
 }
 
 const Menu = <T extends ItemType>(props: MenuProps<T>) => {
@@ -22,6 +33,7 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
     dropdownVariant = "basic",
     scrollable = false,
     topElement = null,
+    color = "carbon",
     ...rest
   } = props;
 
@@ -31,7 +43,7 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
         <HeadlessMenu.Button
           as={Button}
           className="flex justify-between bg-carbon"
-          color="carbon"
+          color={color}
           size="medium"
         >
           {({ open }: { open: boolean }) => (

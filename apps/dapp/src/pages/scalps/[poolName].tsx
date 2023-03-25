@@ -18,7 +18,7 @@ import TopBar from 'components/scalps/TopBar';
 import TradeCard from 'components/scalps/TradeCard';
 import Manage from 'components/scalps/Manage';
 
-import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
+import { CHAINS } from 'constants/chains';
 import { ethers } from 'ethers';
 
 // const SHOWCHARTS = false;
@@ -27,8 +27,8 @@ const ManageComponent = () => {
   const [manageSection, setManageSection] = useState<string>('Trade');
 
   return (
-    <Box className="w-full lg:w-[35rem] pt-2">
-      <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-top-lg">
+    <Box className="w-full  mt-2 h-fit-content">
+      <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-top-lg mb-2">
         {['LP', 'Trade'].map((label, index) => (
           <Button
             key={index}
@@ -135,7 +135,7 @@ const OptionScalps = ({ poolName }: Props) => {
         console.log(err);
       }
     };
-  }, [setUniWethPrice]);
+  }, [setUniWethPrice, setUniArbPrice]);
 
   return (
     <>
@@ -148,7 +148,7 @@ const OptionScalps = ({ poolName }: Props) => {
           <Box className="mt-8 sm:mt-14 md:mt-20 lg:mr-full">
             <TopBar />
           </Box>
-          <Box className="w-full h-full flex flex-col space-y-2 lg:flex-row lg:space-x-5">
+          <Box className="w-full h-full flex flex-col space-y-2 xl:flex-row xl:space-x-5">
             <Box className="flex flex-col w-full space-y-4 h-full">
               <Box className="flex-1 mt-4">{TVChart}</Box>
               <Positions />
@@ -161,7 +161,7 @@ const OptionScalps = ({ poolName }: Props) => {
             </Typography>
             <p className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text">
               <a
-                href={`${CHAIN_ID_TO_EXPLORER[chainId]}/address/${
+                href={`${CHAINS[chainId]?.explorer}/address/${
                   optionScalpData?.optionScalpContract?.address ?? ''
                 }`}
                 rel="noopener noreferrer"

@@ -5,7 +5,7 @@ module.exports = {
   content: [
     './src/**/*.{js,jsx,ts,tsx}',
     './index.html',
-    '../../node_modules/@dopex-io/ui/**/*.{js,jsx,ts,tsx}',
+    './node_modules/@dopex-io/ui/**/*.{js,jsx,ts,tsx}',
   ],
   theme: tailwindThemeConfig,
   plugins: [],
