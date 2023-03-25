@@ -191,7 +191,6 @@ const TradeCard = () => {
         optionScalpData?.quoteDecimals!.toNumber()
       );
 
-      console.log(minAbsThreshold.toString);
       if (isShortAfterAdjustments) {
         _liquidationPrice =
           positionDetails.marginInQuote / positions + minAbsThreshold + price;
@@ -343,8 +342,11 @@ const TradeCard = () => {
           optionScalpData?.quoteDecimals!.toNumber()
         ) * getUserReadableAmount(optionScalpData?.feeOpenPosition!, 10);
 
-      await calcPremium();
-      const _premium = getUserReadableAmount(premium, quoteDecimals.toNumber());
+      let _premium: number = 0;
+      await calcPremium().then(
+        () =>
+          (_premium = getUserReadableAmount(premium, quoteDecimals.toNumber()))
+      );
 
       const balance = getUserReadableAmount(
         userTokenBalance,
@@ -353,13 +355,13 @@ const TradeCard = () => {
 
       const price = showAsQuote ? 1 : Number(markPrice) / 1e6;
 
-      if (!balance) setRawAmount('0');
+      if (userTokenBalance.isZero()) return;
 
       setRawAmount(
         (
           (((balance - _premium - fee) / price) * leverage * option) /
           100
-        ).toString()
+        ).toFixed(5)
       );
     },
     [
