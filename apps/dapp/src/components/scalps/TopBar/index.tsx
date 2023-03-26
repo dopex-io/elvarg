@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import Box from '@mui/material/Box';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
@@ -16,14 +17,23 @@ const TopBar = () => {
     updateOptionScalp,
     selectedPoolName,
   } = useBoundStore();
+  const router = useRouter();
 
   const handleSelectChange = useCallback(
     async (e: any) => {
       setSelectedPoolName(e.target.value.toString());
+      router.push(
+        {
+          pathname: '/scalps/' + e.target.value.toString(),
+          query: {},
+        },
+        undefined,
+        { shallow: true }
+      );
       await updateOptionScalp();
       await updateOptionScalpUserData();
     },
-    [setSelectedPoolName, updateOptionScalp, updateOptionScalpUserData]
+    [router, setSelectedPoolName, updateOptionScalp, updateOptionScalpUserData]
   );
 
   return (
