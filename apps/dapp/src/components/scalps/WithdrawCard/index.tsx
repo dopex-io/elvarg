@@ -29,7 +29,6 @@ const WithdrawCard = () => {
     optionScalpData,
     updateOptionScalp,
     updateOptionScalpUserData,
-    optionScalpUserData,
     provider,
   } = useBoundStore();
 
