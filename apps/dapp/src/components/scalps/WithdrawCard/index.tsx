@@ -29,6 +29,7 @@ const WithdrawCard = () => {
     optionScalpData,
     updateOptionScalp,
     updateOptionScalpUserData,
+    optionScalpUserData,
     provider,
   } = useBoundStore();
 
@@ -73,10 +74,10 @@ const WithdrawCard = () => {
     let disabled = false;
     let text: any = 'Withdraw';
     let coolDown = 0;
+    const date = Math.floor(new Date().getTime() / 1000)
 
-    
     if (!approved) {
-      text = ' Approve'
+      text = 'Approve'
     }
 
     if (amount === 0) {
@@ -89,6 +90,13 @@ const WithdrawCard = () => {
       disabled = true;
     }
 
+    if (isQuote && (optionScalpUserData?.coolingPeriod?.quote ?? 0) > 0) {
+      coolDown = (optionScalpUserData?.coolingPeriod?.quote ?? 0) - date;
+    }
+
+    if (!isQuote && (optionScalpUserData?.coolingPeriod?.base ?? 0) > 0) {
+      coolDown = (optionScalpUserData?.coolingPeriod?.base ?? 0) - date;
+    }
 
     return {
       disabled,
@@ -98,7 +106,10 @@ const WithdrawCard = () => {
   }, [
     amount,
     approved,
+    isQuote,
+    optionScalpUserData?.coolingPeriod?.quote,
     readableUserTokenBalance,
+    optionScalpUserData?.coolingPeriod?.base,
   ]);
 
   const handleApprove = useCallback(async () => {
@@ -406,7 +417,7 @@ const WithdrawCard = () => {
             onClick={approved ? handleWithdraw : handleApprove}
           >
             <span className="text-[0.8rem]">
-              {false  ? (
+              {withdrawButtonProps.coolDown > 0  ? (
                 <Countdown
                   date={new Date(Number(withdrawButtonProps.coolDown * 1000))}
                   renderer={({ minutes, seconds }) => {
