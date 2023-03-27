@@ -416,7 +416,7 @@ const WithdrawCard = () => {
             onClick={approved ? handleWithdraw : handleApprove}
           >
             <span className="text-[0.8rem]">
-              {withdrawButtonProps.coolDown > 0 ? (
+              {false  ? (
                 <Countdown
                   date={new Date(Number(withdrawButtonProps.coolDown * 1000))}
                   renderer={({ minutes, seconds }) => {
