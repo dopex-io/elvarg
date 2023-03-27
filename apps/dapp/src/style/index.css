@@ -4,24 +4,28 @@
   font-family: Ilisarniq;
   src: url('/fonts/Ilisarniq-Light.otf');
   font-weight: 300;
+  ascent-override: 90%;
 }
 
 @font-face {
   font-family: Ilisarniq;
   src: url('/fonts/Ilisarniq-Regular.otf');
   font-weight: 400;
+  ascent-override: 90%;
 }
 
 @font-face {
   font-family: Ilisarniq;
   src: url('/fonts/Ilisarniq-Demi.otf');
   font-weight: 500;
+  ascent-override: 90%;
 }
 
 @font-face {
   font-family: Ilisarniq;
   src: url('/fonts/Ilisarniq-Bold.otf');
   font-weight: 700;
+  ascent-override: 90%;
 }
 
 @font-face {
