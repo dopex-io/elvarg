@@ -54,10 +54,16 @@ const PositionsTable = ({ tab }: { tab: string }) => {
     (position: any) => {
       const { entry, pnl, margin, positions } = position;
 
-      const leverage =
-        (parseFloat(positions) * parseFloat(entry)) / parseFloat(margin);
+      const _positions = parseFloat(
+        positions.replace('.', '').replace(',', '.')
+      );
+      const _entry = parseFloat(entry.replace('.', '').replace(',', '.'));
+      const _pnl = parseFloat(pnl);
+      const _margin = parseFloat(margin.replace('.', '').replace(',', '.'));
 
-      const _pnl = (parseFloat(pnl) / parseFloat(margin)) * 100;
+      const leverage = (_positions * _entry) / _margin;
+
+      const _percPnl = (_pnl / _margin) * 100;
 
       if (!optionScalpData) return;
       const { baseSymbol, quoteSymbol } = optionScalpData;
@@ -74,7 +80,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
             <span>{`${baseSymbol}${quoteSymbol}`}</span>
           </Typography>
         ),
-        percentage: _pnl,
+        percentage: _percPnl,
         customPath: `https://dapp-git-feat-option-scalps-dopex-io.vercel.app/scalps/${selectedPoolName}`,
         stats: [
           { name: 'Entry Price', value: `$${entry}` },
