@@ -1,8 +1,8 @@
-import { SetStateAction, useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { BigNumber } from 'ethers';
 
-import { IconButton, Menu, MenuItem, Tooltip } from '@mui/material';
+import { IconButton, Tooltip } from '@mui/material';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -10,7 +10,7 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import IosShare from '@mui/icons-material/IosShare';
 
 import Countdown from 'react-countdown';
 
@@ -46,22 +46,18 @@ const PositionsTable = ({ tab }: { tab: string }) => {
     return BigNumber.from('0');
   }, [uniWethPrice, uniArbPrice, selectedPoolName]);
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
   const share = useShare((state) => state.open);
 
   const handleShare = useCallback(
     (position: any) => {
       const { entry, pnl, margin, positions } = position;
 
-      const _positions = parseFloat(
-        positions.replace('.', '').replace(',', '.')
-      );
+      const _pos = parseFloat(positions.replace('.', '').replace(',', '.'));
       const _entry = parseFloat(entry.replace('.', '').replace(',', '.'));
       const _pnl = parseFloat(pnl);
       const _margin = parseFloat(margin.replace('.', '').replace(',', '.'));
 
-      const leverage = (_positions * _entry) / _margin;
+      const leverage = (_pos * _entry) / _margin;
 
       const _percPnl = (_pnl / _margin) * 100;
 
@@ -93,14 +89,6 @@ const PositionsTable = ({ tab }: { tab: string }) => {
     },
     [share, optionScalpData, markPrice, selectedPoolName]
   );
-
-  const handleClickMenu = useCallback(
-    (event: { currentTarget: SetStateAction<HTMLElement | null> }) =>
-      setAnchorEl(event.currentTarget),
-    []
-  );
-
-  const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
 
   const handleClose = useCallback(
     async (id: BigNumber) => {
@@ -221,7 +209,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           <TableHead className="rounded-xl">
             <TableRow>
               <TableHeader label="Pos. Size" showArrowIcon />
-              <TableHeader label="Average Open Price" />
+              <TableHeader label="Avg. Open Price" />
               {tab === 'Open' ? <TableHeader label="Liq. Price" /> : null}
               <TableHeader label="PnL" />
               <TableHeader label="Margin" />
@@ -388,61 +376,25 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                       Close
                     </CustomButton>
                     <IconButton
-                      aria-label="more"
-                      aria-controls="long-menu"
+                      aria-label="share"
                       aria-haspopup="true"
-                      onClick={handleClickMenu}
-                      className="long-menu rounded-md bg-mineshaft mx-1 p-0 hover:bg-opacity-80 hover:bg-mineshaft flex"
-                      size="large"
+                      onClick={() => handleShare(position)}
+                      className="flex"
+                      size="small"
                     >
-                      <MoreVertIcon className="fill-current text-white" />
+                      <IosShare className="fill-current text-white opacity-90 hover:opacity-100 mb-0.5 pb-0.5" />
                     </IconButton>
-                    <Box>
-                      <Menu
-                        anchorEl={anchorEl}
-                        open={Boolean(anchorEl)}
-                        onClose={handleCloseMenu}
-                        classes={{ paper: 'bg-umbra' }}
-                      >
-                        <MenuItem
-                          key="share"
-                          onClick={() => handleShare(position)}
-                          className="text-white"
-                        >
-                          Share
-                        </MenuItem>
-                      </Menu>
-                    </Box>
                   </TableCell>
                 ) : (
-                  <TableCell className="flex justify-end border-0">
-                    <IconButton
-                      aria-label="more"
-                      aria-controls="long-menu"
-                      aria-haspopup="true"
-                      onClick={handleClickMenu}
-                      className="long-menu rounded-md bg-mineshaft mx-1 p-0 hover:bg-opacity-80 hover:bg-mineshaft flex"
-                      size="large"
-                    >
-                      <MoreVertIcon className="fill-current text-white" />
-                    </IconButton>
-                    <Box>
-                      <Menu
-                        anchorEl={anchorEl}
-                        open={Boolean(anchorEl)}
-                        onClose={handleCloseMenu}
-                        classes={{ paper: 'bg-umbra' }}
-                      >
-                        <MenuItem
-                          key="share"
-                          onClick={() => handleShare(position)}
-                          className="text-white"
-                        >
-                          Share
-                        </MenuItem>
-                      </Menu>
-                    </Box>
-                  </TableCell>
+                  <IconButton
+                    aria-label="share"
+                    aria-haspopup="true"
+                    onClick={() => handleShare(position)}
+                    className="flex"
+                    size="small"
+                  >
+                    <IosShare className="fill-current text-white opacity-90 hover:opacity-100 mt-1 pt-1" />
+                  </IconButton>
                 )}
               </TableRow>
             ))}
