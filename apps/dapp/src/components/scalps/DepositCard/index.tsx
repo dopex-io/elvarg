@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { BigNumber } from 'ethers';
-
 import { ERC20__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
+import { CircularProgress } from '@mui/material';
 import cx from 'classnames';
+
 import useSendTx from 'hooks/useSendTx';
+
 import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
@@ -48,6 +49,7 @@ const DepositCard = () => {
 
   const [isQuoteApproved, setIsQuoteApproved] = useState(false);
   const [isBaseApproved, setIsBaseApproved] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const approved = useMemo(() => {
     return isQuote ? isQuoteApproved : isBaseApproved;
@@ -72,6 +74,41 @@ const DepositCard = () => {
     );
   }, [optionScalpData, userTokenBalance, isQuote]);
 
+  const checkApproved = useCallback(async () => {
+    if (!accountAddress || !signer) return;
+
+    const quote = ERC20__factory.connect(
+      contractAddresses[optionScalpData!.quoteSymbol!],
+      signer
+    );
+    const base = ERC20__factory.connect(
+      contractAddresses[optionScalpData!.baseSymbol!],
+      signer
+    );
+
+    const [quoteAllowance, baseAllowance] = await Promise.all([
+      quote.allowance(
+        accountAddress,
+        optionScalpData?.optionScalpContract?.address
+      ),
+      base.allowance(
+        accountAddress,
+        optionScalpData?.optionScalpContract?.address
+      ),
+    ]);
+
+    const balance: BigNumber = await (isQuote ? quote : base).balanceOf(
+      accountAddress
+    );
+    if (isQuote) {
+      setIsQuoteApproved(quoteAllowance.gte(balance));
+      setUserQuoteBalance(balance);
+    } else {
+      setIsBaseApproved(baseAllowance.gte(balance));
+      setUserBaseBalance(balance);
+    }
+  }, [accountAddress, contractAddresses, isQuote, optionScalpData, signer]);
+
   const depositButtonMessage: string = useMemo(() => {
     if (!approved) return 'Approve';
     else if (amount == 0) return 'Insert an amount';
@@ -80,6 +117,7 @@ const DepositCard = () => {
   }, [approved, amount, readableUserTokenBalance]);
 
   const handleApprove = useCallback(async () => {
+    setLoading(true);
     if (!optionScalpData?.optionScalpContract || !signer || !contractAddresses)
       return;
 
@@ -96,14 +134,21 @@ const DepositCard = () => {
       await sendTx(isQuote ? quote : base, 'approve', [
         optionScalpData?.optionScalpContract?.address,
         MAX_VALUE,
-      ]);
-
-      if (isQuote) setIsQuoteApproved(true);
-      else setIsBaseApproved(true);
+      ])
+        .then(async() => await checkApproved())
+        .then(() => setLoading(false));
     } catch (err) {
       console.log(err);
+      setLoading(false);
     }
-  }, [sendTx, signer, optionScalpData, contractAddresses, isQuote]);
+  }, [
+    sendTx,
+    signer,
+    optionScalpData,
+    contractAddresses,
+    isQuote,
+    checkApproved,
+  ]);
 
   // Handle deposit
   const handleDeposit = useCallback(async () => {
@@ -173,46 +218,8 @@ const DepositCard = () => {
 
   // Updates approved state and user balance
   useEffect(() => {
-    (async () => {
-      if (!accountAddress || !signer || !optionScalpData?.optionScalpContract)
-        return;
-
-      const quote = ERC20__factory.connect(
-        contractAddresses[optionScalpData!.quoteSymbol!],
-        signer
-      );
-      const base = ERC20__factory.connect(
-        contractAddresses[optionScalpData!.baseSymbol!],
-        signer
-      );
-      const quoteAllowance: BigNumber = await quote.allowance(
-        accountAddress,
-        optionScalpData?.optionScalpContract?.address
-      );
-      const baseAllowance: BigNumber = await base.allowance(
-        accountAddress,
-        optionScalpData?.optionScalpContract?.address
-      );
-      const balance: BigNumber = await (isQuote ? quote : base).balanceOf(
-        accountAddress
-      );
-      if (isQuote) {
-        setIsQuoteApproved(quoteAllowance.gte(balance));
-        setUserQuoteBalance(balance);
-      } else {
-        setIsBaseApproved(baseAllowance.gte(balance));
-        setUserBaseBalance(balance);
-      }
-    })();
-  }, [
-    contractAddresses,
-    accountAddress,
-    approved,
-    signer,
-    chainId,
-    optionScalpData,
-    isQuote,
-  ]);
+    checkApproved();
+  }, [checkApproved]);
 
   return (
     <Box className="h-full flex flex-col pt-2">
@@ -338,7 +345,13 @@ const DepositCard = () => {
             disabled={amount <= 0}
             onClick={approved ? handleDeposit : handleApprove}
           >
-            <p className="text-[0.8rem]">{depositButtonMessage}</p>
+            <p className="text-[0.8rem]">
+              {loading ? (
+                <CircularProgress className="text-white" size="1rem" />
+              ) : (
+                depositButtonMessage
+              )}
+            </p>
           </CustomButton>
         </Box>
       </Box>
