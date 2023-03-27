@@ -75,8 +75,9 @@ const WithdrawCard = () => {
     let text: any = 'Withdraw';
     let coolDown = 0;
 
+    
     if (!approved) {
-      disabled = true;
+      text = ' Approve'
     }
 
     if (amount === 0) {
@@ -89,13 +90,6 @@ const WithdrawCard = () => {
       disabled = true;
     }
 
-    if (isQuote && (optionScalpUserData?.coolingPeriod?.quote ?? 0) > 0) {
-      coolDown = optionScalpUserData?.coolingPeriod?.quote ?? 0;
-    }
-
-    if (!isQuote && (optionScalpUserData?.coolingPeriod?.base ?? 0) > 0) {
-      coolDown = optionScalpUserData?.coolingPeriod?.base ?? 0;
-    }
 
     return {
       disabled,
@@ -105,10 +99,7 @@ const WithdrawCard = () => {
   }, [
     amount,
     approved,
-    isQuote,
-    optionScalpUserData?.coolingPeriod?.quote,
     readableUserTokenBalance,
-    optionScalpUserData?.coolingPeriod?.base,
   ]);
 
   const handleApprove = useCallback(async () => {
