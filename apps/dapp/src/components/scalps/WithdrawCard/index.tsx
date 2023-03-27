@@ -18,6 +18,7 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE } from 'constants/index';
+import Countdown from 'react-countdown';
 
 const WithdrawCard = () => {
   const {
@@ -28,6 +29,8 @@ const WithdrawCard = () => {
     optionScalpData,
     updateOptionScalp,
     updateOptionScalpUserData,
+    optionScalpUserData,
+    provider,
   } = useBoundStore();
 
   const sendTx = useSendTx();
@@ -67,12 +70,46 @@ const WithdrawCard = () => {
     );
   }, [optionScalpData, userTokenBalance, isQuote]);
 
-  const withdrawButtonMessage: string = useMemo(() => {
-    if (!approved) return 'Approve';
-    else if (amount == 0) return 'Insert an amount';
-    else if (amount > readableUserTokenBalance) return 'Amount exceeds balance';
-    return 'Withdraw';
-  }, [amount, readableUserTokenBalance, approved]);
+  const withdrawButtonProps = useMemo(() => {
+    let disabled = false;
+    let text: any = 'Withdraw';
+    let coolDown = 0;
+
+    if (!approved) {
+      disabled = true;
+    }
+
+    if (amount === 0) {
+      text = 'Insert an amount';
+      disabled = true;
+    }
+
+    if (amount > readableUserTokenBalance) {
+      text = 'Amount exceeds balance';
+      disabled = true;
+    }
+
+    if (isQuote && (optionScalpUserData?.coolingPeriod?.quote ?? 0) > 0) {
+      coolDown = optionScalpUserData?.coolingPeriod?.quote ?? 0;
+    }
+
+    if (!isQuote && (optionScalpUserData?.coolingPeriod?.base ?? 0) > 0) {
+      coolDown = optionScalpUserData?.coolingPeriod?.base ?? 0;
+    }
+
+    return {
+      disabled,
+      text,
+      coolDown,
+    };
+  }, [
+    amount,
+    approved,
+    isQuote,
+    optionScalpUserData?.coolingPeriod?.quote,
+    readableUserTokenBalance,
+    optionScalpUserData?.coolingPeriod?.base,
+  ]);
 
   const handleApprove = useCallback(async () => {
     if (!optionScalpData?.optionScalpContract || !signer || !contractAddresses)
@@ -159,20 +196,21 @@ const WithdrawCard = () => {
   // Updates user balance
   useEffect(() => {
     (async () => {
-      if (!accountAddress || !signer || !optionScalpData?.optionScalpContract)
+      if (!accountAddress || !provider || !optionScalpData?.optionScalpContract)
         return;
 
       const quote = ERC20__factory.connect(
         optionScalpData!.quoteLpContract.address,
-        signer
+        provider
       );
       const base = ERC20__factory.connect(
         optionScalpData!.baseLpContract.address,
-        signer
+        provider
       );
       const balance: BigNumber = await (isQuote ? quote : base).balanceOf(
         accountAddress
       );
+
       if (isQuote) {
         setUserQuoteBalance(balance);
       } else {
@@ -191,7 +229,7 @@ const WithdrawCard = () => {
   }, [
     contractAddresses,
     accountAddress,
-    signer,
+    provider,
     chainId,
     optionScalpData,
     isQuote,
@@ -265,41 +303,6 @@ const WithdrawCard = () => {
         </Box>
       </Box>
       <Box className="bg-umbra rounded-2xl mx-2">
-        <Box className="flex flex-col mb-1 p-4 pb-0 w-full">
-          <Box className={'flex'}>
-            <Typography
-              variant="h6"
-              className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
-            >
-              Locked
-            </Typography>
-            <Box className={'text-right'}>
-              <Typography
-                variant="h6"
-                className="text-white mr-auto ml-0 text-[0.8rem]"
-              >
-                {formatAmount(
-                  getUserReadableAmount(
-                    isQuote
-                      ? optionScalpData!.totalQuoteDeposits!.sub(
-                          optionScalpData!.totalQuoteAvailable!
-                        )
-                      : optionScalpData!.totalBaseDeposits!.sub(
-                          optionScalpData!.totalBaseAvailable!
-                        ),
-                    isQuote
-                      ? optionScalpData?.quoteDecimals!.toNumber()!
-                      : optionScalpData?.baseDecimals!.toNumber()
-                  ),
-                  0
-                )}{' '}
-                {isQuote
-                  ? optionScalpData?.quoteSymbol
-                  : optionScalpData?.baseSymbol}
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
         <Box className="flex flex-col mb-1 p-4 pb-0 w-full">
           <Box className={'flex'}>
             <Typography
@@ -408,15 +411,26 @@ const WithdrawCard = () => {
           <CustomButton
             size="small"
             className="w-full !rounded-md"
-            color={
-              amount > 0 && amount <= readableUserTokenBalance
-                ? 'primary'
-                : 'mineshaft'
-            }
-            disabled={amount <= 0}
+            color={!withdrawButtonProps.disabled ? 'primary' : 'mineshaft'}
+            disabled={withdrawButtonProps.disabled}
             onClick={approved ? handleWithdraw : handleApprove}
           >
-            <p className="text-[0.8rem]">{withdrawButtonMessage}</p>
+            <span className="text-[0.8rem]">
+              {withdrawButtonProps.coolDown > 0 ? (
+                <Countdown
+                  date={new Date(Number(withdrawButtonProps.coolDown * 1000))}
+                  renderer={({ minutes, seconds }) => {
+                    return (
+                      <Typography variant="h6" className="text-stieglitz mr-1">
+                        Withdrawal locked for {minutes}m {seconds}s
+                      </Typography>
+                    );
+                  }}
+                />
+              ) : (
+                withdrawButtonProps.text
+              )}
+            </span>
           </CustomButton>
         </Box>
       </Box>

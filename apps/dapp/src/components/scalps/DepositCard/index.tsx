@@ -29,6 +29,7 @@ const DepositCard = () => {
     optionScalpData,
     updateOptionScalp,
     updateOptionScalpUserData,
+    provider,
   } = useBoundStore();
 
   const sendTx = useSendTx();
@@ -74,6 +75,26 @@ const DepositCard = () => {
     );
   }, [optionScalpData, userTokenBalance, isQuote]);
 
+  const updateUserBalance = useCallback(async () => {
+    if (!accountAddress || !provider) return;
+    const balance = await ERC20__factory.connect(
+      isQuote
+        ? contractAddresses[optionScalpData!.quoteSymbol!]
+        : contractAddresses[optionScalpData!.baseSymbol!],
+      provider
+    ).balanceOf(accountAddress);
+
+    if (isQuote) {
+      setUserQuoteBalance(balance);
+    } else {
+      setUserBaseBalance(balance);
+    }
+  }, [accountAddress, contractAddresses, isQuote, optionScalpData, provider]);
+
+  useEffect(() => {
+    updateUserBalance();
+  }, [updateUserBalance]);
+
   const checkApproved = useCallback(async () => {
     if (!accountAddress || !signer) return;
 
@@ -102,10 +123,8 @@ const DepositCard = () => {
     );
     if (isQuote) {
       setIsQuoteApproved(quoteAllowance.gte(balance));
-      setUserQuoteBalance(balance);
     } else {
       setIsBaseApproved(baseAllowance.gte(balance));
-      setUserBaseBalance(balance);
     }
   }, [accountAddress, contractAddresses, isQuote, optionScalpData, signer]);
 
@@ -327,6 +346,10 @@ const DepositCard = () => {
           share in this pool. On withdrawal of deposited funds the same ERC4626
           tokens will be burnt in exchange for the deposited funds along with
           earnings.
+        </p>
+        <p className="text-justify h-full p-2 px-3 m-1 text-sm font-light mb-1.5">
+          Deposits are locked for an hour from the time of deposit after which
+          they can be withdrawn.
         </p>
       </Box>
       <Box className="rounded-lg bg-neutral-800 mx-2">
