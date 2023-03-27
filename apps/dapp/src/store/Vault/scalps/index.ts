@@ -1,5 +1,9 @@
 import { BigNumber } from 'ethers';
-import { OptionScalpsLp__factory, OptionScalps__factory } from '@dopex-io/sdk';
+import {
+  OptionScalpsLp,
+  OptionScalpsLp__factory,
+  OptionScalps__factory,
+} from '@dopex-io/sdk';
 
 import { StateCreator } from 'zustand';
 
@@ -8,8 +12,8 @@ import { WalletSlice } from 'store/Wallet';
 
 export interface optionScalpData {
   optionScalpContract: any | undefined;
-  quoteLpContract: any | undefined;
-  baseLpContract: any | undefined;
+  quoteLpContract: OptionScalpsLp;
+  baseLpContract: OptionScalpsLp;
   minimumMargin: BigNumber;
   feeOpenPosition: BigNumber;
   minimumAbsoluteLiquidationThreshold: BigNumber;
@@ -50,6 +54,10 @@ export interface ScalpPosition {
 }
 export interface optionScalpUserData {
   scalpPositions?: ScalpPosition[];
+  coolingPeriod: {
+    quote: number;
+    base: number;
+  };
 }
 
 export interface OptionScalpSlice {
@@ -84,7 +92,12 @@ export const createOptionScalpSlice: StateCreator<
   },
   uniWethPrice: BigNumber.from(0),
   uniArbPrice: BigNumber.from(0),
-  optionScalpUserData: {},
+  optionScalpUserData: {
+    coolingPeriod: {
+      quote: 0,
+      base: 0,
+    },
+  },
   getOptionScalpContract: () => {
     const { selectedPoolName, provider, contractAddresses } = get();
 
@@ -144,6 +157,8 @@ export const createOptionScalpSlice: StateCreator<
       getScalpPosition,
       calcPnl,
       calcLiqPrice,
+      getBaseLpContract,
+      getQuoteLpContract,
     } = get();
 
     const optionScalpContract = await getOptionScalpContract();
@@ -212,11 +227,20 @@ export const createOptionScalpSlice: StateCreator<
 
     scalpPositions.reverse();
 
+    const [quoteCoolingPeriod, baseCoolingPeriod] = await Promise.all([
+      getQuoteLpContract().lockedUsers(accountAddress),
+      getBaseLpContract().lockedUsers(accountAddress),
+    ]);
+
     set((prevState) => ({
       ...prevState,
       optionScalpUserData: {
         ...prevState.optionScalpUserData,
         scalpPositions: scalpPositions,
+        coolingPeriod: {
+          quote: Number(quoteCoolingPeriod),
+          base: Number(baseCoolingPeriod),
+        },
       },
     }));
   },
