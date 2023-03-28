@@ -168,7 +168,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                   .div(position.positions.abs())
               ),
           optionScalpData?.quoteDecimals!.toNumber()!
-        ).toFixed(2);
+        ).toFixed(4);
 
         const margin = formatAmount(
           getUserReadableAmount(position.margin, quoteDecimals.toNumber()),
