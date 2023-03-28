@@ -30,10 +30,10 @@ const useSendTx = () => {
       if (!signer) {
         return;
       }
-      // if (!userCompliant) {
-      //   setOpenComplianceDialog(true);
-      //   return;
-      // }
+      if (!userCompliant) {
+        setOpenComplianceDialog(true);
+        return;
+      }
       let toastId: string;
       if (wrongNetwork) {
         toast.error('Wrong Network');

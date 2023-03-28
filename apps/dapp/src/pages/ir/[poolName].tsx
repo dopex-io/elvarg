@@ -29,7 +29,6 @@ interface Props {
 const Manage = ({ poolName }: Props) => {
   const {
     accountAddress,
-    connect,
     chainId,
     setSelectedPoolName,
     rateVaultData,
@@ -50,15 +49,11 @@ const Manage = ({ poolName }: Props) => {
   }, [poolName, setSelectedPoolName]);
 
   useEffect(() => {
-    if (!accountAddress) {
-      connect();
-    }
     updateRateVaultContract();
     updateRateVaultEpochData();
     updateRateVault();
   }, [
     accountAddress,
-    connect,
     updateRateVaultContract,
     updateRateVault,
     updateRateVaultEpochData,

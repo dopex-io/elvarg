@@ -1,7 +1,3 @@
-import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
-
-import { CHAINS } from 'constants/chains';
-
 const NETWORKS = {
   1: {
     chainId: '0x1',
@@ -122,19 +118,8 @@ const NETWORKS = {
 
 export default async function changeOrAddNetwork(chainId: number) {
   if (!window) return;
-  if (!window.ethereum) {
-    // Initialize Coinbase Wallet SDK
-    const coinbaseWallet = new CoinbaseWalletSDK({
-      appName: 'Dopex',
-      appLogoUrl: '/images/tokens/dpx.svg',
-    });
-
-    let rpcUrl = CHAINS[chainId]?.publicRpc;
-
-    window.ethereum = coinbaseWallet.makeWeb3Provider(rpcUrl, chainId);
-  }
-
   try {
+    // @ts-ignore TODO: FIX
     await window.ethereum.request({
       method: 'wallet_switchEthereumChain',
       // @ts-ignore TODO: FIX
@@ -146,6 +131,7 @@ export default async function changeOrAddNetwork(chainId: number) {
     // @ts-ignore TODO: FIX
     if (switchError.code === 4902) {
       try {
+        // @ts-ignore TODO: FIX
         await window.ethereum.request({
           method: 'wallet_addEthereumChain',
           // @ts-ignore TODO: FIX

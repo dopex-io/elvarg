@@ -25,8 +25,7 @@ interface Props {
 }
 
 const WalletDialog = ({ open, handleClose, userBalances }: Props) => {
-  const { accountAddress, changeWallet, disconnect, chainId, ensName } =
-    useBoundStore();
+  const { accountAddress, chainId, ensName } = useBoundStore();
 
   const [copyState, setCopyState] = useState('Copy Address');
 
@@ -37,14 +36,14 @@ const WalletDialog = ({ open, handleClose, userBalances }: Props) => {
   };
 
   const changeWalletClick = useCallback(() => {
-    changeWallet();
+    // changeWallet();
     handleClose();
-  }, [handleClose, changeWallet]);
+  }, [handleClose]);
 
   const disconnectWalletClick = useCallback(() => {
-    disconnect();
+    // disconnect();
     handleClose();
-  }, [handleClose, disconnect]);
+  }, [handleClose]);
 
   return (
     <Dialog handleClose={handleClose} open={open} showCloseIcon>

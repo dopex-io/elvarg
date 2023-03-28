@@ -20,8 +20,10 @@ function AddTokenButton({
     if (window && window.ethereum) {
       window.ethereum
         .request({
+          // @ts-ignore
           method: 'wallet_watchAsset',
           params: {
+            // @ts-ignore
             type: 'ERC20',
             options,
           },

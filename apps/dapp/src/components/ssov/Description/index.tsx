@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import format from 'date-fns/format';
+import noop from 'lodash/noop';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -26,7 +27,7 @@ const Description = ({
   ssovEpochData: SsovV3EpochData;
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
-  const { accountAddress, connect } = useBoundStore();
+  const { accountAddress } = useBoundStore();
 
   const { APY, TVL, rewards } = ssovEpochData;
 
@@ -138,7 +139,7 @@ const Description = ({
             fullWidth
             className="rounded-lg"
             onClick={() => {
-              accountAddress ? setPurchaseState(true) : connect();
+              accountAddress ? setPurchaseState(true) : noop;
             }}
             disabled={ssovData?.isCurrentEpochExpired || false}
           >

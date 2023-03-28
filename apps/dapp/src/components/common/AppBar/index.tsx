@@ -8,7 +8,6 @@ import {
   useEffect,
   SetStateAction,
 } from 'react';
-import Router from 'next/router';
 import { ethers } from 'ethers';
 import cx from 'classnames';
 import Link from 'next/link';
@@ -20,29 +19,21 @@ import MenuIcon from '@mui/icons-material/Menu';
 import IconButton from '@mui/material/IconButton';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import axios from 'axios';
+import { useNetwork } from 'wagmi';
 
 import ClaimRdpxDialog from './ClaimRdpxDialog';
 import NetworkButton from './NetworkButton';
 import Typography from 'components/UI/Typography';
-import WalletDialog from 'components/common/AppBar/WalletDialog';
-import CustomButton from 'components/UI/Button';
 import PriceCarousel from 'components/common/AppBar/PriceCarousel';
 import DisclaimerDialog from 'components/common/DisclaimerDialog';
+import ConnectButton from '../ConnectButton';
 
-import { getWeb3Modal } from 'store/Wallet/getWeb3Modal';
 import { useBoundStore } from 'store';
 
 import {
-  CURRENCIES_MAP,
   DISCLAIMER_MESSAGE,
   OFAC_COMPLIANCE_LOCAL_STORAGE_KEY,
 } from 'constants/index';
-import { DEFAULT_CHAIN_ID } from 'constants/env';
-import { PAGE_TO_SUPPORTED_CHAIN_IDS, CHAINS } from 'constants/chains';
-
-import formatAmount from 'utils/general/formatAmount';
-import displayAddress from 'utils/general/displayAddress';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 const AppLink = ({
   name,
@@ -146,7 +137,13 @@ const AppSubMenu = ({
   );
 };
 
-const appLinks = {
+const appLinks: {
+  [key: number]: {
+    name: string;
+    to?: string;
+    subLinks?: { name: string; to: string; description: string }[];
+  }[];
+} = {
   1: [
     { name: 'Farms', to: '/farms' },
     { name: 'Sale', to: '/sale' },
@@ -268,46 +265,30 @@ export default function AppBar(props: AppBarProps) {
   const { active } = props;
   const {
     accountAddress,
-    connect,
-    provider,
-    wrongNetwork,
-    chainId,
-    ensName,
-    ensAvatar,
-    updateState,
     tokenPrices,
     updateTokenPrices,
-    userAssetBalances,
     updateAssetBalances,
     setOpenComplianceDialog,
     openComplianceDialog,
     setUserCompliant,
   } = useBoundStore();
 
+  const { chain } = useNetwork();
+
   useEffect(() => {
     updateAssetBalances();
-  }, [updateAssetBalances, provider]);
+  }, [updateAssetBalances]);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [anchorElSmall, setAnchorElSmall] = useState<null | HTMLElement>(null);
-  const [walletDialog, setWalletDialog] = useState(false);
   const [claimRdpxDialog, setClaimRdpxDialog] = useState(false);
-  // TODO: FIX
-  // @ts-ignore
-  const links = appLinks[chainId];
+
+  const links = appLinks[chain?.id || 42161];
 
   const handleRdpxDialogClose = () => setClaimRdpxDialog(false);
 
   const handleClose = useCallback(() => setAnchorEl(null), []);
   const handleCloseSmall = useCallback(() => setAnchorElSmall(null), []);
-
-  const handleWalletConnect = useCallback(() => {
-    connect && connect();
-  }, [connect]);
-
-  const handleWalletDialogClose = useCallback(() => {
-    setWalletDialog(false);
-  }, []);
 
   const handleClickMenu = useCallback(
     (event: MouseEvent<HTMLButtonElement, MouseEvent>) =>
@@ -320,16 +301,6 @@ export default function AppBar(props: AppBarProps) {
       setAnchorElSmall(event.currentTarget),
     []
   );
-
-  const handleClick = useCallback(() => {
-    setWalletDialog(true);
-  }, []);
-
-  const walletButtonContent = useMemo(() => {
-    if (wrongNetwork) return 'Wrong Network';
-    if (accountAddress) return displayAddress(accountAddress, ensName);
-    return '';
-  }, [accountAddress, ensName, wrongNetwork]);
 
   const handleClaimRdpx = () => {
     setClaimRdpxDialog(true);
@@ -376,12 +347,12 @@ export default function AppBar(props: AppBarProps) {
 
   useEffect(() => {
     updateAssetBalances();
-  }, [updateAssetBalances, provider]);
+  }, [updateAssetBalances]);
 
   const menuItems = useMemo(() => {
     return [
       ...menuLinks,
-      chainId === 1 && {
+      chain?.id === 1 && {
         name: 'Claim',
         children: (
           <Button
@@ -395,22 +366,7 @@ export default function AppBar(props: AppBarProps) {
         ),
       },
     ].filter((i) => i);
-  }, [chainId]);
-
-  useEffect(() => {
-    if (getWeb3Modal()?.cachedProvider) {
-      connect();
-    } else {
-      updateState({
-        provider: new ethers.providers.StaticJsonRpcProvider(
-          CHAINS[
-            PAGE_TO_SUPPORTED_CHAIN_IDS[Router.asPath]?.default ||
-              DEFAULT_CHAIN_ID
-          ]?.rpc
-        ),
-      });
-    }
-  }, [connect, updateState]);
+  }, [chain]);
 
   useEffect(() => {
     updateTokenPrices();
@@ -431,11 +387,7 @@ export default function AppBar(props: AppBarProps) {
         open={openComplianceDialog}
         handleClose={setOpenComplianceDialog}
       />
-      <WalletDialog
-        open={walletDialog}
-        userBalances={userAssetBalances}
-        handleClose={handleWalletDialogClose}
-      />
+
       <nav className="fixed top-0 w-full text-gray-600 z-50 backdrop-blur-sm h-[74px]">
         <PriceCarousel tokenPrices={tokenPrices} />
         <Box className="flex w-full items-center container pl-5 pr-5 lg:pl-10 lg:pr-10 p-4 justify-between mx-auto max-w-full">
@@ -451,75 +403,30 @@ export default function AppBar(props: AppBarProps) {
               />
             </Link>
             <Box className="space-x-10 mr-10 hidden lg:flex">
-              {links.map(
-                (link: {
-                  name: Key | null | undefined;
-                  to: string;
-                  subLinks: any;
-                  active: string;
-                }) => {
-                  if (link.subLinks) {
-                    return (
-                      <AppSubMenu
-                        key={link.name}
-                        menuName={link.name}
-                        links={link.subLinks}
-                      />
-                    );
-                  }
+              {links?.map((link) => {
+                if (link.subLinks) {
                   return (
-                    <AppLink
-                      to={link.to || ''}
-                      name={link.name}
-                      active={link.name === active}
+                    <AppSubMenu
                       key={link.name}
+                      menuName={link.name}
+                      links={link.subLinks}
                     />
                   );
                 }
-              )}
+                return (
+                  <AppLink
+                    to={link.to || ''}
+                    name={link.name}
+                    active={link.name === active}
+                    key={link.name}
+                  />
+                );
+              })}
             </Box>
           </Box>
           <Box className="flex items-center">
-            {accountAddress ? (
-              <Box className="bg-cod-gray flex flex-row rounded-md items-center">
-                <Button
-                  variant="text"
-                  className="text-white border-cod-gray hover:border-wave-blue border border-solid"
-                  onClick={handleClick}
-                >
-                  {ensAvatar && (
-                    <img
-                      src={ensAvatar}
-                      className="w-5 mr-2"
-                      alt="ens avatar"
-                    />
-                  )}
-                  {walletButtonContent}
-                </Button>
-                <Box className="bg-mineshaft flex-row px-2 py-2 rounded-md items-center mr-1 hidden lg:flex">
-                  <Typography variant="caption" component="div">
-                    {formatAmount(
-                      getUserReadableAmount(
-                        // TODO: FIX
-                        // @ts-ignore
-                        userAssetBalances[CURRENCIES_MAP[chainId]],
-                        18
-                      ),
-                      3
-                    )}{' '}
-                    <span className="text-stieglitz">
-                      {CURRENCIES_MAP[String(chainId)]
-                        ? CURRENCIES_MAP[String(chainId)]
-                        : 'ETH'}
-                    </span>
-                  </Typography>
-                </Box>
-              </Box>
-            ) : (
-              <CustomButton size="medium" onClick={handleWalletConnect}>
-                Connect Wallet
-              </CustomButton>
-            )}
+            <ConnectButton />
+
             <NetworkButton className="lg:inline-flex hidden ml-2 w-28" />
             <Box>
               {/* TODO: FIX */}
@@ -557,7 +464,7 @@ export default function AppBar(props: AppBarProps) {
                 <Typography variant="h5" className="font-bold ml-4 my-2">
                   App
                 </Typography>
-                {links?.map(({ to, name, subLinks }: LinkType) => {
+                {links?.map(({ to, name, subLinks }) => {
                   if (to)
                     return (
                       <MenuItem

@@ -13,3 +13,4 @@ export { default as sanitizeOptionSymbol } from './sanitizeOptionSymbol';
 export { default as get1inchQuote } from './get1inchQuote';
 export { default as getExtendedLogoFromChainId } from './getExtendedLogoFromChainId';
 export { default as smartTrim } from './smartTrim';
+export { default as smartDisplay } from './smartDisplay';
