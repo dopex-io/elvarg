@@ -139,15 +139,29 @@ export const createOptionScalpSlice: StateCreator<
     const optionScalpContract = getOptionScalpContract();
     return await optionScalpContract.calcPnl(id);
   },
-  calcLiqPrice: async (id: BigNumber) => {
-    const { getOptionScalpContract } = get();
+  calcLiqPrice: (position: ScalpPosition) => {
+    const { optionScalpData } = get();
 
-    const optionScalpContract = getOptionScalpContract();
-    try {
-      return await optionScalpContract.getLiquidationPrice(id);
-    } catch (e) {
-      return BigNumber.from('0');
+    const divisor: BigNumber = BigNumber.from(
+      10 ** optionScalpData!.quoteDecimals.toNumber()
+    );
+
+    const variation: BigNumber = position.margin
+      .mul(divisor)
+      .sub(
+        optionScalpData!.minimumAbsoluteLiquidationThreshold.mul(position.size)
+      )
+      .div(position.positions);
+
+    let price: BigNumber;
+
+    if (position.isShort) {
+      price = position.entry.add(variation);
+    } else {
+      price = position.entry.sub(variation);
     }
+
+    return price;
   },
   updateOptionScalpUserData: async () => {
     const {
@@ -198,12 +212,10 @@ export const createOptionScalpSlice: StateCreator<
     }
 
     const pnlsPromises: any[] = [];
-    const liquidationPricesPromises: any[] = [];
 
     for (let i in scalpPositionsIndexes) {
       scalpPositionsPromises.push(getScalpPosition(scalpPositionsIndexes[i]));
       pnlsPromises.push(calcPnl(scalpPositionsIndexes[i]));
-      liquidationPricesPromises.push(calcLiqPrice(scalpPositionsIndexes[i]));
     }
 
     let scalpPositions: ScalpPosition[] = await Promise.all(
@@ -212,17 +224,13 @@ export const createOptionScalpSlice: StateCreator<
 
     let pnls: BigNumber[] = await Promise.all(pnlsPromises);
 
-    let liquidationPrices: BigNumber[] = await Promise.all(
-      liquidationPricesPromises
-    );
-
     scalpPositions = scalpPositions.map((position, index) => ({
       ...position,
       id: scalpPositionsIndexes[index],
       pnl: (position.isOpen ? pnls[index]! : position.pnl)
         .sub(position.premium)
         .sub(position.fees),
-      liquidationPrice: liquidationPrices[index]!,
+      liquidationPrice: calcLiqPrice(position),
     }));
 
     scalpPositions.reverse();
