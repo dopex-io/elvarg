@@ -12,6 +12,8 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import IosShare from '@mui/icons-material/IosShare';
 
+import cx from 'classnames';
+
 import Countdown from 'react-countdown';
 
 import { useBoundStore } from 'store';
@@ -50,8 +52,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
 
   const handleShare = useCallback(
     (position: any) => {
-      const { entry, pnl, margin, size } = position;
-
+      const { entry, pnl, margin, size, isPut } = position;
 
       const leverage = size / margin;
 
@@ -65,7 +66,9 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       share({
         title: (
           <Typography variant="h5" className="font-bold shadow-2xl">
-            <span className="text-green-500">Long</span>
+            <span className={cx(isPut ? 'text-red-500' : 'text-green-500')}>
+              {isPut ? 'Short' : 'Long'}
+            </span>
             {' | '}
             <span>{formatAmount(leverage, 1)}x</span>
             {' | '}
