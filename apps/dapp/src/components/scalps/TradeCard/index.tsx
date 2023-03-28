@@ -180,35 +180,33 @@ const TradeCard = () => {
       optionScalpData?.markPrice!,
       optionScalpData?.quoteDecimals!.toNumber()!
     );
-    const positions =
-      getUserReadableAmount(
-        posSize,
-        optionScalpData?.quoteDecimals!.toNumber()!
-      ) / price;
+    const size = getUserReadableAmount(
+      posSize,
+      optionScalpData?.quoteDecimals!.toNumber()!
+    );
+
+    const positions = size / price;
+
     if (positions || positionDetails.marginInQuote) {
       const minAbsThreshold = getUserReadableAmount(
         optionScalpData?.minimumAbsoluteLiquidationThreshold!,
         optionScalpData?.quoteDecimals!.toNumber()
       );
 
+      const variation =
+        (positionDetails.marginInQuote - minAbsThreshold * size) / positions;
+
       if (isShortAfterAdjustments) {
-        _liquidationPrice =
-          positionDetails.marginInQuote / positions + minAbsThreshold + price;
+        _liquidationPrice = price + variation;
       } else {
-        _liquidationPrice =
-          price - positionDetails.marginInQuote / positions - minAbsThreshold;
+        _liquidationPrice = price - variation;
       }
     }
 
     if (optionScalpData?.inverted) return 1 / _liquidationPrice;
 
     return _liquidationPrice;
-  }, [
-    isShortAfterAdjustments,
-    positionDetails.marginInQuote,
-    posSize,
-    optionScalpData,
-  ]);
+  }, [isShortAfterAdjustments, positionDetails, posSize, optionScalpData]);
 
   const timeframeIndex = useMemo(() => {
     const indexes: { [key: string]: number } = {
