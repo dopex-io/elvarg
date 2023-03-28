@@ -46,13 +46,9 @@ const ManageComponent = () => {
           </Button>
         ))}
       </ButtonGroup>
-      {manageSection === 'Trade' ? (
-        <Box className="bg-cod-gray rounded-b-xl">
-          <TradeCard />
-        </Box>
-      ) : (
-        <Manage />
-      )}
+      <Box className="bg-cod-gray rounded-b-xl min-w-[23rem]">
+        {manageSection === 'Trade' ? <TradeCard /> : <Manage />}
+      </Box>
     </Box>
   );
 };

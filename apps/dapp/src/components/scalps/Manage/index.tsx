@@ -8,7 +8,7 @@ const Manage = () => {
   const [section, setSection] = useState('Deposit');
 
   return (
-    <Box className="w-full">
+    <Box className="min-w-[22.5rem]">
       <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-top-lg">
         {['Deposit', 'Withdraw'].map((label, index) => (
           <Button
