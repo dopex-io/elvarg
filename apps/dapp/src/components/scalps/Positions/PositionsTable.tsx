@@ -50,16 +50,12 @@ const PositionsTable = ({ tab }: { tab: string }) => {
 
   const handleShare = useCallback(
     (position: any) => {
-      const { entry, pnl, margin, positions } = position;
+      const { entry, pnl, margin, size } = position;
 
-      const _pos = parseFloat(positions.replace('.', '').replace(',', '.'));
-      const _entry = parseFloat(entry.replace('.', '').replace(',', '.'));
-      const _pnl = parseFloat(pnl);
-      const _margin = parseFloat(margin.replace('.', '').replace(',', '.'));
 
-      const leverage = (_pos * _entry) / _margin;
+      const leverage = size / margin;
 
-      const _percPnl = (_pnl / _margin) * 100;
+      const _percPnl = (pnl / margin) * 100;
 
       if (!optionScalpData) return;
       const { baseSymbol, quoteSymbol } = optionScalpData;
@@ -71,7 +67,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           <Typography variant="h5" className="font-bold shadow-2xl">
             <span className="text-green-500">Long</span>
             {' | '}
-            <span>{leverage.toFixed(0)}x</span>
+            <span>{formatAmount(leverage, 1)}x</span>
             {' | '}
             <span>{`${baseSymbol}${quoteSymbol}`}</span>
           </Typography>
@@ -129,6 +125,11 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                 getUserReadableAmount(position.entry, quoteDecimals.toNumber())
             : getUserReadableAmount(position.entry, quoteDecimals.toNumber()),
           4
+        );
+
+        const size = getUserReadableAmount(
+          position.size,
+          quoteDecimals.toNumber()
         );
 
         const liquidationPrice = formatAmount(
@@ -196,6 +197,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           closePrice,
           margin,
           premium,
+          size,
         });
       }
     });
