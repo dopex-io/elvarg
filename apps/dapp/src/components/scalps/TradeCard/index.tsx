@@ -628,7 +628,7 @@ const TradeCard = () => {
                 variant="h6"
                 className="text-white mr-auto ml-0 text-[0.8rem]"
               >
-                {formatAmount(liquidationPrice, 6)}{' '}
+                {formatAmount(liquidationPrice, 4)}{' '}
               </Typography>
             </Box>
           </Box>

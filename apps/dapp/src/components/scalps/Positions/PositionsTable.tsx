@@ -82,7 +82,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           { name: 'Entry Price', value: `$${entry}` },
           {
             name: 'Mark Price',
-            value: `$${formatAmount(getUserReadableAmount(markPrice, 6), 2)}`,
+            value: `$${formatAmount(getUserReadableAmount(markPrice, 6), 4)}`,
           },
         ],
       });
@@ -128,7 +128,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
             ? 1 /
                 getUserReadableAmount(position.entry, quoteDecimals.toNumber())
             : getUserReadableAmount(position.entry, quoteDecimals.toNumber()),
-          2
+          4
         );
 
         const liquidationPrice = formatAmount(
@@ -142,7 +142,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                 position.liquidationPrice,
                 quoteDecimals.toNumber()
               ),
-          5
+          4
         );
 
         const positions = formatAmount(
