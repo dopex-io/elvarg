@@ -10,7 +10,7 @@ import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
-import TradingViewChart from 'components/common/TradingViewChart';
+import DexScreenerChart from 'components/common/DexScreenerChart';
 // import PoolCard from 'components/scalps/Charts/PoolCard';
 // import TVLCard from 'components/scalps/Charts/TVLCard';
 import Positions from 'components/scalps/Positions';
@@ -73,13 +73,13 @@ const OptionScalps = ({ poolName }: Props) => {
     setUniArbPrice,
   } = useBoundStore();
 
-  const TVChart = useMemo(() => {
+  const Chart = useMemo(() => {
     return (
-      <TradingViewChart
-        symbol={
+      <DexScreenerChart
+        poolAddress={
           selectedPoolName === 'ETH'
-            ? 'UNISWAP3ARBITRUM:WETHUSDC'
-            : 'COINBASE:ARBUSD'
+            ? '0xc31e54c7a869b9fcbecc14363cf510d1c41fa443'
+            : '0xcDa53B1F66614552F834cEeF361A8D12a0B8DaD8'
         }
       />
     );
@@ -150,7 +150,7 @@ const OptionScalps = ({ poolName }: Props) => {
           </Box>
           <Box className="w-full h-full flex flex-col space-y-2 xl:flex-row xl:space-x-5">
             <Box className="flex flex-col w-full space-y-4 h-full">
-              <Box className="flex-1 mt-4">{TVChart}</Box>
+              <Box className="flex-1 mt-4">{Chart}</Box>
               <Positions />
             </Box>
             <ManageComponent />
