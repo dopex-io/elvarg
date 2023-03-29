@@ -2,15 +2,11 @@ import { useCallback, useMemo } from 'react';
 
 import { BigNumber } from 'ethers';
 
-import { IconButton, Tooltip } from '@mui/material';
-import Box from '@mui/material/Box';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
+import { IconButton } from '@mui/material';
 import IosShare from '@mui/icons-material/IosShare';
+import { formatDistance } from 'date-fns';
+
+import cx from 'classnames';
 
 import Countdown from 'react-countdown';
 
@@ -21,7 +17,6 @@ import useShare from 'hooks/useShare';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import { TableHeader } from 'components/straddles/Deposits/DepositsTable';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -50,16 +45,18 @@ const PositionsTable = ({ tab }: { tab: string }) => {
 
   const handleShare = useCallback(
     (position: any) => {
-      const { entry, pnl, margin, positions } = position;
+      const { entry, pnl, margin, size, isPut, closePrice, isOpen } = position;
 
-      const _pos = parseFloat(positions.replace('.', '').replace(',', '.'));
-      const _entry = parseFloat(entry.replace('.', '').replace(',', '.'));
-      const _pnl = parseFloat(pnl);
-      const _margin = parseFloat(margin.replace('.', '').replace(',', '.'));
+      const leverage = size / margin;
 
-      const leverage = (_pos * _entry) / _margin;
+      console.log(pnl / margin);
 
-      const _percPnl = (_pnl / _margin) * 100;
+      const _markPrice: any = formatAmount(
+        isOpen
+          ? getUserReadableAmount(isOpen ? markPrice : closePrice, 6)
+          : closePrice,
+        4
+      );
 
       if (!optionScalpData) return;
       const { baseSymbol, quoteSymbol } = optionScalpData;
@@ -69,20 +66,22 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       share({
         title: (
           <Typography variant="h5" className="font-bold shadow-2xl">
-            <span className="text-green-500">Long</span>
+            <span className={cx(isPut ? 'text-red-500' : 'text-green-500')}>
+              {isPut ? 'Short' : 'Long'}
+            </span>
             {' | '}
-            <span>{leverage.toFixed(0)}x</span>
+            <span>{formatAmount(leverage, 1)}x</span>
             {' | '}
             <span>{`${baseSymbol}${quoteSymbol}`}</span>
           </Typography>
         ),
-        percentage: _percPnl,
+        percentage: (pnl / margin) * 10,
         customPath: `https://dapp-git-feat-option-scalps-dopex-io.vercel.app/scalps/${selectedPoolName}`,
         stats: [
           { name: 'Entry Price', value: `$${entry}` },
           {
             name: 'Mark Price',
-            value: `$${formatAmount(getUserReadableAmount(markPrice, 6), 4)}`,
+            value: `$${_markPrice}`,
           },
         ],
       });
@@ -131,6 +130,11 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           4
         );
 
+        const size = getUserReadableAmount(
+          position.size,
+          quoteDecimals.toNumber()
+        );
+
         const liquidationPrice = formatAmount(
           inverted
             ? 1 /
@@ -159,33 +163,36 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           position.isShort
             ? position.entry.sub(
                 position.pnl
+                  .add(position.pnl)
+                  .add(position.premium)
+                  .add(position.fees)
                   .mul(10 ** optionScalpData!.quoteDecimals!.toNumber())
                   .div(position.positions.abs())
               )
             : position.entry.add(
                 position.pnl
+                  .add(position.pnl)
+                  .add(position.premium)
+                  .add(position.fees)
                   .mul(10 ** optionScalpData!.quoteDecimals!.toNumber())
                   .div(position.positions.abs())
               ),
           optionScalpData?.quoteDecimals!.toNumber()!
-        ).toFixed(4);
+        );
 
         const margin = formatAmount(
           getUserReadableAmount(position.margin, quoteDecimals.toNumber()),
           5
         );
 
-        {
-          getUserReadableAmount(
-            position.premium,
-            optionScalpData?.quoteDecimals!.toNumber()!
-          ).toFixed(2);
-        }
-
         const premium = formatAmount(
           getUserReadableAmount(position.premium, quoteDecimals.toNumber()),
           5
         );
+
+        const openedAt = position.openedAt.toNumber();
+
+        const timeframe = position.timeframe.toNumber();
 
         filtered.push({
           ...position,
@@ -196,196 +203,148 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           closePrice,
           margin,
           premium,
+          size,
+          timeframe,
+          openedAt,
         });
       }
     });
     return filtered;
   }, [optionScalpUserData, tab, optionScalpData]);
 
-  return (
-    <Box>
-      <TableContainer className="rounded-xl">
-        <Table className="rounded-xl">
-          <TableHead className="rounded-xl">
-            <TableRow>
-              <TableHeader label="Pos. Size" showArrowIcon />
-              <TableHeader label="Avg. Open Price" />
-              {tab === 'Open' ? <TableHeader label="Liq. Price" /> : null}
-              <TableHeader label="PnL" />
-              <TableHeader label="Margin" />
-              <TableHeader label="Premium" />
-              {tab === 'Open' ? (
-                <TableHeader label="Expiry" />
-              ) : (
-                <TableHeader label="Close Price" />
-              )}
-              <TableHeader label="Timeframe" />
-            </TableRow>
-          </TableHead>
-          <TableBody className="rounded-lg">
-            {positions.map((position: any, i: number) => (
-              <TableRow key={i}>
-                <TableCell className="pt-2 border-0">
-                  <Box>
-                    <Box
-                      className={`rounded-md flex items-center px-2 py-2 w-fit`}
-                    >
-                      <Typography
-                        variant="h6"
-                        className={'pr-7 pt-[2px] text-[0.8rem]'}
-                      >
-                        <span
-                          className={
-                            (
-                              optionScalpData?.inverted
-                                ? !position.isShort
-                                : position.isShort
-                            )
-                              ? 'text-[#FF617D]'
-                              : 'text-[#6DFFB9]'
-                          }
-                        >
-                          {(
-                            optionScalpData?.inverted
-                              ? !position.isShort
-                              : position.isShort
-                          )
-                            ? '-'
-                            : '+'}
+  const tableHeadings = useMemo(() => {
+    return [
+      'Size',
+      'Margin',
+      'PnL',
+      'Entry',
+      tab === 'Closed' ? 'Close price' : 'Liq. Price',
+      tab === 'Closed' ? 'Opened At' : 'Expiry',
+    ];
+  }, [tab]);
 
-                          {position.positions}
-                          {' ' + optionScalpData?.baseSymbol!}
-                        </span>
-                      </Typography>
-                    </Box>
-                  </Box>
-                </TableCell>
-                <TableCell className="pt-1 border-0">
-                  <Typography
-                    variant="h6"
-                    color="white"
-                    className="text-left text-[0.8rem]"
-                  >
-                    {position.entry}
-                  </Typography>
-                </TableCell>
-                {tab === 'Open' ? (
-                  <TableCell className="pt-1 border-0">
-                    <Typography
-                      variant="h6"
-                      color="white"
-                      className="text-left text-[0.8rem]"
-                    >
-                      {position.liquidationPrice}
-                    </Typography>
-                  </TableCell>
-                ) : null}
-                <TableCell className="pt-1 border-0">
-                  <Typography variant="h6" className="text-left text-[0.8rem]">
-                    <Tooltip title={position.pnl}>
-                      <span
-                        className={
-                          position.pnl < 0 ? 'text-[#FF617D]' : 'text-[#6DFFB9]'
-                        }
-                      >
-                        {optionScalpData?.quoteSymbol}{' '}
-                        {formatAmount(position.pnl, 5)} ({' '}
-                        {formatAmount(
-                          (position.pnl / parseFloat(position.margin)) * 100,
-                          2
-                        )}
-                        %)
-                      </span>
-                    </Tooltip>
-                  </Typography>
-                </TableCell>
-                <TableCell className="pt-1 border-0">
-                  <Typography
-                    variant="h6"
-                    color="white"
-                    className="text-left text-[0.8rem]"
-                  >
-                    {optionScalpData?.quoteSymbol} {position.margin}{' '}
-                  </Typography>
-                </TableCell>
-                <TableCell className="pt-1 border-0">
-                  <Typography
-                    variant="h6"
-                    color="white"
-                    className="text-left text-[0.8rem]"
-                  >
-                    {optionScalpData?.quoteSymbol} {position.premium}
-                  </Typography>
-                </TableCell>
-                <TableCell className="pt-1 border-0">
-                  <Typography
-                    variant="h6"
-                    color="white"
-                    className="text-left text-[0.8rem]"
-                  >
-                    {position.isOpen ? (
-                      <Countdown
-                        date={
-                          new Date(
-                            Number(
-                              BigNumber.from('1000').mul(
-                                position.openedAt.add(position.timeframe)
-                              )
-                            )
-                          )
-                        }
-                        renderer={({ minutes, seconds }) => {
-                          return (
-                            <Typography
-                              variant="h5"
-                              className="text-stieglitz mr-1"
-                            >
-                              {minutes}m {seconds}s
-                            </Typography>
-                          );
-                        }}
-                      />
-                    ) : (
-                      <Typography
-                        variant="h6"
-                        color="white"
-                        className="text-left"
-                      >
-                        {position.closePrice}
-                      </Typography>
-                    )}
-                  </Typography>
-                </TableCell>
-                <TableCell className="pt-1 border-0">
-                  <Typography
-                    variant="h6"
-                    color="white"
-                    className="text-left text-[0.8rem]"
-                  >
-                    {Number(position.timeframe) / 60}m
-                  </Typography>
-                </TableCell>
-                {position.isOpen ? (
-                  <TableCell className="flex justify-end border-0">
+  const positionKeys = useMemo(() => {
+    return [
+      'positions',
+      'margin',
+      'pnl',
+      'entry',
+      tab === 'Closed' ? 'closePrice' : 'liquidationPrice',
+      tab === 'Closed' ? 'openedAt' : 'timeframe',
+    ];
+  }, [tab]);
+
+  const getCellComponent = useCallback(
+    (key: string, position: any) => {
+      if (!optionScalpData) return null;
+      // if (key === 'positions');
+      let rightContent: string | null = null;
+      let styles = '';
+      let data = position[key];
+      let dataStyle = '';
+      let rightContentStyle = '';
+
+      if (key === 'positions') {
+        rightContent = optionScalpData?.baseSymbol ?? '';
+        dataStyle += (
+          optionScalpData.inverted ? !position.isShort : position.isShort
+        )
+          ? 'text-[#FF617D]'
+          : 'text-[#6DFFB9]';
+
+        rightContentStyle = dataStyle + ' text-xs hidden md:inline-block';
+        data = (
+          optionScalpData?.inverted ? !position.isShort : position.isShort
+        )
+          ? '-'
+          : '+' + data;
+      }
+
+      if (key === 'pnl') {
+        dataStyle = cx(data < 0 ? 'text-[#FF617D]' : 'text-[#6DFFB9]');
+        data = `${data.toFixed(4)} (${(
+          (position.pnl / position.margin) *
+          10
+        ).toFixed(2)}%)`;
+        rightContentStyle += cx(dataStyle, 'text-xs hidden md:inline-block');
+      }
+
+      if (key === 'openedAt') {
+        data = formatDistance(data * 1000, Number(new Date())) + ' ago';
+      }
+
+      if (key === 'margin' || key === 'premium') {
+        rightContent = optionScalpData.quoteSymbol;
+        rightContentStyle += ' text-xs hidden md:inline-block';
+      }
+
+      if (key === 'timeframe') {
+        styles = 'flex flex-row items-center';
+        data = (
+          <Countdown
+            date={new Date((position.openedAt + position.timeframe) * 1000)}
+            renderer={({ minutes, seconds }) => {
+              return (
+                <span className="text-xs md:text-sm text-white pt-1">
+                  {minutes}m {seconds}s
+                </span>
+              );
+            }}
+          />
+        );
+
+        rightContent = `(${position.timeframe / 60}m)`;
+        rightContentStyle += ' text-xs mt-1';
+      }
+
+      if (key === 'closePrice') {
+        data = formatAmount(data, 4);
+      }
+
+      return (
+        <span
+          className={cx(
+            styles,
+            'text-xs md:text-sm text-left w-full text-white space-x-2 md:space-x-1'
+          )}
+        >
+          <span className={dataStyle}>{data}</span>
+          <span className={rightContentStyle}>{rightContent}</span>
+        </span>
+      );
+    },
+    [optionScalpData]
+  );
+
+  return (
+    <div className="rounded-lg bg-inherit w-fit-content h-fit-content px-5 flex flex-row">
+      {positions.length !== 0 ? (
+        <div className="w-full h-full mb-4">
+          <div className="flex flex-col space-y-4 py-2">
+            <div className="flex flex-row w-full items-center justify-between">
+              {tableHeadings.map((heading, index) => (
+                <span key={index} className="text-xs md:text-sm w-full">
+                  {heading}
+                </span>
+              ))}
+              <div className="w-full"></div>
+            </div>
+            {positions.map((position: any, index1: number) => (
+              <div
+                key={index1}
+                className="flex flex-row w-full justify-center items-center space-x-2 md:space-x-0"
+              >
+                {positionKeys.map((info) => getCellComponent(info, position))}
+                <div className="flex flex-row justify-end w-full">
+                  {position.isOpen && (
                     <CustomButton
-                      size="small"
-                      className="cursor-pointer text-white"
+                      className="cursor-pointer text-white w-2"
                       color={'primary'}
                       onClick={() => handleClose(position.id)}
                     >
-                      Close
+                      <span className="text-xs md:sm">Close</span>
                     </CustomButton>
-                    <IconButton
-                      aria-label="share"
-                      aria-haspopup="true"
-                      onClick={() => handleShare(position)}
-                      className="flex"
-                      size="small"
-                    >
-                      <IosShare className="fill-current text-white opacity-90 hover:opacity-100 mb-0.5 pb-0.5" />
-                    </IconButton>
-                  </TableCell>
-                ) : (
+                  )}
                   <IconButton
                     aria-label="share"
                     aria-haspopup="true"
@@ -393,28 +352,19 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                     className="flex"
                     size="small"
                   >
-                    <IosShare className="fill-current text-white opacity-90 hover:opacity-100 mt-1 pt-1" />
+                    <IosShare className="fill-current text-white opacity-90 hover:opacity-100 text-lg" />
                   </IconButton>
-                )}
-              </TableRow>
+                </div>
+              </div>
             ))}
-          </TableBody>
-        </Table>
-        {positions.length === 0 ? (
-          <Box className="w-full flex my-8">
-            <span className="ml-auto mr-auto text-[0.8rem]">
-              Your {tab === 'Open' ? 'active' : 'closed'} positions will appear
-              here
-            </span>
-          </Box>
-        ) : null}
-      </TableContainer>
-      <Box className="flex">
-        {optionScalpUserData?.scalpPositions?.length === 0 ? (
-          <Box className="text-center mt-3 mb-3 ml-auto w-full">-</Box>
-        ) : null}
-      </Box>
-    </Box>
+          </div>
+        </div>
+      ) : (
+        <span className="ml-auto mr-auto text-[0.8rem] h-full mb-10">
+          Your {tab === 'Open' ? 'active' : 'closed'} positions will appear here
+        </span>
+      )}
+    </div>
   );
 };
 
