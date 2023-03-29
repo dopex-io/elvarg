@@ -91,7 +91,7 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
   );
 
   const handleApprove = useCallback(async () => {
-    if (!signer || !asset) return;
+    if (!signer || !asset || !staticZdteData) return;
 
     try {
       await sendTx(
