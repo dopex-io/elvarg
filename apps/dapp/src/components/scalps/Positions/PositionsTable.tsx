@@ -212,7 +212,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       'Margin',
       'PnL',
       'Entry',
-      'Liq. Price',
+      tab === 'Closed' ? 'Close price': 'Liq. Price',
       tab === 'Closed' ? 'Opened At' : 'Expiry',
     ];
   }, [tab]);
@@ -223,7 +223,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       'margin',
       'pnl',
       'entry',
-      'liquidationPrice',
+      tab === 'Closed' ? 'closePrice': 'liquidationPrice',
       tab === 'Closed' ? 'openedAt' : 'timeframe',
     ];
   }, [tab]);
@@ -289,6 +289,10 @@ const PositionsTable = ({ tab }: { tab: string }) => {
 
         rightContent = `(${position.timeframe / 60}m)`;
         rightContentStyle += ' text-xs mt-1';
+      }
+
+      if (key === 'closePrice') { 
+        data = formatAmount(data, 4)
       }
 
       return (
