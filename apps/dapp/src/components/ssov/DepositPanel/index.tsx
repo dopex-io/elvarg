@@ -161,7 +161,7 @@ const DepositPanel = () => {
       color = 'primary';
     }
     if (
-      strikeDepositAmount >
+      Number(strikeDepositAmount) >
       getUserReadableAmount(
         userTokenBalance,
         getTokenDecimals(fromTokenSymbol, chainId)
@@ -354,36 +354,36 @@ const DepositPanel = () => {
 
     setLoading(true);
 
-   await Promise.all([
-     get1inchQuote(
-       fromTokenAddress,
-       toTokenAddress,
-       getContractReadableAmount(
-         strikeDepositAmount,
-         getTokenDecimals(fromTokenSymbol, chainId)
-       ).toString(),
-       chainId,
-       accountAddress,
-       '3'
-     ),
-     get1inchSwap({
-       fromTokenAddress,
-       toTokenAddress,
-       amount: getContractReadableAmount(
-         strikeDepositAmount,
-         getTokenDecimals(fromTokenSymbol, chainId)
-       ),
-       chainId,
-       accountAddress: ssovSigner.ssovRouterWithSigner.address,
-     }),
-   ]).then((res) => {
-     setQuote({
-       quoteData: res[0],
-       swapData: res[1].tx.data,
-     });
-     setLoading(false);
-     return res;
-   });
+    await Promise.all([
+      get1inchQuote(
+        fromTokenAddress,
+        toTokenAddress,
+        getContractReadableAmount(
+          strikeDepositAmount,
+          getTokenDecimals(fromTokenSymbol, chainId)
+        ).toString(),
+        chainId,
+        accountAddress,
+        '3'
+      ),
+      get1inchSwap({
+        fromTokenAddress,
+        toTokenAddress,
+        amount: getContractReadableAmount(
+          strikeDepositAmount,
+          getTokenDecimals(fromTokenSymbol, chainId)
+        ),
+        chainId,
+        accountAddress: ssovSigner.ssovRouterWithSigner.address,
+      }),
+    ]).then((res) => {
+      setQuote({
+        quoteData: res[0],
+        swapData: res[1].tx.data,
+      });
+      setLoading(false);
+      return res;
+    });
   }, [
     getContractAddress,
     accountAddress,

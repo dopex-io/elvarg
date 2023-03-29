@@ -100,7 +100,7 @@ const WalletDialog = ({ open, handleClose, userBalances }: Props) => {
           Disconnect
         </Typography>
       </Box>
-      {(CHAINS[chainId]?.displayTokens?.length ?? []) > 0 ? (
+      {(CHAINS[chainId]?.displayTokens?.length! ?? 0) > 0 ? (
         <Box className="bg-umbra rounded-2xl border border-mineshaft border-opacity-50 p-2">
           <Box className="flex flex-col space-y-4">
             {CHAINS[chainId]?.displayTokens?.map((key: string, index) => {

@@ -100,8 +100,7 @@ const ExerciseList = () => {
             ((isPut && settlementPrice.lt(strike)) ||
               (!isPut && settlementPrice.gt(strike)));
 
-          const isPastEpoch =
-            (selectedEpoch ?? false) < (currentEpoch ?? false);
+          const isPastEpoch = selectedEpoch < Number(currentEpoch);
           const pnlAmount = settlementPrice.isZero()
             ? isPut
               ? strike
