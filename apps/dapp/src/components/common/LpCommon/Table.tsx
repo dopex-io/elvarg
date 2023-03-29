@@ -1,8 +1,13 @@
+import { ReactNode } from 'react';
+
 import { BigNumber } from 'ethers';
+
 import Box from '@mui/material/Box';
-import TableContainer from '@mui/material/TableContainer';
 import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
 import { styled } from '@mui/material/styles';
+
+import { LpPosition } from 'store/Vault/olp';
 
 import Typography from 'components/UI/Typography';
 
@@ -10,8 +15,6 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
-
-import { LpPosition } from 'store/Vault/olp';
 
 export const StyleTable = styled(TableContainer)`
   table {
@@ -220,5 +223,18 @@ export const NumberLiquidityDialogRow = ({
       data={data}
       value={`${formatAmount(underlyingValue, 4)} ${underlying}`}
     />
+  );
+};
+
+interface HeaderCellInterface {
+  children: ReactNode;
+}
+
+export const StyleTableCellHeader = (props: HeaderCellInterface) => {
+  const { children } = props;
+  return (
+    <StyleTableCell align="left" className="w-">
+      <span className="text-sm text-stieglitz">{children}</span>
+    </StyleTableCell>
   );
 };

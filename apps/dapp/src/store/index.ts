@@ -3,9 +3,9 @@ import { devtools } from 'zustand/middleware';
 
 import { AssetsSlice, createAssetsSlice } from './Assets';
 import { DpxBondsSlice, createDpxBondsSlice } from './Bonds';
+import { DuelSlice, createDuelSlice } from './Duel';
 import { FarmingSlice, createFarmingSlice } from './Farming';
 import { NftsSlice, createNftsSlice } from './Nfts';
-import { DuelSlice, createDuelSlice } from './Duel';
 import { PortfolioSlice, createPortfolioSlice } from './Portfolio';
 import { TokenSaleSlice, createTokenSaleSlice } from './TokenSale';
 import { AtlanticPoolsSlice, createAtlanticsSlice } from './Vault/atlantics';
@@ -16,6 +16,7 @@ import { OlpSlice, createOlpSlice } from './Vault/olp';
 import { OptionScalpSlice, createOptionScalpSlice } from './Vault/scalps';
 import { SsovV3Slice, createSsovV3Slice } from './Vault/ssov';
 import { StraddlesSlice, createStraddlesSlice } from './Vault/straddles';
+import { ZdteSlice, createZdteSlice } from './Vault/zdte';
 import { VeDPXSlice, createVedpxSlice } from './VeDPX';
 import { WalletSlice, createWalletSlice } from './Wallet';
 
@@ -35,7 +36,8 @@ type T = WalletSlice &
   DpxBondsSlice &
   OlpSlice &
   GmxSlice &
-  AtlanticPoolsSlice;
+  AtlanticPoolsSlice &
+  ZdteSlice;
 
 export const useBoundStore = create<T>()(
   devtools((...a) => ({
@@ -56,5 +58,6 @@ export const useBoundStore = create<T>()(
     ...createOlpSlice(...a),
     ...createAtlanticsSlice(...a),
     ...createGmxSlice(...a),
+    ...createZdteSlice(...a),
   }))
 );

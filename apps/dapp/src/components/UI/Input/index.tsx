@@ -1,4 +1,5 @@
-import { useEffect, ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
+
 import Box from '@mui/material/Box';
 import MuiInput, { InputProps as MuiInputProps } from '@mui/material/Input';
 
@@ -7,7 +8,7 @@ interface InputProps extends MuiInputProps {
   bottomElement?: ReactNode;
   topElement?: ReactNode;
   variant?: string;
-  outline?: 'mineshaft' | 'down-bad' | 'umbra';
+  outline?: 'mineshaft' | 'down-bad' | 'umbra' | 'none';
   placeholder?: string;
 }
 
@@ -22,6 +23,12 @@ const variants: Record<string, Record<string, string>> = {
     box: 'mt-5 flex bg-umbra rounded-sm px-2 h-[2.4rem]',
     font: 'h-auto text-white',
     textPosition: 'text-left text-sm',
+    alignment: 'flex justify-between items-center',
+  },
+  zdte: {
+    box: 'mt-5 pt-3 flex bg-carbon rounded-t-xl px-2',
+    font: 'h-auto text-2xl text-white ml-2 font-mono',
+    textPosition: 'text-right',
     alignment: 'flex justify-between items-center',
   },
 };

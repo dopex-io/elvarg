@@ -1,13 +1,13 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
 import Box from '@mui/material/Box';
-import { createChart, ColorType, IChartApi } from 'lightweight-charts';
-import ButtonGroup from '@mui/material/ButtonGroup';
 import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
 import CircularProgress from '@mui/material/CircularProgress';
+import { ColorType, IChartApi, createChart } from 'lightweight-charts';
+import { Period, periods } from 'pages/atlantics/manage/insured-perps/[ticker]';
 
 import CandleStickData from './CandleStickData';
-
-import { Period, periods } from 'pages/atlantics/manage/insured-perps/[ticker]';
 
 interface Props {
   data: any;
