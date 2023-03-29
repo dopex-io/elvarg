@@ -163,11 +163,17 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           position.isShort
             ? position.entry.sub(
                 position.pnl
+                  .add(position.pnl)
+                  .add(position.premium)
+                  .add(position.fees)
                   .mul(10 ** optionScalpData!.quoteDecimals!.toNumber())
                   .div(position.positions.abs())
               )
             : position.entry.add(
                 position.pnl
+                  .add(position.pnl)
+                  .add(position.premium)
+                  .add(position.fees)
                   .mul(10 ** optionScalpData!.quoteDecimals!.toNumber())
                   .div(position.positions.abs())
               ),
