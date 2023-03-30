@@ -8,6 +8,7 @@ import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 import { LedgerConnector } from 'wagmi/connectors/ledger';
+import { InjectedConnector } from 'wagmi/connectors/injected';
 
 import { INFURA_PROJECT_ID, WALLETCONNECT_PROJECT_ID } from 'constants/env';
 
@@ -35,6 +36,24 @@ const wagmiClient = createClient({
       },
     }),
     new LedgerConnector({ chains }),
+    new InjectedConnector({
+      chains,
+      options: {
+        name: 'BitKeep',
+        getProvider: () => {
+          if (typeof window !== 'undefined') {
+            const provider =
+              (window as any).bitkeep && (window as any).bitkeep.ethereum;
+            if (!provider) {
+              return window.open('https://bitkeep.com/en/download?type=2');
+            }
+            return provider;
+          } else {
+            return;
+          }
+        },
+      },
+    }),
   ],
 });
 

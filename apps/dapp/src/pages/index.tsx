@@ -89,7 +89,7 @@ const Home = () => {
           </Box>
           <Box className="flex flex-col max-w-fit">
             <h1 className="md:text-7xl text-6xl  font-mono font-bold text-wave-blue">
-              {tvl === '--' ? `${formatAmount(tvl)}` : tvl}
+              {tvl === '--' ? tvl : `${formatAmount(tvl)}`}
             </h1>
             <span className="text-2xl text-white self-end font-bold font-mono">
               Total Value Locked
