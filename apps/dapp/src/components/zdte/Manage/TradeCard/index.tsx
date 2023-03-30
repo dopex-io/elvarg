@@ -308,7 +308,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
           classes={{ input: 'text-right' }}
         />
       </Box>
-      <Box className="p-2">
+      <Box className="p-2 space-y-1">
         <ContentRow
           title="Balance"
           content={`${formatAmount(
