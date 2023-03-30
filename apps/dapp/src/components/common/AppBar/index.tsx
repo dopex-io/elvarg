@@ -3,7 +3,6 @@ import {
   useMemo,
   useState,
   ReactNode,
-  MouseEvent,
   Key,
   useEffect,
   SetStateAction,
@@ -291,14 +290,12 @@ export default function AppBar(props: AppBarProps) {
   const handleCloseSmall = useCallback(() => setAnchorElSmall(null), []);
 
   const handleClickMenu = useCallback(
-    (event: MouseEvent<HTMLButtonElement, MouseEvent>) =>
-      setAnchorEl(event.currentTarget),
+    (event: any) => setAnchorEl(event.currentTarget),
     []
   );
 
   const handleClickMenuSmall = useCallback(
-    (event: MouseEvent<HTMLButtonElement, MouseEvent>) =>
-      setAnchorElSmall(event.currentTarget),
+    (event: any) => setAnchorElSmall(event.currentTarget),
     []
   );
 
@@ -425,27 +422,22 @@ export default function AppBar(props: AppBarProps) {
             </Box>
           </Box>
           <Box className="flex items-center">
+            <NetworkButton className="lg:inline-flex hidden mr-2" />
             <ConnectButton />
-
-            <NetworkButton className="lg:inline-flex hidden ml-2 w-28" />
             <Box>
-              {/* TODO: FIX */}
-              {/* @ts-ignore */}
               <IconButton
                 aria-label="more"
                 aria-controls="long-menu"
                 aria-haspopup="true"
                 onClick={handleClickMenu}
                 style={{ height: 38 }}
-                className="w-9 long-menu ml-2 rounded-md bg-umbra hover:bg-umbra hover:opacity-80 hidden lg:flex"
+                className="w-9 long-menu ml-2 rounded-md bg-carbon hover:bg-carbon hidden lg:flex"
                 size="large"
               >
                 <MoreVertIcon className="text-silver" />
               </IconButton>
             </Box>
             <Box>
-              {/* TODO: FIX */}
-              {/* @ts-ignore */}
               <IconButton
                 onClick={handleClickMenuSmall}
                 className="lg:hidden"
