@@ -103,11 +103,12 @@ export const OpenPositionsRow = ({
       const livePnl = getUserReadableAmount(position.livePnl, DECIMALS_USD);
       const cost = getUserReadableAmount(position.cost, DECIMALS_USD);
       const pnl = (livePnl / cost - 1) * 100;
+      const prefix = position.isPut ? 'Put' : 'Call';
 
       share({
         title: (
           <Typography variant="h4" className="font-bold shadow-2xl">
-            {`${tokenSymbol} ZDTE`}
+            {`${tokenSymbol} ${prefix} Spread ZDTE`}
           </Typography>
         ),
         percentage: pnl,
