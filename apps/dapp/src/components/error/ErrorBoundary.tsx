@@ -26,12 +26,14 @@ class ErrorBoundary extends React.Component<
     if (this.state.errorInfo) {
       // Error path
       return (
-        <Box className="flex justify-center items-center h-screen w-96 mx-auto">
-          <Alert severity="error">
-            <AlertTitle>Error</AlertTitle>
-            {this.state.error && this.state.error.toString()}
-          </Alert>
-        </Box>
+        <div className="bg-[url('/images/misc/share-bg.png')] h-screen w-screen bg-contain bg-no-repeat">
+          <Box className="flex justify-center items-center h-screen w-96 mx-auto">
+            <Alert severity="error">
+              <AlertTitle>Error</AlertTitle>
+              {this.state.error && this.state.error.toString()}
+            </Alert>
+          </Box>
+        </div>
       );
     }
     // Normally, just render children
