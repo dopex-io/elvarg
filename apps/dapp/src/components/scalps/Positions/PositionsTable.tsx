@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 
 import { IconButton } from '@mui/material';
+import Tooltip from '@mui/material/Tooltip';
 import IosShare from '@mui/icons-material/IosShare';
 import { formatDistance } from 'date-fns';
 
@@ -264,13 +265,23 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         )}%)`;
       }
 
+      const fees = parseFloat(position.fees.replace('.', '').replace(',', '.'));
+      const premium = parseFloat(
+        position.premium.replace('.', '').replace(',', '.')
+      );
+
       if (key === 'fees') {
         dataStyle = 'text-[#FF617D]';
-        data = `-${formatAmount(
-          parseFloat(position.fees.replace('.', '').replace(',', '.')) +
-            parseFloat(position.premium.replace('.', '').replace(',', '.')),
-          4
-        )}`;
+        data = (
+          <Tooltip
+            title={`Fees ${formatAmount(fees, 4)} - Premium ${formatAmount(
+              premium,
+              4
+            )}`}
+          >
+            <span>{`-${formatAmount(fees + premium, 4)}`}</span>
+          </Tooltip>
+        );
       }
 
       if (key === 'openedAt') {
