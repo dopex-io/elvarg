@@ -178,6 +178,11 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           5
         );
 
+        const fees = formatAmount(
+          getUserReadableAmount(position.fees, quoteDecimals.toNumber()),
+          5
+        );
+
         const openedAt = position.openedAt.toNumber();
 
         const timeframe = position.timeframe.toNumber();
@@ -190,6 +195,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           pnl,
           closePrice,
           margin,
+          fees,
           premium,
           size,
           timeframe,
@@ -205,6 +211,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       'Size',
       'Margin',
       'PnL',
+      'Fees & Prem.',
       'Entry',
       tab === 'Closed' ? 'Close price' : 'Liq. Price',
       tab === 'Closed' ? 'Opened At' : 'Expiry',
@@ -216,6 +223,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       'positions',
       'margin',
       'pnl',
+      'fees',
       'entry',
       tab === 'Closed' ? 'closePrice' : 'liquidationPrice',
       tab === 'Closed' ? 'openedAt' : 'timeframe',
@@ -250,10 +258,19 @@ const PositionsTable = ({ tab }: { tab: string }) => {
 
       if (key === 'pnl') {
         dataStyle = cx(data < 0 ? 'text-[#FF617D]' : 'text-[#6DFFB9]');
-        data = `${data.toFixed(4)} (${(
-          (position.pnl / parseFloat(position.margin)) *
-          100
-        ).toFixed(2)}%)`;
+        data = `${formatAmount(data.toFixed(4), 2)} (${formatAmount(
+          (position.pnl / parseFloat(position.margin)) * 100,
+          1
+        )}%)`;
+      }
+
+      if (key === 'fees') {
+        dataStyle = 'text-[#FF617D]';
+        data = `-${formatAmount(
+          parseFloat(position.fees.replace('.', '').replace(',', '.')) +
+            parseFloat(position.premium.replace('.', '').replace(',', '.')),
+          4
+        )}`;
       }
 
       if (key === 'openedAt') {
