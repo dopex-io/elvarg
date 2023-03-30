@@ -173,17 +173,6 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           getUserReadableAmount(position.margin, quoteDecimals.toNumber()),
           5
         );
-
-        const premium = formatAmount(
-          getUserReadableAmount(position.premium, quoteDecimals.toNumber()),
-          5
-        );
-
-        const fees = formatAmount(
-          getUserReadableAmount(position.fees, quoteDecimals.toNumber()),
-          5
-        );
-
         const openedAt = position.openedAt.toNumber();
 
         const timeframe = position.timeframe.toNumber();
@@ -196,8 +185,6 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           pnl,
           closePrice,
           margin,
-          fees,
-          premium,
           size,
           timeframe,
           openedAt,
@@ -265,21 +252,31 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         )}%)`;
       }
 
-      const fees = parseFloat(position.fees.replace('.', '').replace(',', '.'));
-      const premium = parseFloat(
-        position.premium.replace('.', '').replace(',', '.')
-      );
-
       if (key === 'fees') {
         dataStyle = 'text-[#FF617D]';
         data = (
           <Tooltip
-            title={`Fees ${formatAmount(fees, 4)} + Premium ${formatAmount(
-              premium,
+            title={`Fees ${formatAmount(
+              getUserReadableAmount(
+                position.fees,
+                optionScalpData?.quoteDecimals.toNumber()
+              ),
+              4
+            )} + Premium ${formatAmount(
+              getUserReadableAmount(
+                position.premium,
+                optionScalpData?.quoteDecimals.toNumber()
+              ),
               4
             )}`}
           >
-            <span>{`-${formatAmount(fees + premium, 4)}`}</span>
+            <span>{`-${formatAmount(
+              getUserReadableAmount(
+                position.fees.add(position.premium),
+                optionScalpData?.quoteDecimals.toNumber()
+              ),
+              4
+            )}`}</span>
           </Tooltip>
         );
       }
