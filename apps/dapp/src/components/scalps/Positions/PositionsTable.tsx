@@ -158,8 +158,6 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         );
 
         const variation = position.pnl
-          .sub(position.premium)
-          .sub(position.fees)
           .mul(10 ** optionScalpData!.quoteDecimals!.toNumber())
           .div(position.positions.abs());
 
