@@ -8,7 +8,6 @@ import cx from 'classnames';
 import { useMedia } from 'react-use';
 
 import AppBar from 'components/common/AppBar';
-import { CustomButton } from 'components/UI';
 
 import { useBoundStore } from 'store';
 import { formatAmount, smartTrim } from 'utils/general';
