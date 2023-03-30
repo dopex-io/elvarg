@@ -274,7 +274,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         dataStyle = 'text-[#FF617D]';
         data = (
           <Tooltip
-            title={`Fees ${formatAmount(fees, 4)} - Premium ${formatAmount(
+            title={`Fees ${formatAmount(fees, 4)} + Premium ${formatAmount(
               premium,
               4
             )}`}
