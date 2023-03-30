@@ -374,7 +374,7 @@ const TradeCard = () => {
   );
 
   return (
-    <Box className="px-4 pb-4 pt-5 min-w-[22.5rem]">
+    <Box className="px-4 pb-4 pt-5 min-w-[24.5rem]">
       <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
         <Box className="w-full flex items-center justify-center px-3">
           <p className="text-xs text-stieglitz mr-2 ml-auto">
@@ -398,7 +398,7 @@ const TradeCard = () => {
                 )}
                 onClick={() => setIsShort(false)}
               >
-                Call
+                Long
               </p>
             </Box>
             <Box className="flex flex-row w-auto p-1 pr-3 pl-2">
@@ -409,7 +409,7 @@ const TradeCard = () => {
                 )}
                 onClick={() => setIsShort(true)}
               >
-                Put
+                Short
               </p>
             </Box>
           </Box>

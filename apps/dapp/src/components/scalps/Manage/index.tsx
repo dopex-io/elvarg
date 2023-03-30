@@ -8,7 +8,7 @@ const Manage = () => {
   const [section, setSection] = useState('Deposit');
 
   return (
-    <Box className="min-w-[22.5rem]">
+    <Box className="min-w-[24.5rem]">
       <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-top-lg">
         {['Deposit', 'Withdraw'].map((label, index) => (
           <Button
@@ -27,7 +27,7 @@ const Manage = () => {
           </Button>
         ))}
       </ButtonGroup>
-      <Box className="bg-cod-gray rounded-b-xl w-[23rem] pb-3">
+      <Box className="bg-cod-gray rounded-b-xl w-full pb-3">
         {section === 'Deposit' ? <DepositCard /> : <WithdrawCard />}
       </Box>
     </Box>
