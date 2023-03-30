@@ -86,7 +86,8 @@ const OptionScalps = ({ poolName }: Props) => {
   }, [updateOptionScalp, updateOptionScalpUserData]);
 
   useEffect(() => {
-    if (poolName && setSelectedPoolName) setSelectedPoolName(poolName);
+    if (poolName && setSelectedPoolName)
+      setSelectedPoolName(poolName.toUpperCase());
   }, [poolName, setSelectedPoolName]);
 
   useEffect(() => {

@@ -46,10 +46,17 @@ const PositionsTable = ({ tab }: { tab: string }) => {
 
   const handleShare = useCallback(
     (position: any) => {
+      if (!optionScalpData) return;
+
       const { entry, pnl, margin, size, isShort, closePrice, isOpen } =
         position;
 
-      const leverage = size / margin;
+      const leverage =
+        size /
+        getUserReadableAmount(
+          position.margin,
+          optionScalpData?.quoteDecimals.toNumber()
+        );
 
       const _markPrice: any = formatAmount(
         isOpen
@@ -58,7 +65,6 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         4
       );
 
-      if (!optionScalpData) return;
       const { baseSymbol, quoteSymbol } = optionScalpData;
 
       if (!baseSymbol || !quoteSymbol || !markPrice) return;
@@ -74,12 +80,18 @@ const PositionsTable = ({ tab }: { tab: string }) => {
             <span>{`${baseSymbol}${quoteSymbol}`}</span>
           </Typography>
         ),
-        percentage: (pnl / margin) * 100,
+        percentage:
+          (pnl /
+            getUserReadableAmount(
+              margin,
+              optionScalpData?.quoteDecimals.toNumber()
+            )) *
+          100,
         customPath: `https://dapp-git-feat-option-scalps-dopex-io.vercel.app/scalps/${selectedPoolName}`,
         stats: [
           { name: 'Entry Price', value: `$${entry}` },
           {
-            name: 'Mark Price',
+            name: isOpen ? 'Mark Price' : 'Close Price',
             value: `$${_markPrice}`,
           },
         ],
@@ -169,10 +181,6 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           optionScalpData?.quoteDecimals!.toNumber()!
         );
 
-        const margin = formatAmount(
-          getUserReadableAmount(position.margin, quoteDecimals.toNumber()),
-          5
-        );
         const openedAt = position.openedAt.toNumber();
 
         const timeframe = position.timeframe.toNumber();
@@ -184,7 +192,6 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           positions,
           pnl,
           closePrice,
-          margin,
           size,
           timeframe,
           openedAt,
@@ -199,7 +206,6 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       'Size',
       'Margin',
       'PnL',
-      'Fees & Prem.',
       'Entry',
       tab === 'Closed' ? 'Close price' : 'Liq. Price',
       tab === 'Closed' ? 'Opened At' : 'Expiry',
@@ -211,7 +217,6 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       'positions',
       'margin',
       'pnl',
-      'fees',
       'entry',
       tab === 'Closed' ? 'closePrice' : 'liquidationPrice',
       tab === 'Closed' ? 'openedAt' : 'timeframe',
@@ -246,13 +251,6 @@ const PositionsTable = ({ tab }: { tab: string }) => {
 
       if (key === 'pnl') {
         dataStyle = cx(data < 0 ? 'text-[#FF617D]' : 'text-[#6DFFB9]');
-        data = `${formatAmount(data.toFixed(4), 2)} (${formatAmount(
-          (position.pnl / parseFloat(position.margin)) * 100,
-          1
-        )}%)`;
-      }
-
-      if (key === 'fees') {
         data = (
           <Tooltip
             title={
@@ -274,13 +272,15 @@ const PositionsTable = ({ tab }: { tab: string }) => {
               </div>
             }
           >
-            <span>{`${formatAmount(
-              getUserReadableAmount(
-                position.fees.add(position.premium),
-                optionScalpData?.quoteDecimals.toNumber()
-              ),
-              4
-            )}`}</span>
+            <span>{`${formatAmount(data.toFixed(4), 2)} (${formatAmount(
+              (position.pnl /
+                getUserReadableAmount(
+                  position.margin,
+                  optionScalpData?.quoteDecimals.toNumber()
+                )) *
+                100,
+              1
+            )}%)`}</span>
           </Tooltip>
         );
       }
@@ -290,6 +290,13 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       }
 
       if (key === 'margin' || key === 'premium') {
+        data = formatAmount(
+          getUserReadableAmount(
+            data,
+            optionScalpData?.quoteDecimals.toNumber()
+          ),
+          4
+        );
         rightContent = optionScalpData.quoteSymbol;
         rightContentStyle += ' text-xs hidden md:inline-block';
       }
