@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { WagmiConfig } from 'wagmi';
 import StylesProvider from '@mui/styles/StylesProvider';
 import { Toaster } from 'react-hot-toast';
@@ -15,6 +16,10 @@ import 'tailwindcss/tailwind.css';
 import '../style/index.css';
 
 function App({ Component, pageProps }: AppProps) {
+  useEffect(() => {
+    wagmiClient.autoConnect();
+  }, []);
+
   return (
     <StylesProvider injectFirst>
       <StyledEngineProvider injectFirst>
