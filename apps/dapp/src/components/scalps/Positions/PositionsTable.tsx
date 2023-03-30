@@ -45,11 +45,10 @@ const PositionsTable = ({ tab }: { tab: string }) => {
 
   const handleShare = useCallback(
     (position: any) => {
-      const { entry, pnl, margin, size, isPut, closePrice, isOpen } = position;
+      const { entry, pnl, margin, size, isShort, closePrice, isOpen } =
+        position;
 
       const leverage = size / margin;
-
-      console.log(pnl / margin);
 
       const _markPrice: any = formatAmount(
         isOpen
@@ -62,12 +61,11 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       const { baseSymbol, quoteSymbol } = optionScalpData;
 
       if (!baseSymbol || !quoteSymbol || !markPrice) return;
-
       share({
         title: (
           <Typography variant="h5" className="font-bold shadow-2xl">
-            <span className={cx(isPut ? 'text-red-500' : 'text-green-500')}>
-              {isPut ? 'Short' : 'Long'}
+            <span className={cx(isShort ? 'text-red-500' : 'text-green-500')}>
+              {isShort ? 'Short' : 'Long'}
             </span>
             {' | '}
             <span>{formatAmount(leverage, 1)}x</span>
