@@ -4,6 +4,14 @@ import {
   OptionScalpsLp__factory,
   OptionScalps__factory,
 } from '@dopex-io/sdk';
+import { ApolloQueryResult } from '@apollo/client';
+
+import { optionScalpsPositionDataGraphClient } from 'graphql/apollo';
+
+import {
+  GetUserPositionDatasDocument,
+  GetUserPositionDatasQuery,
+} from 'graphql/generated/optionScalps';
 
 import { StateCreator } from 'zustand';
 
@@ -65,6 +73,7 @@ export interface OptionScalpSlice {
   optionScalpUserData?: optionScalpUserData;
   updateOptionScalpUserData: Function;
   updateOptionScalp: Function;
+  getUserPositionData: Function;
   setSelectedPoolName?: Function;
   getOptionScalpContract: Function;
   getBaseLpContract: Function;
@@ -102,7 +111,6 @@ export const createOptionScalpSlice: StateCreator<
     const { selectedPoolName, provider, contractAddresses } = get();
 
     if (!selectedPoolName || !provider) return;
-
     return OptionScalps__factory.connect(
       contractAddresses['OPTION-SCALPS'][selectedPoolName],
       provider
@@ -251,6 +259,15 @@ export const createOptionScalpSlice: StateCreator<
         },
       },
     }));
+  },
+  getUserPositionData: async () => {
+    const userPositionData: ApolloQueryResult<GetUserPositionDatasQuery> =
+      await optionScalpsPositionDataGraphClient.query({
+        query: GetUserPositionDatasDocument,
+        fetchPolicy: 'no-cache',
+      });
+    if (!userPositionData.data) return;
+    return userPositionData.data.userPositionDatas;
   },
   updateOptionScalp: async () => {
     const {

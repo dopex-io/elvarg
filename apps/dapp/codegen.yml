@@ -19,3 +19,13 @@ generates:
       withHooks: true
       defaultScalarType: string
     documents: 'src/graphql/portfolioStraddles/**/*.graphql'
+  ./src/graphql/generated/optionScalps.ts:
+    schema: https://api.thegraph.com/subgraphs/name/aercwarden/dopex-option-scalps
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-react-apollo
+    config:
+      withHooks: true
+      defaultScalarType: string
+    documents: 'src/graphql/optionScalps/*.graphql'
