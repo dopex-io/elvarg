@@ -157,24 +157,16 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           quoteDecimals.toNumber()
         );
 
+        const variation = position.pnl
+          .sub(position.premium)
+          .sub(position.fees)
+          .mul(10 ** optionScalpData!.quoteDecimals!.toNumber())
+          .div(position.positions.abs());
+
         const closePrice = getUserReadableAmount(
           position.isShort
-            ? position.entry.sub(
-                position.pnl
-                  .add(position.pnl)
-                  .add(position.premium)
-                  .add(position.fees)
-                  .mul(10 ** optionScalpData!.quoteDecimals!.toNumber())
-                  .div(position.positions.abs())
-              )
-            : position.entry.add(
-                position.pnl
-                  .add(position.pnl)
-                  .add(position.premium)
-                  .add(position.fees)
-                  .mul(10 ** optionScalpData!.quoteDecimals!.toNumber())
-                  .div(position.positions.abs())
-              ),
+            ? position.entry.sub(variation)
+            : position.entry.add(variation),
           optionScalpData?.quoteDecimals!.toNumber()!
         );
 
@@ -261,7 +253,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       if (key === 'pnl') {
         dataStyle = cx(data < 0 ? 'text-[#FF617D]' : 'text-[#6DFFB9]');
         data = `${data.toFixed(4)} (${(
-          (position.pnl / position.margin) *
+          (position.pnl / parseFloat(position.margin)) *
           100
         ).toFixed(2)}%)`;
       }
