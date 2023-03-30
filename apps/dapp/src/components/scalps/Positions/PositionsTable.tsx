@@ -266,7 +266,6 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           (position.pnl / position.margin) *
           100
         ).toFixed(2)}%)`;
-        rightContentStyle += cx(dataStyle, 'text-xs hidden md:inline-block');
       }
 
       if (key === 'openedAt') {
