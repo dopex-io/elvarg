@@ -137,7 +137,7 @@ export const OptionsTable = () => {
           </TableHead>
           <TableBody className="rounded-lg">
             {zdteData.strikes
-              .filter((s) => s.strike <= zdteData.tokenPrice)
+              .filter((s) => s.strike >= zdteData.tokenPrice)
               .map((optionsStats, index) => (
                 <OptionsTableRow
                   key={index}
@@ -164,7 +164,7 @@ export const OptionsTable = () => {
           </TableBody>
           <TableBody className="rounded-lg">
             {zdteData.strikes
-              .filter((s) => s.strike > zdteData.tokenPrice)
+              .filter((s) => s.strike < zdteData.tokenPrice)
               .map((optionsStats, index) => (
                 <OptionsTableRowLower
                   key={index}
