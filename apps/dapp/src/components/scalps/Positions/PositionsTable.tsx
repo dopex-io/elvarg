@@ -73,7 +73,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
             <span>{`${baseSymbol}${quoteSymbol}`}</span>
           </Typography>
         ),
-        percentage: (pnl / margin) * 10,
+        percentage: (pnl / margin) * 100,
         customPath: `https://dapp-git-feat-option-scalps-dopex-io.vercel.app/scalps/${selectedPoolName}`,
         stats: [
           { name: 'Entry Price', value: `$${entry}` },
