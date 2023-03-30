@@ -70,6 +70,7 @@ export interface IZdtePurchaseData {
   pnl: BigNumber;
   openedAt: BigNumber;
   expiry: BigNumber;
+  cost: BigNumber;
   livePnl: BigNumber;
   positionId: BigNumber;
 }
@@ -233,6 +234,7 @@ export const createZdteSlice: StateCreator<
           const zdtePosition = await zdteContract.zdtePositions(tokenId);
           return {
             ...zdtePosition,
+            cost: zdtePosition.longPremium.add(zdtePosition.fees),
             livePnl: await zdteContract.calcPnl(tokenId),
             positionId: tokenId,
           } as IZdtePurchaseData;
@@ -294,7 +296,7 @@ export const createZdteSlice: StateCreator<
 
       const strikes: OptionsTableData[] = [];
 
-      for (let i = lowerRound + step; i < upperRound; i += step) {
+      for (let i = upperRound - step; i > lowerRound; i -= step) {
         const ether = oneEBigNumber(DECIMALS_TOKEN);
         const contractStrike = getContractReadableAmount(i, DECIMALS_STRIKE);
         const [premium, openingFees] = await Promise.all([
