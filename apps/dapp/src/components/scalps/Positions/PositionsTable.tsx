@@ -255,19 +255,24 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       if (key === 'fees') {
         data = (
           <Tooltip
-            title={`Fees ${formatAmount(
-              getUserReadableAmount(
-                position.fees,
-                optionScalpData?.quoteDecimals.toNumber()
-              ),
-              4
-            )} + Premium ${formatAmount(
-              getUserReadableAmount(
-                position.premium,
-                optionScalpData?.quoteDecimals.toNumber()
-              ),
-              4
-            )}`}
+            title={
+              <div>
+                <div>{`Fees ${formatAmount(
+                  getUserReadableAmount(
+                    position.fees,
+                    optionScalpData?.quoteDecimals.toNumber()
+                  ),
+                  4
+                )}`}</div>
+                <div>{`Premium ${formatAmount(
+                  getUserReadableAmount(
+                    position.premium,
+                    optionScalpData?.quoteDecimals.toNumber()
+                  ),
+                  4
+                )}`}</div>
+              </div>
+            }
           >
             <span>{`${formatAmount(
               getUserReadableAmount(
