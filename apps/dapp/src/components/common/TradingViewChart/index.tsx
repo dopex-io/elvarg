@@ -5,7 +5,7 @@ type ChartType = {
   symbol: string;
 };
 
-// @ts-ignore
+// @ts-ignore TODO FIX
 const Chart = dynamic<ChartType>(() => import('./SingleChart.tsx'), {
   ssr: false,
 });
