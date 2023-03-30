@@ -269,7 +269,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
               4
             )}`}
           >
-            <span>{`-${formatAmount(
+            <span>{`${formatAmount(
               getUserReadableAmount(
                 position.fees.add(position.premium),
                 optionScalpData?.quoteDecimals.toNumber()
