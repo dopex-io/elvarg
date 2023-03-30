@@ -1,8 +1,10 @@
-import { ReactNode, useCallback } from 'react';
+import { ReactNode, SetStateAction, useCallback, useState } from 'react';
 
-import { Box, TableRow } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { Box, IconButton, Menu, MenuItem, TableRow } from '@mui/material';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
+import useShare from 'hooks/useShare';
 import Countdown from 'react-countdown';
 import { useBoundStore } from 'store';
 
@@ -36,7 +38,7 @@ function getStrikeDisplay(position: IZdtePurchaseData): ReactNode {
   } else if (shortStrike !== undefined && longStrike > shortStrike) {
     prefix = `${longStrike}-P`;
     suffix = `${shortStrike}-P`;
-  } else if (shortStrike !== undefined && longStrike < shortStrike) {
+  } else {
     prefix = `${longStrike}-C`;
     suffix = `${shortStrike}-C`;
   }
@@ -57,8 +59,17 @@ export const OpenPositionsRow = ({
   idx: number;
 }) => {
   const sendTx = useSendTx();
+  const share = useShare((state) => state.open);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  const { signer, provider, getZdteContract, updateZdteData } = useBoundStore();
+  const {
+    signer,
+    provider,
+    getZdteContract,
+    updateZdteData,
+    staticZdteData,
+    tokenPrices,
+  } = useBoundStore();
 
   const zdteContract = getZdteContract();
 
@@ -73,6 +84,55 @@ export const OpenPositionsRow = ({
       console.log('fail to close', e);
     }
   }, [signer, provider, zdteContract, updateZdteData, sendTx, position]);
+
+  const handleClickMenu = useCallback(
+    (event: { currentTarget: SetStateAction<HTMLElement | null> }) =>
+      setAnchorEl(event.currentTarget),
+    []
+  );
+
+  const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
+
+  const handleShare = useCallback(
+    async (position: IZdtePurchaseData) => {
+      const tokenSymbol = staticZdteData?.baseTokenSymbol.toUpperCase();
+      const tokenPrice =
+        tokenPrices.find((token) => token.name.toUpperCase() === tokenSymbol)
+          ?.price || 0;
+
+      const livePnl = getUserReadableAmount(position.livePnl, DECIMALS_USD);
+      const cost = getUserReadableAmount(position.cost, DECIMALS_USD);
+      const pnl = (livePnl / cost - 1) * 100;
+
+      share({
+        title: (
+          <Typography variant="h4" className="font-bold shadow-2xl">
+            {`${tokenSymbol} ZDTE`}
+          </Typography>
+        ),
+        percentage: pnl,
+        customPath: '/zdte',
+        stats: [
+          {
+            name: 'Long Strike Price',
+            value: `$${formatAmount(
+              getUserReadableAmount(position.longStrike, DECIMALS_STRIKE),
+              2
+            )}`,
+          },
+          {
+            name: 'Short Strike Price',
+            value: `$${formatAmount(
+              getUserReadableAmount(position.shortStrike, DECIMALS_STRIKE),
+              2
+            )}`,
+          },
+          { name: 'Current Price', value: `$${formatAmount(tokenPrice, 2)}` },
+        ],
+      });
+    },
+    [share, tokenPrices, staticZdteData]
+  );
 
   const isPositionExpired = position.expiry.toNumber() * 1000 < Date.now();
 
@@ -111,16 +171,45 @@ export const OpenPositionsRow = ({
         </Typography>
       </StyleCell>
       <StyleRightCell align="right" className="pt-2">
-        <CustomButton
-          className={cx(
-            'cursor-pointer text-white',
-            !isPositionExpired ? 'bg-umbra' : ''
-          )}
-          disabled={!isPositionExpired}
-          onClick={handleCloseOpenPosition}
-        >
-          Close
-        </CustomButton>
+        <Box className="flex justify-end">
+          <CustomButton
+            className={cx(
+              'cursor-pointer text-white',
+              !isPositionExpired ? 'bg-umbra' : ''
+            )}
+            disabled={!isPositionExpired}
+            onClick={handleCloseOpenPosition}
+          >
+            Close
+          </CustomButton>
+          <IconButton
+            aria-label="more"
+            aria-controls="long-menu"
+            aria-haspopup="true"
+            onClick={handleClickMenu}
+            disabled={isPositionExpired}
+            className="long-menu rounded-md bg-mineshaft mx-1 p-0 hover:bg-opacity-80 hover:bg-mineshaft flex"
+            size="large"
+          >
+            <MoreVertIcon className="fill-current text-white" />
+          </IconButton>
+          <Box>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleCloseMenu}
+              classes={{ paper: 'bg-umbra' }}
+            >
+              <MenuItem
+                key="share"
+                onClick={() => handleShare(position)}
+                className="text-white"
+              >
+                Share
+              </MenuItem>
+            </Menu>
+          </Box>
+        </Box>
       </StyleRightCell>
     </TableRow>
   );
