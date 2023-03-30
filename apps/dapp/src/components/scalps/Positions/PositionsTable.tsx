@@ -256,7 +256,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         data = (
           optionScalpData?.inverted ? !position.isShort : position.isShort
         )
-          ? '-'
+          ? '-' + data
           : '+' + data;
       }
 
@@ -264,7 +264,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         dataStyle = cx(data < 0 ? 'text-[#FF617D]' : 'text-[#6DFFB9]');
         data = `${data.toFixed(4)} (${(
           (position.pnl / position.margin) *
-          10
+          100
         ).toFixed(2)}%)`;
         rightContentStyle += cx(dataStyle, 'text-xs hidden md:inline-block');
       }
