@@ -253,7 +253,6 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       }
 
       if (key === 'fees') {
-        dataStyle = 'text-[#FF617D]';
         data = (
           <Tooltip
             title={`Fees ${formatAmount(
