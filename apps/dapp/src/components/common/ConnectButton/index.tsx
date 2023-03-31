@@ -28,7 +28,7 @@ export function ConnectButton() {
   const { chain } = useNetwork();
   const provider = useProvider();
   const { data: signer } = useSigner();
-  const { data } = useEnsAvatar(address ? { address } : {});
+  const { data } = useEnsAvatar(address ? { address, chainId: 1 } : {});
 
   useEffect(() => {
     updateState({

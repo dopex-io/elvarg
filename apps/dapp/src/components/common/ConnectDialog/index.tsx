@@ -3,14 +3,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 import { Dialog } from 'components/UI';
 
-const WALLET_TO_ICON: { [key: string]: string } = {
-  coinbaseWallet: 'coinbase.svg',
-  metaMask: 'metamask.svg',
-  walletConnect: 'walletconnect.svg',
-  ledger: 'ledger.svg',
-  injected: 'bitkeep.svg',
-};
-
 const ConnectDialog = ({
   open,
   handleClose,
@@ -23,19 +15,58 @@ const ConnectDialog = ({
 
   const { connector: activeConnector } = useAccount();
 
+  const WALLET_DATA: {
+    [key: string]: {
+      icon: string;
+      downloadLink?: string;
+      action?: () => void;
+    };
+  } = {
+    coinbaseWallet: {
+      icon: 'coinbase.svg',
+    },
+    metaMask: {
+      icon: 'metamask.svg',
+      downloadLink: 'https://metamask.io/download/',
+    },
+    walletConnect: {
+      icon: 'walletconnect.svg',
+      action: () => handleClose(),
+    },
+    ledger: { icon: 'ledger.svg', action: () => handleClose() },
+    bitKeep: {
+      icon: 'bitkeep.svg',
+      downloadLink: 'https://bitkeep.com/en/download?type=2',
+    },
+    injected: {
+      icon: 'injected.svg',
+    },
+  };
+
   return (
     <Dialog open={open} handleClose={handleClose} showCloseIcon>
       <div className="text-white font-bold text-lg mb-3">Connect a Wallet</div>
       <div className="grid gap-3">
         {connectors.map((connector) => {
+          const icon = WALLET_DATA[connector.id]?.icon;
+          const downloadLink = WALLET_DATA[connector.id]?.downloadLink;
+          const action = WALLET_DATA[connector.id]?.action;
           return (
             <div
               className="w-full bg-umbra text-white rounded-lg p-3 flex space-x-3 cursor-pointer"
               key={connector.id}
-              onClick={() => connect({ connector })}
+              onClick={() => {
+                if (!connector.ready && downloadLink) {
+                  window.open(downloadLink);
+                } else {
+                  connect({ connector });
+                }
+
+                action && action();
+              }}
             >
               <img
-                src={`/images/wallets/${WALLET_TO_ICON[connector.id]}`}
+                src={`/images/wallets/${icon}`}
                 alt={connector.id}
                 className="w-7"
               />

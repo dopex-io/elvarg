@@ -156,7 +156,6 @@ const Pledge2Dialog = ({
         });
         tokenIds.push(group);
       });
-      console.log(tokenIds);
       await sendTx(pledge.connect(signer).pledge(tokenIds));
       await updateData();
       await updateUserData();
