@@ -1,19 +1,19 @@
-import { StateCreator } from 'zustand';
+import { BigNumber } from 'ethers';
+
 import {
   ERC20__factory,
   StakingRewardsV3__factory,
   UniswapPair__factory,
 } from '@dopex-io/sdk';
-import { BigNumber } from 'ethers';
-import BN from 'bignumber.js';
 import axios from 'axios';
+import BN from 'bignumber.js';
+import { Farm, LpData, UserData } from 'types/farms';
+import { StateCreator } from 'zustand';
 
 import { AssetsSlice } from 'store/Assets';
 import { WalletSlice } from 'store/Wallet';
 
 import oneEBigNumber from 'utils/math/oneEBigNumber';
-
-import { UserData, LpData, Farm } from 'types/farms';
 
 const initialLpData = {
   ethReserveOfDpxWethPool: 0,

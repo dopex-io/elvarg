@@ -11,6 +11,11 @@ module.exports = {
         permanent: false,
       },
       {
+        source: '/scalps',
+        destination: '/scalps/ETH',
+        permanent: false,
+      },
+      {
         source: '/ir',
         destination: '/straddles',
         permanent: false,
