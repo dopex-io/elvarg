@@ -1,12 +1,15 @@
 import { useCallback } from 'react';
+
 import { Contract } from 'ethers';
+
 import toast from 'react-hot-toast';
+import { useBoundStore } from 'store';
 
 import TransactionToast from 'components/UI/TransactionToast';
 
-import { useBoundStore } from 'store';
-
 import getErrorBlobMessage from 'utils/general/getErrorBlobMessage';
+
+type MethodParams<T> = T extends (...args: infer P) => any ? P : never;
 
 const useSendTx = () => {
   const {
@@ -21,7 +24,7 @@ const useSendTx = () => {
     async <T extends Contract, K extends keyof T>(
       contractWithSigner: T,
       method: K,
-      params: Parameters<T[K]>,
+      params: MethodParams<T[K]>,
       waitingMessage: string = 'Please confirm the transaction...',
       loadingMessage: string = 'Transaction pending...',
       successMessage: string = 'Transaction confirmed',

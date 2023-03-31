@@ -44,7 +44,8 @@
     "sass": "^1.60.0",
     "use-debounce": "^9.0.3",
     "wagmi": "^0.12.7",
-    "zustand": "^4.3.6"
+    "zustand": "^4.3.6",
+    "react-tradingview-embed": "^3.0.6"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^3.2.2",

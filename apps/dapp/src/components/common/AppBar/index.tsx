@@ -1,24 +1,25 @@
+import Link from 'next/link';
 import {
+  Key,
+  ReactNode,
+  SetStateAction,
   useCallback,
   useMemo,
   useState,
-  ReactNode,
-  Key,
   useEffect,
-  SetStateAction,
 } from 'react';
 import { ethers } from 'ethers';
+import { useNetwork } from 'wagmi';
+import axios from 'axios';
 import cx from 'classnames';
-import Link from 'next/link';
-import Button from '@mui/material/Button';
+
+import MenuIcon from '@mui/icons-material/Menu';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import MenuIcon from '@mui/icons-material/Menu';
-import IconButton from '@mui/material/IconButton';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import axios from 'axios';
-import { useNetwork } from 'wagmi';
 
 import ClaimRdpxDialog from './ClaimRdpxDialog';
 import NetworkButton from './NetworkButton';
@@ -214,6 +215,7 @@ const appLinks: {
         },
       ],
     },
+    { name: 'Scalps', to: '/scalps/ETH' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],
@@ -251,6 +253,7 @@ interface AppBarProps {
     | 'faucet'
     | 'Rate Vaults'
     | 'Straddles'
+    | 'Scalps'
     | 'OLPs'
     | 'SSOV'
     | 'leaderboard'

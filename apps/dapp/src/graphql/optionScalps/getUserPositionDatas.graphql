@@ -1,0 +1,8 @@
+query getUserPositionDatas {
+  userPositionDatas {
+    scalpContract
+    user
+    pnl
+    volume
+  }
+}
