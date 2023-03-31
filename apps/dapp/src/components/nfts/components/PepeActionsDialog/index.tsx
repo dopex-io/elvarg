@@ -178,7 +178,7 @@ const PepeActionsDialog = ({ open, handleClose }: Props) => {
         paperScrollPaper: 'overflow-x-hidden',
       }}
     >
-      <Box className="flex flex-row items-center mb-4" id={'emojisplosion'}>
+      <Box className="flex flex-row items-center mb-4">
         <img
           src={'/assets/mint-fighter-button.png'}
           className={'w-46 mr-1 ml-auto'}
