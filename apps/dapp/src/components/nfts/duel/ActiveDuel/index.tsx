@@ -273,7 +273,7 @@ const ActiveDuel = ({
       {['won', 'lost'].includes(duel['status']) && !duel['isCreatorWinner'] ? (
         <Box className="absolute px-3 py-1 flex rounded-md right-[12rem] top-[5.5rem] bg-[#FFD50B]">
           <img
-            src="/images/misc/crown.svg"
+            src="/images/nfts/pepes/crown.svg"
             className="w-4 h-4 mr-1 mt-0.5"
             alt="?"
           />
@@ -364,7 +364,7 @@ const ActiveDuel = ({
       {['won', 'lost'].includes(duel['status']) && duel['isCreatorWinner'] ? (
         <Box className="absolute px-3 py-1 flex rounded-md left-[9.5rem] top-[5.5rem] bg-[#FFD50B]">
           <img
-            src="/images/misc/crown.svg"
+            src="/images/nfts/pepes/crown.svg"
             className="w-4 h-4 mr-1 mt-0.5"
             alt="Winner"
           />
