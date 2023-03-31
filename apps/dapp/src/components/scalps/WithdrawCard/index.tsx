@@ -74,10 +74,10 @@ const WithdrawCard = () => {
     let disabled = false;
     let text: any = 'Withdraw';
     let coolDown = 0;
-    const date = Math.floor(new Date().getTime() / 1000)
+    const date = Math.floor(new Date().getTime() / 1000);
 
     if (!approved) {
-      text = 'Approve'
+      text = 'Approve';
     }
 
     if (amount === 0) {
@@ -417,7 +417,7 @@ const WithdrawCard = () => {
             onClick={approved ? handleWithdraw : handleApprove}
           >
             <span className="text-[0.8rem]">
-              {withdrawButtonProps.coolDown > 0  ? (
+              {withdrawButtonProps.coolDown > 0 ? (
                 <Countdown
                   date={new Date(Number(withdrawButtonProps.coolDown * 1000))}
                   renderer={({ minutes, seconds }) => {
