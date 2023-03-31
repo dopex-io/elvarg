@@ -57,10 +57,10 @@ const Wrapper = ({ open, handleClose }: Props) => {
           </Typography>
           <Typography variant="h6" color="stieglitz">
             {formatAmount(
-              getUserReadableAmount(Number(userAssetBalances['WETH']), 18),
+              getUserReadableAmount(Number(userAssetBalances['ETH']), 18),
               10
             )}{' '}
-            WETH
+            ETH
           </Typography>
         </Box>
         <Input
