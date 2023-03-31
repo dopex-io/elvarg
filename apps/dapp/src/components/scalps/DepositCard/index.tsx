@@ -154,7 +154,7 @@ const DepositCard = () => {
         optionScalpData?.optionScalpContract?.address,
         MAX_VALUE,
       ])
-        .then(async() => await checkApproved())
+        .then(async () => await checkApproved())
         .then(() => setLoading(false));
     } catch (err) {
       console.log(err);
