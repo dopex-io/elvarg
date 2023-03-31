@@ -13,6 +13,7 @@ import { useBoundStore } from 'store';
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import Wrapper from 'components/ssov/Wrapper';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -29,6 +30,7 @@ const DepositCard = () => {
     optionScalpData,
     updateOptionScalp,
     updateOptionScalpUserData,
+    selectedPoolName,
     provider,
   } = useBoundStore();
 
@@ -41,6 +43,8 @@ const DepositCard = () => {
   const [userBaseBalance, setUserBaseBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
+
+  const [wrapEthOpen, setWrapEthOpen] = useState(false);
 
   const [isQuote, setisQuote] = useState(true);
 
@@ -154,7 +158,7 @@ const DepositCard = () => {
         optionScalpData?.optionScalpContract?.address,
         MAX_VALUE,
       ])
-        .then(async() => await checkApproved())
+        .then(async () => await checkApproved())
         .then(() => setLoading(false));
     } catch (err) {
       console.log(err);
@@ -240,11 +244,31 @@ const DepositCard = () => {
     checkApproved();
   }, [checkApproved]);
 
+  const _resolveSymbol = (token: any) => {
+    if (token === 'ETH') {
+      return 'W' + token;
+    } else {
+      return token;
+    }
+  };
+
   return (
     <Box className="h-full flex flex-col pt-2">
+      {selectedPoolName === 'ETH' && !isQuote && (
+        <Wrapper open={wrapEthOpen} handleClose={() => setWrapEthOpen(false)} />
+      )}
       <Box className="bg-umbra rounded-xl flex flex-col mb-1 mx-2 p-3 pr-2">
+        {selectedPoolName === 'ETH' && !isQuote && (
+          <Box
+            role="button"
+            className="ml-auto mt-1 text-xs pr-3"
+            onClick={() => setWrapEthOpen(true)}
+          >
+            <span className="text-stieglitz underline">Wrap ETH</span>
+          </Box>
+        )}
         <Box className="flex flex-row justify-between">
-          <Box className="bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
+          <Box className="bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center border border-cod-gray">
             <Box className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
               <Typography
                 variant="h6"
@@ -301,7 +325,7 @@ const DepositCard = () => {
               {formatAmount(readableUserTokenBalance, isQuote ? 0 : 3)}{' '}
               {isQuote
                 ? optionScalpData?.quoteSymbol!
-                : optionScalpData?.baseSymbol!}
+                : _resolveSymbol(optionScalpData?.baseSymbol!)}
             </Typography>
           </Box>
         </Box>
