@@ -2,8 +2,26 @@ import type { NextRequest } from 'next/server';
 
 import { NextResponse } from 'next/server';
 
-// Block Austria, prefer Germany
-const BLOCKED_COUNTRY = 'AT';
+const BLOCKED_COUNTRIES_ALPHA_2_CODES: string[] = [
+  'US',
+  'ZW',
+  'YE',
+  'CU',
+  'IR',
+  'KP',
+  'RU',
+  'SY',
+  'BY',
+  'MM',
+  'CF',
+  'CD',
+  'ET',
+  'IQ',
+  'LB',
+  'LY',
+  'SD',
+  'VE',
+];
 
 // Limit middleware pathname config
 export const config = {
@@ -14,15 +32,9 @@ export function middleware(req: NextRequest) {
   // Extract country
   const country = req.geo?.country || 'US';
 
-  console.log('Testing', req.geo, req.nextUrl);
-
-  console.log('Testing 2', req);
-
   // Specify the correct pathname
-  if (country === BLOCKED_COUNTRY) {
+  if (BLOCKED_COUNTRIES_ALPHA_2_CODES.includes(country)) {
     req.nextUrl.pathname = '/blocked';
-  } else {
-    req.nextUrl.pathname = `/${country}`;
   }
 
   // Rewrite to URL
