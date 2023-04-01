@@ -1,6 +1,6 @@
 import { StateCreator } from 'zustand';
 import { BigNumber } from 'ethers';
-import { orderBy } from 'lodash';
+import orderBy from 'lodash/orderBy';
 import { SsovLp, SsovLp__factory, Addresses } from '@dopex-io/sdk';
 
 import { WalletSlice } from 'store/Wallet';
