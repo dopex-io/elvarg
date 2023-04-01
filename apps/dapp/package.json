@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@0xsequence/multicall": "^0.43.25",
-    "@apollo/client": "^3.7.10",
+    "@apollo/client": "^3.7.11",
     "@dopex-io/sdk": "1.0.0-beta.54",
     "@dopex-io/ui": "workspace:*",
     "@emotion/react": "^11.10.6",
@@ -38,13 +38,13 @@
     "react-countdown": "^2.3.5",
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.4.0",
+    "react-tradingview-embed": "^3.0.6",
     "react-use": "^17.4.0",
     "recharts": "2.5.0",
     "sass": "^1.60.0",
     "use-debounce": "^9.0.3",
-    "wagmi": "^0.12.7",
-    "zustand": "^4.3.6",
-    "react-tradingview-embed": "^3.0.6"
+    "wagmi": "^0.12.8",
+    "zustand": "^4.3.7"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^3.2.2",
@@ -65,9 +65,9 @@
     "postcss": "^8.4.21",
     "prettier": "^2.8.7",
     "shelljs": "^0.8.5",
-    "tailwindcss": "^3.3.0",
+    "tailwindcss": "^3.3.1",
     "ts-node": "^10.9.1",
-    "typescript": "^5.0.2"
+    "typescript": "^5.0.3"
   },
   "browserslist": {
     "production": [
