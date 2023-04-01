@@ -82,7 +82,7 @@ const TradeButton = ({
           ? 'primary'
           : 'mineshaft'
       }
-      disabled={positionStatus !== 'Open Position'}
+      disabled={approved && positionStatus !== 'Open Position'}
       onClick={!approved ? handleApprove : handleOpenPosition}
     >
       {approved ? positionStatus : 'Approve'}
