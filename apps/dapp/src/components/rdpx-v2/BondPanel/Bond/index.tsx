@@ -54,6 +54,8 @@ const Bond = () => {
     userDscBondsData,
     updateUserDscBondsData,
     updateTreasuryData,
+    getAvailableDelegatesFromTreasury,
+    squeezeTreasuryDelegates,
     isLoading,
   } = useBoundStore();
 
@@ -141,12 +143,39 @@ const Bond = () => {
           updateUserDscBondsData();
           updateTreasuryData();
         });
-      else
+      else {
+        const availableDelegates = await getAvailableDelegatesFromTreasury();
+
+        const wethPerDsc =
+          treasuryData.bondCostPerDsc[1] || getContractReadableAmount(1, 18);
+
+        const totalWethRequired = wethPerDsc
+          .mul(getContractReadableAmount(value, 18))
+          .div(getContractReadableAmount(1, 18));
+
+        const { amounts, ids } = squeezeTreasuryDelegates(
+          availableDelegates,
+          totalWethRequired
+        ) || { amounts: [], ids: [] };
+
+        // console.log(
+        //   'Squeeze amounts: ',
+        //   amounts.map((amount) => getUserReadableAmount(amount, 18))
+        // );
+        // console.log(
+        //   'Squeeze from IDs: ',
+        //   ids.map((id) => id)
+        // );
+
         await sendTx(treasury, 'bondWithDelegate', [
-          getContractReadableAmount(value, 18),
           accountAddress,
-          delegate._id,
-        ]);
+          amounts,
+          ids,
+        ]).then(() => {
+          updateUserDscBondsData();
+          updateTreasuryData();
+        });
+      }
     } catch (e) {
       console.log(e);
     }
@@ -160,7 +189,9 @@ const Bond = () => {
     updateUserDscBondsData,
     updateTreasuryData,
     delegated,
-    delegate,
+    getAvailableDelegatesFromTreasury,
+    squeezeTreasuryDelegates,
+    treasuryData,
   ]);
 
   useEffect(() => {
@@ -250,7 +281,7 @@ const Bond = () => {
               <img
                 src={`/images/tokens/${'DSC'?.toLowerCase()}.svg`}
                 alt={'USDC'.toLowerCase()}
-                className="w-[30px] h-[30px]"
+                className="w-10 h-10 border border-mineshaft rounded-full"
               />
               {/* <div
                 className="rounded-md bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto p-2"
@@ -306,7 +337,7 @@ const Bond = () => {
           <div>
             <span className="text-sm text-stieglitz">Delegate</span>
             <Tooltip
-              title="Borrow WETH and receive a 25% share of dpxWETH. The remaining 75% plus an additional fee will be received by the delegating user."
+              title="Spend only rDPX by borrowing WETH and receiving 25% share of dpxWETH minus a small percentage in delegate fee."
               enterTouchDelay={0}
               leaveTouchDelay={1000}
             >

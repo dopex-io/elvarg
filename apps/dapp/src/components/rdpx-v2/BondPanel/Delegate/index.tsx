@@ -13,6 +13,7 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 const STEP = 0.1;
 const MIN_VAL = 0.1;
@@ -179,7 +180,7 @@ const Delegate = () => {
           <span className="text-stieglitz text-sm">Balance</span>
           <div className="flex space-x-1">
             <span className="text-sm">
-              {getUserReadableAmount(userBalance, 18).toFixed(8)}
+              {formatAmount(getUserReadableAmount(userBalance, 18), 3)}
             </span>
             <span className="text-sm" color="stieglitz">
               {treasuryData.tokenA.symbol}

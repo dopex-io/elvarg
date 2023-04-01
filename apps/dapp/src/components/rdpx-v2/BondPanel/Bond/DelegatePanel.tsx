@@ -6,7 +6,7 @@ import Input from 'components/UI/Input';
 import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import { smartTrim } from 'utils/general';
+import { formatAmount, smartTrim } from 'utils/general';
 
 import { Delegate, DEFAULT_DELEGATE } from './';
 
@@ -64,11 +64,14 @@ const DelegatePanel = (props: Props) => {
         _id: Math.ceil(Number(value)),
         delegate: delegate.delegate || '-',
         fee: getUserReadableAmount(delegate.fee || 0, 8),
-        activeCollateral: getUserReadableAmount(
-          delegate.activeCollateral || 0,
-          18
+        activeCollateral: formatAmount(
+          getUserReadableAmount(delegate.activeCollateral || 0, 18),
+          3
         ),
-        amount: getUserReadableAmount(delegate.amount || 0, 18),
+        amount: formatAmount(
+          getUserReadableAmount(delegate.amount || 0, 18),
+          3
+        ),
       });
     })();
   }, [provider, setDelegate, treasuryContractState, value]);
@@ -78,7 +81,7 @@ const DelegatePanel = (props: Props) => {
   }, [delegate.delegate]);
 
   return (
-    <div className="rounded-lg">
+    <div>
       <Input
         type="number"
         size="small"

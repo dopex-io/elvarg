@@ -111,12 +111,12 @@ const CollateralInputPanel = (props: Props) => {
         </Tooltip>
       </Box>
       <InputRow
-        tokenSymbol={treasuryData.tokenA.symbol}
+        tokenSymbol={treasuryData.tokenB.symbol}
         inputAmount={amounts[0] || 0}
         label="25%"
       />
       <InputRow
-        tokenSymbol={treasuryData.tokenB.symbol}
+        tokenSymbol={treasuryData.tokenA.symbol}
         inputAmount={amounts[1] || 0}
         label="75%"
       />

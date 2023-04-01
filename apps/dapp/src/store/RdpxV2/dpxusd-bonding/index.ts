@@ -92,7 +92,25 @@ export interface DpxusdBondingSlice {
   updateTreasuryData: Function;
   userDscBondsData: RdpxV2TreasuryUserData;
   updateUserDscBondsData: Function;
+  getAvailableDelegatesFromTreasury: Function;
+  squeezeTreasuryDelegates: (
+    delegates: DelegateType[],
+    requiredCollateral: BigNumber
+  ) =>
+    | {
+        ids: number[];
+        amounts: BigNumber[];
+      }
+    | undefined;
 }
+
+type DelegateType = [string, BigNumber, BigNumber, BigNumber, number] & {
+  owner: string;
+  amount: BigNumber;
+  fee: BigNumber;
+  activeCollateral: BigNumber;
+  _id: number;
+};
 
 const initialUserDscBondData: RdpxV2TreasuryUserData = {
   bonds: [],
@@ -304,5 +322,79 @@ export const createDpxusdBondingSlice: StateCreator<
         isEligibleForMint: true,
       },
     }));
+  },
+  getAvailableDelegatesFromTreasury: async () => {
+    const { treasuryContractState } = get();
+
+    if (!treasuryContractState.contracts) return;
+
+    const _treasury = treasuryContractState.contracts.treasury;
+
+    const delegatesLength = (await _treasury.getDelegatesLength()).toNumber();
+
+    let _promises = [];
+    for (let i = 0; i < delegatesLength; i++) {
+      const delegateCall = _treasury.delegates(i);
+      _promises.push(delegateCall);
+    }
+
+    // sort by fee %
+    let delegatesResult = await Promise.all(_promises);
+
+    delegatesResult = delegatesResult
+      .map((val, i: number) => ({ ...val, _id: i }))
+      .sort((a, b) => a.fee.toNumber() - b.fee.toNumber());
+
+    const filteredResult = delegatesResult.filter((val) =>
+      val.amount.sub(val.activeCollateral).gt(0)
+    );
+
+    return filteredResult;
+  },
+  squeezeTreasuryDelegates: (
+    delegates: DelegateType[],
+    requiredCollateral: BigNumber
+  ) => {
+    const { treasuryContractState, treasuryData } = get();
+
+    if (
+      !treasuryContractState.contracts ||
+      !treasuryData ||
+      !delegates ||
+      !requiredCollateral
+    )
+      return;
+
+    let requiredBalance = requiredCollateral;
+
+    let accumulator = {
+      amounts: [] as BigNumber[],
+      ids: [] as number[],
+    };
+
+    for (let i = 0; i < delegates.length; i++) {
+      if (delegates[i]?.amount.eq('0')) continue;
+
+      const delegateBalance =
+        delegates[i]?.amount.sub(delegates[i]?.activeCollateral || '0') ||
+        BigNumber.from(0);
+
+      const delegateId = delegates[i]?._id || 0;
+
+      if (requiredBalance.gte(delegateBalance)) {
+        requiredBalance = requiredBalance.sub(delegateBalance);
+        accumulator.amounts.push(delegateBalance);
+        accumulator.ids.push(delegateId);
+      } else {
+        accumulator.amounts.push(requiredBalance);
+        accumulator.ids.push(delegateId);
+        break;
+      }
+    }
+
+    return {
+      ids: accumulator.ids,
+      amounts: accumulator.amounts,
+    };
   },
 });
