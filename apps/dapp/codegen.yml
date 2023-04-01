@@ -20,7 +20,7 @@ generates:
       defaultScalarType: string
     documents: 'src/graphql/portfolioStraddles/**/*.graphql'
   ./src/graphql/generated/optionScalps.ts:
-    schema: https://api.thegraph.com/subgraphs/name/aercwarden/dopex-option-scalps
+    schema: https://api.thegraph.com/subgraphs/name/aercwarden/testingoooor
     plugins:
       - typescript
       - typescript-operations
