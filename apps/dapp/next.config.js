@@ -1,3 +1,6 @@
+/**
+ * @type {import('next').NextConfig}
+ */
 module.exports = {
   generateBuildId: () => 'build',
   images: {

@@ -258,23 +258,6 @@ export const SECONDS_IN_A_DAY: Number = 86400;
 
 export const STRIKE_PRECISION: BigNumber = BigNumber.from(10).pow(8);
 
-export const BLOCKED_COUNTRIES_ALPHA_2_CODES: string[] = [
-  'US',
-  'VI',
-  'BY',
-  'MM',
-  'CI',
-  'CU',
-  'CD',
-  'IR',
-  'IQ',
-  'LR',
-  'KP',
-  'SD',
-  'SY',
-  'ZW',
-];
-
 export const GREEK_SYMBOLS = {
   delta: 'Δ',
   theta: 'θ',
