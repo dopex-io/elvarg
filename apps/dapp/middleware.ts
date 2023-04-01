@@ -16,6 +16,8 @@ export function middleware(req: NextRequest) {
 
   console.log('Testing', req.geo, req.nextUrl);
 
+  console.log('Testing 2', req);
+
   // Specify the correct pathname
   if (country === BLOCKED_COUNTRY) {
     req.nextUrl.pathname = '/blocked';
