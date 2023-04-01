@@ -43,7 +43,6 @@ importers:
       bignumber.js: ^9.1.1
       classnames: ^2.3.2
       date-fns: ^2.29.3
-      emojisplosion: ^2.6.1
       eslint: ^8.37.0
       eslint-config-next: ^13.2.4
       ethereumjs-util: ^7.1.5
@@ -88,7 +87,6 @@ importers:
       bignumber.js: 9.1.1
       classnames: 2.3.2
       date-fns: 2.29.3
-      emojisplosion: 2.6.1
       ethereumjs-util: 7.1.5
       ethers: 5.7.2
       formik: 2.2.9_react@18.2.0
@@ -11154,10 +11152,6 @@ packages:
     resolution: {integrity: sha512-/kyM18EfinwXZbno9FyUGeFh87KC8HRQBQGildHZbEuRyWFOmv1U10o9BBp8XVZDVNNuQKyIGIu5ZYAAXJ0V2Q==}
     engines: {node: '>= 4'}
     dev: true
-
-  /emojisplosion/2.6.1:
-    resolution: {integrity: sha512-a+yvHzHHP9R8qvt7ZeZS8yReuHjwXvbBbSxJHVMMWs4+sf0eOE/v/+Iz6fQq0CdF8G04jsJMF1MNDlrIBCC1pw==}
-    dev: false
 
   /encode-utf8/1.0.3:
     resolution: {integrity: sha512-ucAnuBEhUK4boH2HjVYG5Q2mQyPorvv0u/ocS+zhdw0S8AlHYY+GOFhP1Gio5z4icpP2ivFSvhtFjQi8+T9ppw==}
