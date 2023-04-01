@@ -14,7 +14,7 @@ export function middleware(req: NextRequest) {
   // Extract country
   const country = req.geo?.country || 'US';
 
-  console.log(req);
+  console.log('Testing', req.geo, req.nextUrl);
 
   // Specify the correct pathname
   if (country === BLOCKED_COUNTRY) {
