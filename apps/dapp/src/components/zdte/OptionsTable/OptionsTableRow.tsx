@@ -16,22 +16,23 @@ import OptionsTableButton from 'components/zdte/OptionsTable/OptionsTableButton'
 import { formatAmount } from 'utils/general';
 
 export const FormatDollarColor = ({ value }: { value: number }) => {
+  const formatedVal = Number(formatAmount(Math.abs(value), 2));
   if (value > 0) {
     return (
       <Typography variant="h6" color="up-only">
-        {`$${value}`}
+        {`$${formatedVal}`}
       </Typography>
     );
   } else if (value < 0) {
     return (
       <Typography variant="h6" color="down-bad">
-        {`-$${Math.abs(value)}`}
+        {`-$${Math.abs(formatedVal)}`}
       </Typography>
     );
   } else {
     return (
       <Typography variant="h6" color="white">
-        {`$${value}`}
+        {`$${formatedVal}`}
       </Typography>
     );
   }
