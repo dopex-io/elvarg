@@ -23,18 +23,16 @@ const BLOCKED_COUNTRIES_ALPHA_2_CODES: string[] = [
   'VE',
 ];
 
-// Limit middleware pathname config
-export const config = {
-  matcher: '/',
-};
-
 export function middleware(req: NextRequest) {
-  // Extract country
-  const country = req.geo?.country || 'US';
+  const url = new URL(req.url);
 
-  // Specify the correct pathname
-  if (BLOCKED_COUNTRIES_ALPHA_2_CODES.includes(country)) {
-    req.nextUrl.pathname = '/blocked';
+  if (!url.pathname.startsWith('/share')) {
+    // Extract country
+    const country = req.geo?.country;
+
+    if (country && BLOCKED_COUNTRIES_ALPHA_2_CODES.includes(country)) {
+      req.nextUrl.pathname = '/blocked';
+    }
   }
 
   // Rewrite to URL
