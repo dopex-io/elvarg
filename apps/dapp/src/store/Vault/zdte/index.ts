@@ -116,7 +116,7 @@ export const createZdteSlice: StateCreator<
     try {
       // Addresses[42161].ZDTE[selectedPoolName],
       return Zdte__factory.connect(
-        '0x8B446b221a4b75D49D06CBf857732D392093C4ce',
+        '0xa57f7b4c5c842fcf137c5cb9979edebab2aa1d93',
         provider
       );
     } catch (err) {
