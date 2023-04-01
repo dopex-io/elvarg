@@ -26,6 +26,7 @@ const LeaderBoard = () => {
   const [positions, setPositions] = useState([]);
 
   const mobileMode = !useMedia('(min-width: 480px)');
+  const lowsSreenHeight = !useMedia('(min-height: 1200px)');
 
   const updatePositions = useCallback(async () => {
     await getUserPositionData().then((result: any) => {
@@ -37,7 +38,6 @@ const LeaderBoard = () => {
 
   const leaderBoardData = useMemo(() => {
     const traders = positions.length;
-
     let _positionsFiltered = positions;
 
     if (SORT_OPTIONS[0] === sort) {
@@ -51,7 +51,9 @@ const LeaderBoard = () => {
       );
     }
 
-    _positionsFiltered = !showMore ? positions.slice(0, 5) : positions;
+    _positionsFiltered = !showMore
+      ? positions.slice(0, !lowsSreenHeight ? 10 : 5)
+      : positions;
 
     const index = positions.findIndex((position: any) => {
       return position.id.toLowerCase() === accountAddress?.toLowerCase();
@@ -62,7 +64,15 @@ const LeaderBoard = () => {
       positions: _positionsFiltered,
       userRank: index === -1 ? 0 : index + 1,
     };
-  }, [accountAddress, contractAddresses, positions, sort, showMore]);
+  }, [
+    accountAddress,
+    mobileMode,
+    lowsSreenHeight,
+    contractAddresses,
+    positions,
+    sort,
+    showMore,
+  ]);
 
   useEffect(() => {
     updatePositions();
