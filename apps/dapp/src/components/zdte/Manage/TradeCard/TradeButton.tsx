@@ -8,7 +8,7 @@ import { CustomButton } from 'components/UI';
 
 import { getUserReadableAmount } from 'utils/contracts';
 
-import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
+import { DECIMALS_USD } from 'constants/index';
 
 type PositionStatus =
   | 'Insert an Amount'

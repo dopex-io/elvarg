@@ -8,7 +8,7 @@ import useSendTx from 'hooks/useSendTx';
 import { ZdteLP__factory } from 'mocks/factories/ZdteLP__factory';
 import { useBoundStore } from 'store';
 
-import { IStaticZdteData, IZdteUserData } from 'store/Vault/zdte';
+import { IStaticZdteData, IZdteData, IZdteUserData } from 'store/Vault/zdte';
 
 import { CustomButton, Typography } from 'components/UI';
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
@@ -23,15 +23,18 @@ import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
 class Asset {
   private isQuote: boolean;
+  private zdteData: IZdteData;
   private userZdteLpData: IZdteUserData;
   private staticZdteData: IStaticZdteData;
 
   constructor(
     isQuote: boolean,
+    zdteData: IZdteData,
     userZdteLpData: IZdteUserData,
     staticZdteData: IStaticZdteData
   ) {
     this.isQuote = isQuote;
+    this.zdteData = zdteData;
     this.userZdteLpData = userZdteLpData;
     this.staticZdteData = staticZdteData;
   }
@@ -52,6 +55,12 @@ class Asset {
         );
   }
 
+  get getRawUserAssetBalance() {
+    return this.isQuote
+      ? this.userZdteLpData?.userQuoteLpBalance
+      : this.userZdteLpData?.userBaseLpBalance;
+  }
+
   get getAssetSymbol() {
     return this.isQuote
       ? this.staticZdteData?.quoteLpSymbol
@@ -62,6 +71,15 @@ class Asset {
     return this.isQuote
       ? this.staticZdteData?.quoteLpContractAddress
       : this.staticZdteData?.baseLpContractAddress;
+  }
+
+  get getContractLpBalance() {
+    return this.isQuote
+      ? getUserReadableAmount(this.zdteData.quoteLpAssetBalance!, DECIMALS_USD)
+      : getUserReadableAmount(
+          this.zdteData.baseLpAssetBalance!,
+          DECIMALS_TOKEN
+        );
   }
 }
 
@@ -74,6 +92,7 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
     signer,
     provider,
     getZdteContract,
+    zdteData,
     updateZdteData,
     userZdteLpData,
     accountAddress,
@@ -86,8 +105,8 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
   const [approved, setApproved] = useState<boolean>(false);
   const [isQuote, setisQuote] = useState(true);
   const asset = useMemo(
-    () => new Asset(isQuote, userZdteLpData!, staticZdteData!),
-    [isQuote, userZdteLpData, staticZdteData]
+    () => new Asset(isQuote, zdteData!, userZdteLpData!, staticZdteData!),
+    [isQuote, userZdteLpData, zdteData, staticZdteData]
   );
 
   const handleApprove = useCallback(async () => {
@@ -99,14 +118,16 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
         'approve',
         [
           staticZdteData?.zdteAddress,
-          getContractReadableAmount(tokenWithdrawAmount, DECIMALS_TOKEN),
+          getContractReadableAmount(
+            tokenWithdrawAmount,
+            isQuote ? DECIMALS_USD : DECIMALS_TOKEN
+          ),
         ]
       );
-      setApproved(true);
     } catch (err) {
-      console.log(err);
+      console.log('handle approval: ', err);
     }
-  }, [staticZdteData, signer, sendTx, asset, tokenWithdrawAmount]);
+  }, [staticZdteData, signer, sendTx, asset, tokenWithdrawAmount, isQuote]);
 
   useEffect(() => {
     (async () => {
@@ -120,16 +141,9 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
           accountAddress,
           staticZdteData?.zdteAddress
         );
-        setApproved(
-          allowance.gte(
-            getContractReadableAmount(
-              tokenWithdrawAmount,
-              asset.getUserAssetBalance
-            )
-          )
-        );
+        setApproved(allowance.gte(asset.getRawUserAssetBalance));
       } catch (err) {
-        console.log(err);
+        console.log('update allowance: ', err);
       }
     })();
   }, [
@@ -175,7 +189,10 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
     isQuote,
   ]);
 
-  const canWithdraw = true;
+  const canWithdraw =
+    tokenWithdrawAmount > 0 &&
+    tokenWithdrawAmount <= asset.getUserAssetBalance &&
+    tokenWithdrawAmount <= asset.getContractLpBalance;
 
   return (
     <Box className="rounded-xl space-y-2 p-2">
@@ -220,10 +237,16 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
           />
         </Box>
       </Box>
-      <Box className="p-2">
+      <Box className="p-2 space-y-2">
         <ContentRow
           title="Balance"
           content={`${formatAmount(asset.getUserAssetBalance, 2)} ${
+            asset.getAssetSymbol
+          }`}
+        />
+        <ContentRow
+          title="Available to withdraw"
+          content={`${formatAmount(asset.getContractLpBalance, 2)} ${
             asset.getAssetSymbol
           }`}
         />
@@ -231,15 +254,8 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
       <CustomButton
         size="medium"
         className="w-full mt-4 !rounded-md"
-        color={
-          !approved ||
-          (tokenWithdrawAmount > 0 &&
-            tokenWithdrawAmount <= asset.getUserAssetBalance &&
-            canWithdraw)
-            ? 'primary'
-            : 'mineshaft'
-        }
-        disabled={tokenWithdrawAmount <= 0 || !canWithdraw}
+        color={!approved || canWithdraw ? 'primary' : 'mineshaft'}
+        disabled={approved && !canWithdraw}
         onClick={!approved ? handleApprove : handleWithdraw}
       >
         {approved
@@ -247,6 +263,8 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
             ? 'Insert an amount'
             : tokenWithdrawAmount > asset.getUserAssetBalance
             ? 'Insufficient balance'
+            : tokenWithdrawAmount > asset.getContractLpBalance
+            ? 'Insufficient liquidity to withdraw'
             : 'Withdraw'
           : 'Approve'}
       </CustomButton>
