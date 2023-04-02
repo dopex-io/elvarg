@@ -56,8 +56,13 @@ const ManageCard = () => {
 };
 
 const ManageComponent = () => {
-  const { zdteData, focusTrade, setFocusTrade, setTextInputRef } =
-    useBoundStore();
+  const {
+    zdteData,
+    focusTrade,
+    setFocusTrade,
+    setTextInputRef,
+    setSelectedSpreadPair,
+  } = useBoundStore();
 
   const [manageSection, setManageSection] = useState<string>('Trade');
 
@@ -89,6 +94,10 @@ const ManageComponent = () => {
               if (label === 'LP') {
                 setFocusTrade(false);
                 setTextInputRef(false);
+                setSelectedSpreadPair({
+                  shortStrike: undefined,
+                  longStrike: undefined,
+                });
               }
               setManageSection(label);
             }}
