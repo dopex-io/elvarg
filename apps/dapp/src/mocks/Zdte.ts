@@ -38,6 +38,7 @@ export interface ZdteInterface extends utils.Interface {
     'baseLp()': FunctionFragment;
     'baseLpTokenLiquidty()': FunctionFragment;
     'calcFees(uint256)': FunctionFragment;
+    'calcMargin(bool,uint256,uint256)': FunctionFragment;
     'calcOpeningFees(uint256,uint256)': FunctionFragment;
     'calcPnl(uint256)': FunctionFragment;
     'calcPremium(bool,uint256,uint256,uint256)': FunctionFragment;
@@ -51,7 +52,6 @@ export interface ZdteInterface extends utils.Interface {
     'feeOpenPosition()': FunctionFragment;
     'genesisExpiry()': FunctionFragment;
     'getCurrentExpiry()': FunctionFragment;
-    'getMargin(bool,uint256,uint256,uint256)': FunctionFragment;
     'getMarkPrice()': FunctionFragment;
     'getVolatility(uint256)': FunctionFragment;
     'isContract(address)': FunctionFragment;
@@ -90,6 +90,7 @@ export interface ZdteInterface extends utils.Interface {
       | 'baseLp'
       | 'baseLpTokenLiquidty'
       | 'calcFees'
+      | 'calcMargin'
       | 'calcOpeningFees'
       | 'calcPnl'
       | 'calcPremium'
@@ -103,7 +104,6 @@ export interface ZdteInterface extends utils.Interface {
       | 'feeOpenPosition'
       | 'genesisExpiry'
       | 'getCurrentExpiry'
-      | 'getMargin'
       | 'getMarkPrice'
       | 'getVolatility'
       | 'isContract'
@@ -154,6 +154,14 @@ export interface ZdteInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: 'calcFees',
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'calcMargin',
+    values: [
+      PromiseOrValue<boolean>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: 'calcOpeningFees',
@@ -216,15 +224,6 @@ export interface ZdteInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: 'getCurrentExpiry',
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'getMargin',
-    values: [
-      PromiseOrValue<boolean>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ]
   ): string;
   encodeFunctionData(
     functionFragment: 'getMarkPrice',
@@ -345,6 +344,7 @@ export interface ZdteInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: 'calcFees', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'calcMargin', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'calcOpeningFees',
     data: BytesLike
@@ -391,7 +391,6 @@ export interface ZdteInterface extends utils.Interface {
     functionFragment: 'getCurrentExpiry',
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: 'getMargin', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'getMarkPrice',
     data: BytesLike
@@ -680,6 +679,13 @@ export interface Zdte extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { fees: BigNumber }>;
 
+    calcMargin(
+      isPut: PromiseOrValue<boolean>,
+      longStrike: PromiseOrValue<BigNumberish>,
+      shortStrike: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { margin: BigNumber }>;
+
     calcOpeningFees(
       strike: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
@@ -743,14 +749,6 @@ export interface Zdte extends BaseContract {
     getCurrentExpiry(
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { expiry: BigNumber }>;
-
-    getMargin(
-      isPut: PromiseOrValue<boolean>,
-      amount: PromiseOrValue<BigNumberish>,
-      longStrike: PromiseOrValue<BigNumberish>,
-      shortStrike: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { margin: BigNumber }>;
 
     getMarkPrice(
       overrides?: CallOverrides
@@ -899,6 +897,13 @@ export interface Zdte extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  calcMargin(
+    isPut: PromiseOrValue<boolean>,
+    longStrike: PromiseOrValue<BigNumberish>,
+    shortStrike: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   calcOpeningFees(
     strike: PromiseOrValue<BigNumberish>,
     amount: PromiseOrValue<BigNumberish>,
@@ -960,14 +965,6 @@ export interface Zdte extends BaseContract {
   genesisExpiry(overrides?: CallOverrides): Promise<BigNumber>;
 
   getCurrentExpiry(overrides?: CallOverrides): Promise<BigNumber>;
-
-  getMargin(
-    isPut: PromiseOrValue<boolean>,
-    amount: PromiseOrValue<BigNumberish>,
-    longStrike: PromiseOrValue<BigNumberish>,
-    shortStrike: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
 
   getMarkPrice(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1114,6 +1111,13 @@ export interface Zdte extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    calcMargin(
+      isPut: PromiseOrValue<boolean>,
+      longStrike: PromiseOrValue<BigNumberish>,
+      shortStrike: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     calcOpeningFees(
       strike: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
@@ -1175,14 +1179,6 @@ export interface Zdte extends BaseContract {
     genesisExpiry(overrides?: CallOverrides): Promise<BigNumber>;
 
     getCurrentExpiry(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getMargin(
-      isPut: PromiseOrValue<boolean>,
-      amount: PromiseOrValue<BigNumberish>,
-      longStrike: PromiseOrValue<BigNumberish>,
-      shortStrike: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     getMarkPrice(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1427,6 +1423,13 @@ export interface Zdte extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    calcMargin(
+      isPut: PromiseOrValue<boolean>,
+      longStrike: PromiseOrValue<BigNumberish>,
+      shortStrike: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     calcOpeningFees(
       strike: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
@@ -1488,14 +1491,6 @@ export interface Zdte extends BaseContract {
     genesisExpiry(overrides?: CallOverrides): Promise<BigNumber>;
 
     getCurrentExpiry(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getMargin(
-      isPut: PromiseOrValue<boolean>,
-      amount: PromiseOrValue<BigNumberish>,
-      longStrike: PromiseOrValue<BigNumberish>,
-      shortStrike: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     getMarkPrice(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1617,6 +1612,13 @@ export interface Zdte extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    calcMargin(
+      isPut: PromiseOrValue<boolean>,
+      longStrike: PromiseOrValue<BigNumberish>,
+      shortStrike: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     calcOpeningFees(
       strike: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
@@ -1678,14 +1680,6 @@ export interface Zdte extends BaseContract {
     genesisExpiry(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getCurrentExpiry(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getMargin(
-      isPut: PromiseOrValue<boolean>,
-      amount: PromiseOrValue<BigNumberish>,
-      longStrike: PromiseOrValue<BigNumberish>,
-      shortStrike: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     getMarkPrice(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

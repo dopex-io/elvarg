@@ -113,10 +113,11 @@ export const createZdteSlice: StateCreator<
 
     if (!selectedPoolName || !provider) return;
 
+    // 0x8c2ee7c9a132477ef1d2d0f46d8ddfec94904f7e
     try {
       // Addresses[42161].ZDTE[selectedPoolName],
       return Zdte__factory.connect(
-        '0xa57f7b4c5c842fcf137c5cb9979edebab2aa1d93',
+        '0x8c2ee7c9a132477ef1d2d0f46d8ddfec94904f7e',
         provider
       );
     } catch (err) {
@@ -313,11 +314,11 @@ export const createZdteSlice: StateCreator<
         strikes.push({
           strike: i,
           breakeven: i + normalizedPremium,
-          breakevenPercentage: roundToNearestHalf(
-            (i + normalizedPremium) / tokenPrice
+          breakevenPercentage: roundToNearestTwoDp(
+            (i + normalizedPremium) / tokenPrice - 1
           ),
           change: i - tokenPrice,
-          changePercentage: roundToNearestHalf(
+          changePercentage: roundToNearestTwoDp(
             ((i - tokenPrice) * 100) / tokenPrice
           ),
           premium: normalizedPremium,
@@ -436,8 +437,8 @@ export const createZdteSlice: StateCreator<
   },
 });
 
-function roundToNearestHalf(num: number): number {
-  return Math.round(num * 2) / 2;
+function roundToNearestTwoDp(num: number): number {
+  return Math.round(num * 100) / 100;
 }
 
 function getUsdPrice(value: BigNumber): number {

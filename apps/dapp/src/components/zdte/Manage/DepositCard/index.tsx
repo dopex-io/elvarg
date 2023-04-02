@@ -16,7 +16,7 @@ import {
 } from 'utils/contracts';
 import { formatAmount } from 'utils/general';
 
-import { DECIMALS_TOKEN, DECIMALS_USD, MAX_VALUE } from 'constants/index';
+import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
 interface DepositProps {}
 
@@ -87,13 +87,18 @@ const Deposit: FC<DepositProps> = ({}) => {
           signer
         ),
         'approve',
-        [staticZdteData?.zdteAddress, MAX_VALUE]
+        [
+          staticZdteData?.zdteAddress,
+          getContractReadableAmount(
+            amount,
+            isQuote ? DECIMALS_USD : DECIMALS_TOKEN
+          ),
+        ]
       );
-      setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [signer, sendTx, staticZdteData, isQuote]);
+  }, [signer, sendTx, staticZdteData, isQuote, amount]);
 
   useEffect(() => {
     (async () => {

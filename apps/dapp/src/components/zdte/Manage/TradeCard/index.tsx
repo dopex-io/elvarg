@@ -20,12 +20,7 @@ import {
 import { formatAmount } from 'utils/general';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
-import {
-  DECIMALS_STRIKE,
-  DECIMALS_TOKEN,
-  DECIMALS_USD,
-  MAX_VALUE,
-} from 'constants/index';
+import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
 const ONE_DAY = 24 * 3600;
 
@@ -113,13 +108,15 @@ const TradeCard: FC<TradeProps> = ({}) => {
       await sendTx(
         ERC20__factory.connect(staticZdteData?.quoteTokenAddress, signer),
         'approve',
-        [staticZdteData?.zdteAddress, MAX_VALUE]
+        [
+          staticZdteData?.zdteAddress,
+          getContractReadableAmount(amount, DECIMALS_TOKEN),
+        ]
       );
-      setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [staticZdteData, signer, sendTx]);
+  }, [staticZdteData, signer, sendTx, amount]);
 
   const handleTradeAmount = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) =>
@@ -208,10 +205,15 @@ const TradeCard: FC<TradeProps> = ({}) => {
           staticZdteData?.zdteAddress
         );
         setApproved(
-          allowance.gte(getContractReadableAmount(amount, DECIMALS_TOKEN))
+          allowance.gte(
+            getContractReadableAmount(
+              Math.round((premium + openingFees) * Number(amount)),
+              DECIMALS_USD
+            )
+          )
         );
       } catch (err) {
-        console.log(err);
+        console.log('validateApproval: ', err);
       }
     }
 
@@ -233,7 +235,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
         );
         setCanOpenSpread(sufficient);
       } catch (err) {
-        console.log(err);
+        console.log('validateCanOpenSpread: ', err);
       }
     }
 
@@ -241,9 +243,8 @@ const TradeCard: FC<TradeProps> = ({}) => {
       if (!selectedSpreadPair?.shortStrike || amount === 0) return;
       try {
         const zdteContract = await getZdteContract();
-        const requireMargin = await zdteContract.getMargin(
+        let requireMargin = await zdteContract.calcMargin(
           selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike,
-          getContractReadableAmount(amount, DECIMALS_TOKEN),
           getContractReadableAmount(
             selectedSpreadPair.longStrike,
             DECIMALS_STRIKE
@@ -254,6 +255,9 @@ const TradeCard: FC<TradeProps> = ({}) => {
           )
         );
         let margin: number;
+        requireMargin = requireMargin
+          .mul(getContractReadableAmount(amount, DECIMALS_TOKEN))
+          .div(oneEBigNumber(DECIMALS_TOKEN));
         // isPut
         if (selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike) {
           margin = getUserReadableAmount(requireMargin, DECIMALS_USD);
@@ -262,7 +266,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
         }
         setMargin(formatAmount(margin, 2));
       } catch (err) {
-        console.log(err);
+        console.log('updateMargin: ', err);
       }
     }
     updatePremiumAndFees();
@@ -280,6 +284,11 @@ const TradeCard: FC<TradeProps> = ({}) => {
     amount,
     focusTrade,
     textInputRef,
+    premium,
+    openingFees,
+    setApproved,
+    setCanOpenSpread,
+    setMargin,
   ]);
 
   return (

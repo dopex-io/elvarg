@@ -8,7 +8,7 @@ import { CustomButton } from 'components/UI';
 
 import { getUserReadableAmount } from 'utils/contracts';
 
-import { DECIMALS_TOKEN } from 'constants/index';
+import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
 type PositionStatus =
   | 'Insert an Amount'
@@ -30,7 +30,7 @@ function canOpenPosition(
   if (amount <= 0) {
     return 'Insert an Amount';
   }
-  if (amount > getUserReadableAmount(quoteTokenBalance, DECIMALS_TOKEN)) {
+  if (amount > getUserReadableAmount(quoteTokenBalance, DECIMALS_USD)) {
     return 'Insufficient Balance';
   }
   // check if it's possible to open position

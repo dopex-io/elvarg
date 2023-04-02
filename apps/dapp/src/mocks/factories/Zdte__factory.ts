@@ -399,6 +399,35 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: 'bool',
+        name: 'isPut',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'longStrike',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'shortStrike',
+        type: 'uint256',
+      },
+    ],
+    name: 'calcMargin',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'margin',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
         internalType: 'uint256',
         name: 'strike',
         type: 'uint256',
@@ -628,40 +657,6 @@ const _abi = [
       {
         internalType: 'uint256',
         name: 'expiry',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bool',
-        name: 'isPut',
-        type: 'bool',
-      },
-      {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'longStrike',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'shortStrike',
-        type: 'uint256',
-      },
-    ],
-    name: 'getMargin',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: 'margin',
         type: 'uint256',
       },
     ],

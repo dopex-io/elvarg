@@ -19,7 +19,7 @@ import {
 } from 'utils/contracts';
 import { formatAmount } from 'utils/general';
 
-import { DECIMALS_TOKEN, DECIMALS_USD, MAX_VALUE } from 'constants/index';
+import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
 class Asset {
   private isQuote: boolean;
@@ -97,13 +97,16 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
       await sendTx(
         ZdteLP__factory.connect(asset.getAssetAddress, signer),
         'approve',
-        [staticZdteData?.zdteAddress, MAX_VALUE]
+        [
+          staticZdteData?.zdteAddress,
+          getContractReadableAmount(tokenWithdrawAmount, DECIMALS_TOKEN),
+        ]
       );
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [staticZdteData, signer, sendTx, asset]);
+  }, [staticZdteData, signer, sendTx, asset, tokenWithdrawAmount]);
 
   useEffect(() => {
     (async () => {
