@@ -6,6 +6,7 @@ import EqualizerIcon from '@mui/icons-material/Equalizer';
 import Head from 'next/head';
 import cx from 'classnames';
 import { useMedia } from 'react-use';
+import Countdown from 'react-countdown';
 
 import AppBar from 'components/common/AppBar';
 
@@ -20,12 +21,12 @@ const SORT_OPTIONS = ['PNL', 'VOLUME'];
 const LeaderBoard = () => {
   const { getUserPositionData, contractAddresses, accountAddress } =
     useBoundStore();
-  const [selectedToken, setSelectedToken] = useState('ARB');
   const [showMore, setShowMore] = useState(false);
   const [sort, setSort] = useState(SORT_OPTIONS[0]);
   const [positions, setPositions] = useState([]);
 
   const mobileMode = !useMedia('(min-width: 480px)');
+  const lowScreenHeight = !useMedia('(min-height: 1200px)');
 
   const updatePositions = useCallback(async () => {
     await getUserPositionData().then((result: any) => {
@@ -36,45 +37,39 @@ const LeaderBoard = () => {
   }, [getUserPositionData]);
 
   const leaderBoardData = useMemo(() => {
-    const optionScalpContract =
-      contractAddresses['OPTION-SCALPS'][selectedToken];
-    let _positionsFiltered = positions.filter(
-      (position: any) =>
-        position.scalpContract.toLowerCase() ===
-        optionScalpContract.toLowerCase()
-    );
+    const traders = positions.length;
+    let _positionsFiltered = positions;
 
     if (SORT_OPTIONS[0] === sort) {
       _positionsFiltered = _positionsFiltered.sort(
-        (a: any, b: any) => parseFloat(b.pnl) - parseFloat(a.pnl)
+        (a: any, b: any) => parseFloat(b.totalPnL) - parseFloat(a.totalPnL)
       );
     } else if (SORT_OPTIONS[1] === sort) {
       _positionsFiltered = _positionsFiltered.sort(
-        (a: any, b: any) => parseFloat(b.volume) - parseFloat(a.volume)
+        (a: any, b: any) =>
+          parseFloat(b.totalVolume) - parseFloat(a.totalVolume)
       );
     }
 
-    const index = _positionsFiltered.findIndex((position: any) => {
-      return position.user.toLowerCase() === accountAddress?.toLowerCase();
+    _positionsFiltered = !showMore
+      ? positions.slice(0, !lowScreenHeight ? 10 : 5)
+      : positions;
+
+    const index = positions.findIndex((position: any) => {
+      return position.id.toLowerCase() === accountAddress?.toLowerCase();
     });
 
-    const traders = _positionsFiltered.length;
-
-    _positionsFiltered = !showMore
-      ? _positionsFiltered.slice(0, 5)
-      : _positionsFiltered;
-
-    // const filteredPositions = positions.fi
     return {
       traders: traders,
       positions: _positionsFiltered,
-      userRank: index === -1 ? '-' : '#' + (index + 1),
+      userRank: index === -1 ? 0 : index + 1,
     };
   }, [
     accountAddress,
+    mobileMode,
+    lowScreenHeight,
     contractAddresses,
     positions,
-    selectedToken,
     sort,
     showMore,
   ]);
@@ -100,27 +95,6 @@ const LeaderBoard = () => {
           Option Scalps Leaderboard
         </h4>
         {/* Tokens */}
-        <div className="flex flex-row space-x-4">
-          {TOKENS.map((token, index) => (
-            <span
-              role="button"
-              onClick={() => setSelectedToken(token)}
-              className={cx(
-                RESPONSIVE_TITLE_TEXT_STYLE,
-                'mx-4 mt-4 flex flex-col-reverse  items-center font-lighter underline-offset-4',
-                selectedToken === token && 'underline'
-              )}
-              key={index}
-            >
-              <span>{token}</span>
-              <img
-                className="w-9 h-9 z-10 border border-gray-500 rounded-full mb-2"
-                src={`/images/tokens/${token.toLowerCase()}.svg`}
-                alt={token}
-              />
-            </span>
-          ))}
-        </div>
       </div>
       {/* Table */}
       <div className="h-fit-content w-screen px-[2rem] md:px-[5rem] max-w-[55rem]">
@@ -132,7 +106,10 @@ const LeaderBoard = () => {
                   {leaderBoardData.traders} Traders
                 </span>
                 <span className={cx(RESPONSIVE_TITLE_TEXT_STYLE)}>
-                  Your Rank {leaderBoardData.userRank}
+                  Your Rank{' '}
+                  {leaderBoardData.userRank === 0
+                    ? '-'
+                    : '#' + leaderBoardData.userRank}
                 </span>
                 <div className="flex space-x-4">
                   <div
@@ -178,7 +155,11 @@ const LeaderBoard = () => {
                     <div
                       key={index}
                       // px-4 py-3 md:px-14 md:py-5
-                      className="flex flex-row justify-between items-center px-4 py-3 md:px-14 md:py-5 "
+                      className={cx(
+                        index + 1 === Number(leaderBoardData.userRank) &&
+                          'animate-pulse',
+                        'flex flex-row justify-between items-center px-4 py-3 md:px-14 md:py-5'
+                      )}
                     >
                       <span
                         className={cx(
@@ -191,12 +172,12 @@ const LeaderBoard = () => {
                       <span
                         className={cx(
                           RESPONSIVE_TITLE_TEXT_STYLE,
-                          'text-center w-full'
+                          'text-left w-full'
                         )}
                       >
                         {mobileMode
                           ? smartTrim(position.user, 10)
-                          : position.user}
+                          : position.id}
                       </span>
                       <span
                         className={cx(
@@ -208,8 +189,8 @@ const LeaderBoard = () => {
                         {formatAmount(
                           getUserReadableAmount(
                             sort === SORT_OPTIONS[0]
-                              ? position.pnl
-                              : position.volume,
+                              ? position.totalPnL
+                              : position.totalVolume,
                             6
                           ),
                           5
@@ -239,25 +220,63 @@ const LeaderBoard = () => {
         </div>
         {/* Trade prompt */}
       </div>
-      <div className="flex flex-col items-center space-y-4 pb-10">
-        <div className="text-center">
-          <p className={cx(RESPONSIVE_TITLE_TEXT_STYLE, 'font-light')}>
-            Join the trading competition of upto $30k prize pool!
+      <div className="flex flex-col items-center space-y-6 pb-10 h-full">
+        <div className="text-center px-10 max-w-[40rem]">
+          <p
+            className={cx(
+              RESPONSIVE_TITLE_TEXT_STYLE,
+              'uppercase tracking-wider'
+            )}
+          >
+            Join Dopex Trading Competition and Get a Chance to Win a Part of the
+            Prize Pool of $50,000
           </p>
         </div>
+        <div className="flex flex-row space-x-4">
+          {TOKENS.map((token, index) => (
+            <a role="button" href={`/scalps/${token}`}>
+              <span
+                role="button"
+                className={cx(
+                  RESPONSIVE_TITLE_TEXT_STYLE,
+                  'mx-4 my-4 flex flex-col-reverse  items-center font-lighter underline-offset-4'
+                )}
+                key={index}
+              >
+                <span className="underline hover:text-stieglitz">
+                  Trade {token}
+                </span>
+                <img
+                  className="w-9 h-9 z-10 border border-gray-500 rounded-full mb-2"
+                  src={`/images/tokens/${token.toLowerCase()}.svg`}
+                  alt={token}
+                />
+              </span>
+            </a>
+          ))}
+        </div>
+        <Countdown
+          date={new Date(1680829200000)}
+          renderer={({ days, hours, minutes, seconds }) => {
+            return (
+              <div
+                className={cx(
+                  RESPONSIVE_TITLE_TEXT_STYLE,
+                  'flex flex-col items-center justify-center space-y-5'
+                )}
+              >
+                <span>Competition ends in:</span>
+                <span className="text-lg font-bold pt-1 tracking-wider bg-gradient-to-r from-wave-blue to-blue-200 text-transparent bg-clip-text">
+                  {days}d {hours}h {minutes}m {seconds}s
+                </span>
+              </div>
+            );
+          }}
+        />
         <div
           role="button"
           className="flex flex-row space-x-4 w-full items-center justify-center px-10"
         >
-          <a
-            href={`/scalps/${selectedToken}`}
-            className={cx(
-              RESPONSIVE_TITLE_TEXT_STYLE,
-              'flex-1 rounded-md bg-primary py-2 px-5 max-w-[10rem] w-full flex'
-            )}
-          >
-            <span className="text-center w-full">Trade</span>
-          </a>
           <a
             href={
               'https://blog.dopex.io/articles/marketing-campaigns/option-scalps-trading-competition'
