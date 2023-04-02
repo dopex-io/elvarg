@@ -7,7 +7,7 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import { zipWith } from 'lodash';
+import zipWith from 'lodash/zipWith';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';

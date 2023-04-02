@@ -19,8 +19,6 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import { MAX_VALUE } from 'constants/index';
-
 const DepositCard = () => {
   const {
     chainId,
@@ -100,7 +98,7 @@ const DepositCard = () => {
   }, [updateUserBalance]);
 
   const checkApproved = useCallback(async () => {
-    if (!accountAddress || !signer) return;
+    if (!accountAddress || !signer || !optionScalpData) return;
 
     const quote = ERC20__factory.connect(
       contractAddresses[optionScalpData!.quoteSymbol!],
@@ -122,13 +120,17 @@ const DepositCard = () => {
       ),
     ]);
 
-    const balance: BigNumber = await (isQuote ? quote : base).balanceOf(
-      accountAddress
+    const depositAmount = getContractReadableAmount(
+      rawAmount,
+      isQuote
+        ? optionScalpData?.quoteDecimals!.toNumber()
+        : optionScalpData?.baseDecimals!.toNumber()
     );
+
     if (isQuote) {
-      setIsQuoteApproved(quoteAllowance.gte(balance));
+      setIsQuoteApproved(quoteAllowance.gte(depositAmount));
     } else {
-      setIsBaseApproved(baseAllowance.gte(balance));
+      setIsBaseApproved(baseAllowance.gte(depositAmount));
     }
   }, [accountAddress, contractAddresses, isQuote, optionScalpData, signer]);
 
@@ -156,7 +158,12 @@ const DepositCard = () => {
     try {
       await sendTx(isQuote ? quote : base, 'approve', [
         optionScalpData?.optionScalpContract?.address,
-        MAX_VALUE,
+        getContractReadableAmount(
+          rawAmount,
+          isQuote
+            ? optionScalpData?.quoteDecimals!.toNumber()
+            : optionScalpData?.baseDecimals!.toNumber()
+        ),
       ])
         .then(async () => await checkApproved())
         .then(() => setLoading(false));
