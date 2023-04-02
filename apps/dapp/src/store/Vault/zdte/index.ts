@@ -310,19 +310,21 @@ export const createZdteSlice: StateCreator<
           zdteContract.calcOpeningFees(ether, contractStrike),
         ]);
         const normalizedPremium = getUsdPrice(premium);
+        const normalizedOpeningFees = getUsdPrice(openingFees);
 
         strikes.push({
           strike: i,
-          breakeven: i + normalizedPremium,
+          breakeven:
+            i + (i >= tokenPrice ? normalizedPremium : -1 * normalizedPremium),
           breakevenPercentage: roundToNearestTwoDp(
-            (i + normalizedPremium) / tokenPrice - 1
+            ((i + normalizedPremium) / tokenPrice - 1) * 100
           ),
           change: i - tokenPrice,
           changePercentage: roundToNearestTwoDp(
             ((i - tokenPrice) * 100) / tokenPrice
           ),
           premium: normalizedPremium,
-          openingFees: getUsdPrice(openingFees),
+          openingFees: normalizedOpeningFees,
         });
       }
 

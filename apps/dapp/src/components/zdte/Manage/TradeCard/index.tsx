@@ -87,7 +87,6 @@ const TradeCard: FC<TradeProps> = ({}) => {
     userZdteLpData,
     selectedSpreadPair,
     setSelectedSpreadPair,
-    focusTrade,
     textInputRef,
     staticZdteData,
   } = useBoundStore();
@@ -164,7 +163,11 @@ const TradeCard: FC<TradeProps> = ({}) => {
 
   useEffect(() => {
     async function updatePremiumAndFees() {
-      if (!selectedSpreadPair?.shortStrike) return;
+      if (!selectedSpreadPair || amount === 0 || amount === '') {
+        setPremium(0);
+        setOpeningFees(0);
+        return;
+      }
 
       const zdteContract = await getZdteContract();
       const ether = oneEBigNumber(DECIMALS_TOKEN);
@@ -188,7 +191,6 @@ const TradeCard: FC<TradeProps> = ({}) => {
             orZero(selectedSpreadPair.shortStrike)
           ),
         ]);
-
       setPremium(getUsdPrice(longPremium));
       setOpeningFees(getUsdPrice(longOpeningFees.add(shortOpeningFees)));
     }
@@ -240,7 +242,11 @@ const TradeCard: FC<TradeProps> = ({}) => {
     }
 
     async function updateMargin() {
-      if (!selectedSpreadPair?.shortStrike || amount === 0) return;
+      if (!selectedSpreadPair || amount === 0 || amount === '') {
+        setMargin(0);
+        return;
+      }
+
       try {
         const zdteContract = await getZdteContract();
         let requireMargin = await zdteContract.calcMargin(
@@ -282,10 +288,10 @@ const TradeCard: FC<TradeProps> = ({}) => {
     signer,
     accountAddress,
     amount,
-    focusTrade,
     textInputRef,
     premium,
     openingFees,
+    zdteData,
     setApproved,
     setCanOpenSpread,
     setMargin,
@@ -337,16 +343,16 @@ const TradeCard: FC<TradeProps> = ({}) => {
           content={`$${roundToTwoDecimals(openingFees)}`}
         />
         <ContentRow
+          title="Cost per spread"
+          content={`$${roundToTwoDecimals(premium + openingFees)}`}
+        />
+        <ContentRow
           title="Margin required"
           content={
             selectedSpreadPair?.longStrike! > selectedSpreadPair?.shortStrike!
               ? `${margin} ${staticZdteData?.quoteTokenSymbol.toUpperCase()}`
               : `${margin} ${staticZdteData?.baseTokenSymbol.toUpperCase()}`
           }
-        />
-        <ContentRow
-          title="Cost per spread"
-          content={`$${roundToTwoDecimals(premium + openingFees)}`}
         />
         <ContentRow
           title="You will pay"
