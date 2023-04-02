@@ -26,7 +26,7 @@ const LeaderBoard = () => {
   const [positions, setPositions] = useState([]);
 
   const mobileMode = !useMedia('(min-width: 480px)');
-  const lowsSreenHeight = !useMedia('(min-height: 1200px)');
+  const lowScreenHeight = !useMedia('(min-height: 1200px)');
 
   const updatePositions = useCallback(async () => {
     await getUserPositionData().then((result: any) => {
@@ -52,7 +52,7 @@ const LeaderBoard = () => {
     }
 
     _positionsFiltered = !showMore
-      ? positions.slice(0, !lowsSreenHeight ? 10 : 5)
+      ? positions.slice(0, !lowScreenHeight ? 10 : 5)
       : positions;
 
     const index = positions.findIndex((position: any) => {
@@ -67,7 +67,7 @@ const LeaderBoard = () => {
   }, [
     accountAddress,
     mobileMode,
-    lowsSreenHeight,
+    lowScreenHeight,
     contractAddresses,
     positions,
     sort,
