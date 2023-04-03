@@ -138,7 +138,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
           DECIMALS_STRIKE
         ),
       ]).then(() => {
-        setAmount('0');
+        setAmount('');
         setSelectedSpreadPair({
           ...selectedSpreadPair,
           shortStrike: undefined,
@@ -163,40 +163,48 @@ const TradeCard: FC<TradeProps> = ({}) => {
 
   useEffect(() => {
     async function updatePremiumAndFees() {
-      if (!selectedSpreadPair || amount === 0 || amount === '') {
+      if (
+        !selectedSpreadPair?.longStrike ||
+        !selectedSpreadPair?.shortStrike ||
+        !amount
+      ) {
         setPremium(0);
         setOpeningFees(0);
         return;
       }
 
-      const zdteContract = await getZdteContract();
-      const ether = oneEBigNumber(DECIMALS_TOKEN);
+      try {
+        const zdteContract = await getZdteContract();
+        const ether = oneEBigNumber(DECIMALS_TOKEN);
 
-      // # long >= current, long < short => isCall
-      // # long <= current, long > short, => isPut
-      const [longPremium, longOpeningFees, shortOpeningFees] =
-        await Promise.all([
-          zdteContract.calcPremium(
-            selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike,
-            orZero(selectedSpreadPair.longStrike),
-            ether,
-            ONE_DAY
-          ),
-          zdteContract.calcOpeningFees(
-            ether,
-            orZero(selectedSpreadPair.longStrike)
-          ),
-          zdteContract.calcOpeningFees(
-            ether,
-            orZero(selectedSpreadPair.shortStrike)
-          ),
-        ]);
-      setPremium(getUsdPrice(longPremium));
-      setOpeningFees(getUsdPrice(longOpeningFees.add(shortOpeningFees)));
+        // # long >= current, long < short => isCall
+        // # long <= current, long > short, => isPut
+        const [longPremium, longOpeningFees, shortOpeningFees] =
+          await Promise.all([
+            zdteContract.calcPremium(
+              selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike,
+              orZero(selectedSpreadPair.longStrike),
+              ether,
+              ONE_DAY
+            ),
+            zdteContract.calcOpeningFees(
+              ether,
+              orZero(selectedSpreadPair.longStrike)
+            ),
+            zdteContract.calcOpeningFees(
+              ether,
+              orZero(selectedSpreadPair.shortStrike)
+            ),
+          ]);
+        setPremium(getUsdPrice(longPremium));
+        setOpeningFees(getUsdPrice(longOpeningFees.add(shortOpeningFees)));
+      } catch (err) {
+        console.log('updatePremiumAndFees: ', err);
+      }
     }
 
     async function validateApproval() {
-      if (!signer || !accountAddress || !staticZdteData) return;
+      if (!signer || !accountAddress || !staticZdteData || !amount) return;
       try {
         const quoteTokenContract = await ERC20__factory.connect(
           staticZdteData?.quoteTokenAddress,
@@ -220,7 +228,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
     }
 
     async function validateCanOpenSpread() {
-      if (!selectedSpreadPair?.shortStrike || amount === 0) return;
+      if (!selectedSpreadPair?.shortStrike || !amount) return;
       try {
         const zdteContract = await getZdteContract();
         const sufficient = await zdteContract.canOpenSpreadPosition(
@@ -242,14 +250,18 @@ const TradeCard: FC<TradeProps> = ({}) => {
     }
 
     async function updateMargin() {
-      if (!selectedSpreadPair || amount === 0 || amount === '') {
+      if (
+        !selectedSpreadPair?.longStrike ||
+        !selectedSpreadPair?.shortStrike ||
+        !amount
+      ) {
         setMargin(0);
         return;
       }
 
       try {
         const zdteContract = await getZdteContract();
-        let requireMargin = await zdteContract.calcMargin(
+        const requireMargin = await zdteContract.calcMargin(
           selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike,
           getContractReadableAmount(
             selectedSpreadPair.longStrike,
@@ -260,16 +272,13 @@ const TradeCard: FC<TradeProps> = ({}) => {
             DECIMALS_STRIKE
           )
         );
-        let margin: number;
-        requireMargin = requireMargin
-          .mul(getContractReadableAmount(amount, DECIMALS_TOKEN))
-          .div(oneEBigNumber(DECIMALS_TOKEN));
-        // isPut
+        let margin;
         if (selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike) {
           margin = getUserReadableAmount(requireMargin, DECIMALS_USD);
         } else {
           margin = getUserReadableAmount(requireMargin, DECIMALS_TOKEN);
         }
+        margin = margin * Number(amount);
         setMargin(formatAmount(margin, 2));
       } catch (err) {
         console.log('updateMargin: ', err);

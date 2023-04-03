@@ -113,11 +113,10 @@ export const createZdteSlice: StateCreator<
 
     if (!selectedPoolName || !provider) return;
 
-    // 0x8c2ee7c9a132477ef1d2d0f46d8ddfec94904f7e
     try {
       // Addresses[42161].ZDTE[selectedPoolName],
       return Zdte__factory.connect(
-        '0x8c2ee7c9a132477ef1d2d0f46d8ddfec94904f7e',
+        '0x68584a0778dac18f3e3472e0c6c5cd51236f8ce5',
         provider
       );
     } catch (err) {
