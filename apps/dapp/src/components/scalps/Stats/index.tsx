@@ -1,15 +1,11 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import { useMemo } from 'react';
-import { ApolloQueryResult } from '@apollo/client';
 import { BigNumber, utils } from 'ethers';
 
 import { useBoundStore } from 'store';
 
-import {
-  GetTradesFromTimestampDocument,
-  GetTradesFromTimestampQuery,
-} from 'graphql/generated/optionScalps';
-import { optionScalpsGraphClient } from 'graphql/apollo';
+import graphSdk from 'graphql/graphSdk';
+import queryClient from 'queryClient';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -34,16 +30,15 @@ const Stats = () => {
 
   useEffect(() => {
     async function getVolume() {
-      const payload: ApolloQueryResult<GetTradesFromTimestampQuery> =
-        await optionScalpsGraphClient.query({
-          query: GetTradesFromTimestampDocument,
-          variables: {
+      const payload = await queryClient.fetchQuery({
+        queryKey: ['getTradesFromTimestamp'],
+        queryFn: () =>
+          graphSdk.getTradesFromTimestamp({
             fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
-          },
-          fetchPolicy: 'no-cache',
-        });
+          }),
+      });
 
-      const _twentyFourHourVolume = payload.data.trades.reduce(
+      const _twentyFourHourVolume = payload.trades.reduce(
         (acc, trade, _index) => {
           const address = trade.id.split('#')[0]!;
           if (address === '0xdaf4ffb05bfcb2c328c19135e3e74e1182c88283')

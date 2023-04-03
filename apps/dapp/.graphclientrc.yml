@@ -1,0 +1,16 @@
+sources:
+  - name: ssov
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/psytama/dopex-ssov
+  - name: straddles
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/psytama/dopex-straddles
+  - name: optionScalps
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/aercwarden/dopex-option-scalps
+
+documents:
+  - ./src/graphql/**/*.graphql

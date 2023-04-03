@@ -4,14 +4,9 @@ import {
   OptionScalpsLp__factory,
   OptionScalps__factory,
 } from '@dopex-io/sdk';
-import { ApolloQueryResult } from '@apollo/client';
 
-import { optionScalpsGraphClient } from 'graphql/apollo';
-
-import {
-  GetTraderStatsDocument,
-  GetTraderStatsQuery,
-} from 'graphql/generated/optionScalps';
+import graphSdk from 'graphql/graphSdk';
+import queryClient from 'queryClient';
 
 import { StateCreator } from 'zustand';
 
@@ -261,13 +256,13 @@ export const createOptionScalpSlice: StateCreator<
     }));
   },
   getUserPositionData: async () => {
-    const userPositionData: ApolloQueryResult<GetTraderStatsQuery> =
-      await optionScalpsGraphClient.query({
-        query: GetTraderStatsDocument,
-        fetchPolicy: 'no-cache',
-      });
-    if (!userPositionData.data) return;
-    return userPositionData.data.traderStats;
+    const userPositionData = await queryClient.fetchQuery({
+      queryKey: ['getTraderStats'],
+      queryFn: () => graphSdk.getTraderStats(),
+    });
+
+    if (!userPositionData) return;
+    return userPositionData.traderStats;
   },
   updateOptionScalp: async () => {
     const {
