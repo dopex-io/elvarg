@@ -30,7 +30,7 @@ const SupplyChart = () => {
 
   useEffect(() => {
     const currentTime = Date.now() / 1000;
-    const from = Math.floor(currentTime - 86400 * 28);
+    const from = Math.floor(currentTime - 86400 * 180);
 
     axios
       .get(
@@ -48,12 +48,14 @@ const SupplyChart = () => {
               };
             })
             .filter((_: any, index: number) => {
-              if (index % 23 === 1) return true;
+              if (index % 71 === 1) return true;
               return false;
             })
         )
       );
   }, []);
+
+  console.log(data.length);
 
   return (
     <ResponsiveContainer width="100%" height="100%">
