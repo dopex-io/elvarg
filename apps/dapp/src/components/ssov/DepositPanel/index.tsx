@@ -347,7 +347,7 @@ const DepositPanel = () => {
 
     const fromTokenAddress =
       chainId === 137
-        ? contractAddresses['stMATIC']
+        ? contractAddresses['STMATIC']
         : getContractAddress(fromTokenSymbol);
 
     const toTokenAddress = ssovData.isPut
