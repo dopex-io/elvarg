@@ -4,7 +4,11 @@ import { useBoundStore } from 'store';
 
 import Manage from 'components/ssov/Manage';
 
+import { useIsMounted } from 'hooks/useIsMounted';
+
 const SsovV3Page = (props: { ssov: string }) => {
+  const isMounted = useIsMounted();
+
   const {
     signer,
     ssovData,
@@ -35,6 +39,8 @@ const SsovV3Page = (props: { ssov: string }) => {
     if (!ssovEpochData) return;
     updateSsovV3UserData();
   }, [ssovEpochData, updateSsovV3UserData, chainId]);
+
+  if (!isMounted) return null;
 
   return <Manage ssov={ssov} />;
 };
