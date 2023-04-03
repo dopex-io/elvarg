@@ -26,6 +26,10 @@ export const TOKEN_ADDRESS_TO_DATA: { [key: string]: TokenData } = {
     symbol: 'LDO',
     imgSrc: '/images/tokens/ldo.svg',
   },
+  '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270': {
+    symbol: 'wMATIC',
+    imgSrc: '/images/tokens/matic.svg',
+  },
 };
 
 export const TOKEN_DATA: {
