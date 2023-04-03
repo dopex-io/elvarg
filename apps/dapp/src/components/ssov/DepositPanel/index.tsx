@@ -59,7 +59,6 @@ const DepositPanel = () => {
     ssovEpochData,
     ssovSigner,
     selectedEpoch,
-    contractAddresses,
     userAssetBalances,
     getContractAddress,
   } = useBoundStore();
@@ -134,10 +133,7 @@ const DepositPanel = () => {
     if (!ssovData?.collateralAddress || !signer || !spender) return;
     try {
       await sendTx(
-        ERC20__factory.connect(
-          contractAddresses[fromTokenSymbol.toUpperCase()],
-          signer
-        ),
+        ERC20__factory.connect(getContractAddress(fromTokenSymbol), signer),
         'approve',
         [spender, MAX_VALUE]
       );
@@ -145,7 +141,7 @@ const DepositPanel = () => {
     } catch (err) {
       console.log(err);
     }
-  }, [sendTx, signer, spender, ssovData, fromTokenSymbol, contractAddresses]);
+  }, [sendTx, signer, spender, ssovData, fromTokenSymbol, getContractAddress]);
 
   const depositButtonProps = useMemo(() => {
     let disable = false;
@@ -164,7 +160,7 @@ const DepositPanel = () => {
       color = 'primary';
     }
     if (
-      strikeDepositAmount >
+      Number(strikeDepositAmount) >
       getUserReadableAmount(
         userTokenBalance,
         getTokenDecimals(fromTokenSymbol, chainId)
@@ -225,7 +221,7 @@ const DepositPanel = () => {
           ssovSigner.ssovContractWithSigner.address,
           isNativeToken(fromTokenSymbol)
             ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-            : getContractAddress(fromTokenSymbol.toUpperCase()),
+            : getContractAddress(fromTokenSymbol),
           toTokenAddress,
           accountAddress,
           strike,
@@ -281,7 +277,12 @@ const DepositPanel = () => {
   ]);
 
   const handleMax = useCallback(() => {
-    setStrikeDepositAmount(userTokenBalance.toString());
+    setStrikeDepositAmount(
+      getUserReadableAmount(
+        userTokenBalance,
+        getTokenDecimals(fromTokenSymbol, chainId)
+      )
+    );
   }, [userTokenBalance]);
 
   const checkApproved = useCallback(async () => {
@@ -294,9 +295,7 @@ const DepositPanel = () => {
         getTokenDecimals(fromTokenSymbol, chainId)
       );
       const allowance: BigNumber = await ERC20__factory.connect(
-        chainId === 137
-          ? contractAddresses['STMATIC']
-          : getContractAddress(fromTokenSymbol),
+        getContractAddress(fromTokenSymbol),
         signer
       ).allowance(accountAddress, spender);
 
@@ -326,9 +325,7 @@ const DepositPanel = () => {
 
       setUserTokenBalance(
         await ERC20__factory.connect(
-          chainId === 137
-            ? contractAddresses['STMATIC']
-            : getContractAddress(fromTokenSymbol),
+          getContractAddress(fromTokenSymbol),
           signer
         ).balanceOf(accountAddress)
       );
@@ -345,10 +342,7 @@ const DepositPanel = () => {
   const updateQuote = useCallback(async () => {
     if (!ssovData || fromTokenSymbol === ssovData?.collateralSymbol) return;
 
-    const fromTokenAddress =
-      chainId === 137
-        ? contractAddresses['STMATIC']
-        : getContractAddress(fromTokenSymbol);
+    const fromTokenAddress = getContractAddress(fromTokenSymbol);
 
     const toTokenAddress = ssovData.isPut
       ? fromTokenSymbol === 'USDC'
