@@ -310,13 +310,14 @@ export const createZdteSlice: StateCreator<
         ]);
         const normalizedPremium = getUsdPrice(premium);
         const normalizedOpeningFees = getUsdPrice(openingFees);
+        const addOrSubPremium =
+          i >= tokenPrice ? normalizedPremium : -1 * normalizedPremium;
 
         strikes.push({
           strike: i,
-          breakeven:
-            i + (i >= tokenPrice ? normalizedPremium : -1 * normalizedPremium),
+          breakeven: i + addOrSubPremium,
           breakevenPercentage: roundToNearestTwoDp(
-            ((i + normalizedPremium) / tokenPrice - 1) * 100
+            ((i + addOrSubPremium) / tokenPrice - 1) * 100
           ),
           change: i - tokenPrice,
           changePercentage: roundToNearestTwoDp(
