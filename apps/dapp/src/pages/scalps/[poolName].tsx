@@ -157,7 +157,7 @@ const OptionScalps = ({ poolName }: Props) => {
               <Box className="mt-6 w-auto">
                 <Box className="flex flex-col space-y-2">
                   <QuickLink
-                    text="Introducing: Option Scalp"
+                    text="Introducing: Option Scalps"
                     href="https://blog.dopex.io/articles/product-launches-updates/introducing-option-scalps"
                   />
                   <QuickLink
