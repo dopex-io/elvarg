@@ -6,7 +6,7 @@ import {
 } from '@dopex-io/sdk';
 import { ApolloQueryResult } from '@apollo/client';
 
-import { optionScalpTraderStats } from 'graphql/apollo';
+import { optionScalpsGraphClient } from 'graphql/apollo';
 
 import {
   GetTraderStatsDocument,
@@ -262,7 +262,7 @@ export const createOptionScalpSlice: StateCreator<
   },
   getUserPositionData: async () => {
     const userPositionData: ApolloQueryResult<GetTraderStatsQuery> =
-      await optionScalpTraderStats.query({
+      await optionScalpsGraphClient.query({
         query: GetTraderStatsDocument,
         fetchPolicy: 'no-cache',
       });
