@@ -1,0 +1,7 @@
+query getTraderStats {
+  traderStats (first: 1000){
+    id
+    totalVolume
+    totalPnL
+  }
+}

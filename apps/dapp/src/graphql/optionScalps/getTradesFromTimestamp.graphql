@@ -1,0 +1,6 @@
+query getTradesFromTimestamp($fromTimestamp: BigInt!) {
+  trades(where: { timestamp_gt: $fromTimestamp }, first: 1000) {
+    id
+    size
+  }
+}
