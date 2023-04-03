@@ -352,7 +352,8 @@ export const createSsovV3Slice: StateCreator<
     } = get();
     let _ssovData: SsovV3Data;
 
-    const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
+    const ssovAddress =
+      contractAddresses['SSOV-V3']?.['VAULTS'][selectedPoolName];
 
     if (!ssovAddress) return;
 
@@ -414,10 +415,10 @@ export const createSsovV3Slice: StateCreator<
   selectedEpoch: 1,
   getSsovViewerAddress: () => {
     const { selectedPoolName, contractAddresses } = get();
-    if (!selectedPoolName || !contractAddresses) return;
+    if (!selectedPoolName || !contractAddresses['SSOV-V3']?.['VIEWER']) return;
 
     return selectedPoolName === 'ETH-CALLS-SSOV-V3'
       ? '0x9F948e9A79186f076EA19f5DDCCDF30eDc6DbaA2'
-      : contractAddresses['SSOV-V3'].VIEWER;
+      : contractAddresses['SSOV-V3']['VIEWER'];
   },
 });

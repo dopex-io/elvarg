@@ -134,7 +134,10 @@ const DepositPanel = () => {
     if (!ssovData?.collateralAddress || !signer || !spender) return;
     try {
       await sendTx(
-        ERC20__factory.connect(contractAddresses[fromTokenSymbol], signer),
+        ERC20__factory.connect(
+          contractAddresses[fromTokenSymbol.toUpperCase()],
+          signer
+        ),
         'approve',
         [spender, MAX_VALUE]
       );
@@ -200,7 +203,7 @@ const DepositPanel = () => {
       !ssovData ||
       !ssovData.collateralSymbol ||
       !ssovSigner.ssovContractWithSigner ||
-      !ssovSigner.ssovRouterWithSigner ||
+      !(chainId === 137 || ssovSigner.ssovRouterWithSigner) ||
       !chainId ||
       loading ||
       depositButtonProps.disable
@@ -222,7 +225,7 @@ const DepositPanel = () => {
           ssovSigner.ssovContractWithSigner.address,
           isNativeToken(fromTokenSymbol)
             ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-            : getContractAddress(fromTokenSymbol),
+            : getContractAddress(fromTokenSymbol.toUpperCase()),
           toTokenAddress,
           accountAddress,
           strike,
@@ -234,6 +237,8 @@ const DepositPanel = () => {
     const contractWithSigner = routerMode
       ? ssovSigner.ssovRouterWithSigner
       : ssovSigner.ssovContractWithSigner;
+
+    if (!contractWithSigner) return;
 
     isNativeToken(fromTokenSymbol)
       ? params.push({
@@ -289,7 +294,9 @@ const DepositPanel = () => {
         getTokenDecimals(fromTokenSymbol, chainId)
       );
       const allowance: BigNumber = await ERC20__factory.connect(
-        getContractAddress(fromTokenSymbol),
+        chainId === 137
+          ? contractAddresses['STMATIC']
+          : getContractAddress(fromTokenSymbol),
         signer
       ).allowance(accountAddress, spender);
 
@@ -316,9 +323,12 @@ const DepositPanel = () => {
   useEffect(() => {
     (async () => {
       if (!accountAddress || !signer) return;
+
       setUserTokenBalance(
         await ERC20__factory.connect(
-          getContractAddress(fromTokenSymbol),
+          chainId === 137
+            ? contractAddresses['STMATIC']
+            : getContractAddress(fromTokenSymbol),
           signer
         ).balanceOf(accountAddress)
       );
@@ -335,7 +345,10 @@ const DepositPanel = () => {
   const updateQuote = useCallback(async () => {
     if (!ssovData || fromTokenSymbol === ssovData?.collateralSymbol) return;
 
-    const fromTokenAddress = getContractAddress(fromTokenSymbol);
+    const fromTokenAddress =
+      chainId === 137
+        ? contractAddresses['stMATIC']
+        : getContractAddress(fromTokenSymbol);
 
     const toTokenAddress = ssovData.isPut
       ? fromTokenSymbol === 'USDC'
@@ -354,36 +367,36 @@ const DepositPanel = () => {
 
     setLoading(true);
 
-   await Promise.all([
-     get1inchQuote(
-       fromTokenAddress,
-       toTokenAddress,
-       getContractReadableAmount(
-         strikeDepositAmount,
-         getTokenDecimals(fromTokenSymbol, chainId)
-       ).toString(),
-       chainId,
-       accountAddress,
-       '3'
-     ),
-     get1inchSwap({
-       fromTokenAddress,
-       toTokenAddress,
-       amount: getContractReadableAmount(
-         strikeDepositAmount,
-         getTokenDecimals(fromTokenSymbol, chainId)
-       ),
-       chainId,
-       accountAddress: ssovSigner.ssovRouterWithSigner.address,
-     }),
-   ]).then((res) => {
-     setQuote({
-       quoteData: res[0],
-       swapData: res[1].tx.data,
-     });
-     setLoading(false);
-     return res;
-   });
+    await Promise.all([
+      get1inchQuote(
+        fromTokenAddress,
+        toTokenAddress,
+        getContractReadableAmount(
+          strikeDepositAmount,
+          getTokenDecimals(fromTokenSymbol, chainId)
+        ).toString(),
+        chainId,
+        accountAddress,
+        '3'
+      ),
+      get1inchSwap({
+        fromTokenAddress,
+        toTokenAddress,
+        amount: getContractReadableAmount(
+          strikeDepositAmount,
+          getTokenDecimals(fromTokenSymbol, chainId)
+        ),
+        chainId,
+        accountAddress: ssovSigner.ssovRouterWithSigner.address,
+      }),
+    ]).then((res) => {
+      setQuote({
+        quoteData: res[0],
+        swapData: res[1].tx.data,
+      });
+      setLoading(false);
+      return res;
+    });
   }, [
     getContractAddress,
     accountAddress,
