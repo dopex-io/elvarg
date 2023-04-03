@@ -168,6 +168,22 @@ const Stats = () => {
             true
           )} ${optionScalpData?.quoteSymbol}`}
         />
+        <Stat
+          name="Quote LP APR"
+          value={`${formatAmount(
+            getUserReadableAmount(optionScalpData?.quoteLpAPR!, 0),
+            0,
+            true
+          )}%`}
+        />
+        <Stat
+          name="Base LP APR"
+          value={`${formatAmount(
+            getUserReadableAmount(optionScalpData?.baseLpAPR!, 0),
+            0,
+            true
+          )}%`}
+        />
       </div>
     </div>
   );

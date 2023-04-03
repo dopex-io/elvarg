@@ -36,6 +36,8 @@ export interface optionScalpData {
   totalBaseAvailable: BigNumber;
   quoteLpValue: BigNumber;
   baseLpValue: BigNumber;
+  quoteLpAPR: BigNumber;
+  baseLpAPR: BigNumber;
   quoteDecimals: BigNumber;
   baseDecimals: BigNumber;
   quoteSymbol: string;
@@ -349,6 +351,28 @@ export const createOptionScalpSlice: StateCreator<
       baseSymbol = 'ARB';
     }
 
+    const compStartDate = new Date('04/01/2023'); // 4 APR 2023
+    const today = new Date();
+
+    const daysSinceComp = BigNumber.from(
+      Math.ceil(
+        (today.getTime() - compStartDate.getTime()) / (1000 * 3600 * 24)
+      )
+    );
+
+    const baseLpAPR = totalBaseAvailable
+      .sub(baseSupply)
+      .mul(365)
+      .div(daysSinceComp)
+      .mul(100)
+      .div(totalBaseAvailable);
+    const quoteLpAPR = totalQuoteAvailable
+      .sub(quoteSupply)
+      .mul(365)
+      .div(daysSinceComp)
+      .mul(100)
+      .div(totalQuoteAvailable);
+
     set((prevState) => ({
       ...prevState,
       optionScalpData: {
@@ -370,6 +394,8 @@ export const createOptionScalpSlice: StateCreator<
         totalBaseAvailable: totalBaseAvailable,
         quoteLpValue: quoteLpValue,
         baseLpValue: baseLpValue,
+        quoteLpAPR: quoteLpAPR,
+        baseLpAPR: baseLpAPR,
         quoteDecimals: quoteDecimals,
         baseDecimals: baseDecimals,
         quoteSymbol: quoteSymbol,
