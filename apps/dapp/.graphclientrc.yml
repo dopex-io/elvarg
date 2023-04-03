@@ -3,14 +3,21 @@ sources:
     handler:
       graphql:
         endpoint: https://api.thegraph.com/subgraphs/name/psytama/dopex-ssov
+    transforms:
+      - autoTypeMerging: true
   - name: straddles
     handler:
       graphql:
         endpoint: https://api.thegraph.com/subgraphs/name/psytama/dopex-straddles
+    transforms:
+      - autoTypeMerging: true
   - name: optionScalps
     handler:
       graphql:
         endpoint: https://api.thegraph.com/subgraphs/name/aercwarden/dopex-option-scalps
+    transforms:
+      - autoPagination:
+          validateSchema: true
 
 documents:
   - ./src/graphql/**/*.graphql
