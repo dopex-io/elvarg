@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import axios from 'axios';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import Box from '@mui/material/Box';
 
 import AppBar from 'components/common/AppBar';
@@ -201,19 +202,14 @@ export const Main = (props: TickerProps) => {
   );
 };
 
-export async function getServerSideProps(context: {
-  query: { ticker: string[] };
-}) {
-  return {
-    props: {
-      query: context.query.ticker,
-    },
-  };
-}
+const InsuredLongPerps = () => {
+  const router = useRouter();
+  const ticker = router.query['ticker'] as string;
 
-const InsuredLongPerps = (props: { query: string }) => {
-  const ticker = props.query.split('-');
-  return <Main underlying={ticker[0]} depositToken={ticker[1]} />;
+  if (!ticker) return null;
+
+  const [underlying, depositToken] = ticker.split('-');
+  return <Main underlying={underlying} depositToken={depositToken} />;
 };
 
 export default InsuredLongPerps;

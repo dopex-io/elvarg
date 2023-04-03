@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import { useEffect } from 'react';
 import Box from '@mui/material/Box';
+import { useRouter } from 'next/router';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
@@ -16,11 +17,7 @@ import { useBoundStore } from 'store';
 
 const SHOWCHARTS = false;
 
-interface Props {
-  poolName: string;
-}
-
-const Straddles = ({ poolName }: Props) => {
+const Straddles = ({ poolName }: { poolName: string }) => {
   const {
     setSelectedPoolName,
     updateStraddles,
@@ -121,17 +118,10 @@ const Straddles = ({ poolName }: Props) => {
   );
 };
 
-export async function getServerSideProps(context: {
-  query: { poolName: string };
-}) {
-  return {
-    props: {
-      poolName: context.query.poolName,
-    },
-  };
-}
+const ManagePage = () => {
+  const router = useRouter();
+  const poolName = router.query['poolName'] as string;
 
-const ManagePage = ({ poolName }: Props) => {
   return <Straddles poolName={poolName} />;
 };
 

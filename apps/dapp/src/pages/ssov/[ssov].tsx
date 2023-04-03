@@ -4,11 +4,9 @@ import { useBoundStore } from 'store';
 
 import Manage from 'components/ssov/Manage';
 
-import { useIsMounted } from 'hooks/useIsMounted';
+import { useRouter } from 'next/router';
 
-const SsovV3Page = (props: { ssov: string }) => {
-  const isMounted = useIsMounted();
-
+const SsovV3Page = () => {
   const {
     signer,
     ssovData,
@@ -17,40 +15,31 @@ const SsovV3Page = (props: { ssov: string }) => {
     updateSsovV3Signer,
     updateSsovV3UserData,
     updateSsovV3EpochData,
-    chainId,
   } = useBoundStore();
 
-  const { ssov } = props;
+  const router = useRouter();
+  const ssovQuery = router.query['ssov'];
+  const ssov = ssovQuery as unknown as string;
 
   useEffect(() => {
     updateSsovV3Signer();
-  }, [signer, updateSsovV3Signer, chainId]);
+  }, [signer, updateSsovV3Signer, ssov]);
 
   useEffect(() => {
     updateSsovV3();
-  }, [updateSsovV3, chainId]);
+  }, [updateSsovV3, ssov]);
 
   useEffect(() => {
     if (!ssovData) return;
     updateSsovV3EpochData();
-  }, [ssovData, updateSsovV3EpochData, chainId]);
+  }, [ssovData, updateSsovV3EpochData, ssov]);
 
   useEffect(() => {
     if (!ssovEpochData) return;
     updateSsovV3UserData();
-  }, [ssovEpochData, updateSsovV3UserData, chainId]);
-
-  if (!isMounted) return null;
+  }, [ssovEpochData, updateSsovV3UserData, ssov]);
 
   return <Manage ssov={ssov} />;
 };
-
-export async function getServerSideProps(context: { query: { ssov: string } }) {
-  return {
-    props: {
-      ssov: context.query.ssov,
-    },
-  };
-}
 
 export default SsovV3Page;

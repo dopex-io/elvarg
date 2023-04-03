@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
+import { useRouter } from 'next/router';
 
 import { CHAINS } from 'constants/chains';
 
@@ -22,11 +23,7 @@ import AutoExerciseInfo from 'components/ir/AutoExerciseInfo';
 
 import { useBoundStore } from 'store';
 
-interface Props {
-  poolName: string;
-}
-
-const Manage = ({ poolName }: Props) => {
+const Manage = ({ poolName }: { poolName: string }) => {
   const {
     accountAddress,
     chainId,
@@ -169,17 +166,10 @@ const Manage = ({ poolName }: Props) => {
   );
 };
 
-export async function getServerSideProps(context: {
-  query: { poolName: string };
-}) {
-  return {
-    props: {
-      poolName: context.query.poolName,
-    },
-  };
-}
+const ManagePage = () => {
+  const router = useRouter();
+  const poolName = router.query['poolName'] as string;
 
-const ManagePage = ({ poolName }: Props) => {
   return <Manage poolName={poolName} />;
 };
 
