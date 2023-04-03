@@ -66,9 +66,9 @@ export const OpenPositionsRow = ({
     signer,
     provider,
     getZdteContract,
+    zdteData,
     updateZdteData,
     staticZdteData,
-    tokenPrices,
   } = useBoundStore();
 
   const zdteContract = getZdteContract();
@@ -96,9 +96,6 @@ export const OpenPositionsRow = ({
   const handleShare = useCallback(
     async (position: IZdtePurchaseData) => {
       const tokenSymbol = staticZdteData?.baseTokenSymbol.toUpperCase();
-      const tokenPrice =
-        tokenPrices.find((token) => token.name.toUpperCase() === tokenSymbol)
-          ?.price || 0;
 
       const livePnl = getUserReadableAmount(position.livePnl, DECIMALS_USD);
       const cost = getUserReadableAmount(position.cost, DECIMALS_USD);
@@ -128,11 +125,14 @@ export const OpenPositionsRow = ({
               2
             )}`,
           },
-          { name: 'Current Price', value: `$${formatAmount(tokenPrice, 2)}` },
+          {
+            name: 'Current Price',
+            value: `$${formatAmount(zdteData!.tokenPrice, 2)}`,
+          },
         ],
       });
     },
-    [share, tokenPrices, staticZdteData]
+    [share, zdteData, staticZdteData]
   );
 
   const isPositionExpired = position.expiry.toNumber() * 1000 < Date.now();

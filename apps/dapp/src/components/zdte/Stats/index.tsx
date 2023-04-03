@@ -11,15 +11,10 @@ import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 interface StatsProps {}
 
 const Stats: FC<StatsProps> = ({}) => {
-  const { tokenPrices, zdteData, staticZdteData } = useBoundStore();
+  const { zdteData, staticZdteData } = useBoundStore();
 
   const tokenSymbol = staticZdteData?.baseTokenSymbol.toUpperCase();
   const quoteTokenSymbol = staticZdteData?.quoteTokenSymbol.toUpperCase();
-
-  const tokenPrice =
-    tokenPrices.find(
-      (token) => token.name.toLowerCase() === tokenSymbol?.toLowerCase()
-    )?.price || 0;
 
   if (
     zdteData === undefined ||
@@ -56,7 +51,7 @@ const Stats: FC<StatsProps> = ({}) => {
           <span className="text-gray-500">{`${tokenSymbol}/${quoteTokenSymbol}`}</span>
         </Box>
         <span className="md:ml-4 text-xl ml-auto">
-          ${formatAmount(tokenPrice, 2)}
+          ${formatAmount(zdteData.tokenPrice, 2)}
         </span>
       </Box>
       <div className="grid grid-rows-4 grid-flow-col border border-neutral-800 md:grid-rows-2 rounded-xl text-sm">
