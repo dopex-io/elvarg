@@ -22,16 +22,22 @@ const Olp = ({ poolName }: { poolName: string }) => {
   } = useBoundStore();
 
   useEffect(() => {
-    if (poolName && setSelectedPoolName) setSelectedPoolName(poolName);
-  }, [poolName, setSelectedPoolName]);
-
-  useEffect(() => {
-    updateOlp().then(() =>
-      updateOlpEpochData().then(() => {
-        updateOlpUserData();
-      })
-    );
-  }, [updateOlp, updateOlpEpochData, updateOlpUserData, chainId]);
+    if (poolName && setSelectedPoolName) {
+      setSelectedPoolName(poolName);
+      updateOlp().then(() =>
+        updateOlpEpochData().then(() => {
+          updateOlpUserData();
+        })
+      );
+    }
+  }, [
+    updateOlp,
+    updateOlpEpochData,
+    updateOlpUserData,
+    chainId,
+    poolName,
+    setSelectedPoolName,
+  ]);
 
   return (
     <Box className="bg-black min-h-screen">
