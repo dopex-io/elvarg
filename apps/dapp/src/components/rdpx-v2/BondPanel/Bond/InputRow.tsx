@@ -1,8 +1,4 @@
-import Box from '@mui/material/Box';
 // import Input from '@mui/material/Input';
-
-import Typography from 'components/UI/Typography';
-
 import formatAmount from 'utils/general/formatAmount';
 
 interface Props {
@@ -15,27 +11,15 @@ const InputRow = (props: Props) => {
   const { tokenSymbol, inputAmount, label } = props;
 
   return (
-    <Box className="mt-3">
-      <Box className="flex justify-between space-x-3">
-        <Typography
-          variant="caption"
-          className="p-1 w-1/6 my-auto bg-carbon rounded-[0.2rem] text-center"
-          color="stieglitz"
-        >
+    <div className="mt-3">
+      <div className="flex justify-between space-x-3">
+        <p className="text-xs text-stieglitz p-1 w-1/5 my-auto bg-carbon rounded-[0.2rem] text-center">
           {tokenSymbol}
-        </Typography>
-        <Box className="flex justify-between bg-mineshaft w-1/2 rounded-md px-2">
-          <Typography variant="h6" className="my-1">
-            {formatAmount(inputAmount, 3)}
-          </Typography>
-          <Typography
-            variant="h6"
-            className="my-1 text-right"
-            color="stieglitz"
-          >
-            {label}
-          </Typography>
-        </Box>
+        </p>
+        <div className="flex justify-between bg-mineshaft w-1/2 rounded-md px-2">
+          <p className="text-sm my-1">{formatAmount(inputAmount, 3)}</p>
+          <p className="text-sm text-stieglitz my-1 text-right">{label}</p>
+        </div>
         {/* <Box className="w-1/4">
           <Input
             disableUnderline={true}
@@ -47,8 +31,8 @@ const InputRow = (props: Props) => {
             onChange={handleChangeRecalculation}
           />
         </Box> */}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 

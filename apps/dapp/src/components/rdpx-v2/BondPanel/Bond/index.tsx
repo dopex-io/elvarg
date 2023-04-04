@@ -9,7 +9,7 @@ import LaunchOutlinedIcon from '@mui/icons-material/LaunchOutlined';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 import { Switch } from '@dopex-io/ui';
-import InfoOutlined from '@mui/icons-material/InfoOutlined';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Tooltip from '@mui/material/Tooltip';
 
 import CustomButton from 'components/UI/Button';
@@ -23,7 +23,6 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
-import DelegatePanel from './DelegatePanel';
 
 export type Delegate = {
   _id: number | string;
@@ -65,7 +64,6 @@ const Bond = () => {
   const [approved, setApproved] = useState<boolean>(false);
   const [mintDisabled, setMintDisabled] = useState<boolean>(false);
   const [delegated, setDelegated] = useState<boolean>(false);
-  const [delegate, setDelegate] = useState<Delegate>(DEFAULT_DELEGATE);
 
   const handleChange = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) => {
@@ -73,15 +71,6 @@ const Bond = () => {
     },
     []
   );
-
-  // const handleMax = useCallback(() => {
-  //   setValue(
-  //     getUserReadableAmount(
-  //       userAssetBalances['WETH'] ?? '0',
-  //       getTokenDecimals('WETH', chainId)
-  //     )
-  //   );
-  // }, [chainId, userAssetBalances]);
 
   const handleApprove = useCallback(async () => {
     if (
@@ -95,17 +84,19 @@ const Bond = () => {
 
     const treasury = treasuryContractState.contracts.treasury;
 
-    const rdpx = MockToken__factory.connect(
+    const weth = MockToken__factory.connect(
       treasuryData.tokenA.address,
       signer
     );
-    const weth = MockToken__factory.connect(
+
+    const rdpx = MockToken__factory.connect(
       treasuryData.tokenB.address,
       signer
     );
 
     try {
-      await sendTx(weth, 'approve', [treasury.address, MAX_VALUE]);
+      if (!delegated)
+        await sendTx(weth, 'approve', [treasury.address, MAX_VALUE]);
       await sendTx(rdpx, 'approve', [treasury.address, MAX_VALUE]);
 
       setApproved(true);
@@ -118,6 +109,7 @@ const Bond = () => {
     signer,
     treasuryContractState.contracts,
     contractAddresses,
+    delegated,
     sendTx,
   ]);
 
@@ -139,6 +131,7 @@ const Bond = () => {
         await sendTx(treasury, 'bond', [
           getContractReadableAmount(value, 18),
           accountAddress,
+          0,
         ]).then(() => {
           updateUserDscBondsData();
           updateTreasuryData();
@@ -153,10 +146,10 @@ const Bond = () => {
           .mul(getContractReadableAmount(value, 18))
           .div(getContractReadableAmount(1, 18));
 
-        const { amounts, ids } = squeezeTreasuryDelegates(
+        let { amounts, ids } = squeezeTreasuryDelegates(
           availableDelegates,
           totalWethRequired
-        ) || { amounts: [], ids: [] };
+        ) || { amounts: [getContractReadableAmount(0, 18)], ids: [0] };
 
         // console.log(
         //   'Squeeze amounts: ',
@@ -171,6 +164,7 @@ const Bond = () => {
           accountAddress,
           amounts,
           ids,
+          0,
         ]).then(() => {
           updateUserDscBondsData();
           updateTreasuryData();
@@ -260,9 +254,18 @@ const Bond = () => {
           !eligibleUser
       );
 
-      setApproved(allowances[0].gte(rdpxReq) && allowances[1].gte(wethReq));
+      setApproved(
+        allowances[0].gte(rdpxReq) && (delegated || allowances[1].gte(wethReq))
+      );
     })();
-  }, [accountAddress, provider, treasuryContractState, treasuryData, value]);
+  }, [
+    accountAddress,
+    provider,
+    treasuryContractState,
+    delegated,
+    treasuryData,
+    value,
+  ]);
 
   return (
     <div className="space-y-3 relative">
@@ -283,15 +286,6 @@ const Bond = () => {
                 alt={'USDC'.toLowerCase()}
                 className="w-10 h-10 border border-mineshaft rounded-full"
               />
-              {/* <div
-                className="rounded-md bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto p-2"
-                role="button"
-                onClick={handleMax}
-              >
-                <span className="text-xs text-stieglitz">
-                  MAX
-                </span>
-              </div> */}
             </div>
           }
         />
@@ -337,11 +331,11 @@ const Bond = () => {
           <div>
             <span className="text-sm text-stieglitz">Delegate</span>
             <Tooltip
-              title="Spend only rDPX by borrowing WETH and receiving 25% share of dpxWETH minus a small percentage in delegate fee."
+              title="Spend only rDPX by borrowing WETH and receiving 25% share of dpxETH minus a small percentage in delegate fee."
               enterTouchDelay={0}
               leaveTouchDelay={1000}
             >
-              <InfoOutlined className="fill-current text-stieglitz p-1" />
+              <InfoOutlinedIcon className="fill-current text-stieglitz p-1" />
             </Tooltip>
           </div>
           <div className="my-auto">
@@ -353,13 +347,11 @@ const Bond = () => {
             />
           </div>
         </div>
-        {delegated ? (
-          <DelegatePanel delegate={delegate} setDelegate={setDelegate} />
-        ) : null}
       </div>
       <CollateralInputPanel
         inputAmount={Number(value)}
         setApproved={setApproved}
+        delegated={delegated}
       />
       <div className="rounded-xl p-4 w-full bg-umbra">
         <div className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800 space-y-2">
@@ -370,9 +362,7 @@ const Bond = () => {
             size="medium"
             className="w-full mt-4 rounded-md"
             color="primary"
-            disabled={
-              !userDscBondsData.isEligibleForMint || isLoading || delegated
-            }
+            disabled={!userDscBondsData.isEligibleForMint || isLoading}
             onClick={approved ? handleBond : handleApprove}
           >
             {approved ? 'Bond' : 'Approve'}

@@ -169,7 +169,9 @@ const Delegate = () => {
           leftElement={
             <div className="flex my-auto space-x-2 w-2/3">
               <img
-                src={`/images/tokens/${treasuryData.tokenA.symbol?.toLowerCase()}.svg`}
+                src={`/images/tokens/${
+                  treasuryData.tokenA.symbol.toLowerCase() || 'weth'
+                }.svg`}
                 alt={treasuryData.tokenA.symbol.toLowerCase()}
                 className="w-10 h-10 border border-mineshaft rounded-full"
               />

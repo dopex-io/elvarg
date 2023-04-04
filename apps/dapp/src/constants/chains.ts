@@ -14,7 +14,7 @@ export const CHAINS: {
 } = {
   1: {
     name: 'Ethereum',
-    rpc: `https://mainnet.infura.io/v3${INFURA_PROJECT_ID}`,
+    rpc: `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
     publicRpc: 'https://mainnet.infura.io/v3',
     explorer: 'https://etherscan.io/',
     nativeToken: 'ETH',

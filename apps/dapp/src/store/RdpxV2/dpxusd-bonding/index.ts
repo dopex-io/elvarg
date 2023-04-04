@@ -16,10 +16,13 @@ import {
   CurveStableswapPair__factory,
   // DPXVotingEscrow,
   // DPXVotingEscrow__factory,
+  RdpxDecayingBonds,
+  RdpxDecayingBonds__factory,
 } from '@dopex-io/sdk';
 
 import { WalletSlice } from 'store/Wallet';
 import { AssetsSlice } from 'store/Assets';
+
 import { getContractReadableAmount } from 'utils/contracts';
 
 interface RdpxV2TreasuryContractState {
@@ -29,6 +32,7 @@ interface RdpxV2TreasuryContractState {
     curvePool?: CurveStableswapPair;
     dsc: DscToken;
     rdpx: MockToken;
+    decayingBondableRdpx: RdpxDecayingBonds;
     vault: PerpetualAtlanticVault;
   };
   re_lp_factor: BigNumber;
@@ -53,7 +57,7 @@ interface RdpxV2TreasuryData {
   tokenA: Token;
   tokenB: Token;
   bondCostPerDsc: [BigNumber, BigNumber];
-  lpPrice: BigNumber; // rdpxWETH price
+  lpPrice: BigNumber; // rdpxETH price
   dscPrice: BigNumber;
   dscSupply: BigNumber;
   rdpxSupply: BigNumber;
@@ -135,6 +139,8 @@ export const createDpxusdBondingSlice: StateCreator<
     const dscAddress = contractAddresses['RDPX-V2']['DSC'];
     const curvePoolAddress = contractAddresses['RDPX-V2']['Curve2Pool'];
     const rdpxAddress = contractAddresses['RDPX'];
+    const dbrAddress = contractAddresses['RDPX-V2']['RdpxDecayingBonds'];
+
     const treasury: RdpxV2Treasury = RdpxV2Treasury__factory.connect(
       treasuryAddress,
       provider
@@ -154,6 +160,10 @@ export const createDpxusdBondingSlice: StateCreator<
         provider
       );
     const rdpx: MockToken = MockToken__factory.connect(rdpxAddress, provider);
+    const decayingBondableRdpx = RdpxDecayingBonds__factory.connect(
+      dbrAddress,
+      provider
+    );
 
     const [
       re_lp_factor,
@@ -185,6 +195,7 @@ export const createDpxusdBondingSlice: StateCreator<
           bond,
           dsc,
           rdpx,
+          decayingBondableRdpx,
           vault,
           curvePool,
         },
@@ -212,7 +223,7 @@ export const createDpxusdBondingSlice: StateCreator<
       address: '',
     },
     bondCostPerDsc: [BigNumber.from(0), BigNumber.from(0)],
-    lpPrice: BigNumber.from(0), // rdpxWETH price
+    lpPrice: BigNumber.from(0), // rdpxETH price
     dscPrice: BigNumber.from(0),
     dscSupply: BigNumber.from(0),
     rdpxSupply: BigNumber.from(0),

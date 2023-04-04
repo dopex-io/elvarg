@@ -148,11 +148,9 @@ const UserBonds = () => {
                 <th
                   {...column.getHeaderProps()}
                   key={index}
-                  className="px-3 py-4"
+                  className={`m-3 py-3 px-3 ${textAlignment}`}
                 >
-                  <span
-                    className={`text-sm text-stieglitz font-normal ${textAlignment}`}
-                  >
+                  <span className="text-sm text-stieglitz font-normal">
                     {column.render('Header')}
                   </span>
                 </th>
