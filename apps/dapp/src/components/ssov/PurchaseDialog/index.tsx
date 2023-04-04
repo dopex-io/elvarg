@@ -350,7 +350,7 @@ const PurchaseDialog = ({
       !ssovContractWithSigner ||
       !accountAddress ||
       !ssovSigner ||
-      !ssovSigner.ssovRouterWithSigner
+      !(chainId === 137 || ssovSigner.ssovRouterWithSigner)
     )
       return;
 
@@ -387,7 +387,7 @@ const PurchaseDialog = ({
     const method = routerMode ? 'swapAndPurchase' : ('purchase' as any);
 
     try {
-      await sendTx(contractWithSigner, method, params);
+      await sendTx(contractWithSigner!, method, params);
       setRawOptionsAmount('0');
       updateAssetBalances();
       updateSsovV3UserData();

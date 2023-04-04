@@ -122,7 +122,7 @@ export const createWalletSlice: StateCreator<
   getContractAddress: (key: string) => {
     const { contractAddresses } = get();
     if (key.toUpperCase() === 'WSTETH') return contractAddresses['STETH'];
-    if (key.toUpperCase() === 'STMATIC') return contractAddresses['WMATIC'];
+    if (key.toUpperCase() === 'STMATIC') return contractAddresses['STMATIC'];
     return contractAddresses[key.toUpperCase()];
   },
 });
