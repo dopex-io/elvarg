@@ -277,11 +277,11 @@ const PositionsTable = ({ tab }: { tab: string }) => {
             <span>{`${formatAmount(data.toFixed(4), 2)} (${formatAmount(
               (position.pnl /
                 getUserReadableAmount(
-                  position.margin,
+                  position.margin.add(position.premium).add(position.fees),
                   optionScalpData?.quoteDecimals.toNumber()
                 )) *
                 100,
-              1
+              2
             )}%)`}</span>
           </Tooltip>
         );
