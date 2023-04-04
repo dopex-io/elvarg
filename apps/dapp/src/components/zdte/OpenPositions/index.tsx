@@ -14,6 +14,7 @@ import {
   StyleRightTableCell,
   StyleTableCellHeader,
 } from 'components/common/LpCommon/Table';
+import Loading from 'components/zdte/Loading';
 import { OpenPositionsRow } from 'components/zdte/OpenPositions/OpenPositionsRow';
 
 const StyleHeaderTable = styled(TableContainer)`
@@ -40,7 +41,12 @@ export const OpenPositions = () => {
     staticZdteData,
     userZdtePurchaseData,
   } = useBoundStore();
+
   const zdteContract = getZdteContract();
+
+  if (!zdteData || !staticZdteData) {
+    return <Loading />;
+  }
 
   return (
     <Box className="flex flex-col flex-grow w-full whitespace-nowrap">

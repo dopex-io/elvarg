@@ -1,18 +1,18 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { CircularProgress } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
+import Loading from 'components/zdte/Loading';
 import Deposit from 'components/zdte/Manage/DepositCard';
 import TradeCard from 'components/zdte/Manage/TradeCard';
 import Withdraw from 'components/zdte/Manage/WithdrawCard';
 
 const ManageCard = () => {
-  const { zdteData } = useBoundStore();
+  const { zdteData, staticZdteData } = useBoundStore();
 
   const [active, setActive] = useState<string>('Deposit');
 
@@ -20,12 +20,8 @@ const ManageCard = () => {
     setActive(e.target.textContent);
   }, []);
 
-  if (zdteData === undefined) {
-    return (
-      <Box className="absolute left-[49%] top-[49%]">
-        <CircularProgress />
-      </Box>
-    );
+  if (!zdteData || !staticZdteData) {
+    return <Loading />;
   }
 
   return (
@@ -58,6 +54,7 @@ const ManageCard = () => {
 const ManageComponent = () => {
   const {
     zdteData,
+    staticZdteData,
     focusTrade,
     setFocusTrade,
     setTextInputRef,
@@ -70,12 +67,8 @@ const ManageComponent = () => {
     if (focusTrade) setManageSection('Trade');
   }, [focusTrade]);
 
-  if (zdteData === undefined) {
-    return (
-      <Box className="absolute left-[49%] top-[49%]">
-        <CircularProgress />
-      </Box>
-    );
+  if (!zdteData || !staticZdteData) {
+    return <Loading />;
   }
 
   return (

@@ -3,7 +3,6 @@ import { useCallback } from 'react';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import {
   Box,
-  CircularProgress,
   Table,
   TableBody,
   TableCell,
@@ -19,6 +18,7 @@ import {
   StyleRightTableCell,
   StyleTableCellHeader,
 } from 'components/common/LpCommon/Table';
+import Loading from 'components/zdte/Loading';
 import {
   OptionsTableRow,
   OptionsTableRowLower,
@@ -43,6 +43,7 @@ const StyleHeaderTable = styled(TableContainer)`
 export const OptionsTable = () => {
   const {
     zdteData,
+    staticZdteData,
     selectedSpreadPair,
     getZdteContract,
     signer,
@@ -102,12 +103,8 @@ export const OptionsTable = () => {
     ]
   );
 
-  if (zdteData === undefined) {
-    return (
-      <Box className="absolute left-[49%] top-[49%]">
-        <CircularProgress />
-      </Box>
-    );
+  if (!zdteData || !staticZdteData) {
+    return <Loading />;
   }
 
   return (

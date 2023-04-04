@@ -255,17 +255,14 @@ export const createZdteSlice: StateCreator<
   updateZdteData: async () => {
     const {
       selectedPoolName,
-      provider,
       getZdteContract,
-      accountAddress,
       updateUserZdteLpData,
       updateUserZdtePurchaseData,
       getBaseLpContract,
       getQuoteLpContract,
     } = get();
 
-    if (!selectedPoolName || !provider || !getZdteContract || !accountAddress)
-      return;
+    if (!selectedPoolName || !getZdteContract) return;
 
     try {
       await updateUserZdteLpData();

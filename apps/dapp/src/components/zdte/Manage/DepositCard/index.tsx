@@ -3,12 +3,13 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber, utils } from 'ethers';
 
 import { ERC20__factory } from '@dopex-io/sdk';
-import { Box, CircularProgress, Input as MuiInput } from '@mui/material';
+import { Box, Input as MuiInput } from '@mui/material';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
 import { CustomButton, Typography } from 'components/UI';
+import Loading from 'components/zdte/Loading';
 
 import {
   getContractReadableAmount,
@@ -166,11 +167,7 @@ const Deposit: FC<DepositProps> = ({}) => {
   }, [checkApproved]);
 
   if (!zdteData || !userZdteLpData || !staticZdteData) {
-    return (
-      <Box className="absolute left-[49%] top-[49%]">
-        <CircularProgress />
-      </Box>
-    );
+    return <Loading />;
   }
 
   return (

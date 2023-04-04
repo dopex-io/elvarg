@@ -1,7 +1,9 @@
 import { FC } from 'react';
 
-import { Box, CircularProgress } from '@mui/material';
+import { Box } from '@mui/material';
 import { useBoundStore } from 'store';
+
+import Loading from 'components/zdte/Loading';
 
 import { getUserReadableAmount } from 'utils/contracts';
 import { formatAmount } from 'utils/general';
@@ -16,16 +18,8 @@ const Stats: FC<StatsProps> = ({}) => {
   const tokenSymbol = staticZdteData?.baseTokenSymbol.toUpperCase();
   const quoteTokenSymbol = staticZdteData?.quoteTokenSymbol.toUpperCase();
 
-  if (
-    zdteData === undefined ||
-    tokenSymbol === undefined ||
-    quoteTokenSymbol === undefined
-  ) {
-    return (
-      <Box className="absolute left-[49%] top-[49%]">
-        <CircularProgress />
-      </Box>
-    );
+  if (!zdteData || !tokenSymbol || !quoteTokenSymbol) {
+    return <Loading />;
   }
 
   return (
