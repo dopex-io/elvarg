@@ -160,7 +160,6 @@ const SsovData = () => {
 
         {!isEmpty(ssovs)
           ? keys.map((key) => {
-              console.log(key);
               return (
                 <Box key={key} className="mb-12">
                   <NetworkHeader chainId={Number(key)} />

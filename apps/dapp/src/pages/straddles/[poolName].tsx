@@ -28,24 +28,25 @@ const Straddles = ({ poolName }: { poolName: string }) => {
   } = useBoundStore();
 
   useEffect(() => {
-    if (poolName && setSelectedPoolName) setSelectedPoolName(poolName);
-  }, [poolName, setSelectedPoolName]);
-
-  useEffect(() => {
-    setIsLoading(true);
-    updateStraddles().then(() =>
-      updateStraddlesEpochData().then(() => {
-        updateStraddlesUserData().then(() => {
-          setIsLoading(false);
-        });
-      })
-    );
+    if (poolName && setSelectedPoolName) {
+      setSelectedPoolName(poolName);
+      setIsLoading(true);
+      updateStraddles().then(() =>
+        updateStraddlesEpochData().then(() => {
+          updateStraddlesUserData().then(() => {
+            setIsLoading(false);
+          });
+        })
+      );
+    }
   }, [
     chainId,
     setIsLoading,
     updateStraddles,
     updateStraddlesEpochData,
     updateStraddlesUserData,
+    poolName,
+    setSelectedPoolName,
   ]);
 
   return (
