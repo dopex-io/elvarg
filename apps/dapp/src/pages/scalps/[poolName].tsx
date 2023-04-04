@@ -2,6 +2,8 @@ import Head from 'next/head';
 
 import { useEffect, useMemo, useState, useCallback } from 'react';
 
+import { ethers } from 'ethers';
+
 import Box from '@mui/material/Box';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import Button from '@mui/material/Button';
@@ -17,9 +19,9 @@ import Positions from 'components/scalps/Positions';
 import TopBar from 'components/scalps/TopBar';
 import TradeCard from 'components/scalps/TradeCard';
 import Manage from 'components/scalps/Manage';
+import QuickLink from 'components/common/QuickLink';
 
 import { CHAINS } from 'constants/chains';
-import { ethers } from 'ethers';
 
 // const SHOWCHARTS = false;
 
@@ -150,7 +152,25 @@ const OptionScalps = ({ poolName }: Props) => {
               <Box className="flex-1 mt-4">{Chart}</Box>
               <Positions />
             </Box>
-            <ManageComponent />
+            <Box>
+              <ManageComponent />
+              <Box className="mt-6 w-auto">
+                <Box className="flex flex-col space-y-2">
+                  <QuickLink
+                    text="Option Scalps Guide"
+                    href="https://blog.dopex.io/articles/product-launches-updates/introducing-option-scalps"
+                  />
+                  <QuickLink
+                    text="Trading Competition Explainer"
+                    href="https://blog.dopex.io/articles/marketing-campaigns/option-scalps-trading-competition"
+                  />
+                  <QuickLink
+                    text="Leaderboard"
+                    href="https://app.dopex.io/scalps/leaderboard"
+                  />
+                </Box>
+              </Box>
+            </Box>
           </Box>
           <Box className="flex justify-center w-full mt-10">
             <Typography variant="h5" className="text-silver">
