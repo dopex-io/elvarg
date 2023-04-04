@@ -19,7 +19,7 @@ importers:
       '@0xsequence/multicall': ^0.43.3
       '@apollo/client': ^3.6.6
       '@coinbase/wallet-sdk': ^3.2.0
-      '@dopex-io/sdk': 1.0.0-beta.51
+      '@dopex-io/sdk': 1.0.0-beta.56
       '@dopex-io/ui': workspace:*
       '@emotion/react': ^11.8.1
       '@emotion/styled': ^11.8.1
@@ -80,7 +80,7 @@ importers:
       '@0xsequence/multicall': 0.43.19_ethers@5.7.2
       '@apollo/client': 3.7.9_gdcq4dv6opitr3wbfwyjmanyra
       '@coinbase/wallet-sdk': 3.6.4
-      '@dopex-io/sdk': 1.0.0-beta.51_ethers@5.7.2
+      '@dopex-io/sdk': 1.0.0-beta.56_ethers@5.7.2
       '@dopex-io/ui': link:../../packages/ui
       '@emotion/react': 11.10.6_pmekkgnqduwlme35zpnqhenc34
       '@emotion/styled': 11.10.6_oouaibmszuch5k64ms7uxp2aia
@@ -3097,8 +3097,8 @@ packages:
     engines: {node: '>=10.0.0'}
     dev: true
 
-  /@dopex-io/sdk/1.0.0-beta.51_ethers@5.7.2:
-    resolution: {integrity: sha512-2axhzebaV4WYJpzF6pjonoUUeaiWbkYr4cCv7/GvHuDsVRLvgBK7OZmahKaHB4s62QQw8F42v2YDNCNT1is2IQ==}
+  /@dopex-io/sdk/1.0.0-beta.56_ethers@5.7.2:
+    resolution: {integrity: sha512-V4S/thaYSFzZfHuTPCtePp4G/oOkFwrC/qYNoSe0a2axC6TEz2qWcpJLZfVHrgUaKLjlEML4R1ehdfOh9VRsOQ==}
     engines: {node: '>=14'}
     peerDependencies:
       ethers: ^5.6.0

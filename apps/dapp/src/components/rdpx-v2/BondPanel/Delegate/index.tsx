@@ -219,20 +219,14 @@ const Delegate = () => {
           </span>
         </div>
       </div>
+      <div className="mx-2">
+        <p className="text-xs text-stieglitz text-center">
+          Receive 75% share of the bonds minted using your collateral plus fee.
+        </p>
+      </div>
       <div className="rounded-xl p-4 w-full bg-umbra">
         <div className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800 space-y-2">
           <EstimatedGasCostButton gas={500000} chainId={chainId} />
-          <div className="flex justify-between">
-            <span className="text-sm text-stieglitz">Receive</span>
-            <div className="flex my-auto space-x-2">
-              <span className="text-sm text-stieglitz">{'-'}</span>
-              <img
-                src={`/images/tokens/${'DSC'?.toLowerCase()}.svg`}
-                alt={'DSC'.toLowerCase()}
-                className="w-[1rem] my-auto"
-              />
-            </div>
-          </div>
         </div>
         <CustomButton
           size="medium"

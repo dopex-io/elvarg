@@ -1,8 +1,5 @@
 import { useState } from 'react';
-import Box from '@mui/material/Box';
 import LaunchOutlinedIcon from '@mui/icons-material/LaunchOutlined';
-
-import Typography from 'components/UI/Typography';
 
 interface Props {
   text: string;
@@ -26,12 +23,10 @@ const QuickLink = (props: Props) => {
       onMouseEnter={() => setActive(true)}
       onMouseLeave={() => setActive(false)}
     >
-      <Box className="flex space-x-4">
+      <div className="flex space-x-4">
         <img src={iconSymbol} alt="img" className="w-[30px] h-[30px]" />
-        <Typography variant="h6" className="my-auto">
-          {text}
-        </Typography>
-      </Box>
+        <p className="text-sm my-auto">{text}</p>
+      </div>
       <LaunchOutlinedIcon className="fill-current text-mineshaft w-[1.2rem]" />
     </a>
   );

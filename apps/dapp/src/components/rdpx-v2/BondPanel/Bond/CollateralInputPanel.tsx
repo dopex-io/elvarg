@@ -90,12 +90,17 @@ const CollateralInputPanel = (props: Props) => {
         Math.ceil(Number(new Date()) / 1000)
       );
 
-      const premium =
-        await treasuryContractState.contracts.vault.calculatePremium(
+      let premium = getContractReadableAmount(0, 18);
+
+      try {
+        premium = await treasuryContractState.contracts.vault.calculatePremium(
           rdpxPrice.sub(rdpxPrice.div(4)),
           getContractReadableAmount(amounts[1], 18),
           timeTillExpiry
         );
+      } catch (e) {
+        console.log(e);
+      }
 
       setPremium(getUserReadableAmount(premium, 18));
     })();

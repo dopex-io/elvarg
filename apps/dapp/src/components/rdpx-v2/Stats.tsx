@@ -1,7 +1,3 @@
-import Box from '@mui/material/Box';
-
-import Typography from 'components/UI/Typography';
-
 interface Props {
   statsObject: Record<string, string | number>;
 }
@@ -10,7 +6,7 @@ const Stats = (props: Props) => {
   const { statsObject } = props;
 
   return (
-    <Box className="grid grid-flow-row grid-cols-2">
+    <div className="grid grid-flow-row grid-cols-2">
       {Object.keys(statsObject).map((key: string, index) => {
         let rounding;
         let border;
@@ -35,18 +31,16 @@ const Stats = (props: Props) => {
         }
 
         return (
-          <Box
+          <div
             className={`flex justify-between ${border} ${rounding} border-umbra  px-3 py-4`}
             key={index}
           >
-            <Typography variant="h6" color="stieglitz">
-              {key}
-            </Typography>
-            <Typography variant="h6">{statsObject[key]}</Typography>
-          </Box>
+            <p className="text-sm text-stieglitz">{key}</p>
+            <p className="text-sm">{statsObject[key]}</p>
+          </div>
         );
       })}
-    </Box>
+    </div>
   );
 };
 

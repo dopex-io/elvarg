@@ -362,7 +362,9 @@ const Bond = () => {
             size="medium"
             className="w-full mt-4 rounded-md"
             color="primary"
-            disabled={!userDscBondsData.isEligibleForMint || isLoading}
+            disabled={
+              !userDscBondsData.isEligibleForMint || isLoading || !Number(value)
+            }
             onClick={approved ? handleBond : handleApprove}
           >
             {approved ? 'Bond' : 'Approve'}

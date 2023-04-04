@@ -18,8 +18,7 @@ import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
-import { Input } from 'components/UI';
-import Typography from 'components/UI/Typography';
+import Input from 'components/UI/Input';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -297,10 +296,10 @@ const SwapPanel = () => {
           onChange={handleAmountIn}
           bottomElement={
             <div className="flex justify-between">
-              <span className="text-sm text-stieglitz">Balance</span>
-              <span className="text-sm text-stieglitz">
+              <p className="text-sm text-stieglitz">Balance</p>
+              <p className="text-sm text-stieglitz">
                 {getUserReadableAmount(path[0]?.balance || '0', 18)}
-              </span>
+              </p>
             </div>
           }
         />
@@ -333,15 +332,10 @@ const SwapPanel = () => {
           }
           bottomElement={
             <div className="flex justify-between">
-              <Typography variant="h6" color="stieglitz">
-                Balance
-              </Typography>
-              <Typography variant="h6" color="stieglitz">
-                {formatAmount(
-                  getUserReadableAmount(path[1]?.balance || '0', 18),
-                  3
-                )}
-              </Typography>
+              <p className="text-sm text-stieglitz">Balance</p>
+              <p className="text-sm text-stieglitz">
+                {getUserReadableAmount(path[1]?.balance || '0', 18)}
+              </p>
             </div>
           }
         />

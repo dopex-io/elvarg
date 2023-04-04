@@ -7,7 +7,6 @@ const CurveSwap = () => {
         <div className="flex flex-col bg-cod-gray p-3 rounded-xl">
           <span className="text-base pb-3">Swap</span>
           <SwapPanel />
-          {/* tokens={['DSC', 'WETH']} */}
         </div>
       </div>
     </div>
