@@ -232,10 +232,13 @@ export const createZdteSlice: StateCreator<
             i
           );
           const zdtePosition = await zdteContract.zdtePositions(tokenId);
+          const cost = zdtePosition.longPremium.add(zdtePosition.fees);
+          const livePnl = await zdteContract.calcPnl(tokenId);
+          const realPnl = livePnl.sub(cost);
           return {
             ...zdtePosition,
-            cost: zdtePosition.longPremium.add(zdtePosition.fees),
-            livePnl: await zdteContract.calcPnl(tokenId),
+            cost: cost,
+            livePnl: realPnl,
             positionId: tokenId,
           } as IZdtePurchaseData;
         })
