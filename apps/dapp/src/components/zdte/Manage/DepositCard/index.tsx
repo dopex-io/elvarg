@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { BigNumber, utils } from 'ethers';
 
@@ -73,7 +73,8 @@ const Deposit: FC<DepositProps> = ({}) => {
   const zdteContract = getZdteContract();
 
   const [amount, setAmount] = useState<string | number>(0);
-  const [approved, setApproved] = useState<boolean>(false);
+  const [isQuoteApproved, setIsQuoteApproved] = useState(false);
+  const [isBaseApproved, setIsBaseApproved] = useState(false);
 
   const handleApprove = useCallback(async () => {
     if (!signer || !staticZdteData) return;
@@ -99,34 +100,6 @@ const Deposit: FC<DepositProps> = ({}) => {
       console.log(err);
     }
   }, [signer, sendTx, staticZdteData, isQuote, amount]);
-
-  useEffect(() => {
-    (async () => {
-      if (!signer || !accountAddress || !staticZdteData) return;
-      try {
-        const baseTokenContract = await ERC20__factory.connect(
-          isQuote
-            ? staticZdteData?.quoteTokenAddress
-            : staticZdteData?.baseTokenAddress,
-          signer
-        );
-        const allowance: BigNumber = await baseTokenContract.allowance(
-          accountAddress,
-          staticZdteData?.zdteAddress
-        );
-        setApproved(
-          allowance.gte(
-            getContractReadableAmount(
-              amount,
-              isQuote ? DECIMALS_USD : DECIMALS_TOKEN
-            )
-          )
-        );
-      } catch (err) {
-        console.log(err);
-      }
-    })();
-  }, [signer, accountAddress, amount, staticZdteData, isQuote]);
 
   const handleDepositAmount = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) =>
@@ -158,6 +131,39 @@ const Deposit: FC<DepositProps> = ({}) => {
       console.log('fail to deposit', e);
     }
   }, [signer, provider, zdteContract, amount, updateZdteData, sendTx, isQuote]);
+
+  const checkApproved = useCallback(async () => {
+    if (!accountAddress || !signer || !staticZdteData || !isQuote) return;
+
+    const tokenContract = await ERC20__factory.connect(
+      isQuote
+        ? staticZdteData?.quoteTokenAddress
+        : staticZdteData?.baseTokenAddress,
+      signer
+    );
+    const allowance: BigNumber = await tokenContract.allowance(
+      accountAddress,
+      staticZdteData?.zdteAddress
+    );
+    const depositAmount = getContractReadableAmount(
+      amount,
+      isQuote ? DECIMALS_USD : DECIMALS_TOKEN
+    );
+    if (isQuote) {
+      setIsQuoteApproved(allowance.gte(depositAmount));
+    } else {
+      setIsBaseApproved(allowance.gte(depositAmount));
+    }
+  }, [accountAddress, signer, staticZdteData, amount, isQuote]);
+
+  const approved = useMemo(() => {
+    return isQuote ? isQuoteApproved : isBaseApproved;
+  }, [isQuoteApproved, isBaseApproved, isQuote]);
+
+  // Updates approved state and user balance
+  useEffect(() => {
+    checkApproved();
+  }, [checkApproved]);
 
   if (!zdteData || !userZdteLpData || !staticZdteData) {
     return (

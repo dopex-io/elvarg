@@ -39,10 +39,6 @@ class Asset {
     this.staticZdteData = staticZdteData;
   }
 
-  get getIsQuote() {
-    return this.isQuote;
-  }
-
   get getUserAssetBalance() {
     return this.isQuote
       ? getUserReadableAmount(
@@ -102,12 +98,14 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
   const [tokenWithdrawAmount, setTokenWithdrawAmount] = useState<
     string | number
   >(0);
-  const [approved, setApproved] = useState<boolean>(false);
+  const [tokenApproved, setTokenApproved] = useState<boolean>(false);
   const [isQuote, setisQuote] = useState(true);
   const asset = useMemo(
     () => new Asset(isQuote, zdteData!, userZdteLpData!, staticZdteData!),
     [isQuote, userZdteLpData, zdteData, staticZdteData]
   );
+
+  console.log('tokenApproved: ', tokenApproved);
 
   const handleApprove = useCallback(async () => {
     if (!signer || !asset || !staticZdteData) return;
@@ -129,31 +127,32 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
     }
   }, [staticZdteData, signer, sendTx, asset, tokenWithdrawAmount, isQuote]);
 
+  const checkApproved = useCallback(async () => {
+    if (!accountAddress || !signer || !staticZdteData || !asset) return;
+
+    const tokenContract = await ZdteLP__factory.connect(
+      asset.getAssetAddress,
+      signer
+    );
+    const allowance: BigNumber = await tokenContract.allowance(
+      accountAddress,
+      staticZdteData?.zdteAddress
+    );
+    const withdrawAmount = getContractReadableAmount(
+      tokenWithdrawAmount,
+      isQuote ? DECIMALS_USD : DECIMALS_TOKEN
+    );
+    setTokenApproved(allowance.gte(withdrawAmount));
+  }, [accountAddress, signer, staticZdteData, asset]);
+
+  const approved = useMemo(() => {
+    return tokenApproved;
+  }, [tokenApproved]);
+
+  // Updates approved state and user balance
   useEffect(() => {
-    (async () => {
-      if (!signer || !accountAddress || !staticZdteData || !asset) return;
-      try {
-        const lpContract = await ZdteLP__factory.connect(
-          asset.getAssetAddress,
-          signer
-        );
-        const allowance: BigNumber = await lpContract.allowance(
-          accountAddress,
-          staticZdteData?.zdteAddress
-        );
-        setApproved(allowance.gte(asset.getRawUserAssetBalance));
-      } catch (err) {
-        console.log('update allowance: ', err);
-      }
-    })();
-  }, [
-    signer,
-    accountAddress,
-    isQuote,
-    tokenWithdrawAmount,
-    staticZdteData,
-    asset,
-  ]);
+    checkApproved();
+  }, [checkApproved]);
 
   const handleWithdrawAmount = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) =>

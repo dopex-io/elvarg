@@ -24,7 +24,7 @@ function canOpenPosition(
   canOpenSpread: boolean
 ): PositionStatus {
   // 0 < amount to open <= balance
-  if (amount !== 0 && selectedSpreadPair === undefined) {
+  if (amount !== 0 && selectedSpreadPair?.longStrike === undefined) {
     return 'Must Select Both Strikes';
   }
   if (amount <= 0) {
@@ -85,7 +85,7 @@ const TradeButton = ({
       disabled={approved && positionStatus !== 'Open Position'}
       onClick={!approved ? handleApprove : handleOpenPosition}
     >
-      {approved ? positionStatus : 'Approve'}
+      {amount === 0 || approved ? positionStatus : 'Approve'}
     </CustomButton>
   );
 };
