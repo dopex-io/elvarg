@@ -219,15 +219,9 @@ export const createAtlanticsSlice: StateCreator<
     }));
   },
   updateAtlanticPoolEpochData: async () => {
-    const {
-      selectedEpoch,
-      selectedPoolName,
-      contractAddresses,
-      atlanticPool,
-      chainId,
-    } = get();
+    const { selectedEpoch, contractAddresses, atlanticPool, chainId } = get();
 
-    if (!selectedPoolName || !contractAddresses || !atlanticPool) return;
+    if (!contractAddresses || !atlanticPool) return;
 
     // Strikes
     const maxStrikes: BigNumber[] =

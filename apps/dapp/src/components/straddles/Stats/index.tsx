@@ -274,7 +274,9 @@ const Stats = () => {
             {formatAmount(
               ((1526 *
                 Number(
-                  tokenPrices.find((item) => item.name === 'MATIC')?.price
+                  tokenPrices.find(
+                    (item: { name: string }) => item.name === 'MATIC'
+                  )?.price
                 ) *
                 100) /
                 getUserReadableAmount(straddlesEpochData?.usdDeposits!, 6)) *
