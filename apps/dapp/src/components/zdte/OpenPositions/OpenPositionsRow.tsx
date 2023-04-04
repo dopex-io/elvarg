@@ -6,7 +6,6 @@ import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
 import useShare from 'hooks/useShare';
 import Countdown from 'react-countdown';
-import { useBoundStore } from 'store';
 
 import { IZdtePurchaseData } from 'store/Vault/zdte';
 
@@ -54,24 +53,25 @@ function getStrikeDisplay(position: IZdtePurchaseData): ReactNode {
 export const OpenPositionsRow = ({
   position,
   idx,
+  signer,
+  zdteContract,
+  zdteData,
+  staticZdteData,
+  provider,
+  updateZdteData,
 }: {
   position: IZdtePurchaseData;
   idx: number;
+  signer: any;
+  zdteContract: any;
+  zdteData: any;
+  staticZdteData: any;
+  provider: any;
+  updateZdteData: Function;
 }) => {
   const sendTx = useSendTx();
   const share = useShare((state) => state.open);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
-  const {
-    signer,
-    provider,
-    getZdteContract,
-    zdteData,
-    updateZdteData,
-    staticZdteData,
-  } = useBoundStore();
-
-  const zdteContract = getZdteContract();
 
   const handleCloseOpenPosition = useCallback(async () => {
     if (!signer || !provider || !zdteContract || !position) return;

@@ -1,6 +1,5 @@
 import {
   Box,
-  CircularProgress,
   Table,
   TableBody,
   TableContainer,
@@ -32,15 +31,16 @@ const StyleHeaderTable = styled(TableContainer)`
 `;
 
 export const OpenPositions = () => {
-  const { userZdtePurchaseData, zdteData } = useBoundStore();
-
-  if (userZdtePurchaseData === undefined || zdteData === undefined) {
-    return (
-      <Box className="absolute left-[49%] top-[49%]">
-        <CircularProgress />
-      </Box>
-    );
-  }
+  const {
+    signer,
+    provider,
+    getZdteContract,
+    zdteData,
+    updateZdteData,
+    staticZdteData,
+    userZdtePurchaseData,
+  } = useBoundStore();
+  const zdteContract = getZdteContract();
 
   return (
     <Box className="flex flex-col flex-grow w-full whitespace-nowrap">
@@ -63,9 +63,21 @@ export const OpenPositions = () => {
             </TableRow>
           </TableHead>
           <TableBody className="rounded-lg">
-            {userZdtePurchaseData.map((position, index) => (
-              <OpenPositionsRow key={index} position={position} idx={index} />
-            ))}
+            {userZdtePurchaseData && userZdtePurchaseData?.length > 0
+              ? userZdtePurchaseData?.map((position, index) => (
+                  <OpenPositionsRow
+                    key={index}
+                    position={position}
+                    idx={index}
+                    signer={signer}
+                    zdteContract={zdteContract}
+                    zdteData={zdteData}
+                    staticZdteData={staticZdteData}
+                    provider={provider}
+                    updateZdteData={updateZdteData}
+                  />
+                ))
+              : null}
           </TableBody>
         </Table>
       </StyleHeaderTable>
