@@ -50,7 +50,7 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
     handleMax,
   } = props;
 
-  const { chainId, getContractAddress, provider, accountAddress } =
+  const { chainId, contractAddresses, provider, accountAddress } =
     useBoundStore();
 
   const [tokenSelectorOpen, setTokenSelectorOpen] = useState(false);
@@ -60,7 +60,7 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
     if (!provider || !accountAddress) return;
 
     const token = ERC20__factory.connect(
-      getContractAddress(selectedTokenSymbol),
+      contractAddresses[selectedTokenSymbol.toUpperCase()],
       provider
     );
 
@@ -73,13 +73,7 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
         3
       )
     );
-  }, [
-    accountAddress,
-    chainId,
-    getContractAddress,
-    provider,
-    selectedTokenSymbol,
-  ]);
+  }, [accountAddress, chainId, provider, selectedTokenSymbol]);
 
   useEffect(() => {
     updateUserBalance();

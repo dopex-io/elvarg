@@ -1,3 +1,6 @@
+/**
+ * @type {import('next').NextConfig}
+ */
 module.exports = {
   generateBuildId: () => 'build',
   images: {
@@ -8,6 +11,11 @@ module.exports = {
       {
         source: '/',
         destination: '/rdpx-v2/mint',
+        permanent: false,
+      },
+      {
+        source: '/scalps',
+        destination: '/scalps/ETH',
         permanent: false,
       },
       {

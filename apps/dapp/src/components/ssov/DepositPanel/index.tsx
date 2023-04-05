@@ -56,7 +56,6 @@ const DepositPanel = () => {
     ssovEpochData,
     ssovSigner,
     selectedEpoch,
-    contractAddresses,
     userAssetBalances,
     getContractAddress,
   } = useBoundStore();
@@ -131,7 +130,7 @@ const DepositPanel = () => {
     if (!ssovData?.collateralAddress || !signer || !spender) return;
     try {
       await sendTx(
-        ERC20__factory.connect(contractAddresses[fromTokenSymbol], signer),
+        ERC20__factory.connect(getContractAddress(fromTokenSymbol), signer),
         'approve',
         [spender, MAX_VALUE]
       );
@@ -139,7 +138,7 @@ const DepositPanel = () => {
     } catch (err) {
       console.log(err);
     }
-  }, [sendTx, signer, spender, ssovData, fromTokenSymbol, contractAddresses]);
+  }, [sendTx, signer, spender, ssovData, fromTokenSymbol, getContractAddress]);
 
   const depositButtonProps = useMemo(() => {
     let disable = false;
@@ -158,7 +157,7 @@ const DepositPanel = () => {
       color = 'primary';
     }
     if (
-      strikeDepositAmount >
+      Number(strikeDepositAmount) >
       getUserReadableAmount(
         userTokenBalance,
         getTokenDecimals(fromTokenSymbol, chainId)
@@ -197,7 +196,7 @@ const DepositPanel = () => {
       !ssovData ||
       !ssovData.collateralSymbol ||
       !ssovSigner.ssovContractWithSigner ||
-      !ssovSigner.ssovRouterWithSigner ||
+      !(chainId === 137 || ssovSigner.ssovRouterWithSigner) ||
       !chainId ||
       loading ||
       depositButtonProps.disable
@@ -231,6 +230,8 @@ const DepositPanel = () => {
     const contractWithSigner = routerMode
       ? ssovSigner.ssovRouterWithSigner
       : ssovSigner.ssovContractWithSigner;
+
+    if (!contractWithSigner) return;
 
     isNativeToken(fromTokenSymbol)
       ? params.push({
@@ -273,7 +274,12 @@ const DepositPanel = () => {
   ]);
 
   const handleMax = useCallback(() => {
-    setStrikeDepositAmount(userTokenBalance.toString());
+    setStrikeDepositAmount(
+      getUserReadableAmount(
+        userTokenBalance,
+        getTokenDecimals(fromTokenSymbol, chainId)
+      )
+    );
   }, [userTokenBalance]);
 
   const checkApproved = useCallback(async () => {
@@ -313,6 +319,7 @@ const DepositPanel = () => {
   useEffect(() => {
     (async () => {
       if (!accountAddress || !signer) return;
+
       setUserTokenBalance(
         await ERC20__factory.connect(
           getContractAddress(fromTokenSymbol),

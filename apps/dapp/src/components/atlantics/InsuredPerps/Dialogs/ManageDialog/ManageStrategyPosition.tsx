@@ -1,23 +1,23 @@
 import { useCallback, useEffect, useState } from 'react';
-import Box from '@mui/material/Box';
+
+import { BigNumber } from 'ethers';
+
 import {
   GmxVault__factory,
   InsuredLongsStrategy__factory,
 } from '@dopex-io/sdk';
-import { BigNumber } from 'ethers';
+import Box from '@mui/material/Box';
+import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
+import LiquidationProtectionIcon from 'svgs/icons/LiquidationProtection';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 import { ActionState } from 'components/atlantics/InsuredPerps/Tables/Positions';
-import LiquidationProtectionIcon from 'svgs/icons/LiquidationProtection';
-
-import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-
-import useSendTx from 'hooks/useSendTx';
 
 import { MIN_EXECUTION_FEE } from 'constants/gmx';
 import { MAX_VALUE } from 'constants/index';

@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 
-export const MIN_EXECUTION_FEE = BigNumber.from(100000000000000);
+export const MIN_EXECUTION_FEE = BigNumber.from(200000000000000);
 export const DEFAULT_REFERRAL_CODE =
   '0x0000000000000000000000000000000000000000000000000000000000000000';
 export const BASIS_POINTS_DIVISOR = 10000;

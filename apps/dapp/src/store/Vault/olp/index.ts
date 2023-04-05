@@ -1,8 +1,6 @@
 import { BigNumber } from 'ethers';
-
-import { Addresses, SsovLp, SsovLp__factory } from '@dopex-io/sdk';
-import { orderBy } from 'lodash';
-import { StateCreator } from 'zustand';
+import orderBy from 'lodash/orderBy';
+import { SsovLp, SsovLp__factory, Addresses } from '@dopex-io/sdk';
 
 import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';

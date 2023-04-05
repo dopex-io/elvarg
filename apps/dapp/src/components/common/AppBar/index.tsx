@@ -37,13 +37,13 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import displayAddress from 'utils/general/displayAddress';
 import formatAmount from 'utils/general/formatAmount';
 
-import { CHAINS, PAGE_TO_SUPPORTED_CHAIN_IDS } from 'constants/chains';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 import {
   CURRENCIES_MAP,
   DISCLAIMER_MESSAGE,
   OFAC_COMPLIANCE_LOCAL_STORAGE_KEY,
 } from 'constants/index';
+import { PAGE_TO_SUPPORTED_CHAIN_IDS, CHAINS } from 'constants/chains';
 
 import ClaimRdpxDialog from './ClaimRdpxDialog';
 import NetworkButton from './NetworkButton';
@@ -270,6 +270,7 @@ const appLinks = {
         },
       ],
     },
+    { name: 'Scalps', to: '/scalps/ETH' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],
@@ -289,7 +290,7 @@ const menuLinks = [
   { name: 'Discord', to: 'https://discord.gg/dopex' },
   { name: 'Github', to: 'https://github.com/dopex-io' },
   { name: 'Price Oracles', to: '/oracles' },
-  { name: 'Diamond Pepe NFTs', to: 'https://dp2.dopex.io' },
+  { name: 'Diamond Pepe NFTs', to: '/nfts/diamondpepes' },
   { name: 'Dopex NFTs', to: '/nfts/dopex' },
   { name: 'Community NFTs', to: '/nfts/community' },
 ];
@@ -307,6 +308,7 @@ interface AppBarProps {
     | 'faucet'
     | 'Rate Vaults'
     | 'Straddles'
+    | 'Scalps'
     | 'OLPs'
     | 'SSOV'
     | 'leaderboard'

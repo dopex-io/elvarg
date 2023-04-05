@@ -13,8 +13,8 @@ import {
   TableRow,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import _ from 'lodash';
-import { isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
+import sortBy from 'lodash/sortBy';
 import { IOlpApi } from 'pages/olp';
 
 import { TablePaginationActions, Typography } from 'components/UI';
@@ -97,7 +97,7 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
 
     if (!expiries) return [];
 
-    return _.sortBy(expiries)?.map((o) => getReadableTime(o!));
+    return sortBy(expiries)?.map((o) => getReadableTime(o!));
   }, [olps, chainIds]);
 
   const olpNetworks = useMemo(() => {
