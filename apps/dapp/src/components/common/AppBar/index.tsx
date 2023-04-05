@@ -349,9 +349,8 @@ export default function AppBar(props: AppBarProps) {
     // If signature does not exit in local storage
     if (!data) {
       // Get signature from api
-      let res;
       try {
-        res = await axios
+        await axios
           .get(
             `https://flo7r5qw6dj5mi337w2esfvhhm0caese.lambda-url.us-east-1.on.aws/?address=${ethers.utils.getAddress(
               accountAddress
@@ -360,7 +359,6 @@ export default function AppBar(props: AppBarProps) {
           .then((res) => {
             signature = res.data.signature;
           });
-
       } catch (err) {
         console.log(err);
       }
