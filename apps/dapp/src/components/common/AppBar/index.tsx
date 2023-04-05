@@ -351,13 +351,19 @@ export default function AppBar(props: AppBarProps) {
       // Get signature from api
       let res;
       try {
-        res = await axios.get(
-          `https://flo7r5qw6dj5mi337w2esfvhhm0caese.lambda-url.us-east-1.on.aws/?address=${accountAddress}`
-        );
+        res = await axios
+          .get(
+            `https://flo7r5qw6dj5mi337w2esfvhhm0caese.lambda-url.us-east-1.on.aws/?address=${ethers.utils.getAddress(
+              accountAddress
+            )}`
+          )
+          .then((res) => {
+            signature = res.data.signature;
+          });
+
       } catch (err) {
         console.log(err);
       }
-      signature = res ? res.data.signature : null;
     } else {
       let objectified = JSON.parse(data) as any;
       signature = objectified[OFAC_COMPLIANCE_LOCAL_STORAGE_KEY];
