@@ -351,7 +351,7 @@ export const createOptionScalpSlice: StateCreator<
       baseSymbol = 'ARB';
     }
 
-    const compStartDate = new Date('04/01/2023'); // 4 APR 2023
+    const compStartDate = new Date(1680300000000); // 4 APR 2023
     const today = new Date();
 
     const daysSinceComp = BigNumber.from(
