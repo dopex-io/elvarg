@@ -166,7 +166,7 @@ const Deposit: FC<DepositProps> = ({}) => {
     checkApproved();
   }, [checkApproved]);
 
-  if (!zdteData || !userZdteLpData || !staticZdteData) {
+  if (!staticZdteData) {
     return <Loading />;
   }
 

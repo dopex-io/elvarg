@@ -48,6 +48,7 @@ export interface IZdteData {
   baseLpAssetBalance: BigNumber;
   quoteLpTokenLiquidty: BigNumber;
   quoteLpAssetBalance: BigNumber;
+  openInterest: BigNumber;
 }
 
 export interface IZdteUserData {
@@ -333,6 +334,11 @@ export const createZdteSlice: StateCreator<
         quoteLpContract.totalAvailableAssets(),
       ]);
 
+      const openInterest = baseLpTokenLiquidty
+        .mul(markPrice)
+        .div(oneEBigNumber(20))
+        .add(quoteLpTokenLiquidty);
+
       set((prevState) => ({
         ...prevState,
         zdteData: {
@@ -342,6 +348,7 @@ export const createZdteSlice: StateCreator<
           baseLpTokenLiquidty,
           quoteLpAssetBalance,
           quoteLpTokenLiquidty,
+          openInterest,
         },
       }));
     } catch (err) {

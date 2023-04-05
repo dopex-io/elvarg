@@ -1,6 +1,13 @@
-import { FC } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 
-import { Box } from '@mui/material';
+import { BigNumber, utils } from 'ethers';
+
+import { ApolloQueryResult } from '@apollo/client';
+import { zdeGraphClient } from 'graphql/apollo';
+import {
+  GetTradesFromTimestampDocument,
+  GetTradesFromTimestampQuery,
+} from 'graphql/generated/zdte';
 import { useBoundStore } from 'store';
 
 import Loading from 'components/zdte/Loading';
@@ -12,101 +19,88 @@ import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
 interface StatsProps {}
 
+const StatsColumn: FC<{ title: string; value: string }> = ({
+  title,
+  value,
+}) => {
+  return (
+    <div className="p-3">
+      <div className="text-sm text-white">{value}</div>
+      <div className="text-sm text-stieglitz">{title}</div>
+    </div>
+  );
+};
+
 const Stats: FC<StatsProps> = ({}) => {
-  const { zdteData, staticZdteData } = useBoundStore();
+  const { zdteData, staticZdteData, tokenPrices, selectedPoolName } =
+    useBoundStore();
+
+  const [twentyFourHourVolume, setTwentyFourHourVolume] = useState('0');
+
+  const priceChange = useMemo(() => {
+    const item = tokenPrices.find(
+      (token) => token.name.toLowerCase() === selectedPoolName.toLowerCase()
+    );
+    return Number(formatAmount(item?.change24h || 0, 2));
+  }, [tokenPrices]);
 
   const tokenSymbol = staticZdteData?.baseTokenSymbol.toUpperCase();
   const quoteTokenSymbol = staticZdteData?.quoteTokenSymbol.toUpperCase();
 
-  if (!zdteData || !tokenSymbol || !quoteTokenSymbol) {
+  useEffect(() => {
+    async function getVolume() {
+      const payload: ApolloQueryResult<GetTradesFromTimestampQuery> =
+        await zdeGraphClient.query({
+          query: GetTradesFromTimestampDocument,
+          variables: {
+            fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
+          },
+          fetchPolicy: 'no-cache',
+        });
+
+      const _twentyFourHourVolume = payload.data.trades.reduce(
+        (acc, trade, _index) => {
+          return acc.add(BigNumber.from(trade.amount));
+        },
+        BigNumber.from(0)
+      );
+
+      setTwentyFourHourVolume(utils.formatEther(_twentyFourHourVolume));
+    }
+
+    getVolume();
+  }, []);
+
+  if (!zdteData || !tokenSymbol || !quoteTokenSymbol || !priceChange) {
     return <Loading />;
   }
 
   return (
     <>
-      <Box className="flex items-center text-sm">
-        <span className="lg:ml-2 bg-primary rounded-lg p-2 font-bold h-[fit-content]">
-          BETA
-        </span>
-        <Box sx={{ p: 1 }} className="flex -space-x-4">
-          <img
-            className="w-9 h-9 z-10 border border-gray-500 rounded-full"
-            src={`/images/tokens/${tokenSymbol.toLowerCase()}.svg`}
-            alt={tokenSymbol}
-          />
-          <img
-            className="w-9 h-9 z-0"
-            src={`/images/tokens/${quoteTokenSymbol.toLowerCase()}.svg`}
-            alt={quoteTokenSymbol}
-          />
-        </Box>
-        <Box className="ml-2 flex flex-col">
-          <span className="h5 capitalize">zero day to expiry options</span>
-          <span className="text-gray-500">{`${tokenSymbol}/${quoteTokenSymbol}`}</span>
-        </Box>
-        <span className="md:ml-4 text-xl ml-auto">
-          ${formatAmount(zdteData.tokenPrice, 2)}
-        </span>
-      </Box>
-      <div className="grid grid-rows-4 grid-flow-col border border-neutral-800 md:grid-rows-2 rounded-xl text-sm">
-        <div className="border border-neutral-800 md:rounded-tr-none rounded-t-xl p-2 flex justify-between">
-          <span className="text-stieglitz">
-            {`Available Call Liquidity (${tokenSymbol})`}
-          </span>
-          <span>
-            {formatAmount(
-              getUserReadableAmount(
-                zdteData?.baseLpAssetBalance,
-                DECIMALS_TOKEN
-              ),
-              2
-            )}{' '}
-            {tokenSymbol}
-          </span>
-        </div>
-        <div className="border border-neutral-800 md:rounded-bl-xl rounded-none p-2 flex justify-between">
-          <span className="text-stieglitz">
-            {`Total Call Liquidity (${tokenSymbol})`}
-          </span>
-          <span>
-            {formatAmount(
-              getUserReadableAmount(
-                zdteData?.baseLpTokenLiquidty,
-                DECIMALS_TOKEN
-              ),
-              2
-            )}{' '}
-            {tokenSymbol}
-          </span>
-        </div>
-        <div className="border border-neutral-800 md:rounded-tr-xl rounded-none p-2 flex justify-between">
-          <span className="text-stieglitz">
-            {`Available Put Liquidity (${quoteTokenSymbol})`}
-          </span>
-          <span>
-            $
-            {formatAmount(
-              getUserReadableAmount(
-                zdteData?.quoteLpAssetBalance,
-                DECIMALS_USD
-              ),
-              2
-            )}
-          </span>
-        </div>
-        <div className="border border-neutral-800 md:rounded-bl-none rounded-b-xl p-2 flex justify-between">
-          <span className="text-stieglitz">{`Total Put Liquidity (${quoteTokenSymbol})`}</span>
-          <span>
-            $
-            {formatAmount(
-              getUserReadableAmount(
-                zdteData?.quoteLpTokenLiquidty,
-                DECIMALS_USD
-              ),
-              2
-            )}
-          </span>
-        </div>
+      <div className="grid grid-rows-2 grid-flow-col text-sm ml-5 flex-1 md:grid-rows-1">
+        <StatsColumn title={`24h Volume`} value={`${twentyFourHourVolume}`} />
+        <StatsColumn
+          title={`Open Interest`}
+          value={`$${formatAmount(
+            getUserReadableAmount(zdteData?.openInterest, DECIMALS_USD),
+            2
+          )}`}
+        />
+        <StatsColumn
+          title={`Total Liq (Calls)`}
+          value={`${formatAmount(
+            getUserReadableAmount(zdteData?.baseLpAssetBalance, DECIMALS_TOKEN),
+            2
+          )}
+        ${tokenSymbol}`}
+        />
+        <StatsColumn
+          title={`Total Liq (Puts)`}
+          value={`$${formatAmount(
+            getUserReadableAmount(zdteData?.quoteLpAssetBalance, DECIMALS_USD),
+            2
+          )}`}
+        />
       </div>
     </>
   );

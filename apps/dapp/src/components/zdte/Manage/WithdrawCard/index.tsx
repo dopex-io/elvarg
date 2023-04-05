@@ -105,8 +105,6 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
     [isQuote, userZdteLpData, zdteData, staticZdteData]
   );
 
-  console.log('tokenApproved: ', tokenApproved);
-
   const handleApprove = useCallback(async () => {
     if (!signer || !asset || !staticZdteData) return;
 
@@ -193,6 +191,10 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
     tokenWithdrawAmount <= asset.getUserAssetBalance &&
     tokenWithdrawAmount <= asset.getContractLpBalance;
 
+  if (!staticZdteData) {
+    return <Loading />;
+  }
+
   return (
     <Box className="rounded-xl space-y-2 p-2">
       <Box className="rounded-xl">
@@ -207,7 +209,7 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
                 )}
                 onClick={() => setisQuote(true)}
               >
-                {staticZdteData?.quoteLpSymbol}
+                {staticZdteData.quoteLpSymbol}
               </Typography>
             </Box>
             <Box className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
@@ -219,7 +221,7 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
                 )}
                 onClick={() => setisQuote(false)}
               >
-                {staticZdteData?.baseLpSymbol}
+                {staticZdteData.baseLpSymbol}
               </Typography>
             </Box>
           </Box>
