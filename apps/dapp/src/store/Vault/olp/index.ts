@@ -1,21 +1,21 @@
+import { StateCreator } from 'zustand';
 import { BigNumber } from 'ethers';
 import orderBy from 'lodash/orderBy';
 import { SsovLp, SsovLp__factory, Addresses } from '@dopex-io/sdk';
 
-import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';
+import { CommonSlice } from 'store/Vault/common';
 
-import { getCurrentTime } from 'utils/contracts';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
-
+import { getCurrentTime } from 'utils/contracts';
 import {
   ASC,
   DECIMALS_STRIKE,
   DECIMALS_TOKEN,
   DECIMALS_USD,
   DESC,
-  PERCENT,
   ZERO_ADDRESS,
+  PERCENT,
 } from '../../../constants';
 
 export interface OlpDataInterface {
