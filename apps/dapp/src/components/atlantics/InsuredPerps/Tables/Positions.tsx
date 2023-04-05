@@ -31,7 +31,7 @@ import {
   TableBodyCell,
   TableHeader,
 } from 'components/atlantics/Manage/UserDepositsTable';
-import WalletButton from 'components/common/WalletButton';
+import SignerButton from 'components/common/SignerButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -555,7 +555,7 @@ const Positions = ({
           {accountAddress ? (
             <CircularProgress />
           ) : (
-            <WalletButton>Connect</WalletButton>
+            <SignerButton>Connect</SignerButton>
           )}
         </Box>
       ) : (

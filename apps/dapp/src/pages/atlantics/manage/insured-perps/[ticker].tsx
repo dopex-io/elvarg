@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import Box from '@mui/material/Box';
 
 import AppBar from 'components/common/AppBar';
-import WalletButton from 'components/common/WalletButton';
+import SignerButton from 'components/common/SignerButton';
 import Title from 'components/atlantics/InsuredPerps/Title';
 import Tables from 'components/atlantics/InsuredPerps/Tables';
 import ManageCard from 'components/atlantics/InsuredPerps/ManageCard';
@@ -193,7 +193,7 @@ export const Main = (props: TickerProps) => {
         ) : (
           <Box className="flex flex-col justify-center h-screen">
             <Box className="flex justify-center">
-              <WalletButton>Connect</WalletButton>
+              <SignerButton>Connect</SignerButton>
             </Box>
           </Box>
         )}

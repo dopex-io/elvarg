@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 import type { AppProps } from 'next/app';
 
+import GlobalDialogs from 'components/common/GlobalDialogs';
 import ChangeNetworkDialog from 'components/common/ChangeNetworkDialog';
 import Share from 'components/common/Share';
 
@@ -26,6 +27,7 @@ function App({ Component, pageProps }: AppProps) {
         <ThemeProvider theme={theme}>
           <WagmiConfig client={wagmiClient}>
             <Toaster position="bottom-right" reverseOrder={true} />
+            <GlobalDialogs />
             <Share />
             <Component {...pageProps} />
             <ChangeNetworkDialog />

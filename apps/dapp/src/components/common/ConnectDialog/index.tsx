@@ -1,17 +1,36 @@
 import { useConnect, useAccount } from 'wagmi';
+import { devtools } from 'zustand/middleware';
+import { create } from 'zustand';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import { Dialog } from 'components/UI';
 
-const ConnectDialog = ({
-  open,
-  handleClose,
-}: {
-  open: boolean;
-  handleClose: any;
-}) => {
+interface ConnectDialogState {
+  isOpen: boolean;
+  open: () => void;
+  close: (e: any, reason: string) => void;
+}
+
+export const useConnectDialog = create<ConnectDialogState>()(
+  devtools((set) => ({
+    isOpen: false,
+    open: () =>
+      set(() => ({
+        isOpen: true,
+      })),
+    close: (_e: any, _reason: any) =>
+      set(() => ({
+        isOpen: false,
+      })),
+  }))
+);
+
+const ConnectDialog = () => {
   const { connect, connectors, error, isLoading, pendingConnector } =
     useConnect();
+
+  const open = useConnectDialog((state) => state.isOpen);
+  const handleClose = useConnectDialog((state) => state.close);
 
   const { connector: activeConnector } = useAccount();
 
@@ -31,9 +50,9 @@ const ConnectDialog = ({
     },
     walletConnect: {
       icon: 'walletconnect.svg',
-      action: () => handleClose(),
+      action: () => handleClose('', ''),
     },
-    ledger: { icon: 'ledger.svg', action: () => handleClose() },
+    ledger: { icon: 'ledger.svg', action: () => handleClose('', '') },
     bitKeep: {
       icon: 'bitkeep.svg',
       downloadLink: 'https://bitkeep.com/en/download?type=2',

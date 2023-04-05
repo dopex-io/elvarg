@@ -15,14 +15,14 @@ import { useBoundStore } from 'store';
 import { smartTrim } from 'utils/general';
 
 import WalletDialog from '../WalletDialog';
-import ConnectDialog from '../ConnectDialog';
+import { useConnectDialog } from '../ConnectDialog';
 
 export function ConnectButton() {
-  const [open, setOpen] = useState(false);
-
   const [walletDialog, setWalletDialog] = useState(false);
 
   const { updateState, userAssetBalances } = useBoundStore();
+
+  const open = useConnectDialog((state) => state.open);
 
   const { address } = useAccount();
   const { chain } = useNetwork();
@@ -47,13 +47,8 @@ export function ConnectButton() {
     setWalletDialog(false);
   }, []);
 
-  const handleClose = useCallback(() => {
-    setOpen(false);
-  }, []);
-
   return (
     <>
-      <ConnectDialog open={open} handleClose={handleClose} />
       <WalletDialog
         open={walletDialog}
         userBalances={userAssetBalances}
@@ -72,7 +67,7 @@ export function ConnectButton() {
         <Button
           size="medium"
           onClick={() => {
-            setOpen(true);
+            open();
           }}
         >
           Connect Wallet

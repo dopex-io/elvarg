@@ -10,7 +10,7 @@ import Button from '@mui/material/Button';
 
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
-import WalletButton from 'components/common/WalletButton';
+import SignerButton from 'components/common/SignerButton';
 import Filter from 'components/common/Filter';
 
 import { useBoundStore } from 'store';
@@ -166,7 +166,7 @@ export default function Deposits() {
                 <CircularProgress className="text-stieglitz p-2 my-8 mx-auto" />
               </Box>
             ) : (
-              <WalletButton className="my-4">Connect Wallet</WalletButton>
+              <SignerButton className="my-4">Connect Wallet</SignerButton>
             )
           ) : filteredSSOVDeposits.length === 0 &&
             filteredStraddlesDeposits.length === 0 ? (

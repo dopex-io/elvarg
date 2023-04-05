@@ -151,6 +151,7 @@ importers:
       react-dom: ^18.2.0
       storybook-dark-mode: ^2.0.5
       tailwindcss: ^3.2.4
+      tslib: ^2.5.0
       typescript: ^4.9.4
     dependencies:
       '@headlessui/react': 1.7.12_biqbaboplfbrettd7655fr4n2y
@@ -172,6 +173,7 @@ importers:
       react-dom: 18.2.0_react@18.2.0
       storybook-dark-mode: 2.1.1_biqbaboplfbrettd7655fr4n2y
       tailwindcss: 3.2.7
+      tslib: 2.5.0
       typescript: 4.9.5
 
 packages:
@@ -9692,7 +9694,7 @@ packages:
     resolution: {integrity: sha512-gxGWBrTT1JuMx6R+o5PTXMmUnhnVzLQ9SNutD4YqKtI6ap897t3tKECYla6gCWEkplXnlNybEkZg9GEGxKFCgw==}
     dependencies:
       pascal-case: 3.1.2
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: true
 
   /camelcase-css/2.0.1:
@@ -11108,7 +11110,7 @@ packages:
     resolution: {integrity: sha512-Kv5nKlh6yRrdrGvxeJ2e5y2eRUpkUosIW4A2AS38zwSz27zu7ufDwQPi5Jhs3XAlGNetl3bmnGhQsMtkKJnj3w==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: true
 
   /dot-prop/5.3.0:
@@ -14753,7 +14755,7 @@ packages:
   /lower-case/2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
     dependencies:
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: true
 
   /lru-cache/5.1.1:
@@ -15473,7 +15475,7 @@ packages:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
     dependencies:
       lower-case: 2.0.2
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: true
 
   /node-addon-api/2.0.2:
@@ -15971,7 +15973,7 @@ packages:
     resolution: {integrity: sha512-RXlj7zCYokReqWpOPH9oYivUzLYZ5vAPIfEmCTNViosC78F8F0H9y7T7gG2M39ymgutxF5gcFEsyZQSph9Bp3A==}
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: true
 
   /parent-module/1.0.1:
@@ -16040,7 +16042,7 @@ packages:
     resolution: {integrity: sha512-uWlGT3YSnK9x3BQJaOdcZwrnV6hPpd8jFH1/ucpiLRPh/2zCVJKS19E4GvYHvaCcACn3foXZ0cLB9Wrx1KGe5g==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: true
 
   /pascalcase/0.1.1:

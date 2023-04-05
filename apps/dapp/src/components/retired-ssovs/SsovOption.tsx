@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box';
 import { BigNumber, ethers } from 'ethers';
 
-import WalletButton from 'components/common/WalletButton';
+import SignerButton from 'components/common/SignerButton';
 import Typography from 'components/UI/Typography';
 
 import useSendTx from 'hooks/useSendTx';
@@ -103,7 +103,7 @@ const SsovOption = (props: {
       <Typography variant="h5" className="mb-3">
         Amount: {getUserReadableAmount(option.balance, 18)}
       </Typography>
-      <WalletButton onClick={handleSettle}>Settle</WalletButton>
+      <SignerButton onClick={handleSettle}>Settle</SignerButton>
     </Box>
   );
 };

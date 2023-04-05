@@ -11,7 +11,7 @@ import { SsovV3EpochData, SsovV3Data, Reward } from 'store/Vault/ssov';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
-import WalletButton from 'components/common/WalletButton';
+import SignerButton from 'components/common/SignerButton';
 import InfoBox from '../InfoBox';
 import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../PurchaseDialog';
@@ -134,9 +134,8 @@ const Description = ({
       </Box>
       <Box className="flex justify-center items-center flex-row mb-6">
         <Box className="w-full mr-2">
-          <WalletButton
+          <SignerButton
             size="medium"
-            fullWidth
             className="rounded-lg"
             onClick={() => {
               accountAddress ? setPurchaseState(true) : noop;
@@ -144,7 +143,7 @@ const Description = ({
             disabled={ssovData?.isCurrentEpochExpired || false}
           >
             Buy {type} Options
-          </WalletButton>
+          </SignerButton>
         </Box>
       </Box>
       <Box className="grid grid-cols-3 gap-2 mb-6">
