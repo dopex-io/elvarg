@@ -5,6 +5,7 @@ import { BigNumber } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
+import Checkbox from '@mui/material/Checkbox';
 import Slider from '@mui/material/Slider';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
@@ -20,7 +21,6 @@ import formatAmount from 'utils/general/formatAmount';
 import { MINIMUM_MARGIN } from 'utils/contracts/option-scalps';
 
 import { MAX_VALUE } from 'constants/index';
-import { Checkbox } from '@mui/material';
 
 const TradeCard = () => {
   const {
@@ -44,6 +44,8 @@ const TradeCard = () => {
 
   const [selectedTimeWindow, setSelectedTimeWindow] = useState<string>('30m');
 
+  const [hoursToExpiry, setHoursToExpiry] = useState<string>('24h');
+
   const [premium, setPremium] = useState<BigNumber>(BigNumber.from(0));
 
   const [approved, setApproved] = useState(false);
@@ -55,6 +57,8 @@ const TradeCard = () => {
   const [isShort, setIsShort] = useState<boolean>(false);
 
   const [showAsQuote, setShowAsQuote] = useState<boolean>(false);
+
+  const [orderType, setOrderType] = useState<string>('Market');
 
   const markPrice = useMemo(() => {
     if (selectedPoolName === 'ETH') return uniWethPrice;
@@ -647,6 +651,77 @@ const TradeCard = () => {
             </Box>
           </Box>
         </Box>
+      </Box>
+      <Box className="rounded-md  mb-2.5 p-4 pt-4 pb-3.5 border border-neutral-800 w-full bg-neutral-800">
+        <p className="text-xs text-stieglitz">Order type</p>
+
+        <Box className="flex mt-2">
+          <Box
+            key={'Market'}
+            className={
+              (orderType === 'Market' ? ' bg-mineshaft' : ' bg-umbra') +
+              ` mr-1.5 text-center w-auto p-2 border-[1px] border-[#1E1E1E] rounded-md cursor-pointer group hover:bg-mineshaft hover:opacity-80`
+            }
+            onClick={() => setOrderType('Market')}
+          >
+            <Typography variant="h6" className="text-xs font-normal">
+              Market
+            </Typography>
+          </Box>
+
+          <Box
+            key={'Limit'}
+            className={
+              (orderType === 'Limit' ? ' bg-mineshaft' : ' bg-umbra') +
+              ` text-center w-auto p-2 border-[1px] border-[#1E1E1E] rounded-md cursor-pointer group hover:bg-mineshaft hover:opacity-80`
+            }
+            onClick={() => setOrderType('Limit')}
+          >
+            <Typography variant="h6" className="text-xs font-normal">
+              Limit
+            </Typography>
+          </Box>
+        </Box>
+
+        {orderType === 'Limit' ? (
+          <Box className="mt-3">
+            <p className="text-xs text-stieglitz">Limit price</p>
+            <Input
+              disableUnderline
+              placeholder={'34'}
+              onChange={() => {}}
+              type="number"
+              className={`mt-2 border border-mineshaft rounded-md px-2 bg-umbra w-full !w-auto`}
+              classes={{ input: 'text-white text-xs text-left py-2' }}
+            />
+          </Box>
+        ) : null}
+        {orderType === 'Limit' ? (
+          <Box className="mt-3">
+            <p className="text-xs text-stieglitz">Expiry</p>
+            <Box className="flex mt-2">
+              {['1h', '5h', '12h', '24h', '48h'].map((time, i) => (
+                <Box
+                  key={i}
+                  className={
+                    (i === 0
+                      ? 'mr-1.5'
+                      : i === 4
+                      ? 'mr-auto ml-1.5'
+                      : 'mx-1.5') +
+                    (time === hoursToExpiry ? ' bg-mineshaft' : ' bg-umbra') +
+                    ` text-center w-auto p-2 border-[1px] border-[#1E1E1E] rounded-md cursor-pointer group hover:bg-mineshaft hover:opacity-80`
+                  }
+                  onClick={() => setHoursToExpiry(time)}
+                >
+                  <Typography variant="h6" className="text-xs font-normal">
+                    {time}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        ) : null}
       </Box>
       <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
         <EstimatedGasCostButton gas={500000} chainId={chainId} />
