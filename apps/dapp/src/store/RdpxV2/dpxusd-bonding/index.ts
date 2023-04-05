@@ -56,6 +56,7 @@ interface RdpxV2TreasuryData {
   reserveB: BigNumber;
   tokenA: Token;
   tokenB: Token;
+  premiumPerDsc: BigNumber;
   bondCostPerDsc: [BigNumber, BigNumber];
   lpPrice: BigNumber; // rdpxETH price
   dscPrice: BigNumber;
@@ -222,6 +223,7 @@ export const createDpxusdBondingSlice: StateCreator<
       symbol: '',
       address: '',
     },
+    premiumPerDsc: BigNumber.from(0),
     bondCostPerDsc: [BigNumber.from(0), BigNumber.from(0)],
     lpPrice: BigNumber.from(0), // rdpxETH price
     dscPrice: BigNumber.from(0),
@@ -255,8 +257,22 @@ export const createDpxusdBondingSlice: StateCreator<
         treasury.getRdpxPrice(),
       ]);
 
-    const dscSupply = await treasuryContractState.contracts.dsc.totalSupply();
-    const rdpxSupply = await treasuryContractState.contracts.rdpx.totalSupply();
+    const nextFundingTimestamp =
+      await treasuryContractState.contracts.vault.nextFundingPaymentTimestamp();
+
+    const timeTillExpiry = nextFundingTimestamp.sub(
+      Math.ceil(Number(new Date()) / 1000)
+    );
+
+    const [premiumPerDsc, dscSupply, rdpxSupply] = await Promise.all([
+      treasuryContractState.contracts.vault.calculatePremium(
+        rdpxPriceInAlpha.sub(rdpxPriceInAlpha.div(4)),
+        bondCostPerDsc.rdpxRequired, // rdpx options
+        timeTillExpiry
+      ),
+      treasuryContractState.contracts.dsc.totalSupply(),
+      treasuryContractState.contracts.rdpx.totalSupply(),
+    ]);
 
     set((prevState) => ({
       ...prevState,
@@ -272,6 +288,7 @@ export const createDpxusdBondingSlice: StateCreator<
           symbol: tokenBSymbol,
         },
         bondCostPerDsc,
+        premiumPerDsc,
         lpPrice,
         dscPrice,
         dscSupply,
@@ -340,7 +357,6 @@ export const createDpxusdBondingSlice: StateCreator<
     if (!treasuryContractState.contracts) return;
 
     const _treasury = treasuryContractState.contracts.treasury;
-
     const delegatesLength = (await _treasury.getDelegatesLength()).toNumber();
 
     let _promises = [];
@@ -351,7 +367,6 @@ export const createDpxusdBondingSlice: StateCreator<
 
     // sort by fee %
     let delegatesResult = await Promise.all(_promises);
-
     delegatesResult = delegatesResult
       .map((val, i: number) => ({ ...val, _id: i }))
       .sort((a, b) => a.fee.toNumber() - b.fee.toNumber());
@@ -377,7 +392,6 @@ export const createDpxusdBondingSlice: StateCreator<
       return;
 
     let requiredBalance = requiredCollateral;
-
     let accumulator = {
       amounts: [] as BigNumber[],
       ids: [] as number[],
@@ -385,13 +399,10 @@ export const createDpxusdBondingSlice: StateCreator<
 
     for (let i = 0; i < delegates.length; i++) {
       if (delegates[i]?.amount.eq('0')) continue;
-
       const delegateBalance =
         delegates[i]?.amount.sub(delegates[i]?.activeCollateral || '0') ||
         BigNumber.from(0);
-
       const delegateId = delegates[i]?._id || 0;
-
       if (requiredBalance.gte(delegateBalance)) {
         requiredBalance = requiredBalance.sub(delegateBalance);
         accumulator.amounts.push(delegateBalance);

@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-
 import { MockToken__factory } from '@dopex-io/sdk';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Tooltip from '@mui/material/Tooltip';
-import { useBoundStore } from 'store';
-
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 // import Slider from '@mui/material/Slider';
+
+import { useBoundStore } from 'store';
 
 import InputRow from 'components/rdpx-v2/BondPanel/Bond/InputRow';
 
@@ -24,16 +23,17 @@ const CollateralInputPanel = (props: Props) => {
   const { accountAddress, provider, treasuryData, treasuryContractState } =
     useBoundStore();
 
-  const [amounts, setAmounts] = useState([0, 0]);
-  const [, /*premium*/ setPremium] = useState(0);
+  const [amounts, setAmounts] = useState([0, 0, 0]);
 
   const handleAmountsRecalcuation = useCallback(() => {
     if (!treasuryData) return;
     const _amounts = treasuryData.bondCostPerDsc;
+    const _premium = treasuryData.premiumPerDsc;
 
     setAmounts([
-      getUserReadableAmount(_amounts[0], 18) * inputAmount,
-      getUserReadableAmount(_amounts[1], 18) * inputAmount,
+      getUserReadableAmount(_amounts[0], 18) * inputAmount, // rDPX
+      getUserReadableAmount(_amounts[1], 18) * inputAmount, // WETH
+      getUserReadableAmount(_premium, 18) * inputAmount,
     ]);
   }, [inputAmount, treasuryData]);
 
@@ -52,11 +52,11 @@ const CollateralInputPanel = (props: Props) => {
 
       const [rdpxAllowance, wethAllowance] = await Promise.all([
         MockToken__factory.connect(
-          treasuryData.tokenA.address,
+          treasuryData.tokenA.address, // weth
           provider
         ).allowance(accountAddress, treasury),
         MockToken__factory.connect(
-          treasuryData.tokenB.address,
+          treasuryData.tokenB.address, // rdpx
           provider
         ).allowance(accountAddress, treasury),
       ]);
@@ -76,35 +76,6 @@ const CollateralInputPanel = (props: Props) => {
     treasuryData,
     delegated,
   ]);
-
-  useEffect(() => {
-    (async () => {
-      if (!treasuryContractState.contracts || !amounts[1]) return;
-
-      const rdpxPrice = treasuryData.rdpxPriceInAlpha;
-
-      const nextFundingTimestamp =
-        await treasuryContractState.contracts.vault.nextFundingPaymentTimestamp();
-
-      const timeTillExpiry = nextFundingTimestamp.sub(
-        Math.ceil(Number(new Date()) / 1000)
-      );
-
-      let premium = getContractReadableAmount(0, 18);
-
-      try {
-        premium = await treasuryContractState.contracts.vault.calculatePremium(
-          rdpxPrice.sub(rdpxPrice.div(4)),
-          getContractReadableAmount(amounts[1], 18),
-          timeTillExpiry
-        );
-      } catch (e) {
-        console.log(e);
-      }
-
-      setPremium(getUserReadableAmount(premium, 18));
-    })();
-  }, [amounts, treasuryContractState.contracts, treasuryData.rdpxPriceInAlpha]);
 
   return (
     <div className="p-3 bg-umbra rounded-xl space-y-2">
@@ -127,7 +98,11 @@ const CollateralInputPanel = (props: Props) => {
         inputAmount={amounts[1] || 0}
         label="75%"
       />
-      {/* <InputRow tokenSymbol="PREM." inputAmount={premium || 0} label={'WETH'} /> */}
+      <InputRow
+        tokenSymbol={'Premium'}
+        inputAmount={amounts[2] || 0}
+        label="WETH"
+      />
     </div>
   );
 };
