@@ -360,18 +360,19 @@ export const createOptionScalpSlice: StateCreator<
       )
     );
 
-    const baseLpAPR = totalBaseAvailable
+    const baseLpAPR = totalBaseDeposits
       .sub(baseSupply)
       .mul(365)
       .div(daysSinceComp)
       .mul(100)
-      .div(totalBaseAvailable);
-    const quoteLpAPR = totalQuoteAvailable
+      .div(totalBaseDeposits);
+
+    const quoteLpAPR = totalQuoteDeposits
       .sub(quoteSupply)
       .mul(365)
       .div(daysSinceComp)
       .mul(100)
-      .div(totalQuoteAvailable);
+      .div(totalQuoteDeposits);
 
     set((prevState) => ({
       ...prevState,
