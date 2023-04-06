@@ -1,7 +1,7 @@
 query getStraddlesUserData($user: ID!) {
   users(where: { id: $user }) {
     id
-    userOpenDeposits {
+    straddlesUserOpenDeposits {
       id
       epoch
       amount
