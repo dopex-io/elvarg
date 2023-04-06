@@ -59,12 +59,13 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
   const updateUserBalance = useCallback(async () => {
     if (!provider || !accountAddress) return;
 
-    const tokenAddress = contractAddresses[selectedTokenSymbol.toUpperCase()];
+    const tokenAddress = getContractAddress([
+      selectedTokenSymbol.toUpperCase(),
+    ]);
 
     if (!tokenAddress) return;
 
     const token = ERC20__factory.connect(tokenAddress, provider);
-
 
     setSelectedTokenBalance(
       formatAmount(
@@ -80,7 +81,7 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
     chainId,
     provider,
     selectedTokenSymbol,
-    contractAddresses,
+    getContractAddress,
   ]);
 
   useEffect(() => {
