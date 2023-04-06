@@ -84,23 +84,17 @@ export const OptionsTableRow = ({
       </StyleLeftCell>
       <StyleCell align="left">
         <Typography variant="h6" color="white">
-          ${formatAmount(optionsStats.breakeven)}
-        </Typography>
-      </StyleCell>
-      <StyleCell align="left">
-        <Typography variant="h6" color="white">
-          {optionsStats.breakevenPercentage}%
-        </Typography>
-      </StyleCell>
-      <StyleCell align="left">
-        <FormatPercentColor value={optionsStats.changePercentage} />
-      </StyleCell>
-      <StyleCell align="left">
-        <FormatDollarColor value={optionsStats.change} />
-      </StyleCell>
-      <StyleCell align="left">
-        <Typography variant="h6" color="white">
           ${optionsStats.premium}
+        </Typography>
+      </StyleCell>
+      <StyleCell align="left">
+        <Typography variant="h6" color="white">
+          {optionsStats.iv}
+        </Typography>
+      </StyleCell>
+      <StyleCell align="left">
+        <Typography variant="h6" color="white">
+          {formatAmount(optionsStats.delta, 2)}
         </Typography>
       </StyleCell>
       <StyleRightCell align="right" className="pt-2">
@@ -139,23 +133,17 @@ export const OptionsTableRowLower = ({
       </StyleLeftTableCell>
       <StyleTableCellHeader>
         <Typography variant="h6" color="white">
-          ${formatAmount(optionsStats.breakeven)}
+          ${formatAmount(optionsStats.premium)}
         </Typography>
       </StyleTableCellHeader>
       <StyleTableCellHeader>
         <Typography variant="h6" color="white">
-          {optionsStats.breakevenPercentage}%
+          {optionsStats.iv}
         </Typography>
       </StyleTableCellHeader>
       <StyleTableCellHeader>
-        <FormatPercentColor value={optionsStats.changePercentage} />
-      </StyleTableCellHeader>
-      <StyleTableCellHeader>
-        <FormatDollarColor value={optionsStats.change} />
-      </StyleTableCellHeader>
-      <StyleTableCellHeader>
         <Typography variant="h6" color="white">
-          ${optionsStats.premium}
+          {formatAmount(optionsStats.delta, 4)}
         </Typography>
       </StyleTableCellHeader>
       <StyleRightTableCell align="right" className="pt-2">

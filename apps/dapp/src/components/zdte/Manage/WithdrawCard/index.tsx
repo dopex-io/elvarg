@@ -12,6 +12,7 @@ import { IStaticZdteData, IZdteData, IZdteUserData } from 'store/Vault/zdte';
 
 import { CustomButton, Typography } from 'components/UI';
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
+import Loading from 'components/zdte/Loading';
 
 import {
   getContractReadableAmount,
@@ -97,7 +98,7 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
 
   const [tokenWithdrawAmount, setTokenWithdrawAmount] = useState<
     string | number
-  >(0);
+  >('');
   const [tokenApproved, setTokenApproved] = useState<boolean>(false);
   const [isQuote, setisQuote] = useState(true);
   const asset = useMemo(
@@ -140,12 +141,11 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
       tokenWithdrawAmount,
       isQuote ? DECIMALS_USD : DECIMALS_TOKEN
     );
-    setTokenApproved(allowance.gte(withdrawAmount));
-  }, [accountAddress, signer, staticZdteData, asset]);
 
-  const approved = useMemo(() => {
-    return tokenApproved;
-  }, [tokenApproved]);
+    setTokenApproved(
+      allowance.gt(BigNumber.from(0)) && allowance.gte(withdrawAmount)
+    );
+  }, [accountAddress, signer, staticZdteData, asset]);
 
   // Updates approved state and user balance
   useEffect(() => {
@@ -187,9 +187,9 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
   ]);
 
   const canWithdraw =
-    tokenWithdrawAmount > 0 &&
-    tokenWithdrawAmount <= asset.getUserAssetBalance &&
-    tokenWithdrawAmount <= asset.getContractLpBalance;
+    Number(tokenWithdrawAmount) > 0 &&
+    Number(tokenWithdrawAmount) <= asset.getUserAssetBalance &&
+    Number(tokenWithdrawAmount) <= asset.getContractLpBalance;
 
   if (!staticZdteData) {
     return <Loading />;
@@ -255,16 +255,16 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
       <CustomButton
         size="medium"
         className="w-full mt-4 !rounded-md"
-        color={!approved || canWithdraw ? 'primary' : 'mineshaft'}
-        disabled={approved && !canWithdraw}
-        onClick={!approved ? handleApprove : handleWithdraw}
+        color={!tokenApproved || canWithdraw ? 'primary' : 'mineshaft'}
+        disabled={tokenApproved && !canWithdraw}
+        onClick={!tokenApproved ? handleApprove : handleWithdraw}
       >
-        {approved
+        {tokenApproved
           ? tokenWithdrawAmount == 0
             ? 'Insert an amount'
-            : tokenWithdrawAmount > asset.getUserAssetBalance
+            : Number(tokenWithdrawAmount) > asset.getUserAssetBalance
             ? 'Insufficient balance'
-            : tokenWithdrawAmount > asset.getContractLpBalance
+            : Number(tokenWithdrawAmount) > asset.getContractLpBalance
             ? 'Insufficient liquidity to withdraw'
             : 'Withdraw'
           : 'Approve'}

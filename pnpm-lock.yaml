@@ -86,6 +86,7 @@ importers:
       ethers: 5.7.2
       formik: 2.2.9_react@18.2.0
       graphql: 16.6.0
+      greeks: 1.0.0
       html-to-image: 1.11.11
       lightweight-charts: 3.8.0
       lodash: 4.17.21
@@ -13350,6 +13351,12 @@ packages:
   /graphql/16.6.0:
     resolution: {integrity: sha512-KPIBPDlW7NxrbT/eh4qPXz5FiFdL5UbaA0XUNz2Rp3Z3hqBSkbj0GVjwFDztsWVauZUWsbKHgMg++sk8UX0bkw==}
     engines: {node: ^12.22.0 || ^14.16.0 || ^16.0.0 || >=17.0.0}
+
+  /greeks/1.0.0:
+    resolution: {integrity: sha512-nEhN+Qzt/mzLXI27rKFOYtkp7O5gh1Y+HiNim1eR6JNWW/c5EzFhddyc/1M7jxaC/PCTy3CePYJnZFU9eomtlw==}
+    dependencies:
+      black-scholes: 1.1.0
+    dev: false
 
   /gzip-size/3.0.0:
     resolution: {integrity: sha512-6s8trQiK+OMzSaCSVXX+iqIcLV9tC+E73jrJrJTyS4h/AJhlxHvzFKqM1YLDJWRGgHX8uLkBeXkA0njNj39L4w==}

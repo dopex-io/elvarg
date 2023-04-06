@@ -122,11 +122,9 @@ export const OptionsTable = () => {
                   Strike Price
                 </span>
               </StyleLeftTableCell>
-              <StyleTableCellHeader>Breakeven</StyleTableCellHeader>
-              <StyleTableCellHeader>To Break Even</StyleTableCellHeader>
-              <StyleTableCellHeader>% Change</StyleTableCellHeader>
-              <StyleTableCellHeader>Change</StyleTableCellHeader>
-              <StyleTableCellHeader>Price</StyleTableCellHeader>
+              <StyleTableCellHeader>Premium</StyleTableCellHeader>
+              <StyleTableCellHeader>Implied Vol</StyleTableCellHeader>
+              <StyleTableCellHeader>Delta</StyleTableCellHeader>
               <StyleRightTableCell align="right" className="rounded-tr-xl">
                 <span className="text-sm text-stieglitz">Action</span>
               </StyleRightTableCell>

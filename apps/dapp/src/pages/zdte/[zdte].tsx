@@ -63,7 +63,7 @@ const Zdte = ({ zdte }: Props) => {
   useEffect(() => {
     const interval = setInterval(() => {
       updateAll();
-    }, 3000);
+    }, 60000);
     return () => clearInterval(interval);
   }, []);
 

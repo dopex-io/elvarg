@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 
 import { BigNumber, utils } from 'ethers';
 
@@ -52,7 +52,6 @@ const Deposit: FC<DepositProps> = ({}) => {
   const {
     signer,
     provider,
-    zdteData,
     staticZdteData,
     accountAddress,
     getZdteContract,
@@ -134,7 +133,7 @@ const Deposit: FC<DepositProps> = ({}) => {
   }, [signer, provider, zdteContract, amount, updateZdteData, sendTx, isQuote]);
 
   const checkApproved = useCallback(async () => {
-    if (!accountAddress || !signer || !staticZdteData || !isQuote) return;
+    if (!accountAddress || !signer || !staticZdteData) return;
 
     const tokenContract = await ERC20__factory.connect(
       isQuote
@@ -151,15 +150,13 @@ const Deposit: FC<DepositProps> = ({}) => {
       isQuote ? DECIMALS_USD : DECIMALS_TOKEN
     );
     if (isQuote) {
-      setIsQuoteApproved(allowance.gte(depositAmount));
+      setIsQuoteApproved(allowance.gt(0) && allowance.gte(depositAmount));
     } else {
-      setIsBaseApproved(allowance.gte(depositAmount));
+      setIsBaseApproved(allowance.gt(0) && allowance.gte(depositAmount));
     }
   }, [accountAddress, signer, staticZdteData, amount, isQuote]);
 
-  const approved = useMemo(() => {
-    return isQuote ? isQuoteApproved : isBaseApproved;
-  }, [isQuoteApproved, isBaseApproved, isQuote]);
+  const approved = isQuote ? isQuoteApproved : isBaseApproved;
 
   // Updates approved state and user balance
   useEffect(() => {
@@ -226,17 +223,17 @@ const Deposit: FC<DepositProps> = ({}) => {
         size="medium"
         className="w-full mt-5 !rounded-md"
         color={
-          !approved || (amount > 0 && amount <= assetBalance)
+          !approved || (Number(amount) > 0 && Number(amount) <= assetBalance)
             ? 'primary'
             : 'mineshaft'
         }
-        disabled={amount <= 0 || amount > assetBalance}
+        disabled={Number(amount) <= 0 || Number(amount) > assetBalance}
         onClick={!approved ? handleApprove : handleOpenPosition}
       >
         {approved
           ? amount == 0
             ? 'Insert an amount'
-            : amount > assetBalance
+            : Number(amount) > assetBalance
             ? 'Insufficient balance'
             : 'Deposit'
           : 'Approve'}

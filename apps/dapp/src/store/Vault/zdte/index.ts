@@ -1,6 +1,7 @@
 import { BigNumber } from 'ethers';
 
 import { ERC20__factory } from '@dopex-io/sdk';
+import greeks from 'greeks';
 import { ZdteLP__factory } from 'mocks/factories/ZdteLP__factory';
 import { ZdtePositionMinter__factory } from 'mocks/factories/ZdtePositionMinter__factory';
 import { Zdte__factory } from 'mocks/factories/Zdte__factory';
@@ -15,16 +16,13 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
-const ONE_DAY = 24 * 3600;
-
+const SECONDS_IN_A_YEAR = 86400 * 365;
 export interface OptionsTableData {
   strike: number;
-  breakeven: number;
-  breakevenPercentage: number;
-  change: number;
-  changePercentage: number;
   premium: number;
-  openingFees: number;
+  iv: number;
+  delta: number;
+  disable: boolean;
 }
 
 export interface IStaticZdteData {
@@ -117,7 +115,7 @@ export const createZdteSlice: StateCreator<
     try {
       // Addresses[42161].ZDTE[selectedPoolName],
       return Zdte__factory.connect(
-        '0x68584a0778dac18f3e3472e0c6c5cd51236f8ce5',
+        '0xd863de2b1711074908527394f072e201db3c2e62',
         provider
       );
     } catch (err) {
@@ -279,12 +277,14 @@ export const createZdteSlice: StateCreator<
         maxOtmPercentage,
         baseLpTokenLiquidty,
         quoteLpTokenLiquidty,
+        expiry,
       ] = await Promise.all([
         zdteContract.getMarkPrice(),
         zdteContract.strikeIncrement(),
         zdteContract.maxOtmPercentage(),
         zdteContract.baseLpTokenLiquidty(),
         zdteContract.quoteLpTokenLiquidty(),
+        zdteContract.getCurrentExpiry(),
       ]);
 
       const step = getUserReadableAmount(strikeIncrement, DECIMALS_STRIKE);
@@ -297,35 +297,47 @@ export const createZdteSlice: StateCreator<
 
       const strikes: OptionsTableData[] = [];
 
-      for (let i = upperRound - step; i > lowerRound; i -= step) {
+      for (
+        let strike = upperRound - step;
+        strike > lowerRound;
+        strike -= step
+      ) {
         const ether = oneEBigNumber(DECIMALS_TOKEN);
-        const contractStrike = getContractReadableAmount(i, DECIMALS_STRIKE);
-        const [premium, openingFees] = await Promise.all([
-          zdteContract.calcPremium(
-            i <= tokenPrice,
-            contractStrike,
-            ether,
-            ONE_DAY
+        const contractStrike = getContractReadableAmount(
+          strike,
+          DECIMALS_STRIKE
+        );
+        const [premium, iv] = await Promise.all([
+          zdteContract.calcPremium(strike <= tokenPrice, contractStrike, ether),
+          zdteContract.getVolatility(
+            getContractReadableAmount(strike, DECIMALS_STRIKE)
           ),
-          zdteContract.calcOpeningFees(ether, contractStrike),
         ]);
-        const normalizedPremium = getUsdPrice(premium);
-        const normalizedOpeningFees = getUsdPrice(openingFees);
-        const addOrSubPremium =
-          i >= tokenPrice ? normalizedPremium : -1 * normalizedPremium;
+        const normalizedPremium = getPremiumUsdPrice(premium);
+        const normalizedIv = iv.toNumber();
+
+        // s - Current price of the underlying
+        // k - Strike price
+        // t - Time to expiration in years
+        // v - Volatility as a decimal
+        // r - Annual risk-free interest rate as a decimal
+        // callPut - The type of option to be priced - "call" or "put"
+        const tte = (expiry.toNumber() - Date.now() / 1000) / SECONDS_IN_A_YEAR;
+        const delta = greeks.getDelta(
+          tokenPrice,
+          strike,
+          tte,
+          normalizedIv / 100,
+          0,
+          strike <= tokenPrice ? 'put' : 'call'
+        );
 
         strikes.push({
-          strike: i,
-          breakeven: i + addOrSubPremium,
-          breakevenPercentage: roundToNearestTwoDp(
-            ((i + addOrSubPremium) / tokenPrice - 1) * 100
-          ),
-          change: i - tokenPrice,
-          changePercentage: roundToNearestTwoDp(
-            ((i - tokenPrice) * 100) / tokenPrice
-          ),
+          strike: strike,
           premium: normalizedPremium,
-          openingFees: normalizedOpeningFees,
+          iv: normalizedIv,
+          delta: delta,
+          disable: strike == upperRound - step || strike == lowerRound + step,
         });
       }
 
@@ -353,7 +365,7 @@ export const createZdteSlice: StateCreator<
       }));
     } catch (err) {
       console.log(err);
-      throw new Error('fail to update zdte data');
+      throw new Error('fail to update zdteData');
     }
   },
   updateStaticZdteData: async () => {
@@ -446,10 +458,6 @@ export const createZdteSlice: StateCreator<
   },
 });
 
-function roundToNearestTwoDp(num: number): number {
-  return Math.round(num * 100) / 100;
-}
-
-function getUsdPrice(value: BigNumber): number {
-  return value.mul(100).div(oneEBigNumber(DECIMALS_USD)).toNumber() / 100;
+function getPremiumUsdPrice(value: BigNumber): number {
+  return value.mul(1000).div(oneEBigNumber(DECIMALS_USD)).toNumber() / 1000;
 }

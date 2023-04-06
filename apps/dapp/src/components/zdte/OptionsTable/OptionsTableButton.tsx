@@ -95,7 +95,10 @@ const OptionsTableButton = ({
         buttonAction === 'Undo' ? 'bg-umbra hover:bg-umbra' : '',
         buttonStatus ? 'bg-umbra' : ''
       )}
-      disabled={buttonStatus}
+      disabled={
+        buttonStatus ||
+        (selectedSpreadPair?.longStrike === undefined && optionsStats.disable)
+      }
       onClick={() => handleSelectLongStrike(optionsStats.strike)}
     >
       {buttonAction}

@@ -41,7 +41,7 @@ export interface ZdteInterface extends utils.Interface {
     'calcMargin(bool,uint256,uint256)': FunctionFragment;
     'calcOpeningFees(uint256,uint256)': FunctionFragment;
     'calcPnl(uint256)': FunctionFragment;
-    'calcPremium(bool,uint256,uint256,uint256)': FunctionFragment;
+    'calcPremium(bool,uint256,uint256)': FunctionFragment;
     'canOpenSpreadPosition(bool,uint256,uint256,uint256)': FunctionFragment;
     'claimCollateral(uint256)': FunctionFragment;
     'deposit(bool,uint256)': FunctionFragment;
@@ -53,6 +53,7 @@ export interface ZdteInterface extends utils.Interface {
     'genesisExpiry()': FunctionFragment;
     'getCurrentExpiry()': FunctionFragment;
     'getMarkPrice()': FunctionFragment;
+    'getTimeToExpire()': FunctionFragment;
     'getVolatility(uint256)': FunctionFragment;
     'isContract(address)': FunctionFragment;
     'longOptionPosition(bool,uint256,uint256)': FunctionFragment;
@@ -105,6 +106,7 @@ export interface ZdteInterface extends utils.Interface {
       | 'genesisExpiry'
       | 'getCurrentExpiry'
       | 'getMarkPrice'
+      | 'getTimeToExpire'
       | 'getVolatility'
       | 'isContract'
       | 'longOptionPosition'
@@ -176,7 +178,6 @@ export interface ZdteInterface extends utils.Interface {
     values: [
       PromiseOrValue<boolean>,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
   ): string;
@@ -227,6 +228,10 @@ export interface ZdteInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: 'getMarkPrice',
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'getTimeToExpire',
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -393,6 +398,10 @@ export interface ZdteInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: 'getMarkPrice',
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'getTimeToExpire',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -701,7 +710,6 @@ export interface Zdte extends BaseContract {
       isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      timeToExpiry: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { premium: BigNumber }>;
 
@@ -753,6 +761,10 @@ export interface Zdte extends BaseContract {
     getMarkPrice(
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { price: BigNumber }>;
+
+    getTimeToExpire(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { timeLeft: BigNumber }>;
 
     getVolatility(
       strike: PromiseOrValue<BigNumberish>,
@@ -859,6 +871,7 @@ export interface Zdte extends BaseContract {
         BigNumber,
         BigNumber,
         BigNumber,
+        BigNumber,
         BigNumber
       ] & {
         isOpen: boolean;
@@ -873,6 +886,7 @@ export interface Zdte extends BaseContract {
         pnl: BigNumber;
         openedAt: BigNumber;
         expiry: BigNumber;
+        margin: BigNumber;
       }
     >;
   };
@@ -919,7 +933,6 @@ export interface Zdte extends BaseContract {
     isPut: PromiseOrValue<boolean>,
     strike: PromiseOrValue<BigNumberish>,
     amount: PromiseOrValue<BigNumberish>,
-    timeToExpiry: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -967,6 +980,8 @@ export interface Zdte extends BaseContract {
   getCurrentExpiry(overrides?: CallOverrides): Promise<BigNumber>;
 
   getMarkPrice(overrides?: CallOverrides): Promise<BigNumber>;
+
+  getTimeToExpire(overrides?: CallOverrides): Promise<BigNumber>;
 
   getVolatility(
     strike: PromiseOrValue<BigNumberish>,
@@ -1073,6 +1088,7 @@ export interface Zdte extends BaseContract {
       BigNumber,
       BigNumber,
       BigNumber,
+      BigNumber,
       BigNumber
     ] & {
       isOpen: boolean;
@@ -1087,6 +1103,7 @@ export interface Zdte extends BaseContract {
       pnl: BigNumber;
       openedAt: BigNumber;
       expiry: BigNumber;
+      margin: BigNumber;
     }
   >;
 
@@ -1133,7 +1150,6 @@ export interface Zdte extends BaseContract {
       isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      timeToExpiry: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1181,6 +1197,8 @@ export interface Zdte extends BaseContract {
     getCurrentExpiry(overrides?: CallOverrides): Promise<BigNumber>;
 
     getMarkPrice(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getTimeToExpire(overrides?: CallOverrides): Promise<BigNumber>;
 
     getVolatility(
       strike: PromiseOrValue<BigNumberish>,
@@ -1281,6 +1299,7 @@ export interface Zdte extends BaseContract {
         BigNumber,
         BigNumber,
         BigNumber,
+        BigNumber,
         BigNumber
       ] & {
         isOpen: boolean;
@@ -1295,6 +1314,7 @@ export interface Zdte extends BaseContract {
         pnl: BigNumber;
         openedAt: BigNumber;
         expiry: BigNumber;
+        margin: BigNumber;
       }
     >;
   };
@@ -1445,7 +1465,6 @@ export interface Zdte extends BaseContract {
       isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      timeToExpiry: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1493,6 +1512,8 @@ export interface Zdte extends BaseContract {
     getCurrentExpiry(overrides?: CallOverrides): Promise<BigNumber>;
 
     getMarkPrice(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getTimeToExpire(overrides?: CallOverrides): Promise<BigNumber>;
 
     getVolatility(
       strike: PromiseOrValue<BigNumberish>,
@@ -1634,7 +1655,6 @@ export interface Zdte extends BaseContract {
       isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      timeToExpiry: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1682,6 +1702,8 @@ export interface Zdte extends BaseContract {
     getCurrentExpiry(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getMarkPrice(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getTimeToExpire(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getVolatility(
       strike: PromiseOrValue<BigNumberish>,

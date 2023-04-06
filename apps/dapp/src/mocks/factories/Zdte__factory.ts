@@ -485,11 +485,6 @@ const _abi = [
         name: 'amount',
         type: 'uint256',
       },
-      {
-        internalType: 'uint256',
-        name: 'timeToExpiry',
-        type: 'uint256',
-      },
     ],
     name: 'calcPremium',
     outputs: [
@@ -670,6 +665,19 @@ const _abi = [
       {
         internalType: 'uint256',
         name: 'price',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'getTimeToExpire',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'timeLeft',
         type: 'uint256',
       },
     ],
@@ -1111,6 +1119,11 @@ const _abi = [
       {
         internalType: 'uint256',
         name: 'expiry',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'margin',
         type: 'uint256',
       },
     ],

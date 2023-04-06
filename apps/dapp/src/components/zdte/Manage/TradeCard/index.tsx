@@ -22,8 +22,6 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
-const ONE_DAY = 24 * 3600;
-
 function orZero(value: number): BigNumber {
   return value
     ? getContractReadableAmount(value, DECIMALS_STRIKE)
@@ -102,7 +100,6 @@ const TradeCard: FC<TradeProps> = ({}) => {
 
   const handleApprove = useCallback(async () => {
     if (!signer || !staticZdteData?.quoteTokenAddress) return;
-
     try {
       await sendTx(
         ERC20__factory.connect(staticZdteData?.quoteTokenAddress, signer),
@@ -184,8 +181,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
             zdteContract.calcPremium(
               selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike,
               orZero(selectedSpreadPair.longStrike),
-              ether,
-              ONE_DAY
+              ether
             ),
             zdteContract.calcOpeningFees(
               ether,
@@ -214,14 +210,12 @@ const TradeCard: FC<TradeProps> = ({}) => {
           accountAddress,
           staticZdteData?.zdteAddress
         );
-        setApproved(
-          allowance.gte(
-            getContractReadableAmount(
-              Math.round((premium + openingFees) * Number(amount)),
-              DECIMALS_USD
-            )
-          )
+        const toApproveAmount = Math.max(
+          Number(amount),
+          Math.round((premium + openingFees) * Number(amount))
         );
+        const toOpen = getContractReadableAmount(toApproveAmount, DECIMALS_USD);
+        setApproved(allowance.gte(toOpen));
       } catch (err) {
         console.log('validateApproval: ', err);
       }

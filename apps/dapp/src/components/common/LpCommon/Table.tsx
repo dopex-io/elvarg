@@ -233,7 +233,7 @@ interface HeaderCellInterface {
 export const StyleTableCellHeader = (props: HeaderCellInterface) => {
   const { children } = props;
   return (
-    <StyleTableCell align="left" className="w-">
+    <StyleTableCell align="left" className="flex-1">
       <span className="text-sm text-stieglitz">{children}</span>
     </StyleTableCell>
   );
