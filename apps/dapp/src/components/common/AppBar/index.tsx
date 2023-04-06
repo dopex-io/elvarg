@@ -273,13 +273,14 @@ export default function AppBar(props: AppBarProps) {
     setOpenComplianceDialog,
     openComplianceDialog,
     setUserCompliant,
+    provider,
   } = useBoundStore();
 
   const { chain } = useNetwork();
 
   useEffect(() => {
     updateAssetBalances();
-  }, [updateAssetBalances]);
+  }, [updateAssetBalances, provider]);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [anchorElSmall, setAnchorElSmall] = useState<null | HTMLElement>(null);

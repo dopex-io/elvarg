@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@dopex-io/ui';
 import {
   useAccount,
@@ -39,13 +39,13 @@ export function ConnectButton() {
     });
   }, [address, chain, provider, signer, updateState]);
 
-  const handleClick = useCallback(() => {
+  const handleClick = () => {
     setWalletDialog(true);
-  }, []);
+  };
 
-  const handleWalletDialogClose = useCallback(() => {
+  const handleWalletDialogClose = () => {
     setWalletDialog(false);
-  }, []);
+  };
 
   return (
     <>

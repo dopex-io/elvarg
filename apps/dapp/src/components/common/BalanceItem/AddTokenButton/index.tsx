@@ -17,13 +17,11 @@ function AddTokenButton({
   options: WatchAssetOptions;
 }) {
   const addToken = () => {
-    if (window && window.ethereum) {
-      window.ethereum
+    if (window && (window as any).ethereum) {
+      (window as any).ethereum
         .request({
-          // @ts-ignore
           method: 'wallet_watchAsset',
           params: {
-            // @ts-ignore
             type: 'ERC20',
             options,
           },
