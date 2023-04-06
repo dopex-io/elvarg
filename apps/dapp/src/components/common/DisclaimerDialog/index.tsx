@@ -38,11 +38,12 @@ const DisclaimerDialog = (props: any) => {
         .get(
           `https://soa242vijmzlx3iaazdzwd5wxi0mdlif.lambda-url.us-east-1.on.aws/?address=${accountAddress}&signature=${signature}`
         )
-        .then(() =>
-          localStorage.setItem(accountAddress, JSON.stringify(toStore))
-        )
-        .then(() => setOpenComplianceDialog(false))
-        .then(() => setLoading(false));
+        .then(() => {
+          localStorage.setItem(accountAddress, JSON.stringify(toStore));
+          setLoading(false);
+          setOpenComplianceDialog(false);
+          setUserCompliant(true);
+        });
     } catch (err) {
       console.log(err);
       setLoading(false);
