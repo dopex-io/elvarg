@@ -1,7 +1,6 @@
 import { BigNumber } from 'ethers';
 
 import { ERC20__factory } from '@dopex-io/sdk';
-import greeks from 'greeks';
 import { ZdteLP__factory } from 'mocks/factories/ZdteLP__factory';
 import { ZdtePositionMinter__factory } from 'mocks/factories/ZdtePositionMinter__factory';
 import { Zdte__factory } from 'mocks/factories/Zdte__factory';
@@ -12,6 +11,7 @@ import { WalletSlice } from 'store/Wallet';
 
 import { getContractReadableAmount } from 'utils/contracts';
 import { getUserReadableAmount } from 'utils/contracts';
+import { getDelta } from 'utils/math/blackScholes/greeks';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
@@ -323,7 +323,7 @@ export const createZdteSlice: StateCreator<
         // r - Annual risk-free interest rate as a decimal
         // callPut - The type of option to be priced - "call" or "put"
         const tte = (expiry.toNumber() - Date.now() / 1000) / SECONDS_IN_A_YEAR;
-        const delta = greeks.getDelta(
+        const delta = getDelta(
           tokenPrice,
           strike,
           tte,
