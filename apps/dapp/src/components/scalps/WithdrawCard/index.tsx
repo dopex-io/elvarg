@@ -8,6 +8,7 @@ import Input from '@mui/material/Input';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
+import Countdown from 'react-countdown';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
@@ -18,7 +19,6 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE } from 'constants/index';
-import Countdown from 'react-countdown';
 
 const WithdrawCard = () => {
   const {
@@ -90,12 +90,15 @@ const WithdrawCard = () => {
       disabled = true;
     }
 
-    if (isQuote && (optionScalpUserData?.coolingPeriod?.quote ?? 0) > 0) {
-      coolDown = (optionScalpUserData?.coolingPeriod?.quote ?? 0) - date;
+
+    if (isQuote && (optionScalpUserData?.coolingPeriod?.quote ?? 0) > date) {
+      coolDown = optionScalpUserData?.coolingPeriod?.quote ?? 0;
+      disabled = true;
     }
 
-    if (!isQuote && (optionScalpUserData?.coolingPeriod?.base ?? 0) > 0) {
-      coolDown = (optionScalpUserData?.coolingPeriod?.base ?? 0) - date;
+    if (!isQuote && (optionScalpUserData?.coolingPeriod?.base ?? 0) > date) {
+      coolDown = optionScalpUserData?.coolingPeriod?.base ?? 0;
+      disabled = true;
     }
 
     return {
@@ -419,7 +422,7 @@ const WithdrawCard = () => {
             <span className="text-[0.8rem]">
               {withdrawButtonProps.coolDown > 0 ? (
                 <Countdown
-                  date={new Date(Number(withdrawButtonProps.coolDown * 1000))}
+                  date={new Date(withdrawButtonProps.coolDown * 1000)}
                   renderer={({ minutes, seconds }) => {
                     return (
                       <Typography variant="h6" className="text-stieglitz mr-1">
