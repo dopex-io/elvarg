@@ -15,6 +15,7 @@ import displayAddress from 'utils/general/displayAddress';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { CHAINS } from 'constants/chains';
+import { useDisconnect } from 'wagmi';
 
 interface Props {
   open: boolean;
@@ -25,8 +26,9 @@ interface Props {
 }
 
 const WalletDialog = ({ open, handleClose, userBalances }: Props) => {
-  const { accountAddress, changeWallet, disconnect, chainId, ensName } =
-    useBoundStore();
+  const { accountAddress, chainId, ensName } = useBoundStore();
+
+  const { disconnect } = useDisconnect();
 
   const [copyState, setCopyState] = useState('Copy Address');
 
@@ -35,11 +37,6 @@ const WalletDialog = ({ open, handleClose, userBalances }: Props) => {
     delay(() => setCopyState('Copy Address'), 500);
     navigator.clipboard.writeText(accountAddress ?? '-');
   };
-
-  const changeWalletClick = useCallback(() => {
-    changeWallet();
-    handleClose();
-  }, [handleClose, changeWallet]);
 
   const disconnectWalletClick = useCallback(() => {
     disconnect();
@@ -85,14 +82,6 @@ const WalletDialog = ({ open, handleClose, userBalances }: Props) => {
       </Box>
       <Box className="flex justify-between mb-4">
         <Typography
-          className="text-wave-blue bg-wave-blue bg-opacity-10 rounded-xl border border-wave-blue border-opacity-20 hover:border-opacity-40 px-2 py-1 my-auto"
-          variant="caption"
-          onClick={changeWalletClick}
-          role="button"
-        >
-          Change Wallet
-        </Typography>
-        <Typography
           className="text-down-bad bg-down-bad bg-opacity-10 rounded-xl border border-down-bad border-opacity-20 hover:border-opacity-40 px-2 py-1 my-auto"
           variant="caption"
           onClick={disconnectWalletClick}
@@ -101,7 +90,7 @@ const WalletDialog = ({ open, handleClose, userBalances }: Props) => {
           Disconnect
         </Typography>
       </Box>
-      {(CHAINS[chainId]?.displayTokens?.length ?? []) > 0 ? (
+      {(CHAINS[chainId]?.displayTokens?.length! ?? 0) > 0 ? (
         <Box className="bg-umbra rounded-2xl border border-mineshaft border-opacity-50 p-2">
           <Box className="flex flex-col space-y-4">
             {CHAINS[chainId]?.displayTokens?.map((key: string, index) => {
@@ -120,17 +109,6 @@ const WalletDialog = ({ open, handleClose, userBalances }: Props) => {
               );
             })}
           </Box>
-        </Box>
-      ) : null}
-      {typeof window !== 'undefined' && !window?.ethereum?.isMetaMask ? (
-        <Box className="mt-2 mb-2 flex">
-          <Typography
-            className="text-yellow bg-opacity-10 rounded-xl w-full"
-            variant="caption"
-          >
-            If you are using Wallet Connect you can choose the desired network
-            clicking on the dropdown menu immediately after you scan the QR Code
-          </Typography>
         </Box>
       ) : null}
     </Dialog>

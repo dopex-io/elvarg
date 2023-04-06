@@ -14,7 +14,7 @@ import Button from '@mui/material/Button';
 import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
 import Filter from 'components/common/Filter';
-import WalletButton from 'components/common/WalletButton';
+import SignerButton from 'components/common/SignerButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getValueColorClass from 'utils/general/getValueColorClass';
@@ -176,7 +176,7 @@ export default function Positions() {
                 <CircularProgress className="text-stieglitz p-2 my-8 mx-auto" />
               </Box>
             ) : (
-              <WalletButton className="my-4">Connect Wallet</WalletButton>
+              <SignerButton className="my-4">Connect Wallet</SignerButton>
             )
           ) : filteredSSOVPositions.length === 0 &&
             filteredStraddlesPositions.length === 0 ? (

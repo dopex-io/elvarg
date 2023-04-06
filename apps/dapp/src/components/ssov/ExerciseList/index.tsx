@@ -15,7 +15,7 @@ import Skeleton from '@mui/material/Skeleton';
 
 import Typography from 'components/UI/Typography';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
-import WalletButton from 'components/common/WalletButton';
+import SignerButton from 'components/common/SignerButton';
 import ExerciseTableData from './ExerciseTableData';
 
 import { useBoundStore } from 'store';
@@ -100,8 +100,7 @@ const ExerciseList = () => {
             ((isPut && settlementPrice.lt(strike)) ||
               (!isPut && settlementPrice.gt(strike)));
 
-          const isPastEpoch =
-            (selectedEpoch ?? false) < (currentEpoch ?? false);
+          const isPastEpoch = selectedEpoch < Number(currentEpoch);
           const pnlAmount = settlementPrice.isZero()
             ? isPut
               ? strike
@@ -168,7 +167,7 @@ const ExerciseList = () => {
         <TableContainer className={cx(styles['optionsTable'], 'bg-cod-gray')}>
           {!accountAddress ? (
             <Box className="p-4 flex items-center justify-center">
-              <WalletButton size="medium" />
+              <SignerButton size="medium">Connect a Wallet</SignerButton>
             </Box>
           ) : isEmpty(userExercisableOptions) ? (
             <Box className="border-4 border-umbra rounded-lg mt-2 p-3">

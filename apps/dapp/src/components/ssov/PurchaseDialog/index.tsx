@@ -549,7 +549,6 @@ const PurchaseDialog = ({
         quoteDataLoading
     );
 
-
     let onClick = () => {};
 
     if (optionsAmount > 0) {

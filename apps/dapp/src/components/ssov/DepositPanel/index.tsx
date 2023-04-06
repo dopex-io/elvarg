@@ -294,8 +294,13 @@ const DepositPanel = () => {
         strikeDepositAmount.toString(),
         getTokenDecimals(fromTokenSymbol, chainId)
       );
+
+      const tokenAddress = getContractAddress(fromTokenSymbol);
+
+      if (!tokenAddress) return;
+
       const allowance: BigNumber = await ERC20__factory.connect(
-        getContractAddress(fromTokenSymbol),
+        tokenAddress,
         signer
       ).allowance(accountAddress, spender);
 
@@ -323,11 +328,14 @@ const DepositPanel = () => {
     (async () => {
       if (!accountAddress || !signer) return;
 
+      const tokenAddress = getContractAddress(fromTokenSymbol);
+
+      if (!tokenAddress) return;
+
       setUserTokenBalance(
-        await ERC20__factory.connect(
-          getContractAddress(fromTokenSymbol),
-          signer
-        ).balanceOf(accountAddress)
+        await ERC20__factory.connect(tokenAddress, signer).balanceOf(
+          accountAddress
+        )
       );
     })();
   }, [

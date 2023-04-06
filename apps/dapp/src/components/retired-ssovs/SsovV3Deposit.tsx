@@ -4,7 +4,7 @@ import { BigNumber, ethers } from 'ethers';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
-import WalletButton from 'components/common/WalletButton';
+import SignerButton from 'components/common/SignerButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
@@ -38,7 +38,7 @@ const SsovV3Deposit = ({
       <Typography variant="h5">{ssovSymbol}</Typography>
       <Typography variant="h5">Id: {getUserReadableAmount(id, 18)}</Typography>
       <Box className="mt-2">
-        <WalletButton onClick={handleWithdraw}>Withdraw</WalletButton>
+        <SignerButton onClick={handleWithdraw}>Withdraw</SignerButton>
       </Box>
     </Box>
   );

@@ -14,7 +14,7 @@ import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
-import WalletButton from 'components/common/WalletButton';
+import SignerButton from 'components/common/SignerButton';
 import SsovDepositCard from 'components/retired-ssovs/SsovDepositCard';
 import SsovOption from 'components/retired-ssovs/SsovOption';
 
@@ -216,12 +216,12 @@ const RetiredSsovs = () => {
             Withdraw and settle your write positions and options respectively
             from ssov contracts which have been retired.
           </Typography>
-          <WalletButton onClick={handleCheckDeposits} className="mr-2">
+          <SignerButton onClick={handleCheckDeposits} className="mr-2">
             Check Deposits
-          </WalletButton>
-          <WalletButton onClick={handleCheckOptions}>
+          </SignerButton>
+          <SignerButton onClick={handleCheckOptions}>
             Check Options
-          </WalletButton>
+          </SignerButton>
         </Box>
         <Box className="mb-4">
           <Typography variant="h3" className="mb-2">

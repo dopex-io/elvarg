@@ -151,27 +151,21 @@ export const Manage = (props: ManageProps) => {
   );
 };
 
-export async function getServerSideProps(context: {
-  query: { atlantics: string[] };
-}) {
-  return {
-    props: {
-      query: context.query.atlantics,
-    },
-  };
-}
+const ManagePage = () => {
+  const router = useRouter();
+  const atlantics = router.query['atlantics'] as string;
 
-const ManagePage = (props: { query: string }) => {
-  const split: string[] = props.query.split('-');
+  if (!atlantics) return null;
+
+  const split: string[] = atlantics.split('-');
+
   return (
-    props.query && (
-      <Manage
-        tokenId={props.query}
-        underlying={split[0]!}
-        type={split[1]!}
-        duration={split[2]!}
-      />
-    )
+    <Manage
+      tokenId={atlantics}
+      underlying={split[0]!}
+      type={split[1]!}
+      duration={split[2]!}
+    />
   );
 };
 

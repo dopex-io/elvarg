@@ -3,8 +3,6 @@ import axios from 'axios';
 import Head from 'next/head';
 import Box from '@mui/material/Box';
 
-import { useBoundStore } from 'store';
-
 import AppBar from 'components/common/AppBar';
 import Filter from 'components/common/Filter';
 import Typography from 'components/UI/Typography';
@@ -29,8 +27,6 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
 };
 
 const Straddles = () => {
-  const { provider, tokenPrices } = useBoundStore();
-
   const [selectedStates, setSelectedStates] = useState<string[] | string>([
     'Active',
   ]);
@@ -82,9 +78,6 @@ const Straddles = () => {
   );
 
   useEffect(() => {
-    if (tokenPrices.length < 0 || !provider) {
-      return;
-    }
     async function getData() {
       let data = await axios
         .get(`${DOPEX_API_BASE_URL}/v2/straddles`)
@@ -93,7 +86,7 @@ const Straddles = () => {
       setVaults(data);
     }
     getData();
-  }, [provider, tokenPrices]);
+  }, []);
 
   return (
     <Box className="min-h-screen">

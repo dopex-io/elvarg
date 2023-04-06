@@ -104,10 +104,6 @@ input[type='number'] {
   border-radius: 5px;
 }
 
-.web3modal-modal-lightbox {
-  z-index: 9999 !important;
-}
-
 .MuiDialog-container.MuiDialog-scrollPaper {
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
     radial-gradient(

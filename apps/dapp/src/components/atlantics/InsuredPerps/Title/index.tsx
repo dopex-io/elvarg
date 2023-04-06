@@ -84,9 +84,11 @@ const Title = (props: TitleProps) => {
           <Typography variant="h6">24H Change</Typography>
           <Typography
             variant="h6"
-            color={(stats?.['change_24h'] ?? 0) >= 0 ? `up-only` : 'down-bad'}
+            color={
+              Number(stats?.['change_24h'] ?? 0) >= 0 ? `up-only` : 'down-bad'
+            }
           >
-            {(stats?.['change_24h'] ?? 0) >= 0 ? (
+            {Number(stats?.['change_24h'] ?? 0) >= 0 ? (
               <KeyboardArrowUpRoundedIcon className="fill-current text-up-only my-auto" />
             ) : (
               <KeyboardArrowDownRoundedIcon className="fill-current text-down-bad my-auto" />
