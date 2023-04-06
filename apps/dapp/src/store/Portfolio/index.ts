@@ -1,6 +1,5 @@
 import { StateCreator } from 'zustand';
 import format from 'date-fns/format';
-import { ApolloQueryResult } from '@apollo/client';
 import {
   ERC20__factory,
   SsovV3__factory,
@@ -10,21 +9,12 @@ import {
 import { AssetsSlice } from 'store/Assets';
 import { WalletSlice } from 'store/Wallet';
 
-import {
-  GetUserDataDocument,
-  GetUserDataQuery,
-} from 'graphql/generated/portfolio';
-import {
-  GetUserStraddlesDataDocument,
-  GetUserStraddlesDataQuery,
-} from 'graphql/generated/portfolioStraddles';
-import {
-  portfolioGraphClient,
-  portfolioStraddlesGraphClient,
-} from 'graphql/apollo';
-
 import getLinkFromVaultName from 'utils/contracts/getLinkFromVaultName';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+
+import queryClient from 'queryClient';
+
+import graphSdk from 'graphql/graphSdk';
 
 export interface UserSSOVPosition {
   amount: string;
@@ -306,14 +296,13 @@ export const createPortfolioSlice: StateCreator<
       }
     };
 
-    const ssovQueryResult: ApolloQueryResult<GetUserDataQuery> =
-      await portfolioGraphClient.query({
-        query: GetUserDataDocument,
-        variables: { user: accountAddress.toLowerCase() },
-        fetchPolicy: 'no-cache',
-      });
+    const ssovQueryResult = await queryClient.fetchQuery({
+      queryKey: ['ssovUserData'],
+      queryFn: () =>
+        graphSdk.getSsovUserData({ user: accountAddress.toLowerCase() }),
+    });
 
-    const data: any = ssovQueryResult['data']['users'][0];
+    const data: any = ssovQueryResult['users'][0];
 
     const ssovDepositsPromises = [];
     const ssovDeposits: UserSSOVDeposit[] = [];
@@ -346,14 +335,13 @@ export const createPortfolioSlice: StateCreator<
 
     // Straddles
 
-    const straddlesQueryResult: ApolloQueryResult<GetUserStraddlesDataQuery> =
-      await portfolioStraddlesGraphClient.query({
-        query: GetUserStraddlesDataDocument,
-        variables: { user: accountAddress.toLowerCase() },
-        fetchPolicy: 'no-cache',
-      });
+    const straddlesQueryResult = await queryClient.fetchQuery({
+      queryKey: ['straddlesUserData'],
+      queryFn: () =>
+        graphSdk.getStraddlesUserData({ user: accountAddress.toLowerCase() }),
+    });
 
-    const straddlesData: any = straddlesQueryResult['data']['users'][0];
+    const straddlesData: any = straddlesQueryResult['users'][0];
 
     const straddlesDepositsPromises = [];
     const straddlesPositionsPromises = [];

@@ -1,0 +1,7 @@
+query getSsovTokenData($tokenId: ID!) {
+  tokens(where: { id: $tokenId }) {
+    epoch
+    strike
+    amount
+  }
+}

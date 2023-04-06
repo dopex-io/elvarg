@@ -39,3 +39,6 @@ out
 
 # Local next.js folder
 .next
+
+# Graphclient
+.graphclient
