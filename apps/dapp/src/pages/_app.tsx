@@ -6,8 +6,6 @@ import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 import type { AppProps } from 'next/app';
 
 import GlobalDialogs from 'components/common/GlobalDialogs';
-import ChangeNetworkDialog from 'components/common/ChangeNetworkDialog';
-import Share from 'components/common/Share';
 
 import wagmiClient from 'wagmi-client';
 
@@ -28,9 +26,7 @@ function App({ Component, pageProps }: AppProps) {
           <WagmiConfig client={wagmiClient}>
             <Toaster position="bottom-right" reverseOrder={true} />
             <GlobalDialogs />
-            <Share />
             <Component {...pageProps} />
-            <ChangeNetworkDialog />
           </WagmiConfig>
         </ThemeProvider>
       </StyledEngineProvider>

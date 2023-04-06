@@ -23,7 +23,30 @@ const Manage = (props: { ssov: string }) => {
     ssovEpochData,
     ssovV3UserData: ssovUserData,
     setSelectedPoolName,
+    updateSsovV3,
+    updateSsovV3Signer,
+    updateSsovV3UserData,
+    updateSsovV3EpochData,
+    signer,
   } = useBoundStore();
+
+  useEffect(() => {
+    updateSsovV3Signer();
+  }, [signer, updateSsovV3Signer, ssov, chainId]);
+
+  useEffect(() => {
+    updateSsovV3();
+  }, [updateSsovV3, ssov, chainId]);
+
+  useEffect(() => {
+    if (!ssovData) return;
+    updateSsovV3EpochData();
+  }, [ssovData, updateSsovV3EpochData, ssov, chainId]);
+
+  useEffect(() => {
+    if (!ssovEpochData) return;
+    updateSsovV3UserData();
+  }, [ssovEpochData, updateSsovV3UserData, ssov, chainId]);
 
   useEffect(() => {
     setSelectedPoolName(ssov);

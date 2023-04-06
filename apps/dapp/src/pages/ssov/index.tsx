@@ -157,7 +157,6 @@ const SsovData = () => {
             showImages={false}
           />
         </Box>
-
         {!isEmpty(ssovs)
           ? keys.map((key) => {
               return (
