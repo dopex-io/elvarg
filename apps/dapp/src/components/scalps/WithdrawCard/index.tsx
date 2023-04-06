@@ -1,19 +1,14 @@
-import React, {
-  value useCallback,
-  value useEffect,
-  value useMemo,
-  value useState,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { value BigNumber } from 'ethers';
+import { BigNumber } from 'ethers';
 
-import { value ERC20__factory } from '@dopex-io/sdk';
+import { ERC20__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
 import Countdown from 'react-countdown';
-import { value useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
@@ -23,7 +18,7 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import { value MAX_VALUE } from 'constants/index';
+import { MAX_VALUE } from 'constants/index';
 
 const WithdrawCard = () => {
   const {
@@ -94,6 +89,7 @@ const WithdrawCard = () => {
       text = 'Amount exceeds balance';
       disabled = true;
     }
+
 
     if (isQuote && (optionScalpUserData?.coolingPeriod?.quote ?? 0) > date) {
       coolDown = optionScalpUserData?.coolingPeriod?.quote ?? 0;
