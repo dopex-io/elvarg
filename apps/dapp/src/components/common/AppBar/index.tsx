@@ -189,7 +189,7 @@ const appLinks = {
       description: 'Bond rDPX, mint $dpxETH',
     },
     {
-      name: 'Curve Pool',
+      name: 'Swap',
       to: '/rdpx-v2/curve-swap',
       description: 'Swap between $dpxETH & WETH',
     },
@@ -317,7 +317,7 @@ interface AppBarProps {
     | 'vaults'
     | 'Perpetual Pool'
     | 'Bond'
-    | 'Curve Pool'
+    | 'Swap'
     | 'Atlantics';
 }
 

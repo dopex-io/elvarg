@@ -55,7 +55,7 @@ const Delegate = () => {
   const [fee, setFee] = useState<number>(0);
 
   const handleChange = useCallback((e: any) => {
-    setValue(e.target.value);
+    setValue(Number(e.target.value) < 0 ? '' : e.target.value);
   }, []);
 
   const handleChangeFee = (_: Event, newValue: number | number[]) => {

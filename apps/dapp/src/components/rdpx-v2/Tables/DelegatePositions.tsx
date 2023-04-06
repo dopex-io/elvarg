@@ -118,7 +118,7 @@ const DelegatePositions = () => {
         accessor: 'activeCollateral',
       },
       {
-        Header: 'Borrow Fee',
+        Header: 'Delegate Fee',
         accessor: 'fee',
       },
       {
@@ -148,7 +148,8 @@ const DelegatePositions = () => {
                 <tr {...headerGroup.getHeaderGroupProps()} key={index}>
                   {headerGroup.headers.map((column: any, index: number) => {
                     const textAlignment =
-                      index === headerGroup.headers.length - 1
+                      index === headerGroup.headers.length - 1 ||
+                      index === headerGroup.headers.length - 2
                         ? 'text-right'
                         : 'text-left';
                     return (
@@ -176,7 +177,8 @@ const DelegatePositions = () => {
                   <tr {...row.getRowProps()} key={index}>
                     {row.cells.map((cell, index) => {
                       const textAlignment =
-                        index === row.cells.length - 1
+                        index === row.cells.length - 1 ||
+                        index === row.cells.length - 2
                           ? 'text-right'
                           : 'text-left';
                       return (

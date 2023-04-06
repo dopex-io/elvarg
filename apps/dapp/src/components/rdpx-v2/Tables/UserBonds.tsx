@@ -4,6 +4,7 @@ import { RdpxV2Bond__factory, RdpxV2Treasury__factory } from '@dopex-io/sdk';
 import Countdown from 'react-countdown';
 import format from 'date-fns/format';
 import Tooltip from '@mui/material/Tooltip';
+import CheckCircleRounded from '@mui/icons-material/CheckCircleRounded';
 import { Button } from '@dopex-io/ui';
 
 import Placeholder from 'components/rdpx-v2/Tables/Placeholder';
@@ -71,7 +72,7 @@ const UserBonds = () => {
 
     return userDscBondsData.bonds.map((bond) => {
       const redeemable =
-        Number(bond.maturity) * 1000 > Math.ceil(Number(new Date()));
+        Number(bond.maturity) * 1000 < Math.ceil(Number(new Date()));
       return {
         tokenId: '#' + Number(bond.tokenId),
         amount: (
@@ -82,29 +83,29 @@ const UserBonds = () => {
             </p>
           </Tooltip>
         ),
-        timestamp: format(Number(bond.timestamp) * 1000, 'HH:mm, dd LLL'),
+        redeemable: redeemable ? (
+          <CheckCircleRounded className="fill-current text-up-only" />
+        ) : null,
         timeLeft: (
-          <Countdown
-            date={Number(bond.maturity) * 1000}
-            renderer={({ days, hours, minutes }) => {
-              return (
-                <div className="flex my-auto space-x-2">
-                  <img
-                    src="/assets/timer.svg"
-                    className="h-[1rem] my-1 "
-                    alt="Timer"
-                  />
-                  <p className="ml-auto my-auto text-sm text-stieglitz">
+          <span>
+            <Countdown
+              date={Number(bond.maturity) * 1000}
+              renderer={({ days, hours, minutes }) => {
+                return (
+                  <p className="ml-auto my-auto text-sm">
                     {days}d {hours}h {minutes}m
                   </p>
-                </div>
-              );
-            }}
-          />
+                );
+              }}
+            />
+            <p className="text-stieglitz">
+              {format(Number(bond.timestamp) * 1000, 'd LLL yyy')}
+            </p>
+          </span>
         ),
         redeemButton: (
           <Button
-            disabled={redeemable}
+            disabled={!redeemable}
             onClick={() => handleRedeem(bond.tokenId)}
           >
             Redeem
@@ -125,12 +126,12 @@ const UserBonds = () => {
         accessor: 'amount',
       },
       {
-        Header: 'Bond Time',
-        accessor: 'timestamp',
+        Header: 'Time Remaining',
+        accessor: 'timeLeft',
       },
       {
         Header: 'Redeemable',
-        accessor: 'timeLeft',
+        accessor: 'redeemable',
       },
       {
         Header: 'Action',
@@ -155,7 +156,8 @@ const UserBonds = () => {
                 <tr {...headerGroup.getHeaderGroupProps()} key={index}>
                   {headerGroup.headers.map((column: any, index: number) => {
                     const textAlignment =
-                      index === headerGroup.headers.length - 1
+                      index === headerGroup.headers.length - 1 ||
+                      index === headerGroup.headers.length - 2
                         ? 'text-right'
                         : 'text-left';
                     return (
@@ -183,7 +185,8 @@ const UserBonds = () => {
                   <tr {...row.getRowProps()} key={index}>
                     {row.cells.map((cell, index) => {
                       const textAlignment =
-                        index === row.cells.length - 1
+                        index === row.cells.length - 1 ||
+                        index === row.cells.length - 2
                           ? 'text-right'
                           : 'text-left';
                       return (

@@ -17,6 +17,7 @@ import Input from 'components/UI/Input';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CollateralInputPanel from 'components/rdpx-v2/BondPanel/Bond/CollateralInputPanel';
 import DisabledPanel from 'components/rdpx-v2/BondPanel/DisabledPanel';
+import InfoBox from 'components/rdpx-v2/BondPanel/Bond/InfoBox';
 
 import { getContractReadableAmount } from 'utils/contracts';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -67,7 +68,7 @@ const Bond = () => {
 
   const handleChange = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) => {
-      setValue(e.target.value);
+      setValue(Number(e.target.value) < 0 ? '' : e.target.value);
     },
     []
   );
@@ -146,9 +147,12 @@ const Bond = () => {
           .mul(getContractReadableAmount(value, 18))
           .div(getContractReadableAmount(1, 18));
 
+        console.log(totalWethRequired);
+
         let { amounts, ids } = squeezeTreasuryDelegates(
           availableDelegates,
-          totalWethRequired
+          totalWethRequired,
+          getContractReadableAmount(value, 18)
         ) || { amounts: [getContractReadableAmount(0, 18)], ids: [0] };
 
         // console.log(
@@ -272,13 +276,14 @@ const Bond = () => {
       {!userDscBondsData.isEligibleForMint || isLoading || mintDisabled ? (
         <DisabledPanel isMint={true} />
       ) : null}
-      <div className="bg-umbra rounded-xl w-full h-fit">
+      <div className="bg-umbra rounded-xl w-full h-fit divide-y-2 divide-cod-gray">
         <Input
           type="number"
           size="small"
           value={value}
           onChange={handleChange}
           placeholder="0.0"
+          className="pb-2 px-2"
           leftElement={
             <div className="flex my-auto space-x-2 w-2/3">
               <img
@@ -288,71 +293,76 @@ const Bond = () => {
               />
             </div>
           }
+          bottomElement={
+            <>
+              <div className="flex justify-between">
+                <span className="text-sm text-stieglitz">
+                  {treasuryData.tokenB.symbol} Balance
+                </span>
+                <span className="text-sm">
+                  {formatAmount(
+                    getUserReadableAmount(
+                      userAssetBalances[
+                        treasuryData.tokenB.symbol.toUpperCase()
+                      ] ?? '0',
+                      TOKEN_DECIMALS[chainId]?.[
+                        treasuryData.tokenB.symbol.toUpperCase()
+                      ]
+                    ),
+                    3
+                  )}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-stieglitz">
+                  {treasuryData.tokenA.symbol.toUpperCase()} Balance
+                </span>
+                <span className="text-sm">
+                  {formatAmount(
+                    getUserReadableAmount(
+                      userAssetBalances[
+                        treasuryData.tokenA.symbol.toUpperCase()
+                      ] ?? '0',
+                      TOKEN_DECIMALS[chainId]?.[
+                        treasuryData.tokenA.symbol.toUpperCase()
+                      ]
+                    ),
+                    3
+                  )}{' '}
+                </span>
+              </div>
+            </>
+          }
         />
-        <div className="px-3 pb-3 space-y-1">
-          <div className="flex justify-between">
-            <span className="text-sm text-stieglitz">
-              {treasuryData.tokenB.symbol} Balance
-            </span>
-            <span className="text-sm">
-              {formatAmount(
-                getUserReadableAmount(
-                  userAssetBalances[treasuryData.tokenB.symbol.toUpperCase()] ??
-                    '0',
-                  TOKEN_DECIMALS[chainId]?.[
-                    treasuryData.tokenB.symbol.toUpperCase()
-                  ]
-                ),
-                3
-              )}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-sm text-stieglitz">
-              {treasuryData.tokenA.symbol.toUpperCase()} Balance
-            </span>
-            <span className="text-sm">
-              {formatAmount(
-                getUserReadableAmount(
-                  userAssetBalances[treasuryData.tokenA.symbol.toUpperCase()] ??
-                    '0',
-                  TOKEN_DECIMALS[chainId]?.[
-                    treasuryData.tokenA.symbol.toUpperCase()
-                  ]
-                ),
-                3
-              )}{' '}
-            </span>
+        <div className="flex flex-col p-2 bg-umbra">
+          <div className="flex justify-between h-fit">
+            <div>
+              <span className="text-sm text-stieglitz">Use Delegate</span>
+              <Tooltip
+                title="Spend only rDPX by using WETH from delegating users to cover 75% of the bonds and receive 25% share of dpxETH minus a small percentage in delegation fee."
+                enterTouchDelay={0}
+                leaveTouchDelay={1000}
+              >
+                <InfoOutlinedIcon className="fill-current text-stieglitz p-1" />
+              </Tooltip>
+            </div>
+            <div className="pt-1">
+              <Switch
+                size="medium"
+                checked={Boolean(delegated)}
+                onChange={() => setDelegated(!delegated)}
+                color="jaffa"
+              />
+            </div>
           </div>
         </div>
+        <CollateralInputPanel
+          inputAmount={Number(value)}
+          setApproved={setApproved}
+          delegated={delegated}
+        />
       </div>
-      <div className="flex flex-col p-2 bg-umbra rounded-xl">
-        <div className="flex justify-between px-2">
-          <div>
-            <span className="text-sm text-stieglitz">Borrow</span>
-            <Tooltip
-              title="Spend only rDPX by borrowing WETH and receiving 25% share of dpxETH minus a small percentage in delegate fee."
-              enterTouchDelay={0}
-              leaveTouchDelay={1000}
-            >
-              <InfoOutlinedIcon className="fill-current text-stieglitz p-1" />
-            </Tooltip>
-          </div>
-          <div className="my-auto">
-            <Switch
-              size="medium"
-              checked={Boolean(delegated)}
-              onChange={() => setDelegated(!delegated)}
-              color="jaffa"
-            />
-          </div>
-        </div>
-      </div>
-      <CollateralInputPanel
-        inputAmount={Number(value)}
-        setApproved={setApproved}
-        delegated={delegated}
-      />
+      <InfoBox value={value as string} delegated={delegated} />
       <div className="rounded-xl p-4 w-full bg-umbra">
         <div className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800 space-y-2">
           <EstimatedGasCostButton gas={500000} chainId={chainId} />

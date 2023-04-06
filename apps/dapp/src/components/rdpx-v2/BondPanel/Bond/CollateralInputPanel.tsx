@@ -1,8 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import { MockToken__factory } from '@dopex-io/sdk';
-import Tooltip from '@mui/material/Tooltip';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-// import Slider from '@mui/material/Slider';
 
 import { useBoundStore } from 'store';
 
@@ -23,17 +20,15 @@ const CollateralInputPanel = (props: Props) => {
   const { accountAddress, provider, treasuryData, treasuryContractState } =
     useBoundStore();
 
-  const [amounts, setAmounts] = useState([0, 0, 0]);
+  const [amounts, setAmounts] = useState([0, 0]);
 
   const handleAmountsRecalcuation = useCallback(() => {
     if (!treasuryData) return;
     const _amounts = treasuryData.bondCostPerDsc;
-    const _premium = treasuryData.premiumPerDsc;
 
     setAmounts([
       getUserReadableAmount(_amounts[0], 18) * inputAmount, // rDPX
       getUserReadableAmount(_amounts[1], 18) * inputAmount, // WETH
-      getUserReadableAmount(_premium, 18) * inputAmount,
     ]);
   }, [inputAmount, treasuryData]);
 
@@ -78,31 +73,24 @@ const CollateralInputPanel = (props: Props) => {
   ]);
 
   return (
-    <div className="p-3 bg-umbra rounded-xl space-y-2">
-      <div className="flex space-x-1">
-        <p className="text-xs my-auto">Collateral Required</p>
-        <Tooltip
-          title="rDPX / WETH cost including 25% OTM put option premium"
-          arrow
-        >
-          <InfoOutlinedIcon className="fill-current text-stieglitz p-1" />
-        </Tooltip>
+    <div className="bg-umbra rounded-b-xl">
+      <div className="divide-y-2 divide-cod-gray">
+        {amounts.map((amount, index) => {
+          let symbol = (
+            index === 0
+              ? treasuryData.tokenB.symbol
+              : treasuryData.tokenA.symbol
+          ).toUpperCase();
+          return (
+            <InputRow
+              tokenSymbol={symbol}
+              inputAmount={amount || 0}
+              label="25%"
+              rounded={index === amounts.length - 1}
+            />
+          );
+        })}
       </div>
-      <InputRow
-        tokenSymbol={treasuryData.tokenB.symbol}
-        inputAmount={amounts[0] || 0}
-        label="25%"
-      />
-      <InputRow
-        tokenSymbol={treasuryData.tokenA.symbol}
-        inputAmount={amounts[1] || 0}
-        label="75%"
-      />
-      <InputRow
-        tokenSymbol={'Premium'}
-        inputAmount={amounts[2] || 0}
-        label="WETH"
-      />
     </div>
   );
 };

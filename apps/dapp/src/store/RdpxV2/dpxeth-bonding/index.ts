@@ -44,6 +44,7 @@ interface RdpxV2TreasuryContractState {
   dsc_second_lower_depeg: BigNumber;
   bond_maturity: BigNumber;
   discount_factor: BigNumber;
+  alpha_token_ratio_percentage: BigNumber;
 }
 
 interface Token {
@@ -89,6 +90,7 @@ const initialTreasuryContractState: RdpxV2TreasuryContractState = {
   dsc_second_lower_depeg: BigNumber.from(0),
   bond_maturity: BigNumber.from(0),
   discount_factor: BigNumber.from(0),
+  alpha_token_ratio_percentage: BigNumber.from(0),
 };
 
 export interface DpxusdBondingSlice {
@@ -101,7 +103,8 @@ export interface DpxusdBondingSlice {
   getAvailableDelegatesFromTreasury: Function;
   squeezeTreasuryDelegates: (
     delegates: DelegateType[],
-    requiredCollateral: BigNumber
+    requiredCollateral: BigNumber,
+    bonds: BigNumber
   ) =>
     | {
         ids: number[];
@@ -177,6 +180,7 @@ export const createDpxusdBondingSlice: StateCreator<
       dsc_second_lower_depeg,
       bond_maturity,
       discount_factor,
+      alpha_token_ratio_percentage,
     ] = await Promise.all([
       treasury.reLpFactor(),
       treasury.rdpxReserve(),
@@ -187,6 +191,7 @@ export const createDpxusdBondingSlice: StateCreator<
       treasury.DSC_SECOND_LOWER_PEG(),
       treasury.bondMaturity(),
       treasury.bondDiscountFactor(),
+      treasury.ALPHA_TOKEN_RATIO_PERCENTAGE(),
     ]);
 
     set((prevState) => ({
@@ -210,6 +215,7 @@ export const createDpxusdBondingSlice: StateCreator<
         re_lp_factor,
         bond_maturity,
         discount_factor,
+        alpha_token_ratio_percentage,
       },
     }));
   },
@@ -388,7 +394,8 @@ export const createDpxusdBondingSlice: StateCreator<
   },
   squeezeTreasuryDelegates: (
     delegates: DelegateType[],
-    requiredCollateral: BigNumber
+    requiredCollateral: BigNumber,
+    bonds: BigNumber
   ) => {
     const { treasuryContractState, treasuryData } = get();
 
@@ -422,6 +429,15 @@ export const createDpxusdBondingSlice: StateCreator<
         break;
       }
     }
+
+    // accumulator = {
+    //   ...accumulator,
+    //   amounts: accumulator.amounts.map((amount) =>
+    //     amount.mul(bonds).div(requiredCollateral)
+    //   ),
+    // };
+
+    console.log('Hello world: ', accumulator, bonds);
 
     return {
       ids: accumulator.ids,
