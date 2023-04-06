@@ -17,7 +17,6 @@ importers:
   apps/dapp:
     specifiers:
       '@0xsequence/multicall': ^0.43.26
-      '@coinbase/wallet-sdk': ^3.6.5
       '@dopex-io/sdk': 1.0.0-beta.56
       '@dopex-io/ui': workspace:*
       '@emotion/react': ^11.10.6
@@ -71,7 +70,6 @@ importers:
       zustand: ^4.3.7
     dependencies:
       '@0xsequence/multicall': 0.43.26_ethers@5.7.2
-      '@coinbase/wallet-sdk': 3.6.5
       '@dopex-io/sdk': 1.0.0-beta.56_ethers@5.7.2
       '@dopex-io/ui': link:../../packages/ui
       '@emotion/react': 11.10.6_pofolu2o2erjq4lhyzl3hqovzq
