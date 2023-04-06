@@ -83,6 +83,7 @@ const CollateralInputPanel = (props: Props) => {
           ).toUpperCase();
           return (
             <InputRow
+              key={index}
               tokenSymbol={symbol}
               inputAmount={amount || 0}
               label="25%"
