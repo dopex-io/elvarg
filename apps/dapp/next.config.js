@@ -8,11 +8,11 @@ module.exports = {
   },
   async redirects() {
     return [
-      // {
-      //   source: '/',
-      //   destination: '/ssov',
-      //   permanent: false,
-      // },
+      {
+        source: '/',
+        destination: '/ssov',
+        permanent: false,
+      },
       {
         source: '/scalps',
         destination: '/scalps/ETH',
