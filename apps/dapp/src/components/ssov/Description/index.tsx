@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import cx from 'classnames';
 import Box from '@mui/material/Box';
 import format from 'date-fns/format';
+import noop from 'lodash/noop';
 
 import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -10,7 +11,7 @@ import { SsovV3EpochData, SsovV3Data, Reward } from 'store/Vault/ssov';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
-import WalletButton from 'components/common/WalletButton';
+import SignerButton from 'components/common/SignerButton';
 import InfoBox from '../InfoBox';
 import EpochSelector from '../EpochSelector';
 import PurchaseDialog from '../PurchaseDialog';
@@ -26,7 +27,7 @@ const Description = ({
   ssovEpochData: SsovV3EpochData;
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
-  const { accountAddress, connect } = useBoundStore();
+  const { accountAddress } = useBoundStore();
 
   const { APY, TVL, rewards } = ssovEpochData;
 
@@ -133,17 +134,16 @@ const Description = ({
       </Box>
       <Box className="flex justify-center items-center flex-row mb-6">
         <Box className="w-full mr-2">
-          <WalletButton
+          <SignerButton
             size="medium"
-            fullWidth
             className="rounded-lg"
             onClick={() => {
-              accountAddress ? setPurchaseState(true) : connect();
+              accountAddress ? setPurchaseState(true) : noop;
             }}
             disabled={ssovData?.isCurrentEpochExpired || false}
           >
             Buy {type} Options
-          </WalletButton>
+          </SignerButton>
         </Box>
       </Box>
       <Box className="grid grid-cols-3 gap-2 mb-6">

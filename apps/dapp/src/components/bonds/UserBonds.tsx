@@ -25,7 +25,6 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
     accountAddress,
     ensAvatar,
     ensName,
-    connect,
     dpxBondsUserEpochData,
     updateBondsUserEpochData,
     dpxBondsEpochData,
@@ -35,10 +34,6 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
 
   const { userDpxBondsState } = dpxBondsUserEpochData;
   const { depositPerNft, bondPrice } = dpxBondsEpochData;
-
-  const handleWalletConnect = useCallback(() => {
-    connect && connect();
-  }, [connect]);
 
   const handleRedeem = useCallback(async () => {
     if (
@@ -175,17 +170,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
         )
       ) : (
         <Box className="border border-umbra rounded-2xl p-3 flex max-w-[728px] mt-5">
-          <Box className="flex-1">
-            <AccountBalanceWalletIcon /> Connect your wallet to see your bonds
-          </Box>
-          <CustomButton
-            variant="text"
-            size="small"
-            className="text-white bg-primary hover:bg-primary"
-            onClick={handleWalletConnect}
-          >
-            Connect {accountAddress}
-          </CustomButton>
+          <AccountBalanceWalletIcon /> Connect your wallet to see your bonds
         </Box>
       )}
     </Box>

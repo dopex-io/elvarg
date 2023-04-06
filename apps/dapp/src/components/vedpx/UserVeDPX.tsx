@@ -5,7 +5,7 @@ import { DPXVotingEscrow__factory } from '@dopex-io/sdk';
 
 import Typography from 'components/UI/Typography';
 import NumberDisplay from 'components/UI/NumberDisplay';
-import WalletButton from 'components/common/WalletButton';
+import SignerButton from 'components/common/SignerButton';
 import LockDialog from './LockDialog';
 import Stat from './Stat';
 
@@ -86,14 +86,14 @@ const UserVeDPX = () => {
             }
           />
           <Box className="p-3">
-            <WalletButton onClick={() => setDialog({ open: true })}>
+            <SignerButton onClick={() => setDialog({ open: true })}>
               Lock
-            </WalletButton>
+            </SignerButton>
           </Box>
           <Box />
           {isWithdrawable ? (
             <Box className="p-3">
-              <WalletButton onClick={handleWithdraw}>Withdraw</WalletButton>
+              <SignerButton onClick={handleWithdraw}>Withdraw</SignerButton>
             </Box>
           ) : null}
         </Box>

@@ -7,10 +7,9 @@ import DownloadIcon from '@mui/icons-material/Download';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
-import { Typography } from 'components/UI';
 import Dialog from 'components/UI/Dialog';
 
-import ShareImage, { ShareImageProps } from './ShareImage';
+import ShareImage from './ShareImage';
 
 import imageUpload from 'utils/general/imageUpload';
 import getTwitterIntentURL from 'utils/general/getTwitterIntentURL';
@@ -18,14 +17,12 @@ import getShareURL from 'utils/general/getShareURL';
 
 import { CLOUDINARY_API_KEY } from 'constants/env';
 
-interface ShareDialogProps {
-  open: boolean;
-  handleClose: (e: any, reason: string) => void;
-  shareImageProps: ShareImageProps;
-}
+import useShare from 'hooks/useShare';
 
-const ShareDialog = (props: ShareDialogProps) => {
-  const { open, handleClose, shareImageProps } = props;
+const ShareDialog = () => {
+  const open = useShare((state) => state.isOpen);
+  const handleClose = useShare((state) => state.close);
+  const shareImageProps = useShare((state) => state.shareImageProps);
 
   const [loading, setLoading] = useState(false);
   const [imageID, setImageID] = useState('');
@@ -105,9 +102,7 @@ const ShareDialog = (props: ShareDialogProps) => {
       handleClose={handleClose}
     >
       <div className="p-2">
-        <Typography variant="h5" className="text-white font-semibold mb-4">
-          Share
-        </Typography>
+        <h3 className="text-white font-semibold mb-4">Share</h3>
         <>
           <div className="border-2 border-carbon">
             <ShareImage ref={ref} {...shareImageProps} />

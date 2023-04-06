@@ -5,7 +5,7 @@ import format from 'date-fns/format';
 import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
-import WalletButton from 'components/common/WalletButton';
+import SignerButton from 'components/common/SignerButton';
 
 import { useBoundStore } from 'store';
 
@@ -112,14 +112,14 @@ export const EpochData = ({
                 </Typography>
               </Box>
             </Box>
-            <WalletButton
+            <SignerButton
               variant="text"
               size="small"
               className="text-white bg-primary hover:bg-primary"
               onClick={handleModal}
             >
               Bond
-            </WalletButton>
+            </SignerButton>
           </Box>
         </Box>
         <Box className="flex justify-between bg-cod-gray rounded-2xl p-2 w-[352px]">

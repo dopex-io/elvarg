@@ -1,11 +1,12 @@
+import { useSwitchNetwork } from 'wagmi';
 import Button from '@mui/material/Button';
 
 import CtaBanner from 'components/UI/CtaBanner';
 
-import changeOrAddNetwork from 'utils/general/changeOrAddNetwork';
-
 const FarmingMigrationBanner = () => {
-  const handleClick = () => changeOrAddNetwork(42161);
+  const { switchNetwork } = useSwitchNetwork();
+
+  const handleClick = () => switchNetwork && switchNetwork(42161);
 
   return (
     <CtaBanner

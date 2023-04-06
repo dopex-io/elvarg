@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import Typography from 'components/UI/Typography';
-import WalletButton from 'components/common/WalletButton';
+import SignerButton from 'components/common/SignerButton';
 
 import { useBoundStore } from 'store';
 
@@ -44,7 +44,7 @@ export default function Balances() {
               <CircularProgress className="text-stieglitz p-2 my-8 mx-auto" />
             </Box>
           ) : (
-            <WalletButton className="my-4">Connect Wallet</WalletButton>
+            <SignerButton className="my-4">Connect Wallet</SignerButton>
           )
         ) : (
           Object.keys(userAssetBalances)

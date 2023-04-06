@@ -49,9 +49,16 @@ const Home = () => {
 
   useEffect(() => {
     async function getTvl() {
-      const res = await axios.get(`${DOPEX_API_BASE_URL}/v2/tvl`);
+      let tvl = '--';
+      try {
+        const res = await axios.get(`${DOPEX_API_BASE_URL}/v2/tvl`);
 
-      setTvl(res.data.tvl);
+        tvl = res.data.tvl;
+      } catch (err) {
+        console.log(err);
+      }
+
+      setTvl(tvl);
     }
     getTvl();
   }, []);
@@ -82,7 +89,7 @@ const Home = () => {
           </Box>
           <Box className="flex flex-col max-w-fit">
             <h1 className="md:text-7xl text-6xl  font-mono font-bold text-wave-blue">
-              ${formatAmount(tvl)}
+              {tvl === '--' ? tvl : `${formatAmount(tvl)}`}
             </h1>
             <span className="text-2xl text-white self-end font-bold font-mono">
               Total Value Locked
