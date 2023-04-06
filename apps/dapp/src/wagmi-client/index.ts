@@ -1,6 +1,6 @@
 import { createClient, configureChains } from 'wagmi';
 
-import { mainnet, arbitrum, polygon } from 'wagmi/chains';
+import { mainnet, arbitrum, polygon, arbitrumGoerli } from 'wagmi/chains';
 
 import { infuraProvider } from 'wagmi/providers/infura';
 
@@ -14,7 +14,7 @@ import { BitKeepConnector } from './BitKeepConnector';
 import { INFURA_PROJECT_ID, WALLETCONNECT_PROJECT_ID } from 'constants/env';
 
 const { chains, provider, webSocketProvider } = configureChains(
-  [mainnet, arbitrum, polygon],
+  [mainnet, arbitrum, polygon, arbitrumGoerli],
   [infuraProvider({ apiKey: INFURA_PROJECT_ID || '' })]
 );
 
