@@ -23,6 +23,7 @@ const Manage = (props: { ssov: string }) => {
     ssovEpochData,
     ssovV3UserData: ssovUserData,
     setSelectedPoolName,
+    selectedPoolName,
     updateSsovV3,
     updateSsovV3Signer,
     updateSsovV3UserData,
@@ -32,21 +33,21 @@ const Manage = (props: { ssov: string }) => {
 
   useEffect(() => {
     updateSsovV3Signer();
-  }, [signer, updateSsovV3Signer, ssov, chainId]);
+  }, [signer, updateSsovV3Signer, selectedPoolName, chainId]);
 
   useEffect(() => {
     updateSsovV3();
-  }, [updateSsovV3, ssov, chainId]);
+  }, [updateSsovV3, selectedPoolName, chainId]);
 
   useEffect(() => {
     if (!ssovData) return;
     updateSsovV3EpochData();
-  }, [ssovData, updateSsovV3EpochData, ssov, chainId]);
+  }, [ssovData, updateSsovV3EpochData, chainId]);
 
   useEffect(() => {
     if (!ssovEpochData) return;
     updateSsovV3UserData();
-  }, [ssovEpochData, updateSsovV3UserData, ssov, chainId]);
+  }, [ssovEpochData, updateSsovV3UserData, chainId]);
 
   useEffect(() => {
     setSelectedPoolName(ssov);

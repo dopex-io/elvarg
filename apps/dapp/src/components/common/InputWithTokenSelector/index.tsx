@@ -59,9 +59,7 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
   const updateUserBalance = useCallback(async () => {
     if (!provider || !accountAddress) return;
 
-    const tokenAddress = getContractAddress([
-      selectedTokenSymbol.toUpperCase(),
-    ]);
+    const tokenAddress = getContractAddress(selectedTokenSymbol.toUpperCase());
 
     if (!tokenAddress) return;
 
