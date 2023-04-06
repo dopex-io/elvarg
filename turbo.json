@@ -8,7 +8,7 @@
     },
     "storybook": { "cache": false, "persistent": true },
     "lint": {},
-    "generate": { "outputs": ["src/graphql/generated/**"] },
+    "generate": { "outputs": [".graphclient"] },
     "build": {
       "cache": false,
       "outputs": [".next/**"],

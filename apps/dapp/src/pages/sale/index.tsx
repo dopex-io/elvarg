@@ -72,7 +72,7 @@ const TokenSale = () => {
 
   const dpxPrice = dpxEthPrice * ethPrice;
 
-  const saleClosed = blockTime > saleClose ? true : false;
+  const saleClosed = blockTime > saleClose.toNumber() ? true : false;
 
   useEffect(() => {
     updateSaleData();

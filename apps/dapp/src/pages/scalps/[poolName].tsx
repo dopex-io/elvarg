@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 
 import { useEffect, useMemo, useState, useCallback } from 'react';
 
@@ -55,11 +56,7 @@ const ManageComponent = () => {
   );
 };
 
-interface Props {
-  poolName: string;
-}
-
-const OptionScalps = ({ poolName }: Props) => {
+const OptionScalps = ({ poolName }: { poolName: string }) => {
   const {
     chainId,
     setSelectedPoolName,
@@ -194,17 +191,10 @@ const OptionScalps = ({ poolName }: Props) => {
   );
 };
 
-export async function getServerSideProps(context: {
-  query: { poolName: string };
-}) {
-  return {
-    props: {
-      poolName: context.query.poolName,
-    },
-  };
-}
+const ManagePage = () => {
+  const router = useRouter();
+  const poolName = router.query['poolName'] as string;
 
-const ManagePage = ({ poolName }: Props) => {
   return <OptionScalps poolName={poolName} />;
 };
 

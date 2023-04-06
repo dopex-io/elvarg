@@ -7,8 +7,8 @@ import TwitterIcon from '@mui/icons-material/Twitter';
 import { toPng } from 'html-to-image';
 import { toast } from 'react-hot-toast';
 
-import { Typography } from 'components/UI';
 import Dialog from 'components/UI/Dialog';
+import ShareImage from './ShareImage';
 
 import getShareURL from 'utils/general/getShareURL';
 import getTwitterIntentURL from 'utils/general/getTwitterIntentURL';
@@ -16,16 +16,12 @@ import imageUpload from 'utils/general/imageUpload';
 
 import { CLOUDINARY_API_KEY } from 'constants/env';
 
-import ShareImage, { ShareImageProps } from './ShareImage';
+import useShare from 'hooks/useShare';
 
-interface ShareDialogProps {
-  open: boolean;
-  handleClose: (e: any, reason: string) => void;
-  shareImageProps: ShareImageProps;
-}
-
-const ShareDialog = (props: ShareDialogProps) => {
-  const { open, handleClose, shareImageProps } = props;
+const ShareDialog = () => {
+  const open = useShare((state) => state.isOpen);
+  const handleClose = useShare((state) => state.close);
+  const shareImageProps = useShare((state) => state.shareImageProps);
 
   const [loading, setLoading] = useState(false);
   const [imageID, setImageID] = useState('');
@@ -105,9 +101,7 @@ const ShareDialog = (props: ShareDialogProps) => {
       handleClose={handleClose}
     >
       <div className="p-2">
-        <Typography variant="h5" className="text-white font-semibold mb-4">
-          Share
-        </Typography>
+        <h3 className="text-white font-semibold mb-4">Share</h3>
         <>
           <div className="border-2 border-carbon">
             <ShareImage ref={ref} {...shareImageProps} />

@@ -105,10 +105,10 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     []
   );
   const [selectedCallLeverages, setSelectedCallLeverages] = useState<{
-    [key: number]: number | string;
+    [key: number]: number | string | undefined;
   }>({});
   const [selectedPutLeverages, setSelectedPutLeverages] = useState<{
-    [key: number]: number | string;
+    [key: number]: number | string | undefined;
   }>({});
   const [strikeDepositAmounts, setStrikeDepositAmounts] = useState<{
     [key: number]: number | string;

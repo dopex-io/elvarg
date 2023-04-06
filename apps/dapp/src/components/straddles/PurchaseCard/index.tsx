@@ -345,8 +345,6 @@ const PurchaseCard = () => {
           swap['tx']['data']
         );
 
-        console.log(params);
-
         await sendTx(straddlesContract, 'purchase', [
           getContractReadableAmount(amount * 2, 18),
           swap['toTokenAmount'],

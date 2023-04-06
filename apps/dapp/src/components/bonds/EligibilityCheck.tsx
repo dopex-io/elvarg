@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
 import Dialog from '@mui/material/Dialog';
 import CloseIcon from '@mui/icons-material/Close';
@@ -12,7 +12,6 @@ import Tooltip from '@mui/material/Tooltip';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
 import Input from 'components/UI/Input';
 
 import { useBoundStore } from 'store';
@@ -55,7 +54,6 @@ export const EligibilityCheck = ({
 
   const {
     accountAddress,
-    connect,
     dpxBondsUserEpochData,
     dpxBondsData,
     getDepositsPerNftId,
@@ -67,10 +65,6 @@ export const EligibilityCheck = ({
   const usableNftsFormatted = useMemo(() => {
     return usableNfts.map((nftId: BigNumber) => nftId.toNumber());
   }, [usableNfts]);
-
-  const handleWalletConnect = useCallback(() => {
-    connect && connect();
-  }, [connect]);
 
   const usedNfts = useMemo(() => {
     return (
@@ -184,14 +178,6 @@ export const EligibilityCheck = ({
             <Box className="flex-1 text-white text-xs pt-1">
               Connect to see your NFTs
             </Box>
-            <CustomButton
-              variant="text"
-              size="small"
-              className=" text-white text-xs bg-primary hover:bg-primary"
-              onClick={handleWalletConnect}
-            >
-              Connect
-            </CustomButton>
           </Box>
         ) : (
           <Box className="bg-[#1E1E1E] rounded-2xl p-2 mt-5 ">

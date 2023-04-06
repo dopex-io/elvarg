@@ -142,7 +142,7 @@ const ClaimDialog = (props: ClaimDialogProps) => {
       };
     } else if (!accountAddress)
       return { disabled: true, children: 'Connect Account to Claim' };
-    else if (amount !== null && amount > 0)
+    else if (amount !== null && Number(amount) > 0)
       return { disabled: false, children: 'Claim' };
     else return { disabled: false, children: 'Check' };
   }, [isAddressError, formik.errors.address, amount, loading, accountAddress]);
@@ -181,7 +181,7 @@ const ClaimDialog = (props: ClaimDialogProps) => {
           ) : null}
         </Box>
         {amount !== null ? (
-          amount > 0 ? (
+          Number(amount) > 0 ? (
             <Typography variant="h4" className="text-wave-blue">
               {amount} NFT available to Mint!
             </Typography>

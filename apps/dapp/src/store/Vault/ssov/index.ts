@@ -114,6 +114,8 @@ export const createSsovV3Slice: StateCreator<
 
     const ssovAddress = contractAddresses['SSOV-V3'].VAULTS[selectedPoolName];
 
+    if (!ssovAddress) return;
+
     const ssovRouterAddress = contractAddresses['SSOV-V3']['ROUTER'];
 
     let ssovRouterWithSigner;

@@ -4,14 +4,9 @@ import {
   OptionScalpsLp__factory,
   OptionScalps__factory,
 } from '@dopex-io/sdk';
-import { ApolloQueryResult } from '@apollo/client';
 
-import { optionScalpsGraphClient } from 'graphql/apollo';
-
-import {
-  GetTraderStatsDocument,
-  GetTraderStatsQuery,
-} from 'graphql/generated/optionScalps';
+import graphSdk from 'graphql/graphSdk';
+import queryClient from 'queryClient';
 
 import { StateCreator } from 'zustand';
 
@@ -36,6 +31,8 @@ export interface optionScalpData {
   totalBaseAvailable: BigNumber;
   quoteLpValue: BigNumber;
   baseLpValue: BigNumber;
+  quoteLpAPR: BigNumber;
+  baseLpAPR: BigNumber;
   quoteDecimals: BigNumber;
   baseDecimals: BigNumber;
   quoteSymbol: string;
@@ -261,13 +258,13 @@ export const createOptionScalpSlice: StateCreator<
     }));
   },
   getUserPositionData: async () => {
-    const userPositionData: ApolloQueryResult<GetTraderStatsQuery> =
-      await optionScalpsGraphClient.query({
-        query: GetTraderStatsDocument,
-        fetchPolicy: 'no-cache',
-      });
-    if (!userPositionData.data) return;
-    return userPositionData.data.traderStats;
+    const userPositionData = await queryClient.fetchQuery({
+      queryKey: ['getTraderStats'],
+      queryFn: () => graphSdk.getTraderStats(),
+    });
+
+    if (!userPositionData) return;
+    return userPositionData.traderStats;
   },
   updateOptionScalp: async () => {
     const {
@@ -349,6 +346,29 @@ export const createOptionScalpSlice: StateCreator<
       baseSymbol = 'ARB';
     }
 
+    const compStartDate = new Date(1680300000000); // 4 APR 2023
+    const today = new Date();
+
+    const daysSinceComp = BigNumber.from(
+      Math.ceil(
+        (today.getTime() - compStartDate.getTime()) / (1000 * 3600 * 24)
+      )
+    );
+
+    const baseLpAPR = totalBaseDeposits
+      .sub(baseSupply)
+      .mul(365)
+      .div(daysSinceComp)
+      .mul(100)
+      .div(totalBaseDeposits);
+
+    const quoteLpAPR = totalQuoteDeposits
+      .sub(quoteSupply)
+      .mul(365)
+      .div(daysSinceComp)
+      .mul(100)
+      .div(totalQuoteDeposits);
+
     set((prevState) => ({
       ...prevState,
       optionScalpData: {
@@ -370,6 +390,8 @@ export const createOptionScalpSlice: StateCreator<
         totalBaseAvailable: totalBaseAvailable,
         quoteLpValue: quoteLpValue,
         baseLpValue: baseLpValue,
+        quoteLpAPR: quoteLpAPR,
+        baseLpAPR: baseLpAPR,
         quoteDecimals: quoteDecimals,
         baseDecimals: baseDecimals,
         quoteSymbol: quoteSymbol,

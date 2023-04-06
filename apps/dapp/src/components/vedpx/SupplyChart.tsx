@@ -55,8 +55,6 @@ const SupplyChart = () => {
       );
   }, []);
 
-  console.log(data.length);
-
   return (
     <ResponsiveContainer width="100%" height="100%">
       <AreaChart
