@@ -77,7 +77,7 @@ const PerpetualPutsPage = () => {
       <Head>
         <title>APP | Dopex</title>
       </Head>
-      <AppBar active="APP" />
+      <AppBar active="Perpetual Pool" />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         <Box className="py-12 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
           <Box className="flex mt-20 lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">

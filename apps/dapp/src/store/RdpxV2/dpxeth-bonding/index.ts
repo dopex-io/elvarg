@@ -64,6 +64,7 @@ interface RdpxV2TreasuryData {
   rdpxSupply: BigNumber;
   rdpxPriceInAlpha: BigNumber;
   ammReserves: [BigNumber, BigNumber, string, string]; // [reserve A, reserve B, token A, token B]
+  availableDelegates?: any;
 }
 
 export interface RdpxBond {
@@ -109,7 +110,7 @@ export interface DpxusdBondingSlice {
     | undefined;
 }
 
-type DelegateType = [string, BigNumber, BigNumber, BigNumber, number] & {
+export type DelegateType = [string, BigNumber, BigNumber, BigNumber, number] & {
   owner: string;
   amount: BigNumber;
   fee: BigNumber;
@@ -233,7 +234,12 @@ export const createDpxusdBondingSlice: StateCreator<
     ammReserves: [BigNumber.from(0), BigNumber.from(0), '', ''], // [reserve A, reserve B, token A, token B]
   },
   updateTreasuryData: async () => {
-    const { provider, contractAddresses, treasuryContractState } = get();
+    const {
+      provider,
+      contractAddresses,
+      treasuryContractState,
+      getAvailableDelegatesFromTreasury,
+    } = get();
 
     if (!contractAddresses || !treasuryContractState.contracts) return;
 
@@ -274,6 +280,8 @@ export const createDpxusdBondingSlice: StateCreator<
       treasuryContractState.contracts.rdpx.totalSupply(),
     ]);
 
+    const availableDelegates = await getAvailableDelegatesFromTreasury();
+
     set((prevState) => ({
       ...prevState,
       treasuryData: {
@@ -295,6 +303,7 @@ export const createDpxusdBondingSlice: StateCreator<
         rdpxSupply,
         rdpxPriceInAlpha,
         ammReserves: [reserveA, reserveB, tokenAAddress, tokenBAddress],
+        availableDelegates,
       },
     }));
   },
@@ -371,11 +380,11 @@ export const createDpxusdBondingSlice: StateCreator<
       .map((val, i: number) => ({ ...val, _id: i }))
       .sort((a, b) => a.fee.toNumber() - b.fee.toNumber());
 
-    const filteredResult = delegatesResult.filter((val) =>
+    const availableDelegates = delegatesResult.filter((val) =>
       val.amount.sub(val.activeCollateral).gt(0)
     );
 
-    return filteredResult;
+    return availableDelegates;
   },
   squeezeTreasuryDelegates: (
     delegates: DelegateType[],

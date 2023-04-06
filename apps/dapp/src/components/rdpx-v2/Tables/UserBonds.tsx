@@ -3,8 +3,10 @@ import { Column, useTable } from 'react-table';
 import { RdpxV2Bond__factory, RdpxV2Treasury__factory } from '@dopex-io/sdk';
 import Countdown from 'react-countdown';
 import format from 'date-fns/format';
+import Tooltip from '@mui/material/Tooltip';
+import { Button } from '@dopex-io/ui';
 
-import Button from 'components/UI/Button';
+import Placeholder from 'components/rdpx-v2/Tables/Placeholder';
 
 import { useBoundStore } from 'store';
 
@@ -22,6 +24,7 @@ const UserBonds = () => {
     treasuryContractState,
     treasuryData,
     updateUserDscBondsData,
+    isLoading,
   } = useBoundStore();
 
   const handleRedeem = useCallback(
@@ -71,7 +74,14 @@ const UserBonds = () => {
         Number(bond.maturity) * 1000 > Math.ceil(Number(new Date()));
       return {
         tokenId: '#' + Number(bond.tokenId),
-        amount: getUserReadableAmount(bond.amount, 18) + ' dpxETH',
+        amount: (
+          <Tooltip title={getUserReadableAmount(bond.amount, 18)}>
+            <p className="text-sm">
+              {getUserReadableAmount(bond.amount, 18).toFixed(3)}{' '}
+              <span className="text-stieglitz">dpxETH</span>
+            </p>
+          </Tooltip>
+        ),
         timestamp: format(Number(bond.timestamp) * 1000, 'HH:mm, dd LLL'),
         timeLeft: (
           <Countdown
@@ -84,9 +94,9 @@ const UserBonds = () => {
                     className="h-[1rem] my-1 "
                     alt="Timer"
                   />
-                  <span className="ml-auto my-auto text-sm text-stieglitz">
+                  <p className="ml-auto my-auto text-sm text-stieglitz">
                     {days}d {hours}h {minutes}m
-                  </span>
+                  </p>
                 </div>
               );
             }}
@@ -115,15 +125,15 @@ const UserBonds = () => {
         accessor: 'amount',
       },
       {
-        Header: 'Redeemable',
-        accessor: 'timeLeft',
-      },
-      {
         Header: 'Bond Time',
         accessor: 'timestamp',
       },
       {
-        Header: 'Actions',
+        Header: 'Redeemable',
+        accessor: 'timeLeft',
+      },
+      {
+        Header: 'Action',
         accessor: 'redeemButton',
       },
     ];
@@ -134,57 +144,67 @@ const UserBonds = () => {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     tableInstance;
 
-  return userBonds.length > 0 ? (
-    <table {...getTableProps()} className="bg-cod-gray rounded-lg">
-      <thead className="border-b border-umbra sticky">
-        {headerGroups.map((headerGroup: any, index: number) => (
-          <tr {...headerGroup.getHeaderGroupProps()} key={index}>
-            {headerGroup.headers.map((column: any, index: number) => {
-              const textAlignment =
-                index === headerGroup.headers.length - 1
-                  ? 'text-right'
-                  : 'text-left';
-              return (
-                <th
-                  {...column.getHeaderProps()}
-                  key={index}
-                  className={`m-3 py-3 px-3 ${textAlignment}`}
-                >
-                  <span className="text-sm text-stieglitz font-normal">
-                    {column.render('Header')}
-                  </span>
-                </th>
-              );
-            })}
-          </tr>
-        ))}
-      </thead>
-      <tbody {...getTableBodyProps()} className="max-h-32 overflow-y-auto">
-        {rows.map((row, index) => {
-          prepareRow(row);
-          return (
-            <tr {...row.getRowProps()} key={index}>
-              {row.cells.map((cell, index) => {
-                const textAlignment =
-                  index === row.cells.length - 1 ? 'text-right' : 'text-left';
+  return (
+    <div className="space-y-2">
+      <h6 className="mx-2">Bonds</h6>
+      <div className="overflow-x-auto">
+        {userBonds.length > 0 ? (
+          <table {...getTableProps()} className="bg-cod-gray rounded-lg w-full">
+            <thead className="border-b border-umbra sticky">
+              {headerGroups.map((headerGroup: any, index: number) => (
+                <tr {...headerGroup.getHeaderGroupProps()} key={index}>
+                  {headerGroup.headers.map((column: any, index: number) => {
+                    const textAlignment =
+                      index === headerGroup.headers.length - 1
+                        ? 'text-right'
+                        : 'text-left';
+                    return (
+                      <th
+                        {...column.getHeaderProps()}
+                        key={index}
+                        className={`m-3 py-3 px-3 ${textAlignment} w-1/${columns.length}`}
+                      >
+                        <span className="text-sm text-stieglitz font-normal">
+                          {column.render('Header')}
+                        </span>
+                      </th>
+                    );
+                  })}
+                </tr>
+              ))}
+            </thead>
+            <tbody
+              {...getTableBodyProps()}
+              className="max-h-32 overflow-y-auto"
+            >
+              {rows.map((row, index) => {
+                prepareRow(row);
                 return (
-                  <td
-                    {...cell.getCellProps()}
-                    key={index}
-                    className={`m-3 py-2 px-3 ${textAlignment}`}
-                  >
-                    <span className="text-sm">{cell.render('Cell')}</span>
-                  </td>
+                  <tr {...row.getRowProps()} key={index}>
+                    {row.cells.map((cell, index) => {
+                      const textAlignment =
+                        index === row.cells.length - 1
+                          ? 'text-right'
+                          : 'text-left';
+                      return (
+                        <td
+                          {...cell.getCellProps()}
+                          key={index}
+                          className={`m-3 py-2 px-3 ${textAlignment}`}
+                        >
+                          <span className="text-sm">{cell.render('Cell')}</span>
+                        </td>
+                      );
+                    })}
+                  </tr>
                 );
               })}
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
-  ) : (
-    <div className="flex justify-center my-auto w-full bg-cod-gray rounded-lg py-8">
-      <span className="text-sm text-stieglitz">Nothing to show</span>
+            </tbody>
+          </table>
+        ) : (
+          <Placeholder isLoading={isLoading} />
+        )}
+      </div>
     </div>
   );
 };

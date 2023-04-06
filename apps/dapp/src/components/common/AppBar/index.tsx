@@ -180,27 +180,27 @@ const appLinks = {
     },
   ],
   421613: [
+    // {
+    //   name: 'rDPX',
+    //   subLinks: [
     {
-      name: 'rDPX',
-      subLinks: [
-        {
-          name: 'Atlantic Perpetual Pools',
-          to: '/rdpx-v2/perpetual-pools',
-          description:
-            'Write perpetual puts, receive funding till settlement by our treasury',
-        },
-        {
-          name: 'Mint',
-          to: '/rdpx-v2/mint',
-          description: 'Bond rDPX, mint $dpxETH',
-        },
-        {
-          name: 'Swap',
-          to: '/rdpx-v2/curve-swap',
-          description: 'Swap between $dpxETH & WETH',
-        },
-      ],
+      name: 'Bond',
+      to: '/rdpx-v2/mint',
+      description: 'Bond rDPX, mint $dpxETH',
     },
+    {
+      name: 'Curve Pool',
+      to: '/rdpx-v2/curve-swap',
+      description: 'Swap between $dpxETH & WETH',
+    },
+    {
+      name: 'Perpetual Pool',
+      to: '/rdpx-v2/perpetual-pools',
+      description:
+        'Write perpetual puts, receive funding till settlement by our treasury',
+    },
+    // ],
+    // },
   ],
   421611: [
     // { name: 'options', to: '/' },
@@ -315,9 +315,9 @@ interface AppBarProps {
     | 'swap'
     | 'DPX Bonds'
     | 'vaults'
-    | 'APP'
-    | 'Mint'
-    | 'Swap'
+    | 'Perpetual Pool'
+    | 'Bond'
+    | 'Curve Pool'
     | 'Atlantics';
 }
 

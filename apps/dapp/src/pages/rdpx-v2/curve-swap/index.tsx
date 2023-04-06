@@ -41,7 +41,7 @@ const Swap = () => {
       <Head>
         <title>Swap | Dopex</title>
       </Head>
-      <AppBar active="Swap" />
+      <AppBar active="Curve Pool" />
       <div className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         {isLoading ? (
           <div className="flex w-full justify-center py-12 mt-48">

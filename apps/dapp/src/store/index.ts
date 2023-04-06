@@ -16,7 +16,7 @@ import { OlpSlice, createOlpSlice } from './Vault/olp';
 import {
   DpxusdBondingSlice,
   createDpxusdBondingSlice,
-} from './RdpxV2/dpxusd-bonding';
+} from './RdpxV2/dpxeth-bonding';
 import { APPSlice, createAppSlice } from './RdpxV2/perpetual-pools';
 import { OptionScalpSlice, createOptionScalpSlice } from './Vault/scalps';
 import { SsovV3Slice, createSsovV3Slice } from './Vault/ssov';

@@ -329,7 +329,7 @@ const Bond = () => {
       <div className="flex flex-col p-2 bg-umbra rounded-xl">
         <div className="flex justify-between px-2">
           <div>
-            <span className="text-sm text-stieglitz">Delegate</span>
+            <span className="text-sm text-stieglitz">Borrow</span>
             <Tooltip
               title="Spend only rDPX by borrowing WETH and receiving 25% share of dpxETH minus a small percentage in delegate fee."
               enterTouchDelay={0}
