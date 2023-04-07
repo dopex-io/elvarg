@@ -20,7 +20,12 @@ import {
 import { formatAmount } from 'utils/general';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
-import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
+import {
+  DECIMALS_STRIKE,
+  DECIMALS_TOKEN,
+  DECIMALS_USD,
+  MAX_VALUE,
+} from 'constants/index';
 
 function orZero(value: number): BigNumber {
   return value
@@ -99,20 +104,34 @@ const TradeCard: FC<TradeProps> = ({}) => {
   const textRef = useRef<HTMLInputElement>(null);
 
   const handleApprove = useCallback(async () => {
-    if (!signer || !staticZdteData?.quoteTokenAddress) return;
+    if (!signer || !staticZdteData?.quoteTokenAddress || !accountAddress)
+      return;
     try {
-      await sendTx(
-        ERC20__factory.connect(staticZdteData?.quoteTokenAddress, signer),
-        'approve',
-        [
-          staticZdteData?.zdteAddress,
-          getContractReadableAmount(amount, DECIMALS_TOKEN),
-        ]
+      const tokenContract = await ERC20__factory.connect(
+        staticZdteData?.quoteTokenAddress,
+        signer
+      );
+      const minAmountToApprove = Math.round(
+        (premium + openingFees) * Number(amount)
+      );
+      await sendTx(tokenContract, 'approve', [
+        staticZdteData?.zdteAddress,
+        MAX_VALUE,
+      ]);
+      const allowance: BigNumber = await tokenContract.allowance(
+        accountAddress,
+        staticZdteData?.zdteAddress
+      );
+      setApproved(
+        allowance.gt(0) &&
+          allowance.gte(
+            getContractReadableAmount(minAmountToApprove, DECIMALS_USD)
+          )
       );
     } catch (err) {
       console.log(err);
     }
-  }, [staticZdteData, signer, sendTx, amount]);
+  }, [staticZdteData, signer, sendTx, amount, accountAddress]);
 
   const handleTradeAmount = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) =>
@@ -298,6 +317,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
     setApproved,
     setCanOpenSpread,
     setMargin,
+    handleApprove,
   ]);
 
   return (
@@ -350,7 +370,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
           content={`$${roundToTwoDecimals(premium + openingFees)}`}
         />
         <ContentRow
-          title="Margin required"
+          title="Liquidity required"
           content={
             selectedSpreadPair?.longStrike! > selectedSpreadPair?.shortStrike!
               ? `${margin} ${staticZdteData?.quoteTokenSymbol.toUpperCase()}`

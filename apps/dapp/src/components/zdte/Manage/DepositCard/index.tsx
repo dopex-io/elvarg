@@ -77,29 +77,40 @@ const Deposit: FC<DepositProps> = ({}) => {
   const [isBaseApproved, setIsBaseApproved] = useState(false);
 
   const handleApprove = useCallback(async () => {
-    if (!signer || !staticZdteData) return;
+    if (!signer || !staticZdteData || !accountAddress) return;
 
     try {
-      await sendTx(
-        ERC20__factory.connect(
-          isQuote
-            ? staticZdteData?.quoteTokenAddress
-            : staticZdteData?.baseTokenAddress,
-          signer
-        ),
-        'approve',
-        [
-          staticZdteData?.zdteAddress,
-          getContractReadableAmount(
-            amount,
-            isQuote ? DECIMALS_USD : DECIMALS_TOKEN
-          ),
-        ]
+      const tokenContract = await ERC20__factory.connect(
+        isQuote
+          ? staticZdteData?.quoteTokenAddress
+          : staticZdteData?.baseTokenAddress,
+        signer
       );
+
+      await sendTx(tokenContract, 'approve', [
+        staticZdteData?.zdteAddress,
+        getContractReadableAmount(
+          amount,
+          isQuote ? DECIMALS_USD : DECIMALS_TOKEN
+        ),
+      ]);
+      const allowance: BigNumber = await tokenContract.allowance(
+        accountAddress,
+        staticZdteData?.zdteAddress
+      );
+      const depositAmount = getContractReadableAmount(
+        amount,
+        isQuote ? DECIMALS_USD : DECIMALS_TOKEN
+      );
+      if (isQuote) {
+        setIsQuoteApproved(allowance.gt(0) && allowance.gte(depositAmount));
+      } else {
+        setIsBaseApproved(allowance.gt(0) && allowance.gte(depositAmount));
+      }
     } catch (err) {
       console.log(err);
     }
-  }, [signer, sendTx, staticZdteData, isQuote, amount]);
+  }, [signer, sendTx, staticZdteData, isQuote, amount, accountAddress]);
 
   const handleDepositAmount = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) =>
