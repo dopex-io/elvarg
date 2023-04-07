@@ -102,9 +102,18 @@ const ManageComponent = () => {
         ))}
       </ButtonGroup>
       {manageSection === 'Trade' ? (
-        <Box className="bg-cod-gray rounded-xl">
-          <TradeCard />
-        </Box>
+        <>
+          <Box className="bg-cod-gray rounded-xl">
+            <TradeCard />
+          </Box>
+          <p className="text-stieglitz mt-2 p-2">
+            Zero day to expiry option spreads are a flexible and risk-controlled
+            options trading strategy for traders. By buying and selling options
+            with the same expiration date but at different strike prices,
+            traders can capitalize on short-term market fluctuations while
+            limiting potential losses
+          </p>
+        </>
       ) : (
         <ManageCard />
       )}

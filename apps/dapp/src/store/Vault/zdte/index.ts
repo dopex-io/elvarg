@@ -22,6 +22,7 @@ export interface OptionsTableData {
   premium: number;
   iv: number;
   delta: number;
+  breakeven: number;
   disable: boolean;
 }
 
@@ -336,6 +337,8 @@ export const createZdteSlice: StateCreator<
           strike: strike,
           premium: normalizedPremium,
           iv: normalizedIv,
+          breakeven:
+            strike + normalizedPremium * (strike <= tokenPrice ? 1 : -1),
           delta: delta,
           disable: strike == upperRound - step || strike == lowerRound + step,
         });

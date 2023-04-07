@@ -55,7 +55,7 @@ const Stats: FC<StatsProps> = ({}) => {
 
       const _twentyFourHourVolume = payload.trades.reduce(
         (acc, trade, _index) => {
-          return acc.add(BigNumber.from(trade.amount));
+          return acc.add(BigNumber.from(trade ? trade?.amount : 0));
         },
         BigNumber.from(0)
       );

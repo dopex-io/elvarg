@@ -11,6 +11,7 @@ import { ISpreadPair } from 'store/Vault/zdte';
 
 import { Typography } from 'components/UI';
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
+import PnlChart from 'components/zdte/Manage/PnlChart';
 import TradeButton from 'components/zdte/Manage/TradeCard/TradeButton';
 
 import {
@@ -39,6 +40,23 @@ function getUsdPrice(value: BigNumber): number {
 
 function roundToTwoDecimals(num: number): number {
   return Math.round(num * 100) / 100;
+}
+
+export function getMaxPayoff(
+  selectedSpreadPair: ISpreadPair | undefined,
+  premium: number
+) {
+  if (
+    !selectedSpreadPair ||
+    !selectedSpreadPair.shortStrike ||
+    !selectedSpreadPair.longStrike
+  ) {
+    return 0;
+  }
+  return (
+    Math.abs(selectedSpreadPair.longStrike - selectedSpreadPair.shortStrike) -
+    premium
+  );
 }
 
 function getStrikeDisplay(
@@ -322,53 +340,63 @@ const TradeCard: FC<TradeProps> = ({}) => {
 
   return (
     <Box className="rounded-xl space-y-2 p-2">
-      <Box className="flex flex-row justify-between">
-        <Box className="rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center min-w-max">
-          <Box className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
-            <Typography variant="h6" className="mt-2 font-medium text-[0.8rem]">
-              {getStrikeDisplay(selectedSpreadPair, zdteData?.tokenPrice)}
-            </Typography>
+      <div>
+        <Box className="flex flex-row justify-between">
+          <Box className="rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center min-w-max">
+            <Box className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
+              <Typography
+                variant="h6"
+                className="mt-2 font-medium text-[0.8rem]"
+              >
+                {getStrikeDisplay(selectedSpreadPair, zdteData?.tokenPrice)}
+              </Typography>
+            </Box>
           </Box>
+          <MuiInput
+            inputRef={textRef}
+            disableUnderline
+            id="notionalSize"
+            name="notionalSize"
+            placeholder="1"
+            onFocus={() => {
+              setAmount('');
+            }}
+            type="number"
+            className="h-16 text-md text-white font-mono mr-2"
+            value={amount}
+            onChange={handleTradeAmount}
+            classes={{ input: 'text-right' }}
+          />
         </Box>
-        <MuiInput
-          inputRef={textRef}
-          disableUnderline
-          id="notionalSize"
-          name="notionalSize"
-          placeholder="1"
-          onFocus={() => {
-            setAmount('');
-          }}
-          type="number"
-          className="h-12 text-md text-white font-mono mr-2"
-          value={amount}
-          onChange={handleTradeAmount}
-          classes={{ input: 'text-right' }}
-        />
-      </Box>
+        <div className="flex justify-between">
+          <Box className=" flex mr-2 border border-white rounded-md ">
+            {[10, 25, 50, 75, 100].map((option, i) => (
+              <Box
+                key={i}
+                className={`text-center w-auto cursor-pointer group hover:bg-mineshaft hover:opacity-80`}
+                onClick={() => setSelectedMargin(option)}
+              >
+                <Typography
+                  variant="h6"
+                  className="text-xs font-light py-2 px-2"
+                >
+                  {option}%
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+          <span className="mt-2 text-sm">
+            {`${formatAmount(
+              getUserReadableAmount(
+                userZdteLpData?.userQuoteTokenBalance!,
+                DECIMALS_USD
+              ),
+              2
+            )} ${staticZdteData?.quoteTokenSymbol.toUpperCase()}`}
+          </span>
+        </div>
+      </div>
       <Box className="p-2 space-y-1">
-        <ContentRow
-          title="Balance"
-          content={`${formatAmount(
-            getUserReadableAmount(
-              userZdteLpData?.userQuoteTokenBalance!,
-              DECIMALS_USD
-            ),
-            2
-          )} ${staticZdteData?.quoteTokenSymbol.toUpperCase()}`}
-        />
-        <ContentRow
-          title="Premium"
-          content={`$${roundToTwoDecimals(premium)}`}
-        />
-        <ContentRow
-          title="Opening fees"
-          content={`$${roundToTwoDecimals(openingFees)}`}
-        />
-        <ContentRow
-          title="Cost per spread"
-          content={`$${roundToTwoDecimals(premium + openingFees)}`}
-        />
         <ContentRow
           title="Liquidity required"
           content={
@@ -378,12 +406,38 @@ const TradeCard: FC<TradeProps> = ({}) => {
           }
         />
         <ContentRow
+          title="Premium"
+          content={`$${roundToTwoDecimals(premium)}`}
+        />
+        <ContentRow
+          title="Fees"
+          content={`$${roundToTwoDecimals(openingFees)}`}
+        />
+        <ContentRow
+          title="Cost per spread"
+          content={`$${roundToTwoDecimals(premium + openingFees)}`}
+        />
+        <div className="p-1">
+          <PnlChart
+            premium={premium}
+            selectedSpreadPair={selectedSpreadPair!}
+          />
+        </div>
+        <ContentRow
+          title="Breakeven"
+          content={`$${roundToTwoDecimals(premium + openingFees)}`}
+        />
+        <ContentRow
+          title="Max payoff"
+          content={`$${getMaxPayoff(selectedSpreadPair, premium)}`}
+        />
+        {/* <ContentRow
           title="You will pay"
           content={`${formatAmount(
             (premium + openingFees) * Number(amount),
             2
           )} USDC`}
-        />
+        /> */}
       </Box>
       <TradeButton
         amount={amount}
