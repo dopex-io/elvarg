@@ -38,7 +38,7 @@ function getUsdPrice(value: BigNumber): number {
   return value.mul(100).div(oneEBigNumber(DECIMALS_USD)).toNumber() / 100;
 }
 
-function roundToTwoDecimals(num: number): number {
+export function roundToTwoDecimals(num: number): number {
   return Math.round(num * 100) / 100;
 }
 
@@ -141,10 +141,9 @@ const TradeCard: FC<TradeProps> = ({}) => {
         staticZdteData?.zdteAddress
       );
       setApproved(
-        allowance.gt(0) &&
-          allowance.gte(
-            getContractReadableAmount(minAmountToApprove, DECIMALS_USD)
-          )
+        allowance.gte(
+          getContractReadableAmount(minAmountToApprove, DECIMALS_USD)
+        )
       );
     } catch (err) {
       console.log(err);
@@ -423,14 +422,6 @@ const TradeCard: FC<TradeProps> = ({}) => {
             selectedSpreadPair={selectedSpreadPair!}
           />
         </div>
-        <ContentRow
-          title="Breakeven"
-          content={`$${roundToTwoDecimals(premium + openingFees)}`}
-        />
-        <ContentRow
-          title="Max payoff"
-          content={`$${getMaxPayoff(selectedSpreadPair, premium)}`}
-        />
         {/* <ContentRow
           title="You will pay"
           content={`${formatAmount(

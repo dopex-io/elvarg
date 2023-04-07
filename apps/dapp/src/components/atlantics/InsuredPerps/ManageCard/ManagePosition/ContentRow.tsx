@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
@@ -31,7 +32,11 @@ const ContentRow = ({
             : 'white'
         }
       >
-        {highlightPnl ? '$' + content : content}
+        {highlightPnl
+          ? Number(content) < 0
+            ? '-$' + Math.abs(Number(content))
+            : '$' + content
+          : content}
       </Typography>
     </Box>
   );
