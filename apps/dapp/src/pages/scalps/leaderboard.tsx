@@ -256,7 +256,7 @@ const LeaderBoard = () => {
           ))}
         </div>
         <Countdown
-          date={new Date(1680872400000)}
+          date={new Date(1680901200000)}
           renderer={({ days, hours, minutes, seconds }) => {
             return (
               <div
