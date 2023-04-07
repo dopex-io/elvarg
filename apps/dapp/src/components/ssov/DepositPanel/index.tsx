@@ -14,7 +14,6 @@ import { SsovV3EpochData } from 'store/Vault/ssov';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import Wrapper from 'components/ssov/Wrapper';
 import InputWithTokenSelector from 'components/common/InputWithTokenSelector';
@@ -26,14 +25,12 @@ import useSendTx from 'hooks/useSendTx';
 import formatAmount from 'utils/general/formatAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-
-import { MAX_VALUE } from 'constants/index';
-
 import get1inchQuote, { defaultQuoteData } from 'utils/general/get1inchQuote';
 import get1inchSwap from 'utils/general/get1inchSwap';
-
 import { getTokenDecimals } from 'utils/general';
 import isNativeToken from 'utils/general/isNativeToken';
+
+import { MAX_VALUE } from 'constants/index';
 
 const SelectMenuProps = {
   PaperProps: {
@@ -67,10 +64,7 @@ const DepositPanel = () => {
 
   const [wrapOpen, setWrapOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [quote, setQuote] = useState({
-    quoteData: defaultQuoteData,
-    swapData: '',
-  });
+  const [quote, setQuote] = useState(defaultQuoteData);
 
   const [debouncedQuote] = useDebounce(quote, 1000);
 
@@ -216,6 +210,22 @@ const DepositPanel = () => {
         : getContractAddress('USDC')
       : ssovData.collateralAddress;
 
+    const fromTokenAddress = getContractAddress(fromTokenSymbol);
+    let swapData;
+
+    if (routerMode) {
+      swapData = await get1inchSwap({
+        fromTokenAddress,
+        toTokenAddress,
+        amount: getContractReadableAmount(
+          strikeDepositAmount,
+          getTokenDecimals(fromTokenSymbol, chainId)
+        ),
+        chainId,
+        accountAddress: ssovSigner.ssovRouterWithSigner?.address!,
+      });
+    }
+
     const params = routerMode
       ? [
           ssovSigner.ssovContractWithSigner.address,
@@ -226,8 +236,8 @@ const DepositPanel = () => {
           accountAddress,
           strike,
           depositAmount,
-          debouncedQuote.quoteData.toTokenAmount,
-          debouncedQuote.swapData,
+          swapData.toTokenAmount,
+          swapData.tx.data,
         ]
       : [strike, depositAmount, accountAddress];
     const contractWithSigner = routerMode
@@ -269,8 +279,6 @@ const DepositPanel = () => {
     ssovData,
     ssovSigner.ssovContractWithSigner,
     ssovSigner.ssovRouterWithSigner,
-    debouncedQuote.quoteData.toTokenAmount,
-    debouncedQuote.swapData,
     chainId,
     depositButtonProps.disable,
     loading,
@@ -369,33 +377,18 @@ const DepositPanel = () => {
 
     setLoading(true);
 
-    await Promise.all([
-      get1inchQuote(
-        fromTokenAddress,
-        toTokenAddress,
-        getContractReadableAmount(
-          strikeDepositAmount,
-          getTokenDecimals(fromTokenSymbol, chainId)
-        ).toString(),
-        chainId,
-        accountAddress,
-        '3'
-      ),
-      get1inchSwap({
-        fromTokenAddress,
-        toTokenAddress,
-        amount: getContractReadableAmount(
-          strikeDepositAmount,
-          getTokenDecimals(fromTokenSymbol, chainId)
-        ),
-        chainId,
-        accountAddress: ssovSigner.ssovRouterWithSigner.address,
-      }),
-    ]).then((res) => {
-      setQuote({
-        quoteData: res[0],
-        swapData: res[1].tx.data,
-      });
+    await get1inchQuote(
+      fromTokenAddress,
+      toTokenAddress,
+      getContractReadableAmount(
+        strikeDepositAmount,
+        getTokenDecimals(fromTokenSymbol, chainId)
+      ).toString(),
+      chainId,
+      accountAddress,
+      '3'
+    ).then((res) => {
+      setQuote(res);
       setLoading(false);
       return res;
     });
@@ -559,8 +552,8 @@ const DepositPanel = () => {
                     >
                       {formatAmount(
                         getUserReadableAmount(
-                          debouncedQuote.quoteData.toTokenAmount,
-                          debouncedQuote.quoteData.toToken.decimals
+                          debouncedQuote.toTokenAmount,
+                          debouncedQuote.toToken.decimals
                         ),
                         3
                       )}{' '}
