@@ -1,4 +1,4 @@
-query getTradesFromTimestamp($fromTimestamp: BigInt!) {
+query getZdteSpreadTradesFromTimestamp($fromTimestamp: BigInt!) {
   trades(where: { timestamp_gt: $fromTimestamp }, first: 1000) {
     id
     amount

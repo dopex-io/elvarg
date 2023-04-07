@@ -2,12 +2,8 @@ import { FC, useEffect, useMemo, useState } from 'react';
 
 import { BigNumber, utils } from 'ethers';
 
-import { ApolloQueryResult } from '@apollo/client';
-import { zdeGraphClient } from 'graphql/apollo';
-import {
-  GetTradesFromTimestampDocument,
-  GetTradesFromTimestampQuery,
-} from 'graphql/generated/zdte';
+import graphSdk from 'graphql/graphSdk';
+import queryClient from 'queryClient';
 import { useBoundStore } from 'store';
 
 import Loading from 'components/zdte/Loading';
@@ -49,16 +45,15 @@ const Stats: FC<StatsProps> = ({}) => {
 
   useEffect(() => {
     async function getVolume() {
-      const payload: ApolloQueryResult<GetTradesFromTimestampQuery> =
-        await zdeGraphClient.query({
-          query: GetTradesFromTimestampDocument,
-          variables: {
+      const payload = await queryClient.fetchQuery({
+        queryKey: ['getZdteSpreadTradesFromTimestamp'],
+        queryFn: () =>
+          graphSdk.getZdteSpreadTradesFromTimestamp({
             fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
-          },
-          fetchPolicy: 'no-cache',
-        });
+          }),
+      });
 
-      const _twentyFourHourVolume = payload.data.trades.reduce(
+      const _twentyFourHourVolume = payload.trades.reduce(
         (acc, trade, _index) => {
           return acc.add(BigNumber.from(trade.amount));
         },

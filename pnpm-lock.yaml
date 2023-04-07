@@ -9822,30 +9822,6 @@ packages:
     dependencies:
       file-uri-to-path: 1.0.0
 
-<<<<<<< HEAD
-||||||| parent of 626172b8 (fix: greeks)
-  /bl/4.1.0:
-    resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==}
-    dependencies:
-      buffer: 5.7.1
-      inherits: 2.0.4
-      readable-stream: 3.6.1
-    dev: true
-
-  /black-scholes/1.1.0:
-    resolution: {integrity: sha512-23iaI490ai4pRclxWTM7BJyD8GzDibJCltLSX3xg86D3t8fzx67cqYSfL8WQLHnza1BhEeeA898XqpfRuQyQ2w==}
-    dev: false
-
-=======
-  /bl/4.1.0:
-    resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==}
-    dependencies:
-      buffer: 5.7.1
-      inherits: 2.0.4
-      readable-stream: 3.6.1
-    dev: true
-
->>>>>>> 626172b8 (fix: greeks)
   /blakejs/1.2.1:
     resolution: {integrity: sha512-QXUSXI3QVc/gJME0dBpXrag1kbzOqCjCX8/b54ntNyW6sjtoqxqRk3LTmXzaJoh71zMsDCjM+47jS7XiwN/+fQ==}
     dev: false
@@ -19074,24 +19050,6 @@ packages:
     engines: {node: '>=12'}
     dev: true
 
-<<<<<<< HEAD
-||||||| parent of 626172b8 (fix: greeks)
-  /strip-hex-prefix/1.0.0:
-    resolution: {integrity: sha1-DF8VX+8RUTczd96du1iNoFUA428=}
-    engines: {node: '>=6.5.0', npm: '>=3'}
-    dependencies:
-      is-hex-prefixed: 1.0.0
-    dev: false
-
-=======
-  /strip-hex-prefix/1.0.0:
-    resolution: {integrity: sha512-q8d4ue7JGEiVcypji1bALTos+0pWtyGlivAWyPuTkHzuTCJqrK9sWxYQZUq6Nq3cuyv3bm734IhHvHtGGURU6A==}
-    engines: {node: '>=6.5.0', npm: '>=3'}
-    dependencies:
-      is-hex-prefixed: 1.0.0
-    dev: false
-
->>>>>>> 626172b8 (fix: greeks)
   /strip-indent/1.0.1:
     resolution: {integrity: sha512-I5iQq6aFMM62fBEAIB/hXzwJD6EEZ0xEGCX2t7oXqaKPIRgt4WruAQ285BISgdkP+HLGWyeGmNJcpIwFeRYRUA==}
     engines: {node: '>=0.10.0'}
