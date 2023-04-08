@@ -113,7 +113,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
   } = useBoundStore();
   const zdteContract = getZdteContract();
 
-  const [amount, setAmount] = useState<string | number>(0);
+  const [amount, setAmount] = useState<string | number>(1);
   const [margin, setMargin] = useState<string | number>(0);
   const [approved, setApproved] = useState<boolean>(false);
   const [premium, setPremium] = useState<number>(0);
@@ -196,11 +196,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
 
   useEffect(() => {
     async function updatePremiumAndFees() {
-      if (
-        !selectedSpreadPair?.longStrike ||
-        !selectedSpreadPair?.shortStrike ||
-        !amount
-      ) {
+      if (!selectedSpreadPair?.longStrike || !selectedSpreadPair?.shortStrike) {
         setPremium(0);
         setOpeningFees(0);
         return;
@@ -395,7 +391,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
           </span>
         </div>
       </div>
-      <Box className="p-2 space-y-1">
+      <Box className="p-1 space-y-1">
         <ContentRow
           title="Liquidity required"
           content={
@@ -420,6 +416,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
           <PnlChart
             premium={premium}
             selectedSpreadPair={selectedSpreadPair!}
+            amount={Number(amount)}
           />
         </div>
         {/* <ContentRow

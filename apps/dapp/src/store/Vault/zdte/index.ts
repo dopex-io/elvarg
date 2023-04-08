@@ -42,6 +42,8 @@ export interface IStaticZdteData {
 
 export interface IZdteData {
   tokenPrice: number;
+  nearestStrike: number;
+  step: number;
   strikes: OptionsTableData[];
   baseLpTokenLiquidty: BigNumber;
   baseLpAssetBalance: BigNumber;
@@ -303,13 +305,12 @@ export const createZdteSlice: StateCreator<
         strike > lowerRound;
         strike -= step
       ) {
-        const ether = oneEBigNumber(DECIMALS_TOKEN);
-        const contractStrike = getContractReadableAmount(
-          strike,
-          DECIMALS_STRIKE
-        );
         const [premium, iv] = await Promise.all([
-          zdteContract.calcPremium(strike <= tokenPrice, contractStrike, ether),
+          zdteContract.calcPremium(
+            strike <= tokenPrice,
+            getContractReadableAmount(strike, DECIMALS_STRIKE),
+            oneEBigNumber(DECIMALS_TOKEN)
+          ),
           zdteContract.getVolatility(
             getContractReadableAmount(strike, DECIMALS_STRIKE)
           ),
@@ -353,11 +354,14 @@ export const createZdteSlice: StateCreator<
         .mul(markPrice)
         .div(oneEBigNumber(20))
         .add(quoteLpTokenLiquidty);
+      const nearestStrike = roundToNearestStrikeIncrement(tokenPrice, step);
 
       set((prevState) => ({
         ...prevState,
         zdteData: {
           tokenPrice,
+          nearestStrike,
+          step,
           strikes,
           baseLpAssetBalance,
           baseLpTokenLiquidty,
@@ -463,4 +467,11 @@ export const createZdteSlice: StateCreator<
 
 function getPremiumUsdPrice(value: BigNumber): number {
   return value.mul(1000).div(oneEBigNumber(DECIMALS_USD)).toNumber() / 1000;
+}
+
+function roundToNearestStrikeIncrement(
+  num: number,
+  strikeIncrement: number
+): number {
+  return Math.round(num / strikeIncrement) * strikeIncrement;
 }

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import Box from '@mui/material/Box';
+import cx from 'classnames';
 import {
   Line,
   LineChart,
@@ -23,11 +24,9 @@ import {
 
 import { formatAmount } from 'utils/general';
 
-const CustomTooltip = () => {
-  return null;
-};
 interface PnlChartProps {
   premium: number;
+  amount: number;
   selectedSpreadPair: ISpreadPair;
 }
 
@@ -55,30 +54,56 @@ function yIntercept(
 function getPayoff(
   strike: number,
   breakeven: number,
-  shortStrike: number,
+  selectedSpreadPair: ISpreadPair,
   premium: number,
   maxPayoff: number
 ) {
-  if (strike < breakeven) {
-    return -premium;
-  } else if (strike > shortStrike) {
-    return maxPayoff;
+  if (strike > breakeven) {
+    return selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike
+      ? -premium
+      : maxPayoff;
+  } else if (strike <= selectedSpreadPair.shortStrike) {
+    return selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike
+      ? maxPayoff
+      : -premium;
   } else {
     return (
-      gradient(breakeven, shortStrike, premium, maxPayoff) * strike +
-      yIntercept(breakeven, shortStrike, premium, maxPayoff)
+      gradient(breakeven, selectedSpreadPair.shortStrike, premium, maxPayoff) *
+        strike +
+      yIntercept(breakeven, selectedSpreadPair.shortStrike, premium, maxPayoff)
     );
   }
 }
 
+function roundToNearest(num: number): number {
+  if (num >= 10) {
+    return Math.round(num);
+  }
+  return num;
+}
+
 const DATAPOINT_INTERVAL: number = 10;
-const STRIKE_INTERVAL: number = 50;
+const BREAKEVEN_INTERVAL: number = 100;
 
 const PnlChart = (props: PnlChartProps) => {
-  const { premium, selectedSpreadPair } = props;
+  const {
+    premium: actualPremium,
+    amount,
+    selectedSpreadPair: actualSpreadPair,
+  } = props;
   const { zdteData } = useBoundStore();
-  const breakeven = selectedSpreadPair?.longStrike + premium;
-  const maxPayoff = getMaxPayoff(selectedSpreadPair, premium);
+  const useFake =
+    actualSpreadPair === undefined ||
+    actualSpreadPair.shortStrike === undefined;
+  const spreadPair = useFake
+    ? ({
+        shortStrike: zdteData?.nearestStrike! + 2 * zdteData?.step!,
+        longStrike: zdteData?.nearestStrike! + zdteData?.step!,
+      } as ISpreadPair)
+    : actualSpreadPair;
+  const premium = actualPremium || 0;
+  const breakeven = roundToTwoDecimals(spreadPair.shortStrike + premium);
+  const maxPayoff = getMaxPayoff(spreadPair, premium);
   const price: number = zdteData?.tokenPrice || 0;
   const [state, setState] = useState<{ price: number; pnl: number }>({
     price,
@@ -86,35 +111,22 @@ const PnlChart = (props: PnlChartProps) => {
   });
 
   const data = useMemo(() => {
-    let strikes = [...zdteData?.strikes.map((s) => s.strike)!];
-    const upper = strikes[0] || 0 + STRIKE_INTERVAL;
-    const lower = strikes[strikes.length - 1] || 0 - STRIKE_INTERVAL;
-    strikes = Array.from(
+    const lower = roundToNearest(breakeven - BREAKEVEN_INTERVAL);
+    const upper = roundToNearest(breakeven + BREAKEVEN_INTERVAL);
+    const strikes = Array.from(
       { length: Math.ceil((upper - lower) / DATAPOINT_INTERVAL) + 1 },
       (_, i) => lower + i * DATAPOINT_INTERVAL
     );
     return strikes.map((s) => {
-      const payoff = getPayoff(
-        s,
-        breakeven,
-        selectedSpreadPair?.shortStrike || 0,
-        premium,
-        maxPayoff
-      );
+      const payoff = getPayoff(s, breakeven, spreadPair, premium, maxPayoff);
       return {
         strike: s,
         value: roundToTwoDecimals(payoff),
       };
     });
-  }, [zdteData, selectedSpreadPair]);
+  }, [zdteData, spreadPair, breakeven, maxPayoff]);
 
-  const pnl = getPayoff(
-    price,
-    breakeven,
-    selectedSpreadPair?.shortStrike || 0,
-    premium,
-    maxPayoff
-  );
+  const pnl = getPayoff(price, breakeven, spreadPair, premium, maxPayoff);
 
   const handleMouseLeave = useCallback(
     () => setState({ price, pnl }),
@@ -139,38 +151,47 @@ const PnlChart = (props: PnlChartProps) => {
 
   return (
     <Box className="mt-1">
-      <ResponsiveContainer width="100%" height="100%" aspect={2}>
-        <LineChart
-          height={300}
-          data={data}
-          onMouseMove={handleOnMouseMove}
-          onMouseLeave={handleMouseLeave}
-        >
-          <Tooltip content={<CustomTooltip />} />
-
-          <Line
-            type="monotone"
-            dataKey="value"
-            stroke="white"
-            dot={false}
-            strokeWidth={2}
-          />
-          <ReferenceLine y={0} stroke="#22E1FF" strokeWidth={2} />
-          <XAxis
-            type="number"
-            dataKey={'strike'}
-            domain={['dataMin', 'dataMax']}
-          />
-          <YAxis
-            padding={{ bottom: 1 }}
-            domain={['dataMin', 'dataMax']}
-            width={35}
-            interval="preserveStartEnd"
-            type="number"
-            tickCount={10}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+      <div
+        className={cx(
+          'rounded-lg mb-2 pb-0 p-2 -ml-2',
+          useFake ? 'blur-sm' : ''
+        )}
+      >
+        <ResponsiveContainer width="100%" height="100%" aspect={2}>
+          <LineChart
+            height={300}
+            data={data}
+            onMouseMove={useFake ? undefined : handleOnMouseMove}
+            onMouseLeave={useFake ? undefined : handleMouseLeave}
+          >
+            <Tooltip content={() => null} cursor={!useFake} />
+            <Line
+              type="monotone"
+              dataKey="value"
+              stroke="white"
+              dot={false}
+              strokeWidth={2}
+              activeDot={!useFake}
+            />
+            <ReferenceLine y={0} stroke="#22E1FF" strokeWidth={2} />
+            <XAxis
+              type="number"
+              dataKey={'strike'}
+              domain={['dataMin', 'dataMax']}
+              fontSize={14}
+            />
+            <YAxis
+              padding={{ bottom: 1 }}
+              domain={['dataMin', 'dataMax']}
+              width={45}
+              interval="preserveStartEnd"
+              type="number"
+              tickCount={10}
+              fontSize={14}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
       <div className="space-y-1">
         <ContentRow
           title="Price"
@@ -178,18 +199,25 @@ const PnlChart = (props: PnlChartProps) => {
         />
         <ContentRow
           title="Est. PnL"
-          content={`${formatAmount(state.pnl || 0, 2)}`}
+          content={`${useFake ? 0 : roundToTwoDecimals(state.pnl * amount)}`}
           highlightPnl
+          comma
         />
         <ContentRow
           title="Breakeven"
-          content={`$${formatAmount(breakeven || 0, 2)}`}
+          content={`$${formatAmount(useFake ? 0 : breakeven, 2)}`}
         />
         <ContentRow
           title="Max payoff"
-          content={`$${roundToTwoDecimals(
-            getMaxPayoff(selectedSpreadPair, premium)
-          )}`}
+          content={`${
+            useFake
+              ? 0
+              : roundToTwoDecimals(
+                  getMaxPayoff(spreadPair, premium) * Math.max(1, amount)
+                )
+          }`}
+          highlightPnl
+          comma
         />
       </div>
     </Box>
