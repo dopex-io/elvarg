@@ -45,24 +45,26 @@ const Stats: FC<StatsProps> = ({}) => {
 
   useEffect(() => {
     async function getVolume() {
-      const payload = await queryClient.fetchQuery({
-        queryKey: ['getZdteSpreadTradesFromTimestamp'],
-        queryFn: () =>
-          graphSdk.getZdteSpreadTradesFromTimestamp({
-            fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
-          }),
-      });
+      try {
+        const payload = await queryClient.fetchQuery({
+          queryKey: ['getZdteSpreadTradesFromTimestamp'],
+          queryFn: () =>
+            graphSdk.getZdteSpreadTradesFromTimestamp({
+              fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
+            }),
+        });
 
-      const _twentyFourHourVolume = payload.trades.reduce(
-        (acc, trade, _index) => {
-          return acc.add(BigNumber.from(trade ? trade?.amount : 0));
-        },
-        BigNumber.from(0)
-      );
+        const _twentyFourHourVolume = payload.trades
+          ? payload.trades.reduce((acc, trade, _index) => {
+              return acc.add(BigNumber.from(trade ? trade?.amount : 0));
+            }, BigNumber.from(0))
+          : BigNumber.from(0);
 
-      setTwentyFourHourVolume(utils.formatEther(_twentyFourHourVolume));
+        setTwentyFourHourVolume(utils.formatEther(_twentyFourHourVolume));
+      } catch (error) {
+        console.log('fail to getVolume from subgraph', error);
+      }
     }
-
     getVolume();
   }, []);
 
