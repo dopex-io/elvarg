@@ -82,8 +82,15 @@ function roundToNearest(num: number): number {
   return num;
 }
 
-const DATAPOINT_INTERVAL: number = 10;
-const BREAKEVEN_INTERVAL: number = 100;
+function getInterval(number: number): number {
+  if (number >= 100) {
+    return 10;
+  } else if (number > 10 && number <= 100) {
+    return 5;
+  } else {
+    return 0.5;
+  }
+}
 
 const PnlChart = (props: PnlChartProps) => {
   const {
@@ -92,13 +99,14 @@ const PnlChart = (props: PnlChartProps) => {
     selectedSpreadPair: actualSpreadPair,
   } = props;
   const { zdteData } = useBoundStore();
+  const step = zdteData?.step || 0;
   const useFake =
     actualSpreadPair === undefined ||
     actualSpreadPair.shortStrike === undefined;
   const spreadPair = useFake
     ? ({
-        shortStrike: zdteData?.nearestStrike! + 2 * zdteData?.step!,
-        longStrike: zdteData?.nearestStrike! + zdteData?.step!,
+        shortStrike: zdteData?.nearestStrike! + 2 * step!,
+        longStrike: zdteData?.nearestStrike! + step!,
       } as ISpreadPair)
     : actualSpreadPair;
   const premium = actualPremium || 0;
@@ -111,11 +119,11 @@ const PnlChart = (props: PnlChartProps) => {
   });
 
   const data = useMemo(() => {
-    const lower = roundToNearest(breakeven - BREAKEVEN_INTERVAL);
-    const upper = roundToNearest(breakeven + BREAKEVEN_INTERVAL);
+    const lower = roundToNearest(breakeven - 2 * step);
+    const upper = roundToNearest(breakeven + 2 * step);
     const strikes = Array.from(
-      { length: Math.ceil((upper - lower) / DATAPOINT_INTERVAL) + 1 },
-      (_, i) => lower + i * DATAPOINT_INTERVAL
+      { length: Math.ceil((upper - lower) / getInterval(price)) + 1 },
+      (_, i) => lower + i * getInterval(price)
     );
     return strikes.map((s) => {
       const payoff = getPayoff(s, breakeven, spreadPair, premium, maxPayoff);

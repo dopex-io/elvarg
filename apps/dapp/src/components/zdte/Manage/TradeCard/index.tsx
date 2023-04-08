@@ -110,6 +110,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
     setSelectedSpreadPair,
     textInputRef,
     staticZdteData,
+    setTextInputRef,
   } = useBoundStore();
   const zdteContract = getZdteContract();
 
@@ -146,7 +147,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
         )
       );
     } catch (err) {
-      console.log(err);
+      console.log('fail to approve', err);
     }
   }, [staticZdteData, signer, sendTx, amount, accountAddress]);
 
@@ -171,7 +172,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
           DECIMALS_STRIKE
         ),
       ]).then(() => {
-        setAmount('');
+        setAmount('1');
         setSelectedSpreadPair({
           ...selectedSpreadPair,
           shortStrike: undefined,
@@ -179,8 +180,8 @@ const TradeCard: FC<TradeProps> = ({}) => {
         });
       });
       await updateZdteData();
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      console.log('fail to open position', err);
       throw new Error('fail to open position');
     }
   }, [
@@ -227,7 +228,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
         setPremium(getUsdPrice(longPremium));
         setOpeningFees(getUsdPrice(longOpeningFees.add(shortOpeningFees)));
       } catch (err) {
-        console.log('updatePremiumAndFees: ', err);
+        console.log('fail to updatePremiumAndFees: ', err);
       }
     }
 
@@ -249,7 +250,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
         const toOpen = getContractReadableAmount(toApproveAmount, DECIMALS_USD);
         setApproved(allowance.gte(toOpen));
       } catch (err) {
-        console.log('validateApproval: ', err);
+        console.log('fail to validateApproval: ', err);
       }
     }
 
@@ -271,7 +272,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
         );
         setCanOpenSpread(sufficient);
       } catch (err) {
-        console.log('validateCanOpenSpread: ', err);
+        console.log('fail to validateCanOpenSpread: ', err);
       }
     }
 
@@ -307,7 +308,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
         margin = margin * Number(amount);
         setMargin(formatAmount(margin, 2));
       } catch (err) {
-        console.log('updateMargin: ', err);
+        console.log('fail to updateMargin: ', err);
       }
     }
     updatePremiumAndFees();
@@ -354,7 +355,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
             name="notionalSize"
             placeholder="1"
             onFocus={() => {
-              setAmount('');
+              setAmount('1');
             }}
             type="number"
             className="h-16 text-md text-white font-mono mr-2"
@@ -369,7 +370,20 @@ const TradeCard: FC<TradeProps> = ({}) => {
               <Box
                 key={i}
                 className={`text-center w-auto cursor-pointer group hover:bg-mineshaft hover:opacity-80`}
-                onClick={() => setSelectedMargin(option)}
+                onClick={() => {
+                  setTextInputRef(false);
+                  setAmount(
+                    Math.floor(
+                      (option *
+                        getUserReadableAmount(
+                          userZdteLpData?.userQuoteTokenBalance!,
+                          DECIMALS_USD
+                        )) /
+                        100 /
+                        (premium + openingFees)
+                    )
+                  );
+                }}
               >
                 <Typography
                   variant="h6"
