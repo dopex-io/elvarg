@@ -107,7 +107,7 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
   );
 
   const handleApprove = useCallback(async () => {
-    if (!signer || !asset || !staticZdteData) return;
+    if (!signer || !asset || !staticZdteData || !accountAddress) return;
 
     try {
       await sendTx(
@@ -121,31 +121,56 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
           ),
         ]
       );
+      const tokenContract = await ZdteLP__factory.connect(
+        asset.getAssetAddress,
+        signer
+      );
+      const allowance: BigNumber = await tokenContract.allowance(
+        accountAddress,
+        staticZdteData?.zdteAddress
+      );
+      const withdrawAmount = getContractReadableAmount(
+        tokenWithdrawAmount,
+        isQuote ? DECIMALS_USD : DECIMALS_TOKEN
+      );
+      setTokenApproved(
+        allowance.gt(BigNumber.from(0)) && allowance.gte(withdrawAmount)
+      );
     } catch (err) {
       console.log('handle approval: ', err);
     }
-  }, [staticZdteData, signer, sendTx, asset, tokenWithdrawAmount, isQuote]);
+  }, [
+    staticZdteData,
+    signer,
+    sendTx,
+    asset,
+    tokenWithdrawAmount,
+    accountAddress,
+    isQuote,
+  ]);
 
   const checkApproved = useCallback(async () => {
     if (!accountAddress || !signer || !staticZdteData || !asset) return;
-
-    const tokenContract = await ZdteLP__factory.connect(
-      asset.getAssetAddress,
-      signer
-    );
-    const allowance: BigNumber = await tokenContract.allowance(
-      accountAddress,
-      staticZdteData?.zdteAddress
-    );
-    const withdrawAmount = getContractReadableAmount(
-      tokenWithdrawAmount,
-      isQuote ? DECIMALS_USD : DECIMALS_TOKEN
-    );
-
-    setTokenApproved(
-      allowance.gt(BigNumber.from(0)) && allowance.gte(withdrawAmount)
-    );
-  }, [accountAddress, signer, staticZdteData, asset]);
+    try {
+      const tokenContract = await ZdteLP__factory.connect(
+        asset.getAssetAddress,
+        signer
+      );
+      const allowance: BigNumber = await tokenContract.allowance(
+        accountAddress,
+        staticZdteData?.zdteAddress
+      );
+      const withdrawAmount = getContractReadableAmount(
+        tokenWithdrawAmount,
+        isQuote ? DECIMALS_USD : DECIMALS_TOKEN
+      );
+      setTokenApproved(
+        allowance.gt(BigNumber.from(0)) && allowance.gte(withdrawAmount)
+      );
+    } catch (err) {
+      console.log('check approved: ', err);
+    }
+  }, [accountAddress, signer, staticZdteData, asset, tokenWithdrawAmount]);
 
   // Updates approved state and user balance
   useEffect(() => {
