@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
@@ -48,8 +47,8 @@ const WithdrawDialog = ({ open, handleClose, data }: Props) => {
       handleClose={handleClose}
       classes={{ paper: 'rounded-2xl m-0' }}
     >
-      <Box className="flex flex-col">
-        <Box className="flex flex-row items-center mb-4">
+      <div className="flex flex-col">
+        <div className="flex flex-row items-center mb-4">
           <IconButton
             className="p-0 pr-3 pb-1"
             onClick={handleClose}
@@ -61,8 +60,8 @@ const WithdrawDialog = ({ open, handleClose, data }: Props) => {
             />
           </IconButton>
           <Typography variant="h3">Withdraw</Typography>
-        </Box>
-        <Box className="bg-umbra rounded-md flex flex-col p-4 space-y-4">
+        </div>
+        <div className="bg-umbra rounded-md flex flex-col p-4 space-y-4">
           <Stat name="Asset" value={ssovData?.underlyingSymbol} />
           <Stat name="Collateral" value={ssovData?.collateralSymbol} />
           <Stat name="Type" value={ssovData?.isPut ? 'PUT' : 'CALL'} />
@@ -85,20 +84,8 @@ const WithdrawDialog = ({ open, handleClose, data }: Props) => {
               </>
             }
           />
-          <Stat
-            name="Accrued Rewards"
-            value={
-              <>
-                {data.accruedRewards.map((rewards, index) => {
-                  return (
-                    <NumberDisplay key={index} n={rewards} decimals={18} />
-                  );
-                })}
-              </>
-            }
-          />
           <Stat name="Epoch" value={data.epoch.toString()} />
-        </Box>
+        </div>
         <CustomButton
           className="w-full my-4"
           onClick={handleWithdraw}
@@ -106,7 +93,7 @@ const WithdrawDialog = ({ open, handleClose, data }: Props) => {
         >
           Withdraw
         </CustomButton>
-      </Box>
+      </div>
     </Dialog>
   );
 };
