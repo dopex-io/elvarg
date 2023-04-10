@@ -52,10 +52,7 @@ const Description = ({
         {rewards?.map((rewardInfo: Reward, idx: number) => {
           return (
             <Typography key={idx} variant="h5" className="text-stieglitz">
-              {formatAmount(
-                getUserReadableAmount(rewardInfo.amount.hex, 18),
-                2
-              )}{' '}
+              {formatAmount(getUserReadableAmount(rewardInfo.amount, 18), 2)}{' '}
               {rewardInfo.rewardToken}
             </Typography>
           );
