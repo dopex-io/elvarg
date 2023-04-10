@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import cx from 'classnames';
-import Box from '@mui/material/Box';
 import format from 'date-fns/format';
 import noop from 'lodash/noop';
 
@@ -40,24 +39,24 @@ const Description = ({
 
   const Incentives = () => {
     if (rewards?.length === 0) {
-      return (
-        <Typography variant="h5" className="text-stieglitz mb-5">
-          -
-        </Typography>
-      );
+      return null;
     }
 
     return (
-      <Box className="mb-5">
+      <div className="mb-5">
+        <span className="text-white">Current incentives</span>
         {rewards?.map((rewardInfo: Reward, idx: number) => {
+          if (rewardInfo.amount === '0') return null;
           return (
-            <Typography key={idx} variant="h5" className="text-stieglitz">
-              {formatAmount(getUserReadableAmount(rewardInfo.amount, 18), 2)}{' '}
-              {rewardInfo.rewardToken}
-            </Typography>
+            <p key={idx}>
+              <span>
+                {formatAmount(getUserReadableAmount(rewardInfo.amount, 18), 2)}{' '}
+              </span>
+              <span>{rewardInfo.rewardToken}</span>
+            </p>
           );
         })}
-      </Box>
+      </div>
     );
   };
 
@@ -75,8 +74,8 @@ const Description = ({
   ];
 
   return (
-    <Box className="flex flex-col md:mr-5 w-full md:w-[400px]">
-      <Box className="flex">
+    <div className="flex flex-col md:mr-5 w-full md:w-[400px]">
+      <div className="flex">
         <Typography variant="h1" className="mb-6 flex items-center space-x-3">
           <span>{ssovData.underlyingSymbol}</span>
           <span
@@ -98,7 +97,7 @@ const Description = ({
             2
           )}
         </Typography>
-      </Box>
+      </div>
       <Typography variant="h5" className="text-stieglitz mb-6">
         <span className="text-white">
           {ssovData.underlyingSymbol} Single Staking Option Vault V3
@@ -106,13 +105,11 @@ const Description = ({
         <br />
         {`Deposit ${ssovData.collateralSymbol} into strikes providing liquidity into option pools to earn yield in premiums and rewards.`}
       </Typography>
-      <Typography variant="h5" className="text-stieglitz">
-        <span className="text-white">Current incentives</span>
-      </Typography>
+
       <Incentives />
       <EpochSelector className="mb-6" />
       {ssovEpochData.isEpochExpired ? (
-        <Box className="mb-3">
+        <div className="mb-3">
           <Typography variant="h5">
             Settlement price was{' $'}
             {formatAmount(
@@ -120,17 +117,17 @@ const Description = ({
               2
             )}
           </Typography>
-        </Box>
+        </div>
       ) : null}
-      <Box className="mb-3">
+      <div className="mb-3">
         Epoch duration
         <p className="font-bold">
           {format(epochStartTime * 1000, 'd MMM yyyy HH:mm')} -{' '}
           {format(epochEndTime * 1000, 'd MMM yyyy HH:mm')}
         </p>
-      </Box>
-      <Box className="flex justify-center items-center flex-row mb-6">
-        <Box className="w-full mr-2">
+      </div>
+      <div className="flex justify-center items-center flex-row mb-6">
+        <div className="w-full mr-2">
           <SignerButton
             size="medium"
             className="rounded-lg"
@@ -141,18 +138,18 @@ const Description = ({
           >
             Buy {type} Options
           </SignerButton>
-        </Box>
-      </Box>
-      <Box className="grid grid-cols-3 gap-2 mb-6">
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-2 mb-6">
         {info.map((item) => {
           return <InfoBox key={item.heading} {...item} />;
         })}
-      </Box>
-      <Box>
+      </div>
+      <div>
         <Typography variant={'h6'} className={'text-stieglitz'}>
           *Effective APY if you deposit now
         </Typography>
-      </Box>
+      </div>
       {purchaseState && (
         <PurchaseDialog
           open={purchaseState}
@@ -165,7 +162,7 @@ const Description = ({
           }
         />
       )}
-    </Box>
+    </div>
   );
 };
 
