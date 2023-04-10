@@ -1,16 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
-
 import { MockToken, MockToken__factory } from '@dopex-io/sdk';
-import Box from '@mui/material/Box';
-import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
-import LockerIcon from 'svgs/icons/LockerIcon';
 
 import CustomButton from 'components/UI/Button';
 import Input from 'components/UI/Input';
-import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import PoolStats from 'components/perpetual-pools/DepositPanel/PoolStats';
+import LockerIcon from 'svgs/icons/LockerIcon';
+
+import { useBoundStore } from 'store';
+
+import useSendTx from 'hooks/useSendTx';
 
 import { getContractReadableAmount } from 'utils/contracts';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -27,6 +26,7 @@ const DepositPanel = () => {
     chainId,
     accountAddress,
     userAssetBalances,
+    updateAssetBalances,
     appContractData,
     updateAPPUserData,
   } = useBoundStore();
@@ -66,7 +66,7 @@ const DepositPanel = () => {
     const inputAmount = getContractReadableAmount(value, decimals);
     try {
       await sendTx(_contract, 'deposit', [inputAmount, accountAddress]).then(
-        () => updateAPPUserData()
+        () => updateAPPUserData().then(() => updateAssetBalances())
       );
     } catch (e) {
       console.log(e);
@@ -77,6 +77,7 @@ const DepositPanel = () => {
     appContractData.collateralSymbol,
     accountAddress,
     updateAPPUserData,
+    updateAssetBalances,
     value,
     sendTx,
   ]);
@@ -147,9 +148,9 @@ const DepositPanel = () => {
   }, [accountAddress, appContractData, chainId, value]);
 
   return (
-    <Box className="p-3 bg-cod-gray rounded-xl space-y-3">
-      <Typography variant="h6">Deposit</Typography>
-      <Box className="bg-umbra rounded-xl w-full">
+    <div className="p-3 bg-cod-gray rounded-xl space-y-3">
+      <p className="text-sm">Deposit</p>
+      <div className="bg-umbra rounded-xl w-full">
         <Input
           size="small"
           type="number"
@@ -158,8 +159,8 @@ const DepositPanel = () => {
           placeholder="0.0"
           className="flex w-full"
           leftElement={
-            <Box className="flex my-auto space-x-2">
-              <Box className="flex bg-cod-gray rounded-full p-1 relative">
+            <div className="flex my-auto space-x-2">
+              <div className="flex bg-cod-gray rounded-full p-1 relative">
                 <img
                   src={`/images/tokens/${
                     appContractData.underlyingSymbol?.toLowerCase() || 'USDC'
@@ -167,27 +168,23 @@ const DepositPanel = () => {
                   alt={appContractData.underlyingSymbol.toUpperCase()}
                   className="w-[2.2rem] mr-1"
                 />
-                <Typography variant="h5" className="my-auto w-[5.2rem]">
+                <p className="text-base my-auto w-[5.2rem]">
                   {appContractData.underlyingSymbol.toUpperCase()}
-                </Typography>
-              </Box>
-              <Box
+                </p>
+              </div>
+              <div
                 className="rounded-md bg-mineshaft text-stieglitz hover:bg-mineshaft my-auto p-2"
                 role="button"
                 onClick={handleMax}
               >
-                <Typography variant="caption" color="stieglitz">
-                  MAX
-                </Typography>
-              </Box>
-            </Box>
+                <p className="text-xs text-stieglitz">MAX</p>
+              </div>
+            </div>
           }
         />
-        <Box className="flex justify-between px-3 pb-3">
-          <Typography variant="h6" color="stieglitz">
-            Balance
-          </Typography>
-          <Typography variant="h6">
+        <div className="flex justify-between px-3 pb-3">
+          <p className="text-sm text-stieglitz">Balance</p>
+          <p className="text-sm">
             {formatAmount(
               getUserReadableAmount(
                 userAssetBalances[
@@ -197,24 +194,23 @@ const DepositPanel = () => {
                   appContractData.underlyingSymbol.toUpperCase()
                 ]
               ),
-              3,
-              true
+              3
             )}{' '}
             {appContractData.underlyingSymbol.toUpperCase()}
-          </Typography>
-        </Box>
-      </Box>
+          </p>
+        </div>
+      </div>
       <PoolStats poolType="PUTS" />
-      <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra">
-        <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
+      <div className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra">
+        <div className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
           <EstimatedGasCostButton gas={500000} chainId={chainId} />
-        </Box>
-        <Box className="flex justify-between">
+        </div>
+        <div className="flex justify-between">
           <LockerIcon className="w-1/6" />
-          <Typography variant="h6" color="stieglitz" className="break-words">
+          <p className="text-sm text-stieglitz break-words">
             Withdrawals are disabled till settlement
-          </Typography>
-        </Box>
+          </p>
+        </div>
         <CustomButton
           size="medium"
           className="w-full mt-4 !rounded-md"
@@ -224,8 +220,8 @@ const DepositPanel = () => {
         >
           {approved ? 'Deposit' : 'Approve'}
         </CustomButton>
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 

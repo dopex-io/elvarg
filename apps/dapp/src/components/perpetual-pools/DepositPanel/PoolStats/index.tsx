@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { BigNumber } from 'ethers';
-import Box from '@mui/material/Box';
 
 import PoolStatsRow from 'components/perpetual-pools/DepositPanel/PoolStats/PoolStatsRow';
 import PoolStatsBox from 'components/perpetual-pools/DepositPanel/PoolStats/PoolStatsBox';
@@ -50,8 +49,8 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
   }, [appContractData, appUserData, chainId]);
 
   return (
-    <Box className="border border-umbra rounded-xl divide-y divide-umbra">
-      <Box className="flex divide-x divide-umbra">
+    <div className="border border-umbra rounded-xl divide-y divide-umbra">
+      <div className="flex divide-x divide-umbra">
         <PoolStatsBox
           stat={formatAmount(poolShareStats.totalDeposits, 8, true)}
           description="Total Deposits"
@@ -60,11 +59,11 @@ const PoolStats = ({ poolType }: PoolStatsProps) => {
           stat={formatAmount(poolShareStats.userShare, 8, true) + '%'}
           description="Pool Share"
         />
-      </Box>
-      <Box className="flex flex-col space-y-2 p-3">
+      </div>
+      <div className="flex flex-col space-y-2 p-3">
         <PoolStatsRow description="Side" value={poolType.toLocaleUpperCase()} />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 

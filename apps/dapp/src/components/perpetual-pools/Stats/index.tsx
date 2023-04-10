@@ -1,8 +1,4 @@
-import Box from '@mui/material/Box';
-
-import Typography from 'components/UI/Typography';
 import InfoTooltip from 'components/UI/InfoTooltip';
-
 import { StatsType } from 'pages/rdpx-v2/perpetual-pools';
 
 import { smartTrim } from 'utils/general';
@@ -18,7 +14,7 @@ const Stats = (props: Props) => {
   const { statsObject, chainId = 42161 } = props;
 
   return (
-    <Box className="grid grid-flow-row grid-cols-2">
+    <div className="grid grid-flow-row grid-cols-2">
       {Object.keys(statsObject).map((key: string, index) => {
         let cornerCurve;
         let border;
@@ -35,11 +31,11 @@ const Stats = (props: Props) => {
         else if (index === len - 1) border = 'border-b';
 
         return (
-          <Box
+          <div
             className={`flex justify-between border-t border-r ${border} border-umbra rounded-${cornerCurve}-xl px-3 py-4`}
             key={index}
           >
-            <Typography variant="h6" color="stieglitz">
+            <p className="text-sm text-stieglitz">
               {key}
               {Object(statsObject[key])['tooltip'] ? (
                 <InfoTooltip
@@ -49,7 +45,7 @@ const Stats = (props: Props) => {
                   arrow
                 />
               ) : null}
-            </Typography>
+            </p>
             {key.includes('Contract') ? (
               <a
                 href={`${CHAIN_ID_TO_EXPLORER[chainId]}/address/${String(
@@ -59,22 +55,20 @@ const Stats = (props: Props) => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Typography variant="h6">
+                <p className="text-sm">
                   {smartTrim(
                     String(Object(statsObject[key])['value'] || ''),
                     10
                   )}
-                </Typography>
+                </p>
               </a>
             ) : (
-              <Typography variant="h6">
-                {Object(statsObject[key])?.['value']}
-              </Typography>
+              <p className="text-sm">{Object(statsObject[key])?.['value']}</p>
             )}
-          </Box>
+          </div>
         );
       })}
-    </Box>
+    </div>
   );
 };
 

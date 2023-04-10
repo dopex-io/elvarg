@@ -48,6 +48,7 @@ const Bond = () => {
     provider,
     accountAddress,
     contractAddresses,
+    updateAssetBalances,
     userAssetBalances,
     treasuryContractState,
     treasuryData,
@@ -134,8 +135,9 @@ const Bond = () => {
           accountAddress,
           0,
         ]).then(() => {
-          updateUserDscBondsData();
-          updateTreasuryData();
+          updateAssetBalances().then(() =>
+            updateTreasuryData().then(() => updateUserDscBondsData())
+          );
         });
       else {
         const availableDelegates = await getAvailableDelegatesFromTreasury();
@@ -170,8 +172,9 @@ const Bond = () => {
           ids,
           0,
         ]).then(() => {
-          updateUserDscBondsData();
-          updateTreasuryData();
+          updateAssetBalances().then(() =>
+            updateTreasuryData().then(() => updateUserDscBondsData())
+          );
         });
       }
     } catch (e) {
@@ -185,6 +188,7 @@ const Bond = () => {
     sendTx,
     value,
     updateUserDscBondsData,
+    updateAssetBalances,
     updateTreasuryData,
     delegated,
     getAvailableDelegatesFromTreasury,

@@ -148,7 +148,7 @@ const SwapPanel = () => {
         inverted ? 1 : 0,
         getContractReadableAmount(amountIn, 18),
         dy,
-      ]);
+      ]).then(() => updateCurvePool());
     } catch (e) {
       console.log(e);
     }
@@ -161,65 +161,63 @@ const SwapPanel = () => {
     treasuryContractState.contracts,
   ]);
 
-  useEffect(() => {
-    (async () => {
-      if (
-        !treasuryContractState.contracts ||
-        !contractAddresses ||
-        !signer ||
-        !accountAddress
-      )
-        return;
+  const updateCurvePool = useCallback(async () => {
+    if (
+      !treasuryContractState.contracts ||
+      !contractAddresses ||
+      !signer ||
+      !accountAddress
+    )
+      return;
 
-      const alpha_token = MockToken__factory.connect(
-        contractAddresses['WETH'],
-        signer
-      );
+    const alpha_token = MockToken__factory.connect(
+      contractAddresses['WETH'],
+      signer
+    );
 
-      const dsc: DscToken = treasuryContractState.contracts.dsc;
+    const dsc: DscToken = treasuryContractState.contracts.dsc;
 
-      const tokenA = await Promise.all([
-        alpha_token.symbol(),
-        alpha_token.address,
-        alpha_token.totalSupply(),
-        alpha_token.balanceOf(accountAddress),
-      ]).then((res) => {
-        return TOKEN_DATA_KEYS.reduce((prev, curr, index) => {
-          return { ...prev, [curr]: res[index] };
-        }, INIT_TOKEN_DATA);
-      });
+    const tokenA = await Promise.all([
+      alpha_token.symbol(),
+      alpha_token.address,
+      alpha_token.totalSupply(),
+      alpha_token.balanceOf(accountAddress),
+    ]).then((res) => {
+      return TOKEN_DATA_KEYS.reduce((prev, curr, index) => {
+        return { ...prev, [curr]: res[index] };
+      }, INIT_TOKEN_DATA);
+    });
 
-      const tokenB = await Promise.all([
-        dsc.symbol(),
-        dsc.address,
-        dsc.totalSupply(),
-        dsc.balanceOf(accountAddress),
-      ]).then((res) => {
-        return TOKEN_DATA_KEYS.reduce((prev, curr, index) => {
-          return { ...prev, [curr]: res[index] };
-        }, INIT_TOKEN_DATA);
-      });
+    const tokenB = await Promise.all([
+      dsc.symbol(),
+      dsc.address,
+      dsc.totalSupply(),
+      dsc.balanceOf(accountAddress),
+    ]).then((res) => {
+      return TOKEN_DATA_KEYS.reduce((prev, curr, index) => {
+        return { ...prev, [curr]: res[index] };
+      }, INIT_TOKEN_DATA);
+    });
 
-      const [reserveA, reserveB, fee] = await Promise.all([
-        treasuryContractState.contracts.curvePool?.balances(0),
-        treasuryContractState.contracts.curvePool?.balances(1),
-        treasuryContractState.contracts.curvePool?.fee(),
-      ]).then((res) => res.map((val) => getUserReadableAmount(val || 0)));
+    const [reserveA, reserveB, fee] = await Promise.all([
+      treasuryContractState.contracts.curvePool?.balances(0),
+      treasuryContractState.contracts.curvePool?.balances(1),
+      treasuryContractState.contracts.curvePool?.fee(),
+    ]).then((res) => res.map((val) => getUserReadableAmount(val || 0)));
 
-      if (!reserveA || !reserveB) return;
+    if (!reserveA || !reserveB) return;
 
-      const [shareA, shareB] = [
-        (reserveA / (reserveA + reserveB)) * 100,
-        (reserveB / (reserveA + reserveB)) * 100,
-      ];
+    const [shareA, shareB] = [
+      (reserveA / (reserveA + reserveB)) * 100,
+      (reserveB / (reserveA + reserveB)) * 100,
+    ];
 
-      setReserves([
-        { value: reserveA, percentage: shareA },
-        { value: reserveB, percentage: shareB },
-      ]);
-      setPair([tokenA, tokenB]);
-      setFee((fee || 0) * 1e10);
-    })();
+    setReserves([
+      { value: reserveA, percentage: shareA },
+      { value: reserveB, percentage: shareB },
+    ]);
+    setPair([tokenA, tokenB]);
+    setFee((fee || 0) * 1e10);
   }, [
     treasuryData,
     accountAddress,
@@ -228,6 +226,10 @@ const SwapPanel = () => {
     signer,
     treasuryContractState.contracts,
   ]);
+
+  useEffect(() => {
+    updateCurvePool();
+  }, [updateCurvePool]);
 
   useEffect(() => {
     (async () => {

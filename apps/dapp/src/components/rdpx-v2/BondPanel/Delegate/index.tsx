@@ -4,12 +4,13 @@ import Slider from '@mui/material/Slider';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import Tooltip from '@mui/material/Tooltip';
 
-import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
 import Input from 'components/UI/Input';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+
+import useSendTx from 'hooks/useSendTx';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -44,6 +45,7 @@ const Delegate = () => {
     chainId,
     treasuryContractState,
     treasuryData,
+    updateTreasuryData,
     signer,
   } = useBoundStore();
 
@@ -112,26 +114,38 @@ const Delegate = () => {
       await sendTx(treasury, 'addToDelegate', [
         getContractReadableAmount(value, 18),
         getContractReadableAmount(fee, 8),
-      ]);
+      ]).then(() => {
+        updateTreasuryData();
+        updateBalance();
+      });
     } catch (e) {
       console.log(e);
     }
-  }, [sendTx, signer, treasuryContractState.contracts, fee, value]);
+  }, [
+    sendTx,
+    signer,
+    treasuryContractState.contracts,
+    fee,
+    value,
+    updateTreasuryData,
+  ]);
+
+  const updateBalance = useCallback(async () => {
+    if (!provider || !accountAddress || !treasuryData.tokenB.address) return;
+
+    const token = MockToken__factory.connect(
+      treasuryData.tokenA.address,
+      provider
+    );
+
+    const _balance = await token.balanceOf(accountAddress);
+
+    setUserBalance(_balance.toString());
+  }, [treasuryData, provider, accountAddress]);
 
   useEffect(() => {
-    (async () => {
-      if (!provider || !accountAddress || !treasuryData.tokenB.address) return;
-
-      const token = MockToken__factory.connect(
-        treasuryData.tokenA.address,
-        provider
-      );
-
-      const _balance = await token.balanceOf(accountAddress);
-
-      setUserBalance(_balance.toString());
-    })();
-  }, [treasuryData, provider, accountAddress]);
+    updateBalance();
+  }, [updateBalance]);
 
   useEffect(() => {
     (async () => {

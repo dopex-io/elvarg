@@ -23,6 +23,7 @@ const UserBonds = () => {
     accountAddress,
     userDscBondsData,
     treasuryContractState,
+    updateTreasuryData,
     treasuryData,
     updateUserDscBondsData,
     isLoading,
@@ -51,9 +52,10 @@ const UserBonds = () => {
       try {
         if (!isApproved)
           await sendTx(bond, 'approve', [treasury.address, tokenId]);
-        await sendTx(treasury, 'redeem', [tokenId, accountAddress]).then(() =>
-          updateUserDscBondsData()
-        );
+        await sendTx(treasury, 'redeem', [tokenId, accountAddress]).then(() => {
+          updateTreasuryData();
+          updateUserDscBondsData();
+        });
       } catch (e) {
         console.log(e);
       }
@@ -64,6 +66,7 @@ const UserBonds = () => {
       signer,
       treasuryContractState.contracts,
       updateUserDscBondsData,
+      updateTreasuryData,
     ]
   );
 

@@ -1,7 +1,5 @@
 import { useMemo } from 'react';
 
-import { useBoundStore } from 'store';
-
 import BondPanel from 'components/rdpx-v2/BondPanel';
 import Charts from 'components/rdpx-v2/Charts';
 import QuickLink from 'components/rdpx-v2/QuickLink';
@@ -10,10 +8,12 @@ import Title from 'components/rdpx-v2/Title';
 import UserBonds from 'components/rdpx-v2/Tables/UserBonds';
 import DelegatePositions from 'components/rdpx-v2/Tables/DelegatePositions';
 
+import { useBoundStore } from 'store';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-const statsKeys = [
+const STAT_KEYS = [
   'Total Supply',
   'Market Cap',
   'dpxETH Price',
@@ -22,7 +22,7 @@ const statsKeys = [
   '',
 ];
 
-const statsValues = ['-', '-', '-', '-', '-', '-'];
+const DEFAULT_STAT_VALS = ['-', '-', '-', '-', '-', '-'];
 
 const quickLink1Props = {
   text: 'RDPX Whitepaper',
@@ -50,7 +50,7 @@ const RdpxV2Main = () => {
       !treasuryData.reserveA ||
       !treasuryData.reserveB
     )
-      return statsValues;
+      return DEFAULT_STAT_VALS;
 
     return [
       getUserReadableAmount(treasuryData.dscSupply, 18),
@@ -72,7 +72,7 @@ const RdpxV2Main = () => {
         <div className="flex flex-col space-y-4 w-full sm:w-full lg:w-3/4 h-full">
           <Stats
             statsObject={Object.fromEntries(
-              statsKeys.map((_, i) => [statsKeys[i], statsVals[i]])
+              STAT_KEYS.map((_, i) => [STAT_KEYS[i], statsVals[i]])
             )}
           />
           <Charts />
