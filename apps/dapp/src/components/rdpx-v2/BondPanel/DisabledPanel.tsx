@@ -1,10 +1,11 @@
-import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
+
 import { useBoundStore } from 'store';
+
 import AlertIcon from 'svgs/icons/AlertIcon';
 
 interface Props {
-  isMint: boolean;
+  displayKey: string;
 }
 
 const popupText: Record<string, Record<string, string>> = {
@@ -20,29 +21,34 @@ const popupText: Record<string, Record<string, string>> = {
       'Redemptions are only available when $dpxETH trades below 1.01. Consider selling $dpxETH on Curve.',
     link: 'https://app.dopex.io/ssov',
   },
+  connect: {
+    title: 'Connect Wallet',
+    description: 'Please connect your wallet to interact with the app.',
+    link: '',
+  },
 };
 
 const DisabledPanel = (props: Props) => {
-  const { isMint = false } = props;
+  const { displayKey } = props;
 
   const { isLoading } = useBoundStore();
 
   return (
-    <Box className="z-10 absolute top-0 flex flex-col h-full backdrop-blur-md text-center border rounded-xl bg-transparent border-[#F09242] p-3 space-y-2 justify-center w-full">
+    <div className="z-10 absolute top-0 flex flex-col h-full backdrop-blur-md text-center border rounded-xl bg-transparent border-[#F09242] p-3 space-y-2 justify-center w-full">
       {!isLoading ? (
         <>
-          <Box className="flex w-2/3 self-center space-x-2">
+          <div className="flex w-2/3 self-center justify-center space-x-2">
             <AlertIcon className="my-auto" />
             <span className="text-sm my-auto">
-              {popupText[isMint ? 'mint' : 'redeem']?.['title']}
+              {popupText[displayKey]?.['title']}
             </span>
-          </Box>
+          </div>
           <span className="text-xs my-auto">
-            {popupText[isMint ? 'mint' : 'redeem']?.['description']}
+            {popupText[displayKey]?.['description']}
           </span>
           <a
             className="text-xs text-wave-blue"
-            href={'https://app.dopex.io/ssov'}
+            href={popupText[displayKey]?.['link']}
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -52,7 +58,7 @@ const DisabledPanel = (props: Props) => {
       ) : (
         <CircularProgress size="30px" className="mx-auto" />
       )}
-    </Box>
+    </div>
   );
 };
 

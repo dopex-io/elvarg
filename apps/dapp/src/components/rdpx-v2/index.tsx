@@ -53,12 +53,16 @@ const RdpxV2Main = () => {
       return DEFAULT_STAT_VALS;
 
     return [
-      getUserReadableAmount(treasuryData.dscSupply, 18),
-      getUserReadableAmount(
-        treasuryData.dscPrice.mul(treasuryData.dscSupply),
-        26
+      formatAmount(getUserReadableAmount(treasuryData.dscSupply, 18), 3),
+      formatAmount(
+        getUserReadableAmount(
+          treasuryData.dscPrice.mul(treasuryData.dscSupply),
+          26
+        ),
+        3
       ) + ' WETH',
-      getUserReadableAmount(treasuryData.dscPrice, 8) + ' WETH',
+      formatAmount(getUserReadableAmount(treasuryData.dscPrice, 8), 3) +
+        ' WETH',
       formatAmount(getUserReadableAmount(treasuryData.rdpxSupply, 18), 3),
       formatAmount(getUserReadableAmount(treasuryData.rdpxPriceInAlpha, 8), 3) +
         ' WETH',

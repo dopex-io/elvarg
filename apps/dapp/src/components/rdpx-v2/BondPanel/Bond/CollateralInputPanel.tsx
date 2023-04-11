@@ -10,19 +10,20 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 interface Props {
   inputAmount: number;
+  setInputAmount: React.Dispatch<React.SetStateAction<number | string>>; // **note**: drilled prop may cause unintended side-effects
   setApproved: Function;
   delegated: boolean;
 }
 
 const CollateralInputPanel = (props: Props) => {
-  const { inputAmount, setApproved, delegated } = props;
+  const { inputAmount, setInputAmount, setApproved, delegated } = props;
 
   const { accountAddress, provider, treasuryData, treasuryContractState } =
     useBoundStore();
 
   const [amounts, setAmounts] = useState([0, 0]);
 
-  const handleAmountsRecalcuation = useCallback(() => {
+  const handleAmountsRecalculation = useCallback(() => {
     if (!treasuryData) return;
     const _amounts = treasuryData.bondCostPerDsc;
 
@@ -33,8 +34,8 @@ const CollateralInputPanel = (props: Props) => {
   }, [inputAmount, treasuryData]);
 
   useEffect(() => {
-    handleAmountsRecalcuation();
-  }, [handleAmountsRecalcuation]);
+    handleAmountsRecalculation();
+  }, [handleAmountsRecalculation]);
 
   useEffect(() => {
     (async () => {
@@ -75,7 +76,7 @@ const CollateralInputPanel = (props: Props) => {
   return (
     <div className="bg-umbra rounded-b-xl">
       <div className="divide-y-2 divide-cod-gray">
-        {amounts.map((amount, index) => {
+        {amounts.map((_, index) => {
           let symbol = (
             index === 0
               ? treasuryData.tokenB.symbol
@@ -84,9 +85,11 @@ const CollateralInputPanel = (props: Props) => {
           return (
             <InputRow
               key={index}
+              index={index}
               tokenSymbol={symbol}
-              inputAmount={amount || 0}
-              label="25%"
+              amounts={amounts}
+              setAmounts={setAmounts}
+              setBonds={setInputAmount}
               rounded={index === amounts.length - 1}
             />
           );

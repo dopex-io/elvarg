@@ -34,15 +34,24 @@ const TableRowData = (props: Props) => {
 
   const sendTx = useSendTx();
 
-  const { appUserData, appContractData, signer, accountAddress } =
-    useBoundStore();
+  const {
+    appUserData,
+    updateAPPUserData,
+    appContractData,
+    signer,
+    accountAddress,
+  } = useBoundStore();
 
   const handleWithdraw = useCallback(async () => {
     const contract = appContractData.contract;
     if (!signer || !appUserData || !contract || !accountAddress) return;
 
     try {
-      await sendTx(contract, 'withdraw', [positionId, accountAddress]);
+      await sendTx(contract, 'withdraw', [positionId, accountAddress]).then(
+        () => {
+          updateAPPUserData();
+        }
+      );
     } catch (e) {
       console.log(e);
     }
@@ -51,6 +60,7 @@ const TableRowData = (props: Props) => {
     appContractData.contract,
     appUserData,
     positionId,
+    updateAPPUserData,
     sendTx,
     signer,
   ]);

@@ -32,7 +32,7 @@ const Stats = (props: Props) => {
 
         return (
           <div
-            className={`flex justify-between ${border} ${rounding} border-umbra  px-3 py-4`}
+            className={`flex justify-between ${border} ${rounding} border-umbra px-3 py-4`}
             key={index}
           >
             <p className="text-sm text-stieglitz">{key}</p>

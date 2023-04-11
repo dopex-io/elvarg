@@ -235,7 +235,8 @@ const Delegate = () => {
       </div>
       <div className="mx-2">
         <p className="text-xs text-stieglitz text-center">
-          Receive 75% share of the bonds minted using your collateral plus fee.
+          Receive 75% share of the bonds minted using your collateral plus
+          additional fee from delegatee's bonding discount.
         </p>
       </div>
       <div className="rounded-xl p-4 w-full bg-umbra">

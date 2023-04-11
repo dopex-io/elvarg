@@ -278,7 +278,7 @@ const Bond = () => {
   return (
     <div className="space-y-3 relative">
       {!userDscBondsData.isEligibleForMint || isLoading || mintDisabled ? (
-        <DisabledPanel isMint={true} />
+        <DisabledPanel displayKey={accountAddress ? 'mint' : 'connect'} />
       ) : null}
       <div className="bg-umbra rounded-xl w-full h-fit divide-y-2 divide-cod-gray">
         <Input
@@ -362,6 +362,7 @@ const Bond = () => {
         </div>
         <CollateralInputPanel
           inputAmount={Number(value)}
+          setInputAmount={setValue}
           setApproved={setApproved}
           delegated={delegated}
         />
@@ -387,7 +388,7 @@ const Bond = () => {
           <a
             className="flex space-x-2 w-full mt-4 rounded-md bg-[#3966A0] justify-between p-2"
             role="link"
-            href="https://arbitrum.curve.fi/"
+            href="/rdpx-v2/curve-swap"
             target="_blank"
             rel="noopener noreferrer"
           >
