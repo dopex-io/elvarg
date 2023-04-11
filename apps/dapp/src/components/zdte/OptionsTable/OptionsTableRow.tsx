@@ -94,7 +94,7 @@ export const OptionsTableRow = ({
       </StyleCell>
       <StyleCell align="left">
         <Typography variant="h6" color="white">
-          {formatAmount(optionsStats.delta, 2)}
+          {formatAmount(optionsStats.delta, 4)}
         </Typography>
       </StyleCell>
       <StyleRightCell align="right" className="pt-2">
@@ -133,7 +133,7 @@ export const OptionsTableRowLower = ({
       </StyleLeftTableCell>
       <StyleTableCellHeader>
         <Typography variant="h6" color="white">
-          ${formatAmount(optionsStats.premium)}
+          ${optionsStats.premium}
         </Typography>
       </StyleTableCellHeader>
       <StyleTableCellHeader>
