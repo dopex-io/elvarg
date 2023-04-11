@@ -234,9 +234,10 @@ const Delegate = () => {
         </div>
       </div>
       <div className="mx-2">
-        <p className="text-xs text-stieglitz text-center">
-          Receive 75% share of the bonds minted using your collateral plus
-          additional fee from delegatee's bonding discount.
+        <p className="text-xs text-stieglitz text-justify">
+          Receive 75% share of the bonds minted using your collateral plus an
+          additional fee from the delegatee's bonding discount. WETH with the
+          lowest fee will be used up first.
         </p>
       </div>
       <div className="rounded-xl p-4 w-full bg-umbra">

@@ -430,14 +430,18 @@ export const createDpxusdBondingSlice: StateCreator<
       }
     }
 
-    // accumulator = {
-    //   ...accumulator,
-    //   amounts: accumulator.amounts.map((amount) =>
-    //     amount.mul(bonds).div(requiredCollateral)
-    //   ),
-    // };
+    accumulator = {
+      ...accumulator,
+      amounts: accumulator.amounts.map(
+        (amount) => amount.mul(bonds).div(requiredCollateral).sub(1e2) // todo: some precision is lost; calculateBondCost(A) + cbc(B) + cbc(C) !== cbc(A + B + C)
+      ),
+    };
 
-    console.log('Hello world: ', accumulator, bonds);
+    console.log(
+      'Hello world: ',
+      accumulator.amounts.map((amount) => amount.toString()),
+      bonds
+    );
 
     return {
       ids: accumulator.ids,
