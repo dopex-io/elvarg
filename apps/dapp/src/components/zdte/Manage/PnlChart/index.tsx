@@ -97,7 +97,9 @@ function CustomYAxisTick(props: any) {
   const { x, y, payload } = props;
   return (
     <text x={x} y={y} textAnchor="end" fill="#666" fontSize={14}>
-      {formatAmountWithNegative(payload.value, 0, true)}
+      {payload.value < 0
+        ? payload.value
+        : formatAmountWithNegative(payload.value, 0, true)}
     </text>
   );
 }
@@ -189,7 +191,6 @@ const PnlChart = (props: PnlChartProps) => {
       >
         <ResponsiveContainer width="100%" height="100%" aspect={2}>
           <LineChart
-            height={300}
             data={data}
             onMouseMove={useFake ? undefined : handleOnMouseMove}
             onMouseLeave={useFake ? undefined : handleMouseLeave}
