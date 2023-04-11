@@ -483,9 +483,33 @@ const Positions = ({
       userPositionData.state === ActionState['3']
     )
       return (
-        <CustomButton onClick={handleIncreaseManagedPosition}>
-          Add Collateral
-        </CustomButton>
+        <Select
+          value={action}
+          onChange={handleActionChange}
+          className="bg-primary rounded-md w-full text-center text-white border border-umbra p-2"
+          MenuProps={{
+            classes: { paper: 'bg-primary' },
+          }}
+          classes={{ icon: 'text-white', select: 'p-0' }}
+          placeholder={'Select output token'}
+          variant="standard"
+          disableUnderline
+        >
+          <MenuItem
+            onClick={handleIncreaseManagedPosition}
+            value={'Enable'}
+            className="text-white"
+          >
+            <Typography variant="h6">Add Collateral</Typography>
+          </MenuItem>
+          <MenuItem
+            className="text-white"
+            onClick={handleEmergencyExit}
+            value={'Close'}
+          >
+            <Typography variant="h6">Exit strategy</Typography>
+          </MenuItem>
+        </Select>
       );
     else if (userPositionData.state === ActionState['4'])
       return (
