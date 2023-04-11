@@ -672,12 +672,23 @@ const _abi = [
     type: 'function',
   },
   {
-    inputs: [],
-    name: 'getTimeToExpire',
+    inputs: [
+      {
+        internalType: 'bool',
+        name: 'isPut',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'strike',
+        type: 'uint256',
+      },
+    ],
+    name: 'getVolatility',
     outputs: [
       {
         internalType: 'uint256',
-        name: 'timeLeft',
+        name: 'volatility',
         type: 'uint256',
       },
     ],
@@ -687,12 +698,22 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: 'bool',
+        name: 'isPut',
+        type: 'bool',
+      },
+      {
         internalType: 'uint256',
         name: 'strike',
         type: 'uint256',
       },
+      {
+        internalType: 'uint256',
+        name: 'expiry',
+        type: 'uint256',
+      },
     ],
-    name: 'getVolatility',
+    name: 'getVolatilityWithExpiry',
     outputs: [
       {
         internalType: 'uint256',
@@ -772,6 +793,19 @@ const _abi = [
         internalType: 'contract IOptionPricing',
         name: '',
         type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'oracleId',
+    outputs: [
+      {
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
       },
     ],
     stateMutability: 'view',
@@ -984,6 +1018,19 @@ const _abi = [
       },
     ],
     name: 'updateMarginOfSafety',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes32',
+        name: '_oracleId',
+        type: 'bytes32',
+      },
+    ],
+    name: 'updateOracleId',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',

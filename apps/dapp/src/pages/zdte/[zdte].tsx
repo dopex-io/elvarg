@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
-import { Suspense, useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import React, { useMemo } from 'react';
 
 import Box from '@mui/material/Box';
@@ -111,7 +111,11 @@ const ManagePage = () => {
   const router = useRouter();
   const zdte = router.query['zdte'] as string;
 
-  return <Zdte zdte={zdte} />;
+  return (
+    <ErrorBoundary>
+      <Zdte zdte={zdte} />
+    </ErrorBoundary>
+  );
 };
 
 export default ManagePage;

@@ -118,7 +118,7 @@ export const createZdteSlice: StateCreator<
     try {
       // Addresses[42161].ZDTE[selectedPoolName],
       return Zdte__factory.connect(
-        '0xd863de2b1711074908527394f072e201db3c2e62',
+        '0xad4e522649e699a228f173b2833f649e5fd6d2d4',
         provider
       );
     } catch (err) {
@@ -312,6 +312,7 @@ export const createZdteSlice: StateCreator<
             oneEBigNumber(DECIMALS_TOKEN)
           ),
           zdteContract.getVolatility(
+            strike <= tokenPrice,
             getContractReadableAmount(strike, DECIMALS_STRIKE)
           ),
         ]);

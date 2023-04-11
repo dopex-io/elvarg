@@ -53,12 +53,13 @@ export interface ZdteInterface extends utils.Interface {
     'genesisExpiry()': FunctionFragment;
     'getCurrentExpiry()': FunctionFragment;
     'getMarkPrice()': FunctionFragment;
-    'getTimeToExpire()': FunctionFragment;
-    'getVolatility(uint256)': FunctionFragment;
+    'getVolatility(bool,uint256)': FunctionFragment;
+    'getVolatilityWithExpiry(bool,uint256,uint256)': FunctionFragment;
     'isContract(address)': FunctionFragment;
     'longOptionPosition(bool,uint256,uint256)': FunctionFragment;
     'maxOtmPercentage()': FunctionFragment;
     'optionPricing()': FunctionFragment;
+    'oracleId()': FunctionFragment;
     'owner()': FunctionFragment;
     'pause()': FunctionFragment;
     'paused()': FunctionFragment;
@@ -75,6 +76,7 @@ export interface ZdteInterface extends utils.Interface {
     'uniswapV3Router()': FunctionFragment;
     'unpause()': FunctionFragment;
     'updateMarginOfSafety(uint256)': FunctionFragment;
+    'updateOracleId(bytes32)': FunctionFragment;
     'volatilityOracle()': FunctionFragment;
     'whitelistedContracts(address)': FunctionFragment;
     'withdraw(bool,uint256)': FunctionFragment;
@@ -106,12 +108,13 @@ export interface ZdteInterface extends utils.Interface {
       | 'genesisExpiry'
       | 'getCurrentExpiry'
       | 'getMarkPrice'
-      | 'getTimeToExpire'
       | 'getVolatility'
+      | 'getVolatilityWithExpiry'
       | 'isContract'
       | 'longOptionPosition'
       | 'maxOtmPercentage'
       | 'optionPricing'
+      | 'oracleId'
       | 'owner'
       | 'pause'
       | 'paused'
@@ -128,6 +131,7 @@ export interface ZdteInterface extends utils.Interface {
       | 'uniswapV3Router'
       | 'unpause'
       | 'updateMarginOfSafety'
+      | 'updateOracleId'
       | 'volatilityOracle'
       | 'whitelistedContracts'
       | 'withdraw'
@@ -231,12 +235,16 @@ export interface ZdteInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: 'getTimeToExpire',
-    values?: undefined
+    functionFragment: 'getVolatility',
+    values: [PromiseOrValue<boolean>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: 'getVolatility',
-    values: [PromiseOrValue<BigNumberish>]
+    functionFragment: 'getVolatilityWithExpiry',
+    values: [
+      PromiseOrValue<boolean>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: 'isContract',
@@ -258,6 +266,7 @@ export interface ZdteInterface extends utils.Interface {
     functionFragment: 'optionPricing',
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: 'oracleId', values?: undefined): string;
   encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
   encodeFunctionData(functionFragment: 'pause', values?: undefined): string;
   encodeFunctionData(functionFragment: 'paused', values?: undefined): string;
@@ -308,6 +317,10 @@ export interface ZdteInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: 'updateMarginOfSafety',
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'updateOracleId',
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: 'volatilityOracle',
@@ -401,11 +414,11 @@ export interface ZdteInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'getTimeToExpire',
+    functionFragment: 'getVolatility',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'getVolatility',
+    functionFragment: 'getVolatilityWithExpiry',
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: 'isContract', data: BytesLike): Result;
@@ -421,6 +434,7 @@ export interface ZdteInterface extends utils.Interface {
     functionFragment: 'optionPricing',
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: 'oracleId', data: BytesLike): Result;
   decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
   decodeFunctionResult(functionFragment: 'pause', data: BytesLike): Result;
   decodeFunctionResult(functionFragment: 'paused', data: BytesLike): Result;
@@ -465,6 +479,10 @@ export interface ZdteInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: 'unpause', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'updateMarginOfSafety',
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'updateOracleId',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -762,12 +780,16 @@ export interface Zdte extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { price: BigNumber }>;
 
-    getTimeToExpire(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { timeLeft: BigNumber }>;
-
     getVolatility(
+      isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { volatility: BigNumber }>;
+
+    getVolatilityWithExpiry(
+      isPut: PromiseOrValue<boolean>,
+      strike: PromiseOrValue<BigNumberish>,
+      expiry: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { volatility: BigNumber }>;
 
@@ -786,6 +808,8 @@ export interface Zdte extends BaseContract {
     maxOtmPercentage(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     optionPricing(overrides?: CallOverrides): Promise<[string]>;
+
+    oracleId(overrides?: CallOverrides): Promise<[string]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
@@ -837,6 +861,11 @@ export interface Zdte extends BaseContract {
 
     updateMarginOfSafety(
       _spreadMarginSafety: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    updateOracleId(
+      _oracleId: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -981,10 +1010,16 @@ export interface Zdte extends BaseContract {
 
   getMarkPrice(overrides?: CallOverrides): Promise<BigNumber>;
 
-  getTimeToExpire(overrides?: CallOverrides): Promise<BigNumber>;
-
   getVolatility(
+    isPut: PromiseOrValue<boolean>,
     strike: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  getVolatilityWithExpiry(
+    isPut: PromiseOrValue<boolean>,
+    strike: PromiseOrValue<BigNumberish>,
+    expiry: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -1003,6 +1038,8 @@ export interface Zdte extends BaseContract {
   maxOtmPercentage(overrides?: CallOverrides): Promise<BigNumber>;
 
   optionPricing(overrides?: CallOverrides): Promise<string>;
+
+  oracleId(overrides?: CallOverrides): Promise<string>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -1054,6 +1091,11 @@ export interface Zdte extends BaseContract {
 
   updateMarginOfSafety(
     _spreadMarginSafety: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  updateOracleId(
+    _oracleId: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1198,10 +1240,16 @@ export interface Zdte extends BaseContract {
 
     getMarkPrice(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getTimeToExpire(overrides?: CallOverrides): Promise<BigNumber>;
-
     getVolatility(
+      isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getVolatilityWithExpiry(
+      isPut: PromiseOrValue<boolean>,
+      strike: PromiseOrValue<BigNumberish>,
+      expiry: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1220,6 +1268,8 @@ export interface Zdte extends BaseContract {
     maxOtmPercentage(overrides?: CallOverrides): Promise<BigNumber>;
 
     optionPricing(overrides?: CallOverrides): Promise<string>;
+
+    oracleId(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -1265,6 +1315,11 @@ export interface Zdte extends BaseContract {
 
     updateMarginOfSafety(
       _spreadMarginSafety: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    updateOracleId(
+      _oracleId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1513,10 +1568,16 @@ export interface Zdte extends BaseContract {
 
     getMarkPrice(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getTimeToExpire(overrides?: CallOverrides): Promise<BigNumber>;
-
     getVolatility(
+      isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getVolatilityWithExpiry(
+      isPut: PromiseOrValue<boolean>,
+      strike: PromiseOrValue<BigNumberish>,
+      expiry: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1535,6 +1596,8 @@ export interface Zdte extends BaseContract {
     maxOtmPercentage(overrides?: CallOverrides): Promise<BigNumber>;
 
     optionPricing(overrides?: CallOverrides): Promise<BigNumber>;
+
+    oracleId(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1586,6 +1649,11 @@ export interface Zdte extends BaseContract {
 
     updateMarginOfSafety(
       _spreadMarginSafety: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    updateOracleId(
+      _oracleId: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1703,10 +1771,16 @@ export interface Zdte extends BaseContract {
 
     getMarkPrice(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getTimeToExpire(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     getVolatility(
+      isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getVolatilityWithExpiry(
+      isPut: PromiseOrValue<boolean>,
+      strike: PromiseOrValue<BigNumberish>,
+      expiry: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1725,6 +1799,8 @@ export interface Zdte extends BaseContract {
     maxOtmPercentage(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     optionPricing(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    oracleId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1780,6 +1856,11 @@ export interface Zdte extends BaseContract {
 
     updateMarginOfSafety(
       _spreadMarginSafety: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateOracleId(
+      _oracleId: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
