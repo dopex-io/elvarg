@@ -18,14 +18,15 @@ import { ISpreadPair } from 'store/Vault/zdte';
 
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 import {
-  getMaxPayoff,
+  getMaxPayoffPerOption,
   roundToTwoDecimals,
 } from 'components/zdte/Manage/TradeCard';
 
 import { formatAmount } from 'utils/general';
+import formatAmountWithNegative from 'utils/general/formatAmountWithNegative';
 
 interface PnlChartProps {
-  premium: number;
+  cost: number;
   amount: number;
   selectedSpreadPair: ISpreadPair;
 }
@@ -62,7 +63,7 @@ function getPayoff(
     return selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike
       ? -premium
       : maxPayoff;
-  } else if (strike <= selectedSpreadPair.shortStrike) {
+  } else if (strike <= breakeven) {
     return selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike
       ? maxPayoff
       : -premium;
@@ -92,9 +93,18 @@ function getInterval(number: number): number {
   }
 }
 
+function CustomYAxisTick(props: any) {
+  const { x, y, payload } = props;
+  return (
+    <text x={x} y={y} textAnchor="end" fill="#666" fontSize={14}>
+      {formatAmountWithNegative(payload.value, 0, true)}
+    </text>
+  );
+}
+
 const PnlChart = (props: PnlChartProps) => {
   const {
-    premium: actualPremium,
+    cost: actualCost,
     amount,
     selectedSpreadPair: actualSpreadPair,
   } = props;
@@ -105,13 +115,13 @@ const PnlChart = (props: PnlChartProps) => {
     actualSpreadPair.shortStrike === undefined;
   const spreadPair = useFake
     ? ({
-        shortStrike: zdteData?.nearestStrike! + 2 * step!,
-        longStrike: zdteData?.nearestStrike! + step!,
+        shortStrike: zdteData?.nearestStrike! + 2 * step,
+        longStrike: zdteData?.nearestStrike! + step,
       } as ISpreadPair)
     : actualSpreadPair;
-  const premium = actualPremium || 0;
-  const breakeven = roundToTwoDecimals(spreadPair.shortStrike + premium);
-  const maxPayoff = getMaxPayoff(spreadPair, premium);
+  const cost = actualCost || 0;
+  const staticBreakeven = roundToTwoDecimals(spreadPair.shortStrike + cost);
+  const maxPayoff = getMaxPayoffPerOption(spreadPair, cost) * amount;
   const price: number = zdteData?.tokenPrice || 0;
   const [state, setState] = useState<{ price: number; pnl: number }>({
     price,
@@ -119,22 +129,34 @@ const PnlChart = (props: PnlChartProps) => {
   });
 
   const data = useMemo(() => {
-    const lower = roundToNearest(breakeven - step);
-    const upper = roundToNearest(breakeven + step);
+    const lower = roundToNearest(staticBreakeven - step);
+    const upper = roundToNearest(staticBreakeven + step);
     const strikes = Array.from(
       { length: Math.ceil((upper - lower) / getInterval(price)) + 1 },
       (_, i) => lower + i * getInterval(price)
     );
     return strikes.map((s) => {
-      const payoff = getPayoff(s, breakeven, spreadPair, premium, maxPayoff);
+      const payoff = getPayoff(
+        s,
+        staticBreakeven,
+        spreadPair,
+        cost * amount,
+        maxPayoff
+      );
       return {
         strike: s,
         value: roundToTwoDecimals(payoff),
       };
     });
-  }, [zdteData, spreadPair, breakeven, maxPayoff]);
+  }, [zdteData, spreadPair, staticBreakeven, maxPayoff]);
 
-  const pnl = getPayoff(price, breakeven, spreadPair, premium, maxPayoff);
+  const pnl = getPayoff(
+    price,
+    staticBreakeven,
+    spreadPair,
+    cost * amount,
+    maxPayoff
+  );
 
   const handleMouseLeave = useCallback(
     () => setState({ price, pnl }),
@@ -161,7 +183,7 @@ const PnlChart = (props: PnlChartProps) => {
     <Box className="mt-1">
       <div
         className={cx(
-          'rounded-lg mb-2 pb-0 p-2 -ml-2',
+          'rounded-lg mb-2 pb-0 p-2 -ml-1',
           useFake ? 'blur-sm' : ''
         )}
       >
@@ -196,6 +218,7 @@ const PnlChart = (props: PnlChartProps) => {
               type="number"
               tickCount={10}
               fontSize={14}
+              tick={<CustomYAxisTick />}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -207,13 +230,13 @@ const PnlChart = (props: PnlChartProps) => {
         />
         <ContentRow
           title="Est. PnL"
-          content={`${useFake ? 0 : roundToTwoDecimals(state.pnl * amount)}`}
+          content={`${useFake ? 0 : roundToTwoDecimals(state.pnl)}`}
           highlightPnl
           comma
         />
         <ContentRow
           title="Breakeven"
-          content={`$${formatAmount(useFake ? 0 : breakeven, 2)}`}
+          content={`$${formatAmount(useFake ? 0 : staticBreakeven, 2)}`}
         />
         <ContentRow
           title="Max payoff"
@@ -221,7 +244,7 @@ const PnlChart = (props: PnlChartProps) => {
             useFake
               ? 0
               : roundToTwoDecimals(
-                  getMaxPayoff(spreadPair, premium) * Math.max(1, amount)
+                  getMaxPayoffPerOption(spreadPair, cost) * Math.max(1, amount)
                 )
           }`}
           highlightPnl

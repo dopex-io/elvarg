@@ -28,6 +28,7 @@ const Zdte = ({ zdte }: Props) => {
     updateStaticZdteData,
     updateUserZdteLpData,
     updateUserZdtePurchaseData,
+    updateVolumeFromSubgraph,
     chainId,
     getZdteContract,
     accountAddress,
@@ -42,7 +43,9 @@ const Zdte = ({ zdte }: Props) => {
     updateZdteData().then(() => {
       updateStaticZdteData().then(() => {
         updateUserZdteLpData().then(() => {
-          updateUserZdtePurchaseData();
+          updateVolumeFromSubgraph().then(() => {
+            updateUserZdtePurchaseData();
+          });
         });
       });
     });

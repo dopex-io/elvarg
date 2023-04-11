@@ -2,6 +2,7 @@ import { FC, useEffect, useMemo, useState } from 'react';
 
 import { BigNumber, utils } from 'ethers';
 
+import format from 'date-fns/format';
 import graphSdk from 'graphql/graphSdk';
 import queryClient from 'queryClient';
 import { useBoundStore } from 'store';
@@ -28,10 +29,13 @@ const StatsColumn: FC<{ title: string; value: string }> = ({
 };
 
 const Stats: FC<StatsProps> = ({}) => {
-  const { zdteData, staticZdteData, tokenPrices, selectedPoolName } =
-    useBoundStore();
-
-  const [twentyFourHourVolume, setTwentyFourHourVolume] = useState('0');
+  const {
+    zdteData,
+    staticZdteData,
+    tokenPrices,
+    selectedPoolName,
+    subgraphVolume,
+  } = useBoundStore();
 
   const priceChange = useMemo(() => {
     const item = tokenPrices.find(
@@ -43,31 +47,6 @@ const Stats: FC<StatsProps> = ({}) => {
   const tokenSymbol = staticZdteData?.baseTokenSymbol.toUpperCase();
   const quoteTokenSymbol = staticZdteData?.quoteTokenSymbol.toUpperCase();
 
-  useEffect(() => {
-    async function getVolume() {
-      try {
-        const payload = await queryClient.fetchQuery({
-          queryKey: ['getZdteSpreadTradesFromTimestamp'],
-          queryFn: () =>
-            graphSdk.getZdteSpreadTradesFromTimestamp({
-              fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
-            }),
-        });
-
-        const _twentyFourHourVolume = payload.trades
-          ? payload.trades.reduce((acc, trade, _index) => {
-              return acc.add(BigNumber.from(trade ? trade?.amount : 0));
-            }, BigNumber.from(0))
-          : BigNumber.from(0);
-
-        setTwentyFourHourVolume(utils.formatEther(_twentyFourHourVolume));
-      } catch (error) {
-        console.log('fail to getVolume from subgraph', error);
-      }
-    }
-    getVolume();
-  }, []);
-
   if (!zdteData || !tokenSymbol || !quoteTokenSymbol || !priceChange) {
     return <Loading />;
   }
@@ -75,7 +54,7 @@ const Stats: FC<StatsProps> = ({}) => {
   return (
     <>
       <div className="grid grid-rows-2 grid-flow-col text-sm ml-5 flex-1 md:grid-rows-1">
-        <StatsColumn title={`24h Volume`} value={`${twentyFourHourVolume}`} />
+        <StatsColumn title={`24h Volume`} value={`${subgraphVolume}`} />
         <StatsColumn
           title={`Open Interest`}
           value={`$${formatAmount(
@@ -97,6 +76,10 @@ const Stats: FC<StatsProps> = ({}) => {
             getUserReadableAmount(zdteData?.quoteLpAssetBalance, DECIMALS_USD),
             2
           )}`}
+        />
+        <StatsColumn
+          title={`Expiry ${format(zdteData.expiry, 'z')}`}
+          value={`${format(zdteData.expiry * 1000, 'd MMM yyyy HH:mm')}`}
         />
       </div>
     </>

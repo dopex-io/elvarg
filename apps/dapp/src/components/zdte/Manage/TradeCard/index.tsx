@@ -42,7 +42,7 @@ export function roundToTwoDecimals(num: number): number {
   return Math.round(num * 100) / 100;
 }
 
-export function getMaxPayoff(
+export function getMaxPayoffPerOption(
   selectedSpreadPair: ISpreadPair | undefined,
   premium: number
 ) {
@@ -103,6 +103,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
     provider,
     getZdteContract,
     updateZdteData,
+    updateVolumeFromSubgraph,
     zdteData,
     accountAddress,
     userZdteLpData,
@@ -117,8 +118,8 @@ const TradeCard: FC<TradeProps> = ({}) => {
   const [amount, setAmount] = useState<string | number>(1);
   const [margin, setMargin] = useState<string | number>(0);
   const [approved, setApproved] = useState<boolean>(false);
-  const [premium, setPremium] = useState<number>(0);
-  const [openingFees, setOpeningFees] = useState<number>(0);
+  const [premium, setPremiumPerOption] = useState<number>(0);
+  const [openingFees, setOpeningFeesPerOption] = useState<number>(0);
   const [canOpenSpread, setCanOpenSpread] = useState<boolean>(false);
   const textRef = useRef<HTMLInputElement>(null);
 
@@ -180,6 +181,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
         });
       });
       await updateZdteData();
+      await updateVolumeFromSubgraph();
     } catch (err) {
       console.log('fail to open position', err);
       throw new Error('fail to open position');
@@ -198,8 +200,8 @@ const TradeCard: FC<TradeProps> = ({}) => {
   useEffect(() => {
     async function updatePremiumAndFees() {
       if (!selectedSpreadPair?.longStrike || !selectedSpreadPair?.shortStrike) {
-        setPremium(0);
-        setOpeningFees(0);
+        setPremiumPerOption(0);
+        setOpeningFeesPerOption(0);
         return;
       }
 
@@ -209,11 +211,16 @@ const TradeCard: FC<TradeProps> = ({}) => {
 
         // # long >= current, long < short => isCall
         // # long <= current, long > short, => isPut
-        const [longPremium, longOpeningFees, shortOpeningFees] =
+        const [longPremium, shortPremium, longOpeningFees, shortOpeningFees] =
           await Promise.all([
             zdteContract.calcPremium(
               selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike,
               orZero(selectedSpreadPair.longStrike),
+              ether
+            ),
+            zdteContract.calcPremium(
+              selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike,
+              orZero(selectedSpreadPair.shortStrike),
               ether
             ),
             zdteContract.calcOpeningFees(
@@ -225,8 +232,10 @@ const TradeCard: FC<TradeProps> = ({}) => {
               orZero(selectedSpreadPair.shortStrike)
             ),
           ]);
-        setPremium(getUsdPrice(longPremium));
-        setOpeningFees(getUsdPrice(longOpeningFees.add(shortOpeningFees)));
+        setPremiumPerOption(getUsdPrice(longPremium.sub(shortPremium)));
+        setOpeningFeesPerOption(
+          getUsdPrice(longOpeningFees.add(shortOpeningFees))
+        );
       } catch (err) {
         console.log('fail to updatePremiumAndFees: ', err);
       }
@@ -416,30 +425,26 @@ const TradeCard: FC<TradeProps> = ({}) => {
         />
         <ContentRow
           title="Premium"
-          content={`$${roundToTwoDecimals(premium)}`}
+          content={`$${formatAmount(premium * Number(amount), 2)}`}
         />
         <ContentRow
           title="Fees"
-          content={`$${roundToTwoDecimals(openingFees)}`}
+          content={`$${formatAmount(openingFees * Number(amount), 2)}`}
         />
         <ContentRow
-          title="Cost per spread"
-          content={`$${roundToTwoDecimals(premium + openingFees)}`}
+          title="Total Cost"
+          content={`$${formatAmount(
+            (premium + openingFees) * Number(amount),
+            2
+          )}`}
         />
         <div className="p-1">
           <PnlChart
-            premium={premium}
+            cost={roundToTwoDecimals(premium + openingFees)}
             selectedSpreadPair={selectedSpreadPair!}
             amount={Number(amount)}
           />
         </div>
-        {/* <ContentRow
-          title="You will pay"
-          content={`${formatAmount(
-            (premium + openingFees) * Number(amount),
-            2
-          )} USDC`}
-        /> */}
       </Box>
       <TradeButton
         amount={amount}

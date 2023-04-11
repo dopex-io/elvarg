@@ -1,9 +1,11 @@
-import { BigNumber } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 
 import { ERC20__factory } from '@dopex-io/sdk';
+import graphSdk from 'graphql/graphSdk';
 import { ZdteLP__factory } from 'mocks/factories/ZdteLP__factory';
 import { ZdtePositionMinter__factory } from 'mocks/factories/ZdtePositionMinter__factory';
 import { Zdte__factory } from 'mocks/factories/Zdte__factory';
+import queryClient from 'queryClient';
 import { StateCreator } from 'zustand';
 
 import { CommonSlice } from 'store/Vault/common';
@@ -50,6 +52,7 @@ export interface IZdteData {
   quoteLpTokenLiquidty: BigNumber;
   quoteLpAssetBalance: BigNumber;
   openInterest: BigNumber;
+  expiry: number;
 }
 
 export interface IZdteUserData {
@@ -102,6 +105,8 @@ export interface ZdteSlice {
   setFocusTrade: Function;
   setTextInputRef: Function;
   textInputRef?: any;
+  subgraphVolume?: string;
+  updateVolumeFromSubgraph: Function;
 }
 
 export const createZdteSlice: StateCreator<
@@ -369,6 +374,7 @@ export const createZdteSlice: StateCreator<
           quoteLpAssetBalance,
           quoteLpTokenLiquidty,
           openInterest,
+          expiry: expiry.toNumber(),
         },
       }));
     } catch (err) {
@@ -462,6 +468,27 @@ export const createZdteSlice: StateCreator<
     set((prevState) => ({
       ...prevState,
       textInputRef: ref,
+    }));
+  },
+  updateVolumeFromSubgraph: async () => {
+    const payload = await queryClient.fetchQuery({
+      queryKey: ['getZdteSpreadTradesFromTimestamp'],
+      queryFn: () =>
+        graphSdk.getZdteSpreadTradesFromTimestamp({
+          fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
+        }),
+    });
+
+    const _twentyFourHourVolume = payload.trades
+      ? payload.trades.reduce((acc, trade, _index) => {
+          return acc.add(BigNumber.from(trade ? trade?.amount : 0));
+        }, BigNumber.from(0))
+      : BigNumber.from(0);
+
+    const subgraphVolume = utils.formatEther(_twentyFourHourVolume);
+    set((prevState) => ({
+      ...prevState,
+      subgraphVolume: subgraphVolume,
     }));
   },
 });
