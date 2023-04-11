@@ -31,51 +31,6 @@ interface PnlChartProps {
   selectedSpreadPair: ISpreadPair;
 }
 
-function gradient(
-  breakeven: number,
-  shortStrike: number,
-  premium: number,
-  maxPayoff: number
-) {
-  return (maxPayoff + premium) / (shortStrike - breakeven);
-}
-
-function yIntercept(
-  breakeven: number,
-  shortStrike: number,
-  premium: number,
-  maxPayoff: number
-) {
-  return (
-    maxPayoff -
-    gradient(breakeven, shortStrike, premium, maxPayoff) * shortStrike
-  );
-}
-
-function getPayoff(
-  strike: number,
-  breakeven: number,
-  selectedSpreadPair: ISpreadPair,
-  premium: number,
-  maxPayoff: number
-) {
-  if (strike > breakeven) {
-    return selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike
-      ? -premium
-      : maxPayoff;
-  } else if (strike <= breakeven) {
-    return selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike
-      ? maxPayoff
-      : -premium;
-  } else {
-    return (
-      gradient(breakeven, selectedSpreadPair.shortStrike, premium, maxPayoff) *
-        strike +
-      yIntercept(breakeven, selectedSpreadPair.shortStrike, premium, maxPayoff)
-    );
-  }
-}
-
 function roundToNearest(num: number): number {
   if (num >= 10) {
     return Math.round(num);
@@ -104,6 +59,22 @@ function CustomYAxisTick(props: any) {
   );
 }
 
+function getPutPayoff(spreadPair: ISpreadPair, strike: number, cost: number) {
+  return (
+    Math.max(spreadPair.longStrike - strike, 0) -
+    Math.max(spreadPair.shortStrike - strike, 0) -
+    cost
+  );
+}
+
+function getCallPayoff(spreadPair: ISpreadPair, strike: number, cost: number) {
+  return (
+    Math.max(strike - spreadPair.longStrike, 0) -
+    Math.max(strike - spreadPair.shortStrike, 0) -
+    cost
+  );
+}
+
 const PnlChart = (props: PnlChartProps) => {
   const {
     cost: actualCost,
@@ -122,6 +93,7 @@ const PnlChart = (props: PnlChartProps) => {
       } as ISpreadPair)
     : actualSpreadPair;
   const cost = actualCost || 0;
+  const isPut = spreadPair.longStrike > spreadPair.shortStrike;
   const staticBreakeven = roundToTwoDecimals(spreadPair.shortStrike + cost);
   const maxPayoff = getMaxPayoffPerOption(spreadPair, cost) * amount;
   const price: number = zdteData?.tokenPrice || 0;
@@ -131,20 +103,20 @@ const PnlChart = (props: PnlChartProps) => {
   });
 
   const data = useMemo(() => {
-    const lower = roundToNearest(staticBreakeven - step);
-    const upper = roundToNearest(staticBreakeven + step);
+    const lower = roundToNearest(
+      (isPut ? spreadPair.shortStrike : spreadPair.longStrike) - step
+    );
+    const upper = roundToNearest(
+      (isPut ? spreadPair.longStrike : spreadPair.shortStrike) + step
+    );
     const strikes = Array.from(
       { length: Math.ceil((upper - lower) / getInterval(price)) + 1 },
       (_, i) => lower + i * getInterval(price)
     );
     return strikes.map((s) => {
-      const payoff = getPayoff(
-        s,
-        staticBreakeven,
-        spreadPair,
-        cost * amount,
-        maxPayoff
-      );
+      const payoff = isPut
+        ? getPutPayoff(spreadPair, s, cost) * amount
+        : getCallPayoff(spreadPair, s, cost) * amount;
       return {
         strike: s,
         value: roundToTwoDecimals(payoff),
@@ -152,13 +124,9 @@ const PnlChart = (props: PnlChartProps) => {
     });
   }, [zdteData, spreadPair, staticBreakeven, maxPayoff]);
 
-  const pnl = getPayoff(
-    price,
-    staticBreakeven,
-    spreadPair,
-    cost * amount,
-    maxPayoff
-  );
+  const pnl = isPut
+    ? getPutPayoff(spreadPair, price, cost) * amount
+    : getCallPayoff(spreadPair, price, cost) * amount;
 
   const handleMouseLeave = useCallback(
     () => setState({ price, pnl }),
