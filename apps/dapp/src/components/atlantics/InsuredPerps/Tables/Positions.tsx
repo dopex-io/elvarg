@@ -805,7 +805,7 @@ const Positions = ({
                             }
                             value={'Close'}
                           >
-                            <Typography variant="h6">Exit strategy</Typography>
+                            <Typography variant="h6">Exit Position</Typography>
                           </MenuItem>
                         </Select>
                       ) : (
