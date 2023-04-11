@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 
 import { Suspense, useCallback, useEffect } from 'react';
 import React, { useMemo } from 'react';
@@ -106,22 +107,11 @@ const Zdte = ({ zdte }: Props) => {
   );
 };
 
-export async function getServerSideProps(context: { query: { zdte: string } }) {
-  return {
-    props: {
-      zdte: context.query.zdte,
-    },
-  };
-}
+const ManagePage = () => {
+  const router = useRouter();
+  const zdte = router.query['zdte'] as string;
 
-const ManagePage = ({ zdte }: Props) => {
-  return (
-    <ErrorBoundary>
-      <Suspense fallback={<Loading />}>
-        <Zdte zdte={zdte} />
-      </Suspense>
-    </ErrorBoundary>
-  );
+  return <Zdte zdte={zdte} />;
 };
 
 export default ManagePage;
