@@ -119,8 +119,8 @@ const PnlChart = (props: PnlChartProps) => {
   });
 
   const data = useMemo(() => {
-    const lower = roundToNearest(breakeven - 2 * step);
-    const upper = roundToNearest(breakeven + 2 * step);
+    const lower = roundToNearest(breakeven - step);
+    const upper = roundToNearest(breakeven + step);
     const strikes = Array.from(
       { length: Math.ceil((upper - lower) / getInterval(price)) + 1 },
       (_, i) => lower + i * getInterval(price)
