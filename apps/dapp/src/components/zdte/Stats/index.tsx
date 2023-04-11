@@ -1,10 +1,6 @@
-import { FC, useEffect, useMemo, useState } from 'react';
-
-import { BigNumber, utils } from 'ethers';
+import { FC, useMemo } from 'react';
 
 import format from 'date-fns/format';
-import graphSdk from 'graphql/graphSdk';
-import queryClient from 'queryClient';
 import { useBoundStore } from 'store';
 
 import Loading from 'components/zdte/Loading';
