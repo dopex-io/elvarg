@@ -479,8 +479,7 @@ const Positions = ({
 
   const renderButton = useMemo(() => {
     if (
-      userPositionData.state === ActionState['2'] ||
-      userPositionData.state === ActionState['3']
+      userPositionData.state === ActionState['2'] 
     )
       return (
         <Select
@@ -491,13 +490,12 @@ const Positions = ({
             classes: { paper: 'bg-primary' },
           }}
           classes={{ icon: 'text-white', select: 'p-0' }}
-          placeholder={'Select output token'}
           variant="standard"
           disableUnderline
         >
           <MenuItem
             onClick={handleIncreaseManagedPosition}
-            value={'Enable'}
+            value={'Add collateral'}
             className="text-white"
           >
             <Typography variant="h6">Add Collateral</Typography>
@@ -505,7 +503,7 @@ const Positions = ({
           <MenuItem
             className="text-white"
             onClick={handleEmergencyExit}
-            value={'Close'}
+            value={'Exit Strategy'}
           >
             <Typography variant="h6">Exit strategy</Typography>
           </MenuItem>
