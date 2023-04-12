@@ -135,31 +135,6 @@ const _abi = [
       {
         indexed: false,
         internalType: 'uint256',
-        name: 'pnl',
-        type: 'uint256',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
-      },
-    ],
-    name: 'ExpireSpreadOptionPosition',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'id',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
         name: 'amount',
         type: 'uint256',
       },
@@ -259,6 +234,31 @@ const _abi = [
       },
     ],
     name: 'SpreadOptionPosition',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'pnl',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+    ],
+    name: 'SpreadOptionPositionExpired',
     type: 'event',
   },
   {
@@ -607,6 +607,40 @@ const _abi = [
     type: 'function',
   },
   {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'expiryInfo',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: 'begin',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'expiry',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'startId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'count',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [],
     name: 'feeDistributor',
     outputs: [
@@ -665,6 +699,19 @@ const _abi = [
       {
         internalType: 'uint256',
         name: 'price',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'getPrevExpiry',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'expiry',
         type: 'uint256',
       },
     ],
@@ -741,6 +788,38 @@ const _abi = [
       },
     ],
     stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'keeperExpirePrevEpochSpreads',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'expiry',
+        type: 'uint256',
+      },
+    ],
+    name: 'keeperExpireSpreads',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
