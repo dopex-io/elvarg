@@ -14,10 +14,14 @@ import {
   PerpetualAtlanticVault,
   PerpetualAtlanticVault__factory,
   CurveStableswapPair__factory,
-  // DPXVotingEscrow,
-  // DPXVotingEscrow__factory,
+  DPXVotingEscrow,
+  DPXVotingEscrow__factory,
   RdpxDecayingBonds,
   RdpxDecayingBonds__factory,
+  DopexAMMRouter,
+  DopexAMMRouter__factory,
+  // DopexAMMFactory,
+  // DopexAMMFactory__factory,
 } from '@dopex-io/sdk';
 
 import { WalletSlice } from 'store/Wallet';
@@ -30,6 +34,8 @@ interface RdpxV2TreasuryContractState {
     bond: RdpxV2Bond;
     treasury: RdpxV2Treasury;
     curvePool?: CurveStableswapPair;
+    ammRouter?: DopexAMMRouter;
+    // ammFactory?: DopexAMMFactory;
     dsc: DscToken;
     rdpx: MockToken;
     decayingBondableRdpx: RdpxDecayingBonds;
@@ -143,8 +149,12 @@ export const createDpxusdBondingSlice: StateCreator<
     const bondAddress = contractAddresses['RDPX-V2']['Bond'];
     const dscAddress = contractAddresses['RDPX-V2']['DSC'];
     const curvePoolAddress = contractAddresses['RDPX-V2']['Curve2Pool'];
+    const ammRouterAddress = contractAddresses['RDPX-V2']['DopexAMMRouter'];
+    // const ammFactoryAddress = contractAddresses['RDPX-V2']['DopexAMMFactory'];
     const rdpxAddress = contractAddresses['RDPX'];
     const dbrAddress = contractAddresses['RDPX-V2']['RdpxDecayingBonds'];
+    const perpetualAtlanticVaultAddress =
+      contractAddresses['RDPX-V2']['PerpetualVault'];
 
     const treasury: RdpxV2Treasury = RdpxV2Treasury__factory.connect(
       treasuryAddress,
@@ -154,8 +164,10 @@ export const createDpxusdBondingSlice: StateCreator<
       curvePoolAddress,
       provider
     );
-    const perpetualAtlanticVaultAddress =
-      contractAddresses['RDPX-V2']['PerpetualVault'];
+    const ammRouter: DopexAMMRouter = DopexAMMRouter__factory.connect(
+      ammRouterAddress,
+      provider
+    );
 
     const bond: RdpxV2Bond = RdpxV2Bond__factory.connect(bondAddress, provider);
     const dsc: DscToken = DscToken__factory.connect(dscAddress, provider);
@@ -205,6 +217,8 @@ export const createDpxusdBondingSlice: StateCreator<
           decayingBondableRdpx,
           vault,
           curvePool,
+          ammRouter,
+          // ammFactory,
         },
         rdpx_reserve,
         lp_reserve,
@@ -349,14 +363,16 @@ export const createDpxusdBondingSlice: StateCreator<
 
     bonds = bonds.map((bond, i) => ({ ...bond, tokenId: bondIds[i] || 0 }));
 
-    // const veDPX: DPXVotingEscrow = DPXVotingEscrow__factory.connect(
-    //   contractAddresses['WETH'], // todo change to veDPX
-    //   provider
-    // );
+    const veDPX: DPXVotingEscrow = DPXVotingEscrow__factory.connect(
+      contractAddresses['WETH'], // todo change to veDPX
+      provider
+    );
 
-    // const isEligibleForMint = (await veDPX.balanceOf(accountAddress)).gte(
-    //   getContractReadableAmount(1000, 18)
-    // );
+    const isEligibleForMint = (await veDPX.balanceOf(accountAddress)).gte(
+      getContractReadableAmount(1000, 18)
+    );
+
+    console.log(isEligibleForMint);
 
     set((prevState) => ({
       ...prevState,
@@ -433,13 +449,15 @@ export const createDpxusdBondingSlice: StateCreator<
     accumulator = {
       ...accumulator,
       amounts: accumulator.amounts.map(
-        (amount) => amount.mul(bonds).div(requiredCollateral).sub(1e2) // todo: some precision is lost; calculateBondCost(A) + cbc(B) + cbc(C) !== cbc(A + B + C)
+        (amount) => amount.mul(bonds).div(requiredCollateral) // .sub(1e2) // todo: some precision is lost; calculateBondCost(A) + cbc(B) + cbc(C) !== cbc(A + B + C)
       ),
+      // .filter((amount) => amount.gt(1e2)),
     };
 
     console.log(
-      'Hello world: ',
+      'DSC Breakdown: ',
       accumulator.amounts.map((amount) => amount.toString()),
+      accumulator.ids.map((id) => id.toString()),
       bonds
     );
 

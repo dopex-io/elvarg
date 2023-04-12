@@ -1,17 +1,18 @@
 import React from 'react';
-
-import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
-import { TokenData } from 'types';
+import TableCell from '@mui/material/TableCell';
+
+import Typography from 'components/UI/Typography';
 
 import { WritePositionInterface } from 'store/Vault/ssov';
 
-import NumberDisplay from 'components/UI/NumberDisplay';
-import SplitButton from 'components/UI/SplitButton';
-import Typography from 'components/UI/Typography';
-
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+
+import NumberDisplay from 'components/UI/NumberDisplay';
+import SplitButton from 'components/UI/SplitButton';
+
+import { TokenData } from 'types';
 
 interface Props extends WritePositionInterface {
   collateralSymbol: string;

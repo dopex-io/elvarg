@@ -6,9 +6,9 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
-import CurveSwap from 'components/rdpx-v2/CurveSwap';
+import Swap from 'components/rdpx-v2/Swap';
 
-const Swap = () => {
+const SwapRoot = () => {
   const {
     provider,
     isLoading,
@@ -48,11 +48,11 @@ const Swap = () => {
             <CircularProgress size={48} />
           </div>
         ) : (
-          <CurveSwap />
+          <Swap />
         )}
       </div>
     </div>
   );
 };
 
-export default Swap;
+export default SwapRoot;

@@ -27,8 +27,8 @@ import SsovFilter from 'components/ssov/SsovFilter';
 
 import { getReadableTime } from 'utils/contracts';
 
-import { CHAINS } from 'constants/chains';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
+import { CHAINS } from 'constants/chains';
 
 import { FeaturedOlp } from './FeaturedOlp';
 import { OlpTableRow } from './OlpTableRow';

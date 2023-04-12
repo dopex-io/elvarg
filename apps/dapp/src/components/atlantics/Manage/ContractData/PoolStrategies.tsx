@@ -1,17 +1,16 @@
-import Link from 'next/link';
-
 import { useCallback, useMemo, useState } from 'react';
-
-import LaunchIcon from '@mui/icons-material/Launch';
-import MenuItem from '@mui/material/MenuItem';
+import Link from 'next/link';
 import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import LaunchIcon from '@mui/icons-material/Launch';
 import Tooltip from '@mui/material/Tooltip';
-import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 
-import { AP_STRATEGIES } from 'constants/atlanticPoolsInfo';
+import { useBoundStore } from 'store';
+
 import { CHAINS } from 'constants/chains';
+import { AP_STRATEGIES } from 'constants/atlanticPoolsInfo';
 
 const PoolStrategies = ({
   pair,

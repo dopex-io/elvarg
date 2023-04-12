@@ -1,24 +1,25 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-
-import { ERC20__factory, GmxRouter__factory } from '@dopex-io/sdk';
-import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
+import { useCallback, useState, useMemo, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
-import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
+import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
+import { ERC20__factory, GmxRouter__factory } from '@dopex-io/sdk';
 
-import Button from 'components/UI/Button';
+import Wrapper from 'components/ssov/Wrapper';
 import Input from 'components/UI/Input';
 import Typography from 'components/UI/Typography';
+import Button from 'components/UI/Button';
 import SwapInfo from 'components/atlantics/InsuredPerps/ManageCard/Swap/SwapInfo';
-import Wrapper from 'components/ssov/Wrapper';
+
+import { useBoundStore } from 'store';
+
+import useSendTx from 'hooks/useSendTx';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import { CHAINS } from 'constants/chains';
 import { MAX_VALUE } from 'constants/index';
+import { CHAINS } from 'constants/chains';
 
 interface SwapProps {
   underlying: string;

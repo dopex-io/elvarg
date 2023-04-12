@@ -21,8 +21,8 @@ import Typography from 'components/UI/Typography';
 
 import { getReadableTime } from 'utils/contracts';
 
-import { CHAINS } from 'constants/chains';
 import { DOPEX_API_BASE_URL } from 'constants/env';
+import { CHAINS } from 'constants/chains';
 
 // TODO: remove
 const fakeData = [1, 2, 3, 4, 5, 6, 7, 6, 5, 6, 7, 8, 9, 7, 5, 6, 9];

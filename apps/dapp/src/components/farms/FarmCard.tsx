@@ -1,25 +1,24 @@
 import { ReactNode, useMemo, useState } from 'react';
-
-import { BigNumber, utils } from 'ethers';
-
-import LaunchIcon from '@mui/icons-material/Launch';
 import Box from '@mui/material/Box';
+import LaunchIcon from '@mui/icons-material/Launch';
+import { BigNumber, utils } from 'ethers';
 import BN from 'bignumber.js';
-import { FarmStatus, LpData } from 'types/farms';
+
+import Typography from 'components/UI/Typography';
+import CustomButton from 'components/UI/Button';
+import Skeleton from 'components/UI/Skeleton';
+import NumberDisplay from 'components/UI/NumberDisplay';
+import Stat from './Stat';
+import Chip from './Chip';
+import LpRatios from './LpRatios';
 
 import { useBoundStore } from 'store/index';
-
-import CustomButton from 'components/UI/Button';
-import NumberDisplay from 'components/UI/NumberDisplay';
-import Skeleton from 'components/UI/Skeleton';
-import Typography from 'components/UI/Typography';
 
 import formatAmount from 'utils/general/formatAmount';
 import getExplorerUrl from 'utils/general/getExplorerUrl';
 
-import Chip from './Chip';
-import LpRatios from './LpRatios';
-import Stat from './Stat';
+import { FarmStatus, LpData } from 'types/farms';
+
 import SushiMigrationStepper from './SushiMigrationStepper';
 
 const Header = ({

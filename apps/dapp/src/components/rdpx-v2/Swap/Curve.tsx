@@ -5,9 +5,7 @@ import {
   useMemo,
   useState,
 } from 'react';
-
 import { BigNumber } from 'ethers';
-
 import {
   CurveStableswapPair__factory,
   DscToken,
@@ -15,17 +13,19 @@ import {
   MockToken__factory,
 } from '@dopex-io/sdk';
 import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
-import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
 
 import Input from 'components/UI/Input';
 
+import { useBoundStore } from 'store';
+
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import { smartTrim } from 'utils/general';
+import smartTrim from 'utils/general/smartTrim';
 import formatAmount from 'utils/general/formatAmount';
 
 import { CHAIN_ID_TO_EXPLORER, MAX_VALUE } from 'constants/index';
+
+import useSendTx from 'hooks/useSendTx';
 
 const TOKEN_DATA_KEYS = ['symbol', 'address', 'totalSupply', 'balance'];
 
@@ -47,7 +47,7 @@ const INIT_TOKEN_DATA: TokenData = {
 //   tokens: [string, string];
 // }
 
-const SwapPanel = () => {
+const Curve = () => {
   // const [tokenA, tokenB] = tokens;
   const sendTx = useSendTx();
 
@@ -412,4 +412,4 @@ const SwapPanel = () => {
   );
 };
 
-export default SwapPanel;
+export default Curve;

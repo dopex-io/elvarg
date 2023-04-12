@@ -1,23 +1,21 @@
 import React, { useCallback, useMemo } from 'react';
-
-import { BigNumber } from 'ethers';
-
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Countdown from 'react-countdown';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import Countdown from 'react-countdown';
-import { useBoundStore } from 'store';
+import { BigNumber } from 'ethers';
 
 import Typography from 'components/UI/Typography';
+import InfoBox from './InfoBox';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import { useBoundStore } from 'store';
+
+import getExtendedLogoFromChainId from 'utils/general/getExtendedLogoFromChainId';
+import getExplorerUrl from 'utils/general/getExplorerUrl';
 import displayAddress from 'utils/general/displayAddress';
 import formatAmount from 'utils/general/formatAmount';
-import getExplorerUrl from 'utils/general/getExplorerUrl';
-import getExtendedLogoFromChainId from 'utils/general/getExtendedLogoFromChainId';
-
-import InfoBox from './InfoBox';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 const Stats = () => {
   const {

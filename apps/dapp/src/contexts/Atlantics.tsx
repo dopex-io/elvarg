@@ -1,28 +1,26 @@
 import {
-  Dispatch,
-  SetStateAction,
   createContext,
-  useCallback,
   useEffect,
   useState,
+  useCallback,
+  Dispatch,
+  SetStateAction,
 } from 'react';
-
 import { BigNumber } from 'ethers';
-
 import {
+  ERC20,
+  ERC20__factory,
   // AtlanticCallsPool,
   // AtlanticCallsPool__factory,
   AtlanticPutsPool,
   AtlanticPutsPool__factory,
   AtlanticsViewer__factory,
-  ERC20,
-  ERC20__factory,
 } from '@dopex-io/sdk';
+
 import { useBoundStore } from 'store';
 
-import { Contracts, VaultConfig } from 'store/Vault/atlantics';
-
 import oneEBigNumber from 'utils/math/oneEBigNumber';
+import { Contracts, VaultConfig } from 'store/Vault/atlantics';
 
 interface IVaultConfiguration {
   fundingInterval: BigNumber;

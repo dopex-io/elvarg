@@ -19,7 +19,7 @@ const STAT_KEYS = [
   'dpxETH Price',
   'rDPX Supply',
   'rDPX Price',
-  'dpxETH Bonding Price',
+  '',
 ];
 
 const DEFAULT_STAT_VALS = ['-', '-', '-', '-', '-', '-'];
@@ -66,16 +66,7 @@ const RdpxV2Main = () => {
       formatAmount(getUserReadableAmount(treasuryData.rdpxSupply, 18), 3),
       formatAmount(getUserReadableAmount(treasuryData.rdpxPriceInAlpha, 8), 3) +
         ' WETH',
-      formatAmount(
-        getUserReadableAmount(treasuryData.bondCostPerDsc[0], 18),
-        3
-      ) +
-        ' RDPX, ' +
-        formatAmount(
-          getUserReadableAmount(treasuryData.bondCostPerDsc[1], 18),
-          3
-        ) +
-        ' WETH',
+      '',
     ];
   }, [treasuryContractState, treasuryData]);
 

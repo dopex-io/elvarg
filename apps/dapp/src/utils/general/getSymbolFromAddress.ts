@@ -16,7 +16,6 @@ export default function getSymbolFromAddress(address: string, chainId: number) {
     if (
       chainId === 1 ||
       chainId === 42161 ||
-      chainId === 421611 ||
       chainId === 421613 ||
       chainId === 5
     )
