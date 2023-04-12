@@ -223,11 +223,11 @@ const Bond = () => {
       );
 
       const allowances = await Promise.all([
-        _weth.allowance(
+        _rdpx.allowance(
           accountAddress,
           treasuryContractState.contracts.treasury.address
         ),
-        _rdpx.allowance(
+        _weth.allowance(
           accountAddress,
           treasuryContractState.contracts.treasury.address
         ),
@@ -268,7 +268,8 @@ const Bond = () => {
       );
 
       setApproved(
-        allowances[0].gte(rdpxReq) && (delegated || allowances[1].gte(wethReq))
+        allowances[0].gte(rdpxReq.sub(1e4)) &&
+          (allowances[1].gte(wethReq.sub(1e4)) || delegated) // **note**: account for dust
       );
     })();
   }, [

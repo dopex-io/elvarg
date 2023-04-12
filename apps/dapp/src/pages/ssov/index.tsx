@@ -15,8 +15,8 @@ import SsovFilter from 'components/ssov/SsovFilter';
 
 import formatAmount from 'utils/general/formatAmount';
 
-import { CHAINS } from 'constants/chains';
 import { DOPEX_API_BASE_URL } from 'constants/env';
+import { CHAINS } from 'constants/chains';
 
 const ssovStrategies: string[] = ['CALL', 'PUT'];
 const sortOptions: string[] = ['TVL', 'APY'];
