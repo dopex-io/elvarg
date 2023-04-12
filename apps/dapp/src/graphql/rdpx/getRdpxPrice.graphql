@@ -1,0 +1,6 @@
+query getRdpxPrice {
+  rdpxPrices(orderBy: id) {
+    price
+    id
+  }
+}

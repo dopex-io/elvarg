@@ -18,6 +18,7 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CollateralInputPanel from 'components/rdpx-v2/BondPanel/Bond/CollateralInputPanel';
 import DisabledPanel from 'components/rdpx-v2/BondPanel/DisabledPanel';
 import InfoBox from 'components/rdpx-v2/BondPanel/Bond/InfoBox';
+import AlertIcon from 'svgs/icons/AlertIcon';
 
 import { getContractReadableAmount } from 'utils/contracts';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -66,6 +67,7 @@ const Bond = () => {
   const [approved, setApproved] = useState<boolean>(false);
   const [mintDisabled, setMintDisabled] = useState<boolean>(false);
   const [delegated, setDelegated] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
 
   const handleChange = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) => {
@@ -149,13 +151,16 @@ const Bond = () => {
           .mul(getContractReadableAmount(value, 18))
           .div(getContractReadableAmount(1, 18));
 
-        console.log(totalWethRequired);
+        // console.log(totalWethRequired);
 
         let { amounts, ids } = squeezeTreasuryDelegates(
           availableDelegates,
           totalWethRequired,
           getContractReadableAmount(value, 18)
-        ) || { amounts: [getContractReadableAmount(0, 18)], ids: [0] };
+        ) || {
+          amounts: [getContractReadableAmount(0, 18)],
+          ids: [0],
+        };
 
         // console.log(
         //   'Squeeze amounts: ',
@@ -275,6 +280,53 @@ const Bond = () => {
     value,
   ]);
 
+  useEffect(() => {
+    if (!delegated) {
+      setError('');
+      return;
+    }
+    (async () => {
+      if (
+        !treasuryData ||
+        !getAvailableDelegatesFromTreasury ||
+        !squeezeTreasuryDelegates ||
+        Number(value) === 0
+      )
+        return;
+
+      const availableDelegates = await getAvailableDelegatesFromTreasury();
+
+      const wethPerDsc =
+        treasuryData.bondCostPerDsc[1] || getContractReadableAmount(1, 18);
+
+      const totalWethRequired = wethPerDsc
+        .mul(getContractReadableAmount(value, 18))
+        .div(getContractReadableAmount(1, 18));
+
+      let { wethAvailable } = squeezeTreasuryDelegates(
+        availableDelegates,
+        totalWethRequired,
+        getContractReadableAmount(value, 18)
+      ) || {
+        amounts: [getContractReadableAmount(0, 18)],
+        ids: [0],
+        wethAvailable: '0',
+      };
+
+      if (totalWethRequired.gt(wethAvailable)) {
+        setError('Insufficient WETH available from delegates.');
+      } else {
+        setError('');
+      }
+    })();
+  }, [
+    getAvailableDelegatesFromTreasury,
+    squeezeTreasuryDelegates,
+    treasuryData,
+    value,
+    delegated,
+  ]);
+
   return (
     <div className="space-y-3 relative">
       {!userDscBondsData.isEligibleForMint || isLoading || mintDisabled ? (
@@ -368,6 +420,12 @@ const Bond = () => {
         />
       </div>
       <InfoBox value={value as string} delegated={delegated} />
+      {delegated && error ? (
+        <div className="py-2 px-4 bg-down-bad rounded-xl flex justify-center space-x-2">
+          <AlertIcon className="my-auto w-6 h-6" />
+          <p className="text-black text-sm">{error}</p>
+        </div>
+      ) : null}
       <div className="rounded-xl p-4 w-full bg-umbra">
         <div className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800 space-y-2">
           <EstimatedGasCostButton gas={500000} chainId={chainId} />

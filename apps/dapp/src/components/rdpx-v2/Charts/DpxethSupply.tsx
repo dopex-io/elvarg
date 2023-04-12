@@ -1,51 +1,54 @@
 import { useState, useEffect } from 'react';
-import graphSdk from 'graphql/graphSdk';
 import {
   AreaChart,
   Area,
   XAxis,
   YAxis,
-  Tooltip as RechartsTooltip,
+  Tooltip,
   ResponsiveContainer,
 } from 'recharts';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import Tooltip from '@mui/material/Tooltip';
+import MuiTooltip from '@mui/material/Tooltip';
+import { format } from 'date-fns';
+import graphSdk from 'graphql/graphSdk';
 import queryClient from 'queryClient';
 
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import CustomTooltip from './CustomTooltip';
 
-import { getUserReadableAmount } from 'utils/contracts';
-import { format } from 'date-fns';
-
-interface LiquidityBarGraphProps {
+interface LiquidityLineChartProps {
   data: any[];
   width: number;
   height: number;
 }
 
-const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
-  const { /*data,*/ height } = props;
+const PriceChart = (props: LiquidityLineChartProps) => {
+  const { height } = props;
 
   const [data, setData] = useState<
     {
       time: string;
-      price: number;
+      totalSupply: number;
     }[]
   >();
 
   useEffect(() => {
     (async () => {
-      const rdpxPrices = await queryClient
+      const dscSupplies = await queryClient
         .fetchQuery({
-          queryKey: ['getRdpxPrice'],
-          queryFn: () => graphSdk.getRdpxPrice(),
+          queryKey: ['getDscSupplies'],
+          queryFn: () => graphSdk.getDscSupplies(),
         })
-        .then((res) => res.rdpxPrices);
+        .then((res) => res.dscSupplies);
 
-      const formatted = rdpxPrices.map((obj) => ({
+      const formatted = dscSupplies.map((obj) => ({
         time: format(new Date(Number(obj.id) * 1000), 'dd/LL'),
-        price: getUserReadableAmount(obj.price, 8),
+        totalSupply: getUserReadableAmount(obj.totalSupply, 18),
       }));
+      // .filter(
+      //   (curr: any, prev: any) =>
+      //     Number(curr.time.slice(2)) > Number(prev.time.slice(2))
+      // );
 
       setData(formatted);
     })();
@@ -54,12 +57,12 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
   return (
     <div className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra">
       <div className="flex space-x-2 justify-start py-2 px-3">
-        <h6 className="text-sm text-stieglitz align-center">RDPX Price</h6>
-        <Tooltip title="RDPX Price over time">
+        <h6 className="text-sm text-stieglitz align-center">DPXETH Supply</h6>
+        <MuiTooltip title="$dpxETH supply over time">
           <InfoOutlinedIcon className="fill-current text-stieglitz w-[1.2rem]" />
-        </Tooltip>
+        </MuiTooltip>
       </div>
-      <div className="flex justify-around">
+      <div className="h-full">
         <ResponsiveContainer width="100%" height={height}>
           <AreaChart
             width={500}
@@ -69,34 +72,35 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               top: 10,
               right: 10,
               left: 10,
-              bottom: 10,
+              bottom: 0,
             }}
           >
             <XAxis dataKey="time" hide />
             <YAxis hide />
-            <RechartsTooltip
+            <Tooltip
               contentStyle={{
                 borderColor: '#2D2D2D',
                 backgroundColor: '#2D2D2D',
                 color: '#2D2D2D',
               }}
-              wrapperClassName="rounded-xl flex text-right h-fit"
+              wrapperClassName="rounded-xl flex text-right h-auto"
               cursor={{
                 fill: '#151515',
               }}
-              content={<CustomTooltip isPriceChart />}
+              content={<CustomTooltip isPriceChart={false} />}
             />
             <defs>
-              <linearGradient id="colorUv1" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0.5%" stopColor="#22e1ff" stopOpacity={0.3} />
-                <stop offset="99.5%" stopColor="#22e1ff" stopOpacity={0} />
+              <linearGradient id="colorUv2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0.5%" stopColor="#7B61FF" stopOpacity={0.3} />
+                <stop offset="99.5%" stopColor="#7B61FF" stopOpacity={0} />
               </linearGradient>
             </defs>
             <Area
-              type="natural"
-              dataKey="price"
-              stroke="#22e1ff"
-              fill="url(#colorUv1)"
+              type="linear"
+              dataKey="totalSupply"
+              stackId="1"
+              stroke="#7B61FF"
+              fill="url(#colorUv2)"
               dot={false}
             />
           </AreaChart>
@@ -106,4 +110,4 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
   );
 };
 
-export default LiquidityBarGraph;
+export default PriceChart;

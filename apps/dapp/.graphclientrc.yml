@@ -11,6 +11,12 @@ sources:
         endpoint: https://api.thegraph.com/subgraphs/name/psytama/dopex-straddles
     transforms:
       - autoTypeMerging: true
+  - name: rdpx
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/psytama/rdpxv2
+    transforms:
+      - autoTypeMerging: true
   - name: optionScalps
     handler:
       graphql:

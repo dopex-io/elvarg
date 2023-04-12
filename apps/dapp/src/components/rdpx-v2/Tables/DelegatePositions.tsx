@@ -101,7 +101,8 @@ const DelegatePositions = () => {
       const _userPositions: DelegateType[] =
         treasuryData.availableDelegates.filter(
           (delegate: DelegateType) =>
-            delegate.owner === accountAddress && delegate.amount.gt('0')
+            delegate.owner === accountAddress &&
+            delegate.amount.sub(delegate.activeCollateral).gt('10') // **note**: 1e2 accounts for dust
         );
       setUserPositions(_userPositions);
     })();

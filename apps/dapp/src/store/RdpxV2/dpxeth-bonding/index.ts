@@ -115,6 +115,7 @@ export interface DpxusdBondingSlice {
     | {
         ids: number[];
         amounts: BigNumber[];
+        wethAvailable: BigNumber;
       }
     | undefined;
 }
@@ -426,6 +427,7 @@ export const createDpxusdBondingSlice: StateCreator<
     let requiredBalance = requiredCollateral;
     let accumulator = {
       amounts: [] as BigNumber[],
+      wethAvailable: BigNumber.from(0) as BigNumber,
       ids: [] as number[],
     };
 
@@ -446,8 +448,14 @@ export const createDpxusdBondingSlice: StateCreator<
       }
     }
 
+    const wethAvailable = accumulator.amounts.reduce(
+      (prev, curr) => prev.add(curr),
+      BigNumber.from(0)
+    );
+
     accumulator = {
       ...accumulator,
+      wethAvailable,
       amounts: accumulator.amounts.map(
         (amount) => amount.mul(bonds).div(requiredCollateral) // .sub(1e2) // todo: some precision is lost; calculateBondCost(A) + cbc(B) + cbc(C) !== cbc(A + B + C)
       ),
@@ -464,6 +472,7 @@ export const createDpxusdBondingSlice: StateCreator<
     return {
       ids: accumulator.ids,
       amounts: accumulator.amounts,
+      wethAvailable,
     };
   },
 });

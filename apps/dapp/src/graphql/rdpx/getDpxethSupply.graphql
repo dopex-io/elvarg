@@ -1,0 +1,6 @@
+query getDscSupplies {
+  dscSupplies(orderBy: id) {
+    id
+    totalSupply
+  }
+}
