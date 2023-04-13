@@ -489,7 +489,7 @@ export const createDpxusdBondingSlice: StateCreator<
         .map(
           (amount) =>
             amount.mul(bonds).div(requiredCollateral).sub(1e2).lt(0)
-              ? getContractReadableAmount(0, 18)
+              ? BigNumber.from(0)
               : amount.mul(bonds).div(requiredCollateral).sub(1e2) // todo: some precision is lost; calculateBondCost(A) + cbc(B) + cbc(C) !== cbc(A + B + C)
         )
         .filter((amount) => amount.gt(0)),

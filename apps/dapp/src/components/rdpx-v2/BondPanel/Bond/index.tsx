@@ -154,8 +154,6 @@ const Bond = () => {
           .mul(getContractReadableAmount(value, 18))
           .div(getContractReadableAmount(1, 18));
 
-        // console.log(totalWethRequired);
-
         let { amounts, ids } = squeezeTreasuryDelegates(
           availableDelegates,
           totalWethRequired,
@@ -164,15 +162,6 @@ const Bond = () => {
           amounts: [getContractReadableAmount(0, 18)],
           ids: [0],
         };
-
-        // console.log(
-        //   'Squeeze amounts: ',
-        //   amounts.map((amount) => getUserReadableAmount(amount, 18))
-        // );
-        // console.log(
-        //   'Squeeze from IDs: ',
-        //   ids.map((id) => id)
-        // );
 
         await sendTx(treasury, 'bondWithDelegate', [
           accountAddress,
@@ -186,22 +175,22 @@ const Bond = () => {
         });
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   }, [
-    treasuryContractState.contracts,
+    value,
+    sendTx,
+    treasuryContractState,
     accountAddress,
     contractAddresses,
     signer,
-    sendTx,
-    value,
+    delegated,
     updateUserDscBondsData,
     updateAssetBalances,
-    updateTreasuryData,
-    delegated,
     getAvailableDelegatesFromTreasury,
     squeezeTreasuryDelegates,
     treasuryData,
+    updateTreasuryData,
   ]);
 
   useEffect(() => {
@@ -387,7 +376,6 @@ const Bond = () => {
   }, []);
 
   const buttonProps = useMemo(() => {
-    console.log('buttonProps', userDscBondsData.state);
     if (userDscBondsData.state === BondingState.open) {
       return { action: handleBond, label: 'Bond', info: null };
     } else if (userDscBondsData.state === BondingState.upper) {
@@ -410,7 +398,7 @@ const Bond = () => {
       };
     }
     return { action: handleBond, label: 'Bond' };
-  }, [userDscBondsData.state]);
+  }, [userDscBondsData.state, value]);
 
   return (
     <div className="space-y-3 relative">
