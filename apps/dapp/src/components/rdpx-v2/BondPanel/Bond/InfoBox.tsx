@@ -90,7 +90,7 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
     let share = getUserReadableAmount(bonds, 18) * 0.25;
     const discountShare = bondDiscount * 0.25;
     const deductedDiscount = discountShare - (discountShare * avgFee) / 100;
-    share = share - deductedDiscount;
+    share = share + deductedDiscount;
 
     setShare(share || 0);
     setPremium(totalPremium || 0);

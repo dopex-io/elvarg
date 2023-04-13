@@ -496,13 +496,13 @@ const Bond = () => {
       </div>
       <InfoBox value={value as string} delegated={delegated} />
       {delegated && error ? (
-        <div className="py-2 px-4 bg-down-bad rounded-xl flex justify-center space-x-2">
+        <div className="py-2 px-4 bg-down-bad rounded-xl flex justify-center space-x-2 animate-pulse">
           <AlertIcon className="my-auto w-6 h-6" />
           <p className="text-black text-sm">{error}</p>
         </div>
       ) : null}
       {buttonProps.info ? (
-        <div className="p-1 bg-jaffa rounded-xl flex justify-center space-x-2">
+        <div className="p-1 bg-jaffa rounded-xl flex justify-center space-x-2 animate-pulse">
           <Caution className="my-auto" />
           <p className="text-black text-sm my-auto">{buttonProps.info}</p>
         </div>
