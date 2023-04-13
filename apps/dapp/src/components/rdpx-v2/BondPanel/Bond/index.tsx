@@ -398,7 +398,7 @@ const Bond = () => {
       };
     }
     return { action: handleBond, label: 'Bond' };
-  }, [userDscBondsData.state, value]);
+  }, [userDscBondsData.state, value, delegated]);
 
   return (
     <div className="space-y-3 relative">
