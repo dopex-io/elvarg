@@ -477,11 +477,22 @@ export const createDpxusdBondingSlice: StateCreator<
 
     accumulator = {
       ...accumulator,
-      wethAvailable,
-      amounts: accumulator.amounts.map(
-        (amount) => amount.mul(bonds).div(requiredCollateral) // .sub(1e2) // todo: some precision is lost; calculateBondCost(A) + cbc(B) + cbc(C) !== cbc(A + B + C)
+      ids: accumulator.ids.filter((_, index) =>
+        accumulator.amounts[index]?.gt('100')
       ),
-      // .filter((amount) => amount.gt(1e2)),
+    };
+
+    accumulator = {
+      ...accumulator,
+      wethAvailable,
+      amounts: accumulator.amounts
+        .map(
+          (amount) =>
+            amount.mul(bonds).div(requiredCollateral).sub(1e2).lt(0)
+              ? getContractReadableAmount(0, 18)
+              : amount.mul(bonds).div(requiredCollateral).sub(1e2) // todo: some precision is lost; calculateBondCost(A) + cbc(B) + cbc(C) !== cbc(A + B + C)
+        )
+        .filter((amount) => amount.gt(0)),
     };
 
     console.log(
