@@ -380,14 +380,17 @@ const DopexAmm = () => {
       <button
         onClick={approved ? handleSwap : handleApprove}
         className={`${
-          !Number(amountIn) ? 'bg-umbra cursor-not-allowed' : 'bg-primary'
+          !Number(amountIn) || true
+            ? 'bg-umbra cursor-not-allowed'
+            : 'bg-primary'
         } p-2 w-full rounded-md`}
-        disabled={!Number(amountIn)}
+        disabled={!Number(amountIn) || true}
       >
         <span
           className={`text-sm ${!Number(amountIn) ? 'text-stieglitz' : null}`}
         >
-          {approved ? 'Swap' : 'Approve'}
+          {/* {approved ? 'Swap' : 'Approve'} */}
+          Coming soon
         </span>
       </button>
     </div>

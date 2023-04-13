@@ -81,9 +81,16 @@ export interface RdpxBond {
   timestamp: BigNumber | number;
 }
 
+export enum BondingState {
+  open = 0,
+  second_lower,
+  first_lower,
+  upper,
+}
+
 interface RdpxV2TreasuryUserData {
   bonds: RdpxBond[];
-  isEligibleForMint: boolean;
+  state: BondingState;
 }
 
 const initialTreasuryContractState: RdpxV2TreasuryContractState = {
@@ -130,7 +137,7 @@ export type DelegateType = [string, BigNumber, BigNumber, BigNumber, number] & {
 
 const initialUserDscBondData: RdpxV2TreasuryUserData = {
   bonds: [],
-  isEligibleForMint: false,
+  state: BondingState.open,
 };
 
 export const createDpxusdBondingSlice: StateCreator<
@@ -335,11 +342,13 @@ export const createDpxusdBondingSlice: StateCreator<
       provider,
       contractAddresses,
       treasuryContractState,
+      treasuryData,
     } = get();
 
     if (
       !provider ||
       !treasuryContractState.contracts ||
+      !treasuryData ||
       !contractAddresses ||
       !accountAddress
     )
@@ -369,17 +378,30 @@ export const createDpxusdBondingSlice: StateCreator<
       provider
     );
 
-    const isEligibleForMint = (await veDPX.balanceOf(accountAddress)).gte(
+    const eligible_second_lower = (await veDPX.balanceOf(accountAddress)).gte(
       getContractReadableAmount(1000, 18)
     );
 
-    console.log(isEligibleForMint);
+    console.log('veDPX eligibility: ', eligible_second_lower);
+
+    const dscPrice = treasuryData.dscPrice;
+    let state: BondingState;
+    if (dscPrice.lte(treasuryContractState.dsc_second_lower_depeg)) {
+      state = BondingState.second_lower;
+    } else if (dscPrice.lte(treasuryContractState.dsc_first_lower_depeg)) {
+      state = BondingState.first_lower;
+    } else if (dscPrice.gt(treasuryContractState.dsc_upper_peg)) {
+      state = BondingState.upper;
+    } else {
+      state = BondingState.open;
+    }
 
     set((prevState) => ({
       ...prevState,
       userDscBondsData: {
         bonds, // bonds,
-        isEligibleForMint: true,
+        state,
+        // isWhale: eligible_second_lower,
       },
     }));
   },

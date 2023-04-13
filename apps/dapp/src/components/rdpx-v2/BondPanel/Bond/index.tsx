@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 
 import {
   DPXVotingEscrow__factory,
@@ -19,6 +19,9 @@ import CollateralInputPanel from 'components/rdpx-v2/BondPanel/Bond/CollateralIn
 import DisabledPanel from 'components/rdpx-v2/BondPanel/DisabledPanel';
 import InfoBox from 'components/rdpx-v2/BondPanel/Bond/InfoBox';
 import AlertIcon from 'svgs/icons/AlertIcon';
+import Caution from 'svgs/icons/Caution';
+
+import { BondingState } from 'store/RdpxV2/dpxeth-bonding';
 
 import { getContractReadableAmount } from 'utils/contracts';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -328,9 +331,92 @@ const Bond = () => {
     delegated,
   ]);
 
+  const handleMint = useCallback(async () => {
+    console.log('Mint');
+    if (
+      !treasuryContractState.contracts ||
+      !treasuryContractState.contracts.treasury ||
+      !treasuryData ||
+      !signer ||
+      !accountAddress
+    )
+      return;
+
+    const treasury = RdpxV2Treasury__factory.connect(
+      contractAddresses['RDPX-V2']['Treasury'],
+      signer
+    );
+
+    try {
+      await sendTx(treasury, 'upperDepeg', [
+        getContractReadableAmount(value, 18),
+        accountAddress,
+      ]).then(() => {
+        updateTreasuryData();
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }, [treasuryContractState.contracts, treasuryData, signer]);
+
+  const handleRepeg = useCallback(async () => {
+    console.log('Repeg');
+    if (
+      !treasuryContractState.contracts ||
+      !treasuryContractState.contracts.treasury ||
+      !treasuryData ||
+      !signer ||
+      !accountAddress
+    )
+      return;
+
+    const treasury = RdpxV2Treasury__factory.connect(
+      contractAddresses['RDPX-V2']['Treasury'],
+      signer
+    );
+
+    try {
+      await sendTx(treasury, 'firstLowerDepeg', [
+        getContractReadableAmount(value, 18),
+      ]).then(() => {
+        updateTreasuryData();
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  const buttonProps = useMemo(() => {
+    console.log('buttonProps', userDscBondsData.state);
+    if (userDscBondsData.state === BondingState.open) {
+      return { action: handleBond, label: 'Bond', info: null };
+    } else if (userDscBondsData.state === BondingState.upper) {
+      return {
+        action: handleMint,
+        label: 'Mint',
+        info: '$dpxETH price is above 1.01 WETH. 1:1 minting of WETH is now enabled.',
+      };
+    } else if (userDscBondsData.state === BondingState.first_lower) {
+      return {
+        action: handleRepeg,
+        label: 'Mint',
+        info: '$dpxETH price is below 0.99 WETH. Restore peg of dpxETH via the treasury.',
+      };
+    } else if (userDscBondsData.state === BondingState.second_lower) {
+      return {
+        action: handleBond, // **todo**: implement logic for treasury.secondLowerDepeg(uint256,address)
+        label: 'Redeem',
+        info: '$dpxETH price is below 0.985 WETH. Privileged users can now redeem RDPX/WETH LP for ETH at 1:1 ratio.',
+      };
+    }
+    return { action: handleBond, label: 'Bond' };
+  }, [userDscBondsData.state]);
+
   return (
     <div className="space-y-3 relative">
-      {!userDscBondsData.isEligibleForMint || isLoading || mintDisabled ? (
+      {Number(userDscBondsData.state) !== BondingState.open ||
+      isLoading ||
+      mintDisabled ? (
         <DisabledPanel displayKey={accountAddress ? 'mint' : 'connect'} />
       ) : null}
       <div className="bg-umbra rounded-xl w-full h-fit divide-y-2 divide-cod-gray">
@@ -427,21 +513,29 @@ const Bond = () => {
           <p className="text-black text-sm">{error}</p>
         </div>
       ) : null}
+      {buttonProps.info ? (
+        <div className="p-1 bg-jaffa rounded-xl flex justify-center space-x-2">
+          <Caution className="my-auto" />
+          <p className="text-black text-sm my-auto">{buttonProps.info}</p>
+        </div>
+      ) : null}
       <div className="rounded-xl p-4 w-full bg-umbra">
         <div className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800 space-y-2">
           <EstimatedGasCostButton gas={500000} chainId={chainId} />
         </div>
-        {userDscBondsData.isEligibleForMint || isLoading ? (
+        {userDscBondsData.state === BondingState.open || isLoading ? (
           <CustomButton
             size="medium"
             className="w-full mt-4 rounded-md"
             color="primary"
             disabled={
-              !userDscBondsData.isEligibleForMint || isLoading || !Number(value)
+              userDscBondsData.state !== BondingState.open ||
+              isLoading ||
+              !Number(value)
             }
-            onClick={approved ? handleBond : handleApprove}
+            onClick={approved ? buttonProps.action : handleApprove}
           >
-            {approved ? 'Bond' : 'Approve'}
+            {approved ? buttonProps.label : 'Approve'}
           </CustomButton>
         ) : (
           <a
