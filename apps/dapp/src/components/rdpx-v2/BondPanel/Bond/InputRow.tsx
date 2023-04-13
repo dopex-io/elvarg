@@ -11,6 +11,7 @@ interface Props {
   index: number;
   label?: string;
   rounded?: boolean;
+  disabled?: boolean;
 }
 
 const InputRow = (props: Props) => {
@@ -21,6 +22,7 @@ const InputRow = (props: Props) => {
     setBonds,
     index,
     rounded = false,
+    disabled = false,
   } = props;
 
   const { treasuryData } = useBoundStore();
@@ -51,9 +53,12 @@ const InputRow = (props: Props) => {
     <div className="flex justify-end space-x-3 divide-x-2 divide-cod-gray">
       <input
         type="number"
-        className="text-sm my-auto bg-umbra border-none outline-none text-end"
+        className={`text-sm my-auto bg-umbra border-none outline-none text-end ${
+          disabled ? 'text-mineshaft cursor-not-allowed' : null
+        }`}
         value={amounts[index]}
         onChange={(e) => handleChange(e)}
+        disabled={disabled}
       />
       <div
         className={`flex justify-center bg-mineshaft w-1/4 px-2 py-1 my-auto ${

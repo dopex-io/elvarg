@@ -519,7 +519,8 @@ const Bond = () => {
             disabled={
               userDscBondsData.state !== BondingState.open ||
               isLoading ||
-              !Number(value)
+              !Number(value) ||
+              Boolean(error)
             }
             onClick={approved ? buttonProps.action : handleApprove}
           >

@@ -488,15 +488,15 @@ export const createDpxusdBondingSlice: StateCreator<
       amounts: accumulator.amounts
         .map(
           (amount) =>
-            amount.mul(bonds).div(requiredCollateral).sub(1e2).lt(0)
+            amount.mul(bonds).div(requiredCollateral.add(1)).sub(1e2).lt(0)
               ? BigNumber.from(0)
-              : amount.mul(bonds).div(requiredCollateral).sub(1e2) // todo: some precision is lost; calculateBondCost(A) + cbc(B) + cbc(C) !== cbc(A + B + C)
+              : amount.mul(bonds).div(requiredCollateral.add(1)).sub(1e2) // todo: some precision is lost; calculateBondCost(A) + cbc(B) + cbc(C) !== cbc(A + B + C)
         )
         .filter((amount) => amount.gt(0)),
     };
 
     console.log(
-      'DSC Breakdown: ',
+      'dpxETH breakdown ',
       accumulator.amounts.map((amount) => amount.toString()),
       accumulator.ids.map((id) => id.toString()),
       bonds

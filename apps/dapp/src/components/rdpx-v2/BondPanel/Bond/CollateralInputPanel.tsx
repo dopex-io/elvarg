@@ -13,6 +13,7 @@ interface Props {
   setInputAmount: React.Dispatch<React.SetStateAction<number | string>>; // **note**: drilled prop may cause unintended side-effects
   setApproved: Function;
   delegated: boolean;
+  disabled?: boolean;
 }
 
 const CollateralInputPanel = (props: Props) => {
@@ -91,6 +92,7 @@ const CollateralInputPanel = (props: Props) => {
               setAmounts={setAmounts}
               setBonds={setInputAmount}
               rounded={index === amounts.length - 1}
+              disabled={symbol === 'WETH' && delegated ? true : false}
             />
           );
         })}
