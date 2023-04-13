@@ -92,12 +92,12 @@ const Bond = () => {
     const treasury = treasuryContractState.contracts.treasury;
 
     const weth = MockToken__factory.connect(
-      treasuryData.tokenA.address,
+      treasuryData.tokenB.address,
       signer
     );
 
     const rdpx = MockToken__factory.connect(
-      treasuryData.tokenB.address,
+      treasuryData.tokenA.address,
       signer
     );
 
@@ -206,11 +206,11 @@ const Bond = () => {
         return;
 
       const _weth = MockToken__factory.connect(
-        treasuryData.tokenA.address,
+        treasuryData.tokenB.address,
         provider
       );
       const _rdpx = MockToken__factory.connect(
-        treasuryData.tokenB.address,
+        treasuryData.tokenA.address,
         provider
       );
 
@@ -418,8 +418,8 @@ const Bond = () => {
           leftElement={
             <div className="flex my-auto space-x-2 w-2/3">
               <img
-                src={`/images/tokens/${'DSC'?.toLowerCase()}.svg`}
-                alt={'USDC'.toLowerCase()}
+                src={`/images/tokens/${'dpxETH'.toLowerCase()}.svg`}
+                alt={'dpxeth'.toLowerCase()}
                 className="w-10 h-10 border border-mineshaft rounded-full"
               />
             </div>

@@ -74,7 +74,7 @@ const Delegate = () => {
       return;
 
     const _token = MockToken__factory.connect(
-      treasuryData.tokenA.address,
+      treasuryData.tokenB.address,
       signer
     );
 
@@ -134,7 +134,7 @@ const Delegate = () => {
     if (!provider || !accountAddress || !treasuryData.tokenB.address) return;
 
     const token = MockToken__factory.connect(
-      treasuryData.tokenA.address,
+      treasuryData.tokenB.address,
       provider
     );
 
@@ -158,7 +158,7 @@ const Delegate = () => {
         return;
 
       const _token = MockToken__factory.connect(
-        treasuryData.tokenA.address,
+        treasuryData.tokenB.address,
         provider
       );
 
@@ -184,9 +184,9 @@ const Delegate = () => {
             <div className="flex my-auto space-x-2 w-2/3">
               <img
                 src={`/images/tokens/${
-                  treasuryData.tokenA.symbol.toLowerCase() || 'weth'
+                  treasuryData.tokenB.symbol.toLowerCase() || 'weth'
                 }.svg`}
-                alt={treasuryData.tokenA.symbol.toLowerCase()}
+                alt={treasuryData.tokenB.symbol.toLowerCase()}
                 className="w-10 h-10 border border-mineshaft rounded-full"
               />
             </div>
@@ -199,7 +199,7 @@ const Delegate = () => {
               {formatAmount(getUserReadableAmount(userBalance, 18), 3)}
             </span>
             <span className="text-sm" color="stieglitz">
-              {treasuryData.tokenA.symbol}
+              {treasuryData.tokenB.symbol}
             </span>
           </div>
         </div>

@@ -49,11 +49,11 @@ const CollateralInputPanel = (props: Props) => {
 
       const [rdpxAllowance, wethAllowance] = await Promise.all([
         MockToken__factory.connect(
-          treasuryData.tokenA.address, // weth
+          treasuryData.tokenA.address, // rdpx
           provider
         ).allowance(accountAddress, treasury),
         MockToken__factory.connect(
-          treasuryData.tokenB.address, // rdpx
+          treasuryData.tokenB.address, // weth
           provider
         ).allowance(accountAddress, treasury),
       ]);
@@ -80,8 +80,8 @@ const CollateralInputPanel = (props: Props) => {
         {amounts.map((_, index) => {
           let symbol = (
             index === 0
-              ? treasuryData.tokenB.symbol
-              : treasuryData.tokenA.symbol
+              ? treasuryData.tokenA.symbol
+              : treasuryData.tokenB.symbol
           ).toUpperCase();
           return (
             <InputRow
@@ -92,7 +92,7 @@ const CollateralInputPanel = (props: Props) => {
               setAmounts={setAmounts}
               setBonds={setInputAmount}
               rounded={index === amounts.length - 1}
-              disabled={symbol === 'WETH' && delegated ? true : false}
+              disabled={symbol === 'WETH' && delegated}
             />
           );
         })}

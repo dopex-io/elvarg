@@ -5,6 +5,7 @@ import Countdown from 'react-countdown';
 import format from 'date-fns/format';
 import Tooltip from '@mui/material/Tooltip';
 import CheckCircleRounded from '@mui/icons-material/CheckCircleRounded';
+import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import { Button } from '@dopex-io/ui';
 
 import Placeholder from 'components/rdpx-v2/Tables/Placeholder';
@@ -88,7 +89,9 @@ const UserBonds = () => {
         ),
         redeemable: redeemable ? (
           <CheckCircleRounded className="fill-current text-up-only" />
-        ) : null,
+        ) : (
+          <CancelRoundedIcon className="fill-current text-down-bad" />
+        ),
         timeLeft: (
           <span>
             <Countdown

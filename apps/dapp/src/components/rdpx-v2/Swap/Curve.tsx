@@ -105,7 +105,7 @@ const Curve = () => {
       return;
 
     const _tokenContract =
-      path[0].symbol === 'DSC'
+      path[0].symbol === 'dpxETH'
         ? DscToken__factory.connect(path[0].address, signer)
         : MockToken__factory.connect(path[0].address, signer);
 
