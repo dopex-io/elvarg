@@ -5,9 +5,15 @@ module.exports = {
   generateBuildId: () => 'build',
   images: {
     domains: ['lh3.googleusercontent.com'],
+    unoptimized: process.env.OPTIMIZE_IMAGES === 'false' ? true : false,
   },
   async redirects() {
     return [
+      {
+        source: '/share',
+        destination: '/',
+        permanent: false,
+      },
       {
         source: '/',
         destination: '/ssov',
