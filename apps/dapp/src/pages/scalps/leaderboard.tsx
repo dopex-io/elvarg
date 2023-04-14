@@ -5,7 +5,6 @@ import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import EqualizerIcon from '@mui/icons-material/Equalizer';
 import Head from 'next/head';
 import cx from 'classnames';
-import { useMedia } from 'react-use';
 import Countdown from 'react-countdown';
 
 import AppBar from 'components/common/AppBar';
@@ -19,14 +18,12 @@ const RESPONSIVE_TITLE_TEXT_STYLE = 'text-xs md:text-sm lg:text-md';
 const SORT_OPTIONS = ['PNL', 'VOLUME'];
 
 const LeaderBoard = () => {
-  const { getUserPositionData, contractAddresses, accountAddress } =
+  const { getUserPositionData, accountAddress } =
     useBoundStore();
   const [showMore, setShowMore] = useState(false);
   const [sort, setSort] = useState(SORT_OPTIONS[0]);
   const [positions, setPositions] = useState([]);
 
-  const mobileMode = !useMedia('(min-width: 480px)');
-  const lowScreenHeight = !useMedia('(min-height: 1200px)');
 
   const updatePositions = useCallback(async () => {
     await getUserPositionData().then((result: any) => {
@@ -52,7 +49,7 @@ const LeaderBoard = () => {
     }
 
     _positionsFiltered = !showMore
-      ? positions.slice(0, !lowScreenHeight ? 10 : 5)
+      ? positions.slice(0, 5)
       : positions;
 
     const index = positions.findIndex((position: any) => {
@@ -66,9 +63,6 @@ const LeaderBoard = () => {
     };
   }, [
     accountAddress,
-    mobileMode,
-    lowScreenHeight,
-    contractAddresses,
     positions,
     sort,
     showMore,
@@ -172,12 +166,10 @@ const LeaderBoard = () => {
                       <span
                         className={cx(
                           RESPONSIVE_TITLE_TEXT_STYLE,
-                          'text-left w-full'
+                          "text-center w-full overflow-x-scroll sm:overflow-x-visible"
                         )}
                       >
-                        {mobileMode
-                          ? smartTrim(position.user, 10)
-                          : position.id}
+                        {smartTrim(position.id, 0)}
                       </span>
                       <span
                         className={cx(
@@ -228,13 +220,12 @@ const LeaderBoard = () => {
               'uppercase tracking-wider'
             )}
           >
-            Join Dopex Trading Competition and Get a Chance to Win a Part of the
-            Prize Pool of $50,000
+            The April Scalp-Off: Compete to Win 5k in weekly prizes!
           </p>
         </div>
         <div className="flex flex-row space-x-4">
           {TOKENS.map((token, index) => (
-            <a role="button" href={`/scalps/${token}`}>
+            <a key={index} role="button" href={`/scalps/${token}`}>
               <span
                 role="button"
                 className={cx(
@@ -256,7 +247,7 @@ const LeaderBoard = () => {
           ))}
         </div>
         <Countdown
-          date={new Date(1680901200000)}
+          date={new Date(1682899199000)}
           renderer={({ days, hours, minutes, seconds }) => {
             return (
               <div
@@ -265,7 +256,7 @@ const LeaderBoard = () => {
                   'flex flex-col items-center justify-center space-y-5'
                 )}
               >
-                <span>Competition ends in:</span>
+                <span>ends in:</span>
                 <span className="text-lg font-bold pt-1 tracking-wider bg-gradient-to-r from-wave-blue to-blue-200 text-transparent bg-clip-text">
                   {days}d {hours}h {minutes}m {seconds}s
                 </span>
@@ -279,7 +270,7 @@ const LeaderBoard = () => {
         >
           <a
             href={
-              'https://blog.dopex.io/articles/marketing-campaigns/option-scalps-trading-competition'
+              'https://blog.dopex.io/articles/product-launches-updates/introducing-option-scalps'
             }
             className={cx(
               RESPONSIVE_TITLE_TEXT_STYLE,
