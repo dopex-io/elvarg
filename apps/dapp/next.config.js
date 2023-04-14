@@ -5,7 +5,7 @@ module.exports = {
   generateBuildId: () => 'build',
   images: {
     domains: ['lh3.googleusercontent.com'],
-    unoptimized: process.env.OPTIMIZE_IMAGES === 'true' ? true : false,
+    unoptimized: process.env.OPTIMIZE_IMAGES === 'false' ? true : false,
   },
   async redirects() {
     return [
