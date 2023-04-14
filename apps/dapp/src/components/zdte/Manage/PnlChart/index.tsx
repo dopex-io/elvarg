@@ -223,7 +223,7 @@ const PnlChart = (props: PnlChartProps) => {
             useFake
               ? 0
               : roundToTwoDecimals(
-                  getMaxPayoffPerOption(spreadPair, cost) * Math.max(1, amount)
+                  getMaxPayoffPerOption(spreadPair, cost) * amount
                 )
           }`}
           highlightPnl
