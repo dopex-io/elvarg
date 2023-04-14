@@ -10,7 +10,7 @@ export interface TokenSaleSlice {
   saleStart: number | BigNumber;
   saleWhitelistStart: number | BigNumber;
   maxWhitelistDeposit: number | BigNumber;
-  saleClose: number | BigNumber;
+  saleClose: BigNumber;
   maxDeposits: string | BigNumber;
   tokensAllocated: string | BigNumber;
   claimAmount: string | BigNumber;
@@ -34,7 +34,7 @@ export const createTokenSaleSlice: StateCreator<
   saleStart: 0,
   saleWhitelistStart: 0,
   maxWhitelistDeposit: 0,
-  saleClose: 0,
+  saleClose: BigNumber.from(0),
   maxDeposits: '',
   tokensAllocated: '',
   claimAmount: '',

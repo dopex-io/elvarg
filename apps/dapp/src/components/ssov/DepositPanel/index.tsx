@@ -14,7 +14,6 @@ import { SsovV3EpochData } from 'store/Vault/ssov';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import Wrapper from 'components/ssov/Wrapper';
 import InputWithTokenSelector from 'components/common/InputWithTokenSelector';
@@ -26,14 +25,12 @@ import useSendTx from 'hooks/useSendTx';
 import formatAmount from 'utils/general/formatAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-
-import { MAX_VALUE } from 'constants/index';
-
 import get1inchQuote, { defaultQuoteData } from 'utils/general/get1inchQuote';
 import get1inchSwap from 'utils/general/get1inchSwap';
-
 import { getTokenDecimals } from 'utils/general';
 import isNativeToken from 'utils/general/isNativeToken';
+
+import { MAX_VALUE } from 'constants/index';
 
 const SelectMenuProps = {
   PaperProps: {
@@ -59,7 +56,6 @@ const DepositPanel = () => {
     ssovEpochData,
     ssovSigner,
     selectedEpoch,
-    contractAddresses,
     userAssetBalances,
     getContractAddress,
   } = useBoundStore();
@@ -68,10 +64,7 @@ const DepositPanel = () => {
 
   const [wrapOpen, setWrapOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [quote, setQuote] = useState({
-    quoteData: defaultQuoteData,
-    swapData: '',
-  });
+  const [quote, setQuote] = useState(defaultQuoteData);
 
   const [debouncedQuote] = useDebounce(quote, 1000);
 
@@ -134,7 +127,7 @@ const DepositPanel = () => {
     if (!ssovData?.collateralAddress || !signer || !spender) return;
     try {
       await sendTx(
-        ERC20__factory.connect(contractAddresses[fromTokenSymbol], signer),
+        ERC20__factory.connect(getContractAddress(fromTokenSymbol), signer),
         'approve',
         [spender, MAX_VALUE]
       );
@@ -142,7 +135,7 @@ const DepositPanel = () => {
     } catch (err) {
       console.log(err);
     }
-  }, [sendTx, signer, spender, ssovData, fromTokenSymbol, contractAddresses]);
+  }, [sendTx, signer, spender, ssovData, fromTokenSymbol, getContractAddress]);
 
   const depositButtonProps = useMemo(() => {
     let disable = false;
@@ -161,7 +154,7 @@ const DepositPanel = () => {
       color = 'primary';
     }
     if (
-      strikeDepositAmount >
+      Number(strikeDepositAmount) >
       getUserReadableAmount(
         userTokenBalance,
         getTokenDecimals(fromTokenSymbol, chainId)
@@ -200,7 +193,7 @@ const DepositPanel = () => {
       !ssovData ||
       !ssovData.collateralSymbol ||
       !ssovSigner.ssovContractWithSigner ||
-      !ssovSigner.ssovRouterWithSigner ||
+      !(chainId === 137 || ssovSigner.ssovRouterWithSigner) ||
       !chainId ||
       loading ||
       depositButtonProps.disable
@@ -217,6 +210,22 @@ const DepositPanel = () => {
         : getContractAddress('USDC')
       : ssovData.collateralAddress;
 
+    const fromTokenAddress = getContractAddress(fromTokenSymbol);
+    let swapData;
+
+    if (routerMode) {
+      swapData = await get1inchSwap({
+        fromTokenAddress,
+        toTokenAddress,
+        amount: getContractReadableAmount(
+          strikeDepositAmount,
+          getTokenDecimals(fromTokenSymbol, chainId)
+        ),
+        chainId,
+        accountAddress: ssovSigner.ssovRouterWithSigner?.address!,
+      });
+    }
+
     const params = routerMode
       ? [
           ssovSigner.ssovContractWithSigner.address,
@@ -227,13 +236,15 @@ const DepositPanel = () => {
           accountAddress,
           strike,
           depositAmount,
-          debouncedQuote.quoteData.toTokenAmount,
-          debouncedQuote.swapData,
+          swapData.toTokenAmount,
+          swapData.tx.data,
         ]
       : [strike, depositAmount, accountAddress];
     const contractWithSigner = routerMode
       ? ssovSigner.ssovRouterWithSigner
       : ssovSigner.ssovContractWithSigner;
+
+    if (!contractWithSigner) return;
 
     isNativeToken(fromTokenSymbol)
       ? params.push({
@@ -268,15 +279,18 @@ const DepositPanel = () => {
     ssovData,
     ssovSigner.ssovContractWithSigner,
     ssovSigner.ssovRouterWithSigner,
-    debouncedQuote.quoteData.toTokenAmount,
-    debouncedQuote.swapData,
     chainId,
     depositButtonProps.disable,
     loading,
   ]);
 
   const handleMax = useCallback(() => {
-    setStrikeDepositAmount(userTokenBalance.toString());
+    setStrikeDepositAmount(
+      getUserReadableAmount(
+        userTokenBalance,
+        getTokenDecimals(fromTokenSymbol, chainId)
+      )
+    );
   }, [userTokenBalance]);
 
   const checkApproved = useCallback(async () => {
@@ -288,8 +302,13 @@ const DepositPanel = () => {
         strikeDepositAmount.toString(),
         getTokenDecimals(fromTokenSymbol, chainId)
       );
+
+      const tokenAddress = getContractAddress(fromTokenSymbol);
+
+      if (!tokenAddress) return;
+
       const allowance: BigNumber = await ERC20__factory.connect(
-        getContractAddress(fromTokenSymbol),
+        tokenAddress,
         signer
       ).allowance(accountAddress, spender);
 
@@ -316,11 +335,15 @@ const DepositPanel = () => {
   useEffect(() => {
     (async () => {
       if (!accountAddress || !signer) return;
+
+      const tokenAddress = getContractAddress(fromTokenSymbol);
+
+      if (!tokenAddress) return;
+
       setUserTokenBalance(
-        await ERC20__factory.connect(
-          getContractAddress(fromTokenSymbol),
-          signer
-        ).balanceOf(accountAddress)
+        await ERC20__factory.connect(tokenAddress, signer).balanceOf(
+          accountAddress
+        )
       );
     })();
   }, [
@@ -354,36 +377,21 @@ const DepositPanel = () => {
 
     setLoading(true);
 
-   await Promise.all([
-     get1inchQuote(
-       fromTokenAddress,
-       toTokenAddress,
-       getContractReadableAmount(
-         strikeDepositAmount,
-         getTokenDecimals(fromTokenSymbol, chainId)
-       ).toString(),
-       chainId,
-       accountAddress,
-       '3'
-     ),
-     get1inchSwap({
-       fromTokenAddress,
-       toTokenAddress,
-       amount: getContractReadableAmount(
-         strikeDepositAmount,
-         getTokenDecimals(fromTokenSymbol, chainId)
-       ),
-       chainId,
-       accountAddress: ssovSigner.ssovRouterWithSigner.address,
-     }),
-   ]).then((res) => {
-     setQuote({
-       quoteData: res[0],
-       swapData: res[1].tx.data,
-     });
-     setLoading(false);
-     return res;
-   });
+    await get1inchQuote(
+      fromTokenAddress,
+      toTokenAddress,
+      getContractReadableAmount(
+        strikeDepositAmount,
+        getTokenDecimals(fromTokenSymbol, chainId)
+      ).toString(),
+      chainId,
+      accountAddress,
+      '3'
+    ).then((res) => {
+      setQuote(res);
+      setLoading(false);
+      return res;
+    });
   }, [
     getContractAddress,
     accountAddress,
@@ -544,8 +552,8 @@ const DepositPanel = () => {
                     >
                       {formatAmount(
                         getUserReadableAmount(
-                          debouncedQuote.quoteData.toTokenAmount,
-                          debouncedQuote.quoteData.toToken.decimals
+                          debouncedQuote.toTokenAmount,
+                          debouncedQuote.toToken.decimals
                         ),
                         3
                       )}{' '}

@@ -5,11 +5,7 @@ import { useMemo, useState } from 'react';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQuery,
-} from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import isEmpty from 'lodash/isEmpty';
 
 import Typography from 'components/UI/Typography';
@@ -37,8 +33,6 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
     </Box>
   );
 };
-
-const queryClient = new QueryClient();
 
 const SsovData = () => {
   const { isLoading, error, data } = useQuery(['ssovData'], () =>
@@ -157,10 +151,8 @@ const SsovData = () => {
             showImages={false}
           />
         </Box>
-
         {!isEmpty(ssovs)
           ? keys.map((key) => {
-              console.log(key);
               return (
                 <Box key={key} className="mb-12">
                   <NetworkHeader chainId={Number(key)} />
@@ -215,9 +207,5 @@ const SsovData = () => {
 };
 
 export default function Ssov() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <SsovData />
-    </QueryClientProvider>
-  );
+  return <SsovData />;
 }

@@ -3,10 +3,8 @@ import Router from 'next/router';
 import { ethers, Signer } from 'ethers';
 import { providers } from '@0xsequence/multicall';
 import { Addresses } from '@dopex-io/sdk';
-import { ProviderController } from 'web3modal';
 
 import { AssetsSlice } from 'store/Assets';
-import { getWeb3Modal } from 'store/Wallet/getWeb3Modal';
 
 import { CHAINS, PAGE_TO_SUPPORTED_CHAIN_IDS } from 'constants/chains';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
@@ -22,9 +20,6 @@ export interface WalletSlice {
   provider: ethers.providers.Provider;
   signer?: Signer;
   wrongNetwork: boolean;
-  connect: Function;
-  disconnect: Function;
-  changeWallet: Function;
   chainId: number;
   blockTime?: number;
   epochInitTime?: number;
@@ -55,73 +50,15 @@ export const createWalletSlice: StateCreator<
     set((prev) => ({ ...prev, openComplianceDialog: setAs }));
   },
   wrongNetwork: false,
-  connect: () => {
-    const { updateState } = get();
-    const web3Modal = getWeb3Modal();
-
-    web3Modal
-      ?.connect()
-      .then(async (provider: ProviderController) => {
-        provider.on('accountsChanged', async () => {
-          await updateState({ provider, isUser: true });
-        });
-
-        provider.on('chainChanged', async () => {
-          await updateState({ provider, isUser: true });
-        });
-        await updateState({ provider, isUser: true });
-      })
-      .catch((errorMsg) => {
-        console.log(errorMsg);
-      });
-  },
-  disconnect: () =>
-    set((prevState: WalletSlice) => {
-      const web3Modal = getWeb3Modal();
-      if (!web3Modal) return prevState;
-      web3Modal.clearCachedProvider();
-      return {
-        ...prevState,
-        accountAddress: '',
-        provider: new providers.MulticallProvider(
-          new ethers.providers.StaticJsonRpcProvider(
-            CHAINS[DEFAULT_CHAIN_ID]?.rpc
-          )
-        ),
-      };
-    }),
-  changeWallet: () => {
-    const { updateState, chainId } = get();
-    const web3Modal = getWeb3Modal();
-
-    if (!web3Modal) return;
-    web3Modal.clearCachedProvider();
-    web3Modal
-      .connect()
-      .then(async (provider: any) => {
-        await updateState({ provider, isUser: true });
-      })
-      .catch(async () => {
-        await updateState({
-          provider: new ethers.providers.StaticJsonRpcProvider(
-            CHAINS[chainId]?.rpc
-          ),
-          isUser: false,
-        });
-      });
-  },
   updateState: async ({
-    isUser,
-    provider,
+    signer,
+    chainId,
+    accountAddress,
   }: {
-    isUser: string;
-    provider: ethers.providers.Provider | ProviderController;
+    signer?: Signer;
+    chainId: number;
+    accountAddress?: string;
   }) => {
-    const _provider: any = isUser
-      ? new ethers.providers.Web3Provider(provider as any, 'any')
-      : (provider as ethers.providers.Provider);
-    const { chainId } = await _provider.getNetwork();
-
     let router = Router;
 
     if (
@@ -152,13 +89,6 @@ export const createWalletSlice: StateCreator<
     const multicallProvider = new providers.MulticallProvider(
       new ethers.providers.StaticJsonRpcProvider(CHAINS[chainId]?.rpc)
     );
-    let signer: Signer | undefined;
-    let address: string | undefined;
-
-    if (isUser) {
-      signer = await _provider.getUncheckedSigner();
-      address = await signer?.getAddress();
-    }
 
     let contractAddresses: any;
 
@@ -173,10 +103,8 @@ export const createWalletSlice: StateCreator<
       supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all ?? [
         DEFAULT_CHAIN_ID,
       ],
-      ...(isUser && {
-        signer,
-        accountAddress: address,
-      }),
+      signer,
+      accountAddress: accountAddress,
     }));
   },
   setChangeNetwork: (networkStatus: 'user' | 'wrong-network' | 'close') => {
@@ -194,7 +122,7 @@ export const createWalletSlice: StateCreator<
   getContractAddress: (key: string) => {
     const { contractAddresses } = get();
     if (key.toUpperCase() === 'WSTETH') return contractAddresses['STETH'];
-    if (key.toUpperCase() === 'STMATIC') return contractAddresses['WMATIC'];
+    if (key.toUpperCase() === 'STMATIC') return contractAddresses['STMATIC'];
     return contractAddresses[key.toUpperCase()];
   },
 });

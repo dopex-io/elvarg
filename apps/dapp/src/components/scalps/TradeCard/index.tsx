@@ -338,6 +338,8 @@ const TradeCard = () => {
       const { markPrice, quoteDecimals } = optionScalpData;
       if (!markPrice || !quoteDecimals) return;
 
+      if (option == 100) option = 98;
+
       const fee =
         getUserReadableAmount(
           posSize,

@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
-import WalletButton from 'components/common/WalletButton';
+import SignerButton from 'components/common/SignerButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
@@ -55,7 +55,7 @@ const SsovV2Deposit = ({ deposit }: any) => {
       <Box>Deposit: {getUserReadableAmount(deposit.amount, 18)}</Box>
       <Box>Strike: {strike}</Box>
       <Box className="mt-2">
-        <WalletButton onClick={handleWithdraw}>Withdraw</WalletButton>
+        <SignerButton onClick={handleWithdraw}>Withdraw</SignerButton>
       </Box>
     </Box>
   );

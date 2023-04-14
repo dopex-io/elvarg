@@ -1,10 +1,8 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
-
-import CustomButton from 'components/UI/Button';
 
 import { IAtlanticPoolEpochStrikeData } from 'store/Vault/atlantics';
 import { useBoundStore } from 'store';
@@ -39,12 +37,8 @@ interface IPoolData {
 
 const Charts = (props: ChartsProps) => {
   const { line_data, underlying, collateral, title, type } = props;
-  const { accountAddress, atlanticPool, atlanticPoolEpochData, connect } =
+  const { accountAddress, atlanticPool, atlanticPoolEpochData } =
     useBoundStore();
-
-  const handleWalletConnect = useCallback(() => {
-    connect && connect();
-  }, [connect]);
 
   const poolData:
     | {
@@ -99,9 +93,7 @@ const Charts = (props: ChartsProps) => {
     if (poolData.type === 'connect')
       return (
         <Box className="p-3 items-center text-center my-auto">
-          <CustomButton size="medium" onClick={handleWalletConnect}>
-            Connect Wallet
-          </CustomButton>
+          Please connect your wallet.
         </Box>
       );
     else if (poolData.type === 'loading')
@@ -120,15 +112,7 @@ const Charts = (props: ChartsProps) => {
           header={{ underlying, collateral, title, type }}
         />
       );
-  }, [
-    atlanticPool,
-    collateral,
-    handleWalletConnect,
-    poolData,
-    title,
-    type,
-    underlying,
-  ]);
+  }, [atlanticPool, collateral, poolData, title, type, underlying]);
 
   // const lineData = useMemo(() => {}, []);
 

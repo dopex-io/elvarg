@@ -31,7 +31,7 @@ import {
   TableBodyCell,
   TableHeader,
 } from 'components/atlantics/Manage/UserDepositsTable';
-import WalletButton from 'components/common/WalletButton';
+import SignerButton from 'components/common/SignerButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -479,13 +479,35 @@ const Positions = ({
 
   const renderButton = useMemo(() => {
     if (
-      userPositionData.state === ActionState['2'] ||
-      userPositionData.state === ActionState['3']
+      userPositionData.state === ActionState['2'] 
     )
       return (
-        <CustomButton onClick={handleIncreaseManagedPosition}>
-          Add Collateral
-        </CustomButton>
+        <Select
+          value={action}
+          onChange={handleActionChange}
+          className="bg-primary rounded-md w-full text-center text-white border border-umbra p-2"
+          MenuProps={{
+            classes: { paper: 'bg-primary' },
+          }}
+          classes={{ icon: 'text-white', select: 'p-0' }}
+          variant="standard"
+          disableUnderline
+        >
+          <MenuItem
+            onClick={handleIncreaseManagedPosition}
+            value={'Add collateral'}
+            className="text-white"
+          >
+            <Typography variant="h6">Add Collateral</Typography>
+          </MenuItem>
+          <MenuItem
+            className="text-white"
+            onClick={handleEmergencyExit}
+            value={'Exit Strategy'}
+          >
+            <Typography variant="h6">Exit strategy</Typography>
+          </MenuItem>
+        </Select>
       );
     else if (userPositionData.state === ActionState['4'])
       return (
@@ -555,7 +577,7 @@ const Positions = ({
           {accountAddress ? (
             <CircularProgress />
           ) : (
-            <WalletButton>Connect</WalletButton>
+            <SignerButton>Connect</SignerButton>
           )}
         </Box>
       ) : (
@@ -781,7 +803,7 @@ const Positions = ({
                             }
                             value={'Close'}
                           >
-                            <Typography variant="h6">Exit strategy</Typography>
+                            <Typography variant="h6">Exit Position</Typography>
                           </MenuItem>
                         </Select>
                       ) : (

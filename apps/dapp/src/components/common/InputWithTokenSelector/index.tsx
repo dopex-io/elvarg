@@ -59,10 +59,11 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
   const updateUserBalance = useCallback(async () => {
     if (!provider || !accountAddress) return;
 
-    const token = ERC20__factory.connect(
-      getContractAddress(selectedTokenSymbol),
-      provider
-    );
+    const tokenAddress = getContractAddress(selectedTokenSymbol.toUpperCase());
+
+    if (!tokenAddress) return;
+
+    const token = ERC20__factory.connect(tokenAddress, provider);
 
     setSelectedTokenBalance(
       formatAmount(
@@ -76,9 +77,9 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
   }, [
     accountAddress,
     chainId,
-    getContractAddress,
     provider,
     selectedTokenSymbol,
+    getContractAddress,
   ]);
 
   useEffect(() => {
@@ -124,7 +125,7 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
             <Box
               className="flex w-fit bg-cod-gray rounded-md justify-content items-center space-x-2 py-2 px-2"
               role={`${chainId === 137 ? 'Box' : 'Button'}`}
-              onClick={handleTokenSelectorClick}
+              // onClick={handleTokenSelectorClick}
             >
               <img
                 src={`/images/tokens/${selectedTokenSymbol.toLowerCase()}.svg`}

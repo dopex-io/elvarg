@@ -17,8 +17,8 @@ function AddTokenButton({
   options: WatchAssetOptions;
 }) {
   const addToken = () => {
-    if (window && window.ethereum) {
-      window.ethereum
+    if (window && (window as any).ethereum) {
+      (window as any).ethereum
         .request({
           method: 'wallet_watchAsset',
           params: {
