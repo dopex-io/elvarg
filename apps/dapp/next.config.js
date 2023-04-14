@@ -10,6 +10,11 @@ module.exports = {
   async redirects() {
     return [
       {
+        source: '/share',
+        destination: '/',
+        permanent: false,
+      },
+      {
         source: '/',
         destination: '/ssov',
         permanent: false,
