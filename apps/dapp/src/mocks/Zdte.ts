@@ -32,6 +32,8 @@ import type {
 export interface ZdteInterface extends utils.Interface {
   functions: {
     'MARGIN_DECIMALS()': FunctionFragment;
+    'MAX_LONGSTRIKEVOL_ADJUST()': FunctionFragment;
+    'MIN_LONGSTRIKEVOL_ADJUST()': FunctionFragment;
     'STRIKE_DECIMALS()': FunctionFragment;
     'addToContractWhitelist(address)': FunctionFragment;
     'base()': FunctionFragment;
@@ -42,6 +44,7 @@ export interface ZdteInterface extends utils.Interface {
     'calcOpeningFees(uint256,uint256)': FunctionFragment;
     'calcPnl(uint256)': FunctionFragment;
     'calcPremium(bool,uint256,uint256)': FunctionFragment;
+    'calcPremiumWithVol(bool,uint256,uint256,uint256,uint256)': FunctionFragment;
     'canOpenSpreadPosition(bool,uint256,uint256,uint256)': FunctionFragment;
     'claimCollateral(uint256)': FunctionFragment;
     'deposit(bool,uint256)': FunctionFragment;
@@ -55,8 +58,8 @@ export interface ZdteInterface extends utils.Interface {
     'getCurrentExpiry()': FunctionFragment;
     'getMarkPrice()': FunctionFragment;
     'getPrevExpiry()': FunctionFragment;
-    'getVolatility(bool,uint256)': FunctionFragment;
-    'getVolatilityWithExpiry(bool,uint256,uint256)': FunctionFragment;
+    'getVolatility(uint256)': FunctionFragment;
+    'getVolatilityWithExpiry(uint256,uint256)': FunctionFragment;
     'isContract(address)': FunctionFragment;
     'keeperExpirePrevEpochSpreads()': FunctionFragment;
     'keeperExpireSpreads(uint256)': FunctionFragment;
@@ -91,6 +94,8 @@ export interface ZdteInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | 'MARGIN_DECIMALS'
+      | 'MAX_LONGSTRIKEVOL_ADJUST'
+      | 'MIN_LONGSTRIKEVOL_ADJUST'
       | 'STRIKE_DECIMALS'
       | 'addToContractWhitelist'
       | 'base'
@@ -101,6 +106,7 @@ export interface ZdteInterface extends utils.Interface {
       | 'calcOpeningFees'
       | 'calcPnl'
       | 'calcPremium'
+      | 'calcPremiumWithVol'
       | 'canOpenSpreadPosition'
       | 'claimCollateral'
       | 'deposit'
@@ -152,6 +158,14 @@ export interface ZdteInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: 'MAX_LONGSTRIKEVOL_ADJUST',
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'MIN_LONGSTRIKEVOL_ADJUST',
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: 'STRIKE_DECIMALS',
     values?: undefined
   ): string;
@@ -189,6 +203,16 @@ export interface ZdteInterface extends utils.Interface {
     functionFragment: 'calcPremium',
     values: [
       PromiseOrValue<boolean>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'calcPremiumWithVol',
+    values: [
+      PromiseOrValue<boolean>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
@@ -252,15 +276,11 @@ export interface ZdteInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: 'getVolatility',
-    values: [PromiseOrValue<boolean>, PromiseOrValue<BigNumberish>]
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: 'getVolatilityWithExpiry',
-    values: [
-      PromiseOrValue<boolean>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: 'isContract',
@@ -372,6 +392,14 @@ export interface ZdteInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: 'MAX_LONGSTRIKEVOL_ADJUST',
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'MIN_LONGSTRIKEVOL_ADJUST',
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: 'STRIKE_DECIMALS',
     data: BytesLike
   ): Result;
@@ -394,6 +422,10 @@ export interface ZdteInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: 'calcPnl', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'calcPremium',
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'calcPremiumWithVol',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -544,6 +576,7 @@ export interface ZdteInterface extends utils.Interface {
     'AddToContractWhitelist(address)': EventFragment;
     'Deposit(bool,uint256,address)': EventFragment;
     'ExpireLongOptionPosition(uint256,uint256,address)': EventFragment;
+    'KeeperExpireSpreads(uint256,address)': EventFragment;
     'LongOptionPosition(uint256,uint256,uint256,address)': EventFragment;
     'OwnershipTransferred(address,address)': EventFragment;
     'Paused(address)': EventFragment;
@@ -557,6 +590,7 @@ export interface ZdteInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: 'AddToContractWhitelist'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'Deposit'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'ExpireLongOptionPosition'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'KeeperExpireSpreads'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'LongOptionPosition'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'OwnershipTransferred'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'Paused'): EventFragment;
@@ -606,6 +640,18 @@ export type ExpireLongOptionPositionEvent = TypedEvent<
 
 export type ExpireLongOptionPositionEventFilter =
   TypedEventFilter<ExpireLongOptionPositionEvent>;
+
+export interface KeeperExpireSpreadsEventObject {
+  expiry: BigNumber;
+  user: string;
+}
+export type KeeperExpireSpreadsEvent = TypedEvent<
+  [BigNumber, string],
+  KeeperExpireSpreadsEventObject
+>;
+
+export type KeeperExpireSpreadsEventFilter =
+  TypedEventFilter<KeeperExpireSpreadsEvent>;
 
 export interface LongOptionPositionEventObject {
   id: BigNumber;
@@ -727,6 +773,10 @@ export interface Zdte extends BaseContract {
   functions: {
     MARGIN_DECIMALS(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    MAX_LONGSTRIKEVOL_ADJUST(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    MIN_LONGSTRIKEVOL_ADJUST(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     STRIKE_DECIMALS(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     addToContractWhitelist(
@@ -766,6 +816,15 @@ export interface Zdte extends BaseContract {
     calcPremium(
       isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { premium: BigNumber }>;
+
+    calcPremiumWithVol(
+      isPut: PromiseOrValue<boolean>,
+      markPrice: PromiseOrValue<BigNumberish>,
+      strike: PromiseOrValue<BigNumberish>,
+      volatility: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { premium: BigNumber }>;
@@ -836,13 +895,11 @@ export interface Zdte extends BaseContract {
     ): Promise<[BigNumber] & { expiry: BigNumber }>;
 
     getVolatility(
-      isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { volatility: BigNumber }>;
 
     getVolatilityWithExpiry(
-      isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
       expiry: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -986,6 +1043,10 @@ export interface Zdte extends BaseContract {
 
   MARGIN_DECIMALS(overrides?: CallOverrides): Promise<BigNumber>;
 
+  MAX_LONGSTRIKEVOL_ADJUST(overrides?: CallOverrides): Promise<BigNumber>;
+
+  MIN_LONGSTRIKEVOL_ADJUST(overrides?: CallOverrides): Promise<BigNumber>;
+
   STRIKE_DECIMALS(overrides?: CallOverrides): Promise<BigNumber>;
 
   addToContractWhitelist(
@@ -1025,6 +1086,15 @@ export interface Zdte extends BaseContract {
   calcPremium(
     isPut: PromiseOrValue<boolean>,
     strike: PromiseOrValue<BigNumberish>,
+    amount: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  calcPremiumWithVol(
+    isPut: PromiseOrValue<boolean>,
+    markPrice: PromiseOrValue<BigNumberish>,
+    strike: PromiseOrValue<BigNumberish>,
+    volatility: PromiseOrValue<BigNumberish>,
     amount: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
@@ -1089,13 +1159,11 @@ export interface Zdte extends BaseContract {
   getPrevExpiry(overrides?: CallOverrides): Promise<BigNumber>;
 
   getVolatility(
-    isPut: PromiseOrValue<boolean>,
     strike: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   getVolatilityWithExpiry(
-    isPut: PromiseOrValue<boolean>,
     strike: PromiseOrValue<BigNumberish>,
     expiry: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
@@ -1239,6 +1307,10 @@ export interface Zdte extends BaseContract {
   callStatic: {
     MARGIN_DECIMALS(overrides?: CallOverrides): Promise<BigNumber>;
 
+    MAX_LONGSTRIKEVOL_ADJUST(overrides?: CallOverrides): Promise<BigNumber>;
+
+    MIN_LONGSTRIKEVOL_ADJUST(overrides?: CallOverrides): Promise<BigNumber>;
+
     STRIKE_DECIMALS(overrides?: CallOverrides): Promise<BigNumber>;
 
     addToContractWhitelist(
@@ -1278,6 +1350,15 @@ export interface Zdte extends BaseContract {
     calcPremium(
       isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    calcPremiumWithVol(
+      isPut: PromiseOrValue<boolean>,
+      markPrice: PromiseOrValue<BigNumberish>,
+      strike: PromiseOrValue<BigNumberish>,
+      volatility: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1342,13 +1423,11 @@ export interface Zdte extends BaseContract {
     getPrevExpiry(overrides?: CallOverrides): Promise<BigNumber>;
 
     getVolatility(
-      isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getVolatilityWithExpiry(
-      isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
       expiry: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1512,6 +1591,15 @@ export interface Zdte extends BaseContract {
       user?: PromiseOrValue<string> | null
     ): ExpireLongOptionPositionEventFilter;
 
+    'KeeperExpireSpreads(uint256,address)'(
+      expiry?: null,
+      user?: PromiseOrValue<string> | null
+    ): KeeperExpireSpreadsEventFilter;
+    KeeperExpireSpreads(
+      expiry?: null,
+      user?: PromiseOrValue<string> | null
+    ): KeeperExpireSpreadsEventFilter;
+
     'LongOptionPosition(uint256,uint256,uint256,address)'(
       id?: null,
       amount?: null,
@@ -1588,6 +1676,10 @@ export interface Zdte extends BaseContract {
   estimateGas: {
     MARGIN_DECIMALS(overrides?: CallOverrides): Promise<BigNumber>;
 
+    MAX_LONGSTRIKEVOL_ADJUST(overrides?: CallOverrides): Promise<BigNumber>;
+
+    MIN_LONGSTRIKEVOL_ADJUST(overrides?: CallOverrides): Promise<BigNumber>;
+
     STRIKE_DECIMALS(overrides?: CallOverrides): Promise<BigNumber>;
 
     addToContractWhitelist(
@@ -1627,6 +1719,15 @@ export interface Zdte extends BaseContract {
     calcPremium(
       isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    calcPremiumWithVol(
+      isPut: PromiseOrValue<boolean>,
+      markPrice: PromiseOrValue<BigNumberish>,
+      strike: PromiseOrValue<BigNumberish>,
+      volatility: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1684,13 +1785,11 @@ export interface Zdte extends BaseContract {
     getPrevExpiry(overrides?: CallOverrides): Promise<BigNumber>;
 
     getVolatility(
-      isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getVolatilityWithExpiry(
-      isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
       expiry: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1805,6 +1904,14 @@ export interface Zdte extends BaseContract {
   populateTransaction: {
     MARGIN_DECIMALS(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    MAX_LONGSTRIKEVOL_ADJUST(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    MIN_LONGSTRIKEVOL_ADJUST(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     STRIKE_DECIMALS(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     addToContractWhitelist(
@@ -1846,6 +1953,15 @@ export interface Zdte extends BaseContract {
     calcPremium(
       isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    calcPremiumWithVol(
+      isPut: PromiseOrValue<boolean>,
+      markPrice: PromiseOrValue<BigNumberish>,
+      strike: PromiseOrValue<BigNumberish>,
+      volatility: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1903,13 +2019,11 @@ export interface Zdte extends BaseContract {
     getPrevExpiry(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getVolatility(
-      isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getVolatilityWithExpiry(
-      isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
       expiry: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides

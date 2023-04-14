@@ -416,7 +416,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
       </div>
       <Box className="p-1 space-y-1">
         <ContentRow
-          title="Liquidity required"
+          title="Liquidity Required"
           content={
             selectedSpreadPair?.longStrike! > selectedSpreadPair?.shortStrike!
               ? `${margin} ${staticZdteData?.quoteTokenSymbol.toUpperCase()}`
@@ -432,7 +432,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
           content={`$${formatAmount(openingFees * Number(amount), 2)}`}
         />
         <ContentRow
-          title="Total Cost"
+          title="Total Cost (Max Loss)"
           content={`$${formatAmount(
             (premium + openingFees) * Number(amount),
             2

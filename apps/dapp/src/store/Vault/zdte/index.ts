@@ -18,6 +18,7 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
+export const ZDTE: string = '0x2142528294cacfe2309463f1f3d05b696d53b946';
 const SECONDS_IN_A_YEAR = 86400 * 365;
 export interface OptionsTableData {
   strike: number;
@@ -122,10 +123,7 @@ export const createZdteSlice: StateCreator<
 
     try {
       // Addresses[42161].ZDTE[selectedPoolName],
-      return Zdte__factory.connect(
-        '0x5ee3a604082368b3a833ff9f0324201cfb73ae11',
-        provider
-      );
+      return Zdte__factory.connect(ZDTE, provider);
     } catch (err) {
       console.log(err);
       throw Error('fail to create address');
@@ -317,7 +315,6 @@ export const createZdteSlice: StateCreator<
             oneEBigNumber(DECIMALS_TOKEN)
           ),
           zdteContract.getVolatility(
-            strike <= tokenPrice,
             getContractReadableAmount(strike, DECIMALS_STRIKE)
           ),
         ]);

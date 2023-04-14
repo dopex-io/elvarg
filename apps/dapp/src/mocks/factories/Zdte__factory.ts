@@ -129,6 +129,25 @@ const _abi = [
       {
         indexed: false,
         internalType: 'uint256',
+        name: 'expiry',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+    ],
+    name: 'KeeperExpireSpreads',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'uint256',
         name: 'id',
         type: 'uint256',
       },
@@ -314,6 +333,32 @@ const _abi = [
   },
   {
     inputs: [],
+    name: 'MAX_LONGSTRIKEVOL_ADJUST',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'MIN_LONGSTRIKEVOL_ADJUST',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
     name: 'STRIKE_DECIMALS',
     outputs: [
       {
@@ -487,6 +532,45 @@ const _abi = [
       },
     ],
     name: 'calcPremium',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'premium',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bool',
+        name: 'isPut',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'markPrice',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'strike',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'volatility',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'calcPremiumWithVol',
     outputs: [
       {
         internalType: 'uint256',
@@ -721,11 +805,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: 'bool',
-        name: 'isPut',
-        type: 'bool',
-      },
-      {
         internalType: 'uint256',
         name: 'strike',
         type: 'uint256',
@@ -744,11 +823,6 @@ const _abi = [
   },
   {
     inputs: [
-      {
-        internalType: 'bool',
-        name: 'isPut',
-        type: 'bool',
-      },
       {
         internalType: 'uint256',
         name: 'strike',

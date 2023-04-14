@@ -75,6 +75,14 @@ function getCallPayoff(spreadPair: ISpreadPair, strike: number, cost: number) {
   );
 }
 
+function getPutBreakEven(spreadPair: ISpreadPair, cost: number) {
+  return spreadPair.longStrike - cost;
+}
+
+function getCallBreakEven(spreadPair: ISpreadPair, cost: number) {
+  return spreadPair.longStrike + cost;
+}
+
 const PnlChart = (props: PnlChartProps) => {
   const {
     cost: actualCost,
@@ -94,7 +102,9 @@ const PnlChart = (props: PnlChartProps) => {
     : actualSpreadPair;
   const cost = actualCost || 0;
   const isPut = spreadPair.longStrike > spreadPair.shortStrike;
-  const staticBreakeven = roundToTwoDecimals(spreadPair.shortStrike + cost);
+  const staticBreakeven = isPut
+    ? getPutBreakEven(spreadPair, cost)
+    : getCallBreakEven(spreadPair, cost);
   const maxPayoff = getMaxPayoffPerOption(spreadPair, cost) * amount;
   const price: number = zdteData?.tokenPrice || 0;
   const [state, setState] = useState<{ price: number; pnl: number }>({
@@ -208,7 +218,7 @@ const PnlChart = (props: PnlChartProps) => {
           content={`$${formatAmount(useFake ? 0 : staticBreakeven, 2)}`}
         />
         <ContentRow
-          title="Max payoff"
+          title="Max Payoff"
           content={`${
             useFake
               ? 0
