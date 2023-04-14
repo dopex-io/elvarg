@@ -1,5 +1,5 @@
 query getStraddlesUserData($user: ID!) {
-  users(where: { id: $user }) {
+  straddles_users(where: { id: $user }) {
     id
     straddlesUserOpenDeposits {
       id

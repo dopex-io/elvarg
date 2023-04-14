@@ -298,7 +298,7 @@ export const createPortfolioSlice: StateCreator<
         graphSdk.getSsovUserData({ user: accountAddress.toLowerCase() }),
     });
 
-    const data = ssovQueryResult['users'][0];
+    const data = ssovQueryResult['ssov_users'][0];
 
     const ssovDepositsPromises = [];
     const ssovDeposits: UserSSOVDeposit[] = [];
@@ -339,7 +339,7 @@ export const createPortfolioSlice: StateCreator<
         graphSdk.getStraddlesUserData({ user: accountAddress.toLowerCase() }),
     });
 
-    const straddlesData = straddlesQueryResult['users'][0];
+    const straddlesData = straddlesQueryResult['straddles_users'][0];
 
     const straddlesDepositsPromises = [];
     const straddlesPositionsPromises = [];

@@ -4,13 +4,17 @@ sources:
       graphql:
         endpoint: https://api.thegraph.com/subgraphs/name/psytama/dopex-ssov
     transforms:
-      - autoTypeMerging: true
+      - prefix:
+          value: ssov_
+          includeRootOperations: true
   - name: straddles
     handler:
       graphql:
         endpoint: https://api.thegraph.com/subgraphs/name/psytama/dopex-straddles
     transforms:
-      - autoTypeMerging: true
+      - prefix:
+          value: straddles_
+          includeRootOperations: true
   - name: optionScalps
     handler:
       graphql:

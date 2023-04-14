@@ -1,5 +1,5 @@
 query getSsovUserData($user: ID!) {
-  users(where: { id: $user }) {
+  ssov_users(where: { id: $user }) {
     id
     userPositions {
       id

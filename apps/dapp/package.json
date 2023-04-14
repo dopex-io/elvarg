@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "@graphprotocol/client-cli": "^2.2.20",
+    "@graphql-mesh/transform-prefix": "^0.12.23",
     "@ianvs/prettier-plugin-sort-imports": "^3.7.2",
     "@next/eslint-plugin-next": "^13.2.4",
     "@types/lodash": "^4.14.192",
