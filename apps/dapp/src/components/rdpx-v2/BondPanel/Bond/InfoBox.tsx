@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { BigNumber } from 'ethers';
+import Tooltip from '@mui/material/Tooltip';
+import { styled } from '@mui/styles';
 
 import { useBoundStore } from 'store';
 import { DelegateType } from 'store/RdpxV2/dpxeth-bonding';
@@ -10,6 +12,14 @@ import {
 } from 'utils/contracts';
 import formatAmount from 'utils/general/formatAmount';
 
+const StyledTooltip = styled(({ className, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ color }) => ({
+  '& .MuiTooltip-tooltip': {
+    background: color,
+  },
+}));
+
 const InfoBox = (props: { value: string; delegated?: boolean }) => {
   const { value, delegated = false } = props;
 
@@ -18,6 +28,7 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
 
   const [premium, setPremium] = useState<number>(0);
   const [discount, setDiscount] = useState<number>(0);
+  const [discountPercent, setDiscountPercent] = useState<number>(0);
   const [avgFee, setAvgFee] = useState<number>(0);
   const [share, setShare] = useState<number>(0);
 
@@ -92,14 +103,26 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
     const deductedDiscount = discountShare - (discountShare * avgFee) / 100;
     share = share + deductedDiscount;
 
+    const discountPercentage = Math.abs(
+      getUserReadableAmount(
+        totalWethRequired
+          .sub(requiredWethNoDiscount)
+          .mul(getContractReadableAmount(1, 18))
+          .div(totalWethRequired.gt(0) ? totalWethRequired : '1'),
+        18
+      ) * 100
+    );
+
     setShare(share || 0);
     setPremium(totalPremium || 0);
-    setDiscount(bondDiscount || 0);
+    setDiscount(delegated ? deductedDiscount : bondDiscount || 0);
+    setDiscountPercent(discountPercentage || 0);
     setAvgFee(_avgFee || 0);
   }, [
     treasuryContractState,
     treasuryData,
     value,
+    delegated,
     setShare,
     setPremium,
     setDiscount,
@@ -121,17 +144,34 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
           </p>
           <p className="text-xs text-stieglitz">Premium</p>
         </div>
-        <div className="flex flex-col w-1/2 p-2 space-y-1">
-          <p className={`text-xs ${discount > 0 ? 'text-up-only' : 'null'}`}>
-            {formatAmount(discount, 3)} WETH
-          </p>
-          <p className="text-xs text-stieglitz">Discount</p>
-        </div>
+        <StyledTooltip
+          followCursor
+          arrow={true}
+          color="transparent"
+          title={
+            <div className="flex flex-col p-2 bg-carbon rounded-lg border border-mineshaft w-fit space-y-2 bg-opacity-50 backdrop-blur-md">
+              <p className={`text-xs ${discount > 0 ? 'text-up-only' : null}`}>
+                {formatAmount(discount, 3)} WETH
+              </p>
+            </div>
+          }
+        >
+          <div className="flex flex-col w-1/2 p-2 space-y-1">
+            <p
+              className={`text-xs ${
+                discountPercent > 0 ? 'text-up-only' : null
+              } underline decoration-dashed`}
+            >
+              {formatAmount(discountPercent, 3)}%
+            </p>
+            <p className="text-xs text-stieglitz">Discount</p>
+          </div>
+        </StyledTooltip>
       </div>
       {delegated ? (
         <div className="flex divide-x divide-carbon">
           <div className="flex flex-col w-full p-2 text-start space-y-1">
-            <p className="text-xs">{avgFee.toFixed(3)}%</p>
+            <p className="text-xs">{formatAmount(avgFee, 3)}%</p>
             <p className="text-xs text-stieglitz">Avg. Delegate Fee</p>
           </div>
           <div className="flex flex-col w-full p-2 text-start space-y-1">
