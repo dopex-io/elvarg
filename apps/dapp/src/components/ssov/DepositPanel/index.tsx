@@ -30,8 +30,6 @@ import get1inchSwap from 'utils/general/get1inchSwap';
 import { getTokenDecimals } from 'utils/general';
 import isNativeToken from 'utils/general/isNativeToken';
 
-import { MAX_VALUE } from 'constants/index';
-
 const SelectMenuProps = {
   PaperProps: {
     style: {
@@ -129,7 +127,13 @@ const DepositPanel = () => {
       await sendTx(
         ERC20__factory.connect(getContractAddress(fromTokenSymbol), signer),
         'approve',
-        [spender, MAX_VALUE]
+        [
+          spender,
+          getContractReadableAmount(
+            strikeDepositAmount,
+            getTokenDecimals(fromTokenSymbol, chainId)
+          ),
+        ]
       );
       setApproved(true);
     } catch (err) {
@@ -299,7 +303,7 @@ const DepositPanel = () => {
 
     if (!isNativeToken(fromTokenSymbol)) {
       const finalAmount: BigNumber = getContractReadableAmount(
-        strikeDepositAmount.toString(),
+        strikeDepositAmount,
         getTokenDecimals(fromTokenSymbol, chainId)
       );
 
