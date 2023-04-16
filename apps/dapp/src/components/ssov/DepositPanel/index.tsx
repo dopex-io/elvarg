@@ -63,14 +63,15 @@ const DepositPanel = () => {
   const [wrapOpen, setWrapOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [quote, setQuote] = useState(defaultQuoteData);
-
   const [debouncedQuote] = useDebounce(quote, 1000);
-
   const [strikeDepositAmount, setStrikeDepositAmount] = useState<
     number | string
   >(0);
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
+  );
+  const [strikeDepositAmountBN, setStrikeDepositAmountBN] = useState(
+    BigNumber.from(0)
   );
 
   const [fromTokenSymbol, setFromTokenSymbol] = useState(
@@ -111,6 +112,12 @@ const DepositPanel = () => {
   const handleDepositAmount = useCallback(
     (e: { target: { value: React.SetStateAction<string | number> } }) => {
       setStrikeDepositAmount(e.target.value);
+      setStrikeDepositAmountBN(
+        getContractReadableAmount(
+          e.target.value.toString(),
+          getTokenDecimals(fromTokenSymbol, chainId)
+        )
+      );
     },
     []
   );
@@ -127,13 +134,7 @@ const DepositPanel = () => {
       await sendTx(
         ERC20__factory.connect(getContractAddress(fromTokenSymbol), signer),
         'approve',
-        [
-          spender,
-          getContractReadableAmount(
-            strikeDepositAmount,
-            getTokenDecimals(fromTokenSymbol, chainId)
-          ),
-        ]
+        [spender, strikeDepositAmountBN]
       );
       setApproved(true);
     } catch (err) {
@@ -203,10 +204,6 @@ const DepositPanel = () => {
       depositButtonProps.disable
     )
       return;
-    const depositAmount = getContractReadableAmount(
-      strikeDepositAmount,
-      getTokenDecimals(fromTokenSymbol, chainId)
-    );
 
     const toTokenAddress = ssovData.isPut
       ? fromTokenSymbol === 'USDC'
@@ -221,10 +218,7 @@ const DepositPanel = () => {
       swapData = await get1inchSwap({
         fromTokenAddress,
         toTokenAddress,
-        amount: getContractReadableAmount(
-          strikeDepositAmount,
-          getTokenDecimals(fromTokenSymbol, chainId)
-        ),
+        amount: strikeDepositAmountBN,
         chainId,
         accountAddress: ssovSigner.ssovRouterWithSigner?.address!,
       });
@@ -239,11 +233,11 @@ const DepositPanel = () => {
           toTokenAddress,
           accountAddress,
           strike,
-          depositAmount,
+          strikeDepositAmountBN,
           swapData.toTokenAmount,
           swapData.tx.data,
         ]
-      : [strike, depositAmount, accountAddress];
+      : [strike, strikeDepositAmountBN, accountAddress];
     const contractWithSigner = routerMode
       ? ssovSigner.ssovRouterWithSigner
       : ssovSigner.ssovContractWithSigner;
@@ -252,7 +246,7 @@ const DepositPanel = () => {
 
     isNativeToken(fromTokenSymbol)
       ? params.push({
-          value: getContractReadableAmount(strikeDepositAmount, 18),
+          value: strikeDepositAmountBN,
         })
       : 0;
 
@@ -291,10 +285,11 @@ const DepositPanel = () => {
   const handleMax = useCallback(() => {
     setStrikeDepositAmount(
       getUserReadableAmount(
-        userTokenBalance,
+        userTokenBalance.toString(),
         getTokenDecimals(fromTokenSymbol, chainId)
       )
     );
+    setStrikeDepositAmountBN(userTokenBalance);
   }, [userTokenBalance]);
 
   const checkApproved = useCallback(async () => {
@@ -302,11 +297,6 @@ const DepositPanel = () => {
       return;
 
     if (!isNativeToken(fromTokenSymbol)) {
-      const finalAmount: BigNumber = getContractReadableAmount(
-        strikeDepositAmount,
-        getTokenDecimals(fromTokenSymbol, chainId)
-      );
-
       const tokenAddress = getContractAddress(fromTokenSymbol);
 
       if (!tokenAddress) return;
@@ -316,7 +306,7 @@ const DepositPanel = () => {
         signer
       ).allowance(accountAddress, spender);
 
-      setApproved(allowance.gte(finalAmount));
+      setApproved(allowance.gte(strikeDepositAmountBN));
     } else {
       setApproved(true);
     }
@@ -384,10 +374,7 @@ const DepositPanel = () => {
     await get1inchQuote(
       fromTokenAddress,
       toTokenAddress,
-      getContractReadableAmount(
-        strikeDepositAmount,
-        getTokenDecimals(fromTokenSymbol, chainId)
-      ).toString(),
+      strikeDepositAmountBN.toString(),
       chainId,
       accountAddress,
       '3'
