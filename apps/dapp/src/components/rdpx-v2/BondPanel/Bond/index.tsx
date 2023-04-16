@@ -18,7 +18,7 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CollateralInputPanel from 'components/rdpx-v2/BondPanel/Bond/CollateralInputPanel';
 import DisabledPanel from 'components/rdpx-v2/BondPanel/DisabledPanel';
 import InfoBox from 'components/rdpx-v2/BondPanel/Bond/InfoBox';
-import AlertIcon from 'svgs/icons/AlertIcon';
+import Error from 'components/rdpx-v2/BondPanel/Error';
 import Caution from 'svgs/icons/Caution';
 
 import { BondingState } from 'store/RdpxV2/dpxeth-bonding';
@@ -495,12 +495,7 @@ const Bond = () => {
         />
       </div>
       <InfoBox value={value as string} delegated={delegated} />
-      {delegated && error ? (
-        <div className="py-2 px-4 bg-down-bad rounded-xl flex justify-center space-x-2 animate-pulse">
-          <AlertIcon className="my-auto w-6 h-6" />
-          <p className="text-black text-sm">{error}</p>
-        </div>
-      ) : null}
+      {delegated && error ? <Error errorMsg={error} /> : null}
       {buttonProps.info ? (
         <div className="p-1 bg-jaffa rounded-xl flex justify-center space-x-2 animate-pulse">
           <Caution className="my-auto" />

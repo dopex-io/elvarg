@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useMemo } from 'react';
 import { MockToken__factory, RdpxV2Treasury__factory } from '@dopex-io/sdk';
 import Slider from '@mui/material/Slider';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
@@ -8,6 +8,7 @@ import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
 import Input from 'components/UI/Input';
+import Error from 'components/rdpx-v2/BondPanel/Error';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import useSendTx from 'hooks/useSendTx';
@@ -55,6 +56,13 @@ const Delegate = () => {
   const [userBalance, setUserBalance] = useState<string>('0');
   const [approved, setApproved] = useState<boolean>();
   const [fee, setFee] = useState<number>(0);
+
+  const errorMsg = useMemo(() => {
+    if (getContractReadableAmount(value, 18).gt(userBalance))
+      return 'Insufficient Balance.';
+    else if (fee > 100 || fee < 0) return 'Fee must be 0-100%';
+    return false;
+  }, [fee, value, approved]);
 
   const handleChange = useCallback((e: any) => {
     setValue(Number(e.target.value) < 0 ? '' : e.target.value);
@@ -215,12 +223,12 @@ const Delegate = () => {
             <InfoOutlined className="fill-current text-stieglitz p-1 my-auto" />
           </Tooltip>
         </div>
-        <div className="flex space-x-2 ml-4">
+        <div className="flex space-x-4 mx-2">
           <Slider
             sx={customSliderStyle}
             value={fee}
             onChange={handleChangeFee}
-            className="w-4/5 my-auto"
+            className="w-4/5 my-auto ml-2"
             aria-label="steps"
             defaultValue={0.1}
             step={STEP}
@@ -228,9 +236,19 @@ const Delegate = () => {
             max={MAX_VAL}
             valueLabelDisplay="off"
           />
-          <span className="text-sm text-stieglitz text-center bg-umbra rounded-md p-2 w-1/5">
-            {fee}%
-          </span>
+          <div className="rounded-md bg-gradient-to-r from-primary to-wave-blue p-[1px] w-1/5">
+            <div className="flex bg-umbra rounded-md px-1 py-1 w-full h-fit justify-center text-stieglitz">
+              <input
+                type="number"
+                value={fee}
+                onChange={(e: any) =>
+                  setFee(Number(e.target.value) < 0 ? '0' : e.target.value)
+                }
+                className="text-sm text-white outline-none text-center bg-inherit w-full"
+              />
+              %
+            </div>
+          </div>
         </div>
       </div>
       <div className="mx-2">
@@ -240,6 +258,7 @@ const Delegate = () => {
           lowest fee will be used up first.
         </p>
       </div>
+      {errorMsg ? <Error errorMsg={errorMsg} /> : null}
       <div className="rounded-xl p-4 w-full bg-umbra">
         <div className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800 space-y-2">
           <EstimatedGasCostButton gas={500000} chainId={chainId} />
@@ -249,8 +268,7 @@ const Delegate = () => {
           className="w-full mt-4 rounded-md"
           color="primary"
           onClick={approved ? handleDelegate : handleApprove}
-          disabled={!Number(value)}
-          // disabled={true}
+          disabled={!Number(value) || Boolean(errorMsg)}
         >
           {approved ? 'Delegate' : 'Approve'}
         </CustomButton>
