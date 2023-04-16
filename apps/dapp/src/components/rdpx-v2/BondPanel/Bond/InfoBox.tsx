@@ -31,6 +31,7 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
   const [discountPercent, setDiscountPercent] = useState<number>(0);
   const [avgFee, setAvgFee] = useState<number>(0);
   const [share, setShare] = useState<number>(0);
+  const [wethAvailable, setWethAvailable] = useState<number>(0);
 
   const calculateDelegateData = useCallback(async () => {
     if (
@@ -113,6 +114,15 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
       ) * 100
     );
 
+    // Calculate total WETH available from delegates
+    const delegateBalance = getUserReadableAmount(
+      treasuryData.availableDelegates.reduce((prev: BigNumber, curr: any) => {
+        return prev.add(curr.amount.sub(curr.activeCollateral));
+      }, BigNumber.from(0)),
+      18
+    );
+
+    setWethAvailable(delegateBalance);
     setShare(share || 0);
     setPremium(totalPremium || 0);
     setDiscount(delegated ? deductedDiscount : bondDiscount || 0);
@@ -169,14 +179,20 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
         </StyledTooltip>
       </div>
       {delegated ? (
-        <div className="flex divide-x divide-carbon">
-          <div className="flex flex-col w-full p-2 text-start space-y-1">
-            <p className="text-xs">{formatAmount(avgFee, 3)}%</p>
-            <p className="text-xs text-stieglitz">Avg. Delegate Fee</p>
+        <div className="flex flex-col divide-y divide-carbon">
+          <div className="flex divide-x divide-carbon">
+            <div className="flex flex-col w-full p-2 text-start space-y-1">
+              <p className="text-xs">{formatAmount(avgFee, 3)}%</p>
+              <p className="text-xs text-stieglitz">Avg. Delegate Fee</p>
+            </div>
+            <div className="flex flex-col w-full p-2 text-start space-y-1">
+              <p className="text-xs">{share.toFixed(3)} dpxETH</p>
+              <p className="text-xs text-stieglitz">You Receive</p>
+            </div>
           </div>
           <div className="flex flex-col w-full p-2 text-start space-y-1">
-            <p className="text-xs">{share.toFixed(3)} dpxETH</p>
-            <p className="text-xs text-stieglitz">You Receive</p>
+            <p className="text-xs">{formatAmount(wethAvailable, 3)}</p>
+            <p className="text-xs text-stieglitz">WETH Available</p>
           </div>
         </div>
       ) : null}
