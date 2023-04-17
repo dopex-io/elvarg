@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+export default function handler(req, res) {
   const keeper_pk = process.env['KEEPER_PK'];
   const isKeeperValid = keeper_pk && validPk(keeper_pk);
 
