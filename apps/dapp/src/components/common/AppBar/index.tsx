@@ -190,6 +190,11 @@ const appLinks: {
           to: '/straddles',
           description: 'Buy/write straddles for crypto assets',
         },
+        {
+          name: 'Zero Day To Expiry Options',
+          to: '/zdte/eth',
+          description: 'Buy/write ZDTE for crypto assets',
+        },
       ],
     },
     {
@@ -214,11 +219,6 @@ const appLinks: {
           name: 'Tzwap',
           to: '/tzwap',
           description: 'Open TWAP orders',
-        },
-        {
-          name: 'Zero Day To Expire',
-          to: '/zdte/dpx',
-          description: 'Buy/write ZDTE for crypto assets',
         },
       ],
     },
