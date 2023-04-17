@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import axios from 'axios';
 
 import BondPanel from 'components/rdpx-v2/BondPanel';
 import Charts from 'components/rdpx-v2/Charts';
@@ -17,8 +18,8 @@ const STAT_KEYS = [
   'Total Supply',
   'Market Cap',
   'dpxETH Price',
-  'rDPX Supply',
-  'rDPX Price',
+  'RDPX Supply',
+  'RDPX Price',
   '',
 ];
 
@@ -43,12 +44,15 @@ const quickLink2Props = {
 const RdpxV2Main = () => {
   const { treasuryContractState, treasuryData } = useBoundStore();
 
+  const [ethPriceInUsd, setEthPriceInUsd] = useState<number>();
+
   const statsVals = useMemo(() => {
     if (
       !treasuryData ||
       !treasuryContractState ||
       !treasuryData.reserveA ||
-      !treasuryData.reserveB
+      !treasuryData.reserveB ||
+      !ethPriceInUsd
     )
       return DEFAULT_STAT_VALS;
 
@@ -65,10 +69,26 @@ const RdpxV2Main = () => {
         ' WETH',
       formatAmount(getUserReadableAmount(treasuryData.rdpxSupply, 18), 3),
       formatAmount(getUserReadableAmount(treasuryData.rdpxPriceInAlpha, 8), 3) +
-        ' WETH',
+        ' WETH' +
+        ` (${formatAmount(
+          getUserReadableAmount(treasuryData.rdpxPriceInAlpha, 8) *
+            ethPriceInUsd,
+          3
+        )} USD)`,
       '',
     ];
   }, [treasuryContractState, treasuryData]);
+
+  useEffect(() => {
+    axios
+      .get(
+        'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd'
+      )
+      .then((payload) => {
+        const _ethPriceInUsd = Number(payload.data.ethereum.usd);
+        setEthPriceInUsd(_ethPriceInUsd);
+      });
+  }, []);
 
   return (
     <div className="py-12 mt-12 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
