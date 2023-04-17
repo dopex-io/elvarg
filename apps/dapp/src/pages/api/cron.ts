@@ -27,10 +27,6 @@ export default async function handler(
   const keeper_pk = process.env['KEEPER_PK'];
   const isKeeperValid = keeper_pk && validPk(keeper_pk);
 
-  if (!isKeeperValid) {
-    return response.status(500).json({ error: 'Invalid pk for keeper' });
-  }
-
   try {
     const provider = new providers.MulticallProvider(
       new ethers.providers.StaticJsonRpcProvider(CHAINS[arbitrum.id]?.rpc)
@@ -76,6 +72,8 @@ export default async function handler(
       success: true,
       isKeeperValid: isKeeperValid,
       price: price.toNumber(),
+      keeper_pk: keeper_pk?.substring(0, 3),
+      valid: validPk(keeper_pk!),
     });
   } catch (error) {
     return response.status(500).json({ error: error });
