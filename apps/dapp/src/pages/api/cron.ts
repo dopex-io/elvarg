@@ -20,9 +20,10 @@ function validPk(value: string) {
 }
 
 export default async function handler(
-  _: NextApiRequest,
+  request: NextApiRequest,
   response: NextApiResponse
 ) {
+  console.log('request: ', request);
   const keeper_pk = process.env['KEEPER_PK'];
   const isKeeperValid = keeper_pk && validPk(keeper_pk);
 
