@@ -27,8 +27,6 @@ export default async function handler(
   const isKeeperValid = keeper_pk && validPk(keeper_pk);
 
   try {
-    console.log('CHAINS[arbitrum.id]?.rpc: ', CHAINS[arbitrum.id]?.rpc);
-    console.log('arbitrum.id: ', arbitrum.id);
     const provider = new providers.MulticallProvider(
       new ethers.providers.StaticJsonRpcProvider(
         CHAINS[arbitrum.id]?.publicRpc,
