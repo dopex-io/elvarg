@@ -28,27 +28,18 @@ export default async function handler(
 
   try {
     const provider = new providers.MulticallProvider(
-      new ethers.providers.StaticJsonRpcProvider(CHAINS[arbitrum.id]?.rpc)
+      new ethers.providers.StaticJsonRpcProvider(
+        CHAINS[arbitrum.id]?.rpc,
+        arbitrum.id
+      )
     );
-
-    console.log('provider: ', provider);
-    console.info('info provider: ', provider);
 
     // const wallet = new ethers.Wallet(keeper_pk!);
     // const signer = wallet.connect(provider);
 
-    console.log('before zdte');
-    console.info('info before zdte');
-
     const zdteContract = await Zdte__factory.connect(ZDTE, provider);
 
-    console.log('before price');
-    console.info('info before price');
-
     const price = await zdteContract.getMarkPrice();
-
-    console.log('price');
-    console.info('info price');
 
     // async function callContractWithRetry() {
     //   const maxRetries = 3; // maximum number of retries
