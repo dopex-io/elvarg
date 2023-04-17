@@ -31,15 +31,24 @@ export default async function handler(
       new ethers.providers.StaticJsonRpcProvider(CHAINS[arbitrum.id]?.rpc)
     );
 
-    console.info('provider: ', provider);
+    console.log('provider: ', provider);
+    console.info('info provider: ', provider);
 
     // const wallet = new ethers.Wallet(keeper_pk!);
     // const signer = wallet.connect(provider);
 
+    console.log('before zdte');
+    console.info('info before zdte');
+
     const zdteContract = await Zdte__factory.connect(ZDTE, provider);
-    console.info('zdteContract: ', zdteContract);
+
+    console.log('before price');
+    console.info('info before price');
+
     const price = await zdteContract.getMarkPrice();
-    console.info('price: ', price);
+
+    console.log('price');
+    console.info('info price');
 
     // async function callContractWithRetry() {
     //   const maxRetries = 3; // maximum number of retries
@@ -80,9 +89,3 @@ export default async function handler(
     return response.status(500).json({ error: error });
   }
 }
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
