@@ -70,7 +70,19 @@ class Asset {
       : this.staticZdteData?.baseLpContractAddress;
   }
 
-  get getContractLpBalance() {
+  get getUserCanWithdraw() {
+    return this.isQuote
+      ? getUserReadableAmount(
+          this.userZdteLpData?.userQuoteWithdrawable!,
+          DECIMALS_USD
+        )
+      : getUserReadableAmount(
+          this.userZdteLpData?.userBaseWithdrawable!,
+          DECIMALS_TOKEN
+        );
+  }
+
+  get getActualLpBalance() {
     return this.isQuote
       ? getUserReadableAmount(this.zdteData.quoteLpAssetBalance!, DECIMALS_USD)
       : getUserReadableAmount(
@@ -214,7 +226,7 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
   const canWithdraw =
     Number(tokenWithdrawAmount) > 0 &&
     Number(tokenWithdrawAmount) <= asset.getUserAssetBalance &&
-    Number(tokenWithdrawAmount) <= asset.getContractLpBalance;
+    Number(tokenWithdrawAmount) <= asset.getUserCanWithdraw;
 
   if (!staticZdteData) {
     return <Loading />;
@@ -272,7 +284,13 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
         />
         <ContentRow
           title="Available to withdraw"
-          content={`${formatAmount(asset.getContractLpBalance, 2)} ${
+          content={`${formatAmount(asset.getUserCanWithdraw, 2)} ${
+            asset.getAssetSymbol
+          }`}
+        />
+        <ContentRow
+          title="Contract balance"
+          content={`${formatAmount(asset.getActualLpBalance, 2)} ${
             asset.getAssetSymbol
           }`}
         />
@@ -289,7 +307,7 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
             ? 'Insert an amount'
             : Number(tokenWithdrawAmount) > asset.getUserAssetBalance
             ? 'Insufficient balance'
-            : Number(tokenWithdrawAmount) > asset.getContractLpBalance
+            : Number(tokenWithdrawAmount) > asset.getUserCanWithdraw
             ? 'Insufficient liquidity to withdraw'
             : 'Withdraw'
           : 'Approve'}

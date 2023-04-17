@@ -1,3 +1,5 @@
+import { BigNumber } from 'ethers';
+
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import {
   Box,
@@ -20,7 +22,7 @@ import {
 } from 'components/common/LpCommon/Table';
 import Loading from 'components/zdte/Loading';
 
-import { getReadableTime } from 'utils/contracts';
+import { getReadableTime, getUserReadableAmount } from 'utils/contracts';
 
 const StyleHeaderTable = styled(TableContainer)`
   table {
@@ -53,11 +55,12 @@ export const ExpiryStats = () => {
               >
                 <ArrowDownwardIcon className="fill-current text-stieglitz w-4 my-auto" />
                 <span className="text-sm text-stieglitz my-auto min-w-width">
-                  Begin
+                  Any Purchase?
                 </span>
               </StyleLeftTableCell>
-              <StyleTableCellHeader>Expired</StyleTableCellHeader>
+              <StyleTableCellHeader>Expired?</StyleTableCellHeader>
               <StyleTableCellHeader>Expiry</StyleTableCellHeader>
+              <StyleTableCellHeader>Settlement Price</StyleTableCellHeader>
               <StyleTableCellHeader>Start ID</StyleTableCellHeader>
               <StyleRightTableCell align="right" className="rounded-tr-xl">
                 <span className="text-sm text-stieglitz">Count</span>
@@ -75,7 +78,7 @@ export const ExpiryStats = () => {
                     </StyleLeftCell>
                     <StyleCell align="left">
                       <span className="text-white">
-                        {stats.expired ? 'Expired' : 'Not Expired'}
+                        {stats.expired ? 'Yes' : 'No'}
                       </span>
                     </StyleCell>
                     <StyleCell align="left">
@@ -85,8 +88,13 @@ export const ExpiryStats = () => {
                     </StyleCell>
                     <StyleCell align="left">
                       <span className="text-white">
-                        {stats.startId.toNumber()}
+                        {stats.settlementPrice.gt(BigNumber.from(0))
+                          ? getUserReadableAmount(stats.settlementPrice)
+                          : 'N/A'}
                       </span>
+                    </StyleCell>
+                    <StyleCell align="left">
+                      <span className="text-white">{stats.startId}</span>
                     </StyleCell>
                     <StyleRightCell align="right">
                       <span className="text-white">
