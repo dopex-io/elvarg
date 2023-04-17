@@ -42,6 +42,16 @@ const _abi = [
         type: 'address',
       },
       {
+        internalType: 'address',
+        name: '_feeDistributor',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_keeper',
+        type: 'address',
+      },
+      {
         internalType: 'uint256',
         name: '_strikeIncrement',
         type: 'uint256',
@@ -103,24 +113,12 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: 'uint256',
-        name: 'id',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'pnl',
-        type: 'uint256',
-      },
-      {
-        indexed: true,
         internalType: 'address',
-        name: 'user',
+        name: 'keeper',
         type: 'address',
       },
     ],
-    name: 'ExpireLongOptionPosition',
+    name: 'KeeperAssigned',
     type: 'event',
   },
   {
@@ -148,29 +146,11 @@ const _abi = [
       {
         indexed: false,
         internalType: 'uint256',
-        name: 'id',
+        name: 'jobDoneTime',
         type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'strike',
-        type: 'uint256',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
       },
     ],
-    name: 'LongOptionPosition',
+    name: 'KeeperRan',
     type: 'event',
   },
   {
@@ -216,6 +196,25 @@ const _abi = [
       },
     ],
     name: 'RemoveFromContractWhitelist',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'expiry',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'settlementPrice',
+        type: 'uint256',
+      },
+    ],
+    name: 'SettlementPriceSaved',
     type: 'event',
   },
   {
@@ -320,6 +319,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: 'EXPIRY_DELAY_TOLERANCE',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
     name: 'MARGIN_DECIMALS',
     outputs: [
       {
@@ -333,7 +345,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: 'MAX_LONGSTRIKEVOL_ADJUST',
+    name: 'MAX_LONG_STRIKE_VOL_ADJUST',
     outputs: [
       {
         internalType: 'uint256',
@@ -346,7 +358,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: 'MIN_LONGSTRIKEVOL_ADJUST',
+    name: 'MIN_LONG_STRIKE_VOL_ADJUST',
     outputs: [
       {
         internalType: 'uint256',
@@ -380,6 +392,25 @@ const _abi = [
     ],
     name: 'addToContractWhitelist',
     outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_keeper',
+        type: 'address',
+      },
+    ],
+    name: 'assignKeeperRole',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'function',
   },
@@ -672,7 +703,7 @@ const _abi = [
         type: 'uint256',
       },
     ],
-    name: 'expireLongOptionPosition',
+    name: 'expireSpreadOptionPosition',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -681,12 +712,18 @@ const _abi = [
     inputs: [
       {
         internalType: 'uint256',
-        name: 'id',
+        name: 'expiry',
         type: 'uint256',
       },
     ],
-    name: 'expireSpreadOptionPosition',
-    outputs: [],
+    name: 'expireSpreads',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'function',
   },
@@ -706,6 +743,11 @@ const _abi = [
         type: 'bool',
       },
       {
+        internalType: 'bool',
+        name: 'expired',
+        type: 'bool',
+      },
+      {
         internalType: 'uint256',
         name: 'expiry',
         type: 'uint256',
@@ -718,6 +760,25 @@ const _abi = [
       {
         internalType: 'uint256',
         name: 'count',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'expiryToSettlementPrice',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
         type: 'uint256',
       },
     ],
@@ -866,6 +927,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: 'keeper',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
     name: 'keeperExpirePrevEpochSpreads',
     outputs: [
       {
@@ -878,14 +952,8 @@ const _abi = [
     type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'expiry',
-        type: 'uint256',
-      },
-    ],
-    name: 'keeperExpireSpreads',
+    inputs: [],
+    name: 'keeperRun',
     outputs: [
       {
         internalType: 'bool',
@@ -897,29 +965,13 @@ const _abi = [
     type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'bool',
-        name: 'isPut',
-        type: 'bool',
-      },
-      {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'strike',
-        type: 'uint256',
-      },
-    ],
-    name: 'longOptionPosition',
+    inputs: [],
+    name: 'keeperSaveSettlementPrice',
     outputs: [
       {
-        internalType: 'uint256',
-        name: 'id',
-        type: 'uint256',
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
       },
     ],
     stateMutability: 'nonpayable',
@@ -1066,6 +1118,30 @@ const _abi = [
     inputs: [],
     name: 'renounceOwnership',
     outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'expiry',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'settlementPrice',
+        type: 'uint256',
+      },
+    ],
+    name: 'saveSettlementPrice',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'function',
   },

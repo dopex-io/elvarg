@@ -39,17 +39,34 @@ export default async function handler(
 
     const zdteContract = await Zdte__factory.connect(ZDTE, provider);
 
-    await zdteContract
-      .connect(signer)
-      .keeperExpirePrevEpochSpreads()
-      .then((tx) => tx.wait())
-      .then((tx) => {
-        const res = tx.events ? tx.events[0] : 'failed';
-        console.log('tx status: ', res);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+    async function callContractWithRetry() {
+      const maxRetries = 3; // maximum number of retries
+      let retryCount = 0;
+
+      while (retryCount < maxRetries) {
+        try {
+          const tx = await zdteContract.connect(signer).keeperRun();
+          const receipt = await tx.wait();
+          const res = receipt.events ? receipt.events[0] : 'failed';
+          console.log('res: ', res);
+          return;
+        } catch (error) {
+          console.error(
+            `Failed to run keeper. Retrying... (${
+              retryCount + 1
+            }/${maxRetries})`
+          );
+          retryCount++;
+        }
+      }
+
+      // Throw an error if the call failed after all retries
+      throw new Error('Max retries reached. Call failed.');
+    }
+
+    callContractWithRetry().catch((e) => {
+      return response.status(500).json({ error: e.message });
+    });
 
     return response.status(200).json({ success: 'true' });
   } catch (error) {

@@ -11,15 +11,17 @@ import { StateCreator } from 'zustand';
 import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';
 
-import { getContractReadableAmount } from 'utils/contracts';
+import { getContractReadableAmount, getCurrentTime } from 'utils/contracts';
 import { getUserReadableAmount } from 'utils/contracts';
 import { getDelta } from 'utils/math/blackScholes/greeks';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
-export const ZDTE: string = '0x2142528294cacfe2309463f1f3d05b696d53b946';
+export const ZDTE: string = '0x8f5f38c548804be178ac1889b1cf2516326f583c';
 const SECONDS_IN_A_YEAR = 86400 * 365;
+const ONE_DAY = 86400;
+
 export interface OptionsTableData {
   strike: number;
   premium: number;
@@ -48,6 +50,7 @@ export interface IZdteData {
   nearestStrike: number;
   step: number;
   strikes: OptionsTableData[];
+  failedToFetch: boolean;
   baseLpTokenLiquidty: BigNumber;
   baseLpAssetBalance: BigNumber;
   quoteLpTokenLiquidty: BigNumber;
@@ -88,10 +91,18 @@ export interface ISpreadPair {
   fees: BigNumber;
 }
 
+export interface IExpiryInfo {
+  begin: boolean;
+  expired: boolean;
+  expiry: BigNumber;
+  startId: BigNumber;
+  count: BigNumber;
+}
 export interface ZdteSlice {
   getZdteContract: Function;
   getQuoteLpContract: Function;
   getBaseLpContract: Function;
+  updateExpireStats: Function;
   userZdteLpData?: IZdteUserData;
   updateUserZdteLpData: Function;
   userZdtePurchaseData?: IZdtePurchaseData[];
@@ -108,6 +119,7 @@ export interface ZdteSlice {
   textInputRef?: any;
   subgraphVolume?: string;
   updateVolumeFromSubgraph: Function;
+  expireStats?: IExpiryInfo[];
 }
 
 export const createZdteSlice: StateCreator<
@@ -125,7 +137,7 @@ export const createZdteSlice: StateCreator<
       // Addresses[42161].ZDTE[selectedPoolName],
       return Zdte__factory.connect(ZDTE, provider);
     } catch (err) {
-      console.log(err);
+      console.error(err);
       throw Error('fail to create address');
     }
   },
@@ -138,7 +150,7 @@ export const createZdteSlice: StateCreator<
       const baseLpTokenAddress = await getZdteContract().baseLp();
       return ZdteLP__factory.connect(baseLpTokenAddress, provider);
     } catch (err) {
-      console.log(err);
+      console.error(err);
       throw Error('fail to create baseLp address');
     }
   },
@@ -151,7 +163,7 @@ export const createZdteSlice: StateCreator<
       const quoteLpTokenAddress = await getZdteContract().quoteLp();
       return ZdteLP__factory.connect(quoteLpTokenAddress, provider);
     } catch (err) {
-      console.log(err);
+      console.error(err);
       throw Error('fail to create quoteLp address');
     }
   },
@@ -207,7 +219,7 @@ export const createZdteSlice: StateCreator<
         },
       }));
     } catch (err) {
-      console.log(err);
+      console.error(err);
       throw Error('fail to update userZdteLpData');
     }
   },
@@ -237,7 +249,9 @@ export const createZdteSlice: StateCreator<
             i
           );
           const zdtePosition = await zdteContract.zdtePositions(tokenId);
-          const cost = zdtePosition.longPremium.add(zdtePosition.fees);
+          const cost = zdtePosition.longPremium
+            .add(zdtePosition.fees)
+            .sub(zdtePosition.shortPremium);
           const livePnl = await zdteContract.calcPnl(tokenId);
           const realPnl = livePnl.sub(cost);
           return {
@@ -253,7 +267,7 @@ export const createZdteSlice: StateCreator<
         userZdtePurchaseData: positions.filter((p) => p.isOpen),
       }));
     } catch (err) {
-      console.log(err);
+      console.error(err);
       throw new Error('fail to update userZdtePurchaseData');
     }
   },
@@ -302,24 +316,32 @@ export const createZdteSlice: StateCreator<
       const lowerRound = Math.floor(lower / step) * step;
 
       const strikes: OptionsTableData[] = [];
+      let failedToFetch: boolean = false;
 
       for (
         let strike = upperRound - step;
         strike > lowerRound;
         strike -= step
       ) {
-        const [premium, iv] = await Promise.all([
-          zdteContract.calcPremium(
-            strike <= tokenPrice,
-            getContractReadableAmount(strike, DECIMALS_STRIKE),
-            oneEBigNumber(DECIMALS_TOKEN)
-          ),
-          zdteContract.getVolatility(
-            getContractReadableAmount(strike, DECIMALS_STRIKE)
-          ),
-        ]);
-        const normalizedPremium = getPremiumUsdPrice(premium);
-        const normalizedIv = iv.toNumber();
+        let normalizedPremium = 0;
+        let normalizedIv = 0;
+        try {
+          const [premium, iv] = await Promise.all([
+            zdteContract.calcPremium(
+              strike <= tokenPrice,
+              getContractReadableAmount(strike, DECIMALS_STRIKE),
+              oneEBigNumber(DECIMALS_TOKEN)
+            ),
+            zdteContract.getVolatility(
+              getContractReadableAmount(strike, DECIMALS_STRIKE)
+            ),
+          ]);
+          normalizedPremium = getPremiumUsdPrice(premium);
+          normalizedIv = iv.toNumber();
+        } catch (err) {
+          failedToFetch = true;
+          console.error(`Fail to fetch vol for strike: ${strike}`);
+        }
 
         // s - Current price of the underlying
         // k - Strike price
@@ -366,6 +388,7 @@ export const createZdteSlice: StateCreator<
           nearestStrike,
           step,
           strikes,
+          failedToFetch,
           baseLpAssetBalance,
           baseLpTokenLiquidty,
           quoteLpAssetBalance,
@@ -375,7 +398,7 @@ export const createZdteSlice: StateCreator<
         },
       }));
     } catch (err) {
-      console.log(err);
+      console.error(err);
       throw new Error('fail to update zdteData');
     }
   },
@@ -436,7 +459,7 @@ export const createZdteSlice: StateCreator<
         },
       }));
     } catch (err) {
-      console.log(err);
+      console.error(err);
       throw new Error('fail to update static zdte data');
     }
   },
@@ -451,7 +474,7 @@ export const createZdteSlice: StateCreator<
         selectedSpreadPair: pair,
       }));
     } catch (err) {
-      console.log(err);
+      console.error(err);
       throw new Error('fail to update selected spread pair');
     }
   },
@@ -468,25 +491,57 @@ export const createZdteSlice: StateCreator<
     }));
   },
   updateVolumeFromSubgraph: async () => {
-    const payload = await queryClient.fetchQuery({
-      queryKey: ['getZdteSpreadTradesFromTimestamp'],
-      queryFn: () =>
-        graphSdk.getZdteSpreadTradesFromTimestamp({
-          fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
-        }),
-    });
+    let subgraphVolume = '...';
+    try {
+      const payload = await queryClient.fetchQuery({
+        queryKey: ['getZdteSpreadTradesFromTimestamp'],
+        queryFn: () =>
+          graphSdk.getZdteSpreadTradesFromTimestamp({
+            fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
+          }),
+      });
+      const _twentyFourHourVolume = payload.trades
+        ? payload.trades.reduce((acc, trade, _index) => {
+            return acc.add(BigNumber.from(trade ? trade?.amount : 0));
+          }, BigNumber.from(0))
+        : BigNumber.from(0);
 
-    const _twentyFourHourVolume = payload.trades
-      ? payload.trades.reduce((acc, trade, _index) => {
-          return acc.add(BigNumber.from(trade ? trade?.amount : 0));
-        }, BigNumber.from(0))
-      : BigNumber.from(0);
+      subgraphVolume = utils.formatEther(_twentyFourHourVolume);
+    } catch (err) {
+      console.error(err);
+    }
 
-    const subgraphVolume = utils.formatEther(_twentyFourHourVolume);
     set((prevState) => ({
       ...prevState,
       subgraphVolume: subgraphVolume,
     }));
+  },
+  updateExpireStats: async () => {
+    const { provider } = get();
+
+    try {
+      const zdteContract = Zdte__factory.connect(ZDTE, provider);
+      const genesisExpiry = await zdteContract.genesisExpiry();
+      const currentTime = BigNumber.from(Math.round(getCurrentTime()));
+
+      let expiryInfoArray: IExpiryInfo[] = [];
+
+      for (
+        let i = genesisExpiry.toNumber();
+        i < currentTime.toNumber() + ONE_DAY;
+        i = i + ONE_DAY
+      ) {
+        expiryInfoArray.push(await zdteContract.expiryInfo(BigNumber.from(i)));
+      }
+
+      set((prevState) => ({
+        ...prevState,
+        expireStats: expiryInfoArray,
+      }));
+    } catch (err) {
+      console.error(err);
+      throw new Error('fail to update expire stats');
+    }
   },
 });
 
