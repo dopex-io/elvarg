@@ -387,7 +387,7 @@ const Bond = () => {
     } else if (userDscBondsData.state === BondingState.first_lower) {
       return {
         action: handleRepeg,
-        label: 'Mint',
+        label: 'Repeg',
         info: '$dpxETH price is below 0.99 WETH. Restore peg of dpxETH via the treasury.',
       };
     } else if (userDscBondsData.state === BondingState.second_lower) {

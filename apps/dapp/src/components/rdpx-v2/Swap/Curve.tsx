@@ -94,6 +94,28 @@ const Curve = () => {
     setInverted(!inverted);
   }, [inverted]);
 
+  const handleMax = useCallback(async () => {
+    if (
+      !signer ||
+      !accountAddress ||
+      !treasuryContractState.contracts ||
+      !treasuryContractState.contracts.dsc.address ||
+      !path[0]?.symbol
+    )
+      return;
+    const erc20address =
+      path[0].symbol.toUpperCase() === 'DPXETH'
+        ? treasuryContractState.contracts.dsc.address
+        : contractAddresses[path[0].symbol];
+    console.log(erc20address);
+
+    const balance = await MockToken__factory.connect(
+      erc20address,
+      signer
+    ).balanceOf(accountAddress);
+    setAmountIn(getUserReadableAmount(balance, 18).toString());
+  }, [contractAddresses, path[0], signer]);
+
   const handleApprove = useCallback(async () => {
     if (
       !path[0] ||
@@ -299,7 +321,11 @@ const Curve = () => {
           bottomElement={
             <div className="flex justify-between">
               <p className="text-sm text-stieglitz">Balance</p>
-              <p className="text-sm text-stieglitz">
+              <p
+                className="text-sm text-stieglitz underline decoration-dashed"
+                role="button"
+                onClick={handleMax}
+              >
                 {getUserReadableAmount(path[0]?.balance || '0', 18)}
               </p>
             </div>

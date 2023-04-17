@@ -452,7 +452,6 @@ export const createDpxusdBondingSlice: StateCreator<
       wethAvailable: BigNumber.from(0) as BigNumber,
       ids: [] as number[],
     };
-
     for (let i = 0; i < delegates.length; i++) {
       if (delegates[i]?.amount.eq('0')) continue;
       const delegateBalance =
@@ -492,15 +491,18 @@ export const createDpxusdBondingSlice: StateCreator<
               ? BigNumber.from(0)
               : amount.mul(bonds).div(requiredCollateral.add(1)).sub(1e2) // todo: some precision is lost; calculateBondCost(A) + cbc(B) + cbc(C) !== cbc(A + B + C)
         )
-        .filter((amount) => amount.gt('100')),
+        .filter((amount) => amount.gt(1e2)),
     };
 
-    console.log(
-      'dpxETH breakdown ',
-      accumulator.amounts.map((amount) => amount.toString()),
-      accumulator.ids.map((id) => id.toString()),
-      bonds
-    );
+    // console.log(
+    //   'dpxETH breakdown: ',
+    //   accumulator.amounts.map((amount) => amount.toString()),
+    //   accumulator.ids.map((id) => id.toString()),
+    //   delegates.map((delegate) => ({
+    //     id: delegate._id,
+    //     balance: delegate.amount.sub(delegate.activeCollateral).toString(),
+    //   }))
+    // );
 
     return {
       ids: accumulator.ids,
