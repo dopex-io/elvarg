@@ -20,10 +20,9 @@ function validPk(value: string) {
 }
 
 export default async function handler(
-  request: NextApiRequest,
+  _: NextApiRequest,
   response: NextApiResponse
 ) {
-  console.log('request: ', request);
   const keeper_pk = process.env['KEEPER_PK'];
   const isKeeperValid = keeper_pk && validPk(keeper_pk);
 
@@ -32,11 +31,15 @@ export default async function handler(
       new ethers.providers.StaticJsonRpcProvider(CHAINS[arbitrum.id]?.rpc)
     );
 
+    console.info('provider: ', provider);
+
     // const wallet = new ethers.Wallet(keeper_pk!);
     // const signer = wallet.connect(provider);
 
     const zdteContract = await Zdte__factory.connect(ZDTE, provider);
+    console.info('zdteContract: ', zdteContract);
     const price = await zdteContract.getMarkPrice();
+    console.info('price: ', price);
 
     // async function callContractWithRetry() {
     //   const maxRetries = 3; // maximum number of retries
@@ -48,7 +51,7 @@ export default async function handler(
     //       // const tx = await zdteContract.connect(signer).keeperRun();
     //       // const receipt = await tx.wait();
     //       // const res = receipt.events ? receipt.events[0] : 'failed';
-    //       // console.log('res: ', res);
+    //       // console.info('res: ', res);
     //       return;
     //     } catch (error) {
     //       console.error(
@@ -72,8 +75,6 @@ export default async function handler(
       success: true,
       isKeeperValid: isKeeperValid,
       price: price.toNumber(),
-      keeper_pk: keeper_pk?.substring(0, 3),
-      valid: validPk(keeper_pk!),
     });
   } catch (error) {
     return response.status(500).json({ error: error });
