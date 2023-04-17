@@ -80,3 +80,9 @@ export default async function handler(
     return response.status(500).json({ error: error });
   }
 }
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
