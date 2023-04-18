@@ -1,3 +1,5 @@
+import { useCallback, useState } from 'react';
+
 import { BigNumber } from 'ethers';
 
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
@@ -7,11 +9,13 @@ import {
   TableBody,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useBoundStore } from 'store';
 
+import { TablePaginationActions } from 'components/UI';
 import {
   StyleCell,
   StyleLeftCell,
@@ -25,6 +29,8 @@ import Loading from 'components/zdte/Loading';
 import { getReadableTime, getUserReadableAmount } from 'utils/contracts';
 
 import { DECIMALS_STRIKE } from 'constants/index';
+
+const ROWS_PER_PAGE: number = 10;
 
 const StyleHeaderTable = styled(TableContainer)`
   table {
@@ -42,6 +48,14 @@ const StyleHeaderTable = styled(TableContainer)`
 
 export const ExpiryStats = () => {
   const { expireStats } = useBoundStore();
+  const [page, setPage] = useState<number>(0);
+
+  const handleChangePage = useCallback(
+    (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+      setPage(newPage);
+    },
+    [setPage]
+  );
 
   if (!expireStats) return <Loading />;
 
@@ -69,43 +83,61 @@ export const ExpiryStats = () => {
             </TableRow>
           </TableHead>
           {expireStats
-            ? expireStats.map((stats, idx) => (
-                <TableBody className="rounded-lg " key={idx}>
-                  <TableRow key={idx} className="mb-2 rounded-lg">
-                    <StyleLeftCell align="left">
-                      <span className="text-white">
-                        {stats.begin ? 'Yes' : 'No'}
-                      </span>
-                    </StyleLeftCell>
-                    <StyleCell align="left">
-                      <span className="text-white">
-                        {getReadableTime(stats.expiry)}
-                      </span>
-                    </StyleCell>
-                    <StyleCell align="left">
-                      <span className="text-white">
-                        {stats.settlementPrice.gt(BigNumber.from(0))
-                          ? getUserReadableAmount(
-                              stats.settlementPrice,
-                              DECIMALS_STRIKE
-                            )
-                          : 'N/A'}
-                      </span>
-                    </StyleCell>
-                    <StyleCell align="left">
-                      <span className="text-white">{stats.startId}</span>
-                    </StyleCell>
-                    <StyleRightCell align="right">
-                      <span className="text-white">
-                        {stats.count.toNumber()}
-                      </span>
-                    </StyleRightCell>
-                  </TableRow>
-                </TableBody>
-              ))
+            ? expireStats
+                .slice(
+                  page * ROWS_PER_PAGE,
+                  page * ROWS_PER_PAGE + ROWS_PER_PAGE
+                )
+                .map((stats, idx) => (
+                  <TableBody className="rounded-lg " key={idx}>
+                    <TableRow key={idx} className="mb-2 rounded-lg">
+                      <StyleLeftCell align="left">
+                        <span className="text-white">
+                          {stats.begin ? 'Yes' : 'No'}
+                        </span>
+                      </StyleLeftCell>
+                      <StyleCell align="left">
+                        <span className="text-white">
+                          {getReadableTime(stats.expiry)}
+                        </span>
+                      </StyleCell>
+                      <StyleCell align="left">
+                        <span className="text-white">
+                          {stats.settlementPrice.gt(BigNumber.from(0))
+                            ? getUserReadableAmount(
+                                stats.settlementPrice,
+                                DECIMALS_STRIKE
+                              )
+                            : 'N/A'}
+                        </span>
+                      </StyleCell>
+                      <StyleCell align="left">
+                        <span className="text-white">{stats.startId}</span>
+                      </StyleCell>
+                      <StyleRightCell align="right">
+                        <span className="text-white">
+                          {stats.count.toNumber()}
+                        </span>
+                      </StyleRightCell>
+                    </TableRow>
+                  </TableBody>
+                ))
             : null}
         </Table>
       </StyleHeaderTable>
+      {expireStats.length > ROWS_PER_PAGE ? (
+        <TablePagination
+          component="div"
+          id="stats"
+          rowsPerPageOptions={[ROWS_PER_PAGE]}
+          count={expireStats?.length}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={ROWS_PER_PAGE}
+          className="text-stieglitz border-0 flex flex-grow justify-center"
+          ActionsComponent={TablePaginationActions}
+        />
+      ) : null}
     </Box>
   );
 };
