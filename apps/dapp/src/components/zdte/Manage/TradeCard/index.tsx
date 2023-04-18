@@ -174,6 +174,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
         ),
       ]).then(() => {
         setAmount('1');
+        setTextInputRef(false);
         setSelectedSpreadPair({
           ...selectedSpreadPair,
           shortStrike: undefined,

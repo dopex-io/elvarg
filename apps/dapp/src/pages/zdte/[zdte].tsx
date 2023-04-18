@@ -84,8 +84,8 @@ const Zdte = ({ zdte }: Props) => {
         <title>ZDTE | Dopex</title>
       </Head>
       <AppBar active="ZDTE" />
-      <Box className="md:flex py-5 flex-row justify-around">
-        <Box className="m-auto lg:w-[60%] space-y-8">
+      <Box className="md:flex py-5 justify-center">
+        <Box className="ml-auto space-y-8">
           <Box className="lg:pt-28 sm:pt-20 pt-20 lg:max-w-4xl md:max-w-3xl sm:max-w-2xl max-w-md mx-auto px-4 lg:px-0 space-y-6">
             <TopBar />
           </Box>
@@ -99,7 +99,7 @@ const Zdte = ({ zdte }: Props) => {
             <OpenPositions />
           </Box>
         </Box>
-        <Box className="flex justify-around mb-8 px-3 mt-8 md:justify-start md:flex-col md:mt-24 md:mx-0 lg:mr-auto lg:px-0 lg:ml-5">
+        <Box className="flex justify-around mb-8 px-3 mt-8 md:ml-10 md:justify-start md:mt-24 lg:mr-auto lg:px-0">
           <ManageCard />
         </Box>
       </Box>

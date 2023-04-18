@@ -11,14 +11,14 @@ import { StateCreator } from 'zustand';
 import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';
 
-import { getContractReadableAmount, getCurrentTime } from 'utils/contracts';
+import { getContractReadableAmount } from 'utils/contracts';
 import { getUserReadableAmount } from 'utils/contracts';
 import { getDelta } from 'utils/math/blackScholes/greeks';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
-export const ZDTE: string = '0x73136bfb1cdb9e424814011d00e11989c3a82d38';
+export const ZDTE: string = '0xC9658810C819211a4bA4755Fc9D45A8128079841';
 const SECONDS_IN_A_YEAR = 86400 * 365;
 const ONE_DAY = 86400;
 
@@ -62,8 +62,6 @@ export interface IZdteData {
 export interface IZdteUserData {
   userBaseLpBalance: BigNumber;
   userQuoteLpBalance: BigNumber;
-  userBaseWithdrawable: BigNumber;
-  userQuoteWithdrawable: BigNumber;
   userBaseTokenBalance: BigNumber;
   userQuoteTokenBalance: BigNumber;
 }
@@ -95,11 +93,11 @@ export interface ISpreadPair {
 
 export interface IExpiryInfo {
   begin: boolean;
-  expired: boolean;
   expiry: BigNumber;
   settlementPrice: BigNumber;
   startId: string;
   count: BigNumber;
+  lastProccessedId: BigNumber;
 }
 
 export interface IDepositInfo {
@@ -195,38 +193,14 @@ export const createZdteSlice: StateCreator<
       const [
         userBaseLpBalance,
         userQuoteLpBalance,
-        userBaseWithdrawalInfo,
-        userQuoteWithdrawalInfo,
         baseTokenAddress,
         quoteTokenAddress,
       ] = await Promise.all([
         baseLpContract.balanceOf(accountAddress),
         quoteLpContract.balanceOf(accountAddress),
-        zdteContract.getUserToBaseDepositInfo(accountAddress),
-        zdteContract.getUserToQuoteDepositInfo(accountAddress),
         zdteContract.base(),
         zdteContract.quote(),
       ]);
-
-      const currentTime = BigNumber.from(Math.round(getCurrentTime()));
-
-      const userBaseWithdrawable = userBaseWithdrawalInfo.reduce(
-        (acc: BigNumber, info: IDepositInfo) => {
-          return info.expiry.lt(currentTime)
-            ? acc.add(info.amount)
-            : BigNumber.from(0);
-        },
-        BigNumber.from(0)
-      );
-
-      const userQuoteWithdrawable = userQuoteWithdrawalInfo.reduce(
-        (acc: BigNumber, info: IDepositInfo) => {
-          return info.expiry.lt(currentTime)
-            ? acc.add(info.amount)
-            : BigNumber.from(0);
-        },
-        BigNumber.from(0)
-      );
 
       const baseTokenContract = ERC20__factory.connect(
         baseTokenAddress,
@@ -247,8 +221,6 @@ export const createZdteSlice: StateCreator<
         userZdteLpData: {
           userBaseLpBalance: userBaseLpBalance,
           userBaseTokenBalance: userBaseTokenBalance,
-          userBaseWithdrawable: userBaseWithdrawable,
-          userQuoteWithdrawable: userQuoteWithdrawable,
           userQuoteLpBalance: userQuoteLpBalance,
           userQuoteTokenBalance: userQuoteTokenBalance,
         },

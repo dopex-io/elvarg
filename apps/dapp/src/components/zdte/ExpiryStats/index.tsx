@@ -24,6 +24,8 @@ import Loading from 'components/zdte/Loading';
 
 import { getReadableTime, getUserReadableAmount } from 'utils/contracts';
 
+import { DECIMALS_STRIKE } from 'constants/index';
+
 const StyleHeaderTable = styled(TableContainer)`
   table {
     border-collapse: separate !important;
@@ -58,7 +60,6 @@ export const ExpiryStats = () => {
                   Any Purchase?
                 </span>
               </StyleLeftTableCell>
-              <StyleTableCellHeader>Expired?</StyleTableCellHeader>
               <StyleTableCellHeader>Expiry</StyleTableCellHeader>
               <StyleTableCellHeader>Settlement Price</StyleTableCellHeader>
               <StyleTableCellHeader>Start ID</StyleTableCellHeader>
@@ -78,18 +79,16 @@ export const ExpiryStats = () => {
                     </StyleLeftCell>
                     <StyleCell align="left">
                       <span className="text-white">
-                        {stats.expired ? 'Yes' : 'No'}
-                      </span>
-                    </StyleCell>
-                    <StyleCell align="left">
-                      <span className="text-white">
                         {getReadableTime(stats.expiry)}
                       </span>
                     </StyleCell>
                     <StyleCell align="left">
                       <span className="text-white">
                         {stats.settlementPrice.gt(BigNumber.from(0))
-                          ? getUserReadableAmount(stats.settlementPrice)
+                          ? getUserReadableAmount(
+                              stats.settlementPrice,
+                              DECIMALS_STRIKE
+                            )
                           : 'N/A'}
                       </span>
                     </StyleCell>

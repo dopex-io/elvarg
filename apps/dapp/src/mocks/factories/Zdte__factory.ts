@@ -131,6 +131,12 @@ const _abi = [
         type: 'uint256',
       },
       {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'lastId',
+        type: 'uint256',
+      },
+      {
         indexed: true,
         internalType: 'address',
         name: 'user',
@@ -715,6 +721,11 @@ const _abi = [
         name: 'expiry',
         type: 'uint256',
       },
+      {
+        internalType: 'uint256',
+        name: 'startId',
+        type: 'uint256',
+      },
     ],
     name: 'expireSpreads',
     outputs: [
@@ -743,11 +754,6 @@ const _abi = [
         type: 'bool',
       },
       {
-        internalType: 'bool',
-        name: 'expired',
-        type: 'bool',
-      },
-      {
         internalType: 'uint256',
         name: 'expiry',
         type: 'uint256',
@@ -765,6 +771,11 @@ const _abi = [
       {
         internalType: 'uint256',
         name: 'settlementPrice',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'lastProccessedId',
         type: 'uint256',
       },
     ],
@@ -852,68 +863,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
-      },
-    ],
-    name: 'getUserToBaseDepositInfo',
-    outputs: [
-      {
-        components: [
-          {
-            internalType: 'uint256',
-            name: 'amount',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'expiry',
-            type: 'uint256',
-          },
-        ],
-        internalType: 'struct Zdte.DepositInfo[]',
-        name: '',
-        type: 'tuple[]',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
-      },
-    ],
-    name: 'getUserToQuoteDepositInfo',
-    outputs: [
-      {
-        components: [
-          {
-            internalType: 'uint256',
-            name: 'amount',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'expiry',
-            type: 'uint256',
-          },
-        ],
-        internalType: 'struct Zdte.DepositInfo[]',
-        name: '',
-        type: 'tuple[]',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
         internalType: 'uint256',
         name: 'strike',
         type: 'uint256',
@@ -989,19 +938,6 @@ const _abi = [
   {
     inputs: [],
     name: 'keeperExpirePrevEpochSpreads',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'keeperRun',
     outputs: [
       {
         internalType: 'bool',
@@ -1310,64 +1246,6 @@ const _abi = [
     name: 'updateOracleId',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    name: 'userToBaseDepositInfo',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'expiry',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    name: 'userToQuoteDepositInfo',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'expiry',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
     type: 'function',
   },
   {
