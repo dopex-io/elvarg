@@ -453,7 +453,10 @@ export const createDpxusdBondingSlice: StateCreator<
       ids: [] as number[],
     };
     for (let i = 0; i < delegates.length; i++) {
-      if (delegates[i]?.amount.eq('0')) continue;
+      if (
+        delegates[i]?.amount.sub(delegates[i]?.activeCollateral || 0).lt('100')
+      )
+        continue;
       const delegateBalance =
         delegates[i]?.amount.sub(delegates[i]?.activeCollateral || '0') ||
         BigNumber.from(0);
