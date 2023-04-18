@@ -6,7 +6,11 @@ import {
   useState,
 } from 'react';
 import { BigNumber } from 'ethers';
-import { MockToken, MockToken__factory } from '@dopex-io/sdk';
+import {
+  DopexAMMRouter__factory,
+  MockToken,
+  MockToken__factory,
+} from '@dopex-io/sdk';
 import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
 
 import Input from 'components/UI/Input';
@@ -110,18 +114,20 @@ const DopexAmm = () => {
   const handleSwap = useCallback(async () => {
     if (
       !treasuryContractState.contracts ||
-      !contractAddresses ||
+      !treasuryContractState.contracts.ammRouter ||
       !signer ||
       !accountAddress ||
       !path[0] ||
       !path[1] ||
-      !path[0].address ||
-      !path[1].address ||
-      !amountIn
+      !amountIn ||
+      !contractAddresses
     )
       return;
 
-    const router = treasuryContractState.contracts.ammRouter;
+    const router = DopexAMMRouter__factory.connect(
+      treasuryContractState.contracts.ammRouter.address,
+      signer
+    );
 
     if (!router) return;
 
@@ -134,18 +140,20 @@ const DopexAmm = () => {
 
     if (!amountA || !amountB) return;
 
+    const deadline = Math.floor(new Date().getTime() / 1000) + 60;
+
     try {
       await sendTx(router, 'swapExactTokensForTokens', [
         getContractReadableAmount(amountIn, 18),
-        amountA,
+        amountB,
         _path,
         accountAddress,
-        '10000000', // deadline
+        deadline,
       ]);
     } catch (e) {
       console.error(e);
     }
-  }, []);
+  }, [treasuryContractState, path, amountIn]);
 
   const updatePool = useCallback(async () => {
     if (
@@ -234,8 +242,6 @@ const DopexAmm = () => {
         await treasuryContractState.contracts.ammRouter
           .getAmountsOut(getContractReadableAmount(amountIn, 18), _path)
           .catch(() => [BigNumber.from(0), BigNumber.from(0)]);
-
-      console.log(_amounts, amountIn, _path);
 
       setAmountOut(getUserReadableAmount(_amounts[1]!, 18).toString());
     })();
@@ -380,17 +386,14 @@ const DopexAmm = () => {
       <button
         onClick={approved ? handleSwap : handleApprove}
         className={`${
-          !Number(amountIn) || true
-            ? 'bg-umbra cursor-not-allowed'
-            : 'bg-primary'
+          !Number(amountIn) ? 'bg-umbra cursor-not-allowed' : 'bg-primary'
         } p-2 w-full rounded-md`}
-        disabled={!Number(amountIn) || true}
+        disabled={!Number(amountIn)}
       >
         <span
           className={`text-sm ${!Number(amountIn) ? 'text-stieglitz' : null}`}
         >
-          {/* {approved ? 'Swap' : 'Approve'} */}
-          Coming soon
+          {approved ? 'Swap' : 'Approve'}
         </span>
       </button>
     </div>

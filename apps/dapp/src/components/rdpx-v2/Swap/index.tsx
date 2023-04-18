@@ -15,7 +15,7 @@ const Swap = () => {
 
   return (
     <div className="py-12 mt-12 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
-      <ButtonGroup className="flex w-1/4 mx-auto bg-cod-gray border border-umbra rounded-lg">
+      <ButtonGroup className="flex w-full md:w-1/2 lg:w-1/3 mx-auto bg-cod-gray border border-umbra rounded-lg">
         {BUTTON_LABELS.map((label, index) => (
           <button
             key={index}
