@@ -15,12 +15,12 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 const STAT_KEYS = [
-  'Total Supply',
-  'Market Cap',
   'dpxETH Price',
-  'RDPX Supply',
   'RDPX Price',
-  '',
+  'dpxETH Supply',
+  'RDPX Supply',
+  'dpxETH Market Cap',
+  'RDPX Market Cap',
 ];
 
 const DEFAULT_STAT_VALS = ['-', '-', '-', '-', '-', '-'];
@@ -57,17 +57,8 @@ const RdpxV2Main = () => {
       return DEFAULT_STAT_VALS;
 
     return [
-      formatAmount(getUserReadableAmount(treasuryData.dscSupply, 18), 3),
-      formatAmount(
-        getUserReadableAmount(
-          treasuryData.dscPrice.mul(treasuryData.dscSupply),
-          26
-        ),
-        3
-      ) + ' WETH',
       formatAmount(getUserReadableAmount(treasuryData.dscPrice, 8), 3) +
         ' WETH',
-      formatAmount(getUserReadableAmount(treasuryData.rdpxSupply, 18), 3),
       formatAmount(getUserReadableAmount(treasuryData.rdpxPriceInAlpha, 8), 3) +
         ' WETH' +
         ` (${formatAmount(
@@ -75,7 +66,22 @@ const RdpxV2Main = () => {
             ethPriceInUsd,
           3
         )} USD)`,
-      '',
+      formatAmount(getUserReadableAmount(treasuryData.dscSupply, 18), 3),
+      formatAmount(getUserReadableAmount(treasuryData.rdpxSupply, 18), 3),
+      formatAmount(
+        getUserReadableAmount(
+          treasuryData.dscPrice.mul(treasuryData.dscSupply),
+          26
+        ),
+        3
+      ) + ' WETH',
+      formatAmount(
+        getUserReadableAmount(
+          treasuryData.rdpxPriceInAlpha.mul(treasuryData.rdpxSupply),
+          26
+        ),
+        3
+      ) + ' WETH',
     ];
   }, [treasuryContractState, treasuryData]);
 
