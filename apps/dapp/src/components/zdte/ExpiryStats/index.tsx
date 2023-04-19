@@ -27,6 +27,7 @@ import {
 import Loading from 'components/zdte/Loading';
 
 import { getReadableTime, getUserReadableAmount } from 'utils/contracts';
+import { formatAmount } from 'utils/general';
 
 import { DECIMALS_STRIKE } from 'constants/index';
 
@@ -76,9 +77,8 @@ export const ExpiryStats = () => {
               </StyleLeftTableCell>
               <StyleTableCellHeader>Expiry</StyleTableCellHeader>
               <StyleTableCellHeader>Settlement Price</StyleTableCellHeader>
-              <StyleTableCellHeader>Start ID</StyleTableCellHeader>
               <StyleRightTableCell align="right" className="rounded-tr-xl">
-                <span className="text-sm text-stieglitz">Count</span>
+                <span className="text-sm text-stieglitz">Start ID</span>
               </StyleRightTableCell>
             </TableRow>
           </TableHead>
@@ -104,20 +104,18 @@ export const ExpiryStats = () => {
                       <StyleCell align="left">
                         <span className="text-white">
                           {stats.settlementPrice.gt(BigNumber.from(0))
-                            ? getUserReadableAmount(
-                                stats.settlementPrice,
-                                DECIMALS_STRIKE
-                              )
+                            ? `$${formatAmount(
+                                getUserReadableAmount(
+                                  stats.settlementPrice,
+                                  DECIMALS_STRIKE
+                                ),
+                                2
+                              )}`
                             : 'N/A'}
                         </span>
                       </StyleCell>
-                      <StyleCell align="left">
-                        <span className="text-white">{stats.startId}</span>
-                      </StyleCell>
                       <StyleRightCell align="right">
-                        <span className="text-white">
-                          {stats.count.toNumber()}
-                        </span>
+                        <span className="text-white">{stats.startId}</span>
                       </StyleRightCell>
                     </TableRow>
                   </TableBody>
