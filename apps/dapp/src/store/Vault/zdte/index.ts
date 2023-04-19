@@ -183,7 +183,13 @@ export const createZdteSlice: StateCreator<
       getZdteContract,
     } = get();
 
-    if (!getBaseLpContract || !getQuoteLpContract || !accountAddress) return;
+    if (
+      !getBaseLpContract ||
+      !getQuoteLpContract ||
+      !accountAddress ||
+      !getZdteContract
+    )
+      return;
 
     try {
       const [baseLpContract, quoteLpContract, zdteContract] = await Promise.all(
@@ -509,7 +515,7 @@ export const createZdteSlice: StateCreator<
       });
       const _twentyFourHourVolume = payload.trades
         ? payload.trades.reduce((acc, trade, _index) => {
-            return acc.add(BigNumber.from(trade ? trade?.amount : 0));
+            return acc.add(BigNumber.from(trade.amount));
           }, BigNumber.from(0))
         : BigNumber.from(0);
 
