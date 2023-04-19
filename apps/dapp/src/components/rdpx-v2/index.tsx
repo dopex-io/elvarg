@@ -68,20 +68,18 @@ const RdpxV2Main = () => {
         )} USD)`,
       formatAmount(getUserReadableAmount(treasuryData.dscSupply, 18), 3),
       formatAmount(getUserReadableAmount(treasuryData.rdpxSupply, 18), 3),
-      formatAmount(
+      `$${(
         getUserReadableAmount(
           treasuryData.dscPrice.mul(treasuryData.dscSupply),
           26
-        ),
-        3
-      ) + ' WETH',
-      formatAmount(
+        ) * ethPriceInUsd
+      ).toLocaleString()}`,
+      `$${(
         getUserReadableAmount(
           treasuryData.rdpxPriceInAlpha.mul(treasuryData.rdpxSupply),
           26
-        ),
-        3
-      ) + ' WETH',
+        ) * ethPriceInUsd
+      ).toLocaleString()}`,
     ];
   }, [treasuryContractState, treasuryData]);
 
