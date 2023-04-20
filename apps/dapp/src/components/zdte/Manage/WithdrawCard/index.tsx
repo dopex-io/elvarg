@@ -276,7 +276,7 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
             asset.getAssetSymbol
           }`}
         />
-        <div className="p-1">
+        <div>
           <span className="text-sm text-white">
             You can only withdraw after 24 hours of your last deposit.
           </span>

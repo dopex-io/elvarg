@@ -230,6 +230,13 @@ const Deposit: FC<DepositProps> = ({}) => {
         tokenBalance={assetBalance}
         handleMax={handleMax}
       />
+      <div className="p-1 ml-1">
+        <span className="text-sm text-white">
+          {isQuote
+            ? `Deposit ${staticZdteData.quoteTokenSymbol} to provide liquidity for put options`
+            : `Deposit ${staticZdteData.baseTokenSymbol} to provide liquidity for call options`}
+        </span>
+      </div>
       <CustomButton
         size="medium"
         className="w-full mt-5 !rounded-md"
