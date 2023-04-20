@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import {
   Box,
@@ -7,11 +7,13 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useBoundStore } from 'store';
 
+import { TablePaginationActions } from 'components/UI';
 import {
   StyleLeftTableCell,
   StyleRightTableCell,
@@ -34,6 +36,8 @@ const StyleHeaderTable = styled(TableContainer)`
   }
 `;
 
+const ROWS_PER_PAGE = 5;
+
 export const ClosedPositions = () => {
   const {
     zdteData,
@@ -41,6 +45,15 @@ export const ClosedPositions = () => {
     userZdteExpiredData,
     updateUserZdteExpiredData,
   } = useBoundStore();
+
+  const [page, setPage] = useState<number>(0);
+
+  const handleChangePage = useCallback(
+    (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+      setPage(newPage);
+    },
+    [setPage]
+  );
 
   useEffect(() => {
     updateUserZdteExpiredData();
@@ -72,15 +85,20 @@ export const ClosedPositions = () => {
           </TableHead>
           <TableBody className="rounded-lg">
             {userZdteExpiredData && userZdteExpiredData?.length > 0 ? (
-              userZdteExpiredData?.map((position, index) => (
-                <ClosedPositionsRow
-                  key={index}
-                  position={position}
-                  idx={index}
-                  zdteData={zdteData}
-                  staticZdteData={staticZdteData}
-                />
-              ))
+              userZdteExpiredData
+                .slice(
+                  page * ROWS_PER_PAGE,
+                  page * ROWS_PER_PAGE + ROWS_PER_PAGE
+                )
+                ?.map((position, index) => (
+                  <ClosedPositionsRow
+                    key={index}
+                    position={position}
+                    idx={index}
+                    zdteData={zdteData}
+                    staticZdteData={staticZdteData}
+                  />
+                ))
             ) : (
               <TableRow>
                 <TableCell colSpan={6} align="center" className="border-none">
@@ -95,6 +113,19 @@ export const ClosedPositions = () => {
           </TableBody>
         </Table>
       </StyleHeaderTable>
+      {userZdteExpiredData && userZdteExpiredData?.length > ROWS_PER_PAGE ? (
+        <TablePagination
+          component="div"
+          id="stats"
+          rowsPerPageOptions={[ROWS_PER_PAGE]}
+          count={userZdteExpiredData?.length}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={ROWS_PER_PAGE}
+          className="text-stieglitz border-0 flex flex-grow justify-center"
+          ActionsComponent={TablePaginationActions}
+        />
+      ) : null}
     </Box>
   );
 };

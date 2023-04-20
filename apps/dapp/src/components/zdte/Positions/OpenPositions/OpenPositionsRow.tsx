@@ -82,7 +82,7 @@ export const OpenPositionsRow = ({
           </Typography>
         ),
         percentage: pnl,
-        customPath: '/zdte',
+        customPath: '/zdte/eth',
         stats: [
           {
             name: 'Long Strike Price',

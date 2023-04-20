@@ -1,3 +1,5 @@
+import { useCallback, useEffect, useState } from 'react';
+
 import {
   Box,
   Table,
@@ -5,11 +7,13 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useBoundStore } from 'store';
 
+import { TablePaginationActions } from 'components/UI';
 import {
   StyleLeftTableCell,
   StyleRightTableCell,
@@ -31,9 +35,19 @@ const StyleHeaderTable = styled(TableContainer)`
     border-radius: 0 0 10px 0;
   }
 `;
+const ROWS_PER_PAGE = 5;
 
 export const OpenPositions = () => {
   const { zdteData, staticZdteData, userZdtePurchaseData } = useBoundStore();
+
+  const [page, setPage] = useState<number>(0);
+
+  const handleChangePage = useCallback(
+    (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+      setPage(newPage);
+    },
+    [setPage]
+  );
 
   if (!zdteData || !staticZdteData) {
     return <Loading />;
@@ -61,15 +75,20 @@ export const OpenPositions = () => {
           </TableHead>
           <TableBody className="rounded-lg">
             {userZdtePurchaseData && userZdtePurchaseData?.length > 0 ? (
-              userZdtePurchaseData?.map((position, index) => (
-                <OpenPositionsRow
-                  key={index}
-                  position={position}
-                  idx={index}
-                  zdteData={zdteData}
-                  staticZdteData={staticZdteData}
-                />
-              ))
+              userZdtePurchaseData
+                .slice(
+                  page * ROWS_PER_PAGE,
+                  page * ROWS_PER_PAGE + ROWS_PER_PAGE
+                )
+                ?.map((position, index) => (
+                  <OpenPositionsRow
+                    key={index}
+                    position={position}
+                    idx={index}
+                    zdteData={zdteData}
+                    staticZdteData={staticZdteData}
+                  />
+                ))
             ) : (
               <TableRow>
                 <TableCell colSpan={5} align="center" className="border-none">
@@ -84,6 +103,19 @@ export const OpenPositions = () => {
           </TableBody>
         </Table>
       </StyleHeaderTable>
+      {userZdtePurchaseData && userZdtePurchaseData?.length > ROWS_PER_PAGE ? (
+        <TablePagination
+          component="div"
+          id="stats"
+          rowsPerPageOptions={[ROWS_PER_PAGE]}
+          count={userZdtePurchaseData?.length}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={ROWS_PER_PAGE}
+          className="text-stieglitz border-0 flex flex-grow justify-center"
+          ActionsComponent={TablePaginationActions}
+        />
+      ) : null}
     </Box>
   );
 };

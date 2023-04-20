@@ -2,6 +2,7 @@ import { BigNumber, utils } from 'ethers';
 
 import { ERC20__factory } from '@dopex-io/sdk';
 import graphSdk from 'graphql/graphSdk';
+import { reverse } from 'lodash';
 import { ZdteLP__factory } from 'mocks/factories/ZdteLP__factory';
 import { ZdtePositionMinter__factory } from 'mocks/factories/ZdtePositionMinter__factory';
 import { Zdte__factory } from 'mocks/factories/Zdte__factory';
@@ -326,19 +327,21 @@ export const createZdteSlice: StateCreator<
       if (!userPurchaseData || !getZdteContract) return;
 
       const zdteContract = await getZdteContract();
-      const prevExpiry = await zdteContract.getPrevExpiry();
-      const ei = await zdteContract.expiryInfo(prevExpiry);
+      const positions = await Promise.all(
+        userPurchaseData
+          .filter((p) => !p.isOpen)
+          .map(async (pos: IZdteRawPurchaseData) => {
+            const ei: IExpiryInfo = await zdteContract.expiryInfo(pos.expiry);
+            return {
+              ...pos,
+              settlementPrice: ei.settlementPrice,
+            } as IZdteExpiredData;
+          })
+      );
 
       set((prevState) => ({
         ...prevState,
-        userZdteExpiredData: userPurchaseData
-          .filter((p) => !p.isOpen)
-          .map((p) => {
-            return {
-              ...p,
-              settlementPrice: ei.settlementPrice,
-            } as IZdteExpiredData;
-          }),
+        userZdteExpiredData: reverse(positions),
       }));
     } catch (err) {
       console.error(err);
@@ -608,7 +611,9 @@ export const createZdteSlice: StateCreator<
         i < nextExpiry.toNumber() + ONE_DAY;
         i = i + ONE_DAY
       ) {
-        const ei = await zdteContract.expiryInfo(BigNumber.from(i));
+        const ei: IExpiryInfo = await zdteContract.expiryInfo(
+          BigNumber.from(i)
+        );
         if (!ei.begin) {
           expiryInfoArray.push({
             ...ei,
