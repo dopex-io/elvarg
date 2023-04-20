@@ -19,7 +19,7 @@ const Positions = () => {
   }
 
   return (
-    <div className="text-gray-400 min-w-[60vw] rounded-lg">
+    <div className="text-gray-400 w-full rounded-lg">
       <div className="border rounded-t-xl border-cod-gray py-2 bg-umbra">
         <div className="flex ml-3">
           <div className="rounded-md bg-neutral-700 flex mb-2 mt-3 h-auto">
