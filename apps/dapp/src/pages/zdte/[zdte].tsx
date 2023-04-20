@@ -9,9 +9,10 @@ import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
 import ErrorBoundary from 'components/error/ErrorBoundary';
-import { OpenPositions, OptionsTable } from 'components/zdte';
+import { OptionsTable } from 'components/zdte';
 import Loading from 'components/zdte/Loading';
 import ManageCard from 'components/zdte/Manage';
+import Positions from 'components/zdte/Positions';
 import TopBar from 'components/zdte/TopBar';
 import ZdteContractBox from 'components/zdte/ZdteContractBox';
 import ZdteDexScreenerChart from 'components/zdte/ZdteDexScreenerChart';
@@ -33,6 +34,7 @@ const Zdte = ({ zdte }: Props) => {
     getZdteContract,
     accountAddress,
     staticZdteData,
+    getUserPurchaseData,
   } = useBoundStore();
 
   useEffect(() => {
@@ -42,9 +44,11 @@ const Zdte = ({ zdte }: Props) => {
   const updateAll = useCallback(() => {
     updateZdteData().then(() => {
       updateStaticZdteData().then(() => {
-        updateUserZdteLpData().then(() => {
-          updateVolumeFromSubgraph().then(() => {
-            updateUserZdtePurchaseData();
+        getUserPurchaseData().then(() => {
+          updateUserZdteLpData().then(() => {
+            updateVolumeFromSubgraph().then(() => {
+              updateUserZdtePurchaseData();
+            });
           });
         });
       });
@@ -52,6 +56,7 @@ const Zdte = ({ zdte }: Props) => {
   }, [
     updateZdteData,
     updateUserZdteLpData,
+    getUserPurchaseData,
     updateStaticZdteData,
     updateUserZdtePurchaseData,
     chainId,
@@ -96,7 +101,7 @@ const Zdte = ({ zdte }: Props) => {
             <OptionsTable />
           </Box>
           <Box className="mb-5 lg:max-w-4xl md:max-w-3xl md:m-0 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0 flex-auto mx-auto">
-            <OpenPositions />
+            <Positions />
           </Box>
         </Box>
         <Box className="flex justify-around mb-8 px-3 mt-8 md:ml-10 md:justify-start md:mt-24 md:sticky md:top-24 md:h-fit lg:mr-auto lg:px-0">

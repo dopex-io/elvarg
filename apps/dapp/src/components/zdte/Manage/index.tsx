@@ -1,28 +1,22 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { CircularProgress } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
-import Loading from 'components/zdte/Loading';
 import Deposit from 'components/zdte/Manage/DepositCard';
 import TradeCard from 'components/zdte/Manage/TradeCard';
 import Withdraw from 'components/zdte/Manage/WithdrawCard';
 
 const ManageCard = () => {
-  const { zdteData, staticZdteData } = useBoundStore();
-
   const [active, setActive] = useState<string>('Deposit');
 
   const handleClick = useCallback((e: any) => {
     setActive(e.target.textContent);
   }, []);
-
-  if (!zdteData || !staticZdteData) {
-    return <Loading />;
-  }
 
   return (
     <Box className="w-full">
@@ -68,7 +62,13 @@ const ManageComponent = () => {
   }, [focusTrade]);
 
   if (!zdteData || !staticZdteData) {
-    return <Loading />;
+    return (
+      <CircularProgress
+        sx={{
+          color: '#000000',
+        }}
+      />
+    );
   }
 
   return (

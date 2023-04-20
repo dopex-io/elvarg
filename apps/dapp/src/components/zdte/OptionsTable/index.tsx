@@ -111,7 +111,7 @@ export const OptionsTable = () => {
     return (
       <Box className="flex flex-col flex-grow w-full whitespace-nowrap">
         <span className="ml-auto mr-auto text-[0.8rem] h-full mb-10">
-          Failed to fetch volatility data
+          Failed to fetch volatility data from oracle
         </span>
       </Box>
     );

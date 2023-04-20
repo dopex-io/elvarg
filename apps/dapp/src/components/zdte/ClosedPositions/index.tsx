@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 import {
   Box,
   Table,
@@ -14,8 +16,8 @@ import {
   StyleRightTableCell,
   StyleTableCellHeader,
 } from 'components/common/LpCommon/Table';
+import { ClosedPositionsRow } from 'components/zdte/ClosedPositions/ClosedPositionsRow';
 import Loading from 'components/zdte/Loading';
-import { OpenPositionsRow } from 'components/zdte/OpenPositions/OpenPositionsRow';
 
 const StyleHeaderTable = styled(TableContainer)`
   table {
@@ -31,8 +33,17 @@ const StyleHeaderTable = styled(TableContainer)`
   }
 `;
 
-export const OpenPositions = () => {
-  const { zdteData, staticZdteData, userZdtePurchaseData } = useBoundStore();
+export const ClosedPositions = () => {
+  const {
+    zdteData,
+    staticZdteData,
+    userZdteExpiredData,
+    updateUserZdteExpiredData,
+  } = useBoundStore();
+
+  useEffect(() => {
+    updateUserZdteExpiredData();
+  }, [updateUserZdteExpiredData]);
 
   if (!zdteData || !staticZdteData) {
     return <Loading />;
@@ -50,18 +61,18 @@ export const OpenPositions = () => {
                 </span>
               </StyleLeftTableCell>
               <StyleTableCellHeader>Amount</StyleTableCellHeader>
-              {/* <StyleTableCellHeader>Mark Price</StyleTableCellHeader> */}
+              <StyleTableCellHeader>Settlement Price</StyleTableCellHeader>
               <StyleTableCellHeader>Profit & Loss</StyleTableCellHeader>
-              <StyleTableCellHeader>Time to Expiry</StyleTableCellHeader>
+              <StyleTableCellHeader>Settled</StyleTableCellHeader>
               <StyleRightTableCell align="right" className="rounded-tr-xl">
                 <span className="text-sm text-stieglitz">Share</span>
               </StyleRightTableCell>
             </TableRow>
           </TableHead>
           <TableBody className="rounded-lg">
-            {userZdtePurchaseData && userZdtePurchaseData?.length > 0 ? (
-              userZdtePurchaseData?.map((position, index) => (
-                <OpenPositionsRow
+            {userZdteExpiredData && userZdteExpiredData?.length > 0 ? (
+              userZdteExpiredData?.map((position, index) => (
+                <ClosedPositionsRow
                   key={index}
                   position={position}
                   idx={index}
@@ -71,7 +82,7 @@ export const OpenPositions = () => {
               ))
             ) : (
               <span className="ml-auto mr-auto text-[0.8rem] h-full mb-10">
-                Your open positions will appear here
+                Your closed positions will appear here
               </span>
             )}
           </TableBody>
@@ -81,4 +92,4 @@ export const OpenPositions = () => {
   );
 };
 
-export default OpenPositions;
+export default ClosedPositions;

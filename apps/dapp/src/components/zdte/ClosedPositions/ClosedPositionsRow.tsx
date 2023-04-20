@@ -2,8 +2,8 @@ import { ReactNode, useCallback } from 'react';
 
 import IosShare from '@mui/icons-material/IosShare';
 import { Box, IconButton, TableRow } from '@mui/material';
+import { formatDistance } from 'date-fns';
 import useShare from 'hooks/useShare';
-import Countdown from 'react-countdown';
 
 import { IZdteExpiredData, IZdtePurchaseData } from 'store/Vault/zdte';
 
@@ -20,7 +20,9 @@ import { formatAmount } from 'utils/general';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
-function getStrikeDisplay(position: IZdtePurchaseData): ReactNode {
+function getStrikeDisplay(
+  position: IZdtePurchaseData | IZdteExpiredData
+): ReactNode {
   const longStrike = formatAmount(
     getUserReadableAmount(position.longStrike, DECIMALS_STRIKE)
   );
@@ -48,13 +50,13 @@ function getStrikeDisplay(position: IZdtePurchaseData): ReactNode {
   );
 }
 
-export const OpenPositionsRow = ({
+export const ClosedPositionsRow = ({
   position,
   idx,
   zdteData,
   staticZdteData,
 }: {
-  position: IZdtePurchaseData;
+  position: IZdteExpiredData;
   idx: number;
   zdteData: any;
   staticZdteData: any;
@@ -62,15 +64,10 @@ export const OpenPositionsRow = ({
   const share = useShare((state) => state.open);
 
   const handleShare = useCallback(
-    async (position: IZdtePurchaseData | IZdteExpiredData) => {
+    async (position: IZdteExpiredData) => {
       const tokenSymbol = staticZdteData?.baseTokenSymbol.toUpperCase();
 
-      const livePnl = getUserReadableAmount(
-        typeof position === 'object' && 'livePnl' in position
-          ? position.livePnl
-          : position.pnl,
-        DECIMALS_USD
-      );
+      const livePnl = getUserReadableAmount(position.pnl, DECIMALS_USD);
       const cost = getUserReadableAmount(position.cost, DECIMALS_USD);
       const pnl = (livePnl / cost - 1) * 100;
       const prefix = position.isPut ? 'Put' : 'Call';
@@ -121,33 +118,25 @@ export const OpenPositionsRow = ({
           )}`}
         </Typography>
       </StyleCell>
-      {/* <StyleCell align="left">
+      <StyleCell align="left">
         <Typography variant="h6" color="white">
           {`$${formatAmount(
-            getUserReadableAmount(position.markPrice, DECIMALS_STRIKE),
+            getUserReadableAmount(position.settlementPrice, DECIMALS_STRIKE),
             2
           )}`}
         </Typography>
-      </StyleCell> */}
+      </StyleCell>
       <StyleCell align="left">
         <FormatDollarColor
-          value={getUserReadableAmount(position.livePnl, DECIMALS_USD)}
+          value={getUserReadableAmount(position.pnl, DECIMALS_USD)}
         />
       </StyleCell>
       <StyleCell align="left">
         <Typography variant="h6" color="white">
-          <Countdown
-            date={new Date(position.expiry.toNumber() * 1000)}
-            renderer={({ hours, minutes }) => {
-              return (
-                <Box className="flex space-x-2">
-                  <Typography variant="h6">
-                    {hours}h {minutes}m
-                  </Typography>
-                </Box>
-              );
-            }}
-          />
+          {formatDistance(
+            position.expiry.toNumber() * 1000,
+            Number(new Date())
+          ) + ' ago'}
         </Typography>
       </StyleCell>
       <StyleRightCell align="right">
