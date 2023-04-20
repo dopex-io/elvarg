@@ -14,6 +14,7 @@ import { WalletSlice } from 'store/Wallet';
 
 import { getContractReadableAmount } from 'utils/contracts';
 import { getUserReadableAmount } from 'utils/contracts';
+import { formatAmount } from 'utils/general';
 import { getDelta } from 'utils/math/blackScholes/greeks';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
@@ -592,7 +593,10 @@ export const createZdteSlice: StateCreator<
           }, BigNumber.from(0))
         : BigNumber.from(0);
 
-      subgraphVolume = utils.formatEther(_twentyFourHourVolume);
+      subgraphVolume = formatAmount(
+        getUserReadableAmount(_twentyFourHourVolume),
+        3
+      );
     } catch (err) {
       console.error(err);
     }

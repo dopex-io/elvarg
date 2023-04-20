@@ -383,15 +383,17 @@ const TradeCard: FC<TradeProps> = ({}) => {
                 onClick={() => {
                   setTextInputRef(false);
                   setAmount(
-                    Math.floor(
-                      (option *
-                        getUserReadableAmount(
-                          userZdteLpData?.userQuoteTokenBalance!,
-                          DECIMALS_USD
-                        )) /
-                        100 /
-                        (premium + openingFees)
-                    )
+                    premium === 0
+                      ? 0
+                      : Math.floor(
+                          (option *
+                            getUserReadableAmount(
+                              userZdteLpData?.userQuoteTokenBalance!,
+                              DECIMALS_USD
+                            )) /
+                            100 /
+                            (premium + openingFees)
+                        )
                   );
                 }}
               >

@@ -92,7 +92,7 @@ export const OpenPositions = () => {
                 ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} align="center" className="border-none">
+                <TableCell colSpan={6} align="center" className="border-none">
                   <div className="py-3">
                     <span className="text-white">
                       Your open positions will appear here
