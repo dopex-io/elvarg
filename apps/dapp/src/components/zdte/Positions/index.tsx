@@ -4,9 +4,9 @@ import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import { useBoundStore } from 'store';
 
-import ClosedPositions from 'components/zdte/ClosedPositions';
 import Loading from 'components/zdte/Loading';
-import OpenPositions from 'components/zdte/OpenPositions';
+import ClosedPositions from 'components/zdte/Positions/ClosedPositions';
+import OpenPositions from 'components/zdte/Positions/OpenPositions';
 
 import displayAddress from 'utils/general/displayAddress';
 
@@ -22,11 +22,13 @@ const Positions = () => {
     <div className="text-gray-400 w-full rounded-lg">
       <div className="border rounded-t-xl border-cod-gray py-2 bg-umbra">
         <div className="flex ml-3">
-          <div className="rounded-md bg-neutral-700 flex mb-2 mt-3 h-auto">
-            <span className="ml-auto p-1 text-white text-xs">
-              {displayAddress(accountAddress, ensName)}
-            </span>
-          </div>
+          {accountAddress ? (
+            <div className="rounded-md bg-neutral-700 flex mb-2 mt-3 h-auto">
+              <span className="ml-auto p-1 text-white text-xs">
+                {displayAddress(accountAddress, ensName)}
+              </span>
+            </div>
+          ) : null}
           <ButtonGroup className="flex w-32 justify-between bg-cod-gray border border-umbra rounded-lg mb-3 ml-auto mr-4 mt-1">
             {['Open', 'Closed'].map((label, index) => (
               <Button
