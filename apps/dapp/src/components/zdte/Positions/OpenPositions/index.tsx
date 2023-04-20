@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import {
   Box,
@@ -35,6 +35,7 @@ const StyleHeaderTable = styled(TableContainer)`
     border-radius: 0 0 10px 0;
   }
 `;
+
 const ROWS_PER_PAGE = 5;
 
 export const OpenPositions = () => {
@@ -64,8 +65,8 @@ export const OpenPositions = () => {
                   Strike
                 </span>
               </StyleLeftTableCell>
+              <StyleTableCellHeader>Mark Price</StyleTableCellHeader>
               <StyleTableCellHeader>Amount</StyleTableCellHeader>
-              {/* <StyleTableCellHeader>Mark Price</StyleTableCellHeader> */}
               <StyleTableCellHeader>Profit & Loss</StyleTableCellHeader>
               <StyleTableCellHeader>Time to Expiry</StyleTableCellHeader>
               <StyleRightTableCell align="right" className="rounded-tr-xl">

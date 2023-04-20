@@ -115,20 +115,20 @@ export const OpenPositionsRow = ({
       </StyleLeftCell>
       <StyleCell align="left">
         <Typography variant="h6" color="white">
+          {`$${formatAmount(
+            getUserReadableAmount(position.markPrice, DECIMALS_STRIKE),
+            2
+          )}`}
+        </Typography>
+      </StyleCell>
+      <StyleCell align="left">
+        <Typography variant="h6" color="white">
           {`${formatAmount(
             getUserReadableAmount(position.positions, DECIMALS_TOKEN),
             2
           )}`}
         </Typography>
       </StyleCell>
-      {/* <StyleCell align="left">
-        <Typography variant="h6" color="white">
-          {`$${formatAmount(
-            getUserReadableAmount(position.markPrice, DECIMALS_STRIKE),
-            2
-          )}`}
-        </Typography>
-      </StyleCell> */}
       <StyleCell align="left">
         <FormatDollarColor
           value={getUserReadableAmount(position.livePnl, DECIMALS_USD)}

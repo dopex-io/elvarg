@@ -67,6 +67,7 @@ export interface ZdteInterface extends utils.Interface {
     'keeperExpirePrevEpochSpreads()': FunctionFragment;
     'keeperSaveSettlementPrice()': FunctionFragment;
     'maxOtmPercentage()': FunctionFragment;
+    'openInterestAmount()': FunctionFragment;
     'optionPricing()': FunctionFragment;
     'oracleId()': FunctionFragment;
     'owner()': FunctionFragment;
@@ -132,6 +133,7 @@ export interface ZdteInterface extends utils.Interface {
       | 'keeperExpirePrevEpochSpreads'
       | 'keeperSaveSettlementPrice'
       | 'maxOtmPercentage'
+      | 'openInterestAmount'
       | 'optionPricing'
       | 'oracleId'
       | 'owner'
@@ -311,6 +313,10 @@ export interface ZdteInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: 'maxOtmPercentage',
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'openInterestAmount',
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -513,6 +519,10 @@ export interface ZdteInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: 'maxOtmPercentage',
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'openInterestAmount',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -957,6 +967,8 @@ export interface Zdte extends BaseContract {
 
     maxOtmPercentage(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    openInterestAmount(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     optionPricing(overrides?: CallOverrides): Promise<[string]>;
 
     oracleId(overrides?: CallOverrides): Promise<[string]>;
@@ -1057,6 +1069,7 @@ export interface Zdte extends BaseContract {
         BigNumber,
         BigNumber,
         BigNumber,
+        BigNumber,
         BigNumber
       ] & {
         isOpen: boolean;
@@ -1072,6 +1085,7 @@ export interface Zdte extends BaseContract {
         openedAt: BigNumber;
         expiry: BigNumber;
         margin: BigNumber;
+        markPrice: BigNumber;
       }
     >;
   };
@@ -1231,6 +1245,8 @@ export interface Zdte extends BaseContract {
 
   maxOtmPercentage(overrides?: CallOverrides): Promise<BigNumber>;
 
+  openInterestAmount(overrides?: CallOverrides): Promise<BigNumber>;
+
   optionPricing(overrides?: CallOverrides): Promise<string>;
 
   oracleId(overrides?: CallOverrides): Promise<string>;
@@ -1331,6 +1347,7 @@ export interface Zdte extends BaseContract {
       BigNumber,
       BigNumber,
       BigNumber,
+      BigNumber,
       BigNumber
     ] & {
       isOpen: boolean;
@@ -1346,6 +1363,7 @@ export interface Zdte extends BaseContract {
       openedAt: BigNumber;
       expiry: BigNumber;
       margin: BigNumber;
+      markPrice: BigNumber;
     }
   >;
 
@@ -1501,6 +1519,8 @@ export interface Zdte extends BaseContract {
 
     maxOtmPercentage(overrides?: CallOverrides): Promise<BigNumber>;
 
+    openInterestAmount(overrides?: CallOverrides): Promise<BigNumber>;
+
     optionPricing(overrides?: CallOverrides): Promise<string>;
 
     oracleId(overrides?: CallOverrides): Promise<string>;
@@ -1595,6 +1615,7 @@ export interface Zdte extends BaseContract {
         BigNumber,
         BigNumber,
         BigNumber,
+        BigNumber,
         BigNumber
       ] & {
         isOpen: boolean;
@@ -1610,6 +1631,7 @@ export interface Zdte extends BaseContract {
         openedAt: BigNumber;
         expiry: BigNumber;
         margin: BigNumber;
+        markPrice: BigNumber;
       }
     >;
   };
@@ -1866,6 +1888,8 @@ export interface Zdte extends BaseContract {
 
     maxOtmPercentage(overrides?: CallOverrides): Promise<BigNumber>;
 
+    openInterestAmount(overrides?: CallOverrides): Promise<BigNumber>;
+
     optionPricing(overrides?: CallOverrides): Promise<BigNumber>;
 
     oracleId(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2109,6 +2133,10 @@ export interface Zdte extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     maxOtmPercentage(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    openInterestAmount(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     optionPricing(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

@@ -84,7 +84,9 @@ export const OptionsTableRow = ({
       </StyleLeftCell>
       <StyleCell align="left">
         <Typography variant="h6" color="white">
-          ${optionsStats.premium}
+          {`${
+            optionsStats.premium === '...' ? '...' : `$${optionsStats.premium}`
+          }`}
         </Typography>
       </StyleCell>
       <StyleCell align="left">
@@ -94,7 +96,11 @@ export const OptionsTableRow = ({
       </StyleCell>
       <StyleCell align="left">
         <Typography variant="h6" color="white">
-          {formatAmount(optionsStats.delta, 4)}
+          {`${
+            optionsStats.premium === '...'
+              ? '...'
+              : formatAmount(optionsStats.delta, 4)
+          }`}
         </Typography>
       </StyleCell>
       <StyleRightCell align="right" className="pt-2">
@@ -133,7 +139,9 @@ export const OptionsTableRowLower = ({
       </StyleLeftTableCell>
       <StyleTableCellHeader>
         <Typography variant="h6" color="white">
-          ${optionsStats.premium}
+          {`${
+            optionsStats.premium === '...' ? '...' : `$${optionsStats.premium}`
+          }`}
         </Typography>
       </StyleTableCellHeader>
       <StyleTableCellHeader>
@@ -143,7 +151,11 @@ export const OptionsTableRowLower = ({
       </StyleTableCellHeader>
       <StyleTableCellHeader>
         <Typography variant="h6" color="white">
-          {formatAmount(optionsStats.delta, 4)}
+          {`${
+            optionsStats.premium === '...'
+              ? '...'
+              : formatAmount(optionsStats.delta, 4)
+          }`}
         </Typography>
       </StyleTableCellHeader>
       <StyleRightTableCell align="right" className="pt-2">

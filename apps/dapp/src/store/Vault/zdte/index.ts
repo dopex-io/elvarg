@@ -19,16 +19,16 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
-export const ZDTE: string = '0xC9658810C819211a4bA4755Fc9D45A8128079841';
+export const ZDTE: string = '0x538A001085666FCCF560Ea7117Fbf4562bb5D8a0';
 const SECONDS_IN_A_YEAR = 86400 * 365;
 const ONE_DAY = 86400;
 
 export interface OptionsTableData {
   strike: number;
-  premium: number;
-  iv: number;
-  delta: number;
-  breakeven: number;
+  premium: number | string;
+  iv: number | string;
+  delta: number | string;
+  breakeven: number | string;
   disable: boolean;
 }
 
@@ -375,6 +375,7 @@ export const createZdteSlice: StateCreator<
         baseLpTokenLiquidty,
         quoteLpTokenLiquidty,
         expiry,
+        openInterestAmount,
       ] = await Promise.all([
         zdteContract.getMarkPrice(),
         zdteContract.strikeIncrement(),
@@ -382,6 +383,7 @@ export const createZdteSlice: StateCreator<
         zdteContract.baseLpTokenLiquidty(),
         zdteContract.quoteLpTokenLiquidty(),
         zdteContract.getCurrentExpiry(),
+        zdteContract.openInterestAmount(),
       ]);
 
       const step = getUserReadableAmount(strikeIncrement, DECIMALS_STRIKE);
@@ -393,7 +395,6 @@ export const createZdteSlice: StateCreator<
       const lowerRound = Math.floor(lower / step) * step;
 
       const strikes: OptionsTableData[] = [];
-      let failedToFetch: boolean = false;
 
       for (
         let strike = upperRound - step;
@@ -402,6 +403,8 @@ export const createZdteSlice: StateCreator<
       ) {
         let normalizedPremium = 0;
         let normalizedIv = 0;
+        let failedToFetch: boolean = false;
+
         try {
           const [premium, iv] = await Promise.all([
             zdteContract.calcPremium(
@@ -438,24 +441,25 @@ export const createZdteSlice: StateCreator<
 
         strikes.push({
           strike: strike,
-          premium: normalizedPremium,
-          iv: normalizedIv,
-          breakeven:
-            strike + normalizedPremium * (strike <= tokenPrice ? 1 : -1),
-          delta: delta,
-          disable: strike == upperRound - step || strike == lowerRound + step,
+          premium: failedToFetch ? '...' : normalizedPremium,
+          iv: failedToFetch ? '...' : normalizedIv,
+          breakeven: failedToFetch
+            ? '...'
+            : strike + normalizedPremium * (strike <= tokenPrice ? 1 : -1),
+          delta: failedToFetch ? '...' : delta,
+          disable:
+            failedToFetch ||
+            strike == upperRound - step ||
+            strike == lowerRound + step,
         });
       }
 
-      const [baseLpAssetBalance, quoteLpAssetBalance, expiryInfo] =
-        await Promise.all([
-          baseLpContract.totalAvailableAssets(),
-          quoteLpContract.totalAvailableAssets(),
-          zdteContract.expiryInfo(expiry),
-        ]);
+      const [baseLpAssetBalance, quoteLpAssetBalance] = await Promise.all([
+        baseLpContract.totalAvailableAssets(),
+        quoteLpContract.totalAvailableAssets(),
+      ]);
 
-      // TODO: add amount
-      const openInterest = expiryInfo.count
+      const openInterest = openInterestAmount
         .mul(markPrice)
         .mul(2)
         .div(oneEBigNumber(DECIMALS_STRIKE));
@@ -468,7 +472,7 @@ export const createZdteSlice: StateCreator<
           nearestStrike,
           step,
           strikes,
-          failedToFetch,
+          failedToFetch: false,
           baseLpAssetBalance,
           baseLpTokenLiquidty,
           quoteLpAssetBalance,
@@ -582,7 +586,10 @@ export const createZdteSlice: StateCreator<
       });
       const _twentyFourHourVolume = payload.trades
         ? payload.trades.reduce((acc, trade, _index) => {
-            return acc.add(BigNumber.from(trade.amount));
+            if (trade.amount) {
+              return acc.add(BigNumber.from(trade.amount));
+            }
+            return acc;
           }, BigNumber.from(0))
         : BigNumber.from(0);
 
@@ -611,9 +618,7 @@ export const createZdteSlice: StateCreator<
         i < nextExpiry.toNumber() + ONE_DAY;
         i = i + ONE_DAY
       ) {
-        const ei: IExpiryInfo = await zdteContract.expiryInfo(
-          BigNumber.from(i)
-        );
+        const ei = await zdteContract.expiryInfo(BigNumber.from(i));
         if (!ei.begin) {
           expiryInfoArray.push({
             ...ei,

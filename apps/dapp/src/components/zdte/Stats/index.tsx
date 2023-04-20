@@ -53,7 +53,11 @@ const Stats: FC<StatsProps> = ({}) => {
         <StatsColumn title={`24h Volume`} value={`${subgraphVolume}`} />
         <StatsColumn
           title={`Open Interest`}
-          value={`$${formatAmount(zdteData?.openInterest.toNumber(), 2, true)}`}
+          value={`$${formatAmount(
+            getUserReadableAmount(zdteData?.openInterest),
+            2,
+            true
+          )}`}
         />
         <StatsColumn
           title={`Total Liq (Calls)`}
