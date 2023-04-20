@@ -99,8 +99,11 @@ export const OpenPositionsRow = ({
             )}`,
           },
           {
-            name: 'Current Price',
-            value: `$${formatAmount(zdteData!.tokenPrice, 2)}`,
+            name: 'Mark Price',
+            value: `$${formatAmount(
+              getUserReadableAmount(position.markPrice, DECIMALS_STRIKE),
+              2
+            )}`,
           },
         ],
       });
@@ -131,7 +134,10 @@ export const OpenPositionsRow = ({
       </StyleCell>
       <StyleCell align="left">
         <FormatDollarColor
-          value={getUserReadableAmount(position.livePnl, DECIMALS_USD)}
+          value={getUserReadableAmount(
+            position.livePnl.sub(position.cost),
+            DECIMALS_USD
+          )}
         />
       </StyleCell>
       <StyleCell align="left">

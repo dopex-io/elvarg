@@ -305,10 +305,9 @@ export const createZdteSlice: StateCreator<
       const purchaseData = await Promise.all(
         userPurchaseData?.map(async (pos: IZdteRawPurchaseData) => {
           const livePnl = await zdteContract.calcPnl(pos.positionId);
-          const realPnl = livePnl.sub(pos.cost);
           return {
             ...pos,
-            livePnl: realPnl,
+            livePnl: livePnl,
           } as IZdtePurchaseData;
         })
       );
