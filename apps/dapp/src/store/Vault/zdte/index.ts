@@ -1,4 +1,4 @@
-import { BigNumber, utils } from 'ethers';
+import { BigNumber } from 'ethers';
 
 import { ERC20__factory } from '@dopex-io/sdk';
 import graphSdk from 'graphql/graphSdk';
