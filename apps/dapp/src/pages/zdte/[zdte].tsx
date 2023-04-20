@@ -99,7 +99,7 @@ const Zdte = ({ zdte }: Props) => {
             <OpenPositions />
           </Box>
         </Box>
-        <Box className="flex justify-around mb-8 px-3 mt-8 md:ml-10 md:justify-start md:mt-24 lg:mr-auto lg:px-0">
+        <Box className="flex justify-around mb-8 px-3 mt-8 md:ml-10 md:justify-start md:mt-24 md:sticky md:top-24 md:h-fit lg:mr-auto lg:px-0">
           <ManageCard />
         </Box>
       </Box>
