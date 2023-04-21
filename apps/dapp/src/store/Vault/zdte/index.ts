@@ -332,12 +332,16 @@ export const createZdteSlice: StateCreator<
           .filter((p) => !p.isOpen)
           .map(async (pos: IZdteRawPurchaseData) => {
             const ei: IExpiryInfo = await zdteContract.expiryInfo(pos.expiry);
+            const pnl = await zdteContract.calcPnl(pos.positionId);
             return {
               ...pos,
+              pnl: pnl,
               settlementPrice: ei.settlementPrice,
             } as IZdteExpiredData;
           })
       );
+
+      console.log('positions: ', positions);
 
       set((prevState) => ({
         ...prevState,

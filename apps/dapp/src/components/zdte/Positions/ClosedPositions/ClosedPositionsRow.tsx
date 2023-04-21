@@ -128,7 +128,10 @@ export const ClosedPositionsRow = ({
       </StyleCell>
       <StyleCell align="left">
         <FormatDollarColor
-          value={getUserReadableAmount(position.pnl, DECIMALS_USD)}
+          value={getUserReadableAmount(
+            position.pnl.sub(position.cost),
+            DECIMALS_USD
+          )}
         />
       </StyleCell>
       <StyleCell align="left">

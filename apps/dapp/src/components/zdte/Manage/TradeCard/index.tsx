@@ -436,7 +436,7 @@ const TradeCard: FC<TradeProps> = ({}) => {
         />
         <ContentRow
           title="Total Cost (Max Loss)"
-          content={`$${formatAmount(
+          content={`~$${formatAmount(
             (premium + openingFees) * Number(amount),
             2
           )}`}
