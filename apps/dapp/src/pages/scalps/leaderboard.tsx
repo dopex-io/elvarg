@@ -185,7 +185,7 @@ const LeaderBoard = () => {
                               : position.totalVolume,
                             6
                           ),
-                          5
+                          2
                         )}
                       </span>
                     </div>
