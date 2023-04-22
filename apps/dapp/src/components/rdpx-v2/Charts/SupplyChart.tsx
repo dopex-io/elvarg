@@ -28,7 +28,7 @@ const PriceChart = (props: LiquidityLineChartProps) => {
   const [data, setData] = useState<
     {
       time: string;
-      totalSupply: number;
+      dscTotalSupplies: number;
     }[]
   >();
 
@@ -36,14 +36,16 @@ const PriceChart = (props: LiquidityLineChartProps) => {
     (async () => {
       const dscSupplies = await queryClient
         .fetchQuery({
-          queryKey: ['getDscSupplies'],
-          queryFn: () => graphSdk.getDscSupplies(),
+          queryKey: ['getSupplies'],
+          queryFn: () => graphSdk.getSupplies(),
         })
         .then((res) => res.dscSupplies);
 
       const formatted = dscSupplies.map((obj) => ({
-        time: format(new Date(Number(obj.id) * 1000), 'dd/LL'),
-        totalSupply: getUserReadableAmount(obj.totalSupply, 18),
+        time: format(new Date(Number(obj.id) * 1000), 'dd LLL YYY'),
+        dscTotalSupplies: Number(
+          getUserReadableAmount(obj.totalSupply, 18).toFixed(3)
+        ),
       }));
       // .filter(
       //   (curr: any, prev: any) =>
@@ -87,7 +89,7 @@ const PriceChart = (props: LiquidityLineChartProps) => {
               cursor={{
                 fill: '#151515',
               }}
-              content={<CustomTooltip isPriceChart={false} />}
+              content={<CustomTooltip datapointKey="dscTotalSupplies" />}
             />
             <defs>
               <linearGradient id="colorUv2" x1="0" y1="0" x2="0" y2="1">
@@ -97,7 +99,7 @@ const PriceChart = (props: LiquidityLineChartProps) => {
             </defs>
             <Area
               type="linear"
-              dataKey="totalSupply"
+              dataKey="dscTotalSupplies"
               stackId="1"
               stroke="#7B61FF"
               fill="url(#colorUv2)"

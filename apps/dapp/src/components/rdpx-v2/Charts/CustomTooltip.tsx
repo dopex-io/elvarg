@@ -5,27 +5,34 @@ import GridItem from 'components/atlantics/Charts/LiquidityBarGraph/CustomToolti
 
 interface Props extends TooltipProps<number, string> {
   title?: string;
-  isPriceChart: boolean;
+  datapointKey: string;
+  isTypePrice?: boolean;
 }
 
+const TITLE_LABELS: Record<string, string> = {
+  rdpxPrices: 'RDPX Price',
+  dscPrices: 'DPXETH Price',
+  dscTotalSupplies: 'DPXETH Supply',
+  rdpxTotalSupplies: 'RDPX Supply',
+};
+
 const CustomTooltip = (props: Props) => {
-  const { payload, title, isPriceChart } = props;
+  const { payload, title, datapointKey, isTypePrice } = props;
 
   const [formattedPayload, setFormattedPayload] =
     useState<Record<string, number>>();
 
   useEffect(() => {
-    if (!payload || !payload[0] || !payload[0].payload) return;
+    if (!payload || !payload[0] || !payload[0].payload || !datapointKey) return;
 
-    const { price, time, totalSupply } = payload[0].payload;
+    const dataPoint: number = payload[0].payload[datapointKey];
+    const time = payload[0].payload['time'];
 
     setFormattedPayload({
       time,
-      [isPriceChart ? 'price' : 'totalSupply']: isPriceChart
-        ? price
-        : totalSupply,
+      [datapointKey]: dataPoint,
     });
-  }, [payload]);
+  }, [payload, datapointKey]);
 
   return (
     <div className="space-y-2 bg-umbra rounded-xl border border-carbon divide-y divide-carbon bg-opacity-50 backdrop-blur-sm">
@@ -33,9 +40,13 @@ const CustomTooltip = (props: Props) => {
       <div className="rounded-b-xl grid grid-cols-1 grid-rows-auto divide-y divide-carbon w-[16rem] h-fit">
         <div className="flex divide-x divide-carbon">
           <GridItem label="Date" value={formattedPayload?.['time']} />
+        </div>
+        <div className="flex divide-x divide-carbon">
           <GridItem
-            label={isPriceChart ? 'Price' : 'Supply'}
-            value={formattedPayload?.[isPriceChart ? 'price' : 'totalSupply']}
+            label={TITLE_LABELS[datapointKey] ?? ''}
+            value={`${isTypePrice ? '$' : ''}${
+              formattedPayload?.[datapointKey]
+            }`}
           />
         </div>
       </div>

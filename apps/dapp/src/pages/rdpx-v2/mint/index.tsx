@@ -1,8 +1,7 @@
-import Head from 'next/head';
-
 import { useEffect } from 'react';
-
+import Head from 'next/head';
 import Box from '@mui/material/Box';
+
 import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
@@ -15,13 +14,17 @@ const Mint = () => {
     updateTreasuryContractState,
     updateTreasuryData,
     updateUserDscBondsData,
+    updateAPPContractData,
   } = useBoundStore();
 
   useEffect(() => {
     setIsLoading(true);
     updateTreasuryContractState().then(() =>
       updateTreasuryData().then(() =>
-        updateUserDscBondsData().then(() => setIsLoading(false))
+        updateUserDscBondsData().then(() => {
+          setIsLoading(false);
+          updateAPPContractData();
+        })
       )
     );
   }, [
@@ -30,6 +33,7 @@ const Mint = () => {
     updateTreasuryData,
     updateUserDscBondsData,
     setIsLoading,
+    updateAPPContractData,
   ]);
 
   return (

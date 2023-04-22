@@ -1,0 +1,10 @@
+query getSupplies {
+  dscSupplies(orderBy: id) {
+    id
+    totalSupply
+  }
+  rdpxSupplies(orderBy: id) {
+    id
+    totalSupply
+  }
+}

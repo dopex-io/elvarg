@@ -64,6 +64,7 @@ interface RdpxV2TreasuryData {
   tokenA: Token;
   tokenB: Token;
   premiumPerDsc: BigNumber;
+  strike: BigNumber;
   bondCostPerDsc: [BigNumber, BigNumber];
   lpPrice: BigNumber; // rdpxETH price
   dscPrice: BigNumber;
@@ -253,6 +254,7 @@ export const createDpxusdBondingSlice: StateCreator<
       address: '',
     },
     premiumPerDsc: BigNumber.from(0),
+    strike: BigNumber.from(0),
     bondCostPerDsc: [BigNumber.from(0), BigNumber.from(0)],
     lpPrice: BigNumber.from(0), // rdpxETH price
     dscPrice: BigNumber.from(0),
@@ -298,9 +300,11 @@ export const createDpxusdBondingSlice: StateCreator<
       Math.ceil(Number(new Date()) / 1000)
     );
 
+    const strike = rdpxPriceInAlpha.sub(rdpxPriceInAlpha.div(4));
+
     const [premiumPerDsc, dscSupply, rdpxSupply] = await Promise.all([
       treasuryContractState.contracts.vault.calculatePremium(
-        rdpxPriceInAlpha.sub(rdpxPriceInAlpha.div(4)),
+        strike,
         bondCostPerDsc.rdpxRequired, // rdpx options
         timeTillExpiry
       ),
@@ -325,6 +329,7 @@ export const createDpxusdBondingSlice: StateCreator<
         },
         bondCostPerDsc,
         premiumPerDsc,
+        strike,
         lpPrice,
         dscPrice,
         dscSupply,

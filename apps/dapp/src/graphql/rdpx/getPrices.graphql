@@ -1,0 +1,10 @@
+query getPrices {
+  rdpxPrices(orderBy: id) {
+    price
+    id
+  }
+  dscPrices(orderBy: id) {
+    price
+    id
+  }
+}

@@ -61,11 +61,11 @@ const RdpxV2Main = () => {
         ' WETH',
       formatAmount(getUserReadableAmount(treasuryData.rdpxPriceInAlpha, 8), 3) +
         ' WETH' +
-        ` (${formatAmount(
+        ` ($${formatAmount(
           getUserReadableAmount(treasuryData.rdpxPriceInAlpha, 8) *
             ethPriceInUsd,
           3
-        )} USD)`,
+        )})`,
       formatAmount(getUserReadableAmount(treasuryData.dscSupply, 18), 3),
       formatAmount(getUserReadableAmount(treasuryData.rdpxSupply, 18), 3),
       `$${(
