@@ -23,8 +23,12 @@ const StyledTooltip = styled(({ className, ...props }) => (
 const InfoBox = (props: { value: string; delegated?: boolean }) => {
   const { value, delegated = false } = props;
 
-  const { treasuryContractState, treasuryData, squeezeTreasuryDelegates } =
-    useBoundStore();
+  const {
+    treasuryContractState,
+    treasuryData,
+    appContractData,
+    squeezeTreasuryDelegates,
+  } = useBoundStore();
 
   const [premium, setPremium] = useState<number>(0);
   const [discount, setDiscount] = useState<number>(0);
@@ -32,6 +36,7 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
   const [avgFee, setAvgFee] = useState<number>(0);
   const [share, setShare] = useState<number>(0);
   const [wethAvailable, setWethAvailable] = useState<number>(0);
+  const [putsBalance, setPutsBalance] = useState<number>(0);
 
   const calculateDelegateData = useCallback(async () => {
     if (
@@ -122,6 +127,14 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
       18
     );
 
+    const availablePutsLiquidity = getUserReadableAmount(
+      appContractData.vaultData.totalCollateral.sub(
+        appContractData.vaultData.activeCollateral
+      ),
+      18
+    );
+
+    setPutsBalance(availablePutsLiquidity);
     setWethAvailable(delegateBalance);
     setShare(share || 0);
     setPremium(totalPremium || 0);
@@ -178,21 +191,27 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
           </div>
         </StyledTooltip>
       </div>
+      <div className="flex divide-x divide-carbon">
+        <div className="flex flex-col w-full p-2 text-start space-y-1">
+          <p className="text-xs">{formatAmount(putsBalance, 3)} WETH</p>
+          <p className="text-xs text-stieglitz">Perp. Pool Liquidity</p>
+        </div>
+        {delegated ? (
+          <div className="flex flex-col w-full p-2 text-start space-y-1">
+            <p className="text-xs">{formatAmount(wethAvailable, 3)} WETH</p>
+            <p className="text-xs text-stieglitz">Delegate Liquidity</p>
+          </div>
+        ) : null}
+      </div>
       {delegated ? (
-        <div className="flex flex-col divide-y divide-carbon">
-          <div className="flex divide-x divide-carbon">
-            <div className="flex flex-col w-full p-2 text-start space-y-1">
-              <p className="text-xs">{formatAmount(avgFee, 3)}%</p>
-              <p className="text-xs text-stieglitz">Avg. Delegate Fee</p>
-            </div>
-            <div className="flex flex-col w-full p-2 text-start space-y-1">
-              <p className="text-xs">{share.toFixed(3)} dpxETH</p>
-              <p className="text-xs text-stieglitz">You Receive</p>
-            </div>
+        <div className="flex divide-x divide-carbon">
+          <div className="flex flex-col w-full p-2 text-start space-y-1">
+            <p className="text-xs">{formatAmount(avgFee, 3)}%</p>
+            <p className="text-xs text-stieglitz">Avg. Delegate Fee</p>
           </div>
           <div className="flex flex-col w-full p-2 text-start space-y-1">
-            <p className="text-xs">{formatAmount(wethAvailable, 3)}</p>
-            <p className="text-xs text-stieglitz">WETH Available</p>
+            <p className="text-xs">{share.toFixed(3)} dpxETH</p>
+            <p className="text-xs text-stieglitz">You Receive</p>
           </div>
         </div>
       ) : null}
