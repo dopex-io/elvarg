@@ -7,8 +7,6 @@ import cx from 'classnames';
 
 import { useBoundStore } from 'store';
 
-import useSendTx from 'hooks/useSendTx';
-
 import CustomButton from 'components/UI/Button';
 import LimitOrderPopover from 'components/scalps/LimitOrderPopover';
 
