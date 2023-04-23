@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
 import CustomButton from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
 
 import Popover from '@mui/material/Popover';
 import IconButton from '@mui/material/IconButton';
