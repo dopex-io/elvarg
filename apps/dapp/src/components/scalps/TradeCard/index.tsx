@@ -690,7 +690,10 @@ const TradeCard = () => {
             <p className="text-xs text-stieglitz">Limit price</p>
             <Input
               disableUnderline
-              placeholder={'34'}
+              placeholder={getUserReadableAmount(
+                markPrice,
+                optionScalpData?.quoteDecimals!.toNumber()
+              )}
               onChange={() => {}}
               type="number"
               className={`mt-2 border border-mineshaft rounded-md px-2 bg-umbra w-full !w-auto`}

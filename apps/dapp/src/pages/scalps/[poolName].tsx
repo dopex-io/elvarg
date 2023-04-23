@@ -17,6 +17,7 @@ import DexScreenerChart from 'components/common/DexScreenerChart';
 // import PoolCard from 'components/scalps/Charts/PoolCard';
 // import TVLCard from 'components/scalps/Charts/TVLCard';
 import Positions from 'components/scalps/Positions';
+import Orders from 'components/scalps/Orders';
 import TopBar from 'components/scalps/TopBar';
 import TradeCard from 'components/scalps/TradeCard';
 import Manage from 'components/scalps/Manage';
@@ -147,6 +148,7 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
           <Box className="w-full h-full flex flex-col space-y-2 xl:flex-row xl:space-x-5">
             <Box className="flex flex-col w-full space-y-4 h-full">
               <Box className="flex-1 mt-4">{Chart}</Box>
+              <Orders />
               <Positions />
             </Box>
             <Box>
