@@ -74,9 +74,11 @@ const LimitOrderPopover = () => {
             <p className="text-xs text-stieglitz">Limit price</p>
             <Input
               disableUnderline
-              placeholder={getUserReadableAmount(
-                markPrice,
-                optionScalpData?.quoteDecimals!.toNumber()
+              placeholder={String(
+                getUserReadableAmount(
+                  markPrice,
+                  optionScalpData?.quoteDecimals!.toNumber()
+                )
               )}
               onChange={() => {}}
               type="number"
