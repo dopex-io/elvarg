@@ -89,7 +89,6 @@ const LimitOrderPopover = () => {
           <CustomButton
             className="cursor-pointer text-white w-full mt-3"
             color={'primary'}
-            onClick={null}
           >
             <span className="text-xs md:sm">Create limit order</span>
           </CustomButton>
