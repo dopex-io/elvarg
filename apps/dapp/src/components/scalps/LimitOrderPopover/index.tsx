@@ -26,6 +26,7 @@ const LimitOrderPopover = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const handleCloseLimitOrderPopover = useCallback(() => setAnchorEl(null), []);
   const handleOpenLimitOrderPopover = useCallback(
+    // @ts-ignore TODO: FIX
     (event) => setAnchorEl(event.currentTarget),
     []
   );
