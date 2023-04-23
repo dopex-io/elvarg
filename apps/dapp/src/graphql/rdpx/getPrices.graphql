@@ -1,9 +1,9 @@
 query getPrices {
-  rdpxPrices(orderBy: id) {
+  rdpxPrices(orderBy: id, first: 1000) {
     price
     id
   }
-  dscPrices(orderBy: id) {
+  dscPrices(orderBy: id, first: 1000) {
     price
     id
   }
