@@ -25,14 +25,11 @@ const LimitOrderPopover = () => {
   }, [uniWethPrice, uniArbPrice, selectedPoolName]);
 
   const [anchorEl, setAnchorEl] = useState(null);
-  const [hoursToExpiry, setHoursToExpiry] = useState<string>('24h');
   const handleCloseLimitOrderPopover = useCallback(() => setAnchorEl(null), []);
   const handleOpenLimitOrderPopover = useCallback(
     (event) => setAnchorEl(event.currentTarget),
     []
   );
-
-  const handleClose = (id) => {};
 
   return (
     <Box>
@@ -87,34 +84,8 @@ const LimitOrderPopover = () => {
               classes={{ input: 'text-white text-xs text-left py-2' }}
             />
           </Box>
-          <Box className="mt-3">
-            <p className="text-xs text-stieglitz">Expiry</p>
-            <Box className="flex mt-2">
-              {['1h', '5h', '12h', '24h', '48h'].map((time, i) => (
-                <Box
-                  key={i}
-                  className={
-                    (i === 0
-                      ? 'mr-1.5'
-                      : i === 4
-                      ? 'mr-auto ml-1.5'
-                      : 'mx-1.5') +
-                    (time === hoursToExpiry
-                      ? ' bg-mineshaft'
-                      : ' bg-cod-gray') +
-                    ` text-center w-auto p-2 border-[1px] border-[#1E1E1E] rounded-md cursor-pointer group hover:bg-mineshaft hover:opacity-80`
-                  }
-                  onClick={() => setHoursToExpiry(time)}
-                >
-                  <Typography variant="h6" className="text-xs font-normal">
-                    {time}
-                  </Typography>
-                </Box>
-              ))}
-            </Box>
-          </Box>
           <CustomButton
-            className="cursor-pointer text-white w-full mt-4 mb-1"
+            className="cursor-pointer text-white w-full mt-3"
             color={'primary'}
             onClick={null}
           >
