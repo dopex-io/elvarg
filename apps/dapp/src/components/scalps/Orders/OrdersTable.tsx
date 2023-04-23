@@ -1,53 +1,29 @@
 import { useCallback, useMemo } from 'react';
 
-import { BigNumber } from 'ethers';
-
 import { IconButton } from '@mui/material';
-import Tooltip from '@mui/material/Tooltip';
 import IosShare from '@mui/icons-material/IosShare';
-import { formatDistance } from 'date-fns';
 
 import cx from 'classnames';
-
-import Countdown from 'react-countdown';
 
 import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
-import useShare from 'hooks/useShare';
 
 import CustomButton from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
 import LimitOrderPopover from 'components/scalps/LimitOrderPopover';
-
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
 
 const OrdersTable = () => {
   const sendTx = useSendTx();
 
-  const {
-    signer,
-    optionScalpUserData,
-    optionScalpData,
-    updateOptionScalp,
-    updateOptionScalpUserData,
-    uniArbPrice,
-    uniWethPrice,
-    selectedPoolName,
-  } = useBoundStore();
+  const { signer, optionScalpUserData, optionScalpData } = useBoundStore();
 
   const orders = useMemo(() => {
     return [];
   }, [optionScalpUserData, optionScalpData]);
 
-  const tableHeadings = useMemo(() => {
-    return [];
-  }, []);
+  const tableHeadings = ['Size', 'Collateral', 'Locked Liquidity', 'Expiry'];
 
-  const ordersKeys = useMemo(() => {
-    return [];
-  }, []);
+  const ordersKeys = ['size', 'collateral', 'lockedLiquidity', 'expiry'];
 
   const getCellComponent = useCallback(
     (key: string, order: any) => {
