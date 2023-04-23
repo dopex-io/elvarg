@@ -13,9 +13,7 @@ import CustomButton from 'components/UI/Button';
 import LimitOrderPopover from 'components/scalps/LimitOrderPopover';
 
 const OrdersTable = () => {
-  const sendTx = useSendTx();
-
-  const { signer, optionScalpUserData, optionScalpData } = useBoundStore();
+  const { optionScalpUserData, optionScalpData } = useBoundStore();
 
   const orders = useMemo(() => {
     return [];
