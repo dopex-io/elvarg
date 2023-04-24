@@ -64,7 +64,7 @@ const PriceChart = (props: LiquidityLineChartProps) => {
     <div className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra">
       <div className="flex space-x-2 justify-start py-2 px-3">
         <h6 className="text-sm text-stieglitz align-center">Supply</h6>
-        <MuiTooltip title="$dpxETH supply over time">
+        <MuiTooltip title="DPXETH & RDPX supplies over time">
           <InfoOutlinedIcon className="fill-current text-stieglitz w-[1.2rem]" />
         </MuiTooltip>
       </div>
