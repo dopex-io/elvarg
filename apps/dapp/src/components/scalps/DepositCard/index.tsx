@@ -77,6 +77,12 @@ const DepositCard = () => {
     );
   }, [optionScalpData, userTokenBalance, isQuote]);
 
+  const handleSetMax = useCallback(() => {
+    setRawAmount(
+      String(Math.floor(readableUserTokenBalance * 100000) / 100000)
+    ); // 5 decimals
+  }, [readableUserTokenBalance]);
+
   const updateUserBalance = useCallback(async () => {
     if (!accountAddress || !provider) return;
     const balance = await ERC20__factory.connect(
@@ -327,9 +333,9 @@ const DepositCard = () => {
               variant="h6"
               role="button"
               className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem] underline"
-              onClick={() => setRawAmount(String(readableUserTokenBalance))}
+              onClick={handleSetMax}
             >
-              {formatAmount(readableUserTokenBalance, isQuote ? 0 : 3)}{' '}
+              {formatAmount(readableUserTokenBalance, 8)}{' '}
               {isQuote
                 ? optionScalpData?.quoteSymbol!
                 : _resolveSymbol(optionScalpData?.baseSymbol!)}
