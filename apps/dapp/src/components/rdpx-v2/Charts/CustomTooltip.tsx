@@ -5,7 +5,7 @@ import GridItem from 'components/atlantics/Charts/LiquidityBarGraph/CustomToolti
 
 interface Props extends TooltipProps<number, string> {
   title?: string;
-  datapointKey: string;
+  datapointKeys: string[];
   isTypePrice?: boolean;
 }
 
@@ -17,22 +17,30 @@ const TITLE_LABELS: Record<string, string> = {
 };
 
 const CustomTooltip = (props: Props) => {
-  const { payload, title, datapointKey, isTypePrice } = props;
+  const { payload, title, datapointKeys, isTypePrice } = props;
 
   const [formattedPayload, setFormattedPayload] =
     useState<Record<string, number>>();
 
   useEffect(() => {
-    if (!payload || !payload[0] || !payload[0].payload || !datapointKey) return;
+    if (
+      !payload ||
+      !payload[0] ||
+      !payload[0].payload ||
+      datapointKeys.length === 0
+    )
+      return;
 
-    const dataPoint: number = payload[0].payload[datapointKey];
-    const time = payload[0].payload['time'];
-
-    setFormattedPayload({
-      time,
-      [datapointKey]: dataPoint,
+    let _formattedPayload: Record<string, string | number> = {};
+    datapointKeys.map((key: string) => {
+      const dataPoint: number = payload[0]?.payload[key];
+      _formattedPayload[key] = dataPoint;
     });
-  }, [payload, datapointKey]);
+
+    const time = payload[0]?.payload['time'];
+
+    setFormattedPayload({ ..._formattedPayload, time });
+  }, [payload, datapointKeys]);
 
   return (
     <div className="space-y-2 bg-umbra rounded-xl border border-carbon divide-y divide-carbon bg-opacity-50 backdrop-blur-sm">
@@ -42,12 +50,21 @@ const CustomTooltip = (props: Props) => {
           <GridItem label="Date" value={formattedPayload?.['time']} />
         </div>
         <div className="flex divide-x divide-carbon">
-          <GridItem
-            label={TITLE_LABELS[datapointKey] ?? ''}
-            value={`${isTypePrice ? '$' : ''}${
-              formattedPayload?.[datapointKey]
-            }`}
-          />
+          {datapointKeys.map((key) => {
+            return (
+              <GridItem
+                label={TITLE_LABELS[key] ?? ''}
+                value={`${
+                  isTypePrice
+                    ? new Intl.NumberFormat('en-US', {
+                        currency: 'USD',
+                        style: 'currency',
+                      }).format(formattedPayload?.[key] || 0)
+                    : formattedPayload?.[key]
+                }`}
+              />
+            );
+          })}
         </div>
       </div>
     </div>

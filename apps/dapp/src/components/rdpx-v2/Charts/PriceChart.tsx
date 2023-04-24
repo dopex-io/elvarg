@@ -108,34 +108,41 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
               cursor={{
                 fill: '#151515',
               }}
-              content={<CustomTooltip datapointKey="rdpxPrices" isTypePrice />}
+              content={
+                <CustomTooltip
+                  datapointKeys={['rdpxPrices', 'dscPrices']}
+                  isTypePrice
+                />
+              }
             />
             <defs>
               <linearGradient id="colorUv1" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0.5%" stopColor="#22e1ff" stopOpacity={0.3} />
-                <stop offset="99.5%" stopColor="#22e1ff" stopOpacity={0} />
+                <stop offset="0.5%" stopColor="#7B61FF" stopOpacity={0.6} />
+                <stop offset="99.5%" stopColor="#7B61FF" stopOpacity={0} />
               </linearGradient>
             </defs>
             <Area
               type="natural"
+              strokeWidth={2}
               dataKey="rdpxPrices"
-              stroke="#22e1ff"
+              stroke="#7B61FF"
               fill="url(#colorUv1)"
               dot={false}
             />
-            {/* <defs>
+            <defs>
               <linearGradient id="colorUv3" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0.5%" stopColor="#002EFF" stopOpacity={0.3} />
-                <stop offset="99.5%" stopColor="#002EFF" stopOpacity={0} />
+                <stop offset="0.5%" stopColor="#C3F8FF" stopOpacity={0.3} />
+                <stop offset="99.5%" stopColor="#C3F8FF" stopOpacity={0} />
               </linearGradient>
             </defs>
             <Area
               type="natural"
+              strokeWidth={2}
               dataKey="dscPrices"
-              stroke="#002EFF"
+              stroke="#C3F8FF"
               fill="url(#colorUv3)"
               dot={false}
-            /> */}
+            />
           </AreaChart>
         </ResponsiveContainer>
       </div>

@@ -29,6 +29,7 @@ const PriceChart = (props: LiquidityLineChartProps) => {
     {
       time: string;
       dscTotalSupplies: number;
+      rdpxTotalSupplies: number;
     }[]
   >();
 
@@ -39,12 +40,15 @@ const PriceChart = (props: LiquidityLineChartProps) => {
           queryKey: ['getSupplies'],
           queryFn: () => graphSdk.getSupplies(),
         })
-        .then((res) => res.dscSupplies);
+        .then((res) => [res.rdpxSupplies, res.dscSupplies]);
 
-      const formatted = dscSupplies.map((obj) => ({
+      const formatted = dscSupplies[1]?.map((obj, i) => ({
         time: format(new Date(Number(obj.id) * 1000), 'dd LLL YYY'),
+        rdpxTotalSupplies: Number(
+          getUserReadableAmount(dscSupplies[0]?.[i]?.totalSupply, 18).toFixed(3)
+        ),
         dscTotalSupplies: Number(
-          getUserReadableAmount(obj.totalSupply, 18).toFixed(3)
+          getUserReadableAmount(dscSupplies[1]?.[i]?.totalSupply, 18).toFixed(3)
         ),
       }));
       // .filter(
@@ -59,7 +63,7 @@ const PriceChart = (props: LiquidityLineChartProps) => {
   return (
     <div className="flex flex-col bg-cod-gray rounded-lg divide-y divide-umbra">
       <div className="flex space-x-2 justify-start py-2 px-3">
-        <h6 className="text-sm text-stieglitz align-center">DPXETH Supply</h6>
+        <h6 className="text-sm text-stieglitz align-center">Supply</h6>
         <MuiTooltip title="$dpxETH supply over time">
           <InfoOutlinedIcon className="fill-current text-stieglitz w-[1.2rem]" />
         </MuiTooltip>
@@ -89,17 +93,36 @@ const PriceChart = (props: LiquidityLineChartProps) => {
               cursor={{
                 fill: '#151515',
               }}
-              content={<CustomTooltip datapointKey="dscTotalSupplies" />}
+              content={
+                <CustomTooltip
+                  datapointKeys={['dscTotalSupplies', 'rdpxTotalSupplies']}
+                />
+              }
+            />
+            <defs>
+              <linearGradient id="colorUv4" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0.5%" stopColor="#C3F8FF" stopOpacity={0.3} />
+                <stop offset="99.5%" stopColor="#C3F8FF" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <Area
+              type="natural"
+              strokeWidth={2}
+              dataKey="dscTotalSupplies"
+              stroke="#C3F8FF"
+              fill="url(#colorUv4)"
+              dot={false}
             />
             <defs>
               <linearGradient id="colorUv2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0.5%" stopColor="#7B61FF" stopOpacity={0.3} />
+                <stop offset="0.5%" stopColor="#7B61FF" stopOpacity={0.6} />
                 <stop offset="99.5%" stopColor="#7B61FF" stopOpacity={0} />
               </linearGradient>
             </defs>
             <Area
               type="linear"
-              dataKey="dscTotalSupplies"
+              strokeWidth={2}
+              dataKey="rdpxTotalSupplies"
               stackId="1"
               stroke="#7B61FF"
               fill="url(#colorUv2)"
