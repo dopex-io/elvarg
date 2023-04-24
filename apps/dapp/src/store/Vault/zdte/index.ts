@@ -55,8 +55,10 @@ export interface IZdteData {
   failedToFetch: boolean;
   baseLpTokenLiquidty: BigNumber;
   baseLpAssetBalance: BigNumber;
+  baseLpTotalAsset: BigNumber;
   quoteLpTokenLiquidty: BigNumber;
   quoteLpAssetBalance: BigNumber;
+  quoteLpTotalAsset: BigNumber;
   openInterest: BigNumber;
   expiry: number;
 }
@@ -341,8 +343,6 @@ export const createZdteSlice: StateCreator<
           })
       );
 
-      console.log('positions: ', positions);
-
       set((prevState) => ({
         ...prevState,
         userZdteExpiredData: reverse(positions),
@@ -458,9 +458,16 @@ export const createZdteSlice: StateCreator<
         });
       }
 
-      const [baseLpAssetBalance, quoteLpAssetBalance] = await Promise.all([
+      const [
+        baseLpAssetBalance,
+        baseLpTotalAsset,
+        quoteLpAssetBalance,
+        quoteLpTotalAsset,
+      ] = await Promise.all([
         baseLpContract.totalAvailableAssets(),
+        baseLpContract.totalAssets(),
         quoteLpContract.totalAvailableAssets(),
+        quoteLpContract.totalAssets(),
       ]);
 
       const openInterest = openInterestAmount
@@ -478,8 +485,10 @@ export const createZdteSlice: StateCreator<
           strikes,
           failedToFetch: false,
           baseLpAssetBalance,
+          baseLpTotalAsset,
           baseLpTokenLiquidty,
           quoteLpAssetBalance,
+          quoteLpTotalAsset,
           quoteLpTokenLiquidty,
           openInterest,
           expiry: expiry.toNumber(),

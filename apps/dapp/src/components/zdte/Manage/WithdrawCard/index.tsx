@@ -78,6 +78,12 @@ class Asset {
           DECIMALS_TOKEN
         );
   }
+
+  get getTotalAsset() {
+    return this.isQuote
+      ? getUserReadableAmount(this.zdteData.quoteLpTotalAsset, DECIMALS_USD)
+      : getUserReadableAmount(this.zdteData.baseLpTotalAsset, DECIMALS_TOKEN);
+  }
 }
 
 interface WithdrawProps {}
@@ -271,7 +277,13 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
           }`}
         />
         <ContentRow
-          title="Contract balance"
+          title="Available Liquidity"
+          content={`${formatAmount(asset.getTotalAsset, 2)} ${
+            asset.getAssetSymbol
+          }`}
+        />
+        <ContentRow
+          title="Total Liquidity"
           content={`${formatAmount(asset.getActualLpBalance, 2)} ${
             asset.getAssetSymbol
           }`}
