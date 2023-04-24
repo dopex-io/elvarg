@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ERC20__factory } from '@dopex-io/sdk';
 import format from 'date-fns/format';
-import { BigNumber } from 'ethers';
+import { BigNumber, utils as ethersUtils } from 'ethers';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
@@ -23,7 +23,6 @@ import LockerIcon from 'svgs/icons/LockerIcon';
 import useSendTx from 'hooks/useSendTx';
 
 import formatAmount from 'utils/general/formatAmount';
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import get1inchQuote, { defaultQuoteData } from 'utils/general/get1inchQuote';
 import get1inchSwap from 'utils/general/get1inchSwap';
@@ -64,14 +63,9 @@ const DepositPanel = () => {
   const [loading, setLoading] = useState(false);
   const [quote, setQuote] = useState(defaultQuoteData);
   const [debouncedQuote] = useDebounce(quote, 1000);
-  const [strikeDepositAmount, setStrikeDepositAmount] = useState<
-    number | string
-  >(0);
+  const [strikeDepositAmount, setStrikeDepositAmount] = useState<string>('0');
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
-  );
-  const [strikeDepositAmountBN, setStrikeDepositAmountBN] = useState(
-    BigNumber.from(0)
   );
 
   const [fromTokenSymbol, setFromTokenSymbol] = useState(
@@ -110,14 +104,8 @@ const DepositPanel = () => {
   }, []);
 
   const handleDepositAmount = useCallback(
-    (e: { target: { value: React.SetStateAction<string | number> } }) => {
+    (e: { target: { value: React.SetStateAction<string> } }) => {
       setStrikeDepositAmount(e.target.value);
-      setStrikeDepositAmountBN(
-        getContractReadableAmount(
-          e.target.value.toString(),
-          getTokenDecimals(fromTokenSymbol, chainId)
-        )
-      );
     },
     []
   );
@@ -134,31 +122,42 @@ const DepositPanel = () => {
       await sendTx(
         ERC20__factory.connect(getContractAddress(fromTokenSymbol), signer),
         'approve',
-        [spender, strikeDepositAmountBN]
+        [spender, ethersUtils.parseEther(strikeDepositAmount)]
       );
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [sendTx, signer, spender, ssovData, fromTokenSymbol, getContractAddress]);
+  }, [
+    ssovData,
+    signer,
+    spender,
+    sendTx,
+    getContractAddress,
+    fromTokenSymbol,
+    strikeDepositAmount,
+  ]);
 
   const depositButtonProps = useMemo(() => {
     let disable = false;
     let text = 'Deposit';
     let color = 'primary';
+    let error = false;
 
-    if (Number(strikeDepositAmount) === 0) {
+    if (isNaN(parseFloat(strikeDepositAmount))) {
+      error = true;
+      disable = true;
+      text = 'Not a valid amount';
+      color = 'mineshaft';
+    } else if (Number(strikeDepositAmount) === 0) {
       disable = true;
       text = 'Insert an amount';
       color = 'mineshaft';
-    }
-
-    if (!approved) {
-      disable = false;
-      text = 'Approve';
-      color = 'primary';
-    }
-    if (
+    } else if (hasExpiryElapsed) {
+      disable = true;
+      text = 'Pool expired';
+      color = 'mineshaft';
+    } else if (
       Number(strikeDepositAmount) >
       getUserReadableAmount(
         userTokenBalance,
@@ -168,18 +167,17 @@ const DepositPanel = () => {
       disable = true;
       text = 'Insufficient Balance';
       color = 'mineshaft';
-    }
-
-    if (hasExpiryElapsed) {
-      disable = true;
-      text = 'Pool expired';
-      color = 'mineshaft';
+    } else if (!approved) {
+      disable = false;
+      text = 'Approve';
+      color = 'primary';
     }
 
     return {
       disable,
       text,
       color,
+      error,
     };
   }, [
     approved,
@@ -214,11 +212,13 @@ const DepositPanel = () => {
     const fromTokenAddress = getContractAddress(fromTokenSymbol);
     let swapData;
 
+    const depositAmount = ethersUtils.parseEther(strikeDepositAmount);
+
     if (routerMode) {
       swapData = await get1inchSwap({
         fromTokenAddress,
         toTokenAddress,
-        amount: strikeDepositAmountBN,
+        amount: depositAmount,
         chainId,
         accountAddress: ssovSigner.ssovRouterWithSigner?.address!,
       });
@@ -233,11 +233,11 @@ const DepositPanel = () => {
           toTokenAddress,
           accountAddress,
           strike,
-          strikeDepositAmountBN,
+          depositAmount,
           swapData.toTokenAmount,
           swapData.tx.data,
         ]
-      : [strike, strikeDepositAmountBN, accountAddress];
+      : [strike, depositAmount, accountAddress];
     const contractWithSigner = routerMode
       ? ssovSigner.ssovRouterWithSigner
       : ssovSigner.ssovContractWithSigner;
@@ -246,7 +246,7 @@ const DepositPanel = () => {
 
     isNativeToken(fromTokenSymbol)
       ? params.push({
-          value: strikeDepositAmountBN,
+          value: depositAmount,
         })
       : 0;
 
@@ -254,7 +254,7 @@ const DepositPanel = () => {
 
     try {
       await sendTx(contractWithSigner, method, params).then(() => {
-        setStrikeDepositAmount(0);
+        setStrikeDepositAmount('0');
         updateAssetBalances();
         updateSsovEpochData();
         updateSsovUserData();
@@ -283,18 +283,14 @@ const DepositPanel = () => {
   ]);
 
   const handleMax = useCallback(() => {
-    setStrikeDepositAmount(
-      getUserReadableAmount(
-        userTokenBalance.toString(),
-        getTokenDecimals(fromTokenSymbol, chainId)
-      )
-    );
-    setStrikeDepositAmountBN(userTokenBalance);
+    setStrikeDepositAmount(ethersUtils.formatEther(userTokenBalance));
   }, [userTokenBalance]);
 
   const checkApproved = useCallback(async () => {
     if (!signer || !accountAddress || !spender || !chainId || !fromTokenSymbol)
       return;
+
+    if (depositButtonProps.error) return;
 
     if (!isNativeToken(fromTokenSymbol)) {
       const tokenAddress = getContractAddress(fromTokenSymbol);
@@ -306,7 +302,7 @@ const DepositPanel = () => {
         signer
       ).allowance(accountAddress, spender);
 
-      setApproved(allowance.gte(strikeDepositAmountBN));
+      setApproved(allowance.gte(ethersUtils.parseEther(strikeDepositAmount)));
     } else {
       setApproved(true);
     }
@@ -318,6 +314,7 @@ const DepositPanel = () => {
     signer,
     spender,
     strikeDepositAmount,
+    depositButtonProps,
   ]);
 
   // Updates approved state
@@ -374,7 +371,7 @@ const DepositPanel = () => {
     await get1inchQuote(
       fromTokenAddress,
       toTokenAddress,
-      strikeDepositAmountBN.toString(),
+      ethersUtils.parseEther(strikeDepositAmount).toString(),
       chainId,
       accountAddress,
       '3'

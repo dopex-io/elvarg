@@ -414,6 +414,7 @@ const PurchaseDialog = ({
     state.totalCost,
     debouncedQuote.amountOut,
     debouncedQuote.swapData,
+    chainId,
   ]);
 
   // Calculate the Option Price & Fees
