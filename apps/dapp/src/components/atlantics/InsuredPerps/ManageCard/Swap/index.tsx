@@ -245,7 +245,7 @@ const Swap = (props: SwapProps) => {
                       inverted ? stable.toLowerCase() : underlying.toLowerCase()
                     }.svg`}
                     alt={inverted ? stable : underlying}
-                    className="w-full"
+                    className="w-8"
                   />
                   <Typography variant="h6" className="my-auto">
                     {inverted ? stable : underlying}
@@ -301,7 +301,7 @@ const Swap = (props: SwapProps) => {
                       inverted ? underlying.toLowerCase() : stable.toLowerCase()
                     }.svg`}
                     alt={stable}
-                    className="w-[1.9rem]"
+                    className="w-8"
                   />
                   <Typography variant="h6" className="my-auto">
                     {inverted ? underlying : stable}
