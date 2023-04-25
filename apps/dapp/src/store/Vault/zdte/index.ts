@@ -20,7 +20,7 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
-export const ZDTE: string = '0x42f1d28e83d1603a576e6e753983cd04c84f246b';
+export const ZDTE: string = '0xd01e0ec59fb8cfbf64857de839e5c6e23c82511a';
 const SECONDS_IN_A_YEAR = 86400 * 365;
 const ONE_DAY = 86400;
 
@@ -53,10 +53,10 @@ export interface IZdteData {
   step: number;
   strikes: OptionsTableData[];
   failedToFetch: boolean;
-  baseLpTokenLiquidty: BigNumber;
+  baseLpTokenLiquidity: BigNumber;
   baseLpAssetBalance: BigNumber;
   baseLpTotalAsset: BigNumber;
-  quoteLpTokenLiquidty: BigNumber;
+  quoteLpTokenLiquidity: BigNumber;
   quoteLpAssetBalance: BigNumber;
   quoteLpTotalAsset: BigNumber;
   openInterest: BigNumber;
@@ -376,16 +376,16 @@ export const createZdteSlice: StateCreator<
         markPrice,
         strikeIncrement,
         maxOtmPercentage,
-        baseLpTokenLiquidty,
-        quoteLpTokenLiquidty,
+        baseLpTokenLiquidity,
+        quoteLpTokenLiquidity,
         expiry,
         openInterestAmount,
       ] = await Promise.all([
         zdteContract.getMarkPrice(),
         zdteContract.strikeIncrement(),
         zdteContract.maxOtmPercentage(),
-        zdteContract.baseLpTokenLiquidty(),
-        zdteContract.quoteLpTokenLiquidty(),
+        zdteContract.baseLpTokenLiquidity(),
+        zdteContract.quoteLpTokenLiquidity(),
         zdteContract.getCurrentExpiry(),
         zdteContract.openInterestAmount(),
       ]);
@@ -399,6 +399,7 @@ export const createZdteSlice: StateCreator<
       const lowerRound = Math.floor(lower / step) * step;
 
       const strikes: OptionsTableData[] = [];
+      let numFailures: number = 0;
 
       for (
         let strike = upperRound - step;
@@ -424,6 +425,7 @@ export const createZdteSlice: StateCreator<
           normalizedIv = iv.toNumber();
         } catch (err) {
           failedToFetch = true;
+          numFailures += 1;
           console.error(`Fail to fetch vol for strike: ${strike}`);
         }
 
@@ -483,13 +485,13 @@ export const createZdteSlice: StateCreator<
           nearestStrike,
           step,
           strikes,
-          failedToFetch: false,
+          failedToFetch: numFailures > 1,
           baseLpAssetBalance,
           baseLpTotalAsset,
-          baseLpTokenLiquidty,
+          baseLpTokenLiquidity,
           quoteLpAssetBalance,
           quoteLpTotalAsset,
-          quoteLpTokenLiquidty,
+          quoteLpTokenLiquidity,
           openInterest,
           expiry: expiry.toNumber(),
         },
