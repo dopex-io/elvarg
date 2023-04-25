@@ -1,17 +1,18 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
-import CustomButton from 'components/UI/Button';
+import { BigNumber } from 'ethers';
 
 import Popover from '@mui/material/Popover';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
-import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 
+import CustomButton from 'components/UI/Button';
+
 import CrossIcon from 'svgs/icons/CrossIcon';
-import getUserReadableAmount from '../../../utils/contracts/getUserReadableAmount';
-import { useBoundStore } from '../../../store';
-import { BigNumber } from 'ethers';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+
+import { useBoundStore } from 'store';
 
 const LimitOrderPopover = () => {
   const { selectedPoolName, optionScalpData, uniWethPrice, uniArbPrice } =
@@ -32,7 +33,7 @@ const LimitOrderPopover = () => {
   );
 
   return (
-    <Box>
+    <div>
       <Tooltip
         title="Click to create a limit close order"
         aria-label="add"
@@ -56,8 +57,8 @@ const LimitOrderPopover = () => {
           horizontal: 'left',
         }}
       >
-        <Box className="w-52 p-3">
-          <Box className="absolute right-[20px] left-auto">
+        <div className="w-52 p-3">
+          <div className="absolute right-[20px] left-auto">
             <IconButton
               className="p-0 pb-1 mr-0 ml-auto"
               onClick={handleCloseLimitOrderPopover}
@@ -68,9 +69,9 @@ const LimitOrderPopover = () => {
                 subClassName="group-hover:fill-white opacity-90"
               />
             </IconButton>
-          </Box>
+          </div>
 
-          <Box className="mt-3">
+          <div className="mt-3">
             <p className="text-xs text-stieglitz">Limit price</p>
             <Input
               disableUnderline
@@ -85,16 +86,16 @@ const LimitOrderPopover = () => {
               className={`mt-2 border border-mineshaft rounded-md px-2 bg-umbra w-full !w-auto`}
               classes={{ input: 'text-white text-xs text-left py-2' }}
             />
-          </Box>
+          </div>
           <CustomButton
             className="cursor-pointer text-white w-full mt-3"
             color={'primary'}
           >
             <span className="text-xs md:sm">Create limit order</span>
           </CustomButton>
-        </Box>
+        </div>
       </Popover>
-    </Box>
+    </div>
   );
 };
 

@@ -1,7 +1,5 @@
 import displayAddress from 'utils/general/displayAddress';
 
-import Typography from 'components/UI/Typography';
-
 import { useBoundStore } from 'store';
 
 import OrdersTable from './OrdersTable';
@@ -18,9 +16,9 @@ const Orders = () => {
               {displayAddress(accountAddress, ensName)}
             </span>
           </div>
-          <Typography variant="h6" className="ml-auto mr-3.5 mt-2.5">
+          <h6 className="ml-auto mr-3.5 mt-2.5">
             <span className="text-stieglitz">Active limit orders</span>
-          </Typography>
+          </h6>
         </div>
       </div>
       <div className="border rounded-b-xl border-cod-gray border-t-neutral-800 bg-umbra">

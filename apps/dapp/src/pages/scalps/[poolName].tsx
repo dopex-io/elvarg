@@ -5,17 +5,13 @@ import { useEffect, useMemo, useState, useCallback } from 'react';
 
 import { ethers } from 'ethers';
 
-import Box from '@mui/material/Box';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import Button from '@mui/material/Button';
 
 import { useBoundStore } from 'store';
 
-import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import DexScreenerChart from 'components/common/DexScreenerChart';
-// import PoolCard from 'components/scalps/Charts/PoolCard';
-// import TVLCard from 'components/scalps/Charts/TVLCard';
 import Positions from 'components/scalps/Positions';
 import Orders from 'components/scalps/Orders';
 import TopBar from 'components/scalps/TopBar';
@@ -25,13 +21,11 @@ import QuickLink from 'components/common/QuickLink';
 
 import { CHAINS } from 'constants/chains';
 
-// const SHOWCHARTS = false;
-
 const ManageComponent = () => {
   const [manageSection, setManageSection] = useState<string>('Trade');
 
   return (
-    <Box className="w-full !mt-4 h-fit-content">
+    <div className="w-full !mt-4 h-fit-content">
       <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-top-lg mb-2">
         {['LP', 'Trade'].map((label, index) => (
           <Button
@@ -44,16 +38,14 @@ const ManageComponent = () => {
             disableRipple
             onClick={() => setManageSection(label)}
           >
-            <Typography variant="h6" className="text-xs pb-1">
-              {label}
-            </Typography>
+            <h6 className="text-xs pb-1">{label}</h6>
           </Button>
         ))}
       </ButtonGroup>
-      <Box className="bg-cod-gray rounded-b-xl min-w-[23rem]">
+      <div className="bg-cod-gray rounded-b-xl min-w-[23rem]">
         {manageSection === 'Trade' ? <TradeCard /> : <Manage />}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 
@@ -136,25 +128,25 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
 
   return (
     <>
-      <Box className="bg-black flex w-screen items-center justify-center">
+      <div className="bg-black flex w-screen items-center justify-center">
         <Head>
           <title>Option Scalps | Dopex</title>
         </Head>
         <AppBar active="Scalps" />
-        <Box className="my-12 mx-[15%]">
-          <Box className="mt-8 sm:mt-14 md:mt-20 lg:mr-full">
+        <div className="my-12 mx-[15%]">
+          <div className="mt-8 sm:mt-14 md:mt-20 lg:mr-full">
             <TopBar />
-          </Box>
-          <Box className="w-full h-full flex flex-col space-y-2 xl:flex-row xl:space-x-5">
-            <Box className="flex flex-col w-full space-y-4 h-full">
-              <Box className="flex-1 mt-4">{Chart}</Box>
+          </div>
+          <div className="w-full h-full flex flex-col space-y-2 xl:flex-row xl:space-x-5">
+            <div className="flex flex-col w-full space-y-4 h-full">
+              <div className="flex-1 mt-4">{Chart}</div>
               <Orders />
               <Positions />
-            </Box>
-            <Box>
+            </div>
+            <div>
               <ManageComponent />
-              <Box className="mt-6 w-auto">
-                <Box className="flex flex-col space-y-2">
+              <div className="mt-6 w-auto">
+                <div className="flex flex-col space-y-2">
                   <QuickLink
                     text="Option Scalps Guide"
                     href="https://blog.dopex.io/articles/product-launches-updates/introducing-option-scalps"
@@ -167,15 +159,13 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
                     text="Leaderboard"
                     href="https://app.dopex.io/scalps/leaderboard"
                   />
-                </Box>
-              </Box>
-            </Box>
-          </Box>
-          <Box className="flex justify-center w-full mt-10">
-            <Typography variant="h5" className="text-silver">
-              Contract Address:
-            </Typography>
-            <p className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-center w-full mt-10">
+            <h5 className="text-silver">Contract Address:</h5>
+            <p className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text ml-1">
               <a
                 href={`${CHAINS[chainId]?.explorer}/address/${
                   optionScalpData?.optionScalpContract?.address ?? ''
@@ -186,9 +176,9 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
                 {optionScalpData?.optionScalpContract?.address}
               </a>
             </p>
-          </Box>
-        </Box>
-      </Box>
+          </div>
+        </div>
+      </div>
     </>
   );
 };

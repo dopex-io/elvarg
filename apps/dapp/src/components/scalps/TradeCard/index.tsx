@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
 
 import { ERC20__factory } from '@dopex-io/sdk';
-import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import Checkbox from '@mui/material/Checkbox';
 import Slider from '@mui/material/Slider';
@@ -12,7 +11,6 @@ import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -380,9 +378,9 @@ const TradeCard = () => {
   );
 
   return (
-    <Box className="px-4 pb-4 pt-5 min-w-[24.5rem]">
-      <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
-        <Box className="w-full flex items-center justify-center px-3">
+    <div className="px-4 pb-4 pt-5 min-w-[24.5rem]">
+      <div className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
+        <div className="w-full flex items-center justify-center px-3">
           <p className="text-xs text-stieglitz mr-2 ml-auto">
             Show as {optionScalpData?.quoteSymbol}
           </p>
@@ -393,10 +391,10 @@ const TradeCard = () => {
             checked={showAsQuote}
             onChange={handleCheckbox}
           />
-        </Box>
-        <Box className="flex flex-row justify-between">
-          <Box className="bg-cod-gray rounded-full pl-1 pr-1 flex pb-2 flex-row items-center">
-            <Box className="flex flex-row w-auto p-1 pl-3 pr-2">
+        </div>
+        <div className="flex flex-row justify-between">
+          <div className="bg-cod-gray rounded-full pl-1 pr-1 flex pb-2 flex-row items-center">
+            <div className="flex flex-row w-auto p-1 pl-3 pr-2">
               <p
                 className={cx(
                   'text-[0.8rem] mt-1 cursor-pointer hover:opacity-50',
@@ -406,8 +404,8 @@ const TradeCard = () => {
               >
                 Long
               </p>
-            </Box>
-            <Box className="flex flex-row w-auto p-1 pr-3 pl-2">
+            </div>
+            <div className="flex flex-row w-auto p-1 pr-3 pl-2">
               <p
                 className={cx(
                   'text-[0.8rem] mt-1 cursor-pointer hover:opacity-50',
@@ -417,9 +415,9 @@ const TradeCard = () => {
               >
                 Short
               </p>
-            </Box>
-          </Box>
-          <Box className="flex items-center">
+            </div>
+          </div>
+          <div className="flex items-center">
             <Input
               disableUnderline
               placeholder="0"
@@ -429,32 +427,26 @@ const TradeCard = () => {
               onChange={handleInputChange}
               classes={{ input: 'text-right' }}
             />
-            <Typography variant="h6" className="text-stieglitz mr-3 ml-1 mb-1">
+            <h6 className="text-stieglitz mr-3 ml-1 mb-1">
               {showAsQuote ? optionScalpData?.quoteSymbol : selectedPoolName}
-            </Typography>
-          </Box>
-        </Box>
-        <Box className="flex flex-row justify-between items-center mt-2">
-          <Box className=" flex mr-2 border border-mineshaft rounded-md ">
+            </h6>
+          </div>
+        </div>
+        <div className="flex flex-row justify-between items-center mt-2">
+          <div className=" flex mr-2 border border-mineshaft rounded-md ">
             {[10, 25, 50, 75, 100].map((option, i) => (
-              <Box
+              <div
                 key={i}
                 className={`text-center w-auto cursor-pointer group hover:bg-mineshaft hover:opacity-80`}
                 onClick={() => setSelectedMargin(option)}
               >
-                <Typography
-                  variant="h6"
-                  className="text-xs font-light py-2 px-2"
-                >
-                  {option}%
-                </Typography>
-              </Box>
+                <h6 className="text-xs font-light py-2 px-2">{option}%</h6>
+              </div>
             ))}
-          </Box>
+          </div>
 
-          <Box className="ml-auto mr-0 flex">
-            <Typography
-              variant="h6"
+          <div className="ml-auto mr-0 flex">
+            <h6
               onClick={handleMax}
               className="text-stieglitz text-xs font-light pl-1 pr-3 text-[12px]"
             >
@@ -466,13 +458,13 @@ const TradeCard = () => {
                 8
               )}{' '}
               {optionScalpData?.quoteSymbol}
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
-      <Box className="flex mb-4">
+            </h6>
+          </div>
+        </div>
+      </div>
+      <div className="flex mb-4">
         {['1m', '5m', '15m', '30m', '60m'].map((time, i) => (
-          <Box
+          <div
             key={i}
             className={
               (i === 0
@@ -485,32 +477,24 @@ const TradeCard = () => {
             }
             onClick={() => setSelectedTimeWindow(time)}
           >
-            <Typography variant="h6" className="text-xs font-normal">
-              {time}
-            </Typography>
-          </Box>
+            <h6 className="text-xs font-normal">{time}</h6>
+          </div>
         ))}
-      </Box>
-      <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
-        <Box className="flex flex-row justify-between">
-          <Box>
-            <Typography
-              variant="h6"
-              className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]"
-            >
+      </div>
+      <div className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
+        <div className="flex flex-row justify-between">
+          <div>
+            <h6 className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]">
               Leverage
-            </Typography>
-          </Box>
-          <Box className="ml-auto mr-0">
-            <Typography
-              variant="h6"
-              className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]"
-            >
+            </h6>
+          </div>
+          <div className="ml-auto mr-0">
+            <h6 className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]">
               {leverage}x
-            </Typography>
-          </Box>
-        </Box>
-        <Box className="flex flex-row justify-between mt-2 pl-2 pr-3">
+            </h6>
+          </div>
+        </div>
+        <div className="flex flex-row justify-between mt-2 pl-2 pr-3">
           <Slider
             aria-label="Leverage"
             defaultValue={20}
@@ -520,22 +504,16 @@ const TradeCard = () => {
             valueLabelDisplay="auto"
             onChange={handleLeverageChange}
           />
-        </Box>
-      </Box>
-      <Box className="bg-umbra rounded-2xl">
-        <Box className="flex flex-col mb-4 p-4 w-full">
-          <Box className={'flex mb-2'}>
-            <Typography
-              variant="h6"
-              className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
-            >
+        </div>
+      </div>
+      <div className="bg-umbra rounded-2xl">
+        <div className="flex flex-col mb-4 p-4 w-full">
+          <div className={'flex mb-2'}>
+            <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
               Available Liquidity
-            </Typography>
-            <Box className={'text-right'}>
-              <Typography
-                variant="h6"
-                className="text-white mr-auto ml-0 text-[0.8rem]"
-              >
+            </h6>
+            <div className={'text-right'}>
+              <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
                 {formatAmount(
                   getUserReadableAmount(
                     isShort
@@ -553,35 +531,24 @@ const TradeCard = () => {
                 {isShort
                   ? optionScalpData?.baseSymbol!
                   : optionScalpData?.quoteSymbol!}
-              </Typography>
-            </Box>
-          </Box>
-          <Box className={'flex mb-2'}>
-            <Typography
-              variant="h6"
-              className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
-            >
+              </h6>
+            </div>
+          </div>
+          <div className={'flex mb-2'}>
+            <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
               Margin
-            </Typography>
-            <Box className={'text-right'}>
-              <Typography
-                variant="h6"
-                className="text-white mr-auto ml-0 text-[0.8rem]"
-              >
+            </h6>
+            <div className={'text-right'}>
+              <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
                 {formatAmount(positionDetails.marginInQuote, 3)}{' '}
                 {optionScalpData?.quoteSymbol}
-              </Typography>
-            </Box>
-          </Box>
-          <Box className={'flex mb-2'}>
-            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-              Premium
-            </Typography>
-            <Box className={'text-right'}>
-              <Typography
-                variant="h6"
-                className="text-white mr-auto ml-0 text-[0.8rem]"
-              >
+              </h6>
+            </div>
+          </div>
+          <div className={'flex mb-2'}>
+            <h6 className="text-stieglitz ml-0 mr-auto">Premium</h6>
+            <div className={'text-right'}>
+              <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
                 {formatAmount(
                   getUserReadableAmount(
                     premium,
@@ -590,21 +557,13 @@ const TradeCard = () => {
                   2
                 )}{' '}
                 {optionScalpData?.quoteSymbol}
-              </Typography>
-            </Box>
-          </Box>
-          <Box className={'flex mb-2'}>
-            <Typography
-              variant="h6"
-              className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
-            >
-              Fees
-            </Typography>
-            <Box className={'text-right'}>
-              <Typography
-                variant="h6"
-                className="text-white mr-auto ml-0 text-[0.8rem]"
-              >
+              </h6>
+            </div>
+          </div>
+          <div className={'flex mb-2'}>
+            <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">Fees</h6>
+            <div className={'text-right'}>
+              <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
                 {formatAmount(
                   getUserReadableAmount(
                     posSize,
@@ -617,48 +576,34 @@ const TradeCard = () => {
                   2
                 )}{' '}
                 {optionScalpData?.quoteSymbol}
-              </Typography>
-            </Box>
-          </Box>
-          <Box className={'flex mb-2'}>
-            <Typography
-              variant="h6"
-              className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
-            >
+              </h6>
+            </div>
+          </div>
+          <div className={'flex mb-2'}>
+            <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
               Liquidation Price
-            </Typography>
-            <Box className={'text-right'}>
-              <Typography
-                variant="h6"
-                className="text-white mr-auto ml-0 text-[0.8rem]"
-              >
+            </h6>
+            <div className={'text-right'}>
+              <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
                 {formatAmount(liquidationPrice, 4)}{' '}
-              </Typography>
-            </Box>
-          </Box>
-          <Box className={'flex mb-1'}>
-            <Typography
-              variant="h6"
-              className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
-            >
+              </h6>
+            </div>
+          </div>
+          <div className={'flex mb-1'}>
+            <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
               Max. Slippage
-            </Typography>
-            <Box className={'text-right'}>
-              <Typography
-                variant="h6"
-                className="text-white mr-auto ml-0 text-[0.8rem]"
-              >
-                0.5%
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
-      </Box>
-      <Box className="rounded-md  mb-2.5 p-4 pt-4 pb-3.5 border border-neutral-800 w-full bg-neutral-800">
+            </h6>
+            <div className={'text-right'}>
+              <h6 className="text-white mr-auto ml-0 text-[0.8rem]">0.5%</h6>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="rounded-md  mb-2.5 p-4 pt-4 pb-3.5 border border-neutral-800 w-full bg-neutral-800">
         <p className="text-xs text-stieglitz">Order type</p>
 
-        <Box className="flex mt-2">
-          <Box
+        <div className="flex mt-2">
+          <div
             key={'Market'}
             className={
               (orderType === 'Market' ? ' bg-mineshaft' : ' bg-umbra') +
@@ -666,12 +611,10 @@ const TradeCard = () => {
             }
             onClick={() => setOrderType('Market')}
           >
-            <Typography variant="h6" className="text-xs font-normal">
-              Market
-            </Typography>
-          </Box>
+            <h6 className="text-xs font-normal">Market</h6>
+          </div>
 
-          <Box
+          <div
             key={'Limit'}
             className={
               (orderType === 'Limit' ? ' bg-mineshaft' : ' bg-umbra') +
@@ -679,14 +622,12 @@ const TradeCard = () => {
             }
             onClick={() => setOrderType('Limit')}
           >
-            <Typography variant="h6" className="text-xs font-normal">
-              Limit
-            </Typography>
-          </Box>
-        </Box>
+            <h6 className="text-xs font-normal">Limit</h6>
+          </div>
+        </div>
 
         {orderType === 'Limit' ? (
-          <Box className="mt-3">
+          <div className="mt-3">
             <p className="text-xs text-stieglitz">Limit price</p>
             <Input
               disableUnderline
@@ -701,14 +642,14 @@ const TradeCard = () => {
               className={`mt-2 border border-mineshaft rounded-md px-2 bg-umbra w-full !w-auto`}
               classes={{ input: 'text-white text-xs text-left py-2' }}
             />
-          </Box>
+          </div>
         ) : null}
         {orderType === 'Limit' ? (
-          <Box className="mt-3">
+          <div className="mt-3">
             <p className="text-xs text-stieglitz">Expiry</p>
-            <Box className="flex mt-2">
+            <div className="flex mt-2">
               {['1h', '5h', '12h', '24h', '48h'].map((time, i) => (
-                <Box
+                <div
                   key={i}
                   className={
                     (i === 0
@@ -721,20 +662,18 @@ const TradeCard = () => {
                   }
                   onClick={() => setHoursToExpiry(time)}
                 >
-                  <Typography variant="h6" className="text-xs font-normal">
-                    {time}
-                  </Typography>
-                </Box>
+                  <h6 className="text-xs font-normal">{time}</h6>
+                </div>
               ))}
-            </Box>
-          </Box>
+            </div>
+          </div>
         ) : null}
-      </Box>
-      <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
+      </div>
+      <div className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
         <EstimatedGasCostButton gas={500000} chainId={chainId} />
-      </Box>
-      <Box className="rounded-lg bg-neutral-800">
-        <Box className="p-3">
+      </div>
+      <div className="rounded-lg bg-neutral-800">
+        <div className="p-3">
           <CustomButton
             size="small"
             className="w-full !rounded-md"
@@ -744,9 +683,9 @@ const TradeCard = () => {
           >
             <p className="text-[0.8rem]">{tradeButtonProps.text}</p>
           </CustomButton>
-        </Box>
-      </Box>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 };
 

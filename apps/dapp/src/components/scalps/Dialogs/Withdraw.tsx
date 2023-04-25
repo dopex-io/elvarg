@@ -1,10 +1,8 @@
 import React, { useCallback, useMemo } from 'react';
 
 import CloseIcon from '@mui/icons-material/Close';
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
-import Typography from '@mui/material/Typography';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
 import Countdown from 'react-countdown';
@@ -100,24 +98,20 @@ const WithdrawModal = ({
       open={open}
       onClose={() => handleClose}
     >
-      <Box className="max-w-sm">
-        <Box className="bg-cod-gray rounded-2xl p-4 pr-3">
-          <Box className="flex justify-between items-center mb-6">
-            <Typography variant="h6" className="text-sm">
-              Withdrawal Method
-            </Typography>
+      <div className="max-w-sm">
+        <div className="bg-cod-gray rounded-2xl p-4 pr-3">
+          <div className="flex justify-between items-center mb-6">
+            <h6 className="text-sm">Withdrawal Method</h6>
             <CloseIcon
               role="button"
               className="h-6 w-6"
               onClick={() => handleClose()}
             />
-          </Box>
-          <Box className="border rounded-lg border-neutral-800 mb-4 p-2">
-            <Box className="flex justify-between items-center m-2">
-              <Typography variant="h6" className="text-sm">
-                Automatic rollover
-              </Typography>
-              <Box className="flex items-center">
+          </div>
+          <div className="border rounded-lg border-neutral-800 mb-4 p-2">
+            <div className="flex justify-between items-center m-2">
+              <h6 className="text-sm">Automatic rollover</h6>
+              <div className="flex items-center">
                 <Button
                   onClick={handleToggleRollover}
                   className={cx(
@@ -127,21 +121,19 @@ const WithdrawModal = ({
                 >
                   {rolloverText}
                 </Button>
-              </Box>
-            </Box>
-            <Box className="m-2 mt-5">
-              <Typography variant="h6" className="text-gray-400 text-sm">
+              </div>
+            </div>
+            <div className="m-2 mt-5">
+              <h6 className="text-gray-400 text-sm">
                 Your funds will be used as deposit for the next epoch if
                 rollover is enabled
-              </Typography>
-            </Box>
-          </Box>
-          <Box className="border rounded-lg border-neutral-800 mt-2 p-2">
-            <Box className="flex justify-between items-center m-2">
-              <Typography variant="h6" className="text-sm">
-                Withdraw manually
-              </Typography>
-              <Box className="flex items-center">
+              </h6>
+            </div>
+          </div>
+          <div className="border rounded-lg border-neutral-800 mt-2 p-2">
+            <div className="flex justify-between items-center m-2">
+              <h6 className="text-sm">Withdraw manually</h6>
+              <div className="flex items-center">
                 <CustomButton
                   onClick={handleWithdraw}
                   className={cx(
@@ -160,35 +152,32 @@ const WithdrawModal = ({
                       date={straddlesEpochData?.expiry.toNumber()}
                       renderer={({ days, hours, minutes }) => {
                         return (
-                          <Box className={'flex'}>
+                          <div className={'flex'}>
                             <img
                               src="/assets/timer.svg"
                               className="h-[0.9rem] mr-2 ml-1"
                               alt="Timer"
                             />
-                            <Typography
-                              variant="inherit"
-                              className="ml-auto text-stieglitz mr-1"
-                            >
+                            <p className="ml-auto text-stieglitz mr-1">
                               {days}d {hours}h {minutes}m
-                            </Typography>
-                          </Box>
+                            </p>
+                          </div>
                         );
                       }}
                     />
                   )}
                 </CustomButton>
-              </Box>
-            </Box>
-            <Box className="m-2 mt-5">
-              <Typography variant="h6" className="text-gray-400 text-sm">
+              </div>
+            </div>
+            <div className="m-2 mt-5">
+              <h6 className="text-gray-400 text-sm">
                 You can withdraw at any time after this epoch ends if rollover
                 is disabled
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
-      </Box>
+              </h6>
+            </div>
+          </div>
+        </div>
+      </div>
     </Modal>
   );
 };

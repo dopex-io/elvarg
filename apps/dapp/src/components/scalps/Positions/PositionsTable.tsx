@@ -17,7 +17,6 @@ import useSendTx from 'hooks/useSendTx';
 import useShare from 'hooks/useShare';
 
 import CustomButton from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
 import LimitOrderPopover from 'components/scalps/LimitOrderPopover';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -80,7 +79,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       if (!baseSymbol || !quoteSymbol || !markPrice) return;
       share({
         title: (
-          <Typography variant="h5" className="font-bold shadow-2xl">
+          <h5 className="font-bold shadow-2xl">
             <span className={cx(isShort ? 'text-red-500' : 'text-green-500')}>
               {isShort ? 'Short' : 'Long'}
             </span>
@@ -88,7 +87,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
             <span>{formatAmount(leverage, 1)}x</span>
             {' | '}
             <span>{`${baseSymbol}${quoteSymbol}`}</span>
-          </Typography>
+          </h5>
         ),
         percentage:
           (pnl /
