@@ -26,7 +26,7 @@ const ExplorerLink = (props: ExplorerLinkProps) => {
         className="flex space-x-2 bg-[#2D374B] rounded-lg p-2"
       >
         <img
-          src={CHAINS[chainId]?.explorer}
+          src={`/images/networks/${CHAINS[chainId]?.name.toLowerCase()}.svg`}
           alt={CHAINS[chainId]?.name}
           className="h-[1rem] my-auto"
         />

@@ -49,8 +49,17 @@ const PositionsTable = ({ tab }: { tab: string }) => {
     (position: any) => {
       if (!optionScalpData) return;
 
-      const { entry, pnl, margin, size, isShort, closePrice, isOpen } =
-        position;
+      const {
+        entry,
+        pnl,
+        margin,
+        size,
+        isShort,
+        closePrice,
+        isOpen,
+        premium,
+        fees,
+      } = position;
 
       const leverage =
         size /
@@ -84,7 +93,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         percentage:
           (pnl /
             getUserReadableAmount(
-              margin,
+              margin.add(premium).add(fees),
               optionScalpData?.quoteDecimals.toNumber()
             )) *
           100,

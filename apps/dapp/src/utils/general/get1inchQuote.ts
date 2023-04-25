@@ -50,7 +50,7 @@ export const defaultQuoteData: I1inchQuote = {
 const get1inchQuote = async (
   fromTokenAddress: string,
   toTokenAddress: string,
-  amount: string | number,
+  amount: string,
   chainId: number,
   accountAddress: string,
   slippage: string

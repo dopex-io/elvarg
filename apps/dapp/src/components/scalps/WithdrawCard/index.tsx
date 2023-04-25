@@ -70,6 +70,12 @@ const WithdrawCard = () => {
     );
   }, [optionScalpData, userTokenBalance, isQuote]);
 
+  const handleSetMax = useCallback(() => {
+    setRawAmount(
+      String(Math.floor(readableUserTokenBalance * 100000) / 100000)
+    ); // 5 decimals
+  }, [readableUserTokenBalance]);
+
   const withdrawButtonProps = useMemo(() => {
     let disabled = false;
     let text: any = 'Withdraw';
@@ -89,7 +95,6 @@ const WithdrawCard = () => {
       text = 'Amount exceeds balance';
       disabled = true;
     }
-
 
     if (isQuote && (optionScalpUserData?.coolingPeriod?.quote ?? 0) > date) {
       coolDown = optionScalpUserData?.coolingPeriod?.quote ?? 0;
@@ -295,7 +300,7 @@ const WithdrawCard = () => {
               variant="h6"
               role="button"
               className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem] underline"
-              onClick={() => setRawAmount(String(readableUserTokenBalance))}
+              onClick={handleSetMax}
             >
               {formatAmount(readableUserTokenBalance, 8)}{' '}
               {isQuote
