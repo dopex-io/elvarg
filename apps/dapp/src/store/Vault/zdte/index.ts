@@ -20,7 +20,7 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
-export const ZDTE: string = '0x538A001085666FCCF560Ea7117Fbf4562bb5D8a0';
+export const ZDTE: string = '0x42f1d28e83d1603a576e6e753983cd04c84f246b';
 const SECONDS_IN_A_YEAR = 86400 * 365;
 const ONE_DAY = 86400;
 
@@ -411,7 +411,7 @@ export const createZdteSlice: StateCreator<
 
         try {
           const [premium, iv] = await Promise.all([
-            zdteContract.calcPremium(
+            zdteContract.calcPremiumCustom(
               strike <= tokenPrice,
               getContractReadableAmount(strike, DECIMALS_STRIKE),
               oneEBigNumber(DECIMALS_TOKEN)

@@ -448,7 +448,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: 'baseLpTokenLiquidty',
+    name: 'baseLpTokenLiquidity',
     outputs: [
       {
         internalType: 'uint256',
@@ -569,6 +569,35 @@ const _abi = [
       },
     ],
     name: 'calcPremium',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'premium',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bool',
+        name: 'isPut',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'strike',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'calcPremiumCustom',
     outputs: [
       {
         internalType: 'uint256',
@@ -1087,7 +1116,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: 'quoteLpTokenLiquidty',
+    name: 'quoteLpTokenLiquidity',
     outputs: [
       {
         internalType: 'uint256',

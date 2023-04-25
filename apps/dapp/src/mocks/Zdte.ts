@@ -40,12 +40,13 @@ export interface ZdteInterface extends utils.Interface {
     'assignKeeperRole(address)': FunctionFragment;
     'base()': FunctionFragment;
     'baseLp()': FunctionFragment;
-    'baseLpTokenLiquidty()': FunctionFragment;
+    'baseLpTokenLiquidity()': FunctionFragment;
     'calcFees(uint256)': FunctionFragment;
     'calcMargin(bool,uint256,uint256)': FunctionFragment;
     'calcOpeningFees(uint256,uint256)': FunctionFragment;
     'calcPnl(uint256)': FunctionFragment;
     'calcPremium(bool,uint256,uint256)': FunctionFragment;
+    'calcPremiumCustom(bool,uint256,uint256)': FunctionFragment;
     'calcPremiumWithVol(bool,uint256,uint256,uint256,uint256)': FunctionFragment;
     'canOpenSpreadPosition(bool,uint256,uint256,uint256)': FunctionFragment;
     'claimCollateral(uint256)': FunctionFragment;
@@ -76,7 +77,7 @@ export interface ZdteInterface extends utils.Interface {
     'priceOracle()': FunctionFragment;
     'quote()': FunctionFragment;
     'quoteLp()': FunctionFragment;
-    'quoteLpTokenLiquidty()': FunctionFragment;
+    'quoteLpTokenLiquidity()': FunctionFragment;
     'removeFromContractWhitelist(address)': FunctionFragment;
     'renounceOwnership()': FunctionFragment;
     'saveSettlementPrice(uint256,uint256)': FunctionFragment;
@@ -106,12 +107,13 @@ export interface ZdteInterface extends utils.Interface {
       | 'assignKeeperRole'
       | 'base'
       | 'baseLp'
-      | 'baseLpTokenLiquidty'
+      | 'baseLpTokenLiquidity'
       | 'calcFees'
       | 'calcMargin'
       | 'calcOpeningFees'
       | 'calcPnl'
       | 'calcPremium'
+      | 'calcPremiumCustom'
       | 'calcPremiumWithVol'
       | 'canOpenSpreadPosition'
       | 'claimCollateral'
@@ -142,7 +144,7 @@ export interface ZdteInterface extends utils.Interface {
       | 'priceOracle'
       | 'quote'
       | 'quoteLp'
-      | 'quoteLpTokenLiquidty'
+      | 'quoteLpTokenLiquidity'
       | 'removeFromContractWhitelist'
       | 'renounceOwnership'
       | 'saveSettlementPrice'
@@ -192,7 +194,7 @@ export interface ZdteInterface extends utils.Interface {
   encodeFunctionData(functionFragment: 'base', values?: undefined): string;
   encodeFunctionData(functionFragment: 'baseLp', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: 'baseLpTokenLiquidty',
+    functionFragment: 'baseLpTokenLiquidity',
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -217,6 +219,14 @@ export interface ZdteInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: 'calcPremium',
+    values: [
+      PromiseOrValue<boolean>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'calcPremiumCustom',
     values: [
       PromiseOrValue<boolean>,
       PromiseOrValue<BigNumberish>,
@@ -334,7 +344,7 @@ export interface ZdteInterface extends utils.Interface {
   encodeFunctionData(functionFragment: 'quote', values?: undefined): string;
   encodeFunctionData(functionFragment: 'quoteLp', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: 'quoteLpTokenLiquidty',
+    functionFragment: 'quoteLpTokenLiquidity',
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -435,7 +445,7 @@ export interface ZdteInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: 'base', data: BytesLike): Result;
   decodeFunctionResult(functionFragment: 'baseLp', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: 'baseLpTokenLiquidty',
+    functionFragment: 'baseLpTokenLiquidity',
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: 'calcFees', data: BytesLike): Result;
@@ -447,6 +457,10 @@ export interface ZdteInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: 'calcPnl', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'calcPremium',
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'calcPremiumCustom',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -540,7 +554,7 @@ export interface ZdteInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: 'quote', data: BytesLike): Result;
   decodeFunctionResult(functionFragment: 'quoteLp', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: 'quoteLpTokenLiquidty',
+    functionFragment: 'quoteLpTokenLiquidity',
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -830,7 +844,7 @@ export interface Zdte extends BaseContract {
 
     baseLp(overrides?: CallOverrides): Promise<[string]>;
 
-    baseLpTokenLiquidty(overrides?: CallOverrides): Promise<[BigNumber]>;
+    baseLpTokenLiquidity(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     calcFees(
       amount: PromiseOrValue<BigNumberish>,
@@ -856,6 +870,13 @@ export interface Zdte extends BaseContract {
     ): Promise<[BigNumber] & { pnl: BigNumber }>;
 
     calcPremium(
+      isPut: PromiseOrValue<boolean>,
+      strike: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { premium: BigNumber }>;
+
+    calcPremiumCustom(
       isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
@@ -987,7 +1008,7 @@ export interface Zdte extends BaseContract {
 
     quoteLp(overrides?: CallOverrides): Promise<[string]>;
 
-    quoteLpTokenLiquidty(overrides?: CallOverrides): Promise<[BigNumber]>;
+    quoteLpTokenLiquidity(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     removeFromContractWhitelist(
       _contract: PromiseOrValue<string>,
@@ -1114,7 +1135,7 @@ export interface Zdte extends BaseContract {
 
   baseLp(overrides?: CallOverrides): Promise<string>;
 
-  baseLpTokenLiquidty(overrides?: CallOverrides): Promise<BigNumber>;
+  baseLpTokenLiquidity(overrides?: CallOverrides): Promise<BigNumber>;
 
   calcFees(
     amount: PromiseOrValue<BigNumberish>,
@@ -1140,6 +1161,13 @@ export interface Zdte extends BaseContract {
   ): Promise<BigNumber>;
 
   calcPremium(
+    isPut: PromiseOrValue<boolean>,
+    strike: PromiseOrValue<BigNumberish>,
+    amount: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  calcPremiumCustom(
     isPut: PromiseOrValue<boolean>,
     strike: PromiseOrValue<BigNumberish>,
     amount: PromiseOrValue<BigNumberish>,
@@ -1265,7 +1293,7 @@ export interface Zdte extends BaseContract {
 
   quoteLp(overrides?: CallOverrides): Promise<string>;
 
-  quoteLpTokenLiquidty(overrides?: CallOverrides): Promise<BigNumber>;
+  quoteLpTokenLiquidity(overrides?: CallOverrides): Promise<BigNumber>;
 
   removeFromContractWhitelist(
     _contract: PromiseOrValue<string>,
@@ -1392,7 +1420,7 @@ export interface Zdte extends BaseContract {
 
     baseLp(overrides?: CallOverrides): Promise<string>;
 
-    baseLpTokenLiquidty(overrides?: CallOverrides): Promise<BigNumber>;
+    baseLpTokenLiquidity(overrides?: CallOverrides): Promise<BigNumber>;
 
     calcFees(
       amount: PromiseOrValue<BigNumberish>,
@@ -1418,6 +1446,13 @@ export interface Zdte extends BaseContract {
     ): Promise<BigNumber>;
 
     calcPremium(
+      isPut: PromiseOrValue<boolean>,
+      strike: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    calcPremiumCustom(
       isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
@@ -1537,7 +1572,7 @@ export interface Zdte extends BaseContract {
 
     quoteLp(overrides?: CallOverrides): Promise<string>;
 
-    quoteLpTokenLiquidty(overrides?: CallOverrides): Promise<BigNumber>;
+    quoteLpTokenLiquidity(overrides?: CallOverrides): Promise<BigNumber>;
 
     removeFromContractWhitelist(
       _contract: PromiseOrValue<string>,
@@ -1766,7 +1801,7 @@ export interface Zdte extends BaseContract {
 
     baseLp(overrides?: CallOverrides): Promise<BigNumber>;
 
-    baseLpTokenLiquidty(overrides?: CallOverrides): Promise<BigNumber>;
+    baseLpTokenLiquidity(overrides?: CallOverrides): Promise<BigNumber>;
 
     calcFees(
       amount: PromiseOrValue<BigNumberish>,
@@ -1792,6 +1827,13 @@ export interface Zdte extends BaseContract {
     ): Promise<BigNumber>;
 
     calcPremium(
+      isPut: PromiseOrValue<boolean>,
+      strike: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    calcPremiumCustom(
       isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
@@ -1908,7 +1950,7 @@ export interface Zdte extends BaseContract {
 
     quoteLp(overrides?: CallOverrides): Promise<BigNumber>;
 
-    quoteLpTokenLiquidty(overrides?: CallOverrides): Promise<BigNumber>;
+    quoteLpTokenLiquidity(overrides?: CallOverrides): Promise<BigNumber>;
 
     removeFromContractWhitelist(
       _contract: PromiseOrValue<string>,
@@ -2010,7 +2052,7 @@ export interface Zdte extends BaseContract {
 
     baseLp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    baseLpTokenLiquidty(
+    baseLpTokenLiquidity(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -2038,6 +2080,13 @@ export interface Zdte extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     calcPremium(
+      isPut: PromiseOrValue<boolean>,
+      strike: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    calcPremiumCustom(
       isPut: PromiseOrValue<boolean>,
       strike: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
@@ -2156,7 +2205,7 @@ export interface Zdte extends BaseContract {
 
     quoteLp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    quoteLpTokenLiquidty(
+    quoteLpTokenLiquidity(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
