@@ -58,7 +58,7 @@ const ManageComponent = () => {
   }, [focusTrade]);
 
   if (!zdteData || !staticZdteData) {
-    return;
+    return <></>;
   }
 
   return (
