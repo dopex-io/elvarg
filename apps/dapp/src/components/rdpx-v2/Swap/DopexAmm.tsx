@@ -376,7 +376,7 @@ const DopexAmm = () => {
             <div>
               <span className="text-sm">
                 {`${pair[0]?.symbol || ''}-${pair[1]?.symbol || ''}`}: {fee[0]}
-                %, {`${pair[1]?.symbol || ''}-${pair[0]?.symbol}` || ''}:{' '}
+                %, {`${pair[1]?.symbol || ''}-${pair[0]?.symbol || ''}`}:{' '}
                 {fee[1]}%
               </span>
             </div>
