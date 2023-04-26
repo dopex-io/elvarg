@@ -46,6 +46,7 @@ export interface ZdteLPInterface extends utils.Interface {
     'decimals()': FunctionFragment;
     'deposit(uint256,address)': FunctionFragment;
     'lockLiquidity(uint256)': FunctionFragment;
+    'lockedUsers(address)': FunctionFragment;
     'maxDeposit(address)': FunctionFragment;
     'maxMint(address)': FunctionFragment;
     'maxRedeem(address)': FunctionFragment;
@@ -89,6 +90,7 @@ export interface ZdteLPInterface extends utils.Interface {
       | 'decimals'
       | 'deposit'
       | 'lockLiquidity'
+      | 'lockedUsers'
       | 'maxDeposit'
       | 'maxMint'
       | 'maxRedeem'
@@ -168,6 +170,10 @@ export interface ZdteLPInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: 'lockLiquidity',
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'lockedUsers',
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: 'maxDeposit',
@@ -314,6 +320,10 @@ export interface ZdteLPInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: 'deposit', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'lockLiquidity',
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'lockedUsers',
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: 'maxDeposit', data: BytesLike): Result;
@@ -525,6 +535,11 @@ export interface ZdteLP extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    lockedUsers(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     maxDeposit(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -696,6 +711,11 @@ export interface ZdteLP extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  lockedUsers(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   maxDeposit(
     arg0: PromiseOrValue<string>,
     overrides?: CallOverrides
@@ -866,6 +886,11 @@ export interface ZdteLP extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    lockedUsers(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     maxDeposit(
       arg0: PromiseOrValue<string>,
@@ -1091,6 +1116,11 @@ export interface ZdteLP extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    lockedUsers(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     maxDeposit(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1261,6 +1291,11 @@ export interface ZdteLP extends BaseContract {
     lockLiquidity(
       amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    lockedUsers(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     maxDeposit(
