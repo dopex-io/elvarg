@@ -5,7 +5,6 @@ import { Toaster } from 'react-hot-toast';
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 import { QueryClientProvider } from '@tanstack/react-query';
 import type { AppProps } from 'next/app';
-import { NextSeo } from 'next-seo';
 
 import GlobalDialogs from 'components/common/GlobalDialogs';
 
@@ -25,30 +24,6 @@ function App({ Component, pageProps }: AppProps) {
 
   return (
     <>
-      <NextSeo
-        title="SSOV | Dopex"
-        description="Dopex Single Staking Option Vaults"
-        canonical="https://app.dopex.io/ssov"
-        openGraph={{
-          url: 'https://app.dopex.io/ssov',
-          title: 'SSOV | Dopex',
-          description: 'Dopex Single Staking Option Vaults',
-          images: [
-            {
-              url: '/previews/ssov.png',
-              width: 800,
-              height: 600,
-              alt: 'SSOV',
-              type: 'image/png',
-            },
-          ],
-        }}
-        twitter={{
-          handle: '@handle',
-          site: '@site',
-          cardType: 'summary_large_image',
-        }}
-      />
       <StylesProvider injectFirst>
         <StyledEngineProvider injectFirst>
           <ThemeProvider theme={theme}>
