@@ -22,7 +22,6 @@ import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
 export const ZDTE: string = '0xd01e0ec59fb8cfbf64857de839e5c6e23c82511a';
 const SECONDS_IN_A_YEAR = 86400 * 365;
-const ONE_DAY = 86400;
 
 export interface OptionsTableData {
   strike: number;
