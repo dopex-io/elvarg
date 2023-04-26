@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import {
   OptionScalpsLp,
   OptionScalpsLp__factory,
@@ -13,8 +13,2070 @@ import { StateCreator } from 'zustand';
 import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';
 
+const optionScalpsABI = [
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_base',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_quote',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '_baseDecimals',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '_quoteDecimals',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: '_uniswapV3Router',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_limitOrdersManager',
+        type: 'address',
+      },
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'maxSize',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'maxOpenInterest',
+            type: 'uint256',
+          },
+          {
+            internalType: 'contract IOptionPricing',
+            name: 'optionPricing',
+            type: 'address',
+          },
+          {
+            internalType: 'contract IVolatilityOracle',
+            name: 'volatilityOracle',
+            type: 'address',
+          },
+          {
+            internalType: 'contract IPriceOracle',
+            name: 'priceOracle',
+            type: 'address',
+          },
+          {
+            internalType: 'address',
+            name: 'insuranceFund',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256',
+            name: 'minimumMargin',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'feeOpenPosition',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'minimumAbsoluteLiquidationThreshold',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'withdrawTimeout',
+            type: 'uint256',
+          },
+        ],
+        internalType: 'struct OptionScalp.Configuration',
+        name: 'config',
+        type: 'tuple',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'constructor',
+  },
+  {
+    inputs: [],
+    name: 'ContractNotPaused',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'ContractPaused',
+    type: 'error',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'bool',
+        name: 'isQuote',
+        type: 'bool',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'AddProceeds',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: '_contract',
+        type: 'address',
+      },
+    ],
+    name: 'AddToContractWhitelist',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'int256',
+        name: 'pnl',
+        type: 'int256',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+    ],
+    name: 'ClosePosition',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'bool',
+        name: 'isQuote',
+        type: 'bool',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'sender',
+        type: 'address',
+      },
+    ],
+    name: 'Deposit',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'receiver',
+        type: 'address',
+      },
+    ],
+    name: 'EmergencyWithdraw',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'size',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+    ],
+    name: 'OpenPosition',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'previousOwner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
+    name: 'OwnershipTransferred',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
+    ],
+    name: 'Paused',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: '_contract',
+        type: 'address',
+      },
+    ],
+    name: 'RemoveFromContractWhitelist',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'bool',
+        name: 'isQuote',
+        type: 'bool',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'Shortfall',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
+    ],
+    name: 'Unpaused',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'bool',
+        name: 'isQuote',
+        type: 'bool',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'sender',
+        type: 'address',
+      },
+    ],
+    name: 'Withdraw',
+    type: 'event',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_contract',
+        type: 'address',
+      },
+    ],
+    name: 'addToContractWhitelist',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'base',
+    outputs: [
+      {
+        internalType: 'contract IERC20',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'baseDecimals',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'baseLp',
+    outputs: [
+      {
+        internalType: 'contract ScalpLP',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'contract IUniswapV3Pool',
+        name: 'pool',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'positionId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'bool',
+        name: 'isShort',
+        type: 'bool',
+      },
+    ],
+    name: 'burnUniswapV3Position',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'swapped',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'calcFees',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'fees',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+    ],
+    name: 'calcPnl',
+    outputs: [
+      {
+        internalType: 'int256',
+        name: 'pnl',
+        type: 'int256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'strike',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'size',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'timeToExpiry',
+        type: 'uint256',
+      },
+    ],
+    name: 'calcPremium',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'premium',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'claimCollateral',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+    ],
+    name: 'closePosition',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'swapped',
+        type: 'uint256',
+      },
+    ],
+    name: 'closePositionFromLimitOrder',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    name: 'cumulativePnl',
+    outputs: [
+      {
+        internalType: 'int256',
+        name: '',
+        type: 'int256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    name: 'cumulativeVolume',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'receiver',
+        type: 'address',
+      },
+      {
+        internalType: 'bool',
+        name: 'isQuote',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'deposit',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'shares',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'divisor',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address[]',
+        name: 'tokens',
+        type: 'address[]',
+      },
+      {
+        internalType: 'bool',
+        name: 'transferNative',
+        type: 'bool',
+      },
+    ],
+    name: 'emergencyWithdraw',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'feeOpenPosition',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+    ],
+    name: 'getLiquidationPrice',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'price',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'getMarkPrice',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'price',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+    ],
+    name: 'getPosition',
+    outputs: [
+      {
+        components: [
+          {
+            internalType: 'bool',
+            name: 'isOpen',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
+            name: 'isShort',
+            type: 'bool',
+          },
+          {
+            internalType: 'uint256',
+            name: 'size',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'positions',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'amountBorrowed',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'amountOut',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'entry',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'margin',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'premium',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'fees',
+            type: 'uint256',
+          },
+          {
+            internalType: 'int256',
+            name: 'pnl',
+            type: 'int256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'openedAt',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'timeframe',
+            type: 'uint256',
+          },
+        ],
+        internalType: 'struct OptionScalp.ScalpPosition',
+        name: '',
+        type: 'tuple',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'strike',
+        type: 'uint256',
+      },
+    ],
+    name: 'getVolatility',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'volatility',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'insuranceFund',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'addr',
+        type: 'address',
+      },
+    ],
+    name: 'isContract',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+    ],
+    name: 'isLiquidatable',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'limitOrderManager',
+    outputs: [
+      {
+        internalType: 'contract LimitOrderManager',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'maxOpenInterest',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'maxSize',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'minimumAbsoluteLiquidationThreshold',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'minimumMargin',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'token0',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'token1',
+        type: 'address',
+      },
+      {
+        internalType: 'int24',
+        name: 'tick0',
+        type: 'int24',
+      },
+      {
+        internalType: 'int24',
+        name: 'tick1',
+        type: 'int24',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount0',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount1',
+        type: 'uint256',
+      },
+    ],
+    name: 'mintUniswapV3Position',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'positionId',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'bytes',
+        name: '',
+        type: 'bytes',
+      },
+    ],
+    name: 'onERC721Received',
+    outputs: [
+      {
+        internalType: 'bytes4',
+        name: '',
+        type: 'bytes4',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    name: 'openInterest',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bool',
+        name: 'isShort',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'size',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'timeframeIndex',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'margin',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'entryLimit',
+        type: 'uint256',
+      },
+    ],
+    name: 'openPosition',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'entry',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'swapped',
+        type: 'uint256',
+      },
+      {
+        internalType: 'bool',
+        name: 'isShort',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'collateral',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'size',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'timeframeIndex',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'lockedLiquidity',
+        type: 'uint256',
+      },
+    ],
+    name: 'openPositionFromLimitOrder',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'optionPricing',
+    outputs: [
+      {
+        internalType: 'contract IOptionPricing',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'owner',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'paused',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+    ],
+    name: 'positionOwner',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+    ],
+    name: 'positionsOfOwner',
+    outputs: [
+      {
+        internalType: 'uint256[]',
+        name: 'tokenIds',
+        type: 'uint256[]',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'priceOracle',
+    outputs: [
+      {
+        internalType: 'contract IPriceOracle',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'quote',
+    outputs: [
+      {
+        internalType: 'contract IERC20',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'quoteDecimals',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'quoteLp',
+    outputs: [
+      {
+        internalType: 'contract ScalpLP',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_contract',
+        type: 'address',
+      },
+    ],
+    name: 'removeFromContractWhitelist',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'scalpPositionMinter',
+    outputs: [
+      {
+        internalType: 'contract ScalpPositionMinter',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'scalpPositions',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: 'isOpen',
+        type: 'bool',
+      },
+      {
+        internalType: 'bool',
+        name: 'isShort',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'size',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'positions',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amountBorrowed',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amountOut',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'entry',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'margin',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'premium',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'fees',
+        type: 'uint256',
+      },
+      {
+        internalType: 'int256',
+        name: 'pnl',
+        type: 'int256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'openedAt',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'timeframe',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+      {
+        internalType: 'bool',
+        name: 'isQuote',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'fees',
+        type: 'uint256',
+      },
+    ],
+    name: 'settleOpenOrderDeletion',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'timeframes',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'uniswapV3Router',
+    outputs: [
+      {
+        internalType: 'contract IUniswapV3Router',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'maxSize',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'maxOpenInterest',
+            type: 'uint256',
+          },
+          {
+            internalType: 'contract IOptionPricing',
+            name: 'optionPricing',
+            type: 'address',
+          },
+          {
+            internalType: 'contract IVolatilityOracle',
+            name: 'volatilityOracle',
+            type: 'address',
+          },
+          {
+            internalType: 'contract IPriceOracle',
+            name: 'priceOracle',
+            type: 'address',
+          },
+          {
+            internalType: 'address',
+            name: 'insuranceFund',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256',
+            name: 'minimumMargin',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'feeOpenPosition',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'minimumAbsoluteLiquidationThreshold',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'withdrawTimeout',
+            type: 'uint256',
+          },
+        ],
+        internalType: 'struct OptionScalp.Configuration',
+        name: 'config',
+        type: 'tuple',
+      },
+    ],
+    name: 'updateConfig',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'volatilityOracle',
+    outputs: [
+      {
+        internalType: 'contract IVolatilityOracle',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    name: 'whitelistedContracts',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bool',
+        name: 'isQuote',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'withdraw',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'assets',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'withdrawTimeout',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+];
+const limitOrdersABI = [
+  {
+    inputs: [],
+    name: 'ContractNotPaused',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'ContractPaused',
+    type: 'error',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: '_contract',
+        type: 'address',
+      },
+    ],
+    name: 'AddToContractWhitelist',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+    ],
+    name: 'CancelOrder',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+    ],
+    name: 'NewOrder',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'previousOwner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
+    name: 'OwnershipTransferred',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
+    ],
+    name: 'Paused',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: '_contract',
+        type: 'address',
+      },
+    ],
+    name: 'RemoveFromContractWhitelist',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
+    ],
+    name: 'Unpaused',
+    type: 'event',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address[]',
+        name: '_optionScalps',
+        type: 'address[]',
+      },
+    ],
+    name: 'addOptionScalps',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_id',
+        type: 'uint256',
+      },
+    ],
+    name: 'cancelCloseOrder',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_id',
+        type: 'uint256',
+      },
+    ],
+    name: 'cancelOpenOrder',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'closeOrders',
+    outputs: [
+      {
+        internalType: 'address',
+        name: 'optionScalp',
+        type: 'address',
+      },
+      {
+        internalType: 'bool',
+        name: 'filled',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'positionId',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'contract OptionScalp',
+        name: 'optionScalp',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+      {
+        internalType: 'int24',
+        name: 'tick0',
+        type: 'int24',
+      },
+      {
+        internalType: 'int24',
+        name: 'tick1',
+        type: 'int24',
+      },
+    ],
+    name: 'createCloseOrder',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'contract OptionScalp',
+        name: 'optionScalp',
+        type: 'address',
+      },
+      {
+        internalType: 'bool',
+        name: 'isShort',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'size',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'timeframeIndex',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'collateral',
+        type: 'uint256',
+      },
+      {
+        internalType: 'int24',
+        name: 'tick0',
+        type: 'int24',
+      },
+      {
+        internalType: 'int24',
+        name: 'tick1',
+        type: 'int24',
+      },
+    ],
+    name: 'createOpenOrder',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'divisor',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_id',
+        type: 'uint256',
+      },
+    ],
+    name: 'fillCloseOrder',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_id',
+        type: 'uint256',
+      },
+    ],
+    name: 'fillOpenOrder',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'fundingRate',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_id',
+        type: 'uint256',
+      },
+    ],
+    name: 'isCloseOrderActive',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'addr',
+        type: 'address',
+      },
+    ],
+    name: 'isContract',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'maxFundingTime',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'bytes',
+        name: '',
+        type: 'bytes',
+      },
+    ],
+    name: 'onERC721Received',
+    outputs: [
+      {
+        internalType: 'bytes4',
+        name: '',
+        type: 'bytes4',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'openOrders',
+    outputs: [
+      {
+        internalType: 'address',
+        name: 'optionScalp',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+      {
+        internalType: 'bool',
+        name: 'isShort',
+        type: 'bool',
+      },
+      {
+        internalType: 'bool',
+        name: 'filled',
+        type: 'bool',
+      },
+      {
+        internalType: 'bool',
+        name: 'cancelled',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'size',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'timeframeIndex',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'collateral',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'lockedLiquidity',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'positionId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'timestamp',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'orderCount',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'owner',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'paused',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    name: 'whitelistedContracts',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+];
+
 export interface optionScalpData {
   optionScalpContract: any | undefined;
+  limitOrdersContract: any | undefined;
   quoteLpContract: OptionScalpsLp;
   baseLpContract: OptionScalpsLp;
   minimumMargin: BigNumber;
@@ -57,8 +2119,21 @@ export interface ScalpPosition {
   timeframe: BigNumber;
   liquidationPrice: BigNumber;
 }
+
+export interface ScalpOrder {
+  isOpen: boolean;
+  isShort: boolean;
+  size: BigNumber;
+  timeframe: BigNumber;
+  collateral: BigNumber;
+  price: BigNumber;
+  expiry: BigNumber | null;
+  filled: boolean;
+}
+
 export interface optionScalpUserData {
   scalpPositions?: ScalpPosition[];
+  scalpOrders?: ScalpOrder[];
   coolingPeriod: {
     quote: number;
     base: number;
@@ -69,10 +2144,15 @@ export interface OptionScalpSlice {
   optionScalpData?: optionScalpData | undefined;
   optionScalpUserData?: optionScalpUserData;
   updateOptionScalpUserData: Function;
+  getScalpPositions: Function;
+  getScalpOrders: Function;
+  getScalpOpenOrder: Function;
+  getScalpCloseOrder: Function;
   updateOptionScalp: Function;
   getUserPositionData: Function;
   setSelectedPoolName?: Function;
   getOptionScalpContract: Function;
+  getLimitOrdersContract: Function;
   getBaseLpContract: Function;
   getQuoteLpContract: Function;
   getScalpPosition: Function;
@@ -108,8 +2188,19 @@ export const createOptionScalpSlice: StateCreator<
     const { selectedPoolName, provider, contractAddresses } = get();
 
     if (!selectedPoolName || !provider) return;
-    return OptionScalps__factory.connect(
+    return new ethers.Contract(
       contractAddresses['OPTION-SCALPS'][selectedPoolName],
+      optionScalpsABI,
+      provider
+    );
+  },
+  getLimitOrdersContract: () => {
+    const { selectedPoolName, provider } = get();
+
+    if (!selectedPoolName || !provider) return;
+    return new ethers.Contract(
+      '0x0000000000000000000000000000000000000000',
+      limitOrdersABI,
       provider
     );
   },
@@ -168,19 +2259,19 @@ export const createOptionScalpSlice: StateCreator<
 
     return price;
   },
-  updateOptionScalpUserData: async () => {
+  getScalpPositions: async () => {
     const {
       accountAddress,
       provider,
       getOptionScalpContract,
+      getLimitOrdersContract,
       getScalpPosition,
       calcPnl,
       calcLiqPrice,
-      getBaseLpContract,
-      getQuoteLpContract,
     } = get();
 
     const optionScalpContract = await getOptionScalpContract();
+    const limitOrdersContract = await getLimitOrdersContract();
 
     let scalpPositionsIndexes: any = [];
     let positionsOfOwner: any = [];
@@ -240,6 +2331,130 @@ export const createOptionScalpSlice: StateCreator<
 
     scalpPositions.reverse();
 
+    return scalpPositions;
+  },
+  getScalpOpenOrder: async (id: BigNumber) => {
+    const { getLimitOrdersContract, getOptionScalpContract } = get();
+
+    const limitOrdersContract = await getLimitOrdersContract();
+    const optionScalpContract = await getOptionScalpContract();
+
+    const openOrder = await limitOrdersContract.openOrders(id);
+    const ticks = await limitOrdersContract.getNFTPositionTicks(
+      openOrder['positionId'],
+      openOrder['optionScalp']
+    );
+
+    const expiry = openOrder['timestamp']; // TODO: add MAX hours
+    const price = BigNumber.from('0'); // TODO: compute from ticks
+    const timeframe = await optionScalpContract.timeframes(
+      openOrder['timeframeIndex']
+    );
+
+    return {
+      isOpen: true,
+      isShort: openOrder['isShort'],
+      size: openOrder['size'],
+      timeframe: timeframe,
+      collateral: openOrder['collateral'],
+      price: price,
+      expiry: expiry,
+      filled: openOrder['filled'],
+    };
+  },
+  getScalpCloseOrder: async (id: BigNumber) => {
+    const { getLimitOrdersContract, getOptionScalpContract } = get();
+
+    const limitOrdersContract = await getLimitOrdersContract();
+    const optionScalpContract = await getOptionScalpContract();
+    const scalpPosition = await optionScalpContract.scalpPositions(id);
+
+    const closeOrder = await limitOrdersContract.closeOrders(id);
+
+    const ticks = await limitOrdersContract.getNFTPositionTicks(
+      closeOrder['positionId'],
+      closeOrder['optionScalp']
+    );
+    const price = BigNumber.from('0'); // TODO: compute from ticks
+
+    return {
+      isOpen: false,
+      isShort: scalpPosition['isShort'],
+      size: scalpPosition['size'],
+      timeframe: scalpPosition['timeframe'],
+      collateral: scalpPosition['collateral'],
+      price: price,
+      expiry: null,
+    };
+  },
+  getScalpOrders: async () => {
+    const {
+      accountAddress,
+      provider,
+      getScalpOpenOrder,
+      getScalpCloseOrder,
+      getLimitOrdersContract,
+    } = get();
+
+    const limitOrdersContract = await getLimitOrdersContract();
+
+    const openOrdersIndexes: any = [];
+    const openOrdersPromises: any[] = [];
+    const closeOrdersIndexes: any = [];
+    const closeOrdersPromises: any[] = [];
+
+    const blockNumber = await provider.getBlockNumber();
+
+    const openOrdersEvents = await limitOrdersContract?.queryFilter(
+      limitOrdersContract.filters.CreateOpenOrder(null, accountAddress),
+      72264883,
+      blockNumber
+    );
+
+    const closeOrdersEvents = await limitOrdersContract?.queryFilter(
+      limitOrdersContract.filters.CreateCloseOrder(null, accountAddress),
+      72264883,
+      blockNumber
+    );
+
+    for (let i in openOrdersEvents) {
+      if (
+        !openOrdersIndexes.includes(Number(events[i]['args'][0])) &&
+        events[i]['args'][1] === accountAddress
+      ) {
+        openOrdersIndexes.push(events[i]['args'][0]);
+      }
+    }
+
+    for (let i in closeOrdersEvents) {
+      if (
+        !closeOrdersIndexes.includes(Number(events[i]['args'][0])) &&
+        events[i]['args'][1] === accountAddress
+      ) {
+        closeOrdersIndexes.push(events[i]['args'][0]);
+      }
+    }
+
+    for (let i in openOrdersIndexes) {
+      openOrdersPromises.push(getScalpOpenOrder(openOrdersIndexes[i]));
+    }
+
+    for (let i in closeOrdersIndexes) {
+      closeOrdersPromises.push(getScalpCloseOrder(closeOrdersIndexes[i]));
+    }
+
+    const openOrders: ScalpOrder[] = await Promise.all(openOrdersPromises);
+
+    const closeOrders: ScalpOrder[] = await Promise.all(closeOrdersPromises);
+
+    return openOrders.concat(closeOrders);
+  },
+  updateOptionScalpUserData: async () => {
+    const { accountAddress, getBaseLpContract, getQuoteLpContract } = get();
+
+    const scalpPositions = await getScalpPositions();
+    const scalpOrders = await getScalpOrders();
+
     const [quoteCoolingPeriod, baseCoolingPeriod] = await Promise.all([
       getQuoteLpContract().lockedUsers(accountAddress),
       getBaseLpContract().lockedUsers(accountAddress),
@@ -250,6 +2465,7 @@ export const createOptionScalpSlice: StateCreator<
       optionScalpUserData: {
         ...prevState.optionScalpUserData,
         scalpPositions: scalpPositions,
+        scalpOrders: scalpOrders,
         coolingPeriod: {
           quote: Number(quoteCoolingPeriod),
           base: Number(baseCoolingPeriod),
@@ -269,12 +2485,14 @@ export const createOptionScalpSlice: StateCreator<
   updateOptionScalp: async () => {
     const {
       getOptionScalpContract,
+      getLimitOrdersContract,
       getQuoteLpContract,
       getBaseLpContract,
       selectedPoolName,
     } = get();
 
     const optionScalpContract = getOptionScalpContract();
+    const limitOrdersContract = getLimitOrdersContract();
     const quoteLpContract = getQuoteLpContract();
     const baseLpContract = getBaseLpContract();
 
@@ -373,6 +2591,7 @@ export const createOptionScalpSlice: StateCreator<
       ...prevState,
       optionScalpData: {
         optionScalpContract: optionScalpContract,
+        limitOrdersContract: limitOrdersContract,
         quoteLpContract: quoteLpContract,
         baseLpContract: baseLpContract,
         minimumMargin: minimumMargin,
