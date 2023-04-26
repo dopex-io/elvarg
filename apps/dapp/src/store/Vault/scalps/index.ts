@@ -1563,13 +1563,13 @@ const limitOrdersABI = [
         type: 'uint256',
       },
       {
-        indexed: false,
+        indexed: true,
         internalType: 'address',
         name: 'user',
         type: 'address',
       },
     ],
-    name: 'CancelOrder',
+    name: 'CancelCloseOrder',
     type: 'event',
   },
   {
@@ -1582,13 +1582,51 @@ const limitOrdersABI = [
         type: 'uint256',
       },
       {
-        indexed: false,
+        indexed: true,
         internalType: 'address',
         name: 'user',
         type: 'address',
       },
     ],
-    name: 'NewOrder',
+    name: 'CancelOpenOrder',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+    ],
+    name: 'CreateCloseOrder',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+    ],
+    name: 'CreateOpenOrder',
     type: 'event',
   },
   {
@@ -1844,6 +1882,35 @@ const limitOrdersABI = [
     inputs: [
       {
         internalType: 'uint256',
+        name: 'positionId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'contract IOptionScalp',
+        name: 'optionScalp',
+        type: 'address',
+      },
+    ],
+    name: 'getNFTPositionTicks',
+    outputs: [
+      {
+        internalType: 'int24',
+        name: 'tickLower',
+        type: 'int24',
+      },
+      {
+        internalType: 'int24',
+        name: 'tickUpper',
+        type: 'int24',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
         name: '_id',
         type: 'uint256',
       },
@@ -2049,6 +2116,29 @@ const limitOrdersABI = [
       },
     ],
     name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'int24',
+        name: '_maxTickSpaceMultiplier',
+        type: 'int24',
+      },
+      {
+        internalType: 'uint256',
+        name: '_maxFundingTime',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '_fundingRate',
+        type: 'uint256',
+      },
+    ],
+    name: 'updateConfig',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -2264,14 +2354,12 @@ export const createOptionScalpSlice: StateCreator<
       accountAddress,
       provider,
       getOptionScalpContract,
-      getLimitOrdersContract,
       getScalpPosition,
       calcPnl,
       calcLiqPrice,
     } = get();
 
     const optionScalpContract = await getOptionScalpContract();
-    const limitOrdersContract = await getLimitOrdersContract();
 
     let scalpPositionsIndexes: any = [];
     let positionsOfOwner: any = [];
@@ -2466,7 +2554,13 @@ export const createOptionScalpSlice: StateCreator<
     return openOrders.concat(closeOrders).filter((_) => _); // filter out null
   },
   updateOptionScalpUserData: async () => {
-    const { accountAddress, getBaseLpContract, getQuoteLpContract } = get();
+    const {
+      accountAddress,
+      getBaseLpContract,
+      getQuoteLpContract,
+      getScalpPositions,
+      getScalpOrders,
+    } = get();
 
     const scalpPositions = await getScalpPositions();
     const scalpOrders = await getScalpOrders();

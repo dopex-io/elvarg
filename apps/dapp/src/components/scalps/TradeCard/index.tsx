@@ -42,8 +42,6 @@ const TradeCard = () => {
 
   const [selectedTimeWindow, setSelectedTimeWindow] = useState<string>('30m');
 
-  const [hoursToExpiry, setHoursToExpiry] = useState<string>('24h');
-
   const [premium, setPremium] = useState<BigNumber>(BigNumber.from(0));
 
   const [approved, setApproved] = useState(false);
@@ -245,6 +243,7 @@ const TradeCard = () => {
   const handleTrade = useCallback(async () => {
     if (
       !optionScalpData?.optionScalpContract ||
+      !optionScalpData?.limitOrdersContract ||
       !accountAddress ||
       !signer ||
       !updateOptionScalp ||
@@ -260,23 +259,54 @@ const TradeCard = () => {
           .markPrice!.mul(BigNumber.from(1005))
           .div(BigNumber.from(1000));
 
-    try {
-      await sendTx(
-        optionScalpData.optionScalpContract.connect(signer),
-        'openPosition',
-        [
-          isShortAfterAdjustments,
-          posSize,
-          timeframeIndex,
-          getContractReadableAmount(
-            positionDetails.marginInQuote.toFixed(5),
-            optionScalpData?.quoteDecimals!.toNumber()
-          ),
-          entryLimit,
-        ]
-      ).then(() => updateOptionScalp().then(() => updateOptionScalpUserData()));
-    } catch (err) {
-      console.log(err);
+    if (orderType === 'Market') {
+      try {
+        await sendTx(
+          optionScalpData.optionScalpContract.connect(signer),
+          'openPosition',
+          [
+            isShortAfterAdjustments,
+            posSize,
+            timeframeIndex,
+            getContractReadableAmount(
+              positionDetails.marginInQuote.toFixed(5),
+              optionScalpData?.quoteDecimals!.toNumber()
+            ),
+            entryLimit,
+          ]
+        ).then(() =>
+          updateOptionScalp().then(() => updateOptionScalpUserData())
+        );
+      } catch (err) {
+        console.log(err);
+      }
+    } else if (orderType === 'Limit') {
+      try {
+        const tick0 = 0;
+        const tick1 = 1;
+        // TODO: compute ticks from price
+
+        await sendTx(
+          optionScalpData.limitOrdersContract.connect(signer),
+          'createOpenOrder',
+          [
+            optionScalpData.optionScalpContract.address,
+            isShort,
+            posSize,
+            timeframeIndex,
+            getContractReadableAmount(
+              positionDetails.marginInQuote.toFixed(5),
+              optionScalpData?.quoteDecimals!.toNumber()
+            ), // margin + fees + premium
+            tick0,
+            tick1,
+          ]
+        ).then(() =>
+          updateOptionScalp().then(() => updateOptionScalpUserData())
+        );
+      } catch (err) {
+        console.log(err);
+      }
     }
   }, [
     accountAddress,
@@ -289,6 +319,7 @@ const TradeCard = () => {
     timeframeIndex,
     positionDetails.marginInQuote,
     isShortAfterAdjustments,
+    orderType,
   ]);
 
   const handleMax = useCallback(() => {}, []);
@@ -329,6 +360,10 @@ const TradeCard = () => {
   const handleCheckbox = useCallback((event: any) => {
     setShowAsQuote(event.target.checked);
   }, []);
+
+  const handleOrderTypeToggle = useCallback(() => {
+    setOrderType(orderType === 'Market' ? 'Limit' : 'Market');
+  }, [orderType]);
 
   const setSelectedMargin = useCallback(
     async (option: number) => {
@@ -379,20 +414,33 @@ const TradeCard = () => {
 
   return (
     <div className="px-4 pb-4 pt-5 min-w-[24.5rem]">
+      <div className="w-full flex items-center justify-center px-3 mb-4">
+        <p className="text-xs text-stieglitz mr-2 ml-auto">
+          Open with a limit order
+        </p>
+        <Checkbox
+          // @ts-ignore
+          size="xs"
+          className={
+            orderType === 'Limit' ? 'p-0 text-white' : 'p-0 text-white border'
+          }
+          checked={orderType === 'Limit'}
+          onChange={handleOrderTypeToggle}
+        />
+
+        <p className="text-xs text-stieglitz mr-2 ml-3">
+          Show as {optionScalpData?.quoteSymbol}
+        </p>
+        <Checkbox
+          // @ts-ignore
+          size="xs"
+          className={showAsQuote ? 'p-0 text-white' : 'p-0 text-white border'}
+          checked={showAsQuote}
+          onChange={handleCheckbox}
+        />
+      </div>
       <div className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
-        <div className="w-full flex items-center justify-center px-3">
-          <p className="text-xs text-stieglitz mr-2 ml-auto">
-            Show as {optionScalpData?.quoteSymbol}
-          </p>
-          <Checkbox
-            // @ts-ignore
-            size="xs"
-            className={showAsQuote ? 'p-0 text-white' : 'p-0 text-white border'}
-            checked={showAsQuote}
-            onChange={handleCheckbox}
-          />
-        </div>
-        <div className="flex flex-row justify-between">
+        <div className="flex flex-row justify-between mt-0.5">
           <div className="bg-cod-gray rounded-full pl-1 pr-1 flex pb-2 flex-row items-center">
             <div className="flex flex-row w-auto p-1 pl-3 pr-2">
               <p
@@ -433,7 +481,7 @@ const TradeCard = () => {
           </div>
         </div>
         <div className="flex flex-row justify-between items-center mt-2">
-          <div className=" flex mr-2 border border-mineshaft rounded-md ">
+          <div className=" flex mr-2 border border-mineshaft rounded-md">
             {[10, 25, 50, 75, 100].map((option, i) => (
               <div
                 key={i}
@@ -461,6 +509,24 @@ const TradeCard = () => {
             </h6>
           </div>
         </div>
+        {orderType === 'Limit' ? (
+          <div className="mt-3">
+            <p className="text-xs text-stieglitz">Limit price</p>
+            <Input
+              disableUnderline
+              placeholder={String(
+                getUserReadableAmount(
+                  markPrice,
+                  optionScalpData?.quoteDecimals!.toNumber()
+                )
+              )}
+              onChange={() => {}}
+              type="number"
+              className={`mt-2 border border-mineshaft rounded-md px-2 bg-umbra w-full !w-auto`}
+              classes={{ input: 'text-white text-xs text-left py-2' }}
+            />
+          </div>
+        ) : null}
       </div>
       <div className="flex mb-4">
         {['1m', '5m', '15m', '30m', '60m'].map((time, i) => (
@@ -598,76 +664,6 @@ const TradeCard = () => {
             </div>
           </div>
         </div>
-      </div>
-      <div className="rounded-md  mb-2.5 p-4 pt-4 pb-3.5 border border-neutral-800 w-full bg-neutral-800">
-        <p className="text-xs text-stieglitz">Order type</p>
-
-        <div className="flex mt-2">
-          <div
-            key={'Market'}
-            className={
-              (orderType === 'Market' ? ' bg-mineshaft' : ' bg-umbra') +
-              ` mr-1.5 text-center w-auto p-2 border-[1px] border-[#1E1E1E] rounded-md cursor-pointer group hover:bg-mineshaft hover:opacity-80`
-            }
-            onClick={() => setOrderType('Market')}
-          >
-            <h6 className="text-xs font-normal">Market</h6>
-          </div>
-
-          <div
-            key={'Limit'}
-            className={
-              (orderType === 'Limit' ? ' bg-mineshaft' : ' bg-umbra') +
-              ` text-center w-auto p-2 border-[1px] border-[#1E1E1E] rounded-md cursor-pointer group hover:bg-mineshaft hover:opacity-80`
-            }
-            onClick={() => setOrderType('Limit')}
-          >
-            <h6 className="text-xs font-normal">Limit</h6>
-          </div>
-        </div>
-
-        {orderType === 'Limit' ? (
-          <div className="mt-3">
-            <p className="text-xs text-stieglitz">Limit price</p>
-            <Input
-              disableUnderline
-              placeholder={String(
-                getUserReadableAmount(
-                  markPrice,
-                  optionScalpData?.quoteDecimals!.toNumber()
-                )
-              )}
-              onChange={() => {}}
-              type="number"
-              className={`mt-2 border border-mineshaft rounded-md px-2 bg-umbra w-full !w-auto`}
-              classes={{ input: 'text-white text-xs text-left py-2' }}
-            />
-          </div>
-        ) : null}
-        {orderType === 'Limit' ? (
-          <div className="mt-3">
-            <p className="text-xs text-stieglitz">Expiry</p>
-            <div className="flex mt-2">
-              {['1h', '5h', '12h', '24h', '48h'].map((time, i) => (
-                <div
-                  key={i}
-                  className={
-                    (i === 0
-                      ? 'mr-1.5'
-                      : i === 4
-                      ? 'mr-auto ml-1.5'
-                      : 'mx-1.5') +
-                    (time === hoursToExpiry ? ' bg-mineshaft' : ' bg-umbra') +
-                    ` text-center w-auto p-2 border-[1px] border-[#1E1E1E] rounded-md cursor-pointer group hover:bg-mineshaft hover:opacity-80`
-                  }
-                  onClick={() => setHoursToExpiry(time)}
-                >
-                  <h6 className="text-xs font-normal">{time}</h6>
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : null}
       </div>
       <div className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
         <EstimatedGasCostButton gas={500000} chainId={chainId} />
