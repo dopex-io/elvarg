@@ -9,7 +9,6 @@ import { useBoundStore } from 'store';
 
 import { ISpreadPair } from 'store/Vault/zdte';
 
-import { Typography } from 'components/UI';
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 import PnlChart from 'components/zdte/Manage/PnlChart';
 import TradeButton from 'components/zdte/Manage/TradeCard/TradeButton';
@@ -150,11 +149,9 @@ const TradeCard = () => {
     }
   }, [staticZdteData, signer, sendTx, amount, accountAddress]);
 
-  const handleTradeAmount = useCallback(
-    (e: { target: { value: React.SetStateAction<string | number> } }) =>
-      setAmount(e.target.value),
-    []
-  );
+  const handleTradeAmount = (e: {
+    target: { value: React.SetStateAction<string | number> };
+  }) => setAmount(e.target.value);
 
   const handleOpenPosition = useCallback(async () => {
     if (!signer || !provider || !zdteContract || !selectedSpreadPair) return;
@@ -348,12 +345,11 @@ const TradeCard = () => {
         <Box className="flex flex-row justify-between">
           <Box className="rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center min-w-max">
             <Box className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
-              <Typography
-                variant="h6"
-                className="mt-2 font-medium text-[0.8rem]"
-              >
-                {getStrikeDisplay(selectedSpreadPair, zdteData?.tokenPrice)}
-              </Typography>
+              <h6 className="mt-2 font-medium text-[0.8rem]">
+                <span>
+                  {getStrikeDisplay(selectedSpreadPair, zdteData?.tokenPrice)}
+                </span>
+              </h6>
             </Box>
           </Box>
           <MuiInput
@@ -395,12 +391,9 @@ const TradeCard = () => {
                   );
                 }}
               >
-                <Typography
-                  variant="h6"
-                  className="text-xs font-light py-2 px-2"
-                >
-                  {option}%
-                </Typography>
+                <h6 className="text-xs font-light py-2 px-2">
+                  <span>{option}%</span>
+                </h6>
               </Box>
             ))}
           </Box>
