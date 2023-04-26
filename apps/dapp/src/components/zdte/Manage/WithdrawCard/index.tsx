@@ -10,7 +10,7 @@ import { useBoundStore } from 'store';
 
 import { IStaticZdteData, IZdteData, IZdteUserData } from 'store/Vault/zdte';
 
-import { CustomButton, Typography } from 'components/UI';
+import { CustomButton } from 'components/UI';
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 import Loading from 'components/zdte/Loading';
 
@@ -243,28 +243,26 @@ const Withdraw = () => {
         <div className="flex flex-row justify-between">
           <div className="rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center min-w-max">
             <div className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
-              <Typography
-                variant="h6"
+              <h6
                 className={cx(
                   'font-medium mt-1 cursor-pointer text-[0.8rem]',
                   !isQuote && 'opacity-50'
                 )}
                 onClick={() => setisQuote(true)}
               >
-                {staticZdteData.quoteLpSymbol}
-              </Typography>
+                <span>{staticZdteData.quoteLpSymbol}</span>
+              </h6>
             </div>
             <div className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
-              <Typography
-                variant="h6"
+              <h6
                 className={cx(
                   'font-medium mt-1 cursor-pointer text-[0.8rem]',
                   isQuote && 'opacity-50'
                 )}
                 onClick={() => setisQuote(false)}
               >
-                {staticZdteData.baseLpSymbol}
-              </Typography>
+                <span>{staticZdteData.baseLpSymbol}</span>
+              </h6>
             </div>
           </div>
           <MuiInput
