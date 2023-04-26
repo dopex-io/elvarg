@@ -24,7 +24,7 @@ const BLOCKED_COUNTRIES_ALPHA_2_CODES: string[] = [
 ];
 
 export function middleware(req: NextRequest) {
-  console.log('Headers', req.headers);
+  console.log('Headers', req.headers.get('user-agent'));
 
   const country = req.geo?.country;
 
