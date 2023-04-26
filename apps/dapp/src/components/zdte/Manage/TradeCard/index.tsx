@@ -194,6 +194,10 @@ const TradeCard = () => {
   ]);
 
   useEffect(() => {
+    if (textInputRef) textRef.current?.focus();
+  }, [textInputRef]);
+
+  useEffect(() => {
     async function updatePremiumAndFees() {
       if (!selectedSpreadPair?.longStrike || !selectedSpreadPair?.shortStrike) {
         setPremiumPerOption(0);
@@ -209,7 +213,7 @@ const TradeCard = () => {
         // # long <= current, long > short, => isPut
         const [longPremium, shortPremium, longOpeningFees, shortOpeningFees] =
           await Promise.all([
-            zdteContract.calcPremium(
+            zdteContract.calcPremiumCustom(
               selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike,
               orZero(selectedSpreadPair.longStrike),
               ether
@@ -236,7 +240,10 @@ const TradeCard = () => {
         console.log('fail to updatePremiumAndFees: ', err);
       }
     }
+    updatePremiumAndFees();
+  }, [selectedSpreadPair, getZdteContract]);
 
+  useEffect(() => {
     async function validateApproval() {
       if (!signer || !accountAddress || !staticZdteData || !amount) return;
       try {
@@ -258,7 +265,10 @@ const TradeCard = () => {
         console.log('fail to validateApproval: ', err);
       }
     }
+    validateApproval();
+  }, [signer, accountAddress, staticZdteData, amount, premium, openingFees]);
 
+  useEffect(() => {
     async function validateCanOpenSpread() {
       if (!selectedSpreadPair?.shortStrike || !amount) return;
       try {
@@ -280,7 +290,10 @@ const TradeCard = () => {
         console.log('fail to validateCanOpenSpread: ', err);
       }
     }
+    validateCanOpenSpread();
+  }, [selectedSpreadPair, amount, getZdteContract]);
 
+  useEffect(() => {
     async function updateMargin() {
       if (
         !selectedSpreadPair?.longStrike ||
@@ -316,28 +329,8 @@ const TradeCard = () => {
         console.log('fail to updateMargin: ', err);
       }
     }
-    updatePremiumAndFees();
-    validateApproval();
-    validateCanOpenSpread();
     updateMargin();
-
-    if (textInputRef) textRef.current?.focus();
-  }, [
-    staticZdteData,
-    selectedSpreadPair,
-    getZdteContract,
-    signer,
-    accountAddress,
-    amount,
-    textInputRef,
-    premium,
-    openingFees,
-    zdteData,
-    setApproved,
-    setCanOpenSpread,
-    setMargin,
-    handleApprove,
-  ]);
+  }, [selectedSpreadPair, amount, getZdteContract]);
 
   return (
     <Box className="rounded-xl space-y-2 p-2">
