@@ -17,21 +17,23 @@ import { formatAmount } from 'utils/general';
 export const FormatDollarColor = ({ value }: { value: number }) => {
   const formatedVal = Number(formatAmount(Math.abs(value), 2));
   if (value > 0) {
-    return <p className="text-sm up-only">{`$${formatedVal}`}</p>;
+    return <p className="text-sm text-up-only">{`$${formatedVal}`}</p>;
   } else if (value < 0) {
-    return <p className="text-sm down-bad">{`-$${Math.abs(formatedVal)}`}</p>;
+    return (
+      <p className="text-sm text-down-bad">{`-$${Math.abs(formatedVal)}`}</p>
+    );
   } else {
-    return <p className="text-sm">{`$${formatedVal}`}</p>;
+    return <p className="text-sm text-white">{`$${formatedVal}`}</p>;
   }
 };
 
 export const FormatPercentColor = ({ value }: { value: number }) => {
   if (value > 0) {
-    return <p className="text-sm up-only">{`${value}%`}</p>;
+    return <p className="text-sm text-up-only">{`${value}%`}</p>;
   } else if (value < 0) {
-    return <p className="text-sm down-bad">{`-${Math.abs(value)}%`}</p>;
+    return <p className="text-sm text-down-bad">{`-${Math.abs(value)}%`}</p>;
   } else {
-    return <p className="text-sm">{`${value}%`}</p>;
+    return <p className="text-sm text-white">{`${value}%`}</p>;
   }
 };
 
