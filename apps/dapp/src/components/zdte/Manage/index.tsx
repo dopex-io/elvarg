@@ -1,12 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { CircularProgress } from '@mui/material';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import ButtonGroup from '@mui/material/ButtonGroup';
+import { Button, ButtonGroup } from '@mui/material';
 import { useBoundStore } from 'store';
 
-import Typography from 'components/UI/Typography';
 import Deposit from 'components/zdte/Manage/DepositCard';
 import TradeCard from 'components/zdte/Manage/TradeCard';
 import Withdraw from 'components/zdte/Manage/WithdrawCard';
@@ -19,7 +15,7 @@ const ManageCard = () => {
   }, []);
 
   return (
-    <Box className="w-full">
+    <div className="w-full">
       <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-top-lg">
         {['Deposit', 'Withdraw'].map((label, index) => (
           <Button
@@ -32,16 +28,16 @@ const ManageCard = () => {
             disableRipple
             onClick={handleClick}
           >
-            <Typography variant="h6" className="text-xs mt-2 pb-2">
-              {label}
-            </Typography>
+            <h6 className="text-xs mt-2 pb-2">
+              <span>{label}</span>
+            </h6>
           </Button>
         ))}
       </ButtonGroup>
-      <Box className="bg-cod-gray rounded-b-xl pb-3">
+      <div className="bg-cod-gray rounded-b-xl pb-3">
         {active === 'Deposit' ? <Deposit /> : <Withdraw />}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 
@@ -62,17 +58,11 @@ const ManageComponent = () => {
   }, [focusTrade]);
 
   if (!zdteData || !staticZdteData) {
-    return (
-      <CircularProgress
-        sx={{
-          color: '#000000',
-        }}
-      />
-    );
+    return;
   }
 
   return (
-    <Box className="w-[348px]">
+    <div className="w-[348px]">
       <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-top-lg mb-2">
         {['LP', 'Trade'].map((label, index) => (
           <Button
@@ -95,17 +85,17 @@ const ManageComponent = () => {
               setManageSection(label);
             }}
           >
-            <Typography variant="h6" className="text-xs pb-1">
-              {label}
-            </Typography>
+            <h6 className="text-xs pb-1">
+              <span>{label}</span>
+            </h6>
           </Button>
         ))}
       </ButtonGroup>
       {manageSection === 'Trade' ? (
         <>
-          <Box className="bg-cod-gray rounded-xl">
+          <div className="bg-cod-gray rounded-xl">
             <TradeCard />
-          </Box>
+          </div>
           <p className="text-stieglitz mt-2 p-2">
             Zero day to expiry option spreads are a flexible and risk-controlled
             options trading strategy for traders. By buying and selling options
@@ -117,7 +107,7 @@ const ManageComponent = () => {
       ) : (
         <ManageCard />
       )}
-    </Box>
+    </div>
   );
 };
 
