@@ -23,7 +23,13 @@ const BLOCKED_COUNTRIES_ALPHA_2_CODES: string[] = [
   'VE',
 ];
 
-const unblockedUserAgents = ['Twitter', 'Telegram', 'Discord', 'Google'];
+const unblockedUserAgents = [
+  'Twitter',
+  'Telegram',
+  'Discord',
+  'Google',
+  'Go-http-client',
+];
 
 export function middleware(req: NextRequest) {
   const userAgent = req.headers.get('user-agent');
@@ -41,6 +47,8 @@ export function middleware(req: NextRequest) {
       check = true;
     }
   }
+
+  console.log(check, userAgent);
 
   if (check) {
     const country = req.geo?.country;
