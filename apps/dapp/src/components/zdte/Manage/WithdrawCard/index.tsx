@@ -22,7 +22,7 @@ import { formatAmount } from 'utils/general';
 
 import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
-class Asset {
+class QuoteOrBaseAsset {
   private isQuote: boolean;
   private zdteData: IZdteData;
   private userZdteLpData: IZdteUserData;
@@ -106,7 +106,13 @@ const Withdraw = () => {
   const [tokenApproved, setTokenApproved] = useState<boolean>(false);
   const [isQuote, setisQuote] = useState(true);
   const asset = useMemo(
-    () => new Asset(isQuote, zdteData!, userZdteLpData!, staticZdteData!),
+    () =>
+      new QuoteOrBaseAsset(
+        isQuote,
+        zdteData!,
+        userZdteLpData!,
+        staticZdteData!
+      ),
     [isQuote, userZdteLpData, zdteData, staticZdteData]
   );
 
