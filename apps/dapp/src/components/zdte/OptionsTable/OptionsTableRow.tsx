@@ -59,7 +59,7 @@ export const OptionsTableRow = ({
       </StyleLeftCell>
       <StyleCell align="left">
         <h6>
-          <span>
+          <span className="text-white">
             {`${
               optionsStats.premium === '...'
                 ? '...'
@@ -70,12 +70,12 @@ export const OptionsTableRow = ({
       </StyleCell>
       <StyleCell align="left">
         <h6>
-          <span>{optionsStats.iv}</span>
+          <span className="text-white">{optionsStats.iv}</span>
         </h6>
       </StyleCell>
       <StyleCell align="left">
         <h6>
-          <span>
+          <span className="text-white">
             {`${
               optionsStats.premium === '...'
                 ? '...'
@@ -120,7 +120,7 @@ export const OptionsTableRowLower = ({
       </StyleLeftTableCell>
       <StyleTableCellHeader>
         <h6>
-          <span>
+          <span className="text-white">
             {`${
               optionsStats.premium === '...'
                 ? '...'
@@ -131,12 +131,12 @@ export const OptionsTableRowLower = ({
       </StyleTableCellHeader>
       <StyleTableCellHeader>
         <h6>
-          <span>{optionsStats.iv}</span>
+          <span className="text-white">{optionsStats.iv}</span>
         </h6>
       </StyleTableCellHeader>
       <StyleTableCellHeader>
         <h6>
-          <span>
+          <span className="text-white">
             {`${
               optionsStats.premium === '...'
                 ? '...'
