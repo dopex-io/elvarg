@@ -7,7 +7,6 @@ import useShare from 'hooks/useShare';
 
 import { IZdteExpiredData, IZdtePurchaseData } from 'store/Vault/zdte';
 
-import { Typography } from 'components/UI';
 import {
   StyleCell,
   StyleLeftCell,
@@ -74,9 +73,9 @@ export const ClosedPositionsRow = ({
 
       share({
         title: (
-          <Typography variant="h4" className="font-bold shadow-2xl">
-            {`${tokenSymbol} ${prefix} Spread ZDTE`}
-          </Typography>
+          <h4 className="font-bold shadow-2xl">
+            <span>{`${tokenSymbol} ${prefix} Spread ZDTE`}</span>
+          </h4>
         ),
         percentage: pnl,
         customPath: '/zdte/eth',
@@ -111,20 +110,20 @@ export const ClosedPositionsRow = ({
         <span className="text-sm text-white">{getStrikeDisplay(position)}</span>
       </StyleLeftCell>
       <StyleCell align="left">
-        <Typography variant="h6" color="white">
+        <h6 className="text-white">
           {`${formatAmount(
             getUserReadableAmount(position.positions, DECIMALS_TOKEN),
             2
           )}`}
-        </Typography>
+        </h6>
       </StyleCell>
       <StyleCell align="left">
-        <Typography variant="h6" color="white">
+        <h6 className="text-white">
           {`$${formatAmount(
             getUserReadableAmount(position.settlementPrice, DECIMALS_STRIKE),
             2
           )}`}
-        </Typography>
+        </h6>
       </StyleCell>
       <StyleCell align="left">
         <FormatDollarColor
@@ -135,12 +134,14 @@ export const ClosedPositionsRow = ({
         />
       </StyleCell>
       <StyleCell align="left">
-        <Typography variant="h6" color="white">
-          {formatDistance(
-            position.expiry.toNumber() * 1000,
-            Number(new Date())
-          ) + ' ago'}
-        </Typography>
+        <h6 color="white">
+          <span>
+            {formatDistance(
+              position.expiry.toNumber() * 1000,
+              Number(new Date())
+            ) + ' ago'}
+          </span>
+        </h6>
       </StyleCell>
       <StyleRightCell align="right">
         <div className="flex justify-end">
