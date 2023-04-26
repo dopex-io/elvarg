@@ -8,7 +8,7 @@ interface InputProps extends MuiInputProps {
   bottomElement?: ReactNode;
   topElement?: ReactNode;
   variant?: string;
-  outline?: 'mineshaft' | 'down-bad' | 'umbra' | 'none';
+  outline?: 'mineshaft' | 'down-bad' | 'umbra';
   placeholder?: string;
 }
 
