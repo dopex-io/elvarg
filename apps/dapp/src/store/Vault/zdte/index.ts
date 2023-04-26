@@ -124,7 +124,6 @@ export interface ZdteSlice {
   getZdteContract: Function;
   getQuoteLpContract: Function;
   getBaseLpContract: Function;
-  updateExpireStats: Function;
   userZdteLpData?: IZdteUserData;
   updateUserZdteLpData: Function;
   userPurchaseData?: IZdteRawPurchaseData[];
@@ -570,7 +569,7 @@ export const createZdteSlice: StateCreator<
       throw new Error('fail to update static zdte data');
     }
   },
-  setSelectedSpreadPair: async (pair: ISpreadPair) => {
+  setSelectedSpreadPair: (pair: ISpreadPair) => {
     const { getZdteContract } = get();
 
     if (!getZdteContract) return;
@@ -585,13 +584,13 @@ export const createZdteSlice: StateCreator<
       throw new Error('fail to update selected spread pair');
     }
   },
-  setFocusTrade: async (focus: boolean) => {
+  setFocusTrade: (focus: boolean) => {
     set((prevState) => ({
       ...prevState,
       focusTrade: focus,
     }));
   },
-  setTextInputRef: async (ref: boolean) => {
+  setTextInputRef: (ref: boolean) => {
     set((prevState) => ({
       ...prevState,
       textInputRef: ref,
@@ -628,44 +627,6 @@ export const createZdteSlice: StateCreator<
       ...prevState,
       subgraphVolume: subgraphVolume,
     }));
-  },
-  updateExpireStats: async () => {
-    const { provider } = get();
-
-    try {
-      const zdteContract = Zdte__factory.connect(ZDTE, provider);
-      const genesisExpiry = await zdteContract.genesisExpiry();
-      const nextExpiry = await zdteContract.getCurrentExpiry();
-
-      let expiryInfoArray: IExpiryInfo[] = [];
-
-      for (
-        let i = genesisExpiry.toNumber();
-        i < nextExpiry.toNumber() + ONE_DAY;
-        i = i + ONE_DAY
-      ) {
-        const ei = await zdteContract.expiryInfo(BigNumber.from(i));
-        if (!ei.begin) {
-          expiryInfoArray.push({
-            ...ei,
-            expiry: nextExpiry,
-            startId: 'N/A',
-          });
-        } else {
-          expiryInfoArray.push({
-            ...ei,
-            startId: ei.startId.toNumber().toString(),
-          });
-        }
-      }
-      set((prevState) => ({
-        ...prevState,
-        expireStats: expiryInfoArray,
-      }));
-    } catch (err) {
-      console.error(err);
-      throw new Error('fail to update expire stats');
-    }
   },
 });
 
