@@ -3,7 +3,7 @@ import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { BigNumber } from 'ethers';
 
 import { ERC20__factory } from '@dopex-io/sdk';
-import { Box, Input as MuiInput } from '@mui/material';
+import { Input as MuiInput } from '@mui/material';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
@@ -333,18 +333,18 @@ const TradeCard = () => {
   }, [selectedSpreadPair, amount, getZdteContract]);
 
   return (
-    <Box className="rounded-xl space-y-2 p-2">
+    <div className="rounded-xl space-y-2 p-2">
       <div>
-        <Box className="flex flex-row justify-between">
-          <Box className="rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center min-w-max">
-            <Box className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
+        <div className="flex flex-row justify-between">
+          <div className="rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center min-w-max">
+            <div className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
               <h6 className="mt-2 font-medium text-[0.8rem]">
                 <span>
                   {getStrikeDisplay(selectedSpreadPair, zdteData?.tokenPrice)}
                 </span>
               </h6>
-            </Box>
-          </Box>
+            </div>
+          </div>
           <MuiInput
             inputRef={textRef}
             disableUnderline
@@ -360,11 +360,11 @@ const TradeCard = () => {
             onChange={handleTradeAmount}
             classes={{ input: 'text-right' }}
           />
-        </Box>
+        </div>
         <div className="flex justify-between">
-          <Box className=" flex mr-2 border border-white rounded-md ">
+          <div className=" flex mr-2 border border-white rounded-md ">
             {[10, 25, 50, 75, 100].map((option, i) => (
-              <Box
+              <div
                 key={i}
                 className={`text-center w-auto cursor-pointer group hover:bg-mineshaft hover:opacity-80`}
                 onClick={() => {
@@ -387,9 +387,9 @@ const TradeCard = () => {
                 <h6 className="text-xs font-light py-2 px-2">
                   <span>{option}%</span>
                 </h6>
-              </Box>
+              </div>
             ))}
-          </Box>
+          </div>
           <span className="mt-2 text-sm">
             {`${formatAmount(
               getUserReadableAmount(
@@ -401,7 +401,7 @@ const TradeCard = () => {
           </span>
         </div>
       </div>
-      <Box className="p-1 space-y-1">
+      <div className="p-1 space-y-1">
         <ContentRow
           title="Liquidity Required"
           content={
@@ -432,7 +432,7 @@ const TradeCard = () => {
             amount={Number(amount)}
           />
         </div>
-      </Box>
+      </div>
       <TradeButton
         amount={amount}
         selectedSpreadPair={selectedSpreadPair!}
@@ -442,7 +442,7 @@ const TradeCard = () => {
         approved={approved}
         canOpenSpread={canOpenSpread}
       />
-    </Box>
+    </div>
   );
 };
 
