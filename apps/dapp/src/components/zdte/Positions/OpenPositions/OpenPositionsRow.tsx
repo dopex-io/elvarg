@@ -1,7 +1,7 @@
 import { ReactNode, useCallback } from 'react';
 
 import IosShare from '@mui/icons-material/IosShare';
-import { Box, IconButton, TableRow } from '@mui/material';
+import { IconButton, TableRow } from '@mui/material';
 import useShare from 'hooks/useShare';
 import Countdown from 'react-countdown';
 
@@ -146,18 +146,18 @@ export const OpenPositionsRow = ({
             date={new Date(position.expiry.toNumber() * 1000)}
             renderer={({ hours, minutes }) => {
               return (
-                <Box className="flex space-x-2">
+                <div className="flex space-x-2">
                   <Typography variant="h6">
                     {hours}h {minutes}m
                   </Typography>
-                </Box>
+                </div>
               );
             }}
           />
         </Typography>
       </StyleCell>
       <StyleRightCell align="right">
-        <Box className="flex justify-end">
+        <div className="flex justify-end">
           <IconButton
             aria-label="share"
             aria-haspopup="true"
@@ -167,7 +167,7 @@ export const OpenPositionsRow = ({
           >
             <IosShare className="fill-current text-white opacity-90 hover:opacity-100 text-lg" />
           </IconButton>
-        </Box>
+        </div>
       </StyleRightCell>
     </TableRow>
   );
