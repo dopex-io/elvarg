@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { BigNumber, utils } from 'ethers';
 
@@ -8,7 +8,7 @@ import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
-import { CustomButton, Typography } from 'components/UI';
+import { CustomButton } from 'components/UI';
 import Loading from 'components/zdte/Loading';
 
 import {
@@ -18,8 +18,6 @@ import {
 import { formatAmount } from 'utils/general';
 
 import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
-
-interface DepositProps {}
 
 const BalanceBox = ({
   tokenSymbol,
@@ -31,22 +29,22 @@ const BalanceBox = ({
   handleMax: () => void;
 }) => {
   return (
-    <Box className="flex justify-between p-2">
-      <Typography variant="h6" color="stieglitz">
-        Balance
-      </Typography>
-      <Box className="ml-auto mr-2 mt-1 cursor-pointer" onClick={handleMax}>
+    <div className="flex justify-between p-2">
+      <h6 className="text-stieglitz">
+        <span>Balance</span>
+      </h6>
+      <div className="ml-auto mr-2 mt-1 cursor-pointer" onClick={handleMax}>
         <img src="/assets/max.svg" alt="MAX" />
-      </Box>
-      <Typography variant="h6" className="flex justify-end">
-        {`${formatAmount(tokenBalance, 2)}`}
+      </div>
+      <h6 className="flex justify-end">
+        <span>{`${formatAmount(tokenBalance, 2)}`}</span>
         <span className="text-stieglitz ml-1">{tokenSymbol}</span>
-      </Typography>
-    </Box>
+      </h6>
+    </div>
   );
 };
 
-const Deposit: FC<DepositProps> = ({}) => {
+const Deposit = () => {
   const sendTx = useSendTx();
 
   const {
@@ -184,28 +182,26 @@ const Deposit: FC<DepositProps> = ({}) => {
         <Box className="flex flex-row justify-between">
           <Box className="rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center min-w-max">
             <Box className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
-              <Typography
-                variant="h6"
+              <h6
                 className={cx(
                   'font-medium mt-1 cursor-pointer text-[0.8rem]',
                   !isQuote && 'opacity-50'
                 )}
                 onClick={() => setisQuote(true)}
               >
-                {staticZdteData?.quoteTokenSymbol}
-              </Typography>
+                <span>{staticZdteData?.quoteTokenSymbol}</span>
+              </h6>
             </Box>
             <Box className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
-              <Typography
-                variant="h6"
+              <h6
                 className={cx(
                   'font-medium mt-1 cursor-pointer text-[0.8rem]',
                   isQuote && 'opacity-50'
                 )}
                 onClick={() => setisQuote(false)}
               >
-                {staticZdteData?.baseTokenSymbol}
-              </Typography>
+                <span>{staticZdteData?.baseTokenSymbol}</span>
+              </h6>
             </Box>
           </Box>
           <MuiInput
