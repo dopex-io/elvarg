@@ -23,13 +23,31 @@ const BLOCKED_COUNTRIES_ALPHA_2_CODES: string[] = [
   'VE',
 ];
 
+const unblockedUserAgents = ['Twitter', 'Telegram', 'Discord', 'Google'];
+
 export function middleware(req: NextRequest) {
-  console.log('Headers', req.headers.get('user-agent'));
+  const userAgent = req.headers.get('user-agent');
 
-  const country = req.geo?.country;
+  let check = false;
 
-  if (country && BLOCKED_COUNTRIES_ALPHA_2_CODES.includes(country)) {
-    req.nextUrl.pathname = '/blocked';
+  if (userAgent) {
+    for (let i = 0; i < unblockedUserAgents.length; i++) {
+      const unblockedUserAgent = unblockedUserAgents[i]!;
+
+      if (userAgent.includes(unblockedUserAgent)) {
+        check = false;
+        break;
+      }
+      check = true;
+    }
+  }
+
+  if (check) {
+    const country = req.geo?.country;
+
+    if (country && BLOCKED_COUNTRIES_ALPHA_2_CODES.includes(country)) {
+      req.nextUrl.pathname = '/blocked';
+    }
   }
 
   // Rewrite to URL
