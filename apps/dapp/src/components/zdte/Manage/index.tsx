@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button, ButtonGroup } from '@mui/material';
 import { useBoundStore } from 'store';
@@ -10,9 +10,7 @@ import Withdraw from 'components/zdte/Manage/WithdrawCard';
 const ManageCard = () => {
   const [active, setActive] = useState<string>('Deposit');
 
-  const handleClick = useCallback((e: any) => {
-    setActive(e.target.textContent);
-  }, []);
+  const handleClick = (e: any) => setActive(e.target.textContent);
 
   return (
     <div className="w-full">
