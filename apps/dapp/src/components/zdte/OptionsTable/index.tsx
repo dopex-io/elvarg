@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import {
-  Box,
   Table,
   TableBody,
   TableCell,
@@ -109,16 +108,16 @@ export const OptionsTable = () => {
 
   if (zdteData.failedToFetch) {
     return (
-      <Box className="flex flex-col flex-grow w-full whitespace-nowrap">
+      <div className="flex flex-col flex-grow w-full whitespace-nowrap">
         <span className="ml-auto mr-auto text-[0.8rem] h-full mb-10">
           Failed to fetch volatility data from oracle
         </span>
-      </Box>
+      </div>
     );
   }
 
   return (
-    <Box className="flex flex-col flex-grow w-full whitespace-nowrap">
+    <div className="flex flex-col flex-grow w-full whitespace-nowrap">
       <StyleHeaderTable>
         <Table>
           <TableHead>
@@ -183,7 +182,7 @@ export const OptionsTable = () => {
           </TableBody>
         </Table>
       </StyleHeaderTable>
-    </Box>
+    </div>
   );
 };
 
