@@ -33,7 +33,6 @@ const Share = ({
             type: "image/png",
           },
         ],
-        siteName: "SiteName",
       }}
       twitter={{
         handle: "@handle",
