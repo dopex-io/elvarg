@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import {
-  Box,
   Table,
   TableBody,
   TableCell,
@@ -64,7 +63,7 @@ export const ClosedPositions = () => {
   }
 
   return (
-    <Box className="flex flex-col flex-grow w-full whitespace-nowrap">
+    <div className="flex flex-col flex-grow w-full whitespace-nowrap">
       <StyleHeaderTable>
         <Table>
           <TableHead>
@@ -126,7 +125,7 @@ export const ClosedPositions = () => {
           ActionsComponent={TablePaginationActions}
         />
       ) : null}
-    </Box>
+    </div>
   );
 };
 

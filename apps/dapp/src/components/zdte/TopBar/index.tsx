@@ -2,7 +2,6 @@ import { useRouter } from 'next/router';
 
 import { useCallback } from 'react';
 
-import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import cx from 'classnames';
@@ -64,11 +63,11 @@ const TopBar = () => {
 
   return (
     <>
-      <Box className="flex">
+      <div className="flex">
         <span className="lg:ml-2 bg-primary rounded-lg p-2 font-bold h-[fit-content] mt-1">
           BETA
         </span>
-        <Box sx={{ p: 1 }} className="flex -space-x-4">
+        <div className="p-1 flex -space-x-4">
           <img
             className="w-9 h-9 z-10 border border-gray-500 rounded-full"
             src={`/images/tokens/${tokenSymbol?.toLowerCase()}.svg`}
@@ -79,8 +78,8 @@ const TopBar = () => {
             src={`/images/tokens/${quoteTokenSymbol?.toLowerCase()}.svg`}
             alt={quoteTokenSymbol}
           />
-        </Box>
-        <Box className="ml-2 flex flex-col">
+        </div>
+        <div className="ml-2 flex flex-col">
           <span className="h5 capitalize">zero day to expiry options</span>
           <span
             className={cx(
@@ -90,9 +89,9 @@ const TopBar = () => {
             zdteData?.tokenPrice,
             2
           )} (${priceChange}%)`}</span>
-        </Box>
-      </Box>
-      <Box className="flex flex-col md:flex-row">
+        </div>
+      </div>
+      <div className="flex flex-col md:flex-row">
         <div className="mt-2">
           <Select
             className="text-white h-8 border-2 border-mineshaft"
@@ -118,7 +117,7 @@ const TopBar = () => {
           </Select>
         </div>
         <Stats />
-      </Box>
+      </div>
     </>
   );
 };

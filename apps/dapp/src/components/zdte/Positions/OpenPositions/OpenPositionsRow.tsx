@@ -7,7 +7,6 @@ import Countdown from 'react-countdown';
 
 import { IZdteExpiredData, IZdtePurchaseData } from 'store/Vault/zdte';
 
-import { Typography } from 'components/UI';
 import {
   StyleCell,
   StyleLeftCell,
@@ -77,9 +76,9 @@ export const OpenPositionsRow = ({
 
       share({
         title: (
-          <Typography variant="h4" className="font-bold shadow-2xl">
+          <h4 className="font-bold shadow-2xl">
             {`${tokenSymbol} ${prefix} Spread ZDTE`}
-          </Typography>
+          </h4>
         ),
         percentage: pnl,
         customPath: '/zdte/eth',
@@ -117,20 +116,20 @@ export const OpenPositionsRow = ({
         <span className="text-sm text-white">{getStrikeDisplay(position)}</span>
       </StyleLeftCell>
       <StyleCell align="left">
-        <Typography variant="h6" color="white">
+        <h6 className="text-white">
           {`$${formatAmount(
             getUserReadableAmount(position.markPrice, DECIMALS_STRIKE),
             2
           )}`}
-        </Typography>
+        </h6>
       </StyleCell>
       <StyleCell align="left">
-        <Typography variant="h6" color="white">
+        <h6 className="text-white">
           {`${formatAmount(
             getUserReadableAmount(position.positions, DECIMALS_TOKEN),
             2
           )}`}
-        </Typography>
+        </h6>
       </StyleCell>
       <StyleCell align="left">
         <FormatDollarColor
@@ -141,20 +140,20 @@ export const OpenPositionsRow = ({
         />
       </StyleCell>
       <StyleCell align="left">
-        <Typography variant="h6" color="white">
+        <h6 className="text-white">
           <Countdown
             date={new Date(position.expiry.toNumber() * 1000)}
             renderer={({ hours, minutes }) => {
               return (
                 <div className="flex space-x-2">
-                  <Typography variant="h6">
+                  <h6 className="text-white">
                     {hours}h {minutes}m
-                  </Typography>
+                  </h6>
                 </div>
               );
             }}
           />
-        </Typography>
+        </h6>
       </StyleCell>
       <StyleRightCell align="right">
         <div className="flex justify-end">

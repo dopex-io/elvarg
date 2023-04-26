@@ -1,14 +1,10 @@
-import { FC } from 'react';
+import { CircularProgress } from '@mui/material';
 
-import { Box, CircularProgress } from '@mui/material';
-
-interface LoadingProps {}
-
-const Loading: FC<LoadingProps> = ({}) => {
+const Loading = () => {
   return (
-    <Box className="absolute left-[49%] top-[49%]">
+    <div className="absolute left-[49%] top-[49%]">
       <CircularProgress />
-    </Box>
+    </div>
   );
 };
 
