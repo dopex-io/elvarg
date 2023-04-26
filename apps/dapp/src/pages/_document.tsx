@@ -1,5 +1,4 @@
 import { Html, Head, Main, NextScript } from 'next/document';
-import { NextSeo } from 'next-seo';
 
 function Document() {
   return (
@@ -27,30 +26,6 @@ function Document() {
         <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#342268" />
         <meta name="msapplication-TileColor" content="#ffffff" />
         <meta name="theme-color" content="#ffffff" />
-        <NextSeo
-          title="SSOV | Dopex"
-          description="Dopex Single Staking Option Vaults"
-          canonical="https://app.dopex.io/ssov"
-          openGraph={{
-            url: 'https://app.dopex.io/ssov',
-            title: 'SSOV | Dopex',
-            description: 'Dopex Single Staking Option Vaults',
-            images: [
-              {
-                url: '/previews/ssov.png',
-                width: 800,
-                height: 600,
-                alt: 'SSOV',
-                type: 'image/png',
-              },
-            ],
-          }}
-          twitter={{
-            handle: '@handle',
-            site: '@site',
-            cardType: 'summary_large_image',
-          }}
-        />
       </Head>
       <body>
         <Main />
