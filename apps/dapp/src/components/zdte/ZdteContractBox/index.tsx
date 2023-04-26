@@ -1,14 +1,10 @@
-import { FC } from 'react';
-
 import { useBoundStore } from 'store';
 
 import Loading from 'components/zdte/Loading';
 
 import { CHAINS } from 'constants/chains';
 
-interface ZdteContractBoxProps {}
-
-const ZdteContractBox: FC<ZdteContractBoxProps> = ({}) => {
+const ZdteContractBox = () => {
   const { chainId, staticZdteData, zdteData } = useBoundStore();
 
   if (!zdteData || !staticZdteData) {

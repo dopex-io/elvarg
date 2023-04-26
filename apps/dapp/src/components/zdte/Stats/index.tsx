@@ -10,8 +10,6 @@ import { formatAmount } from 'utils/general';
 
 import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
-interface StatsProps {}
-
 const StatsColumn: FC<{ title: string; value: string }> = ({
   title,
   value,
@@ -24,7 +22,7 @@ const StatsColumn: FC<{ title: string; value: string }> = ({
   );
 };
 
-const Stats: FC<StatsProps> = ({}) => {
+const Stats = () => {
   const {
     zdteData,
     staticZdteData,
