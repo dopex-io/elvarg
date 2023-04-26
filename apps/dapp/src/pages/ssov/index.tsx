@@ -113,7 +113,7 @@ const SsovData = () => {
           description: 'Dopex Single Staking Option Vaults',
           images: [
             {
-              url: '/ssov.png',
+              url: '/previews/ssov.png',
               width: 800,
               height: 600,
               alt: 'SSOV',
