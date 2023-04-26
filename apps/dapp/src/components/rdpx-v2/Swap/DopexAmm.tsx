@@ -7,6 +7,7 @@ import {
 } from 'react';
 import { BigNumber } from 'ethers';
 import {
+  DopexAMMFactory__factory,
   DopexAMMRouter__factory,
   MockToken,
   MockToken__factory,
@@ -158,7 +159,7 @@ const DopexAmm = () => {
   const updatePool = useCallback(async () => {
     if (
       !treasuryContractState.contracts ||
-      !contractAddresses ||
+      !contractAddresses['RDPX-V2']['DopexAMMFactory'] ||
       !signer ||
       !accountAddress
     )
@@ -207,12 +208,23 @@ const DopexAmm = () => {
       (reserveB / (reserveA + reserveB)) * 100,
     ];
 
+    const factory = DopexAMMFactory__factory.connect(
+      contractAddresses['RDPX-V2']['DopexAMMFactory'],
+      signer
+    );
+
+    const feeStructure = (
+      await factory.getFeeStructure(
+        '0x1985Dc434BCDd736E08af1B4e396c7036A2469a6'
+      )
+    ).map((fee) => fee.toNumber() / 10);
+
     setReserves([
       { value: reserveA, percentage: shareA },
       { value: reserveB, percentage: shareB },
     ]);
     setPair([tokenA, tokenB]);
-    setFee([0, 0]);
+    setFee(feeStructure);
   }, [
     treasuryData,
     accountAddress,
@@ -363,7 +375,8 @@ const DopexAmm = () => {
             <span className="text-sm text-stieglitz">Swap Fee</span>
             <div>
               <span className="text-sm">
-                RDPX-WETH: {fee[0]}%, WETH-RDPX: {fee[0]}%
+                {`${pair[0]?.symbol}-${pair[1]?.symbol}`}: {fee[0]}%,{' '}
+                {`${pair[1]?.symbol}-${pair[0]?.symbol}`}: {fee[1]}%
               </span>
             </div>
           </div>
