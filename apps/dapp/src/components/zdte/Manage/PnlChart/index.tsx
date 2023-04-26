@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import Box from '@mui/material/Box';
 import cx from 'classnames';
 import {
   Line,
@@ -160,7 +159,7 @@ const PnlChart = (props: PnlChartProps) => {
   }, [price, pnl]);
 
   return (
-    <Box className="mt-1">
+    <div className="mt-1">
       <div
         className={cx(
           'rounded-lg mb-2 pb-0 p-2 -ml-1',
@@ -230,7 +229,7 @@ const PnlChart = (props: PnlChartProps) => {
           comma
         />
       </div>
-    </Box>
+    </div>
   );
 };
 
