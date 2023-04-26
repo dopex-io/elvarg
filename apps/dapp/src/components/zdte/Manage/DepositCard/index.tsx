@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { BigNumber, utils } from 'ethers';
 
 import { ERC20__factory } from '@dopex-io/sdk';
-import { Box, Input as MuiInput } from '@mui/material';
+import { Input as MuiInput } from '@mui/material';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
@@ -177,11 +177,11 @@ const Deposit = () => {
   }
 
   return (
-    <Box className="rounded-xl space-y-2 p-2">
-      <Box className="rounded-xl">
-        <Box className="flex flex-row justify-between">
-          <Box className="rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center min-w-max">
-            <Box className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
+    <div className="rounded-xl space-y-2 p-2">
+      <div className="rounded-xl">
+        <div className="flex flex-row justify-between">
+          <div className="rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center min-w-max">
+            <div className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
               <h6
                 className={cx(
                   'font-medium mt-1 cursor-pointer text-[0.8rem]',
@@ -191,8 +191,8 @@ const Deposit = () => {
               >
                 <span>{staticZdteData?.quoteTokenSymbol}</span>
               </h6>
-            </Box>
-            <Box className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
+            </div>
+            <div className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
               <h6
                 className={cx(
                   'font-medium mt-1 cursor-pointer text-[0.8rem]',
@@ -202,8 +202,8 @@ const Deposit = () => {
               >
                 <span>{staticZdteData?.baseTokenSymbol}</span>
               </h6>
-            </Box>
-          </Box>
+            </div>
+          </div>
           <MuiInput
             disableUnderline
             id="notionalSize"
@@ -215,8 +215,8 @@ const Deposit = () => {
             onChange={handleDepositAmount}
             classes={{ input: 'text-right' }}
           />
-        </Box>
-      </Box>
+        </div>
+      </div>
       <BalanceBox
         tokenSymbol={
           isQuote
@@ -252,7 +252,7 @@ const Deposit = () => {
             : 'Deposit'
           : 'Approve'}
       </CustomButton>
-    </Box>
+    </div>
   );
 };
 
