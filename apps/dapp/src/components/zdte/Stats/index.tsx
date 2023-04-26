@@ -46,38 +46,36 @@ const Stats = () => {
   }
 
   return (
-    <>
-      <div className="grid grid-rows-2 grid-flow-col text-sm ml-5 flex-1 md:grid-rows-1">
-        <StatsColumn title={`24h Volume`} value={`${subgraphVolume}`} />
-        <StatsColumn
-          title={`Open Interest`}
-          value={`$${formatAmount(
-            getUserReadableAmount(zdteData?.openInterest),
-            2,
-            true
-          )}`}
-        />
-        <StatsColumn
-          title={`Total Liq (Calls)`}
-          value={`${formatAmount(
-            getUserReadableAmount(zdteData?.baseLpAssetBalance, DECIMALS_TOKEN),
-            2
-          )}
+    <div className="grid grid-rows-2 grid-flow-col text-sm ml-5 flex-1 md:grid-rows-1">
+      <StatsColumn title={`24h Volume`} value={`${subgraphVolume}`} />
+      <StatsColumn
+        title={`Open Interest`}
+        value={`$${formatAmount(
+          getUserReadableAmount(zdteData?.openInterest),
+          2,
+          true
+        )}`}
+      />
+      <StatsColumn
+        title={`Total Liq (Calls)`}
+        value={`${formatAmount(
+          getUserReadableAmount(zdteData?.baseLpAssetBalance, DECIMALS_TOKEN),
+          2
+        )}
         ${tokenSymbol}`}
-        />
-        <StatsColumn
-          title={`Total Liq (Puts)`}
-          value={`$${formatAmount(
-            getUserReadableAmount(zdteData?.quoteLpAssetBalance, DECIMALS_USD),
-            2
-          )}`}
-        />
-        <StatsColumn
-          title={`Expiry ${format(zdteData.expiry, 'z')}`}
-          value={`${format(zdteData.expiry * 1000, 'd MMM yyyy HH:mm')}`}
-        />
-      </div>
-    </>
+      />
+      <StatsColumn
+        title={`Total Liq (Puts)`}
+        value={`$${formatAmount(
+          getUserReadableAmount(zdteData?.quoteLpAssetBalance, DECIMALS_USD),
+          2
+        )}`}
+      />
+      <StatsColumn
+        title={`Expiry ${format(zdteData.expiry, 'z')}`}
+        value={`${format(zdteData.expiry * 1000, 'd MMM yyyy HH:mm')}`}
+      />
+    </div>
   );
 };
 
