@@ -2,7 +2,6 @@ import { Box, TableRow } from '@mui/material';
 
 import { ISpreadPair, OptionsTableData } from 'store/Vault/zdte';
 
-import { Typography } from 'components/UI';
 import {
   StyleCell,
   StyleLeftCell,
@@ -18,45 +17,21 @@ import { formatAmount } from 'utils/general';
 export const FormatDollarColor = ({ value }: { value: number }) => {
   const formatedVal = Number(formatAmount(Math.abs(value), 2));
   if (value > 0) {
-    return (
-      <Typography variant="h6" color="up-only">
-        {`$${formatedVal}`}
-      </Typography>
-    );
+    return <p className="text-sm up-only">{`$${formatedVal}`}</p>;
   } else if (value < 0) {
-    return (
-      <Typography variant="h6" color="down-bad">
-        {`-$${Math.abs(formatedVal)}`}
-      </Typography>
-    );
+    return <p className="text-sm down-bad">{`-$${Math.abs(formatedVal)}`}</p>;
   } else {
-    return (
-      <Typography variant="h6" color="white">
-        {`$${formatedVal}`}
-      </Typography>
-    );
+    return <p className="text-sm">{`$${formatedVal}`}</p>;
   }
 };
 
 export const FormatPercentColor = ({ value }: { value: number }) => {
   if (value > 0) {
-    return (
-      <Typography variant="h6" color="up-only">
-        {`${value}%`}
-      </Typography>
-    );
+    return <p className="text-sm up-only">{`${value}%`}</p>;
   } else if (value < 0) {
-    return (
-      <Typography variant="h6" color="down-bad">
-        {`-${Math.abs(value)}%`}
-      </Typography>
-    );
+    return <p className="text-sm down-bad">{`-${Math.abs(value)}%`}</p>;
   } else {
-    return (
-      <Typography variant="h6" color="white">
-        {`${value}%`}
-      </Typography>
-    );
+    return <p className="text-sm">{`${value}%`}</p>;
   }
 };
 
@@ -77,31 +52,37 @@ export const OptionsTableRow = ({
     <TableRow key={idx} className="text-white mb-2 rounded-lg">
       <StyleLeftCell align="left">
         <Box className="flex flex-row items-center w-max">
-          <Typography variant="h6" color="white" className="capitalize">
-            ${formatAmount(optionsStats.strike)}
-          </Typography>
+          <h6 className="text-white capitalize">
+            <span>${formatAmount(optionsStats.strike)}</span>
+          </h6>
         </Box>
       </StyleLeftCell>
       <StyleCell align="left">
-        <Typography variant="h6" color="white">
-          {`${
-            optionsStats.premium === '...' ? '...' : `$${optionsStats.premium}`
-          }`}
-        </Typography>
+        <h6>
+          <span>
+            {`${
+              optionsStats.premium === '...'
+                ? '...'
+                : `$${optionsStats.premium}`
+            }`}
+          </span>
+        </h6>
       </StyleCell>
       <StyleCell align="left">
-        <Typography variant="h6" color="white">
-          {optionsStats.iv}
-        </Typography>
+        <h6>
+          <span>{optionsStats.iv}</span>
+        </h6>
       </StyleCell>
       <StyleCell align="left">
-        <Typography variant="h6" color="white">
-          {`${
-            optionsStats.premium === '...'
-              ? '...'
-              : formatAmount(optionsStats.delta, 4)
-          }`}
-        </Typography>
+        <h6>
+          <span>
+            {`${
+              optionsStats.premium === '...'
+                ? '...'
+                : formatAmount(optionsStats.delta, 4)
+            }`}
+          </span>
+        </h6>
       </StyleCell>
       <StyleRightCell align="right" className="pt-2">
         <OptionsTableButton
@@ -132,31 +113,37 @@ export const OptionsTableRowLower = ({
     <TableRow key={idx} className="text-white mb-2 rounded-lg">
       <StyleLeftTableCell align="left">
         <Box className="flex flex-row items-center w-max">
-          <Typography variant="h6" color="white" className="capitalize">
-            ${formatAmount(optionsStats.strike)}
-          </Typography>
+          <h6 className="text-white capitalize">
+            <span>${formatAmount(optionsStats.strike)}</span>
+          </h6>
         </Box>
       </StyleLeftTableCell>
       <StyleTableCellHeader>
-        <Typography variant="h6" color="white">
-          {`${
-            optionsStats.premium === '...' ? '...' : `$${optionsStats.premium}`
-          }`}
-        </Typography>
+        <h6>
+          <span>
+            {`${
+              optionsStats.premium === '...'
+                ? '...'
+                : `$${optionsStats.premium}`
+            }`}
+          </span>
+        </h6>
       </StyleTableCellHeader>
       <StyleTableCellHeader>
-        <Typography variant="h6" color="white">
-          {optionsStats.iv}
-        </Typography>
+        <h6>
+          <span>{optionsStats.iv}</span>
+        </h6>
       </StyleTableCellHeader>
       <StyleTableCellHeader>
-        <Typography variant="h6" color="white">
-          {`${
-            optionsStats.premium === '...'
-              ? '...'
-              : formatAmount(optionsStats.delta, 4)
-          }`}
-        </Typography>
+        <h6>
+          <span>
+            {`${
+              optionsStats.premium === '...'
+                ? '...'
+                : formatAmount(optionsStats.delta, 4)
+            }`}
+          </span>
+        </h6>
       </StyleTableCellHeader>
       <StyleRightTableCell align="right" className="pt-2">
         <OptionsTableButton
