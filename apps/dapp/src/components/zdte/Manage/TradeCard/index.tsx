@@ -1,4 +1,4 @@
-import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 
 import { BigNumber } from 'ethers';
 
@@ -93,9 +93,7 @@ function getStrikeDisplay(
   );
 }
 
-interface TradeProps {}
-
-const TradeCard: FC<TradeProps> = ({}) => {
+const TradeCard = () => {
   const sendTx = useSendTx();
 
   const {
