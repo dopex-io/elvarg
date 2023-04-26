@@ -183,7 +183,7 @@ const appLinks: {
     },
     {
       name: 'Swap',
-      to: '/rdpx-v2/curve-swap',
+      to: '/rdpx-v2/swap',
       // description: 'Swap between $dpxETH & WETH',
     },
     {

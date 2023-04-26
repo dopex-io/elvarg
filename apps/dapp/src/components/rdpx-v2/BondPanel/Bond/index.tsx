@@ -525,7 +525,7 @@ const Bond = () => {
           <a
             className="flex space-x-2 w-full mt-4 rounded-md bg-[#3966A0] justify-between p-2"
             role="link"
-            href="/rdpx-v2/curve-swap"
+            href="/rdpx-v2/swap"
             target="_blank"
             rel="noopener noreferrer"
           >
