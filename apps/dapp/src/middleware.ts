@@ -24,15 +24,12 @@ const BLOCKED_COUNTRIES_ALPHA_2_CODES: string[] = [
 ];
 
 export function middleware(req: NextRequest) {
-  const url = new URL(req.url);
+  console.log(req);
 
-  if (!url.pathname.startsWith('/share')) {
-    // Extract country
-    const country = req.geo?.country;
+  const country = req.geo?.country;
 
-    if (country && BLOCKED_COUNTRIES_ALPHA_2_CODES.includes(country)) {
-      req.nextUrl.pathname = '/blocked';
-    }
+  if (country && BLOCKED_COUNTRIES_ALPHA_2_CODES.includes(country)) {
+    req.nextUrl.pathname = '/blocked';
   }
 
   // Rewrite to URL
