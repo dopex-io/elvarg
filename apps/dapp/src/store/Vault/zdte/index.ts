@@ -12,7 +12,7 @@ import { StateCreator } from 'zustand';
 import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';
 
-import { getContractReadableAmount } from 'utils/contracts';
+import { getContractReadableAmount, getCurrentTime } from 'utils/contracts';
 import { getUserReadableAmount } from 'utils/contracts';
 import { formatAmount } from 'utils/general';
 import { getDelta } from 'utils/math/blackScholes/greeks';
@@ -68,6 +68,8 @@ export interface IZdteUserData {
   userQuoteLpBalance: BigNumber;
   userBaseTokenBalance: BigNumber;
   userQuoteTokenBalance: BigNumber;
+  canWithdrawBase: boolean;
+  canWithdrawQuote: boolean;
 }
 
 export interface IZdteRawPurchaseData {
@@ -218,11 +220,15 @@ export const createZdteSlice: StateCreator<
         userQuoteLpBalance,
         baseTokenAddress,
         quoteTokenAddress,
+        withdrawBaseTime,
+        withdrawQuoteTime,
       ] = await Promise.all([
         baseLpContract.balanceOf(accountAddress),
         quoteLpContract.balanceOf(accountAddress),
         zdteContract.base(),
         zdteContract.quote(),
+        baseLpContract.lockedUsers(accountAddress),
+        quoteLpContract.lockedUsers(accountAddress),
       ]);
 
       const baseTokenContract = ERC20__factory.connect(
@@ -246,6 +252,8 @@ export const createZdteSlice: StateCreator<
           userBaseTokenBalance: userBaseTokenBalance,
           userQuoteLpBalance: userQuoteLpBalance,
           userQuoteTokenBalance: userQuoteTokenBalance,
+          canWithdrawBase: withdrawBaseTime.toNumber() <= getCurrentTime(),
+          canWithdrawQuote: withdrawQuoteTime.toNumber() <= getCurrentTime(),
         },
       }));
     } catch (err) {

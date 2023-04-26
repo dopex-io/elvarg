@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { BigNumber } from 'ethers';
 
-import { Box, Input as MuiInput } from '@mui/material';
+import { Input as MuiInput } from '@mui/material';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
 import { ZdteLP__factory } from 'mocks/factories/ZdteLP__factory';
@@ -84,6 +84,12 @@ class QuoteOrBaseAsset {
       ? getUserReadableAmount(this.zdteData.quoteLpTotalAsset, DECIMALS_USD)
       : getUserReadableAmount(this.zdteData.baseLpTotalAsset, DECIMALS_TOKEN);
   }
+
+  get coolingPeriodOver() {
+    return this.isQuote
+      ? this.userZdteLpData.canWithdrawQuote
+      : this.userZdteLpData.canWithdrawBase;
+  }
 }
 
 const Withdraw = () => {
@@ -105,16 +111,17 @@ const Withdraw = () => {
   >('');
   const [tokenApproved, setTokenApproved] = useState<boolean>(false);
   const [isQuote, setisQuote] = useState(true);
-  const asset = useMemo(
-    () =>
-      new QuoteOrBaseAsset(
-        isQuote,
-        zdteData!,
-        userZdteLpData!,
-        staticZdteData!
-      ),
-    [isQuote, userZdteLpData, zdteData, staticZdteData]
-  );
+  const asset = useMemo(() => {
+    if (!zdteData || !userZdteLpData || !staticZdteData) {
+      return null;
+    }
+    return new QuoteOrBaseAsset(
+      isQuote,
+      zdteData,
+      userZdteLpData,
+      staticZdteData
+    );
+  }, [isQuote, userZdteLpData, zdteData, staticZdteData]);
 
   const handleApprove = useCallback(async () => {
     if (!signer || !asset || !staticZdteData || !accountAddress) return;
@@ -187,11 +194,9 @@ const Withdraw = () => {
     checkApproved();
   }, [checkApproved]);
 
-  const handleWithdrawAmount = useCallback(
-    (e: { target: { value: React.SetStateAction<string | number> } }) =>
-      setTokenWithdrawAmount(e.target.value),
-    []
-  );
+  const handleWithdrawAmount = (e: {
+    target: { value: React.SetStateAction<string | number> };
+  }) => setTokenWithdrawAmount(e.target.value);
 
   const handleWithdraw = useCallback(async () => {
     if (!signer || !provider || !getZdteContract) return;
@@ -222,20 +227,22 @@ const Withdraw = () => {
   ]);
 
   const canWithdraw =
+    asset &&
     Number(tokenWithdrawAmount) > 0 &&
     Number(tokenWithdrawAmount) <= asset.getUserAssetBalance &&
-    Number(tokenWithdrawAmount) <= asset.getActualLpBalance;
+    Number(tokenWithdrawAmount) <= asset.getActualLpBalance &&
+    asset.coolingPeriodOver;
 
   if (!staticZdteData) {
     return <Loading />;
   }
 
   return (
-    <Box className="rounded-xl space-y-2 p-2">
-      <Box className="rounded-xl">
-        <Box className="flex flex-row justify-between">
-          <Box className="rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center min-w-max">
-            <Box className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
+    <div className="rounded-xl space-y-2 p-2">
+      <div className="rounded-xl">
+        <div className="flex flex-row justify-between">
+          <div className="rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center min-w-max">
+            <div className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
               <Typography
                 variant="h6"
                 className={cx(
@@ -246,8 +253,8 @@ const Withdraw = () => {
               >
                 {staticZdteData.quoteLpSymbol}
               </Typography>
-            </Box>
-            <Box className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
+            </div>
+            <div className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
               <Typography
                 variant="h6"
                 className={cx(
@@ -258,8 +265,8 @@ const Withdraw = () => {
               >
                 {staticZdteData.baseLpSymbol}
               </Typography>
-            </Box>
-          </Box>
+            </div>
+          </div>
           <MuiInput
             disableUnderline
             id="notionalSize"
@@ -271,25 +278,26 @@ const Withdraw = () => {
             onChange={handleWithdrawAmount}
             classes={{ input: 'text-right' }}
           />
-        </Box>
-      </Box>
-      <Box className="p-2 space-y-2">
+        </div>
+      </div>
+      <div className="p-2 space-y-2">
         <ContentRow
           title="Balance"
-          content={`${formatAmount(asset.getUserAssetBalance, 2)} ${
-            asset.getAssetSymbol
-          }`}
+          content={`${formatAmount(
+            !asset ? 0 : asset.getUserAssetBalance,
+            2
+          )} ${!asset ? '' : asset.getAssetSymbol}`}
         />
         <ContentRow
           title="Available Liquidity"
-          content={`${formatAmount(asset.getTotalAsset, 2)} ${
-            asset.getAssetSymbol
+          content={`${formatAmount(!asset ? 0 : asset.getTotalAsset, 2)} ${
+            !asset ? '' : asset.getAssetSymbol
           }`}
         />
         <ContentRow
           title="Total Liquidity"
-          content={`${formatAmount(asset.getActualLpBalance, 2)} ${
-            asset.getAssetSymbol
+          content={`${formatAmount(!asset ? 0 : asset.getActualLpBalance, 2)} ${
+            !asset ? '' : asset.getAssetSymbol
           }`}
         />
         <div>
@@ -297,7 +305,7 @@ const Withdraw = () => {
             You can only withdraw after 24 hours of your last deposit.
           </span>
         </div>
-      </Box>
+      </div>
       <CustomButton
         size="medium"
         className="w-full mt-4 !rounded-md"
@@ -306,16 +314,20 @@ const Withdraw = () => {
         onClick={!tokenApproved ? handleApprove : handleWithdraw}
       >
         {tokenApproved
-          ? tokenWithdrawAmount == 0
-            ? 'Insert an amount'
-            : Number(tokenWithdrawAmount) > asset.getUserAssetBalance
-            ? 'Insufficient balance'
-            : Number(tokenWithdrawAmount) > asset.getActualLpBalance
-            ? 'Insufficient liquidity to withdraw'
-            : 'Withdraw'
+          ? asset && asset.coolingPeriodOver
+            ? tokenWithdrawAmount == 0
+              ? 'Insert an amount'
+              : Number(tokenWithdrawAmount) >
+                (!asset ? 0 : asset.getUserAssetBalance)
+              ? 'Insufficient balance'
+              : Number(tokenWithdrawAmount) >
+                (!asset ? 0 : asset.getActualLpBalance)
+              ? 'Insufficient liquidity to withdraw'
+              : 'Withdraw'
+            : 'Cooling period not over'
           : 'Approve'}
       </CustomButton>
-    </Box>
+    </div>
   );
 };
 
