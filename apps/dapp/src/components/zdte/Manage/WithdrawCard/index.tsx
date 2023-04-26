@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { BigNumber } from 'ethers';
 
@@ -86,9 +86,7 @@ class Asset {
   }
 }
 
-interface WithdrawProps {}
-
-const Withdraw: FC<WithdrawProps> = ({}) => {
+const Withdraw = () => {
   const sendTx = useSendTx();
 
   const {
@@ -202,8 +200,8 @@ const Withdraw: FC<WithdrawProps> = ({}) => {
         ),
       ]).then(() => {
         setTokenWithdrawAmount('0');
+        updateZdteData();
       });
-      await updateZdteData();
     } catch (e) {
       console.log('fail to withdraw', e);
     }
