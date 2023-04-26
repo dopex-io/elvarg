@@ -2339,53 +2339,69 @@ export const createOptionScalpSlice: StateCreator<
     const limitOrdersContract = await getLimitOrdersContract();
     const optionScalpContract = await getOptionScalpContract();
 
-    const openOrder = await limitOrdersContract.openOrders(id);
-    const ticks = await limitOrdersContract.getNFTPositionTicks(
-      openOrder['positionId'],
-      openOrder['optionScalp']
-    );
+    try {
+      const openOrder = await limitOrdersContract.openOrders(id);
+      const ticks = await limitOrdersContract.getNFTPositionTicks(
+        openOrder['positionId'],
+        openOrder['optionScalp']
+      );
 
-    const expiry = openOrder['timestamp']; // TODO: add MAX hours
-    const price = BigNumber.from('0'); // TODO: compute from ticks
-    const timeframe = await optionScalpContract.timeframes(
-      openOrder['timeframeIndex']
-    );
+      const tick = (ticks[0].toNumber() + ticks[1].toNumber()) / 2;
 
-    return {
-      isOpen: true,
-      isShort: openOrder['isShort'],
-      size: openOrder['size'],
-      timeframe: timeframe,
-      collateral: openOrder['collateral'],
-      price: price,
-      expiry: expiry,
-      filled: openOrder['filled'],
-    };
+      const price = BigNumber.from((1 / 1.0001 ** tick) * 10 ** 18);
+
+      const maxFundingTime = await limitOrdersContract.maxFundingTime();
+
+      const expiry = openOrder['timestamp'].add(maxFundingTime);
+      const timeframe = await optionScalpContract.timeframes(
+        openOrder['timeframeIndex']
+      );
+
+      return {
+        isOpen: true,
+        isShort: openOrder['isShort'],
+        size: openOrder['size'],
+        timeframe: timeframe,
+        collateral: openOrder['collateral'],
+        price: price,
+        expiry: expiry,
+        filled: openOrder['filled'],
+      };
+    } catch (e) {
+      return;
+    }
   },
   getScalpCloseOrder: async (id: BigNumber) => {
     const { getLimitOrdersContract, getOptionScalpContract } = get();
 
     const limitOrdersContract = await getLimitOrdersContract();
     const optionScalpContract = await getOptionScalpContract();
-    const scalpPosition = await optionScalpContract.scalpPositions(id);
 
-    const closeOrder = await limitOrdersContract.closeOrders(id);
+    try {
+      const scalpPosition = await optionScalpContract.scalpPositions(id);
+      const closeOrder = await limitOrdersContract.closeOrders(id);
 
-    const ticks = await limitOrdersContract.getNFTPositionTicks(
-      closeOrder['positionId'],
-      closeOrder['optionScalp']
-    );
-    const price = BigNumber.from('0'); // TODO: compute from ticks
+      const ticks = await limitOrdersContract.getNFTPositionTicks(
+        closeOrder['positionId'],
+        closeOrder['optionScalp']
+      );
 
-    return {
-      isOpen: false,
-      isShort: scalpPosition['isShort'],
-      size: scalpPosition['size'],
-      timeframe: scalpPosition['timeframe'],
-      collateral: scalpPosition['collateral'],
-      price: price,
-      expiry: null,
-    };
+      const tick = (ticks[0].toNumber() + ticks[1].toNumber()) / 2;
+
+      const price = BigNumber.from((1 / 1.0001 ** tick) * 10 ** 18);
+
+      return {
+        isOpen: false,
+        isShort: scalpPosition['isShort'],
+        size: scalpPosition['size'],
+        timeframe: scalpPosition['timeframe'],
+        collateral: scalpPosition['collateral'],
+        price: price,
+        expiry: null,
+      };
+    } catch (e) {
+      return;
+    }
   },
   getScalpOrders: async () => {
     const {
@@ -2447,7 +2463,7 @@ export const createOptionScalpSlice: StateCreator<
 
     const closeOrders: ScalpOrder[] = await Promise.all(closeOrdersPromises);
 
-    return openOrders.concat(closeOrders);
+    return openOrders.concat(closeOrders).filter((_) => _); // filter out null
   },
   updateOptionScalpUserData: async () => {
     const { accountAddress, getBaseLpContract, getQuoteLpContract } = get();
