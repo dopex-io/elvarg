@@ -110,11 +110,9 @@ const Deposit = () => {
     }
   }, [signer, sendTx, staticZdteData, isQuote, amount, accountAddress]);
 
-  const handleDepositAmount = useCallback(
-    (e: { target: { value: React.SetStateAction<string | number> } }) =>
-      setAmount(e.target.value),
-    []
-  );
+  const handleDepositAmount = (e: {
+    target: { value: React.SetStateAction<string | number> };
+  }) => setAmount(e.target.value);
 
   const handleMax = useCallback(() => {
     if (isQuote) {
