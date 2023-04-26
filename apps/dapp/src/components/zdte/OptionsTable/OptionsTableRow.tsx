@@ -1,4 +1,4 @@
-import { Box, TableRow } from '@mui/material';
+import { TableRow } from '@mui/material';
 
 import { ISpreadPair, OptionsTableData } from 'store/Vault/zdte';
 
@@ -51,11 +51,11 @@ export const OptionsTableRow = ({
   return (
     <TableRow key={idx} className="text-white mb-2 rounded-lg">
       <StyleLeftCell align="left">
-        <Box className="flex flex-row items-center w-max">
+        <div className="flex flex-row items-center w-max">
           <h6 className="text-white capitalize">
             <span>${formatAmount(optionsStats.strike)}</span>
           </h6>
-        </Box>
+        </div>
       </StyleLeftCell>
       <StyleCell align="left">
         <h6>
@@ -112,11 +112,11 @@ export const OptionsTableRowLower = ({
   return (
     <TableRow key={idx} className="text-white mb-2 rounded-lg">
       <StyleLeftTableCell align="left">
-        <Box className="flex flex-row items-center w-max">
+        <div className="flex flex-row items-center w-max">
           <h6 className="text-white capitalize">
             <span>${formatAmount(optionsStats.strike)}</span>
           </h6>
-        </Box>
+        </div>
       </StyleLeftTableCell>
       <StyleTableCellHeader>
         <h6>
