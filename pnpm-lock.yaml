@@ -50,6 +50,7 @@ importers:
       lightweight-charts: ^3.8.0
       lodash: ^4.17.21
       next: ^13.2.4
+      next-seo: ^6
       postcss: ^8.4.21
       prettier: ^2.8.7
       qrcode.react: ^3.1.0
@@ -89,6 +90,7 @@ importers:
       lightweight-charts: 3.8.0
       lodash: 4.17.21
       next: 13.2.4_5y7qh6ykubtj2qr2evk3di7hpa
+      next-seo: 6.0.0_ld2jel3hspngo3u5lti2kgl2sq
       qrcode.react: 3.1.0_react@18.2.0
       react: 18.2.0
       react-countdown: 2.3.5_biqbaboplfbrettd7655fr4n2y
@@ -15720,7 +15722,7 @@ packages:
       react: '>=16.0.0'
       react-dom: '>=16.0.0'
     dependencies:
-      next: 13.2.4_biqbaboplfbrettd7655fr4n2y
+      next: 13.2.4_5y7qh6ykubtj2qr2evk3di7hpa
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     dev: false
