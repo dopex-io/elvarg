@@ -116,7 +116,13 @@ const Deposit = () => {
 
   const handleMax = useCallback(() => {
     if (isQuote) {
-      setAmount(utils.formatEther(userZdteLpData?.userQuoteTokenBalance!));
+      setAmount(
+        utils.formatEther(
+          (userZdteLpData?.userQuoteTokenBalance! ?? BigNumber.from(0)).mul(
+            BigNumber.from(10).pow(12)
+          )
+        )
+      );
     } else {
       setAmount(utils.formatEther(userZdteLpData?.userBaseTokenBalance!));
     }
