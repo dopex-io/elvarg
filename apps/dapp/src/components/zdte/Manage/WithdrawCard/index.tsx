@@ -2,10 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { BigNumber } from 'ethers';
 
+import { ZdteLP__factory } from '@dopex-io/sdk';
 import { Input as MuiInput } from '@mui/material';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
-import { ZdteLP__factory } from 'mocks/factories/ZdteLP__factory';
 import { useBoundStore } from 'store';
 
 import { IStaticZdteData, IZdteData, IZdteUserData } from 'store/Vault/zdte';

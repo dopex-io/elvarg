@@ -1,11 +1,13 @@
 import { BigNumber } from 'ethers';
 
-import { ERC20__factory } from '@dopex-io/sdk';
+import {
+  ERC20__factory,
+  ZdteLP__factory,
+  ZdtePositionMinter__factory,
+  Zdte__factory,
+} from '@dopex-io/sdk';
 import graphSdk from 'graphql/graphSdk';
 import { reverse } from 'lodash';
-import { ZdteLP__factory } from 'mocks/factories/ZdteLP__factory';
-import { ZdtePositionMinter__factory } from 'mocks/factories/ZdtePositionMinter__factory';
-import { Zdte__factory } from 'mocks/factories/Zdte__factory';
 import queryClient from 'queryClient';
 import { StateCreator } from 'zustand';
 
