@@ -378,6 +378,8 @@ const TradeCard = () => {
                 key={i}
                 className={`text-center w-auto cursor-pointer group hover:bg-mineshaft hover:opacity-80`}
                 onClick={() => {
+                  if (selectedSpreadPair?.shortStrike === undefined) return;
+
                   setTextInputRef(false);
                   setAmount(
                     premium === 0
