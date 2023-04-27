@@ -2,9 +2,9 @@ import { useMemo } from 'react';
 
 import { BigNumber } from 'ethers';
 
-import { ISpreadPair, IZdteUserData } from 'store/Vault/zdte';
+import { Button } from '@dopex-io/ui';
 
-import { CustomButton } from 'components/UI';
+import { ISpreadPair, IZdteUserData } from 'store/Vault/zdte';
 
 import { getUserReadableAmount } from 'utils/contracts';
 
@@ -74,19 +74,17 @@ const TradeButton = ({
   }, [selectedSpreadPair, amount, userZdteLpData, canOpenSpread]);
 
   return (
-    <CustomButton
-      size="medium"
-      className="w-full mt-5 !rounded-md"
+    <Button
+      onClick={!approved ? handleApprove : handleOpenPosition}
+      disabled={approved && positionStatus !== 'Open Position'}
       color={
         !approved || positionStatus === 'Open Position'
           ? 'primary'
           : 'mineshaft'
       }
-      disabled={approved && positionStatus !== 'Open Position'}
-      onClick={!approved ? handleApprove : handleOpenPosition}
     >
       {amount === 0 || approved ? positionStatus : 'Approve'}
-    </CustomButton>
+    </Button>
   );
 };
 

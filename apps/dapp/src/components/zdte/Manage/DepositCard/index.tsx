@@ -3,12 +3,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { BigNumber, utils } from 'ethers';
 
 import { ERC20__factory } from '@dopex-io/sdk';
+import { Button } from '@dopex-io/ui';
 import { Input as MuiInput } from '@mui/material';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
-import { CustomButton } from 'components/UI';
 import Loading from 'components/zdte/Loading';
 
 import {
@@ -243,16 +243,16 @@ const Deposit = () => {
             : `Deposit ${staticZdteData.baseTokenSymbol} to provide liquidity for call options`}
         </span>
       </div>
-      <CustomButton
-        size="medium"
-        className="w-full mt-5 !rounded-md"
+      <Button
+        variant="contained"
+        onClick={!approved ? handleApprove : handleOpenPosition}
+        disabled={Number(amount) <= 0 || Number(amount) > assetBalance}
         color={
           !approved || (Number(amount) > 0 && Number(amount) <= assetBalance)
             ? 'primary'
             : 'mineshaft'
         }
-        disabled={Number(amount) <= 0 || Number(amount) > assetBalance}
-        onClick={!approved ? handleApprove : handleOpenPosition}
+        className="w-full"
       >
         {approved
           ? amount == 0
@@ -261,7 +261,7 @@ const Deposit = () => {
             ? 'Insufficient balance'
             : 'Deposit'
           : 'Approve'}
-      </CustomButton>
+      </Button>
     </div>
   );
 };

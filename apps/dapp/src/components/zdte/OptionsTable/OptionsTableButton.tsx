@@ -1,8 +1,7 @@
+import { Button } from '@dopex-io/ui';
 import cx from 'classnames';
 
 import { ISpreadPair, OptionsTableData } from 'store/Vault/zdte';
-
-import { CustomButton } from 'components/UI';
 
 function isDisabled(
   tokenPrice: number,
@@ -89,9 +88,9 @@ const OptionsTableButton = ({
   const buttonAction = getAction(selectedSpreadPair, optionsStats);
 
   return (
-    <CustomButton
+    <Button
       className={cx(
-        'cursor-pointer text-white ',
+        'max-w-fit cursor-pointer text-white ',
         buttonAction === 'Undo' ? 'bg-umbra hover:bg-umbra' : '',
         buttonStatus ? 'bg-umbra' : ''
       )}
@@ -102,7 +101,7 @@ const OptionsTableButton = ({
       onClick={() => handleSelectLongStrike(optionsStats.strike)}
     >
       {buttonAction}
-    </CustomButton>
+    </Button>
   );
 };
 

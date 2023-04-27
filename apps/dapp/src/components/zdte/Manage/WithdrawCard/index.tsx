@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
 
 import { ZdteLP__factory } from '@dopex-io/sdk';
+import { Button } from '@dopex-io/ui';
 import { Input as MuiInput } from '@mui/material';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
@@ -10,7 +11,6 @@ import { useBoundStore } from 'store';
 
 import { IStaticZdteData, IZdteData, IZdteUserData } from 'store/Vault/zdte';
 
-import { CustomButton } from 'components/UI';
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 import Loading from 'components/zdte/Loading';
 
@@ -288,15 +288,19 @@ const Withdraw = () => {
         />
         <ContentRow
           title="Available Liquidity"
-          content={`${formatAmount(!asset ? 0 : asset.getTotalAsset, 2)} ${
-            !asset ? '' : asset.getAssetSymbol
-          }`}
+          content={`${formatAmount(
+            !asset ? 0 : asset.getActualLpBalance,
+            2,
+            true
+          )} ${!asset ? '' : asset.getAssetSymbol}`}
         />
         <ContentRow
           title="Total Liquidity"
-          content={`${formatAmount(!asset ? 0 : asset.getActualLpBalance, 2)} ${
-            !asset ? '' : asset.getAssetSymbol
-          }`}
+          content={`${formatAmount(
+            !asset ? 0 : asset.getTotalAsset,
+            2,
+            true
+          )} ${!asset ? '' : asset.getAssetSymbol}`}
         />
         <div>
           <span className="text-sm text-white">
@@ -304,12 +308,11 @@ const Withdraw = () => {
           </span>
         </div>
       </div>
-      <CustomButton
-        size="medium"
-        className="w-full mt-4 !rounded-md"
-        color={!tokenApproved || canWithdraw ? 'primary' : 'mineshaft'}
-        disabled={tokenApproved && !canWithdraw}
+      <Button
+        variant="contained"
         onClick={!tokenApproved ? handleApprove : handleWithdraw}
+        disabled={tokenApproved && !canWithdraw}
+        color={!tokenApproved || canWithdraw ? 'primary' : 'mineshaft'}
       >
         {tokenApproved
           ? asset && asset.coolingPeriodOver
@@ -324,7 +327,7 @@ const Withdraw = () => {
               : 'Withdraw'
             : 'Cooling period not over'
           : 'Approve'}
-      </CustomButton>
+      </Button>
     </div>
   );
 };
