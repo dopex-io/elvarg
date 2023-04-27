@@ -3,6 +3,7 @@ import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { BigNumber } from 'ethers';
 
 import { ERC20__factory } from '@dopex-io/sdk';
+import { Button } from '@dopex-io/ui';
 import { Input as MuiInput } from '@mui/material';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
@@ -362,11 +363,11 @@ const TradeCard = () => {
           />
         </div>
         <div className="flex justify-between">
-          <div className=" flex mr-2 border border-white rounded-md ">
+          <div className=" flex mr-2 border border-white rounded-md">
             {[10, 25, 50, 75, 100].map((option, i) => (
-              <div
+              <Button
                 key={i}
-                className={`text-center w-auto cursor-pointer group hover:bg-mineshaft hover:opacity-80`}
+                className={`text-center w-auto cursor-pointer group hover:bg-mineshaft hover:opacity-80 px-[2px] py-[1px]`}
                 onClick={() => {
                   setTextInputRef(false);
                   setAmount(
@@ -383,11 +384,13 @@ const TradeCard = () => {
                         )
                   );
                 }}
+                disabled={selectedSpreadPair?.shortStrike === undefined}
+                color="carbon"
               >
                 <h6 className="text-xs font-light py-2 px-2">
                   <span>{option}%</span>
                 </h6>
-              </div>
+              </Button>
             ))}
           </div>
           <span className="mt-2 text-sm">
