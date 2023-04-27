@@ -57,24 +57,37 @@ const Stats = () => {
         )}`}
       />
       <StatsColumn
-        title={`Total Liq (Calls)`}
+        title={`Available / Total Liq (Calls)`}
         value={`${formatAmount(
           getUserReadableAmount(zdteData?.baseLpAssetBalance, DECIMALS_TOKEN),
+          2
+        )} / ${formatAmount(
+          getUserReadableAmount(zdteData?.baseLpTotalAsset, DECIMALS_TOKEN),
           2
         )}
         ${tokenSymbol}`}
       />
       <StatsColumn
-        title={`Total Liq (Puts)`}
+        title={`Available / Total Liq (Puts)`}
         value={`$${formatAmount(
           getUserReadableAmount(zdteData?.quoteLpAssetBalance, DECIMALS_USD),
-          2
+          2,
+          true
+        )} / ${formatAmount(
+          getUserReadableAmount(zdteData?.quoteLpTotalAsset, DECIMALS_USD),
+          2,
+          true
         )}`}
       />
       <StatsColumn
         title={`Expiry ${format(zdteData.expiry, 'z')}`}
         value={`${format(zdteData.expiry * 1000, 'd MMM yyyy HH:mm')}`}
       />
+      {/* TODO */}
+      {/* <StatsColumn
+        title={`Available / Total Liquidity`}
+        value={`1234 / 1234`}
+      /> */}
     </div>
   );
 };
