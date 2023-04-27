@@ -16,7 +16,7 @@ importers:
   apps/dapp:
     specifiers:
       "@0xsequence/multicall": ^0.43.26
-      "@dopex-io/sdk": 1.0.0-beta.61
+      "@dopex-io/sdk": 1.0.0-beta.58
       "@dopex-io/ui": workspace:*
       "@emotion/react": ^11.10.6
       "@emotion/styled": ^11.10.6
@@ -71,7 +71,7 @@ importers:
       zustand: ^4.3.7
     dependencies:
       "@0xsequence/multicall": 0.43.26_ethers@5.7.2
-      "@dopex-io/sdk": 1.0.0-beta.56_ethers@5.7.2
+      "@dopex-io/sdk": 1.0.0-beta.58_ethers@5.7.2
       "@dopex-io/ui": link:../../packages/ui
       "@emotion/react": 11.10.6_pofolu2o2erjq4lhyzl3hqovzq
       "@emotion/styled": 11.10.6_wk7udrqmfetfur7bcmggr6k6fm
@@ -4443,10 +4443,10 @@ packages:
     engines: { node: ">=10.0.0" }
     dev: true
 
-  /@dopex-io/sdk/1.0.0-beta.56_ethers@5.7.2:
+  /@dopex-io/sdk/1.0.0-beta.58_ethers@5.7.2:
     resolution:
       {
-        integrity: sha512-V4S/thaYSFzZfHuTPCtePp4G/oOkFwrC/qYNoSe0a2axC6TEz2qWcpJLZfVHrgUaKLjlEML4R1ehdfOh9VRsOQ==,
+        integrity: sha512-VKIuOJWZGVAqyaP6071qHwsc6CR+SnyWQBwGSBQRlf/jYU9eFHGmwMjElEIUs23tYjv9slLswas+U6ANBzqt+g==,
       }
     engines: { node: ">=14" }
     peerDependencies:
