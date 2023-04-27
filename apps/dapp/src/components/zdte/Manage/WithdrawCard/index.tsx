@@ -3,8 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
 
 import { ZdteLP__factory } from '@dopex-io/sdk';
-import { Button } from '@dopex-io/ui';
-import { Input as MuiInput } from '@mui/material';
+import { Button, Input } from '@dopex-io/ui';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
@@ -265,16 +264,11 @@ const Withdraw = () => {
               </h6>
             </div>
           </div>
-          <MuiInput
-            disableUnderline
-            id="notionalSize"
-            name="notionalSize"
+          <Input
+            variant="small"
+            color="cod-gray"
+            handleChange={handleWithdrawAmount}
             placeholder="0"
-            type="number"
-            className="h-12 text-md text-white font-mono mr-2"
-            value={tokenWithdrawAmount}
-            onChange={handleWithdrawAmount}
-            classes={{ input: 'text-right' }}
           />
         </div>
       </div>
