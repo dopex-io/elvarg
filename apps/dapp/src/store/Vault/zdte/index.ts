@@ -598,6 +598,12 @@ export const createZdteSlice: StateCreator<
     }));
   },
   updateVolumeFromSubgraph: async () => {
+    const { zdteData } = get();
+
+    if (!zdteData) {
+      return;
+    }
+
     let subgraphVolume = '...';
     try {
       const payload = await queryClient.fetchQuery({
@@ -616,10 +622,12 @@ export const createZdteSlice: StateCreator<
           }, BigNumber.from(0))
         : BigNumber.from(0);
 
-      subgraphVolume = formatAmount(
-        getUserReadableAmount(_twentyFourHourVolume),
-        3
-      );
+      subgraphVolume = `$${formatAmount(
+        getUserReadableAmount(_twentyFourHourVolume.mul(2)) *
+          zdteData.tokenPrice,
+        3,
+        true
+      )}`;
     } catch (err) {
       console.error(err);
     }
