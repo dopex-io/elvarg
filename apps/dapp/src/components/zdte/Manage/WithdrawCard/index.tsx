@@ -268,6 +268,7 @@ const Withdraw = () => {
             variant="small"
             color="cod-gray"
             handleChange={handleWithdrawAmount}
+            value={tokenWithdrawAmount}
             placeholder="0"
           />
         </div>

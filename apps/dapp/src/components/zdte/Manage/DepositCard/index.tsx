@@ -218,6 +218,7 @@ const Deposit = () => {
             color="cod-gray"
             handleChange={handleDepositAmount}
             placeholder="0"
+            value={amount}
           />
         </div>
       </div>
