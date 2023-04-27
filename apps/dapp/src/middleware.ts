@@ -48,8 +48,6 @@ export function middleware(req: NextRequest) {
     }
   }
 
-  console.log(check, userAgent);
-
   if (check) {
     const country = req.geo?.country;
 
