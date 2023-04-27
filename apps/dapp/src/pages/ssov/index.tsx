@@ -1,5 +1,4 @@
 import Head from 'next/head';
-import { NextSeo } from 'next-seo';
 
 import { useMemo, useState } from 'react';
 
@@ -208,33 +207,5 @@ const SsovData = () => {
 };
 
 export default function Ssov() {
-  return (
-    <>
-      <SsovData />;
-      <NextSeo
-        title="SSOV | Dopex"
-        description="Dopex Single Staking Option Vaults"
-        canonical="https://app.dopex.io/ssov"
-        openGraph={{
-          url: 'https://app.dopex.io/ssov',
-          title: 'SSOV | Dopex',
-          description: 'Dopex Single Staking Option Vaults',
-          images: [
-            {
-              url: '/images/previews/ssov.png',
-              width: 800,
-              height: 600,
-              alt: 'SSOV',
-              type: 'image/png',
-            },
-          ],
-        }}
-        twitter={{
-          handle: '@handle',
-          site: '@site',
-          cardType: 'summary_large_image',
-        }}
-      />
-    </>
-  );
+  return <SsovData />;
 }
