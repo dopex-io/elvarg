@@ -308,6 +308,7 @@ const Withdraw = () => {
         onClick={!tokenApproved ? handleApprove : handleWithdraw}
         disabled={tokenApproved && !canWithdraw}
         color={!tokenApproved || canWithdraw ? 'primary' : 'mineshaft'}
+        className="w-full"
       >
         {tokenApproved
           ? asset && asset.coolingPeriodOver

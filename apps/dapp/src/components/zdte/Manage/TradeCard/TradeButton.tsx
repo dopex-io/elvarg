@@ -82,6 +82,7 @@ const TradeButton = ({
           ? 'primary'
           : 'mineshaft'
       }
+      className="w-full"
     >
       {amount === 0 || approved ? positionStatus : 'Approve'}
     </Button>
