@@ -88,7 +88,7 @@ export const OptionsTable = () => {
           setTextInputRef(true);
         }
       } catch (e) {
-        console.log('fail to set strike', e);
+        console.error('fail to set strike', e);
       }
     },
     [

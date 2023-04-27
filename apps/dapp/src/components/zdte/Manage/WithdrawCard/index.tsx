@@ -153,7 +153,7 @@ const Withdraw = () => {
         allowance.gt(BigNumber.from(0)) && allowance.gte(withdrawAmount)
       );
     } catch (err) {
-      console.log('handle approval: ', err);
+      console.error('handle approval: ', err);
     }
   }, [
     staticZdteData,
@@ -184,7 +184,7 @@ const Withdraw = () => {
         allowance.gt(BigNumber.from(0)) && allowance.gte(withdrawAmount)
       );
     } catch (err) {
-      console.log('check approved: ', err);
+      console.error('check approved: ', err);
     }
   }, [accountAddress, signer, staticZdteData, asset, tokenWithdrawAmount]);
 
@@ -213,7 +213,7 @@ const Withdraw = () => {
         updateZdteData();
       });
     } catch (e) {
-      console.log('fail to withdraw', e);
+      console.error('fail to withdraw', e);
     }
   }, [
     signer,

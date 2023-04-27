@@ -140,7 +140,7 @@ const Deposit = () => {
       });
       await updateZdteData();
     } catch (e) {
-      console.log('fail to deposit', e);
+      console.error('fail to deposit', e);
     }
   }, [signer, provider, zdteContract, amount, updateZdteData, sendTx, isQuote]);
 

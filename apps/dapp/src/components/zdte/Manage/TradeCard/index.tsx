@@ -145,7 +145,7 @@ const TradeCard = () => {
         )
       );
     } catch (err) {
-      console.log('fail to approve', err);
+      console.error('fail to approve', err);
     }
   }, [staticZdteData, signer, sendTx, amount, accountAddress]);
 
@@ -179,7 +179,7 @@ const TradeCard = () => {
       await updateZdteData();
       await updateVolumeFromSubgraph();
     } catch (err) {
-      console.log('fail to open position', err);
+      console.error('fail to open position', err);
       throw new Error('fail to open position');
     }
   }, [
@@ -237,7 +237,7 @@ const TradeCard = () => {
           getUsdPrice(longOpeningFees.add(shortOpeningFees))
         );
       } catch (err) {
-        console.log('fail to updatePremiumAndFees: ', err);
+        console.error('fail to updatePremiumAndFees: ', err);
       }
     }
     updatePremiumAndFees();
@@ -262,7 +262,7 @@ const TradeCard = () => {
         const toOpen = getContractReadableAmount(toApproveAmount, DECIMALS_USD);
         setApproved(allowance.gte(toOpen));
       } catch (err) {
-        console.log('fail to validateApproval: ', err);
+        console.error('fail to validateApproval: ', err);
       }
     }
     validateApproval();
@@ -287,7 +287,7 @@ const TradeCard = () => {
         );
         setCanOpenSpread(sufficient);
       } catch (err) {
-        console.log('fail to validateCanOpenSpread: ', err);
+        console.error('fail to validateCanOpenSpread: ', err);
       }
     }
     validateCanOpenSpread();
@@ -326,7 +326,7 @@ const TradeCard = () => {
         margin = margin * Number(amount);
         setMargin(formatAmount(margin, 2));
       } catch (err) {
-        console.log('fail to updateMargin: ', err);
+        console.error('fail to updateMargin: ', err);
       }
     }
     updateMargin();
