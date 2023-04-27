@@ -26,10 +26,6 @@ function Document() {
         <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#342268" />
         <meta name="msapplication-TileColor" content="#ffffff" />
         <meta name="theme-color" content="#ffffff" />
-        <meta
-          name="description"
-          content="Dopex is a maximum liquidity and minimal exposure options protocol."
-        />
       </Head>
       <body>
         <Main />

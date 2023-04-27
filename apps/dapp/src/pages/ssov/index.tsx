@@ -1,5 +1,4 @@
 import Head from 'next/head';
-import { NextSeo } from 'next-seo';
 
 import { useMemo, useState } from 'react';
 
@@ -103,30 +102,6 @@ const SsovData = () => {
 
   return (
     <Box className="min-h-screen">
-      <NextSeo
-        title="SSOV | Dopex"
-        description="Dopex Single Staking Option Vaults"
-        canonical="https://app.dopex.io/ssov"
-        openGraph={{
-          url: 'https://app.dopex.io/ssov',
-          title: 'SSOV | Dopex',
-          description: 'Dopex Single Staking Option Vaults',
-          images: [
-            {
-              url: '/ssov.png',
-              width: 800,
-              height: 600,
-              alt: 'SSOV',
-              type: 'image/png',
-            },
-          ],
-        }}
-        twitter={{
-          handle: '@handle',
-          site: '@site',
-          cardType: 'summary_large_image',
-        }}
-      />
       <Head>
         <title>SSOV | Dopex</title>
       </Head>

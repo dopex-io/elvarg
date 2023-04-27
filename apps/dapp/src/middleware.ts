@@ -23,11 +23,32 @@ const BLOCKED_COUNTRIES_ALPHA_2_CODES: string[] = [
   'VE',
 ];
 
-export function middleware(req: NextRequest) {
-  const url = new URL(req.url);
+const unblockedUserAgents = [
+  'Twitter',
+  'Telegram',
+  'Discord',
+  'Google',
+  'Go-http-client',
+];
 
-  if (!url.pathname.startsWith('/share')) {
-    // Extract country
+export function middleware(req: NextRequest) {
+  const userAgent = req.headers.get('user-agent');
+
+  let check = false;
+
+  if (userAgent) {
+    for (let i = 0; i < unblockedUserAgents.length; i++) {
+      const unblockedUserAgent = unblockedUserAgents[i]!;
+
+      if (userAgent.includes(unblockedUserAgent)) {
+        check = false;
+        break;
+      }
+      check = true;
+    }
+  }
+
+  if (check) {
     const country = req.geo?.country;
 
     if (country && BLOCKED_COUNTRIES_ALPHA_2_CODES.includes(country)) {
