@@ -22,7 +22,7 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
-export const ZDTE: string = '0xd01e0ec59fb8cfbf64857de839e5c6e23c82511a';
+export const ZDTE: string = '0xbc70a8625680ec90292e1cef045a5509e123fa9f';
 const SECONDS_IN_A_YEAR = 86400 * 365;
 
 export interface OptionsTableData {
