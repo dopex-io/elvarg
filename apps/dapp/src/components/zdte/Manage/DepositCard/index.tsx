@@ -191,7 +191,10 @@ const Deposit = () => {
                   'font-medium mt-1 cursor-pointer text-[0.8rem]',
                   !isQuote && 'opacity-50'
                 )}
-                onClick={() => setisQuote(true)}
+                onClick={() => {
+                  setAmount('0');
+                  setisQuote(true);
+                }}
               >
                 <span>{staticZdteData?.quoteTokenSymbol}</span>
               </h6>
@@ -202,7 +205,10 @@ const Deposit = () => {
                   'font-medium mt-1 cursor-pointer text-[0.8rem]',
                   isQuote && 'opacity-50'
                 )}
-                onClick={() => setisQuote(false)}
+                onClick={() => {
+                  setAmount('0');
+                  setisQuote(false);
+                }}
               >
                 <span>{staticZdteData?.baseTokenSymbol}</span>
               </h6>
