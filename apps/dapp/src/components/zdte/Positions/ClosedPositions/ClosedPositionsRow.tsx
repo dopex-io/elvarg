@@ -134,7 +134,7 @@ export const ClosedPositionsRow = ({
         />
       </StyleCell>
       <StyleCell align="left">
-        <h6 color="white">
+        <h6 className="text-white">
           <span>
             {formatDistance(
               position.expiry.toNumber() * 1000,
