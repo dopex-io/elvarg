@@ -148,7 +148,15 @@ const TradeCard = () => {
     } catch (err) {
       console.error('fail to approve', err);
     }
-  }, [staticZdteData, signer, sendTx, amount, accountAddress]);
+  }, [
+    staticZdteData,
+    signer,
+    sendTx,
+    amount,
+    accountAddress,
+    openingFees,
+    premium,
+  ]);
 
   const handleTradeAmount = (e: {
     target: { value: React.SetStateAction<string | number> };
@@ -192,6 +200,8 @@ const TradeCard = () => {
     selectedSpreadPair,
     setSelectedSpreadPair,
     sendTx,
+    setTextInputRef,
+    updateVolumeFromSubgraph,
   ]);
 
   useEffect(() => {
