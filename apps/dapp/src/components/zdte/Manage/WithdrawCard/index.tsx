@@ -24,13 +24,13 @@ import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 class QuoteOrBaseAsset {
   private isQuote: boolean;
   private zdteData: IZdteData;
-  private userZdteLpData: IZdteUserData;
+  private userZdteLpData: IZdteUserData | undefined;
   private staticZdteData: IStaticZdteData;
 
   constructor(
     isQuote: boolean,
     zdteData: IZdteData,
-    userZdteLpData: IZdteUserData,
+    userZdteLpData: IZdteUserData | undefined,
     staticZdteData: IStaticZdteData
   ) {
     this.isQuote = isQuote;
@@ -40,7 +40,9 @@ class QuoteOrBaseAsset {
   }
 
   get getUserAssetBalance() {
-    return this.isQuote
+    return !this.userZdteLpData
+      ? 0
+      : this.isQuote
       ? getUserReadableAmount(
           this.userZdteLpData?.userQuoteLpBalance!,
           DECIMALS_USD
@@ -52,7 +54,9 @@ class QuoteOrBaseAsset {
   }
 
   get getRawUserAssetBalance() {
-    return this.isQuote
+    return !this.userZdteLpData
+      ? 0
+      : this.isQuote
       ? this.userZdteLpData?.userQuoteLpBalance
       : this.userZdteLpData?.userBaseLpBalance;
   }
@@ -85,9 +89,11 @@ class QuoteOrBaseAsset {
   }
 
   get coolingPeriodOver() {
-    return this.isQuote
-      ? this.userZdteLpData.canWithdrawQuote
-      : this.userZdteLpData.canWithdrawBase;
+    return !this.userZdteLpData
+      ? 0
+      : this.isQuote
+      ? this.userZdteLpData?.canWithdrawQuote
+      : this.userZdteLpData?.canWithdrawBase;
   }
 }
 
@@ -111,7 +117,7 @@ const Withdraw = () => {
   const [tokenApproved, setTokenApproved] = useState<boolean>(false);
   const [isQuote, setisQuote] = useState(true);
   const asset = useMemo(() => {
-    if (!zdteData || !userZdteLpData || !staticZdteData) {
+    if (!zdteData || !staticZdteData) {
       return null;
     }
     return new QuoteOrBaseAsset(
@@ -186,7 +192,14 @@ const Withdraw = () => {
     } catch (err) {
       console.error('check approved: ', err);
     }
-  }, [accountAddress, signer, staticZdteData, asset, tokenWithdrawAmount]);
+  }, [
+    accountAddress,
+    signer,
+    staticZdteData,
+    asset,
+    tokenWithdrawAmount,
+    isQuote,
+  ]);
 
   // Updates approved state and user balance
   useEffect(() => {
@@ -232,6 +245,7 @@ const Withdraw = () => {
     Number(tokenWithdrawAmount) <= asset.getActualLpBalance &&
     asset.coolingPeriodOver;
 
+  console.log('staticZdteData: ', staticZdteData);
   if (!staticZdteData) {
     return <Loading />;
   }
