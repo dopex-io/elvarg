@@ -59,14 +59,14 @@ const getAction = (
     selectedSpreadPair === undefined ||
     selectedSpreadPair.longStrike === undefined
   )
-    return 'Long';
+    return 'Long Call';
   selectedSpreadPair.longStrike;
   if (
     selectedSpreadPair.longStrike === optionsStats.strike ||
     selectedSpreadPair.shortStrike === optionsStats.strike
   )
     return 'Undo';
-  return 'Short';
+  return 'Short Put';
 };
 
 const OptionsTableButton = ({
@@ -90,7 +90,7 @@ const OptionsTableButton = ({
   return (
     <Button
       className={cx(
-        'max-w-fit cursor-pointer text-white ',
+        'w-24 cursor-pointer text-white ',
         buttonAction === 'Undo' ? 'bg-umbra hover:bg-umbra' : '',
         buttonStatus ? 'bg-umbra' : ''
       )}
