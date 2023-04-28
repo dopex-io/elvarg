@@ -1,7 +1,7 @@
 import type { ErrorInfo } from 'react';
 import React from 'react';
 
-import { Alert, AlertTitle, Box } from '@mui/material';
+import { Alert, AlertTitle } from '@mui/material';
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode; message?: string },
@@ -27,12 +27,12 @@ class ErrorBoundary extends React.Component<
       // Error path
       return (
         <div className="bg-[url('/images/misc/share-bg.png')] h-screen w-screen bg-contain bg-no-repeat">
-          <Box className="flex justify-center items-center h-screen w-96 mx-auto">
+          <div className="flex justify-center items-center h-screen w-96 mx-auto">
             <Alert severity="error">
               <AlertTitle>Error</AlertTitle>
               {this.state.error && this.state.error.toString()}
             </Alert>
-          </Box>
+          </div>
         </div>
       );
     }
