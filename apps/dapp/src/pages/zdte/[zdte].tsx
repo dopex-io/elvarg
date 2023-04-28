@@ -44,11 +44,9 @@ const Zdte = ({ zdte }: Props) => {
     updateZdteData().then(() => {
       updateStaticZdteData().then(() => {
         getUserPurchaseData().then(() => {
-          updateUserZdteLpData().then(() => {
-            updateVolumeFromSubgraph().then(() => {
-              updateUserZdtePurchaseData();
-            });
-          });
+          updateUserZdteLpData();
+          updateUserZdtePurchaseData();
+          updateVolumeFromSubgraph();
         });
       });
     });
@@ -62,6 +60,7 @@ const Zdte = ({ zdte }: Props) => {
     selectedPoolName,
     accountAddress,
     getZdteContract,
+    updateVolumeFromSubgraph,
   ]);
 
   useEffect(() => {
