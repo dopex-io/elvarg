@@ -36,7 +36,7 @@ const Stats = () => {
       (token) => token.name.toLowerCase() === selectedPoolName.toLowerCase()
     );
     return Number(formatAmount(item?.change24h || 0, 2));
-  }, [tokenPrices]);
+  }, [tokenPrices, selectedPoolName]);
 
   const tokenSymbol = staticZdteData?.baseTokenSymbol.toUpperCase();
   const quoteTokenSymbol = staticZdteData?.quoteTokenSymbol.toUpperCase();
@@ -83,11 +83,6 @@ const Stats = () => {
         title={`Expiry ${format(zdteData.expiry, 'z')}`}
         value={`${format(zdteData.expiry * 1000, 'd MMM yyyy HH:mm')}`}
       />
-      {/* TODO */}
-      {/* <StatsColumn
-        title={`Available / Total Liquidity`}
-        value={`1234 / 1234`}
-      /> */}
     </div>
   );
 };
