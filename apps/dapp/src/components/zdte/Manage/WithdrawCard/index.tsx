@@ -283,19 +283,15 @@ const Withdraw = () => {
         />
         <ContentRow
           title="Available Liquidity"
-          content={`${formatAmount(
-            !asset ? 0 : asset.getActualLpBalance,
-            2,
-            true
-          )} ${!asset ? '' : asset.getAssetSymbol}`}
+          content={`${formatAmount(!asset ? 0 : asset.getActualLpBalance, 2)} ${
+            !asset ? '' : asset.getAssetSymbol
+          }`}
         />
         <ContentRow
           title="Total Liquidity"
-          content={`${formatAmount(
-            !asset ? 0 : asset.getTotalAsset,
-            2,
-            true
-          )} ${!asset ? '' : asset.getAssetSymbol}`}
+          content={`${formatAmount(!asset ? 0 : asset.getTotalAsset, 2)} ${
+            !asset ? '' : asset.getAssetSymbol
+          }`}
         />
         <div>
           <span className="text-sm text-white">
