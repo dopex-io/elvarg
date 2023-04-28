@@ -625,7 +625,7 @@ export const createZdteSlice: StateCreator<
       subgraphVolume = `$${formatAmount(
         getUserReadableAmount(_twentyFourHourVolume.mul(2)) *
           zdteData.tokenPrice,
-        3,
+        2,
         true
       )}`;
     } catch (err) {
