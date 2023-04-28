@@ -44,11 +44,11 @@ const TopBar = () => {
         undefined,
         { shallow: true }
       );
-      await Promise.all([
-        updateStaticZdteData(),
-        updateZdteData(),
-        updateUserZdtePurchaseData(),
-      ]);
+      await updateZdteData().then(() => {
+        updateStaticZdteData().then(() => {
+          updateUserZdtePurchaseData().then(() => {});
+        });
+      });
     },
     [
       router,
