@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import Button from '@mui/material/Button';
+import { Button } from '@dopex-io/ui';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import { useBoundStore } from 'store';
 
@@ -23,7 +23,7 @@ const Positions = () => {
       <div className="border rounded-t-xl border-cod-gray py-2 bg-umbra">
         <div className="flex ml-3">
           {accountAddress ? (
-            <div className="rounded-md bg-neutral-700 flex mb-2 mt-3 h-auto">
+            <div className="rounded-md bg-neutral-700 flex mb-2 mt-3 h-fit">
               <span className="ml-auto p-1 text-white text-xs">
                 {displayAddress(accountAddress, ensName)}
               </span>
@@ -38,8 +38,9 @@ const Positions = () => {
                     ? 'text-white bg-carbon hover:bg-carbon'
                     : 'text-stieglitz bg-transparent hover:bg-transparent'
                 } hover:text-white`}
-                disableRipple
                 onClick={() => setActiveTab(label)}
+                color="carbon"
+                size="small"
               >
                 <span
                   className={`${activeTab === label && 'text-white'} text-xs`}
