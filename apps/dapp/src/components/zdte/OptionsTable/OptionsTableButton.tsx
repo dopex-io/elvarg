@@ -53,20 +53,21 @@ function isDisabled(
 
 const getAction = (
   selectedSpreadPair: ISpreadPair | undefined,
-  optionsStats: OptionsTableData
+  optionsStats: OptionsTableData,
+  tokenPrice: number
 ) => {
   if (
     selectedSpreadPair === undefined ||
     selectedSpreadPair.longStrike === undefined
   )
-    return 'Long Call';
+    return optionsStats.strike > tokenPrice ? 'Long Call' : 'Long Put';
   selectedSpreadPair.longStrike;
   if (
     selectedSpreadPair.longStrike === optionsStats.strike ||
     selectedSpreadPair.shortStrike === optionsStats.strike
   )
     return 'Undo';
-  return 'Short Put';
+  return optionsStats.strike > tokenPrice ? 'Short Call' : 'Short Put';
 };
 
 const OptionsTableButton = ({
@@ -85,7 +86,7 @@ const OptionsTableButton = ({
     selectedSpreadPair,
     optionsStats.strike
   );
-  const buttonAction = getAction(selectedSpreadPair, optionsStats);
+  const buttonAction = getAction(selectedSpreadPair, optionsStats, tokenPrice);
 
   return (
     <Button
