@@ -1472,6 +1472,7 @@ export interface ScalpPosition {
 }
 
 export interface ScalpOrder {
+  id: number;
   isOpen: boolean;
   isShort: boolean;
   size: BigNumber;
@@ -1480,6 +1481,7 @@ export interface ScalpOrder {
   price: BigNumber;
   expiry: BigNumber | null;
   filled: boolean;
+  type: string;
 }
 
 export interface optionScalpUserData {
@@ -1689,21 +1691,23 @@ export const createOptionScalpSlice: StateCreator<
     return scalpPositions;
   },
   getScalpOpenOrder: async (id: BigNumber) => {
-    const { getLimitOrdersContract, getOptionScalpContract } = get();
+    const { getLimitOrdersContract, getOptionScalpContract, optionScalpData } =
+      get();
 
     const limitOrdersContract = await getLimitOrdersContract();
     const optionScalpContract = await getOptionScalpContract();
 
     try {
-      const openOrder = await limitOrdersContract.openOrders(id);
-      const ticks = await limitOrdersContract.getNFTPositionTicks(
+      const openOrder = await limitOrdersContract.callStatic.openOrders(id);
+
+      const ticks = await limitOrdersContract.callStatic.getNFTPositionTicks(
         openOrder['positionId'],
         openOrder['optionScalp']
       );
 
-      const tick = (ticks[0].toNumber() + ticks[1].toNumber()) / 2;
+      const tick = (ticks[0] + ticks[1]) / 2;
 
-      const price = BigNumber.from((1 / 1.0001 ** tick) * 10 ** 18);
+      const price = BigNumber.from(Math.round(1 / 1.0001 ** tick));
 
       const maxFundingTime = await limitOrdersContract.maxFundingTime();
 
@@ -1712,7 +1716,12 @@ export const createOptionScalpSlice: StateCreator<
         openOrder['timeframeIndex']
       );
 
+      const positions = openOrder['size']
+        .mul(BigNumber.from(10 ** optionScalpData.quoteDecimals.toNumber()))
+        .div(price);
+
       return {
+        id: id,
         isOpen: true,
         isShort: openOrder['isShort'],
         size: openOrder['size'],
@@ -1721,8 +1730,11 @@ export const createOptionScalpSlice: StateCreator<
         price: price,
         expiry: expiry,
         filled: openOrder['filled'],
+        positions: positions,
+        type: 'open',
       };
     } catch (e) {
+      console.log(e);
       return;
     }
   },
@@ -1745,7 +1757,12 @@ export const createOptionScalpSlice: StateCreator<
 
       const price = BigNumber.from((1 / 1.0001 ** tick) * 10 ** 18);
 
+      const positions = scalpPosition['size']
+        .mul(BigNumber.from(10 ** optionScalpData.quoteDecimals.toNumber()))
+        .div(price);
+
       return {
+        id: id,
         isOpen: false,
         isShort: scalpPosition['isShort'],
         size: scalpPosition['size'],
@@ -1753,6 +1770,8 @@ export const createOptionScalpSlice: StateCreator<
         collateral: scalpPosition['collateral'],
         price: price,
         expiry: null,
+        positions: positions,
+        type: 'close',
       };
     } catch (e) {
       return;

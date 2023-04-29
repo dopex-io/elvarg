@@ -1,25 +1,28 @@
 import { useCallback, useMemo } from 'react';
 
-import { IconButton } from '@mui/material';
-import IosShare from '@mui/icons-material/IosShare';
-
 import cx from 'classnames';
 
 import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
-import LimitOrderPopover from 'components/scalps/LimitOrderPopover';
+import formatAmount from 'utils/general/formatAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 const OrdersTable = () => {
-  const { optionScalpUserData, optionScalpData } = useBoundStore();
+  const {
+    optionScalpUserData,
+    optionScalpData,
+    signer,
+    updateOptionScalpUserData,
+  } = useBoundStore();
 
   const orders = useMemo(() => {
-    return [];
-  }, [optionScalpUserData, optionScalpData]);
+    return optionScalpUserData.scalpOrders;
+  }, [optionScalpUserData]);
 
-  const tableHeadings = ['Size', 'Collateral', 'Locked Liquidity', 'Expiry'];
+  const tableHeadings = ['Positions', 'Price', 'Collateral'];
 
-  const ordersKeys = ['size', 'collateral', 'lockedLiquidity', 'expiry'];
+  const ordersKeys = ['positions', 'price', 'collateral'];
 
   const getCellComponent = useCallback(
     (key: string, order: any) => {
@@ -30,6 +33,53 @@ const OrdersTable = () => {
       let data = order[key];
       let dataStyle = '';
       let rightContentStyle = '';
+
+      if (key === 'positions') {
+        rightContent = optionScalpData?.baseSymbol ?? '';
+        dataStyle += (optionScalpData.inverted ? !order.isShort : order.isShort)
+          ? 'text-[#FF617D]'
+          : 'text-[#6DFFB9]';
+
+        rightContentStyle = dataStyle + ' text-xs hidden md:inline-block';
+        data = (optionScalpData?.inverted ? !order.isShort : order.isShort)
+          ? '-' +
+            getUserReadableAmount(
+              data,
+              optionScalpData?.quoteDecimals.toNumber()
+            )
+          : '+' +
+            getUserReadableAmount(
+              data,
+              optionScalpData?.quoteDecimals.toNumber()
+            );
+      }
+
+      if (key === 'size' || key === 'price') {
+        data = formatAmount(
+          getUserReadableAmount(
+            order[key],
+            optionScalpData?.quoteDecimals.toNumber()
+          ),
+          4
+        );
+      }
+
+      if (key === 'collateral') {
+        data =
+          formatAmount(
+            getUserReadableAmount(
+              order[key],
+              optionScalpData?.quoteDecimals.toNumber()
+            ),
+            4
+          ) +
+          ' ' +
+          optionScalpData.quoteSymbol;
+      }
+
+      if (key === 'expiry') {
+        data = formatAmount(getUserReadableAmount(order.expiry, 0), 4);
+      }
 
       return (
         <span
@@ -46,9 +96,25 @@ const OrdersTable = () => {
     [optionScalpData]
   );
 
+  const handleCancel = useCallback(
+    async (type: string, id: number) => {
+      if (type === 'open') {
+        await optionScalpData?.limitOrdersContract
+          ?.connect(signer)
+          .cancelOpenOrder(id);
+      } else {
+        await optionScalpData?.limitOrdersContract
+          ?.connect(signer)
+          .cancelCloseOrder(id);
+      }
+      await updateOptionScalpUserData();
+    },
+    [optionScalpData, signer]
+  );
+
   return (
     <div className="rounded-lg bg-inherit w-fit-content h-fit-content px-5 flex flex-row">
-      {orders.length !== 0 ? (
+      {orders?.length !== 0 ? (
         <div className="w-full h-full mb-4">
           <div className="flex flex-col space-y-4 py-2">
             <div className="flex flex-row w-full items-center justify-between">
@@ -59,7 +125,7 @@ const OrdersTable = () => {
               ))}
               <div className="w-full"></div>
             </div>
-            {orders.map((order: any, index1: number) => (
+            {orders?.map((order: any, index1: number) => (
               <div
                 key={index1}
                 className="flex flex-row w-full justify-center items-center space-x-2 md:space-x-0"
@@ -70,21 +136,11 @@ const OrdersTable = () => {
                     <CustomButton
                       className="cursor-pointer text-white w-2 mr-2"
                       color={'primary'}
-                      onClick={() => null}
+                      onClick={() => handleCancel(order.type, order.id)}
                     >
-                      <span className="text-xs md:sm">Close</span>
+                      <span className="text-xs md:sm">Cancel</span>
                     </CustomButton>
                   )}
-                  {order.isOpen && <LimitOrderPopover />}
-                  <IconButton
-                    aria-label="share"
-                    aria-haspopup="true"
-                    onClick={() => null}
-                    className="flex"
-                    size="small"
-                  >
-                    <IosShare className="fill-current text-white opacity-90 hover:opacity-100 text-lg" />
-                  </IconButton>
                 </div>
               </div>
             ))}
