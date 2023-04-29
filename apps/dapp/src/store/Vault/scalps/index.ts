@@ -1694,6 +1694,8 @@ export const createOptionScalpSlice: StateCreator<
     const { getLimitOrdersContract, getOptionScalpContract, optionScalpData } =
       get();
 
+    if (!optionScalpData) return;
+
     const limitOrdersContract = await getLimitOrdersContract();
     const optionScalpContract = await getOptionScalpContract();
 
