@@ -1717,7 +1717,7 @@ export const createOptionScalpSlice: StateCreator<
       );
 
       const positions = openOrder['size']
-        .mul(BigNumber.from(10 ** optionScalpData.quoteDecimals.toNumber()))
+        .mul(BigNumber.from(10 ** optionScalpData?.quoteDecimals.toNumber()))
         .div(price);
 
       return {
