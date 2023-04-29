@@ -17,7 +17,7 @@ const OrdersTable = () => {
   } = useBoundStore();
 
   const orders = useMemo(() => {
-    return optionScalpUserData.scalpOrders;
+    return optionScalpUserData?.scalpOrders;
   }, [optionScalpUserData]);
 
   const tableHeadings = ['Positions', 'Price', 'Collateral'];
