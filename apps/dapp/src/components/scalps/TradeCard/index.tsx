@@ -335,6 +335,7 @@ const TradeCard = () => {
     isShortAfterAdjustments,
     orderType,
     rawLimitPrice,
+    isShort,
   ]);
 
   const handleMax = useCallback(() => {}, []);

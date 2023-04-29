@@ -39,7 +39,7 @@ const TopBar = () => {
         <h5 className="bg-primary rounded-md px-2 font-bold text-[0.5rem] sm:text-[0.8rem] mr-2">
           BETA
         </h5>
-        <div sx={{ p: 1 }} className="hidden md:flex -space-x-4">
+        <div className="hidden md:flex -space-x-4">
           <img
             className="w-9 h-9 z-10 border border-gray-500 rounded-full"
             src={`/images/tokens/${optionScalpData?.baseSymbol!.toLowerCase()}.svg`}
