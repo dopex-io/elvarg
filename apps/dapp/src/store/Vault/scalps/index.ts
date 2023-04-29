@@ -1790,19 +1790,19 @@ export const createOptionScalpSlice: StateCreator<
 
     for (let i in openOrdersEvents) {
       if (
-        !openOrdersIndexes.includes(Number(events[i]['args'][0])) &&
-        events[i]['args'][1] === accountAddress
+        !openOrdersIndexes.includes(Number(openOrdersEvents[i]['args'][0])) &&
+        openOrdersEvents[i]['args'][1] === accountAddress
       ) {
-        openOrdersIndexes.push(events[i]['args'][0]);
+        openOrdersIndexes.push(openOrdersEvents[i]['args'][0]);
       }
     }
 
     for (let i in closeOrdersEvents) {
       if (
-        !closeOrdersIndexes.includes(Number(events[i]['args'][0])) &&
-        events[i]['args'][1] === accountAddress
+        !closeOrdersIndexes.includes(Number(closeOrdersEvents[i]['args'][0])) &&
+        closeOrdersEvents[i]['args'][1] === accountAddress
       ) {
-        closeOrdersIndexes.push(events[i]['args'][0]);
+        closeOrdersIndexes.push(closeOrdersEvents[i]['args'][0]);
       }
     }
 
