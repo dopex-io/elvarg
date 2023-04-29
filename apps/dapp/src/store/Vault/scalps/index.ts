@@ -1536,7 +1536,7 @@ export const createOptionScalpSlice: StateCreator<
     },
   },
   getOptionScalpContract: () => {
-    const { selectedPoolName, provider, contractAddresses } = get();
+    const { selectedPoolName, provider } = get();
 
     if (!selectedPoolName || !provider) return;
     return new ethers.Contract(
