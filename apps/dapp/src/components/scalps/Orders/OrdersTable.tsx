@@ -109,7 +109,7 @@ const OrdersTable = () => {
       }
       await updateOptionScalpUserData();
     },
-    [optionScalpData, signer]
+    [optionScalpData, signer, updateOptionScalpUserData]
   );
 
   return (
