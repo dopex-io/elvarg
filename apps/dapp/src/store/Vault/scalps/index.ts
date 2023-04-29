@@ -1,9 +1,5 @@
 import { BigNumber, ethers } from 'ethers';
-import {
-  OptionScalpsLp,
-  OptionScalpsLp__factory,
-  OptionScalps__factory,
-} from '@dopex-io/sdk';
+import { OptionScalpsLp, OptionScalpsLp__factory } from '@dopex-io/sdk';
 
 import graphSdk from 'graphql/graphSdk';
 import queryClient from 'queryClient';
