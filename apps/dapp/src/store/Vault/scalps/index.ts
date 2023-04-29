@@ -1741,7 +1741,10 @@ export const createOptionScalpSlice: StateCreator<
     }
   },
   getScalpCloseOrder: async (id: BigNumber) => {
-    const { getLimitOrdersContract, getOptionScalpContract } = get();
+    const { getLimitOrdersContract, getOptionScalpContract, optionScalpData } =
+      get();
+
+    if (!optionScalpData) return;
 
     const limitOrdersContract = await getLimitOrdersContract();
     const optionScalpContract = await getOptionScalpContract();
