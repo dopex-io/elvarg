@@ -48,6 +48,8 @@ const TradeCard = () => {
 
   const [rawAmount, setRawAmount] = useState<string>('10');
 
+  const [rawLimitPrice, setRawLimitPrice] = useState<string>('10');
+
   const [leverage, setLeverage] = useState<number>(20);
 
   const [isShort, setIsShort] = useState<boolean>(false);
@@ -231,13 +233,18 @@ const TradeCard = () => {
           signer
         ),
         'approve',
-        [optionScalpData?.optionScalpContract?.address, MAX_VALUE]
+        [
+          orderType === 'Limit'
+            ? optionScalpData?.limitOrdersContract?.address
+            : optionScalpData?.optionScalpContract?.address,
+          MAX_VALUE,
+        ]
       );
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [sendTx, signer, optionScalpData, contractAddresses]);
+  }, [sendTx, signer, optionScalpData, contractAddresses, orderType]);
 
   // Handle trade
   const handleTrade = useCallback(async () => {
@@ -282,9 +289,16 @@ const TradeCard = () => {
       }
     } else if (orderType === 'Limit') {
       try {
-        const tick0 = 0;
-        const tick1 = 1;
-        // TODO: compute ticks from price
+        const limitPrice =
+          Number(rawLimitPrice) *
+          10 ** optionScalpData?.quoteDecimals!.toNumber();
+
+        const spacing = 10;
+        const tick0 =
+          Math.round(
+            Math.round(Math.log(1 / limitPrice) / Math.log(1.0001)) / 10
+          ) * 10;
+        const tick1 = tick0 + spacing;
 
         await sendTx(
           optionScalpData.limitOrdersContract.connect(signer),
@@ -320,6 +334,7 @@ const TradeCard = () => {
     positionDetails.marginInQuote,
     isShortAfterAdjustments,
     orderType,
+    rawLimitPrice,
   ]);
 
   const handleMax = useCallback(() => {}, []);
@@ -341,7 +356,9 @@ const TradeCard = () => {
       );
       const allowance: BigNumber = await token.allowance(
         accountAddress,
-        optionScalpData?.optionScalpContract?.address
+        orderType === 'Limit'
+          ? optionScalpData?.limitOrdersContract?.address
+          : optionScalpData?.optionScalpContract?.address
       );
       const balance: BigNumber = await token.balanceOf(accountAddress);
       setApproved(allowance.gte(finalAmount));
@@ -355,6 +372,7 @@ const TradeCard = () => {
     signer,
     chainId,
     optionScalpData,
+    orderType,
   ]);
 
   const handleCheckbox = useCallback((event: any) => {
@@ -520,7 +538,7 @@ const TradeCard = () => {
                   optionScalpData?.quoteDecimals!.toNumber()
                 )
               )}
-              onChange={() => {}}
+              onChange={(e) => setRawLimitPrice(e.target.value)}
               type="number"
               className={`mt-2 border border-mineshaft rounded-md px-2 bg-umbra w-full !w-auto`}
               classes={{ input: 'text-white text-xs text-left py-2' }}
