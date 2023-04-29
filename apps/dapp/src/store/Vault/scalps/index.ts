@@ -1558,7 +1558,7 @@ export const createOptionScalpSlice: StateCreator<
     );
   },
   getQuoteLpContract: () => {
-    const { selectedPoolName, provider, contractAddresses } = get();
+    const { selectedPoolName, provider } = get();
 
     if (!selectedPoolName || !provider) return;
 
@@ -1570,7 +1570,7 @@ export const createOptionScalpSlice: StateCreator<
     );
   },
   getBaseLpContract: () => {
-    const { selectedPoolName, provider, contractAddresses } = get();
+    const { selectedPoolName, provider } = get();
 
     if (!selectedPoolName || !provider) return;
 
