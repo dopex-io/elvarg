@@ -13,7 +13,13 @@ interface InputProps
   color?: string;
   outline?: "mineshaft" | "down-bad" | "umbra";
   placeholder?: string;
-  handleChange: ReactEventHandler;
+  handleChange:
+    | ReactEventHandler
+    | ((e: {
+        target: {
+          value: React.SetStateAction<string | number>;
+        };
+      }) => void);
 }
 
 const variants: Record<string, Record<string, string>> = {
@@ -74,6 +80,7 @@ const Input = (props: InputProps) => {
             "text-white text-right focus:outline-none"
           )}
           placeholder={placeholder}
+          onChange={handleChange}
           {...rest}
         />
         {rightElement}

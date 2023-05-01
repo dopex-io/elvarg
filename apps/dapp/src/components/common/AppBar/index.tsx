@@ -1,17 +1,16 @@
 import Link from 'next/link';
+
 import {
   Key,
   ReactNode,
   SetStateAction,
   useCallback,
+  useEffect,
   useMemo,
   useState,
-  useEffect,
 } from 'react';
+
 import { ethers } from 'ethers';
-import { useNetwork } from 'wagmi';
-import axios from 'axios';
-import cx from 'classnames';
 
 import MenuIcon from '@mui/icons-material/Menu';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -20,20 +19,23 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import axios from 'axios';
+import cx from 'classnames';
+import { useBoundStore } from 'store';
+import { useNetwork } from 'wagmi';
 
-import ClaimRdpxDialog from './ClaimRdpxDialog';
-import NetworkButton from './NetworkButton';
 import Typography from 'components/UI/Typography';
 import PriceCarousel from 'components/common/AppBar/PriceCarousel';
 import DisclaimerDialog from 'components/common/DisclaimerDialog';
-import ConnectButton from '../ConnectButton';
-
-import { useBoundStore } from 'store';
 
 import {
   DISCLAIMER_MESSAGE,
   OFAC_COMPLIANCE_LOCAL_STORAGE_KEY,
 } from 'constants/index';
+
+import ConnectButton from '../ConnectButton';
+import ClaimRdpxDialog from './ClaimRdpxDialog';
+import NetworkButton from './NetworkButton';
 
 const AppLink = ({
   name,
@@ -188,6 +190,11 @@ const appLinks: {
           to: '/straddles',
           description: 'Buy/write straddles for crypto assets',
         },
+        {
+          name: 'Zero Day To Expiry Options',
+          to: '/zdte/eth',
+          description: 'Buy/write ZDTE for crypto assets',
+        },
       ],
     },
     {
@@ -260,7 +267,8 @@ interface AppBarProps {
     | 'swap'
     | 'DPX Bonds'
     | 'vaults'
-    | 'Atlantics';
+    | 'Atlantics'
+    | 'ZDTE';
 }
 
 export default function AppBar(props: AppBarProps) {

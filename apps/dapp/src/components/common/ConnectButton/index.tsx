@@ -1,21 +1,21 @@
 import { useEffect, useState } from 'react';
+
 import { Button } from '@dopex-io/ui';
+import { useBoundStore } from 'store';
 import {
   useAccount,
+  useEnsAvatar,
+  useNetwork,
   useProvider,
   useSigner,
-  useNetwork,
-  useEnsAvatar,
 } from 'wagmi';
-
-import { DEFAULT_CHAIN_ID } from 'constants/env';
-
-import { useBoundStore } from 'store';
 
 import { smartTrim } from 'utils/general';
 
-import WalletDialog from '../WalletDialog';
+import { DEFAULT_CHAIN_ID } from 'constants/env';
+
 import { useConnectDialog } from '../ConnectDialog';
+import WalletDialog from '../WalletDialog';
 
 export function ConnectButton() {
   const [walletDialog, setWalletDialog] = useState(false);

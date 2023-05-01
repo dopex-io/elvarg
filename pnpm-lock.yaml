@@ -21,6 +21,8 @@ importers:
       '@dopex-io/ui': workspace:*
       '@emotion/react': ^11.10.6
       '@emotion/styled': ^11.10.6
+      '@ethersproject/abi': ^5.7.0
+      '@ethersproject/providers': ^5.7.2
       '@graphprotocol/client-cli': ^2.2.20
       '@graphql-mesh/transform-prefix': ^0.12.23
       '@ianvs/prettier-plugin-sort-imports': ^3.7.2
@@ -74,6 +76,8 @@ importers:
       '@dopex-io/ui': link:../../packages/ui
       '@emotion/react': 11.10.6_pofolu2o2erjq4lhyzl3hqovzq
       '@emotion/styled': 11.10.6_wk7udrqmfetfur7bcmggr6k6fm
+      '@ethersproject/abi': 5.7.0
+      '@ethersproject/providers': 5.7.2
       '@mui/icons-material': 5.11.16_qvn7gklc3nivno6qdfiyqqkjfe
       '@mui/material': 5.11.16_zy4fdalh3zntkbuswwsbylvxqe
       '@mui/styles': 5.11.16_pofolu2o2erjq4lhyzl3hqovzq

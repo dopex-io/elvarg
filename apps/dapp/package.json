@@ -16,6 +16,8 @@
     "@dopex-io/ui": "workspace:*",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
+    "@ethersproject/abi": "^5.7.0",
+    "@ethersproject/providers": "^5.7.2",
     "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.11.16",
     "@mui/styles": "^5.11.16",
