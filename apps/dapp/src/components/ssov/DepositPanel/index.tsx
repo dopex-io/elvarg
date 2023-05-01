@@ -67,12 +67,10 @@ const DepositPanel = () => {
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
     BigNumber.from('0')
   );
-
+  const [isTokenSelectorOpen, setTokenSelectorOpen] = useState(false);
   const [fromTokenSymbol, setFromTokenSymbol] = useState(
     ssovData?.collateralSymbol ?? ''
   );
-
-  const [isTokenSelectorOpen, setTokenSelectorOpen] = useState(false);
 
   const { ssovContractWithSigner } = ssovSigner;
 
@@ -345,6 +343,12 @@ const DepositPanel = () => {
     getContractAddress,
     fromTokenSymbol,
   ]);
+
+  // @todo remove this useEffect once router is enabled
+  useEffect(() => {
+    if (!ssovData || !ssovData.collateralSymbol) return;
+    setFromTokenSymbol(ssovData.collateralSymbol);
+  }, [ssovData]);
 
   const updateQuote = useCallback(async () => {
     if (!ssovData || fromTokenSymbol === ssovData?.collateralSymbol) return;

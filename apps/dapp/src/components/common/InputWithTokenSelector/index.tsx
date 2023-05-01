@@ -3,13 +3,11 @@ import {
   Dispatch,
   SetStateAction,
   useCallback,
-  useEffect,
   useState,
 } from 'react';
 import Box from '@mui/material/Box';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { ERC20__factory } from '@dopex-io/sdk';
 
 import Input from 'components/UI/Input';
 import Typography from 'components/UI/Typography';
@@ -50,41 +48,9 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
     handleMax,
   } = props;
 
-  const { chainId, getContractAddress, provider, accountAddress } =
-    useBoundStore();
+  const { chainId, userAssetBalances } = useBoundStore();
 
   const [tokenSelectorOpen, setTokenSelectorOpen] = useState(false);
-  const [selectedTokenBalance, setSelectedTokenBalance] = useState('0');
-
-  const updateUserBalance = useCallback(async () => {
-    if (!provider || !accountAddress) return;
-
-    const tokenAddress = getContractAddress(selectedTokenSymbol.toUpperCase());
-
-    if (!tokenAddress) return;
-
-    const token = ERC20__factory.connect(tokenAddress, provider);
-
-    setSelectedTokenBalance(
-      formatAmount(
-        getUserReadableAmount(
-          await token.balanceOf(accountAddress),
-          getTokenDecimals(selectedTokenSymbol, chainId)
-        ),
-        3
-      )
-    );
-  }, [
-    accountAddress,
-    chainId,
-    provider,
-    selectedTokenSymbol,
-    getContractAddress,
-  ]);
-
-  useEffect(() => {
-    updateUserBalance();
-  }, [updateUserBalance]);
 
   const handleTokenSelectorClick = useCallback(() => {
     if (chainId === 137) return;
@@ -157,7 +123,12 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
               variant="h6"
               onClick={handleMax}
             >
-              {selectedTokenBalance}
+              {formatAmount(
+                getUserReadableAmount(
+                  userAssetBalances[selectedTokenSymbol] || 0,
+                  getTokenDecimals(selectedTokenSymbol, chainId)
+                )
+              )}
             </Typography>
           </Box>
         }
