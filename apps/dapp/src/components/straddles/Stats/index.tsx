@@ -27,7 +27,7 @@ const Stats = () => {
     straddlesEpochData,
     updateStraddlesEpochData,
     straddlesData,
-    tokenPrices,
+    // tokenPrices,
   } = useBoundStore();
 
   const currentEpoch = straddlesData?.currentEpoch || 0;
