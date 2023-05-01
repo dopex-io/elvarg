@@ -263,7 +263,7 @@ const Stats = () => {
           )}
         </Typography>
       </Box>
-      {straddlesData?.underlying ===
+      {/* {straddlesData?.underlying ===
       '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270' ? (
         <Box className="flex justify-between lg:border-r lg:border-b-0 border-r-0 border-carbon p-2">
           <Typography variant="h6" color="wave-blue">
@@ -286,7 +286,7 @@ const Stats = () => {
             %
           </Typography>
         </Box>
-      ) : null}
+      ) : null} */}
       {getSettlementDisplay()}
     </Box>
   );
