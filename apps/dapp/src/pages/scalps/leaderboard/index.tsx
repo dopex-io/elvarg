@@ -7,7 +7,6 @@ import EqualizerIcon from '@mui/icons-material/Equalizer';
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUp from '@mui/icons-material/KeyboardArrowUp';
 import cx from 'classnames';
-import Countdown from 'react-countdown';
 import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
