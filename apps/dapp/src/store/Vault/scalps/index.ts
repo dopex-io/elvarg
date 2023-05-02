@@ -275,6 +275,8 @@ export const createOptionScalpSlice: StateCreator<
     const quoteLpContract = getOptionScalpsQuoteLpContract();
     const baseLpContract = getOptionScalpsBaseLpContract();
 
+    if (!optionScalpContract) return;
+
     const [
       minimumMargin,
       feeOpenPosition,
