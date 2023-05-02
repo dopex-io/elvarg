@@ -85,7 +85,6 @@ export const OpenPositions = () => {
                     key={index}
                     position={position}
                     idx={index}
-                    zdteData={zdteData}
                     staticZdteData={staticZdteData}
                   />
                 ))
