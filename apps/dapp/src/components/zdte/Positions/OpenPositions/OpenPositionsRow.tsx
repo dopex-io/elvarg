@@ -50,12 +50,10 @@ function getStrikeDisplay(position: IZdtePurchaseData): ReactNode {
 export const OpenPositionsRow = ({
   position,
   idx,
-  zdteData,
   staticZdteData,
 }: {
   position: IZdtePurchaseData;
   idx: number;
-  zdteData: any;
   staticZdteData: any;
 }) => {
   const share = useShare((state) => state.open);
@@ -98,7 +96,7 @@ export const OpenPositionsRow = ({
             )}`,
           },
           {
-            name: 'Mark Price',
+            name: 'Entry Price',
             value: `$${formatAmount(
               getUserReadableAmount(position.markPrice, DECIMALS_STRIKE),
               2
@@ -107,7 +105,7 @@ export const OpenPositionsRow = ({
         ],
       });
     },
-    [share, zdteData, staticZdteData]
+    [share, staticZdteData]
   );
 
   return (
