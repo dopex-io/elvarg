@@ -13,5 +13,8 @@
     "^[./]"
   ],
   "importOrderSeparation": true,
-  "importOrderSortSpecifiers": true
+  "importOrderSortSpecifiers": true,
+  "plugins": [
+    "@ianvs/prettier-plugin-sort-imports"
+  ]
 }

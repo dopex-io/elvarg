@@ -1,23 +1,22 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ethers } from 'ethers';
 
-import ButtonGroup from '@mui/material/ButtonGroup';
 import Button from '@mui/material/Button';
-
+import ButtonGroup from '@mui/material/ButtonGroup';
 import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
 import DexScreenerChart from 'components/common/DexScreenerChart';
-import Positions from 'components/scalps/Positions';
+import QuickLink from 'components/common/QuickLink';
+import Manage from 'components/scalps/Manage';
 import Orders from 'components/scalps/Orders';
+import Positions from 'components/scalps/Positions';
 import TopBar from 'components/scalps/TopBar';
 import TradeCard from 'components/scalps/TradeCard';
-import Manage from 'components/scalps/Manage';
-import QuickLink from 'components/common/QuickLink';
 
 import { CHAINS } from 'constants/chains';
 

@@ -1,9 +1,8 @@
 import { BigNumber, ethers } from 'ethers';
-import { OptionScalpsLp, OptionScalpsLp__factory } from '@dopex-io/sdk';
 
+import { OptionScalpsLp, OptionScalpsLp__factory } from '@dopex-io/sdk';
 import graphSdk from 'graphql/graphSdk';
 import queryClient from 'queryClient';
-
 import { StateCreator } from 'zustand';
 
 import { CommonSlice } from 'store/Vault/common';
@@ -1504,10 +1503,10 @@ export interface OptionScalpSlice {
   updateOptionScalp: Function;
   getUserPositionData: Function;
   setSelectedPoolName?: Function;
-  getOptionScalpContract: Function;
   getLimitOrdersContract: Function;
-  getBaseLpContract: Function;
-  getQuoteLpContract: Function;
+  getOptionScalpContract: Function;
+  getOptionScalpsBaseLpContract: Function;
+  getOptionScalpsQuoteLpContract: Function;
   getScalpPosition: Function;
   calcPnl: Function;
   calcLiqPrice: Function;
@@ -1559,7 +1558,7 @@ export const createOptionScalpSlice: StateCreator<
       provider
     );
   },
-  getQuoteLpContract: () => {
+  getOptionScalpsQuoteLpContract: () => {
     const { selectedPoolName, provider } = get();
 
     if (!selectedPoolName || !provider) return;
@@ -1571,7 +1570,7 @@ export const createOptionScalpSlice: StateCreator<
       provider
     );
   },
-  getBaseLpContract: () => {
+  getOptionScalpsBaseLpContract: () => {
     const { selectedPoolName, provider } = get();
 
     if (!selectedPoolName || !provider) return;
@@ -1847,8 +1846,8 @@ export const createOptionScalpSlice: StateCreator<
   updateOptionScalpUserData: async () => {
     const {
       accountAddress,
-      getBaseLpContract,
-      getQuoteLpContract,
+      getOptionScalpsBaseLpContract,
+      getOptionScalpsQuoteLpContract,
       getScalpPositions,
       getScalpOrders,
     } = get();
@@ -1857,8 +1856,8 @@ export const createOptionScalpSlice: StateCreator<
     const scalpOrders = await getScalpOrders();
 
     const [quoteCoolingPeriod, baseCoolingPeriod] = await Promise.all([
-      getQuoteLpContract().lockedUsers(accountAddress),
-      getBaseLpContract().lockedUsers(accountAddress),
+      getOptionScalpsQuoteLpContract().lockedUsers(accountAddress),
+      getOptionScalpsBaseLpContract().lockedUsers(accountAddress),
     ]);
 
     set((prevState) => ({
@@ -1887,15 +1886,15 @@ export const createOptionScalpSlice: StateCreator<
     const {
       getOptionScalpContract,
       getLimitOrdersContract,
-      getQuoteLpContract,
-      getBaseLpContract,
+      getOptionScalpsQuoteLpContract,
+      getOptionScalpsBaseLpContract,
       selectedPoolName,
     } = get();
 
     const optionScalpContract = getOptionScalpContract();
     const limitOrdersContract = getLimitOrdersContract();
-    const quoteLpContract = getQuoteLpContract();
-    const baseLpContract = getBaseLpContract();
+    const quoteLpContract = getOptionScalpsQuoteLpContract();
+    const baseLpContract = getOptionScalpsBaseLpContract();
 
     const [
       minimumMargin,

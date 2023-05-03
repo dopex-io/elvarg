@@ -16,8 +16,6 @@ import InfoBox from 'components/ssov/InfoBox';
 
 import formatAmount from 'utils/general/formatAmount';
 
-import { SSOV_MAP } from 'constants/index';
-
 const nameToSsovStyle: { [key: string]: string } = {
   ETH: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #7818c4 100%)',
   DPX: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #22e1ff 99.1%)',
@@ -29,6 +27,7 @@ const nameToSsovStyle: { [key: string]: string } = {
   CRV: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #82f004 99.1%)',
   BTC: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #f06a04 99.1%)',
   stETH: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #68ccfc 99.1%)',
+  ARB: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #68ccfc 99.1%)',
 };
 
 const CustomBox = styled(Box)(({ token }: { token: string }) => ({
@@ -75,9 +74,7 @@ function SsovCard(props: any) {
         imgSrc:
           type === 'put'
             ? '/images/tokens/2crv.svg'
-            : SSOV_MAP[name]
-            ? SSOV_MAP[name]?.imageSrc
-            : '',
+            : `/images/tokens/${name.toLowerCase()}.svg`,
       },
     ];
   }, [apy, totalEpochDeposits, tvl, type, name]);
@@ -92,9 +89,9 @@ function SsovCard(props: any) {
       >
         <Box>
           <Box className="flex flex-row mb-4">
-            <Box className="mr-4 h-8 max-w-14 flex flex-row">
+            <Box className="mr-4 max-w-14 flex flex-row">
               <img
-                className="w-9 h-9"
+                className="w-8 h-auto"
                 src={`/images/tokens/${name.toLowerCase()}.svg`}
                 alt={name}
               />

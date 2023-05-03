@@ -17,10 +17,12 @@ importers:
   apps/dapp:
     specifiers:
       '@0xsequence/multicall': ^0.43.26
-      '@dopex-io/sdk': 1.0.0-beta.56
+      '@dopex-io/sdk': 1.0.0-beta.61
       '@dopex-io/ui': workspace:*
       '@emotion/react': ^11.10.6
       '@emotion/styled': ^11.10.6
+      '@ethersproject/abi': ^5.7.0
+      '@ethersproject/providers': ^5.7.2
       '@graphprotocol/client-cli': ^2.2.20
       '@graphql-mesh/transform-prefix': ^0.12.23
       '@ianvs/prettier-plugin-sort-imports': ^3.7.2
@@ -50,6 +52,7 @@ importers:
       lightweight-charts: ^3.8.0
       lodash: ^4.17.21
       next: ^13.2.4
+      next-seo: ^6
       postcss: ^8.4.21
       prettier: ^2.8.7
       qrcode.react: ^3.1.0
@@ -69,10 +72,12 @@ importers:
       zustand: ^4.3.7
     dependencies:
       '@0xsequence/multicall': 0.43.26_ethers@5.7.2
-      '@dopex-io/sdk': 1.0.0-beta.56_ethers@5.7.2
+      '@dopex-io/sdk': 1.0.0-beta.61_ethers@5.7.2
       '@dopex-io/ui': link:../../packages/ui
       '@emotion/react': 11.10.6_pofolu2o2erjq4lhyzl3hqovzq
       '@emotion/styled': 11.10.6_wk7udrqmfetfur7bcmggr6k6fm
+      '@ethersproject/abi': 5.7.0
+      '@ethersproject/providers': 5.7.2
       '@mui/icons-material': 5.11.16_qvn7gklc3nivno6qdfiyqqkjfe
       '@mui/material': 5.11.16_zy4fdalh3zntkbuswwsbylvxqe
       '@mui/styles': 5.11.16_pofolu2o2erjq4lhyzl3hqovzq
@@ -89,6 +94,7 @@ importers:
       lightweight-charts: 3.8.0
       lodash: 4.17.21
       next: 13.2.4_5y7qh6ykubtj2qr2evk3di7hpa
+      next-seo: 6.0.0_ld2jel3hspngo3u5lti2kgl2sq
       qrcode.react: 3.1.0_react@18.2.0
       react: 18.2.0
       react-countdown: 2.3.5_biqbaboplfbrettd7655fr4n2y
@@ -3539,8 +3545,8 @@ packages:
     engines: {node: '>=10.0.0'}
     dev: true
 
-  /@dopex-io/sdk/1.0.0-beta.56_ethers@5.7.2:
-    resolution: {integrity: sha512-V4S/thaYSFzZfHuTPCtePp4G/oOkFwrC/qYNoSe0a2axC6TEz2qWcpJLZfVHrgUaKLjlEML4R1ehdfOh9VRsOQ==}
+  /@dopex-io/sdk/1.0.0-beta.61_ethers@5.7.2:
+    resolution: {integrity: sha512-a1IU40T92A+TeIKq//bL2ItB783nZWz4sBwEeu4nJ9PwdI146aNo4N2Pw0TvQduc8JJ/NCZUM1LXAKMwICgGRg==}
     engines: {node: '>=14'}
     peerDependencies:
       ethers: ^5.6.0
@@ -12990,7 +12996,7 @@ packages:
     resolution: {integrity: sha512-oWb1Z6mkHIskLzEJ/XWX0srkpkTQ7vaopMQkyaEIoq0fmtFVxOthb8cCxeT+p3ynTdkk/RZwbgG4brR5BeWECw==}
     engines: {node: '>= 4.0'}
     os: [darwin]
-    deprecated: fsevents 1 will break on node v14+ and could be using insecure binaries. Upgrade to fsevents 2.
+    deprecated: The v1 package contains DANGEROUS / INSECURE binaries. Upgrade to safe fsevents v2
     requiresBuild: true
     dependencies:
       bindings: 1.5.0
@@ -15720,7 +15726,7 @@ packages:
       react: '>=16.0.0'
       react-dom: '>=16.0.0'
     dependencies:
-      next: 13.2.4_biqbaboplfbrettd7655fr4n2y
+      next: 13.2.4_5y7qh6ykubtj2qr2evk3di7hpa
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     dev: false

@@ -1,29 +1,28 @@
+import Head from 'next/head';
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import KeyboardArrowUp from '@mui/icons-material/KeyboardArrowUp';
-import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
+
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import EqualizerIcon from '@mui/icons-material/Equalizer';
-import Head from 'next/head';
+import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUp from '@mui/icons-material/KeyboardArrowUp';
 import cx from 'classnames';
-import Countdown from 'react-countdown';
+import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
 
-import { useBoundStore } from 'store';
-import { formatAmount, smartTrim } from 'utils/general';
 import { getUserReadableAmount } from 'utils/contracts';
+import { formatAmount, smartTrim } from 'utils/general';
 
 const TOKENS = ['ARB', 'ETH'];
 const RESPONSIVE_TITLE_TEXT_STYLE = 'text-xs md:text-sm lg:text-md';
 const SORT_OPTIONS = ['PNL', 'VOLUME'];
 
 const LeaderBoard = () => {
-  const { getUserPositionData, accountAddress } =
-    useBoundStore();
+  const { getUserPositionData, accountAddress } = useBoundStore();
   const [showMore, setShowMore] = useState(false);
   const [sort, setSort] = useState(SORT_OPTIONS[0]);
   const [positions, setPositions] = useState([]);
-
 
   const updatePositions = useCallback(async () => {
     await getUserPositionData().then((result: any) => {
@@ -48,9 +47,7 @@ const LeaderBoard = () => {
       );
     }
 
-    _positionsFiltered = !showMore
-      ? positions.slice(0, 5)
-      : positions;
+    _positionsFiltered = !showMore ? positions.slice(0, 5) : positions;
 
     const index = positions.findIndex((position: any) => {
       return position.id.toLowerCase() === accountAddress?.toLowerCase();
@@ -61,12 +58,7 @@ const LeaderBoard = () => {
       positions: _positionsFiltered,
       userRank: index === -1 ? 0 : index + 1,
     };
-  }, [
-    accountAddress,
-    positions,
-    sort,
-    showMore,
-  ]);
+  }, [accountAddress, positions, sort, showMore]);
 
   useEffect(() => {
     updatePositions();
@@ -166,7 +158,7 @@ const LeaderBoard = () => {
                       <span
                         className={cx(
                           RESPONSIVE_TITLE_TEXT_STYLE,
-                          "text-center w-full overflow-x-scroll sm:overflow-x-visible"
+                          'text-center w-full overflow-x-scroll sm:overflow-x-visible'
                         )}
                       >
                         {smartTrim(position.id, 0)}
@@ -213,16 +205,6 @@ const LeaderBoard = () => {
         {/* Trade prompt */}
       </div>
       <div className="flex flex-col items-center space-y-6 pb-10 h-full">
-        <div className="text-center px-10 max-w-[40rem]">
-          <p
-            className={cx(
-              RESPONSIVE_TITLE_TEXT_STYLE,
-              'uppercase tracking-wider'
-            )}
-          >
-            The April Scalp-Off: Compete to Win 5k in weekly prizes!
-          </p>
-        </div>
         <div className="flex flex-row space-x-4">
           {TOKENS.map((token, index) => (
             <a key={index} role="button" href={`/scalps/${token}`}>
@@ -246,24 +228,6 @@ const LeaderBoard = () => {
             </a>
           ))}
         </div>
-        <Countdown
-          date={new Date(1682899199000)}
-          renderer={({ days, hours, minutes, seconds }) => {
-            return (
-              <div
-                className={cx(
-                  RESPONSIVE_TITLE_TEXT_STYLE,
-                  'flex flex-col items-center justify-center space-y-5'
-                )}
-              >
-                <span>ends in:</span>
-                <span className="text-lg font-bold pt-1 tracking-wider bg-gradient-to-r from-wave-blue to-blue-200 text-transparent bg-clip-text">
-                  {days}d {hours}h {minutes}m {seconds}s
-                </span>
-              </div>
-            );
-          }}
-        />
         <div
           role="button"
           className="flex flex-row space-x-4 w-full items-center justify-center px-10"

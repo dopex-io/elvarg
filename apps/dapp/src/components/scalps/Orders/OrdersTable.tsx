@@ -1,20 +1,19 @@
 import { useCallback, useMemo } from 'react';
 
 import cx from 'classnames';
-
+import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
-import formatAmount from 'utils/general/formatAmount';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 const OrdersTable = () => {
-  const {
-    optionScalpUserData,
-    optionScalpData,
-    signer,
-    updateOptionScalpUserData,
-  } = useBoundStore();
+  const { optionScalpUserData, optionScalpData, updateOptionScalpUserData } =
+    useBoundStore();
+
+  const sendTx = useSendTx();
 
   const orders = useMemo(() => {
     return optionScalpUserData?.scalpOrders;
@@ -99,17 +98,17 @@ const OrdersTable = () => {
   const handleCancel = useCallback(
     async (type: string, id: number) => {
       if (type === 'open') {
-        await optionScalpData?.limitOrdersContract
-          ?.connect(signer)
-          .cancelOpenOrder(id);
+        await sendTx(optionScalpData?.limitOrdersContract, 'cancelOpenOrder', [
+          id,
+        ]);
       } else {
-        await optionScalpData?.limitOrdersContract
-          ?.connect(signer)
-          .cancelCloseOrder(id);
+        await sendTx(optionScalpData?.limitOrdersContract, 'cancelCloseOrder', [
+          id,
+        ]);
       }
       await updateOptionScalpUserData();
     },
-    [optionScalpData, signer, updateOptionScalpUserData]
+    [optionScalpData, sendTx, updateOptionScalpUserData]
   );
 
   return (
