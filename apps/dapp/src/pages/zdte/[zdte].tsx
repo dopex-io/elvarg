@@ -23,15 +23,11 @@ interface Props {
 const Zdte = ({ zdte }: Props) => {
   const {
     setSelectedPoolName,
-    selectedPoolName,
     updateZdteData,
     updateStaticZdteData,
     updateUserZdteLpData,
     updateUserZdtePurchaseData,
     updateVolumeFromSubgraph,
-    chainId,
-    getZdteContract,
-    accountAddress,
     staticZdteData,
     getUserPurchaseData,
   } = useBoundStore();
@@ -56,10 +52,6 @@ const Zdte = ({ zdte }: Props) => {
     getUserPurchaseData,
     updateStaticZdteData,
     updateUserZdtePurchaseData,
-    chainId,
-    selectedPoolName,
-    accountAddress,
-    getZdteContract,
     updateVolumeFromSubgraph,
   ]);
 
@@ -72,7 +64,7 @@ const Zdte = ({ zdte }: Props) => {
       updateAll();
     }, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [updateAll]);
 
   const chart = useMemo(() => {
     if (!staticZdteData) {
