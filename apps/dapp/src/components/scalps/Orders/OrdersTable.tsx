@@ -10,8 +10,12 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 const OrdersTable = () => {
-  const { optionScalpUserData, optionScalpData, updateOptionScalpUserData } =
-    useBoundStore();
+  const {
+    signer,
+    optionScalpUserData,
+    optionScalpData,
+    updateOptionScalpUserData,
+  } = useBoundStore();
 
   const sendTx = useSendTx();
 
@@ -97,18 +101,25 @@ const OrdersTable = () => {
 
   const handleCancel = useCallback(
     async (type: string, id: number) => {
+      if (!optionScalpData || !optionScalpData.limitOrdersContract || !signer)
+        return;
+
       if (type === 'open') {
-        await sendTx(optionScalpData?.limitOrdersContract, 'cancelOpenOrder', [
-          id,
-        ]);
+        await sendTx(
+          optionScalpData.limitOrdersContract.connect(signer),
+          'cancelOpenOrder',
+          [id]
+        );
       } else {
-        await sendTx(optionScalpData?.limitOrdersContract, 'cancelCloseOrder', [
-          id,
-        ]);
+        await sendTx(
+          optionScalpData.limitOrdersContract.connect(signer),
+          'cancelCloseOrder',
+          [id]
+        );
       }
       await updateOptionScalpUserData();
     },
-    [optionScalpData, sendTx, updateOptionScalpUserData]
+    [optionScalpData, sendTx, signer, updateOptionScalpUserData]
   );
 
   return (
