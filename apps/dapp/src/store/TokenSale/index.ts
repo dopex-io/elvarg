@@ -1,6 +1,7 @@
-import { StateCreator } from 'zustand';
-import { TokenSale__factory, ERC20__factory } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
+
+import { ERC20__factory, TokenSale__factory } from '@dopex-io/sdk';
+import { StateCreator } from 'zustand';
 
 import { WalletSlice } from 'store/Wallet';
 
@@ -45,6 +46,7 @@ export const createTokenSaleSlice: StateCreator<
   dpxTokenSaleAddress: '',
   updateSaleData: async () => {
     const { provider, contractAddresses } = get();
+
     if (!provider || !contractAddresses || !contractAddresses['TokenSale'])
       return;
 

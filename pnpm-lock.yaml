@@ -21,8 +21,6 @@ importers:
       '@dopex-io/ui': workspace:*
       '@emotion/react': ^11.10.6
       '@emotion/styled': ^11.10.6
-      '@ethersproject/abi': ^5.7.0
-      '@ethersproject/providers': ^5.7.2
       '@graphprotocol/client-cli': ^2.2.20
       '@graphql-mesh/transform-prefix': ^0.12.23
       '@ianvs/prettier-plugin-sort-imports': ^3.7.2
@@ -46,7 +44,6 @@ importers:
       eslint-config-next: ^13.2.4
       ethereumjs-util: ^7.1.5
       ethers: ^5.7.2
-      formik: ^2.2.9
       graphql: ^16.6.0
       html-to-image: ^1.11.11
       lightweight-charts: ^3.8.0
@@ -76,8 +73,6 @@ importers:
       '@dopex-io/ui': link:../../packages/ui
       '@emotion/react': 11.10.6_pofolu2o2erjq4lhyzl3hqovzq
       '@emotion/styled': 11.10.6_wk7udrqmfetfur7bcmggr6k6fm
-      '@ethersproject/abi': 5.7.0
-      '@ethersproject/providers': 5.7.2
       '@mui/icons-material': 5.11.16_qvn7gklc3nivno6qdfiyqqkjfe
       '@mui/material': 5.11.16_zy4fdalh3zntkbuswwsbylvxqe
       '@mui/styles': 5.11.16_pofolu2o2erjq4lhyzl3hqovzq
@@ -88,7 +83,6 @@ importers:
       date-fns: 2.29.3
       ethereumjs-util: 7.1.5
       ethers: 5.7.2
-      formik: 2.2.9_react@18.2.0
       graphql: 16.6.0
       html-to-image: 1.11.11
       lightweight-charts: 3.8.0
@@ -11307,11 +11301,6 @@ packages:
   /deep-is/0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
 
-  /deepmerge/2.2.1:
-    resolution: {integrity: sha512-R9hc1Xa/NOBi9WRVUWg19rl1UB7Tt4kuPd+thNJgFZoxXsTz7ncaPaeIm+40oSGuP33DfMb4sZt1QIGiJzC4EA==}
-    engines: {node: '>=0.10.0'}
-    dev: false
-
   /deepmerge/4.3.0:
     resolution: {integrity: sha512-z2wJZXrmeHdvYJp/Ux55wIjqo81G5Bp4c+oELTW+7ar6SogWHajt5a9gO3s3IDaGSAXjDk0vlQKN3rms8ab3og==}
     engines: {node: '>=0.10.0'}
@@ -12896,21 +12885,6 @@ packages:
       asynckit: 0.4.0
       combined-stream: 1.0.8
       mime-types: 2.1.35
-    dev: false
-
-  /formik/2.2.9_react@18.2.0:
-    resolution: {integrity: sha512-LQLcISMmf1r5at4/gyJigGn0gOwFbeEAlji+N9InZF6LIMXnFNkO42sCI8Jt84YZggpD4cPWObAZaxpEFtSzNA==}
-    peerDependencies:
-      react: '>=16.8.0'
-    dependencies:
-      deepmerge: 2.2.1
-      hoist-non-react-statics: 3.3.2
-      lodash: 4.17.21
-      lodash-es: 4.17.21
-      react: 18.2.0
-      react-fast-compare: 2.0.4
-      tiny-warning: 1.0.3
-      tslib: 1.14.1
     dev: false
 
   /forwarded/0.2.0:
@@ -14955,10 +14929,6 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       p-locate: 5.0.0
-
-  /lodash-es/4.17.21:
-    resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
-    dev: false
 
   /lodash.camelcase/4.3.0:
     resolution: {integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==}
@@ -17520,10 +17490,6 @@ packages:
       react-dom: 18.2.0_react@18.2.0
       react-is: 17.0.2
     dev: true
-
-  /react-fast-compare/2.0.4:
-    resolution: {integrity: sha512-suNP+J1VU1MWFKcyt7RtjiSWUjvidmQSlqu+eHslq+342xCbGTYmC0mEhPCOHxlW0CywylOC1u2DFAT+bv4dBw==}
-    dev: false
 
   /react-hot-toast/2.4.0_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-qnnVbXropKuwUpriVVosgo8QrB+IaPJCpL8oBI6Ov84uvHZ5QQcTp2qg6ku2wNfgJl6rlQXJIQU5q+5lmPOutA==}
