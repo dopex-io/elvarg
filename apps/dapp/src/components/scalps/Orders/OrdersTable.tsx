@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 import { useCallback, useMemo } from 'react';
 
 import cx from 'classnames';
@@ -7,6 +9,7 @@ import { useBoundStore } from 'store';
 import CustomButton from 'components/UI/Button';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import displayAddress from 'utils/general/displayAddress';
 import formatAmount from 'utils/general/formatAmount';
 
 const OrdersTable = () => {
@@ -23,9 +26,14 @@ const OrdersTable = () => {
     return optionScalpUserData?.scalpOrders;
   }, [optionScalpUserData]);
 
-  const tableHeadings = ['Positions', 'Price', 'Collateral'];
+  const tableHeadings = [
+    'Positions',
+    'Price',
+    'Collateral',
+    'View on Etherscan',
+  ];
 
-  const ordersKeys = ['positions', 'price', 'collateral'];
+  const ordersKeys = ['positions', 'price', 'collateral', 'transactionHash'];
 
   const getCellComponent = useCallback(
     (key: string, order: any) => {
@@ -82,6 +90,14 @@ const OrdersTable = () => {
 
       if (key === 'expiry') {
         data = formatAmount(getUserReadableAmount(order.expiry, 0), 4);
+      }
+
+      if (key === 'transactionHash') {
+        data = (
+          <Link target="_blank" href={'https://arbiscan.io/tx/' + data}>
+            {displayAddress(data)}
+          </Link>
+        );
       }
 
       return (

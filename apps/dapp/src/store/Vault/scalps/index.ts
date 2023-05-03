@@ -1471,6 +1471,7 @@ export interface ScalpPosition {
 }
 
 export interface ScalpOrder {
+  transactionHash: string;
   id: number;
   isOpen: boolean;
   isShort: boolean;
@@ -1689,7 +1690,7 @@ export const createOptionScalpSlice: StateCreator<
 
     return scalpPositions;
   },
-  getScalpOpenOrder: async (id: BigNumber) => {
+  getScalpOpenOrder: async (id: BigNumber, hash: string) => {
     const { getLimitOrdersContract, getOptionScalpContract, optionScalpData } =
       get();
 
@@ -1722,6 +1723,7 @@ export const createOptionScalpSlice: StateCreator<
         .div(price);
 
       return {
+        transactionHash: hash,
         id: id,
         isOpen: true,
         isShort: openOrder['isShort'],
@@ -1739,7 +1741,7 @@ export const createOptionScalpSlice: StateCreator<
       return;
     }
   },
-  getScalpCloseOrder: async (id: BigNumber) => {
+  getScalpCloseOrder: async (id: BigNumber, hash: string) => {
     const { getLimitOrdersContract, getOptionScalpContract, optionScalpData } =
       get();
 
@@ -1766,6 +1768,7 @@ export const createOptionScalpSlice: StateCreator<
         .div(price);
 
       return {
+        transactionHash: hash,
         id: id,
         isOpen: false,
         isShort: scalpPosition['isShort'],
@@ -1811,12 +1814,18 @@ export const createOptionScalpSlice: StateCreator<
       blockNumber
     );
 
+    const openOrdersTransactionsHashes: string[] = [];
+    const closeOrdersTransactionsHashes: string[] = [];
+
     for (let i in openOrdersEvents) {
       if (
         !openOrdersIndexes.includes(Number(openOrdersEvents[i]['args'][0])) &&
         openOrdersEvents[i]['args'][1] === accountAddress
       ) {
         openOrdersIndexes.push(openOrdersEvents[i]['args'][0]);
+        openOrdersTransactionsHashes.push(
+          openOrdersEvents[i]['transactionHash']
+        );
       }
     }
 
@@ -1826,15 +1835,25 @@ export const createOptionScalpSlice: StateCreator<
         closeOrdersEvents[i]['args'][1] === accountAddress
       ) {
         closeOrdersIndexes.push(closeOrdersEvents[i]['args'][0]);
+        closeOrdersTransactionsHashes.push(
+          openOrdersEvents[i]['transactionHash']
+        );
       }
     }
 
     for (let i in openOrdersIndexes) {
-      openOrdersPromises.push(getScalpOpenOrder(openOrdersIndexes[i]));
+      openOrdersPromises.push(
+        getScalpOpenOrder(openOrdersIndexes[i], openOrdersTransactionsHashes[i])
+      );
     }
 
     for (let i in closeOrdersIndexes) {
-      closeOrdersPromises.push(getScalpCloseOrder(closeOrdersIndexes[i]));
+      closeOrdersPromises.push(
+        getScalpCloseOrder(
+          closeOrdersIndexes[i],
+          closeOrdersTransactionsHashes[i]
+        )
+      );
     }
 
     const openOrders: ScalpOrder[] = await Promise.all(openOrdersPromises);
