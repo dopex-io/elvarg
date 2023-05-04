@@ -1,5 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
+import { BigNumber } from 'ethers';
+
 import IconButton from '@mui/material/IconButton';
 import Input from '@mui/material/Input';
 import Popover from '@mui/material/Popover';
@@ -12,7 +14,12 @@ import CustomButton from 'components/UI/Button';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-const LimitOrderPopover = ({ id: BigNumber }) => {
+interface LimitOrderPopoverProps {
+  id: BigNumber;
+}
+
+const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
+  const { id } = props;
   const {
     signer,
     selectedPoolName,
