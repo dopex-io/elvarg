@@ -12,7 +12,7 @@ import CustomButton from 'components/UI/Button';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-const LimitOrderPopover = ({ id }, { id: BigNumber }) => {
+const LimitOrderPopover = ({ id: BigNumber }) => {
   const {
     signer,
     selectedPoolName,
