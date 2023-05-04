@@ -95,6 +95,18 @@ class QuoteOrBaseAsset {
       ? this.userZdteLpData?.canWithdrawQuote
       : this.userZdteLpData?.canWithdrawBase;
   }
+
+  get getLpValue() {
+    return this.isQuote
+      ? formatAmount(
+          getUserReadableAmount(this.zdteData.quoteLpValue!, DECIMALS_USD),
+          2
+        )
+      : formatAmount(
+          getUserReadableAmount(this.zdteData.baseLpValue!, DECIMALS_TOKEN),
+          3
+        );
+  }
 }
 
 const Withdraw = () => {
@@ -245,8 +257,7 @@ const Withdraw = () => {
     Number(tokenWithdrawAmount) <= asset.getActualLpBalance &&
     asset.coolingPeriodOver;
 
-  console.log('staticZdteData: ', staticZdteData);
-  if (!staticZdteData) {
+  if (!staticZdteData || !asset) {
     return <Loading />;
   }
 
@@ -294,6 +305,10 @@ const Withdraw = () => {
             !asset ? 0 : asset.getUserAssetBalance,
             2
           )} ${!asset ? '' : asset.getAssetSymbol}`}
+        />
+        <ContentRow
+          title={`1 ${asset?.getAssetSymbol}`}
+          content={`${asset.getLpValue} ${asset.getAssetSymbol.split('-')[0]}`}
         />
         <ContentRow
           title="Available Liquidity"

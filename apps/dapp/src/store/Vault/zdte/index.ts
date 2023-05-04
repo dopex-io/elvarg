@@ -55,11 +55,13 @@ export interface IZdteData {
   strikes: OptionsTableData[];
   failedToFetch: boolean;
   baseLpTokenLiquidity: BigNumber;
+  baseLpValue: BigNumber;
   baseLpAssetBalance: BigNumber;
   baseLpTotalAsset: BigNumber;
   quoteLpTokenLiquidity: BigNumber;
   quoteLpAssetBalance: BigNumber;
   quoteLpTotalAsset: BigNumber;
+  quoteLpValue: BigNumber;
   openInterest: BigNumber;
   expiry: number;
 }
@@ -482,14 +484,25 @@ export const createZdteSlice: StateCreator<
       const [
         baseLpAssetBalance,
         baseLpTotalAsset,
+        baseLpTotalSupply,
         quoteLpAssetBalance,
         quoteLpTotalAsset,
+        quoteLpTotalSupply,
       ] = await Promise.all([
         baseLpContract.totalAvailableAssets(),
         baseLpContract.totalAssets(),
+        baseLpContract.totalSupply(),
         quoteLpContract.totalAvailableAssets(),
         quoteLpContract.totalAssets(),
+        quoteLpContract.totalSupply(),
       ]);
+
+      const quoteLpValue = BigNumber.from(oneEBigNumber(DECIMALS_USD))
+        .mul(quoteLpTotalAsset)
+        .div(quoteLpTotalSupply);
+      const baseLpValue = BigNumber.from(oneEBigNumber(DECIMALS_TOKEN))
+        .mul(baseLpTotalAsset)
+        .div(baseLpTotalSupply);
 
       const openInterest = openInterestAmount
         .mul(markPrice)
@@ -508,9 +521,11 @@ export const createZdteSlice: StateCreator<
           baseLpAssetBalance,
           baseLpTotalAsset,
           baseLpTokenLiquidity,
+          baseLpValue,
           quoteLpAssetBalance,
           quoteLpTotalAsset,
           quoteLpTokenLiquidity,
+          quoteLpValue,
           openInterest,
           expiry: expiry.toNumber(),
         },
