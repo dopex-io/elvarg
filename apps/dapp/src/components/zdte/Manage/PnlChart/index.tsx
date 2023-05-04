@@ -93,18 +93,20 @@ const PnlChart = (props: PnlChartProps) => {
   const useFake =
     actualSpreadPair === undefined ||
     actualSpreadPair.shortStrike === undefined;
-  const spreadPair = useFake
-    ? ({
-        shortStrike: zdteData?.nearestStrike! + 2 * step,
-        longStrike: zdteData?.nearestStrike! + step,
-      } as ISpreadPair)
-    : actualSpreadPair;
+  const spreadPair = useMemo(() => {
+    return useFake
+      ? ({
+          shortStrike: zdteData?.nearestStrike! + 2 * step,
+          longStrike: zdteData?.nearestStrike! + step,
+        } as ISpreadPair)
+      : actualSpreadPair;
+  }, [actualSpreadPair, useFake, step, zdteData?.nearestStrike]);
+
   const cost = actualCost || 0;
   const isPut = spreadPair.longStrike > spreadPair.shortStrike;
   const staticBreakeven = isPut
     ? getPutBreakEven(spreadPair, cost)
     : getCallBreakEven(spreadPair, cost);
-  const maxPayoff = getMaxPayoffPerOption(spreadPair, cost) * amount;
   const price: number = zdteData?.tokenPrice || 0;
   const [state, setState] = useState<{ price: number; pnl: number }>({
     price,
@@ -131,7 +133,7 @@ const PnlChart = (props: PnlChartProps) => {
         value: roundToTwoDecimals(payoff),
       };
     });
-  }, [zdteData, spreadPair, staticBreakeven, maxPayoff]);
+  }, [spreadPair, price, amount, cost, isPut, step]);
 
   const pnl = isPut
     ? getPutPayoff(spreadPair, price, cost) * amount
