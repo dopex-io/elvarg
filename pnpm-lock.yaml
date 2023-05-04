@@ -28,17 +28,17 @@ importers:
       '@mui/material': ^5.11.16
       '@mui/styles': ^5.11.16
       '@next/eslint-plugin-next': ^13.3.4
-      '@tanstack/react-query': ^4.28.0
+      '@tanstack/react-query': ^4.29.5
       '@types/lodash': ^4.14.194
       '@types/react': ^18.2.2
       '@types/react-dom': ^18.2.3
       '@typescript-eslint/eslint-plugin': ^5.59.2
       '@typescript-eslint/parser': ^5.59.2
       autoprefixer: ^10.4.14
-      axios: ^1.3.5
+      axios: ^1.4.0
       bignumber.js: ^9.1.1
       classnames: ^2.3.2
-      date-fns: ^2.29.3
+      date-fns: ^2.30.0
       eslint: ^8.39.0
       eslint-config-next: ^13.3.4
       ethereumjs-util: ^7.1.5
@@ -55,7 +55,7 @@ importers:
       react: ^18.2.0
       react-countdown: ^2.3.5
       react-dom: ^18.2.0
-      react-hot-toast: ^2.4.0
+      react-hot-toast: ^2.4.1
       react-tradingview-embed: ^3.0.6
       recharts: 2.5.0
       sass: ^1.60.0
@@ -74,11 +74,11 @@ importers:
       '@mui/icons-material': 5.11.16_wpgmxvamcbyyk2czta2k5mhmni
       '@mui/material': 5.11.16_z557j7z3tes2govybsl7fs5hre
       '@mui/styles': 5.11.16_rui7kf6ea25hdqtb42lur5ji5u
-      '@tanstack/react-query': 4.28.0_biqbaboplfbrettd7655fr4n2y
-      axios: 1.3.5
+      '@tanstack/react-query': 4.29.5_biqbaboplfbrettd7655fr4n2y
+      axios: 1.4.0
       bignumber.js: 9.1.1
       classnames: 2.3.2
-      date-fns: 2.29.3
+      date-fns: 2.30.0
       ethereumjs-util: 7.1.5
       ethers: 5.7.2
       graphql: 16.6.0
@@ -91,7 +91,7 @@ importers:
       react: 18.2.0
       react-countdown: 2.3.5_biqbaboplfbrettd7655fr4n2y
       react-dom: 18.2.0_react@18.2.0
-      react-hot-toast: 2.4.0_biqbaboplfbrettd7655fr4n2y
+      react-hot-toast: 2.4.1_biqbaboplfbrettd7655fr4n2y
       react-tradingview-embed: 3.0.6_biqbaboplfbrettd7655fr4n2y
       recharts: 2.5.0_biqbaboplfbrettd7655fr4n2y
       sass: 1.60.0
@@ -7669,6 +7669,10 @@ packages:
     resolution: {integrity: sha512-sm+QncWaPmM73IPwFlmWSKPqjdTXZeFf/7aEmWh00z7yl2FjqophPt0dE1EHW9P1giMC5rMviv7OUbSDmWzXXA==}
     dev: false
 
+  /@tanstack/query-core/4.29.5:
+    resolution: {integrity: sha512-xXIiyQ/4r9KfaJ3k6kejqcaqFXXBTzN2aOJ5H1J6aTJE9hl/nbgAdfF6oiIu0CD5xowejJEJ6bBg8TO7BN4NuQ==}
+    dev: false
+
   /@tanstack/query-persist-client-core/4.27.0:
     resolution: {integrity: sha512-A+dPA7zG0MJOMDeBc/2WcKXW4wV2JMkeBVydobPW9G02M4q0yAj7vI+7SmM2dFuXyIvxXp4KulCywN6abRKDSQ==}
     dependencies:
@@ -7681,17 +7685,17 @@ packages:
       '@tanstack/query-persist-client-core': 4.27.0
     dev: false
 
-  /@tanstack/react-query-persist-client/4.28.0_qfusmmwykmcbgdy37sd3cqxiry:
+  /@tanstack/react-query-persist-client/4.28.0_vinbbzdq6ixq2goapdtg7ymvyq:
     resolution: {integrity: sha512-xNpi3YdPOQIyYkKhByYDqTlyCeqICWFhV5PWkoVxYfzlRK6HYX4s+9Int407jEvhBz9cGC4OaL7rd6bynCFrYg==}
     peerDependencies:
       '@tanstack/react-query': 4.28.0
     dependencies:
       '@tanstack/query-persist-client-core': 4.27.0
-      '@tanstack/react-query': 4.28.0_biqbaboplfbrettd7655fr4n2y
+      '@tanstack/react-query': 4.29.5_biqbaboplfbrettd7655fr4n2y
     dev: false
 
-  /@tanstack/react-query/4.28.0_biqbaboplfbrettd7655fr4n2y:
-    resolution: {integrity: sha512-8cGBV5300RHlvYdS4ea+G1JcZIt5CIuprXYFnsWggkmGoC0b5JaqG0fIX3qwDL9PTNkKvG76NGThIWbpXivMrQ==}
+  /@tanstack/react-query/4.29.5_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-F87cibC3s3eG0Q90g2O+hqntpCrudKFnR8P24qkH9uccEhXErnJxBC/AAI4cJRV2bfMO8IeGZQYf3WyYgmSg0w==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -7702,7 +7706,7 @@ packages:
       react-native:
         optional: true
     dependencies:
-      '@tanstack/query-core': 4.27.0
+      '@tanstack/query-core': 4.29.5
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       use-sync-external-store: 1.2.0_react@18.2.0
@@ -9650,8 +9654,8 @@ packages:
       - debug
     dev: false
 
-  /axios/1.3.5:
-    resolution: {integrity: sha512-glL/PvG/E+xCWwV8S6nCHcrfg1exGx7vxyUIivIA1iL7BIh6bePylCfVHwp6k13ao7SATxB6imau2kqY+I67kw==}
+  /axios/1.4.0:
+    resolution: {integrity: sha512-S4XCWMEmzvo64T9GfvQDOXgYRDJ/wsSZc7Jvdgx5u1sd0JwsuPLqb3SYmusag+edF6ziyMensPVqLTSc1PiSEA==}
     dependencies:
       follow-redirects: 1.15.2
       form-data: 4.0.0
@@ -11325,6 +11329,14 @@ packages:
   /date-fns/2.29.3:
     resolution: {integrity: sha512-dDCnyH2WnnKusqvZZ6+jA1O51Ibt8ZMRNkDZdyAyK4YfbDwa/cEmuztzG5pk6hqlp9aSBPYcjOlktquahGwGeA==}
     engines: {node: '>=0.11'}
+    dev: true
+
+  /date-fns/2.30.0:
+    resolution: {integrity: sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==}
+    engines: {node: '>=0.11'}
+    dependencies:
+      '@babel/runtime': 7.21.5
+    dev: false
 
   /dayjs/1.11.7:
     resolution: {integrity: sha512-+Yw9U6YO5TQohxLcIkrXBeY73WP3ejHWVvx8XCk3gxvQDCTEmS48ZrSZCKciI7Bhl/uCMyxYtE9UqRILmFphkQ==}
@@ -11605,7 +11617,7 @@ packages:
   /dom-helpers/3.4.0:
     resolution: {integrity: sha512-LnuPJ+dwqKDIyotW1VzmOZ5TONUN7CwkCR5hrgawTUbkBGYdeoNLZo6nNfGkCrjtE1nXXaj7iMMpDa8/d9WoIA==}
     dependencies:
-      '@babel/runtime': 7.21.0
+      '@babel/runtime': 7.21.5
     dev: false
 
   /dom-helpers/5.2.1:
@@ -12255,7 +12267,7 @@ packages:
     peerDependencies:
       eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8
     dependencies:
-      '@babel/runtime': 7.21.0
+      '@babel/runtime': 7.21.5
       aria-query: 5.1.3
       array-includes: 3.1.6
       array.prototype.flatmap: 1.3.1
@@ -17822,8 +17834,8 @@ packages:
       react-is: 17.0.2
     dev: true
 
-  /react-hot-toast/2.4.0_biqbaboplfbrettd7655fr4n2y:
-    resolution: {integrity: sha512-qnnVbXropKuwUpriVVosgo8QrB+IaPJCpL8oBI6Ov84uvHZ5QQcTp2qg6ku2wNfgJl6rlQXJIQU5q+5lmPOutA==}
+  /react-hot-toast/2.4.1_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-j8z+cQbWIM5LY37pR6uZR6D4LfseplqnuAO4co4u8917hBUvXlEqyP1ZzqVLcqoyUesZZv/ImreoCeHVDpE5pQ==}
     engines: {node: '>=10'}
     peerDependencies:
       react: '>=16'
@@ -20424,8 +20436,8 @@ packages:
         optional: true
     dependencies:
       '@tanstack/query-sync-storage-persister': 4.27.1
-      '@tanstack/react-query': 4.28.0_biqbaboplfbrettd7655fr4n2y
-      '@tanstack/react-query-persist-client': 4.28.0_qfusmmwykmcbgdy37sd3cqxiry
+      '@tanstack/react-query': 4.29.5_biqbaboplfbrettd7655fr4n2y
+      '@tanstack/react-query-persist-client': 4.28.0_vinbbzdq6ixq2goapdtg7ymvyq
       '@wagmi/core': 0.10.10_76u6jn6jpaifytg4ki7t3ucwfq
       abitype: 0.3.0_typescript@5.0.4
       ethers: 5.7.2
