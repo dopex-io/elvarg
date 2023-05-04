@@ -93,6 +93,7 @@ export interface IZdteRawPurchaseData {
 
 export interface IZdtePurchaseData extends IZdteRawPurchaseData {
   livePnl: BigNumber;
+  breakeven: BigNumber;
 }
 
 export interface IZdteExpiredData extends IZdteRawPurchaseData {
@@ -316,9 +317,19 @@ export const createZdteSlice: StateCreator<
       const purchaseData = await Promise.all(
         userPurchaseData?.map(async (pos: IZdteRawPurchaseData) => {
           const livePnl = await zdteContract.calcPnl(pos.positionId);
+          const cost = pos.longPremium.sub(pos.shortPremium).add(pos.fees);
+          const finalCost = cost
+            .mul(oneEBigNumber(DECIMALS_TOKEN))
+            .div(pos.positions)
+            .mul(100);
+          const breakeven =
+            pos.longStrike > pos.shortStrike
+              ? pos.longStrike.sub(finalCost)
+              : pos.longStrike.add(finalCost);
           return {
             ...pos,
             livePnl: livePnl,
+            breakeven: breakeven,
           } as IZdtePurchaseData;
         })
       );

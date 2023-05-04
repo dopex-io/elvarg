@@ -101,6 +101,7 @@ const TradeCard = () => {
     provider,
     getZdteContract,
     updateZdteData,
+    updateUserZdtePurchaseData,
     updateVolumeFromSubgraph,
     zdteData,
     accountAddress,
@@ -185,8 +186,11 @@ const TradeCard = () => {
           longStrike: undefined,
         });
       });
-      await updateZdteData();
-      await updateVolumeFromSubgraph();
+      await Promise.all([
+        updateZdteData(),
+        updateUserZdtePurchaseData(),
+        updateVolumeFromSubgraph(),
+      ]);
     } catch (err) {
       console.error('fail to open position', err);
       throw new Error('fail to open position');
@@ -202,6 +206,7 @@ const TradeCard = () => {
     sendTx,
     setTextInputRef,
     updateVolumeFromSubgraph,
+    updateUserZdtePurchaseData,
   ]);
 
   useEffect(() => {
