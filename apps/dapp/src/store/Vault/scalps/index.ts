@@ -1740,6 +1740,8 @@ export const createOptionScalpSlice: StateCreator<
           positions: positions,
           type: 'open',
         };
+
+      return;
     } catch (e) {
       console.log(e);
       return;
