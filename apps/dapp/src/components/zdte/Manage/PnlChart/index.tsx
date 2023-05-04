@@ -20,6 +20,7 @@ import {
   getMaxPayoffPerOption,
   roundToTwoDecimals,
 } from 'components/zdte/Manage/TradeCard';
+import { FormatPercentColor } from 'components/zdte/OptionsTable/OptionsTableRow';
 
 import { formatAmount } from 'utils/general';
 import formatAmountWithNegative from 'utils/general/formatAmountWithNegative';
@@ -80,6 +81,10 @@ function getPutBreakEven(spreadPair: ISpreadPair, cost: number) {
 
 function getCallBreakEven(spreadPair: ISpreadPair, cost: number) {
   return spreadPair.longStrike + cost;
+}
+
+function getBreakevenPercent(breakeven: number, price: number): number {
+  return Math.round(((breakeven - price) / price) * 10000) / 100;
 }
 
 const PnlChart = (props: PnlChartProps) => {
@@ -217,6 +222,21 @@ const PnlChart = (props: PnlChartProps) => {
         <ContentRow
           title="Breakeven"
           content={`$${formatAmount(useFake ? 0 : staticBreakeven, 2)}`}
+        />
+        <ContentRow
+          title="% to Breakeven"
+          content={
+            !useFake && zdteData?.tokenPrice !== undefined ? (
+              <FormatPercentColor
+                value={getBreakevenPercent(
+                  staticBreakeven,
+                  zdteData?.tokenPrice
+                )}
+              />
+            ) : (
+              '0%'
+            )
+          }
         />
         <ContentRow
           title="Max Payoff"
