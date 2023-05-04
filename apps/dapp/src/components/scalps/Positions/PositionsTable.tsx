@@ -2,19 +2,15 @@ import { useCallback, useMemo } from 'react';
 
 import { BigNumber } from 'ethers';
 
+import IosShare from '@mui/icons-material/IosShare';
 import { IconButton } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
-import IosShare from '@mui/icons-material/IosShare';
-import { formatDistance } from 'date-fns';
-
 import cx from 'classnames';
-
-import Countdown from 'react-countdown';
-
-import { useBoundStore } from 'store';
-
+import { formatDistance } from 'date-fns';
 import useSendTx from 'hooks/useSendTx';
 import useShare from 'hooks/useShare';
+import Countdown from 'react-countdown';
+import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
 import LimitOrderPopover from 'components/scalps/LimitOrderPopover';
@@ -379,7 +375,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                       <span className="text-xs md:sm">Close</span>
                     </CustomButton>
                   )}
-                  {position.isOpen && <LimitOrderPopover />}
+                  {position.isOpen && <LimitOrderPopover id={position.id} />}
                   <IconButton
                     aria-label="share"
                     aria-haspopup="true"

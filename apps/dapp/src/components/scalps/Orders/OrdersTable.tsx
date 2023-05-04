@@ -140,7 +140,7 @@ const OrdersTable = () => {
 
   return (
     <div className="rounded-lg bg-inherit w-fit-content h-fit-content px-5 flex flex-row">
-      {orders?.length !== 0 ? (
+      {orders && orders.length !== 0 ? (
         <div className="w-full h-full mb-4">
           <div className="flex flex-col space-y-4 py-2">
             <div className="flex flex-row w-full items-center justify-between">

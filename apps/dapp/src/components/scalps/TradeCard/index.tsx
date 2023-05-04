@@ -3,8 +3,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
 
 import { ERC20__factory } from '@dopex-io/sdk';
-import Input from '@mui/material/Input';
 import Checkbox from '@mui/material/Checkbox';
+import Input from '@mui/material/Input';
 import Slider from '@mui/material/Slider';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
@@ -15,8 +15,8 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
 import { MINIMUM_MARGIN } from 'utils/contracts/option-scalps';
+import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE } from 'constants/index';
 
@@ -631,7 +631,9 @@ const TradeCard = () => {
             </div>
           </div>
           <div className={'flex mb-2'}>
-            <h6 className="text-stieglitz ml-0 mr-auto">Premium</h6>
+            <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
+              Premium
+            </h6>
             <div className={'text-right'}>
               <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
                 {formatAmount(

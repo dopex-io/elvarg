@@ -20,9 +20,9 @@ const getErrorBlobMessage = (message: string) => {
 
   let displayError: string = reason;
 
-  if (reason.includes('allowance')) {
+  if (reason?.includes('allowance')) {
     return 'You did not approve enough';
-  } else if (reason.includes('exceeds balance')) {
+  } else if (reason?.includes('exceeds balance')) {
     return 'You are trying to transfer more than you have';
   }
 

@@ -2,21 +2,31 @@ import React, { useCallback, useMemo, useState } from 'react';
 
 import { BigNumber } from 'ethers';
 
-import Popover from '@mui/material/Popover';
 import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
 import Input from '@mui/material/Input';
+import Popover from '@mui/material/Popover';
+import Tooltip from '@mui/material/Tooltip';
+import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
+import CrossIcon from 'svgs/icons/CrossIcon';
 
 import CustomButton from 'components/UI/Button';
 
-import CrossIcon from 'svgs/icons/CrossIcon';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import { useBoundStore } from 'store';
+const LimitOrderPopover = ({ id }, { id: BigNumber }) => {
+  const {
+    signer,
+    selectedPoolName,
+    optionScalpData,
+    uniWethPrice,
+    uniArbPrice,
+    updateOptionScalp,
+    updateOptionScalpUserData,
+  } = useBoundStore();
+  const sendTx = useSendTx();
 
-const LimitOrderPopover = () => {
-  const { selectedPoolName, optionScalpData, uniWethPrice, uniArbPrice } =
-    useBoundStore();
+  const [rawLimitPrice, setRawLimitPrice] = useState<string>('10');
 
   const markPrice = useMemo(() => {
     if (selectedPoolName === 'ETH') return uniWethPrice;
@@ -31,6 +41,32 @@ const LimitOrderPopover = () => {
     (event) => setAnchorEl(event.currentTarget),
     []
   );
+
+  const handleCreate = useCallback(async () => {
+    if (
+      !optionScalpData?.optionScalpContract ||
+      !optionScalpData?.limitOrdersContract ||
+      !signer ||
+      !updateOptionScalp ||
+      !updateOptionScalpUserData
+    )
+      return;
+
+    const limitPrice =
+      Number(rawLimitPrice) * 10 ** optionScalpData?.quoteDecimals!.toNumber();
+
+    const spacing = 10;
+    const tick0 =
+      Math.round(Math.round(Math.log(1 / limitPrice) / Math.log(1.0001)) / 10) *
+      10;
+    const tick1 = tick0 + spacing;
+
+    await sendTx(
+      optionScalpData.limitOrdersContract.connect(signer),
+      'createCloseOrder',
+      [optionScalpData.optionScalpContract.address, id, tick0, tick1]
+    ).then(() => updateOptionScalp().then(() => updateOptionScalpUserData()));
+  }, [signer, rawLimitPrice, optionScalpData, id]);
 
   return (
     <div>
@@ -81,7 +117,7 @@ const LimitOrderPopover = () => {
                   optionScalpData?.quoteDecimals!.toNumber()
                 )
               )}
-              onChange={() => {}}
+              onChange={(e) => setRawLimitPrice(e.target.value)}
               type="number"
               className={`mt-2 border border-mineshaft rounded-md px-2 bg-umbra w-full !w-auto`}
               classes={{ input: 'text-white text-xs text-left py-2' }}
@@ -90,6 +126,7 @@ const LimitOrderPopover = () => {
           <CustomButton
             className="cursor-pointer text-white w-full mt-3"
             color={'primary'}
+            onClick={handleCreate}
           >
             <span className="text-xs md:sm">Create limit order</span>
           </CustomButton>

@@ -1722,20 +1722,21 @@ export const createOptionScalpSlice: StateCreator<
         .mul(BigNumber.from(10 ** optionScalpData?.quoteDecimals.toNumber()))
         .div(price);
 
-      return {
-        transactionHash: hash,
-        id: id,
-        isOpen: true,
-        isShort: openOrder['isShort'],
-        size: openOrder['size'],
-        timeframe: timeframe,
-        collateral: openOrder['collateral'],
-        price: price,
-        expiry: expiry,
-        filled: openOrder['filled'],
-        positions: positions,
-        type: 'open',
-      };
+      if (openOrder['optionScalp'] === optionScalpContract.address)
+        return {
+          transactionHash: hash,
+          id: id,
+          isOpen: true,
+          isShort: openOrder['isShort'],
+          size: openOrder['size'],
+          timeframe: timeframe,
+          collateral: openOrder['collateral'],
+          price: price,
+          expiry: expiry,
+          filled: openOrder['filled'],
+          positions: positions,
+          type: 'open',
+        };
     } catch (e) {
       console.log(e);
       return;
@@ -1792,6 +1793,8 @@ export const createOptionScalpSlice: StateCreator<
       getScalpCloseOrder,
       getLimitOrdersContract,
     } = get();
+
+    if (!accountAddress) return;
 
     const limitOrdersContract = await getLimitOrdersContract();
 
