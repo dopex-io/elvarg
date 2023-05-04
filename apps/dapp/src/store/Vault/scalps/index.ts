@@ -1722,7 +1722,10 @@ export const createOptionScalpSlice: StateCreator<
         .mul(BigNumber.from(10 ** optionScalpData?.quoteDecimals.toNumber()))
         .div(price);
 
-      if (openOrder['optionScalp'] === optionScalpContract.address)
+      if (
+        openOrder['cancelled'] === false &&
+        openOrder['optionScalp'] === optionScalpContract.address
+      )
         return {
           transactionHash: hash,
           id: id,
