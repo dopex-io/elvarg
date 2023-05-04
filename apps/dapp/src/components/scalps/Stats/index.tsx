@@ -1,11 +1,11 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import { useMemo } from 'react';
-import { BigNumber, utils } from 'ethers';
 
-import { useBoundStore } from 'store';
+import { BigNumber, utils } from 'ethers';
 
 import graphSdk from 'graphql/graphSdk';
 import queryClient from 'queryClient';
+import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -39,7 +39,7 @@ const Stats = () => {
       });
 
       const _twentyFourHourVolume = payload.trades.reduce(
-        (acc, trade, _index) => {
+        (acc: { ETH: BigNumber; ARB: BigNumber }, trade, _index) => {
           const address = trade.id.split('#')[0]!;
           if (address === '0xdaf4ffb05bfcb2c328c19135e3e74e1182c88283')
             return {
