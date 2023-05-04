@@ -1,7 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { BigNumber } from 'ethers';
-
 import IconButton from '@mui/material/IconButton';
 import Input from '@mui/material/Input';
 import Popover from '@mui/material/Popover';
@@ -53,12 +51,13 @@ const LimitOrderPopover = ({ id }, { id: BigNumber }) => {
       return;
 
     const limitPrice =
-      Number(rawLimitPrice) * 10 ** optionScalpData?.quoteDecimals!.toNumber();
+      Number(rawLimitPrice) *
+      10 **
+        (optionScalpData?.quoteDecimals!.toNumber() -
+          optionScalpData?.baseDecimals!.toNumber());
 
     const spacing = 10;
-    const tick0 =
-      Math.round(Math.round(Math.log(1 / limitPrice) / Math.log(1.0001)) / 10) *
-      10;
+    const tick0 = Math.round(Math.log(limitPrice) / Math.log(1.0001) / 10) * 10;
     const tick1 = tick0 + spacing;
 
     await sendTx(

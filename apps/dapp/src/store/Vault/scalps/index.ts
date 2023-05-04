@@ -1543,7 +1543,7 @@ export const createOptionScalpSlice: StateCreator<
     if (!selectedPoolName || !provider) return;
     return new ethers.Contract(
       selectedPoolName === 'ETH'
-        ? '0xF857F1B881EaE3B6ebA3880E4E1086eC3E445c20'
+        ? '0xA5d6b283d2812A7CdAe26f9561d21376Bb649BE6'
         : '0x8c5b7D87D80726768a4a8D0C39690aCAB2F66C3a',
       optionScalpsABI,
       provider
@@ -1554,7 +1554,7 @@ export const createOptionScalpSlice: StateCreator<
 
     if (!selectedPoolName || !provider) return;
     return new ethers.Contract(
-      '0x8C4bD681F24E2241dD51eF782D9c70d4EBAFCA21',
+      '0x1F8734Acacc33380B7EfA59663670c52B2fED46f',
       limitOrdersABI,
       provider
     );
@@ -1566,7 +1566,7 @@ export const createOptionScalpSlice: StateCreator<
 
     return OptionScalpsLp__factory.connect(
       selectedPoolName === 'ETH'
-        ? '0x6a2e9399a24fce7741923f96d1c81981015d76bc'
+        ? '0xdce834f1d749bC2acc8533c3dc94Ff2Bc7bBA250'
         : '0x0dd032de45ae834e7950d455084ff4c896ab781c',
       provider
     );
@@ -1578,7 +1578,7 @@ export const createOptionScalpSlice: StateCreator<
 
     return OptionScalpsLp__factory.connect(
       selectedPoolName === 'ETH'
-        ? '0x45f8b0f5c12c01a1717984602701a99a2873c378'
+        ? '0x8F05172E5fA7be44960748115194aE5bB9499348'
         : '0x79f41545df078ad3b6168fe4c5379101682c4ee3',
       provider
     );
@@ -1758,14 +1758,14 @@ export const createOptionScalpSlice: StateCreator<
       const scalpPosition = await optionScalpContract.scalpPositions(id);
       const closeOrder = await limitOrdersContract.closeOrders(id);
 
-      const ticks = await limitOrdersContract.getNFTPositionTicks(
+      const ticks = await limitOrdersContract.callStatic.getNFTPositionTicks(
         closeOrder['positionId'],
         closeOrder['optionScalp']
       );
 
-      const tick = (ticks[0].toNumber() + ticks[1].toNumber()) / 2;
+      const tick = (ticks[0] + ticks[1]) / 2;
 
-      const price = BigNumber.from((1 / 1.0001 ** tick) * 10 ** 18);
+      const price = BigNumber.from(Math.round(1.0001 ** tick * 10 ** 18));
 
       const positions = scalpPosition['size']
         .mul(BigNumber.from(10 ** optionScalpData.quoteDecimals.toNumber()))
@@ -1785,6 +1785,7 @@ export const createOptionScalpSlice: StateCreator<
         type: 'close',
       };
     } catch (e) {
+      console.log(e);
       return;
     }
   },
@@ -1836,13 +1837,14 @@ export const createOptionScalpSlice: StateCreator<
     }
 
     for (let i in closeOrdersEvents) {
+      console.log(closeOrdersEvents[i]);
       if (
         !closeOrdersIndexes.includes(Number(closeOrdersEvents[i]['args'][0])) &&
         closeOrdersEvents[i]['args'][1] === accountAddress
       ) {
         closeOrdersIndexes.push(closeOrdersEvents[i]['args'][0]);
         closeOrdersTransactionsHashes.push(
-          openOrdersEvents[i]['transactionHash']
+          closeOrdersEvents[i]['transactionHash']
         );
       }
     }

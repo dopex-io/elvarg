@@ -28,12 +28,19 @@ const OrdersTable = () => {
 
   const tableHeadings = [
     'Positions',
+    'Type',
     'Price',
     'Collateral',
     'View on Etherscan',
   ];
 
-  const ordersKeys = ['positions', 'price', 'collateral', 'transactionHash'];
+  const ordersKeys = [
+    'positions',
+    'isOpen',
+    'price',
+    'collateral',
+    'transactionHash',
+  ];
 
   const getCellComponent = useCallback(
     (key: string, order: any) => {
@@ -44,6 +51,11 @@ const OrdersTable = () => {
       let data = order[key];
       let dataStyle = '';
       let rightContentStyle = '';
+
+      if (key === 'isOpen') {
+        data = data ? 'Open' : 'Close';
+        dataStyle += data === 'Close' ? 'text-[#FF617D]' : 'text-[#6DFFB9]';
+      }
 
       if (key === 'positions') {
         rightContent = optionScalpData?.baseSymbol ?? '';
@@ -158,15 +170,13 @@ const OrdersTable = () => {
               >
                 {ordersKeys.map((info) => getCellComponent(info, order))}
                 <div className="flex flex-row justify-end w-full">
-                  {order.isOpen && (
-                    <CustomButton
-                      className="cursor-pointer text-white w-2 mr-2"
-                      color={'primary'}
-                      onClick={() => handleCancel(order.type, order.id)}
-                    >
-                      <span className="text-xs md:sm">Cancel</span>
-                    </CustomButton>
-                  )}
+                  <CustomButton
+                    className="cursor-pointer text-white w-2 mr-2"
+                    color={'primary'}
+                    onClick={() => handleCancel(order.type, order.id)}
+                  >
+                    <span className="text-xs md:sm">Cancel</span>
+                  </CustomButton>
                 </div>
               </div>
             ))}
