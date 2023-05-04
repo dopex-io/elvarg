@@ -1855,12 +1855,14 @@ export const createOptionScalpSlice: StateCreator<
 
     for (let i in openOrdersIndexes) {
       openOrdersPromises.push(
+        // @ts-ignore TODO: FIX
         getScalpOpenOrder(openOrdersIndexes[i], openOrdersTransactionsHashes[i])
       );
     }
 
     for (let i in closeOrdersIndexes) {
       closeOrdersPromises.push(
+        // @ts-ignore TODO: FIX
         getScalpCloseOrder(
           closeOrdersIndexes[i],
           closeOrdersTransactionsHashes[i]
