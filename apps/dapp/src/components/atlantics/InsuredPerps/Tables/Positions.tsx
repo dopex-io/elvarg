@@ -528,6 +528,9 @@ const Positions = ({
     handleManageButtonClick,
     handleReuseStrategy,
     userPositionData.state,
+    action,
+    handleActionChange,
+    handleEmergencyExit
   ]);
 
   useEffect(() => {
