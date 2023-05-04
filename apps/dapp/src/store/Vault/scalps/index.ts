@@ -1690,7 +1690,7 @@ export const createOptionScalpSlice: StateCreator<
 
     return scalpPositions;
   },
-  getScalpOpenOrder: async (id: BigNumber, hash: string) => {
+  getScalpOpenOrder: async (id, hash) => {
     const { getLimitOrdersContract, getOptionScalpContract, optionScalpData } =
       get();
 
@@ -1747,7 +1747,7 @@ export const createOptionScalpSlice: StateCreator<
       return;
     }
   },
-  getScalpCloseOrder: async (id: BigNumber, hash: string) => {
+  getScalpCloseOrder: async (id, hash) => {
     const { getLimitOrdersContract, getOptionScalpContract, optionScalpData } =
       get();
 
