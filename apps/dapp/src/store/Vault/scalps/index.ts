@@ -1865,6 +1865,7 @@ export const createOptionScalpSlice: StateCreator<
         // @ts-ignore TODO: FIX
         getScalpCloseOrder(
           closeOrdersIndexes[i],
+          // @ts-ignore TODO: FIX
           closeOrdersTransactionsHashes[i]
         )
       );
