@@ -1,28 +1,20 @@
 import Box from '@mui/material/Box';
 
-import StatBox from './StatBoxComponent';
 import InfoPopover from 'components/UI/InfoPopover';
 
 import formatAmount from 'utils/general/formatAmount';
 
+import StatBox from './StatBoxComponent';
+
 const StatsSection = ({ data }: any) => {
-  const { formik, deposits, depositShare, claimAmount } = data;
+  const { deposits, depositShare, claimAmount } = data;
 
   return (
     <Box className="border-umbra rounded-xl border p-4 flex flex-col mb-4">
       <Box className="flex flex-row justify-between mb-4">
         <StatBox
-          Top={
-            formik.values.amount !== '0'
-              ? deposits !== null
-                ? formatAmount(deposits)
-                : '-'
-              : deposits !== null
-              ? formatAmount(deposits) + ' ETH'
-              : '-'
-          }
+          Top={deposits !== null ? formatAmount(deposits) : '-'}
           Bottom={'Your Deposit'}
-          data={{ formik }}
         />
         <StatBox
           Top={
@@ -39,20 +31,11 @@ const StatsSection = ({ data }: any) => {
               />
             </Box>
           }
-          data={{ formik }}
         />
       </Box>
       <Box className="flex flex-row justify-between">
         <StatBox
-          Top={
-            formik.values.amount !== '0'
-              ? claimAmount !== null
-                ? `${formatAmount(claimAmount)} DPX`
-                : '-'
-              : claimAmount !== null
-              ? `${formatAmount(claimAmount)} DPX`
-              : '-'
-          }
+          Top={claimAmount !== null ? `${formatAmount(claimAmount)} DPX` : '-'}
           Bottom={
             <Box className="flex flex-row items-center">
               Estimated DPX claim
@@ -63,7 +46,6 @@ const StatsSection = ({ data }: any) => {
               />
             </Box>
           }
-          data={{ formik }}
         />
       </Box>
     </Box>

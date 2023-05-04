@@ -1,16 +1,17 @@
-import { useMemo, useState } from 'react';
-import { BigNumber } from 'ethers';
-import Box from '@mui/material/Box';
-import cx from 'classnames';
 import Image from 'next/image';
 
-import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
-import ClaimDialog from '../ClaimDialog';
-import TransferDialog from '../TransferDialog';
+import { useMemo, useState } from 'react';
 
+import { Button } from '@dopex-io/ui';
+import Box from '@mui/material/Box';
+import cx from 'classnames';
 import { useBoundStore } from 'store';
+
 import { NftData } from 'store/Nfts';
+
+import Typography from 'components/UI/Typography';
+
+import ClaimDialog from '../ClaimDialog';
 
 interface NftCardProps {
   nftData: NftData;
@@ -20,32 +21,27 @@ interface NftCardProps {
 
 const NftCard = ({ nftData, className, index }: NftCardProps) => {
   const [claimDialog, setClaimDialog] = useState(false);
-  const [transferDialog, setTransferDialog] = useState(false);
   const { userNftsData } = useBoundStore();
 
   const {
-    balance,
     nftName,
     nftSymbol,
   }: {
-    balance: BigNumber;
     nftName: string;
     nftSymbol: string;
   } = useMemo(() => {
     if (userNftsData.length === 0) {
       return {
-        balance: BigNumber.from(0),
         nftName: '',
         nftSymbol: '',
       };
     } else {
       return {
-        balance: userNftsData[index]?.balance ?? BigNumber.from(0),
         nftName: nftData.nftName,
         nftSymbol: nftData.nftSymbol,
       };
     }
-  }, [userNftsData, index, nftData]);
+  }, [userNftsData, nftData]);
 
   const NAME_TO_CONTRACT_NAME: { [key: string]: string } = {
     'Dopex Bridgoor NFT': 'DopexBridgoorNFT',
@@ -55,20 +51,10 @@ const NftCard = ({ nftData, className, index }: NftCardProps) => {
   const nft = NAME_TO_CONTRACT_NAME[nftName];
 
   const handleClaimDialogClose = () => setClaimDialog(false);
-  const handleTransferDialogClose = () => setTransferDialog(false);
 
   const handleClaimDialog = () => {
     setClaimDialog(true);
   };
-  const handleTransferDialog = () => {
-    setTransferDialog(true);
-  };
-
-  const buttonProps = useMemo(() => {
-    if (balance.eq(0)) {
-      return { disabled: true };
-    } else return { disabled: false };
-  }, [balance]);
 
   return (
     <>
@@ -78,11 +64,6 @@ const NftCard = ({ nftData, className, index }: NftCardProps) => {
         index={index}
         name={nftName}
         symbol={nftSymbol}
-      />
-      <TransferDialog
-        open={transferDialog}
-        handleClose={handleTransferDialogClose}
-        index={index}
       />
       <Box className={cx('flex flex-col mb-4', className)}>
         <Box className="flex flex-col">
@@ -98,18 +79,9 @@ const NftCard = ({ nftData, className, index }: NftCardProps) => {
               width={400}
             />
           </Box>
-          <Box className="grid grid-cols-2 space-x-4">
-            <CustomButton size="medium" onClick={handleClaimDialog}>
-              <span className="text-lg">Claim</span>
-            </CustomButton>
-            <CustomButton
-              size="medium"
-              onClick={handleTransferDialog}
-              disabled={buttonProps.disabled}
-            >
-              <span className="text-lg">Transfer</span>
-            </CustomButton>
-          </Box>
+          <Button size="medium" onClick={handleClaimDialog}>
+            Claim
+          </Button>
         </Box>
       </Box>
     </>
