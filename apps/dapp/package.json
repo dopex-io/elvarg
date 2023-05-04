@@ -11,7 +11,7 @@
     "generate": "graphclient build"
   },
   "dependencies": {
-    "@0xsequence/multicall": "^0.43.26",
+    "@0xsequence/multicall": "^0.43.27",
     "@dopex-io/sdk": "1.0.0-beta.61",
     "@dopex-io/ui": "workspace:*",
     "@emotion/react": "^11.10.8",
@@ -41,7 +41,7 @@
     "recharts": "2.5.0",
     "sass": "^1.60.0",
     "use-debounce": "^9.0.4",
-    "wagmi": "^0.12.9",
+    "wagmi": "^0.12.12",
     "zustand": "^4.3.7"
   },
   "devDependencies": {
