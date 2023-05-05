@@ -300,8 +300,6 @@ const TradeCard = () => {
           Math.round(Math.log(limitPrice) / Math.log(1.0001) / 10) * 10;
         const tick1 = tick0 + spacing;
 
-        alert(tick0);
-
         await sendTx(
           optionScalpData.limitOrdersContract.connect(signer),
           'createOpenOrder',
