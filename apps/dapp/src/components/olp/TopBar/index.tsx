@@ -9,7 +9,7 @@ import {
   MenuItem,
   Menu as MuiMenu,
 } from '@mui/material';
-import { useWindowSize } from 'react-use';
+import useWindowSize from 'hooks/useWindowSize';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';

@@ -1,21 +1,20 @@
-import { useEffect, useCallback } from 'react';
 import Head from 'next/head';
+
+import { useCallback, useEffect } from 'react';
+
 import { TokenSale__factory } from '@dopex-io/sdk';
-import c from 'classnames';
 import Box from '@mui/material/Box';
-import { useFormik } from 'formik';
-
-import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
-import AppBar from 'components/common/AppBar';
-import ClaimSection from 'components/sale/ClaimSection';
-import StatsSection from 'components/sale/StatsSection';
-import InfoSection from 'components/sale/InfoSection';
-
-import { useBoundStore } from 'store';
-
+import c from 'classnames';
 import useEthPrice from 'hooks/useEthPrice';
 import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
+
+import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
+import AppBar from 'components/common/AppBar';
+import ClaimSection from 'components/sale/ClaimSection';
+import InfoSection from 'components/sale/InfoSection';
+import StatsSection from 'components/sale/StatsSection';
 
 import formatAmount from 'utils/general/formatAmount';
 
@@ -39,15 +38,6 @@ const TokenSale = () => {
   const ethPrice = useEthPrice();
   const sendTx = useSendTx();
 
-  const formik = useFormik({
-    initialValues: {
-      amount: '0',
-    },
-    onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
-    },
-  });
-
   const handleClaim = useCallback(async () => {
     if (!signer || !accountAddress || !contractAddresses['TokenSale']) return;
     try {
@@ -62,9 +52,7 @@ const TokenSale = () => {
     }
   }, [signer, accountAddress, contractAddresses, sendTx, updateUserData]);
 
-  const depositShare = formik.values.amount
-    ? (Number(deposits) / Number(weiDeposited)) * 100 || 0
-    : (Number(deposits) / Number(weiDeposited)) * 100 || 0;
+  const depositShare = (Number(deposits) / Number(weiDeposited)) * 100 || 0;
 
   const dpxEthPrice = Number(weiDeposited)
     ? Number(weiDeposited) / Number(tokensAllocated)
@@ -112,7 +100,6 @@ const TokenSale = () => {
               <ClaimSection data={{ saleClose, saleClosed }} />
               <StatsSection
                 data={{
-                  formik,
                   deposits,
                   depositShare,
                   claimAmount,
