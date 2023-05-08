@@ -12,6 +12,7 @@ import { IStaticZdteData, IZdteData, IZdteUserData } from 'store/Vault/zdte';
 
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 import Loading from 'components/zdte/Loading';
+import MigrationStepper from 'components/zdte/Manage/MigrationStepper';
 
 import {
   getContractReadableAmount,
@@ -353,6 +354,10 @@ const Withdraw = () => {
             : 'Cooling period not over'
           : 'Approve'}
       </Button>
+      <MigrationStepper
+        isQuote={isQuote}
+        symbol={asset ? asset?.getAssetSymbol : ''}
+      />
     </div>
   );
 };
