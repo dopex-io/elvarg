@@ -1,8 +1,7 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
-import { useCallback, useEffect } from 'react';
-import React, { useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 
 import { useBoundStore } from 'store';
 
@@ -22,6 +21,7 @@ interface Props {
 
 const Zdte = ({ zdte }: Props) => {
   const {
+    provider,
     setSelectedPoolName,
     updateZdteData,
     updateStaticZdteData,
@@ -36,24 +36,29 @@ const Zdte = ({ zdte }: Props) => {
     if (zdte && setSelectedPoolName) setSelectedPoolName(zdte);
   }, [zdte, setSelectedPoolName]);
 
-  const updateAll = useCallback(() => {
+  const updateAll = useCallback(async () => {
+    if (!provider) return;
     updateZdteData().then(() => {
       updateStaticZdteData().then(() => {
         getUserPurchaseData().then(() => {
-          updateUserZdteLpData();
-          updateUserZdtePurchaseData();
-          updateVolumeFromSubgraph();
+          updateUserZdteLpData().then(() => {
+            updateUserZdtePurchaseData();
+          });
         });
       });
     });
   }, [
+    provider,
     updateZdteData,
     updateUserZdteLpData,
     getUserPurchaseData,
     updateStaticZdteData,
     updateUserZdtePurchaseData,
-    updateVolumeFromSubgraph,
   ]);
+
+  useEffect(() => {
+    updateVolumeFromSubgraph();
+  }, [updateVolumeFromSubgraph]);
 
   useEffect(() => {
     updateAll();

@@ -170,10 +170,12 @@ export const createZdteSlice: StateCreator<
   getBaseLpContract: async () => {
     const { selectedPoolName, provider, getZdteContract } = get();
 
-    if (!selectedPoolName || !provider) return;
+    const zdteContract = getZdteContract();
+
+    if (!selectedPoolName || !provider || !zdteContract) return;
 
     try {
-      const baseLpTokenAddress = await getZdteContract().baseLp();
+      const baseLpTokenAddress = await zdteContract.baseLp();
       return ZdteLP__factory.connect(baseLpTokenAddress, provider);
     } catch (err) {
       console.error(err);
@@ -258,7 +260,7 @@ export const createZdteSlice: StateCreator<
       }));
     } catch (err) {
       console.error(err);
-      throw Error('fail to update userZdteLpData');
+      // throw Error('fail to update userZdteLpData');
     }
   },
   getUserPurchaseData: async () => {
@@ -302,7 +304,7 @@ export const createZdteSlice: StateCreator<
       }));
     } catch (err) {
       console.error(err);
-      throw new Error('fail to getUserPurchaseData');
+      // throw new Error('fail to getUserPurchaseData');
     }
   },
   updateUserZdtePurchaseData: async () => {
@@ -409,6 +411,36 @@ export const createZdteSlice: StateCreator<
       const strikes: OptionsTableData[] = [];
       let numFailures: number = 0;
 
+      let premiumsPromises = [];
+      let ivPromises = [];
+
+      for (
+        let strike = upperRound - step;
+        strike > lowerRound;
+        strike -= step
+      ) {
+        try {
+          premiumsPromises.push(
+            zdteContract.calcPremiumCustom(
+              strike <= tokenPrice,
+              getContractReadableAmount(strike, DECIMALS_STRIKE),
+              oneEBigNumber(DECIMALS_TOKEN)
+            )
+          );
+          ivPromises.push(
+            zdteContract.getVolatility(
+              getContractReadableAmount(strike, DECIMALS_STRIKE)
+            )
+          );
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      const ivs = await Promise.all(ivPromises);
+      const premiums = await Promise.all(premiumsPromises);
+
+      let i = 0;
       for (
         let strike = upperRound - step;
         strike > lowerRound;
@@ -419,18 +451,8 @@ export const createZdteSlice: StateCreator<
         let failedToFetch: boolean = false;
 
         try {
-          const [premium, iv] = await Promise.all([
-            zdteContract.calcPremiumCustom(
-              strike <= tokenPrice,
-              getContractReadableAmount(strike, DECIMALS_STRIKE),
-              oneEBigNumber(DECIMALS_TOKEN)
-            ),
-            zdteContract.getVolatility(
-              getContractReadableAmount(strike, DECIMALS_STRIKE)
-            ),
-          ]);
-          normalizedPremium = getPremiumUsdPrice(premium);
-          normalizedIv = iv.toNumber();
+          normalizedPremium = getPremiumUsdPrice(premiums[i]);
+          normalizedIv = ivs[i].toNumber();
         } catch (err) {
           failedToFetch = true;
           numFailures += 1;
@@ -466,6 +488,7 @@ export const createZdteSlice: StateCreator<
             strike == upperRound - step ||
             strike == lowerRound + step,
         });
+        i++;
       }
 
       const [
