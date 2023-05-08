@@ -98,12 +98,16 @@ class QuoteOrBaseAsset {
 
   get getLpValue() {
     return this.isQuote
-      ? formatAmount(
-          getUserReadableAmount(this.zdteData.quoteLpValue!, DECIMALS_USD),
-          2
-        )
+      ? this.zdteData.quoteLpValue === undefined
+        ? 0
+        : formatAmount(
+            getUserReadableAmount(this.zdteData.quoteLpValue, DECIMALS_USD),
+            2
+          )
+      : this.zdteData.baseLpValue === undefined
+      ? 0
       : formatAmount(
-          getUserReadableAmount(this.zdteData.baseLpValue!, DECIMALS_TOKEN),
+          getUserReadableAmount(this.zdteData.baseLpValue, DECIMALS_TOKEN),
           3
         );
   }

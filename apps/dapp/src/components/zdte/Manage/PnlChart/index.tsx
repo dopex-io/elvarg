@@ -24,6 +24,7 @@ import { FormatPercentColor } from 'components/zdte/OptionsTable/OptionsTableRow
 
 import { formatAmount } from 'utils/general';
 import formatAmountWithNegative from 'utils/general/formatAmountWithNegative';
+import getPercentageDifference from 'utils/math/getPercentageDifference';
 
 interface PnlChartProps {
   cost: number;
@@ -81,10 +82,6 @@ function getPutBreakEven(spreadPair: ISpreadPair, cost: number) {
 
 function getCallBreakEven(spreadPair: ISpreadPair, cost: number) {
   return spreadPair.longStrike + cost;
-}
-
-function getBreakevenPercent(breakeven: number, price: number): number {
-  return Math.round(((breakeven - price) / price) * 10000) / 100;
 }
 
 const PnlChart = (props: PnlChartProps) => {
@@ -228,7 +225,7 @@ const PnlChart = (props: PnlChartProps) => {
           content={
             !useFake && zdteData?.tokenPrice !== undefined ? (
               <FormatPercentColor
-                value={getBreakevenPercent(
+                value={getPercentageDifference(
                   staticBreakeven,
                   zdteData?.tokenPrice
                 )}
