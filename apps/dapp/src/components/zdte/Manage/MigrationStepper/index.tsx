@@ -14,15 +14,16 @@ import { useBoundStore } from 'store';
 
 import Dialog from 'components/UI/Dialog';
 
+import { displayAddress } from 'utils/general';
+
 interface Props {
   isQuote: boolean;
   symbol: string;
+  deprecatedAddress: { [key: string]: string };
 }
 
-const DEPRECATED_ZDTE_ADDR = '0xbc70a8625680ec90292e1cef045a5509e123fa9f';
-
 export default function MigrationStepper(props: Props) {
-  const { isQuote, symbol } = props;
+  const { isQuote, symbol, deprecatedAddress } = props;
 
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -41,7 +42,7 @@ export default function MigrationStepper(props: Props) {
   } = useBoundStore();
 
   const deprecateZdteContract = Zdte__factory.connect(
-    DEPRECATED_ZDTE_ADDR,
+    deprecatedAddress['address']!,
     provider
   );
 
@@ -70,7 +71,7 @@ export default function MigrationStepper(props: Props) {
         ? await deprecateZdteContract.quoteLp()
         : await deprecateZdteContract.baseLp();
       await sendTx(ZdteLP__factory.connect(assetAddress, signer), 'approve', [
-        DEPRECATED_ZDTE_ADDR,
+        deprecatedAddress['address']!,
         toWithdrawAmount,
       ]);
       handleNext();
@@ -88,6 +89,7 @@ export default function MigrationStepper(props: Props) {
     accountAddress,
     toWithdrawAmount,
     deprecateZdteContract,
+    deprecatedAddress,
   ]);
 
   const handleWithdraw = useCallback(async () => {
@@ -182,10 +184,11 @@ export default function MigrationStepper(props: Props) {
   ];
 
   return toWithdrawAmount.gt(BigNumber.from(0)) &&
-    selectedPoolName.toUpperCase().includes('ETH') ? (
+    selectedPoolName.toLowerCase().includes(deprecatedAddress['asset']!) ? (
     <>
       <p className="text-sm mx-auto">
-        Balance of {symbol} detected in deprecated contract!
+        Balance of {symbol} detected in deprecated contract{' '}
+        {displayAddress(deprecatedAddress['address'], '')}
       </p>
       <Button
         variant="contained"

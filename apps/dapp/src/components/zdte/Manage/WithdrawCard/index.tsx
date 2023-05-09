@@ -22,6 +22,10 @@ import { formatAmount } from 'utils/general';
 
 import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
+const DEPRECATED_ZDTE_ADDRS = [
+  { asset: 'eth', address: '0xbc70a8625680ec90292e1cef045a5509e123fa9f' },
+];
+
 class QuoteOrBaseAsset {
   private isQuote: boolean;
   private zdteData: IZdteData;
@@ -354,10 +358,16 @@ const Withdraw = () => {
             : 'Cooling period not over'
           : 'Approve'}
       </Button>
-      <MigrationStepper
-        isQuote={isQuote}
-        symbol={asset ? asset?.getAssetSymbol : ''}
-      />
+      {DEPRECATED_ZDTE_ADDRS.map((addr, idx) => {
+        return (
+          <MigrationStepper
+            key={idx}
+            isQuote={isQuote}
+            symbol={asset ? asset?.getAssetSymbol : ''}
+            deprecatedAddress={addr}
+          />
+        );
+      })}
     </div>
   );
 };
