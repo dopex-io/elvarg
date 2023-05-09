@@ -23,6 +23,8 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
 export const ZDTE: string = '0xc0b0f0b281f5a2b5d8b75193c12fe6433e3929cc';
+export const ZDTE_ARB: string = '0x7fdb659838C0594a91E4FD75F698C1A32BB52f8c';
+
 const SECONDS_IN_A_YEAR = 86400 * 365;
 
 export interface OptionsTableData {
@@ -163,8 +165,8 @@ export const createZdteSlice: StateCreator<
     if (!selectedPoolName || !provider) return;
 
     try {
-      // Addresses[42161].ZDTE[selectedPoolName],
-      return Zdte__factory.connect(ZDTE, provider);
+      const addr = selectedPoolName.toLowerCase() === 'arb' ? ZDTE_ARB : ZDTE;
+      return Zdte__factory.connect(addr, provider);
     } catch (err) {
       console.error(err);
       throw Error('fail to create address');
@@ -462,6 +464,10 @@ export const createZdteSlice: StateCreator<
         let normalizedPremium = 0;
         let normalizedIv = 0;
         let failedToFetch: boolean = false;
+
+        if (strike < 10) {
+          strike = Math.round(strike * 100) / 100;
+        }
 
         try {
           normalizedPremium = getPremiumUsdPrice(premiums[i]);

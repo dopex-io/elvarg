@@ -116,6 +116,9 @@ const TopBar = () => {
             <MenuItem value={'ETH'} key={'ETH'} className="text-white py-1 m-0">
               ETH/USDC
             </MenuItem>
+            <MenuItem value={'ARB'} key={'ARB'} className="text-white py-1 m-0">
+              ARB/USDC
+            </MenuItem>
           </Select>
         </div>
         <Stats />

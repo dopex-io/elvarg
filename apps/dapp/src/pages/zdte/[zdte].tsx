@@ -23,6 +23,7 @@ const Zdte = ({ zdte }: Props) => {
   const {
     provider,
     setSelectedPoolName,
+    selectedPoolName,
     updateZdteData,
     updateStaticZdteData,
     updateUserZdteLpData,
@@ -37,7 +38,7 @@ const Zdte = ({ zdte }: Props) => {
   }, [zdte, setSelectedPoolName]);
 
   const updateAll = useCallback(async () => {
-    if (!provider) return;
+    if (!provider || !selectedPoolName) return;
     updateZdteData().then(() => {
       updateStaticZdteData().then(() => {
         getUserPurchaseData().then(() => {
@@ -49,6 +50,7 @@ const Zdte = ({ zdte }: Props) => {
     });
   }, [
     provider,
+    selectedPoolName,
     updateZdteData,
     updateUserZdteLpData,
     getUserPurchaseData,
@@ -72,11 +74,11 @@ const Zdte = ({ zdte }: Props) => {
   }, [updateAll]);
 
   const chart = useMemo(() => {
-    if (!staticZdteData) {
+    if (!staticZdteData || !selectedPoolName) {
       return <Loading />;
     }
-    return <ZdteDexScreenerChart />;
-  }, [staticZdteData]);
+    return <ZdteDexScreenerChart poolName={selectedPoolName} />;
+  }, [staticZdteData, selectedPoolName]);
 
   return (
     <div className="bg-black min-h-screen">
