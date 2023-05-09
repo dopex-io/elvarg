@@ -5,6 +5,7 @@ import { BigNumber } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
 import { Input as MuiInput } from '@mui/material';
 import useSendTx from 'hooks/useSendTx';
+import Countdown from 'react-countdown';
 import { useBoundStore } from 'store';
 
 import { ISpreadPair } from 'store/Vault/zdte';
@@ -100,6 +101,7 @@ const TradeCard = () => {
     provider,
     getZdteContract,
     updateZdteData,
+    updateUserZdtePurchaseData,
     updateVolumeFromSubgraph,
     zdteData,
     accountAddress,
@@ -184,8 +186,11 @@ const TradeCard = () => {
           longStrike: undefined,
         });
       });
-      await updateZdteData();
-      await updateVolumeFromSubgraph();
+      await Promise.all([
+        updateZdteData(),
+        updateUserZdtePurchaseData(),
+        updateVolumeFromSubgraph(),
+      ]);
     } catch (err) {
       console.error('fail to open position', err);
       throw new Error('fail to open position');
@@ -201,6 +206,7 @@ const TradeCard = () => {
     sendTx,
     setTextInputRef,
     updateVolumeFromSubgraph,
+    updateUserZdtePurchaseData,
   ]);
 
   useEffect(() => {
@@ -414,6 +420,31 @@ const TradeCard = () => {
         </div>
       </div>
       <div className="p-1 space-y-1">
+        <ContentRow
+          title="Time to Expiry"
+          content={
+            zdteData?.expiry !== undefined ? (
+              <h6 className="text-white">
+                <Countdown
+                  date={new Date(zdteData?.expiry * 1000)}
+                  renderer={({ hours, minutes }) => {
+                    return (
+                      <div className="flex space-x-2">
+                        <h6 className="text-white">
+                          {hours}h {minutes}m
+                        </h6>
+                      </div>
+                    );
+                  }}
+                />
+              </h6>
+            ) : (
+              <div className="flex space-x-2">
+                <h6 className="text-white">...</h6>
+              </div>
+            )
+          }
+        />
         <ContentRow
           title="Liquidity Required"
           content={

@@ -64,6 +64,7 @@ export const OpenPositions = () => {
                   Strike
                 </span>
               </StyleLeftTableCell>
+              <StyleTableCellHeader>Breakeven</StyleTableCellHeader>
               <StyleTableCellHeader>Mark Price</StyleTableCellHeader>
               <StyleTableCellHeader>Amount</StyleTableCellHeader>
               <StyleTableCellHeader>Profit & Loss</StyleTableCellHeader>

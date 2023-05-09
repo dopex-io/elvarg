@@ -55,11 +55,13 @@ export interface IZdteData {
   strikes: OptionsTableData[];
   failedToFetch: boolean;
   baseLpTokenLiquidity: BigNumber;
+  baseLpValue: BigNumber;
   baseLpAssetBalance: BigNumber;
   baseLpTotalAsset: BigNumber;
   quoteLpTokenLiquidity: BigNumber;
   quoteLpAssetBalance: BigNumber;
   quoteLpTotalAsset: BigNumber;
+  quoteLpValue: BigNumber;
   openInterest: BigNumber;
   expiry: number;
 }
@@ -93,6 +95,7 @@ export interface IZdteRawPurchaseData {
 
 export interface IZdtePurchaseData extends IZdteRawPurchaseData {
   livePnl: BigNumber;
+  breakeven: BigNumber;
 }
 
 export interface IZdteExpiredData extends IZdteRawPurchaseData {
@@ -318,9 +321,19 @@ export const createZdteSlice: StateCreator<
       const purchaseData = await Promise.all(
         userPurchaseData?.map(async (pos: IZdteRawPurchaseData) => {
           const livePnl = await zdteContract.calcPnl(pos.positionId);
+          const cost = pos.longPremium.sub(pos.shortPremium).add(pos.fees);
+          const finalCost = cost
+            .mul(oneEBigNumber(DECIMALS_TOKEN))
+            .div(pos.positions)
+            .mul(100);
+          const breakeven =
+            pos.longStrike > pos.shortStrike
+              ? pos.longStrike.sub(finalCost)
+              : pos.longStrike.add(finalCost);
           return {
             ...pos,
             livePnl: livePnl,
+            breakeven: breakeven,
           } as IZdtePurchaseData;
         })
       );
@@ -494,14 +507,25 @@ export const createZdteSlice: StateCreator<
       const [
         baseLpAssetBalance,
         baseLpTotalAsset,
+        baseLpTotalSupply,
         quoteLpAssetBalance,
         quoteLpTotalAsset,
+        quoteLpTotalSupply,
       ] = await Promise.all([
         baseLpContract.totalAvailableAssets(),
         baseLpContract.totalAssets(),
+        baseLpContract.totalSupply(),
         quoteLpContract.totalAvailableAssets(),
         quoteLpContract.totalAssets(),
+        quoteLpContract.totalSupply(),
       ]);
+
+      const quoteLpValue = BigNumber.from(oneEBigNumber(DECIMALS_USD))
+        .mul(quoteLpTotalAsset)
+        .div(quoteLpTotalSupply);
+      const baseLpValue = BigNumber.from(oneEBigNumber(DECIMALS_TOKEN))
+        .mul(baseLpTotalAsset)
+        .div(baseLpTotalSupply);
 
       const openInterest = openInterestAmount
         .mul(markPrice)
@@ -520,9 +544,11 @@ export const createZdteSlice: StateCreator<
           baseLpAssetBalance,
           baseLpTotalAsset,
           baseLpTokenLiquidity,
+          baseLpValue,
           quoteLpAssetBalance,
           quoteLpTotalAsset,
           quoteLpTokenLiquidity,
+          quoteLpValue,
           openInterest,
           expiry: expiry.toNumber(),
         },
