@@ -47,7 +47,10 @@ const Stats = () => {
 
   return (
     <div className="grid grid-rows-2 grid-flow-col text-sm ml-5 flex-1 md:grid-rows-1">
-      <StatsColumn title={`24h Volume`} value={`${subgraphVolume}`} />
+      <StatsColumn
+        title={`24h Volume`}
+        value={`${subgraphVolume ? subgraphVolume : '...'}`}
+      />
       <StatsColumn
         title={`Open Interest`}
         value={`$${formatAmount(
