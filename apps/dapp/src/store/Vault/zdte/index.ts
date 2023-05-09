@@ -326,7 +326,7 @@ export const createZdteSlice: StateCreator<
           const cost = pos.longPremium.sub(pos.shortPremium).add(pos.fees);
           const finalCost = cost
             .mul(oneEBigNumber(DECIMALS_TOKEN))
-            .div(pos.positions)
+            .div(pos.positions || BigNumber.from(1))
             .mul(100);
           const breakeven =
             pos.longStrike > pos.shortStrike
@@ -435,6 +435,9 @@ export const createZdteSlice: StateCreator<
         strike -= step
       ) {
         try {
+          if (strike < 10) {
+            strike = Math.round(strike * 100) / 100;
+          }
           premiumsPromises.push(
             zdteContract.calcPremiumCustom(
               strike <= tokenPrice,
@@ -448,7 +451,8 @@ export const createZdteSlice: StateCreator<
             )
           );
         } catch (e) {
-          console.error(e);
+          console.error('Fail to get volatility for ', strike);
+          break;
         }
       }
 
@@ -528,10 +532,18 @@ export const createZdteSlice: StateCreator<
 
       const quoteLpValue = BigNumber.from(oneEBigNumber(DECIMALS_USD))
         .mul(quoteLpTotalAsset)
-        .div(quoteLpTotalSupply);
+        .div(
+          quoteLpTotalSupply.eq(BigNumber.from(0))
+            ? BigNumber.from(1)
+            : quoteLpTotalSupply
+        );
       const baseLpValue = BigNumber.from(oneEBigNumber(DECIMALS_TOKEN))
         .mul(baseLpTotalAsset)
-        .div(baseLpTotalSupply);
+        .div(
+          baseLpTotalSupply.eq(BigNumber.from(0))
+            ? BigNumber.from(1)
+            : baseLpTotalSupply
+        );
 
       const openInterest = openInterestAmount
         .mul(markPrice)
@@ -561,7 +573,7 @@ export const createZdteSlice: StateCreator<
       }));
     } catch (err) {
       console.error(err);
-      throw new Error('fail to update zdteData');
+      // throw new Error('fail to update zdteData');
     }
   },
   updateStaticZdteData: async () => {
