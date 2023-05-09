@@ -11,12 +11,36 @@ import { WalletSlice } from 'store/Wallet';
 const optionScalpsABI = [
   {
     inputs: [
-      { internalType: 'address', name: '_base', type: 'address' },
-      { internalType: 'address', name: '_quote', type: 'address' },
-      { internalType: 'uint256', name: '_baseDecimals', type: 'uint256' },
-      { internalType: 'uint256', name: '_quoteDecimals', type: 'uint256' },
-      { internalType: 'address', name: '_uniswapV3Router', type: 'address' },
-      { internalType: 'address', name: '_limitOrdersManager', type: 'address' },
+      {
+        internalType: 'address',
+        name: '_base',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_quote',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '_baseDecimals',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '_quoteDecimals',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: '_uniswapV3Router',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_limitOrdersManager',
+        type: 'address',
+      },
       {
         internalType: 'address',
         name: '_nonFungiblePositionManager',
@@ -24,8 +48,16 @@ const optionScalpsABI = [
       },
       {
         components: [
-          { internalType: 'uint256', name: 'maxSize', type: 'uint256' },
-          { internalType: 'uint256', name: 'maxOpenInterest', type: 'uint256' },
+          {
+            internalType: 'uint256',
+            name: 'maxSize',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'maxOpenInterest',
+            type: 'uint256',
+          },
           {
             internalType: 'contract IOptionPricing',
             name: 'optionPricing',
@@ -41,15 +73,31 @@ const optionScalpsABI = [
             name: 'priceOracle',
             type: 'address',
           },
-          { internalType: 'address', name: 'insuranceFund', type: 'address' },
-          { internalType: 'uint256', name: 'minimumMargin', type: 'uint256' },
-          { internalType: 'uint256', name: 'feeOpenPosition', type: 'uint256' },
+          {
+            internalType: 'address',
+            name: 'insuranceFund',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256',
+            name: 'minimumMargin',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'feeOpenPosition',
+            type: 'uint256',
+          },
           {
             internalType: 'uint256',
             name: 'minimumAbsoluteLiquidationThreshold',
             type: 'uint256',
           },
-          { internalType: 'uint256', name: 'withdrawTimeout', type: 'uint256' },
+          {
+            internalType: 'uint256',
+            name: 'withdrawTimeout',
+            type: 'uint256',
+          },
         ],
         internalType: 'struct OptionScalp.Configuration',
         name: 'config',
@@ -59,12 +107,25 @@ const optionScalpsABI = [
     stateMutability: 'nonpayable',
     type: 'constructor',
   },
-  { inputs: [], name: 'ContractNotPaused', type: 'error' },
-  { inputs: [], name: 'ContractPaused', type: 'error' },
+  {
+    inputs: [],
+    name: 'ContractNotPaused',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'ContractPaused',
+    type: 'error',
+  },
   {
     anonymous: false,
     inputs: [
-      { indexed: false, internalType: 'bool', name: 'isQuote', type: 'bool' },
+      {
+        indexed: false,
+        internalType: 'bool',
+        name: 'isQuote',
+        type: 'bool',
+      },
       {
         indexed: false,
         internalType: 'uint256',
@@ -91,9 +152,24 @@ const optionScalpsABI = [
   {
     anonymous: false,
     inputs: [
-      { indexed: false, internalType: 'uint256', name: 'id', type: 'uint256' },
-      { indexed: false, internalType: 'int256', name: 'pnl', type: 'int256' },
-      { indexed: true, internalType: 'address', name: 'user', type: 'address' },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'int256',
+        name: 'pnl',
+        type: 'int256',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
     ],
     name: 'ClosePosition',
     type: 'event',
@@ -101,7 +177,12 @@ const optionScalpsABI = [
   {
     anonymous: false,
     inputs: [
-      { indexed: false, internalType: 'bool', name: 'isQuote', type: 'bool' },
+      {
+        indexed: false,
+        internalType: 'bool',
+        name: 'isQuote',
+        type: 'bool',
+      },
       {
         indexed: false,
         internalType: 'uint256',
@@ -134,14 +215,24 @@ const optionScalpsABI = [
   {
     anonymous: false,
     inputs: [
-      { indexed: false, internalType: 'uint256', name: 'id', type: 'uint256' },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
       {
         indexed: false,
         internalType: 'uint256',
         name: 'size',
         type: 'uint256',
       },
-      { indexed: true, internalType: 'address', name: 'user', type: 'address' },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
     ],
     name: 'OpenPosition',
     type: 'event',
@@ -194,7 +285,12 @@ const optionScalpsABI = [
   {
     anonymous: false,
     inputs: [
-      { indexed: false, internalType: 'bool', name: 'isQuote', type: 'bool' },
+      {
+        indexed: false,
+        internalType: 'bool',
+        name: 'isQuote',
+        type: 'bool',
+      },
       {
         indexed: false,
         internalType: 'uint256',
@@ -221,7 +317,12 @@ const optionScalpsABI = [
   {
     anonymous: false,
     inputs: [
-      { indexed: false, internalType: 'bool', name: 'isQuote', type: 'bool' },
+      {
+        indexed: false,
+        internalType: 'bool',
+        name: 'isQuote',
+        type: 'bool',
+      },
       {
         indexed: false,
         internalType: 'uint256',
@@ -239,7 +340,13 @@ const optionScalpsABI = [
     type: 'event',
   },
   {
-    inputs: [{ internalType: 'address', name: '_contract', type: 'address' }],
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_contract',
+        type: 'address',
+      },
+    ],
     name: 'addToContractWhitelist',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -248,21 +355,39 @@ const optionScalpsABI = [
   {
     inputs: [],
     name: 'base',
-    outputs: [{ internalType: 'contract IERC20', name: '', type: 'address' }],
+    outputs: [
+      {
+        internalType: 'contract IERC20',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'baseDecimals',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'baseLp',
-    outputs: [{ internalType: 'contract ScalpLP', name: '', type: 'address' }],
+    outputs: [
+      {
+        internalType: 'contract ScalpLP',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
@@ -273,57 +398,139 @@ const optionScalpsABI = [
         name: 'pool',
         type: 'address',
       },
-      { internalType: 'uint256', name: 'positionId', type: 'uint256' },
-      { internalType: 'bool', name: 'isShort', type: 'bool' },
+      {
+        internalType: 'uint256',
+        name: 'positionId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'bool',
+        name: 'isShort',
+        type: 'bool',
+      },
     ],
     name: 'burnUniswapV3Position',
-    outputs: [{ internalType: 'uint256', name: 'swapped', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'swapped',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'amount', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
     name: 'calcFees',
-    outputs: [{ internalType: 'uint256', name: 'fees', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
-    name: 'calcPnl',
-    outputs: [{ internalType: 'int256', name: 'pnl', type: 'int256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'fees',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'uint256', name: 'strike', type: 'uint256' },
-      { internalType: 'uint256', name: 'size', type: 'uint256' },
-      { internalType: 'uint256', name: 'timeToExpiry', type: 'uint256' },
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
     ],
-    name: 'calcPremium',
-    outputs: [{ internalType: 'uint256', name: 'premium', type: 'uint256' }],
+    name: 'calcPnl',
+    outputs: [
+      {
+        internalType: 'int256',
+        name: 'pnl',
+        type: 'int256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'amount', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'strike',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'size',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'timeToExpiry',
+        type: 'uint256',
+      },
+    ],
+    name: 'calcPremium',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'premium',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
     name: 'claimCollateral',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+    ],
     name: 'closePosition',
-    outputs: [],
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'uint256', name: 'id', type: 'uint256' },
-      { internalType: 'uint256', name: 'swapped', type: 'uint256' },
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'swapped',
+        type: 'uint256',
+      },
     ],
     name: 'closePositionFromLimitOrder',
     outputs: [],
@@ -331,41 +538,97 @@ const optionScalpsABI = [
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: '', type: 'address' }],
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
     name: 'cumulativePnl',
-    outputs: [{ internalType: 'int256', name: '', type: 'int256' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'address', name: '', type: 'address' }],
-    name: 'cumulativeVolume',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'int256',
+        name: '',
+        type: 'int256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'address', name: 'receiver', type: 'address' },
-      { internalType: 'bool', name: 'isQuote', type: 'bool' },
-      { internalType: 'uint256', name: 'amount', type: 'uint256' },
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    name: 'cumulativeVolume',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'receiver',
+        type: 'address',
+      },
+      {
+        internalType: 'bool',
+        name: 'isQuote',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
     ],
     name: 'deposit',
-    outputs: [{ internalType: 'uint256', name: 'shares', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'shares',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
     inputs: [],
     name: 'divisor',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'address[]', name: 'tokens', type: 'address[]' },
-      { internalType: 'bool', name: 'transferNative', type: 'bool' },
+      {
+        internalType: 'address[]',
+        name: 'tokens',
+        type: 'address[]',
+      },
+      {
+        internalType: 'bool',
+        name: 'transferNative',
+        type: 'bool',
+      },
     ],
     name: 'emergencyWithdraw',
     outputs: [],
@@ -373,79 +636,216 @@ const optionScalpsABI = [
     type: 'function',
   },
   {
+    inputs: [
+      {
+        internalType: 'uint256[]',
+        name: 'tokens',
+        type: 'uint256[]',
+      },
+    ],
+    name: 'emergencyWithdrawNFTs',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
     inputs: [],
     name: 'feeOpenPosition',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+    ],
     name: 'getLiquidationPrice',
-    outputs: [{ internalType: 'uint256', name: 'price', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'price',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'getMarkPrice',
-    outputs: [{ internalType: 'uint256', name: 'price', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'price',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+    ],
     name: 'getPosition',
     outputs: [
       {
         components: [
-          { internalType: 'bool', name: 'isOpen', type: 'bool' },
-          { internalType: 'bool', name: 'isShort', type: 'bool' },
-          { internalType: 'uint256', name: 'size', type: 'uint256' },
-          { internalType: 'uint256', name: 'positions', type: 'uint256' },
-          { internalType: 'uint256', name: 'amountBorrowed', type: 'uint256' },
-          { internalType: 'uint256', name: 'amountOut', type: 'uint256' },
-          { internalType: 'uint256', name: 'entry', type: 'uint256' },
-          { internalType: 'uint256', name: 'margin', type: 'uint256' },
-          { internalType: 'uint256', name: 'premium', type: 'uint256' },
-          { internalType: 'uint256', name: 'fees', type: 'uint256' },
-          { internalType: 'int256', name: 'pnl', type: 'int256' },
-          { internalType: 'uint256', name: 'openedAt', type: 'uint256' },
-          { internalType: 'uint256', name: 'timeframe', type: 'uint256' },
+          {
+            internalType: 'bool',
+            name: 'isOpen',
+            type: 'bool',
+          },
+          {
+            internalType: 'bool',
+            name: 'isShort',
+            type: 'bool',
+          },
+          {
+            internalType: 'uint256',
+            name: 'size',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'positions',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'amountBorrowed',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'amountOut',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'entry',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'margin',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'premium',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'fees',
+            type: 'uint256',
+          },
+          {
+            internalType: 'int256',
+            name: 'pnl',
+            type: 'int256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'openedAt',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'timeframe',
+            type: 'uint256',
+          },
         ],
         internalType: 'struct OptionScalp.ScalpPosition',
         name: '',
         type: 'tuple',
       },
     ],
-    stateMutability: 'nonpayable',
+    stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'strike', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'strike',
+        type: 'uint256',
+      },
+    ],
     name: 'getVolatility',
-    outputs: [{ internalType: 'uint256', name: 'volatility', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'volatility',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'insuranceFund',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: 'addr', type: 'address' }],
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'addr',
+        type: 'address',
+      },
+    ],
     name: 'isContract',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+    ],
     name: 'isLiquidatable',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
@@ -453,7 +853,11 @@ const optionScalpsABI = [
     inputs: [],
     name: 'limitOrderManager',
     outputs: [
-      { internalType: 'contract LimitOrderManager', name: '', type: 'address' },
+      {
+        internalType: 'contract LimitOrderManager',
+        name: '',
+        type: 'address',
+      },
     ],
     stateMutability: 'view',
     type: 'function',
@@ -461,42 +865,96 @@ const optionScalpsABI = [
   {
     inputs: [],
     name: 'maxOpenInterest',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'maxSize',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'minimumAbsoluteLiquidationThreshold',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'minimumMargin',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'address', name: 'token0', type: 'address' },
-      { internalType: 'address', name: 'token1', type: 'address' },
-      { internalType: 'int24', name: 'tick0', type: 'int24' },
-      { internalType: 'int24', name: 'tick1', type: 'int24' },
-      { internalType: 'uint256', name: 'amount0', type: 'uint256' },
-      { internalType: 'uint256', name: 'amount1', type: 'uint256' },
+      {
+        internalType: 'address',
+        name: 'token0',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'token1',
+        type: 'address',
+      },
+      {
+        internalType: 'int24',
+        name: 'tick0',
+        type: 'int24',
+      },
+      {
+        internalType: 'int24',
+        name: 'tick1',
+        type: 'int24',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount0',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount1',
+        type: 'uint256',
+      },
     ],
     name: 'mintUniswapV3Position',
-    outputs: [{ internalType: 'uint256', name: 'positionId', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'positionId',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'function',
   },
@@ -515,50 +973,142 @@ const optionScalpsABI = [
   },
   {
     inputs: [
-      { internalType: 'address', name: '', type: 'address' },
-      { internalType: 'address', name: '', type: 'address' },
-      { internalType: 'uint256', name: '', type: 'uint256' },
-      { internalType: 'bytes', name: '', type: 'bytes' },
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'bytes',
+        name: '',
+        type: 'bytes',
+      },
     ],
     name: 'onERC721Received',
-    outputs: [{ internalType: 'bytes4', name: '', type: 'bytes4' }],
+    outputs: [
+      {
+        internalType: 'bytes4',
+        name: '',
+        type: 'bytes4',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    inputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
     name: 'openInterest',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'bool', name: 'isShort', type: 'bool' },
-      { internalType: 'uint256', name: 'size', type: 'uint256' },
-      { internalType: 'uint256', name: 'timeframeIndex', type: 'uint256' },
-      { internalType: 'uint256', name: 'margin', type: 'uint256' },
-      { internalType: 'uint256', name: 'entryLimit', type: 'uint256' },
+      {
+        internalType: 'bool',
+        name: 'isShort',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'size',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'timeframeIndex',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'margin',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'entryLimit',
+        type: 'uint256',
+      },
     ],
     name: 'openPosition',
     outputs: [
-      { internalType: 'uint256', name: 'id', type: 'uint256' },
-      { internalType: 'uint256', name: 'entry', type: 'uint256' },
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'entry',
+        type: 'uint256',
+      },
     ],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'uint256', name: 'swapped', type: 'uint256' },
-      { internalType: 'bool', name: 'isShort', type: 'bool' },
-      { internalType: 'uint256', name: 'collateral', type: 'uint256' },
-      { internalType: 'uint256', name: 'size', type: 'uint256' },
-      { internalType: 'uint256', name: 'timeframeIndex', type: 'uint256' },
-      { internalType: 'uint256', name: 'lockedLiquidity', type: 'uint256' },
+      {
+        internalType: 'uint256',
+        name: 'swapped',
+        type: 'uint256',
+      },
+      {
+        internalType: 'bool',
+        name: 'isShort',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'collateral',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'size',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'timeframeIndex',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'lockedLiquidity',
+        type: 'uint256',
+      },
     ],
     name: 'openPositionFromLimitOrder',
-    outputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'function',
   },
@@ -566,7 +1116,11 @@ const optionScalpsABI = [
     inputs: [],
     name: 'optionPricing',
     outputs: [
-      { internalType: 'contract IOptionPricing', name: '', type: 'address' },
+      {
+        internalType: 'contract IOptionPricing',
+        name: '',
+        type: 'address',
+      },
     ],
     stateMutability: 'view',
     type: 'function',
@@ -574,29 +1128,63 @@ const optionScalpsABI = [
   {
     inputs: [],
     name: 'owner',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'paused',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'id', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+    ],
     name: 'positionOwner',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: 'owner', type: 'address' }],
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+    ],
     name: 'positionsOfOwner',
     outputs: [
-      { internalType: 'uint256[]', name: 'tokenIds', type: 'uint256[]' },
+      {
+        internalType: 'uint256[]',
+        name: 'tokenIds',
+        type: 'uint256[]',
+      },
     ],
     stateMutability: 'view',
     type: 'function',
@@ -605,7 +1193,11 @@ const optionScalpsABI = [
     inputs: [],
     name: 'priceOracle',
     outputs: [
-      { internalType: 'contract IPriceOracle', name: '', type: 'address' },
+      {
+        internalType: 'contract IPriceOracle',
+        name: '',
+        type: 'address',
+      },
     ],
     stateMutability: 'view',
     type: 'function',
@@ -613,26 +1205,50 @@ const optionScalpsABI = [
   {
     inputs: [],
     name: 'quote',
-    outputs: [{ internalType: 'contract IERC20', name: '', type: 'address' }],
+    outputs: [
+      {
+        internalType: 'contract IERC20',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'quoteDecimals',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'quoteLp',
-    outputs: [{ internalType: 'contract ScalpLP', name: '', type: 'address' }],
+    outputs: [
+      {
+        internalType: 'contract ScalpLP',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: '_contract', type: 'address' }],
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_contract',
+        type: 'address',
+      },
+    ],
     name: 'removeFromContractWhitelist',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -659,32 +1275,106 @@ const optionScalpsABI = [
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     name: 'scalpPositions',
     outputs: [
-      { internalType: 'bool', name: 'isOpen', type: 'bool' },
-      { internalType: 'bool', name: 'isShort', type: 'bool' },
-      { internalType: 'uint256', name: 'size', type: 'uint256' },
-      { internalType: 'uint256', name: 'positions', type: 'uint256' },
-      { internalType: 'uint256', name: 'amountBorrowed', type: 'uint256' },
-      { internalType: 'uint256', name: 'amountOut', type: 'uint256' },
-      { internalType: 'uint256', name: 'entry', type: 'uint256' },
-      { internalType: 'uint256', name: 'margin', type: 'uint256' },
-      { internalType: 'uint256', name: 'premium', type: 'uint256' },
-      { internalType: 'uint256', name: 'fees', type: 'uint256' },
-      { internalType: 'int256', name: 'pnl', type: 'int256' },
-      { internalType: 'uint256', name: 'openedAt', type: 'uint256' },
-      { internalType: 'uint256', name: 'timeframe', type: 'uint256' },
+      {
+        internalType: 'bool',
+        name: 'isOpen',
+        type: 'bool',
+      },
+      {
+        internalType: 'bool',
+        name: 'isShort',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'size',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'positions',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amountBorrowed',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amountOut',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'entry',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'margin',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'premium',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'fees',
+        type: 'uint256',
+      },
+      {
+        internalType: 'int256',
+        name: 'pnl',
+        type: 'int256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'openedAt',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'timeframe',
+        type: 'uint256',
+      },
     ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'address', name: 'user', type: 'address' },
-      { internalType: 'bool', name: 'isQuote', type: 'bool' },
-      { internalType: 'uint256', name: 'amount', type: 'uint256' },
-      { internalType: 'uint256', name: 'fees', type: 'uint256' },
+      {
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+      {
+        internalType: 'bool',
+        name: 'isQuote',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'fees',
+        type: 'uint256',
+      },
     ],
     name: 'settleOpenOrderDeletion',
     outputs: [],
@@ -692,14 +1382,32 @@ const optionScalpsABI = [
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     name: 'timeframes',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: 'newOwner', type: 'address' }],
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
     name: 'transferOwnership',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -709,7 +1417,11 @@ const optionScalpsABI = [
     inputs: [],
     name: 'uniswapV3Router',
     outputs: [
-      { internalType: 'contract IUniswapV3Router', name: '', type: 'address' },
+      {
+        internalType: 'contract IUniswapV3Router',
+        name: '',
+        type: 'address',
+      },
     ],
     stateMutability: 'view',
     type: 'function',
@@ -718,8 +1430,16 @@ const optionScalpsABI = [
     inputs: [
       {
         components: [
-          { internalType: 'uint256', name: 'maxSize', type: 'uint256' },
-          { internalType: 'uint256', name: 'maxOpenInterest', type: 'uint256' },
+          {
+            internalType: 'uint256',
+            name: 'maxSize',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'maxOpenInterest',
+            type: 'uint256',
+          },
           {
             internalType: 'contract IOptionPricing',
             name: 'optionPricing',
@@ -735,15 +1455,31 @@ const optionScalpsABI = [
             name: 'priceOracle',
             type: 'address',
           },
-          { internalType: 'address', name: 'insuranceFund', type: 'address' },
-          { internalType: 'uint256', name: 'minimumMargin', type: 'uint256' },
-          { internalType: 'uint256', name: 'feeOpenPosition', type: 'uint256' },
+          {
+            internalType: 'address',
+            name: 'insuranceFund',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256',
+            name: 'minimumMargin',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'feeOpenPosition',
+            type: 'uint256',
+          },
           {
             internalType: 'uint256',
             name: 'minimumAbsoluteLiquidationThreshold',
             type: 'uint256',
           },
-          { internalType: 'uint256', name: 'withdrawTimeout', type: 'uint256' },
+          {
+            internalType: 'uint256',
+            name: 'withdrawTimeout',
+            type: 'uint256',
+          },
         ],
         internalType: 'struct OptionScalp.Configuration',
         name: 'config',
@@ -759,32 +1495,68 @@ const optionScalpsABI = [
     inputs: [],
     name: 'volatilityOracle',
     outputs: [
-      { internalType: 'contract IVolatilityOracle', name: '', type: 'address' },
+      {
+        internalType: 'contract IVolatilityOracle',
+        name: '',
+        type: 'address',
+      },
     ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'address', name: '', type: 'address' }],
-    name: 'whitelistedContracts',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'bool', name: 'isQuote', type: 'bool' },
-      { internalType: 'uint256', name: 'amount', type: 'uint256' },
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    name: 'whitelistedContracts',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bool',
+        name: 'isQuote',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
     ],
     name: 'withdraw',
-    outputs: [{ internalType: 'uint256', name: 'assets', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'assets',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
     inputs: [],
     name: 'withdrawTimeout',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
@@ -1108,7 +1880,13 @@ const limitOrdersABI = [
       },
     ],
     name: 'fillCloseOrder',
-    outputs: [],
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'function',
   },
@@ -1183,7 +1961,7 @@ const limitOrdersABI = [
         type: 'bool',
       },
     ],
-    stateMutability: 'nonpayable',
+    stateMutability: 'view',
     type: 'function',
   },
   {
@@ -1543,7 +2321,7 @@ export const createOptionScalpSlice: StateCreator<
     if (!selectedPoolName || !provider) return;
     return new ethers.Contract(
       selectedPoolName === 'ETH'
-        ? '0xc54a1636F1b6ee4e1932fF56bE5230c95a7299bb'
+        ? '0x297CCBa8408B77FCB70d79FF858970E7d5BA1a0B'
         : '0x8c5b7D87D80726768a4a8D0C39690aCAB2F66C3a',
       optionScalpsABI,
       provider
@@ -1554,7 +2332,7 @@ export const createOptionScalpSlice: StateCreator<
 
     if (!selectedPoolName || !provider) return;
     return new ethers.Contract(
-      '0x3B3e0c109466448041B097831c03bB09eDb4018C',
+      '0x35aC725FcEADBD94060FEbeD3059d73058f9a95F',
       limitOrdersABI,
       provider
     );
@@ -1566,7 +2344,7 @@ export const createOptionScalpSlice: StateCreator<
 
     return OptionScalpsLp__factory.connect(
       selectedPoolName === 'ETH'
-        ? '0x6a57AffaC422Bbe61f8a122650823906911880fc'
+        ? '0x83ad448D1F99e7F31BCAA6ecc628C02fE1e27789'
         : '0x0dd032de45ae834e7950d455084ff4c896ab781c',
       provider
     );
@@ -1578,7 +2356,7 @@ export const createOptionScalpSlice: StateCreator<
 
     return OptionScalpsLp__factory.connect(
       selectedPoolName === 'ETH'
-        ? '0x1a660195eb4851AF0a82c65b1F9c4B48E2450417'
+        ? '0xB681EF2Aa070eA079118faC85B8Dab78A5eb47e0'
         : '0x79f41545df078ad3b6168fe4c5379101682c4ee3',
       provider
     );
