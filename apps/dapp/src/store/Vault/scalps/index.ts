@@ -2488,7 +2488,7 @@ export const createOptionScalpSlice: StateCreator<
 
       const tick = (ticks[0] + ticks[1]) / 2;
 
-      const price = BigNumber.from(Math.round(1 / 1.0001 ** tick));
+      const price = BigNumber.from(Math.round(1.0001 ** tick));
 
       const maxFundingTime = await limitOrdersContract.maxFundingTime();
 
