@@ -23,25 +23,12 @@ const StatsColumn: FC<{ title: string; value: string }> = ({
 };
 
 const Stats = () => {
-  const {
-    zdteData,
-    staticZdteData,
-    tokenPrices,
-    selectedPoolName,
-    subgraphVolume,
-  } = useBoundStore();
-
-  const priceChange = useMemo(() => {
-    const item = tokenPrices.find(
-      (token) => token.name.toLowerCase() === selectedPoolName.toLowerCase()
-    );
-    return Number(formatAmount(item?.change24h || 0, 2));
-  }, [tokenPrices, selectedPoolName]);
+  const { zdteData, staticZdteData, subgraphVolume } = useBoundStore();
 
   const tokenSymbol = staticZdteData?.baseTokenSymbol.toUpperCase();
   const quoteTokenSymbol = staticZdteData?.quoteTokenSymbol.toUpperCase();
 
-  if (!zdteData || !tokenSymbol || !quoteTokenSymbol || !priceChange) {
+  if (!zdteData || !tokenSymbol || !quoteTokenSymbol) {
     return <Loading />;
   }
 

@@ -55,7 +55,7 @@ export const OptionsTableRow = ({
       <StyleLeftCell align="left">
         <div className="flex flex-row items-center w-max">
           <h6 className="text-white capitalize">
-            <span>${formatAmount(optionsStats.strike)}</span>
+            <span>${formatAmount(optionsStats.strike, 2)}</span>
           </h6>
         </div>
       </StyleLeftCell>
@@ -116,7 +116,7 @@ export const OptionsTableRowLower = ({
       <StyleLeftTableCell align="left">
         <div className="flex flex-row items-center w-max">
           <h6 className="text-white capitalize">
-            <span>${formatAmount(optionsStats.strike)}</span>
+            <span>${formatAmount(optionsStats.strike, 2)}</span>
           </h6>
         </div>
       </StyleLeftTableCell>

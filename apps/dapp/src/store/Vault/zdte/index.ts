@@ -452,7 +452,6 @@ export const createZdteSlice: StateCreator<
           );
         } catch (e) {
           console.error('Fail to get volatility for ', strike);
-          break;
         }
       }
 

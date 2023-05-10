@@ -59,7 +59,7 @@ const TopBar = () => {
     ]
   );
 
-  if (!zdteData || !tokenSymbol || !quoteTokenSymbol || !priceChange) {
+  if (!zdteData || !tokenSymbol || !quoteTokenSymbol) {
     return <Loading />;
   }
 
@@ -87,10 +87,9 @@ const TopBar = () => {
             className={cx(
               Number(priceChange) < 0 ? 'text-down-bad' : 'text-up-only'
             )}
-          >{`$${formatAmount(
-            zdteData?.tokenPrice,
-            2
-          )} (${priceChange}%)`}</span>
+          >{`$${formatAmount(zdteData?.tokenPrice, 2)} (${
+            priceChange == undefined ? '0%' : priceChange
+          }%)`}</span>
         </div>
       </div>
       <div className="flex flex-col md:flex-row">
