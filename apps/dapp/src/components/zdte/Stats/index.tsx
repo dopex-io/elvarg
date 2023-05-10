@@ -1,4 +1,4 @@
-import { FC, useMemo } from 'react';
+import { FC } from 'react';
 
 import format from 'date-fns/format';
 import { useBoundStore } from 'store';
