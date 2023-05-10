@@ -22,7 +22,9 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
-export const ZDTE: string = '0xbc70a8625680ec90292e1cef045a5509e123fa9f';
+export const ZDTE: string = '0xc0b0f0b281f5a2b5d8b75193c12fe6433e3929cc';
+export const ZDTE_ARB: string = '0x7fdb659838C0594a91E4FD75F698C1A32BB52f8c';
+
 const SECONDS_IN_A_YEAR = 86400 * 365;
 
 export interface OptionsTableData {
@@ -163,8 +165,8 @@ export const createZdteSlice: StateCreator<
     if (!selectedPoolName || !provider) return;
 
     try {
-      // Addresses[42161].ZDTE[selectedPoolName],
-      return Zdte__factory.connect(ZDTE, provider);
+      const addr = selectedPoolName.toLowerCase() === 'arb' ? ZDTE_ARB : ZDTE;
+      return Zdte__factory.connect(addr, provider);
     } catch (err) {
       console.error(err);
       throw Error('fail to create address');
@@ -324,7 +326,7 @@ export const createZdteSlice: StateCreator<
           const cost = pos.longPremium.sub(pos.shortPremium).add(pos.fees);
           const finalCost = cost
             .mul(oneEBigNumber(DECIMALS_TOKEN))
-            .div(pos.positions)
+            .div(pos.positions || BigNumber.from(1))
             .mul(100);
           const breakeven =
             pos.longStrike > pos.shortStrike
@@ -417,43 +419,68 @@ export const createZdteSlice: StateCreator<
       const tokenPrice = getUserReadableAmount(markPrice, DECIMALS_STRIKE);
 
       const upper = tokenPrice * (1 + maxOtmPercentage / 100);
-      const upperRound = Math.ceil(upper / step) * step;
+      const upperRound = Math.round(Math.ceil(upper / step) * step * 100) / 100;
       const lower = tokenPrice * (1 - maxOtmPercentage / 100);
-      const lowerRound = Math.floor(lower / step) * step;
+      const lowerRound =
+        Math.round(Math.floor(lower / step) * step * 100) / 100;
 
       const strikes: OptionsTableData[] = [];
       let numFailures: number = 0;
 
-      let premiumsPromises = [];
-      let ivPromises = [];
+      // let premiumsPromises = [];
+      // let ivPromises = [];
 
-      for (
-        let strike = upperRound - step;
-        strike > lowerRound;
-        strike -= step
-      ) {
-        try {
-          premiumsPromises.push(
-            zdteContract.calcPremiumCustom(
-              strike <= tokenPrice,
-              getContractReadableAmount(strike, DECIMALS_STRIKE),
-              oneEBigNumber(DECIMALS_TOKEN)
-            )
-          );
-          ivPromises.push(
-            zdteContract.getVolatility(
-              getContractReadableAmount(strike, DECIMALS_STRIKE)
-            )
-          );
-        } catch (e) {
-          console.error(e);
-        }
-      }
+      // for (
+      //   let strike = upperRound - step;
+      //   strike > lowerRound;
+      //   strike -= step
+      // ) {
+      //   try {
+      //     if (strike < 10) {
+      //       strike = Math.round(strike * 100) / 100;
+      //     }
+      //     premiumsPromises.push(
+      //       zdteContract.calcPremiumCustom(
+      //         strike <= tokenPrice,
+      //         getContractReadableAmount(strike, DECIMALS_STRIKE),
+      //         oneEBigNumber(DECIMALS_TOKEN)
+      //       )
+      //     );
+      //     ivPromises.push(
+      //       zdteContract.getVolatility(
+      //         getContractReadableAmount(strike, DECIMALS_STRIKE)
+      //       )
+      //     );
+      //   } catch (e) {
+      //     console.error('Fail to get volatility for ', strike);
+      //   }
+      // }
 
-      const ivs = await Promise.all(ivPromises);
-      const premiums = await Promise.all(premiumsPromises);
+      // const ivs = await Promise.all(ivPromises);
+      // const premiums = await Promise.all(premiumsPromises);
 
-      let i = 0;
+      // let i = 0;
+      // for (
+      //   let strike = upperRound - step;
+      //   strike > lowerRound;
+      //   strike -= step
+      // ) {
+      //   let normalizedPremium = 0;
+      //   let normalizedIv = 0;
+      //   let failedToFetch: boolean = false;
+
+      //   if (strike < 10) {
+      //     strike = Math.round(strike * 100) / 100;
+      //   }
+
+      //   try {
+      //     normalizedPremium = getPremiumUsdPrice(premiums[i]);
+      //     normalizedIv = ivs[i].toNumber();
+      //   } catch (err) {
+      //     failedToFetch = true;
+      //     numFailures += 1;
+      //     console.error(`Fail to fetch vol for strike: ${strike}`);
+      //   }
       for (
         let strike = upperRound - step;
         strike > lowerRound;
@@ -463,9 +490,23 @@ export const createZdteSlice: StateCreator<
         let normalizedIv = 0;
         let failedToFetch: boolean = false;
 
+        if (strike < 10) {
+          strike = Math.round(strike * 100) / 100;
+        }
+
         try {
-          normalizedPremium = getPremiumUsdPrice(premiums[i]);
-          normalizedIv = ivs[i].toNumber();
+          const [premium, iv] = await Promise.all([
+            zdteContract.calcPremiumCustom(
+              strike <= tokenPrice,
+              getContractReadableAmount(strike, DECIMALS_STRIKE),
+              oneEBigNumber(DECIMALS_TOKEN)
+            ),
+            zdteContract.getVolatility(
+              getContractReadableAmount(strike, DECIMALS_STRIKE)
+            ),
+          ]);
+          normalizedPremium = getPremiumUsdPrice(premium);
+          normalizedIv = iv.toNumber();
         } catch (err) {
           failedToFetch = true;
           numFailures += 1;
@@ -501,7 +542,7 @@ export const createZdteSlice: StateCreator<
             strike == upperRound - step ||
             strike == lowerRound + step,
         });
-        i++;
+        // i++;
       }
 
       const [
@@ -522,10 +563,18 @@ export const createZdteSlice: StateCreator<
 
       const quoteLpValue = BigNumber.from(oneEBigNumber(DECIMALS_USD))
         .mul(quoteLpTotalAsset)
-        .div(quoteLpTotalSupply);
+        .div(
+          quoteLpTotalSupply.eq(BigNumber.from(0))
+            ? BigNumber.from(1)
+            : quoteLpTotalSupply
+        );
       const baseLpValue = BigNumber.from(oneEBigNumber(DECIMALS_TOKEN))
         .mul(baseLpTotalAsset)
-        .div(baseLpTotalSupply);
+        .div(
+          baseLpTotalSupply.eq(BigNumber.from(0))
+            ? BigNumber.from(1)
+            : baseLpTotalSupply
+        );
 
       const openInterest = openInterestAmount
         .mul(markPrice)
@@ -555,7 +604,7 @@ export const createZdteSlice: StateCreator<
       }));
     } catch (err) {
       console.error(err);
-      throw new Error('fail to update zdteData');
+      // throw new Error('fail to update zdteData');
     }
   },
   updateStaticZdteData: async () => {

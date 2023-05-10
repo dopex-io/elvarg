@@ -13,6 +13,7 @@ import { ISpreadPair } from 'store/Vault/zdte';
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 import PnlChart from 'components/zdte/Manage/PnlChart';
 import TradeButton from 'components/zdte/Manage/TradeCard/TradeButton';
+import { addZeroes } from 'components/zdte/OptionsTable/OptionsTableRow';
 
 import {
   getContractReadableAmount,
@@ -74,15 +75,15 @@ function getStrikeDisplay(
   if (selectedSpreadPair === undefined || longStrike === undefined) {
     return defaultDisplay;
   } else if (shortStrike !== undefined && longStrike > shortStrike) {
-    prefix = `${longStrike}-P`;
-    suffix = `${shortStrike}-P`;
+    prefix = `${addZeroes(longStrike.toString())}-P`;
+    suffix = `${addZeroes(shortStrike.toString())}-P`;
   } else if (shortStrike !== undefined && longStrike < shortStrike) {
-    prefix = `${longStrike}-C`;
-    suffix = `${shortStrike}-C`;
+    prefix = `${addZeroes(longStrike.toString())}-C`;
+    suffix = `${addZeroes(shortStrike.toString())}-C`;
   } else if (longStrike >= tokenPrice) {
-    prefix = `${longStrike}-C`;
+    prefix = `${addZeroes(longStrike.toString())}-C`;
   } else {
-    prefix = `${longStrike}-P`;
+    prefix = `${addZeroes(longStrike.toString())}-P`;
   }
   return (
     <span className="text-sm text-up-only">
