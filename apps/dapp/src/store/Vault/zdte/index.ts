@@ -419,46 +419,68 @@ export const createZdteSlice: StateCreator<
       const tokenPrice = getUserReadableAmount(markPrice, DECIMALS_STRIKE);
 
       const upper = tokenPrice * (1 + maxOtmPercentage / 100);
-      const upperRound = Math.ceil(upper / step) * step;
+      const upperRound = Math.round(Math.ceil(upper / step) * step * 100) / 100;
       const lower = tokenPrice * (1 - maxOtmPercentage / 100);
-      const lowerRound = Math.floor(lower / step) * step;
+      const lowerRound =
+        Math.round(Math.floor(lower / step) * step * 100) / 100;
 
       const strikes: OptionsTableData[] = [];
       let numFailures: number = 0;
 
-      let premiumsPromises = [];
-      let ivPromises = [];
+      // let premiumsPromises = [];
+      // let ivPromises = [];
 
-      for (
-        let strike = upperRound - step;
-        strike > lowerRound;
-        strike -= step
-      ) {
-        try {
-          if (strike < 10) {
-            strike = Math.round(strike * 100) / 100;
-          }
-          premiumsPromises.push(
-            zdteContract.calcPremiumCustom(
-              strike <= tokenPrice,
-              getContractReadableAmount(strike, DECIMALS_STRIKE),
-              oneEBigNumber(DECIMALS_TOKEN)
-            )
-          );
-          ivPromises.push(
-            zdteContract.getVolatility(
-              getContractReadableAmount(strike, DECIMALS_STRIKE)
-            )
-          );
-        } catch (e) {
-          console.error('Fail to get volatility for ', strike);
-        }
-      }
+      // for (
+      //   let strike = upperRound - step;
+      //   strike > lowerRound;
+      //   strike -= step
+      // ) {
+      //   try {
+      //     if (strike < 10) {
+      //       strike = Math.round(strike * 100) / 100;
+      //     }
+      //     premiumsPromises.push(
+      //       zdteContract.calcPremiumCustom(
+      //         strike <= tokenPrice,
+      //         getContractReadableAmount(strike, DECIMALS_STRIKE),
+      //         oneEBigNumber(DECIMALS_TOKEN)
+      //       )
+      //     );
+      //     ivPromises.push(
+      //       zdteContract.getVolatility(
+      //         getContractReadableAmount(strike, DECIMALS_STRIKE)
+      //       )
+      //     );
+      //   } catch (e) {
+      //     console.error('Fail to get volatility for ', strike);
+      //   }
+      // }
 
-      const ivs = await Promise.all(ivPromises);
-      const premiums = await Promise.all(premiumsPromises);
+      // const ivs = await Promise.all(ivPromises);
+      // const premiums = await Promise.all(premiumsPromises);
 
-      let i = 0;
+      // let i = 0;
+      // for (
+      //   let strike = upperRound - step;
+      //   strike > lowerRound;
+      //   strike -= step
+      // ) {
+      //   let normalizedPremium = 0;
+      //   let normalizedIv = 0;
+      //   let failedToFetch: boolean = false;
+
+      //   if (strike < 10) {
+      //     strike = Math.round(strike * 100) / 100;
+      //   }
+
+      //   try {
+      //     normalizedPremium = getPremiumUsdPrice(premiums[i]);
+      //     normalizedIv = ivs[i].toNumber();
+      //   } catch (err) {
+      //     failedToFetch = true;
+      //     numFailures += 1;
+      //     console.error(`Fail to fetch vol for strike: ${strike}`);
+      //   }
       for (
         let strike = upperRound - step;
         strike > lowerRound;
@@ -473,8 +495,18 @@ export const createZdteSlice: StateCreator<
         }
 
         try {
-          normalizedPremium = getPremiumUsdPrice(premiums[i]);
-          normalizedIv = ivs[i].toNumber();
+          const [premium, iv] = await Promise.all([
+            zdteContract.calcPremiumCustom(
+              strike <= tokenPrice,
+              getContractReadableAmount(strike, DECIMALS_STRIKE),
+              oneEBigNumber(DECIMALS_TOKEN)
+            ),
+            zdteContract.getVolatility(
+              getContractReadableAmount(strike, DECIMALS_STRIKE)
+            ),
+          ]);
+          normalizedPremium = getPremiumUsdPrice(premium);
+          normalizedIv = iv.toNumber();
         } catch (err) {
           failedToFetch = true;
           numFailures += 1;
@@ -510,7 +542,7 @@ export const createZdteSlice: StateCreator<
             strike == upperRound - step ||
             strike == lowerRound + step,
         });
-        i++;
+        // i++;
       }
 
       const [
