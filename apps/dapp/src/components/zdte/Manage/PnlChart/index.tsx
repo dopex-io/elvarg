@@ -136,7 +136,6 @@ const PnlChart = (props: PnlChartProps) => {
       { length: Math.ceil((upper - lower) / getInterval(price)) + 1 },
       (_, i) => lower + i * getInterval(price)
     );
-    console.log('strikes: ', strikes);
     return strikes.map((s) => {
       const payoff = isPut
         ? getPutPayoff(spreadPair, s, cost) * amount
