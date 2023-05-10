@@ -37,8 +37,8 @@ import PnlChart from '../PnlChart';
 
 const POOL_TO_SWAPPER_IDS: { [key: string]: number[] } = {
   ETH: [2, 3],
-  DPX: [5, 6],
-  RDPX: [5, 6],
+  DPX: [6, 6],
+  RDPX: [6, 6],
   MATIC: [2, 3],
 };
 
