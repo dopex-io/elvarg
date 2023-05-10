@@ -225,10 +225,14 @@ const PnlChart = (props: PnlChartProps) => {
           content={
             !useFake && zdteData?.tokenPrice !== undefined ? (
               <FormatPercentColor
-                value={getPercentageDifference(
-                  staticBreakeven,
-                  zdteData?.tokenPrice
-                )}
+                value={
+                  Math.round(
+                    getPercentageDifference(
+                      staticBreakeven,
+                      zdteData?.tokenPrice
+                    ) * 100
+                  ) / 100
+                }
               />
             ) : (
               '0%'
