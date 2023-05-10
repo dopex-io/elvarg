@@ -45,17 +45,27 @@ function getInterval(number: number): number {
   } else if (number > 10 && number <= 100) {
     return 5;
   } else {
-    return 0.5;
+    return 0.05;
   }
 }
 
 function CustomYAxisTick(props: any) {
   const { x, y, payload } = props;
+  let res = '';
+  if (payload.value > 1000) {
+    res = formatAmount(payload.value, 0, true);
+  } else if (payload.value > 10) {
+    res = payload.value.toString();
+  } else if (payload.value < 0) {
+    res = formatAmountWithNegative(payload.value, 0, true);
+  } else if (payload.value > 0.01) {
+    res = payload.value.toFixed(2).toString();
+  } else {
+    res = '0';
+  }
   return (
     <text x={x} y={y} textAnchor="end" fill="#666" fontSize={14}>
-      {payload.value < 0
-        ? payload.value
-        : formatAmountWithNegative(payload.value, 0, true)}
+      {res}
     </text>
   );
 }
@@ -126,6 +136,7 @@ const PnlChart = (props: PnlChartProps) => {
       { length: Math.ceil((upper - lower) / getInterval(price)) + 1 },
       (_, i) => lower + i * getInterval(price)
     );
+    console.log('strikes: ', strikes);
     return strikes.map((s) => {
       const payoff = isPut
         ? getPutPayoff(spreadPair, s, cost) * amount
