@@ -1,50 +1,47 @@
-import { useEffect, useState, useMemo, useCallback, ReactNode } from 'react';
-import cx from 'classnames';
 import Head from 'next/head';
-import {
-  Addresses,
-  Tzwap1inchRouter__factory,
-  ERC20__factory,
-} from '@dopex-io/sdk';
-import { LoaderIcon } from 'react-hot-toast';
-import Countdown from 'react-countdown';
+
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+
 import { BigNumber } from 'ethers';
 
-import Input from '@mui/material/Input';
+import {
+  Addresses,
+  ERC20__factory,
+  Tzwap1inchRouter__factory,
+} from '@dopex-io/sdk';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
-import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
+import IconButton from '@mui/material/IconButton';
+import Input from '@mui/material/Input';
+import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
-
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-
+import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
+import Countdown from 'react-countdown';
+import { LoaderIcon } from 'react-hot-toast';
+import { useBoundStore } from 'store';
+import RedTriangleIcon from 'svgs/icons/RedTriangleIcon';
 
+import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
+import AppBar from 'components/common/AppBar';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import TokenSelector from 'components/common/TokenSelector';
 import Kill from 'components/tzwap/Dialogs/Kill';
 import Orders from 'components/tzwap/Orders';
 
-import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
-import AppBar from 'components/common/AppBar';
-import TokenSelector from 'components/common/TokenSelector';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import displayAddress from 'utils/general/displayAddress';
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import displayAddress from 'utils/general/displayAddress';
+import isNativeToken from 'utils/general/isNativeToken';
 
-import RedTriangleIcon from 'svgs/icons/RedTriangleIcon';
-
-import { useBoundStore } from 'store';
-
-import { CURRENCIES_MAP, MAX_VALUE, IS_NATIVE } from 'constants/index';
+import { CURRENCIES_MAP, MAX_VALUE } from 'constants/index';
 
 import { Order } from '../../types/tzwap';
-
 import styles from './styles.module.scss';
 
 function TabPanel(props: {
@@ -346,31 +343,33 @@ const Tzwap = () => {
     let tickSize = amount * precision * (selectedTickSize / 100);
     let total = Math.round((amount * precision) / tickSize) * tickSize;
 
-    const params = [
-      {
-        creator: accountAddress,
-        srcToken:
-          fromTokenName === 'ETH'
-            ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-            : contractAddresses[fromTokenName],
-        dstToken:
-          toTokenName === 'ETH'
-            ? Addresses[chainId]['WETH']
-            : contractAddresses[toTokenName],
-        interval: seconds,
-        tickSize: getContractReadableAmount(
-          Math.round(tickSize) / precision,
-          getTokenDecimals(fromTokenName, chainId)
-        ),
-        total: getContractReadableAmount(
-          Math.round(total) / precision,
-          getTokenDecimals(fromTokenName, chainId)
-        ),
-        minFees: Math.round(minFees * 10 ** 3),
-        maxFees: Math.round(maxFees * 10 ** 3),
-        created: Math.round(new Date().getTime() / 1000),
-        killed: false,
-      },
+    const order = {
+      creator: accountAddress,
+      srcToken:
+        fromTokenName === 'ETH'
+          ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+          : contractAddresses[fromTokenName],
+      dstToken:
+        toTokenName === 'ETH'
+          ? Addresses[chainId]['WETH']
+          : contractAddresses[toTokenName],
+      interval: seconds,
+      tickSize: getContractReadableAmount(
+        Math.round(tickSize) / precision,
+        getTokenDecimals(fromTokenName, chainId)
+      ),
+      total: getContractReadableAmount(
+        Math.round(total) / precision,
+        getTokenDecimals(fromTokenName, chainId)
+      ),
+      minFees: Math.round(minFees * 10 ** 3),
+      maxFees: Math.round(maxFees * 10 ** 3),
+      created: Math.round(new Date().getTime() / 1000),
+      killed: false,
+    };
+
+    await sendTx(tzwapRouter.connect(signer), 'newOrder', [
+      order,
       {
         value:
           fromTokenName === 'ETH'
@@ -381,9 +380,7 @@ const Tzwap = () => {
             : 0,
         gasLimit: chainId === 1 ? 700000 : 1700000,
       },
-    ];
-
-    await sendTx(tzwapRouter.connect(signer), 'newOrder', params);
+    ]);
     updateOrders();
     updateAssetBalances();
   }, [
@@ -475,7 +472,7 @@ const Tzwap = () => {
         signer
       );
 
-      const userAmount = IS_NATIVE(fromTokenName)
+      const userAmount = isNativeToken(fromTokenName)
         ? BigNumber.from(userAssetBalances[CURRENCIES_MAP[chainId.toString()]!])
         : await ERC20__factory.connect(
             contractAddresses[fromTokenName],
@@ -484,7 +481,7 @@ const Tzwap = () => {
 
       setUserTokenBalance(userAmount);
 
-      let allowance = IS_NATIVE(fromTokenName)
+      let allowance = isNativeToken(fromTokenName)
         ? BigNumber.from(0)
         : await ERC20__factory.connect(
             contractAddresses[fromTokenName],
@@ -494,7 +491,7 @@ const Tzwap = () => {
       if (!allowance.eq(0)) {
         setApproved(true);
       } else {
-        if (IS_NATIVE(fromTokenName)) {
+        if (isNativeToken(fromTokenName)) {
           setApproved(true);
         } else {
           setApproved(false);

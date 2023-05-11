@@ -1,14 +1,11 @@
 import { useCallback, useEffect } from 'react';
-import Box from '@mui/material/Box';
-
-import Dialog from 'components/UI/Dialog';
-import Typography from 'components/UI/Typography';
 
 import { useBoundStore } from 'store';
+import { useSwitchNetwork } from 'wagmi';
 
-import changeOrAddNetwork from 'utils/general/changeOrAddNetwork';
+import Dialog from 'components/UI/Dialog';
 
-import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+import { CHAINS } from 'constants/chains';
 
 interface Props {
   imgSrc: string;
@@ -17,23 +14,23 @@ interface Props {
 }
 
 const NetworkOption = ({ imgSrc, name, chainId }: Props) => {
+  const { switchNetwork } = useSwitchNetwork();
+
   const handleClick = async () => {
-    await changeOrAddNetwork(chainId);
+    switchNetwork && (await switchNetwork(chainId));
   };
 
   return (
-    <Box
+    <div
       className="flex space-x-3 bg-umbra rounded-md p-3 items-center hover:bg-black"
       onClick={handleClick}
       role="button"
     >
-      <Box>
+      <div>
         <img src={imgSrc} alt={name} width="20" height="22" />
-      </Box>
-      <Typography variant="h5" className="text-white font-mono">
-        {name}
-      </Typography>
-    </Box>
+      </div>
+      <div className="text-white font-mono">{name}</div>
+    </div>
   );
 };
 
@@ -65,15 +62,13 @@ const ChangeNetworkDialog = () => {
       showCloseIcon={changeNetwork === 'user'}
       aria-labelledby="wrong-network-dialog-title"
     >
-      <Typography variant="h3" className="mb-4">
-        Change Network
-      </Typography>
-      <Typography variant="h5" component="p" className="text-white mb-4">
+      <div className="text-white text-2xl mb-4">Change Network</div>
+      <div className="text-white mb-4">
         Connect to a supported network below:
-      </Typography>
-      <Box className="grid grid-cols-2 gap-4 mb-4">
+      </div>
+      <div className="grid grid-cols-2 gap-4 mb-4">
         {supportedChainIds?.map((chainId) => {
-          const data = CHAIN_ID_TO_NETWORK_DATA[chainId];
+          const data = CHAINS[chainId];
           return (
             <NetworkOption
               key={chainId}
@@ -83,20 +78,7 @@ const ChangeNetworkDialog = () => {
             />
           );
         })}
-      </Box>
-      {typeof window !== 'undefined' &&
-        (!window?.ethereum?.isMetaMask ? (
-          <Box className="mt-2 mb-2 flex">
-            <Typography
-              className="text-yellow bg-opacity-10 rounded-xl w-full"
-              variant="caption"
-            >
-              If you are using Wallet Connect you can choose the desired network
-              clicking on the dropdown menu immediately after you scan the QR
-              Code
-            </Typography>
-          </Box>
-        ) : null)}
+      </div>
     </Dialog>
   );
 };

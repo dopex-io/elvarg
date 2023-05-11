@@ -1,18 +1,18 @@
 import { useCallback } from 'react';
+
 import { VeDPXYieldDistributor__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
-
-import WalletButton from 'components/common/WalletButton';
-import Typography from 'components/UI/Typography';
-import NumberDisplay from 'components/UI/NumberDisplay';
-import InfoTooltip from 'components/UI/InfoTooltip';
-
-import { vedpxYieldDistributorAddress } from 'store/VeDPX';
+import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
-import formatAmount from 'utils/general/formatAmount';
+import { vedpxYieldDistributorAddress } from 'store/VeDPX';
 
-import useSendTx from 'hooks/useSendTx';
+import InfoTooltip from 'components/UI/InfoTooltip';
+import NumberDisplay from 'components/UI/NumberDisplay';
+import Typography from 'components/UI/Typography';
+import SignerButton from 'components/common/SignerButton';
+
+import formatAmount from 'utils/general/formatAmount';
 
 const VeDPXYield = () => {
   const {
@@ -79,12 +79,12 @@ const VeDPXYield = () => {
             </Typography>
           </Box>
           {!userData.vedpxBalance.isZero() && !userData.userIsInitialized ? (
-            <WalletButton
+            <SignerButton
               className="justify-self-end"
               onClick={handleCheckpoint}
             >
               Checkpoint
-            </WalletButton>
+            </SignerButton>
           ) : null}
         </Box>
         <Box className="flex justify-between items-center p-3 bg-umbra rounded-xl w-full mb-3">
@@ -101,13 +101,13 @@ const VeDPXYield = () => {
             </Typography>
           </Box>
           <Box>
-            <WalletButton
+            <SignerButton
               className="justify-self-end"
               onClick={handleClaim}
               disabled={userData.dpxEarned.isZero()}
             >
               Claim
-            </WalletButton>
+            </SignerButton>
           </Box>
         </Box>
         <Box className="flex space-x-4 rounded-xl">

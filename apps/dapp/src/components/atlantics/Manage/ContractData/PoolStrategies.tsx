@@ -1,16 +1,17 @@
-import { useCallback, useMemo, useState } from 'react';
 import Link from 'next/link';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
+
+import { useCallback, useMemo, useState } from 'react';
+
 import LaunchIcon from '@mui/icons-material/Launch';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
+import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 
-import { useBoundStore } from 'store';
-
-import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
 import { AP_STRATEGIES } from 'constants/atlanticPoolsInfo';
+import { CHAINS } from 'constants/chains';
 
 const PoolStrategies = ({
   pair,
@@ -79,7 +80,7 @@ const PoolStrategies = ({
             >
               <Link
                 target="_blank"
-                href={`${CHAIN_ID_TO_EXPLORER[chainId]}address/${contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY']}`}
+                href={`${CHAINS[chainId]?.explorer}address/${contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY']}`}
               >
                 <LaunchIcon className="fill-current text-stieglitz p-1" />
               </Link>

@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
+
 import axios from 'axios';
+import { format } from 'date-fns';
 import {
-  AreaChart,
   Area,
+  AreaChart,
   ResponsiveContainer,
   Tooltip,
   TooltipProps,
 } from 'recharts';
-import { format } from 'date-fns';
 
 const CustomTooltip = ({ active, payload }: TooltipProps<any, any>) => {
   if (active && payload && payload.length) {
@@ -30,7 +31,7 @@ const SupplyChart = () => {
 
   useEffect(() => {
     const currentTime = Date.now() / 1000;
-    const from = Math.floor(currentTime - 86400 * 28);
+    const from = Math.floor(currentTime - 86400 * 180);
 
     axios
       .get(
@@ -48,7 +49,7 @@ const SupplyChart = () => {
               };
             })
             .filter((_: any, index: number) => {
-              if (index % 23 === 1) return true;
+              if (index % 71 === 1) return true;
               return false;
             })
         )

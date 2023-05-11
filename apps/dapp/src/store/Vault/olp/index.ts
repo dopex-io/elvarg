@@ -1,21 +1,23 @@
-import { StateCreator } from 'zustand';
 import { BigNumber } from 'ethers';
-import { orderBy } from 'lodash';
-import { SsovLp, SsovLp__factory, Addresses } from '@dopex-io/sdk';
 
-import { WalletSlice } from 'store/Wallet';
+import { Addresses, SsovLp, SsovLp__factory } from '@dopex-io/sdk';
+import orderBy from 'lodash/orderBy';
+import { StateCreator } from 'zustand';
+
 import { CommonSlice } from 'store/Vault/common';
+import { WalletSlice } from 'store/Wallet';
 
-import oneEBigNumber from 'utils/math/oneEBigNumber';
 import { getCurrentTime } from 'utils/contracts';
+import oneEBigNumber from 'utils/math/oneEBigNumber';
+
 import {
   ASC,
   DECIMALS_STRIKE,
   DECIMALS_TOKEN,
   DECIMALS_USD,
   DESC,
-  NULL,
   PERCENT,
+  ZERO_ADDRESS,
 } from '../../../constants';
 
 export interface OlpDataInterface {
@@ -139,8 +141,8 @@ export const createOlpSlice: StateCreator<
         olpContract.getTokenVaultRegistry(tokenAddress, false),
       ]);
 
-      const hasPut = ssovPutAddress !== NULL;
-      const hasCall = ssovCallAddress !== NULL;
+      const hasPut = ssovPutAddress !== ZERO_ADDRESS;
+      const hasCall = ssovCallAddress !== ZERO_ADDRESS;
 
       let isPut: boolean = selectedIsPut;
       if (hasPut && !hasCall) {

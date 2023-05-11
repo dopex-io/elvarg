@@ -1,18 +1,15 @@
 import { BigNumber, BigNumberish, ethers } from 'ethers';
 
-import { ANKR_KEY, INFURA_PROJECT_ID } from './env';
-
 export const DATE_FORMAT: string = 'd LLL yy';
 
 export const DECIMALS_TOKEN: number = 18;
 export const DECIMALS_STRIKE: number = 8;
 export const DECIMALS_USD: number = 6;
 
-export const ROWS_PER_PAGE: number = 5;
-
 export const ASC = 'asc';
 export const DESC = 'desc';
-export const NULL: string = '0x0000000000000000000000000000000000000000';
+export const ZERO_ADDRESS: string =
+  '0x0000000000000000000000000000000000000000';
 export const PERCENT: BigNumber = BigNumber.from(100);
 
 export const FEE_BPS_MAP: Record<
@@ -261,23 +258,6 @@ export const SECONDS_IN_A_DAY: Number = 86400;
 
 export const STRIKE_PRECISION: BigNumber = BigNumber.from(10).pow(8);
 
-export const BLOCKED_COUNTRIES_ALPHA_2_CODES: string[] = [
-  'US',
-  'VI',
-  'BY',
-  'MM',
-  'CI',
-  'CU',
-  'CD',
-  'IR',
-  'IQ',
-  'LR',
-  'KP',
-  'SD',
-  'SY',
-  'ZW',
-];
-
 export const GREEK_SYMBOLS = {
   delta: 'Δ',
   theta: 'θ',
@@ -293,122 +273,9 @@ export const S3_BUCKET_RESOURCES = {
   RDPX: 'https://dopex-general.s3.us-east-2.amazonaws.com/image/tokens/rDPX.png',
 };
 
-export const DISPLAY_TOKENS: { [key: string | number]: string[] } = {
-  42161: ['DPX', 'RDPX', 'ETH'],
-  56: ['BNB', 'VBNB'],
-  43114: ['AVAX'],
-  1088: ['METIS'],
-  137: ['MATIC'],
-};
-
-export const CHAIN_ID_TO_NETWORK_DATA: {
-  [key: number]: { name: string; icon: string };
-} = {
-  1: { name: 'Mainnet', icon: '/images/tokens/eth.svg' },
-  5: { name: 'Testnet', icon: '/images/networks/arbitrum.svg' },
-  42: { name: 'Kovan', icon: '/images/tokens/eth.svg' },
-  56: { name: 'BSC', icon: '/images/tokens/bnb.svg' },
-  42161: { name: 'Arbitrum', icon: '/images/networks/arbitrum.svg' },
-  421611: { name: 'Testnet', icon: '/images/networks/arbitrum.svg' },
-  43114: { name: 'Avalanche', icon: '/images/tokens/avax.svg' },
-  1088: { name: 'Metis', icon: '/images/tokens/metis.svg' },
-  1337: { name: 'Localhost', icon: '/images/tokens/eth.svg' },
-  137: { name: 'Polygon', icon: '/images/tokens/matic.svg' },
-};
-
-export const TOKEN_DECIMALS: {
-  [key: string]: { [key: string]: number };
-} = {
-  '56': {
-    BNB: 18,
-    VBNB: 8,
-  },
-  '1337': {
-    WETH: 18,
-    USDT: 6,
-    USDC: 6,
-  },
-  '1': {
-    USDT: 6,
-    USDC: 6,
-  },
-  '5': {
-    USDT: 6,
-    USDC: 6,
-  },
-  '421611': {
-    USDT: 6,
-    USDC: 6,
-    WETH: 18,
-  },
-  '42161': {
-    USDT: 6,
-    USDC: 6,
-    WETH: 18,
-  },
-  '43114': {
-    USDT: 6,
-    USDC: 6,
-  },
-  '1088': {
-    USDT: 6,
-    USDC: 6,
-  },
-};
-
-export const CHAIN_ID_TO_NATIVE: { [key: number]: number | string } = {
-  42161: 'ETH',
-  56: 'BNB',
-  43114: 'AVAX',
-  1: 'ETH',
-  5: 'ETH',
-};
-
-export const IS_NATIVE = (asset: string) => {
-  return ['ETH', 'BNB', 'AVAX'].includes(asset);
-};
-
-export const CHAIN_ID_TO_RPC: { [key: number]: string } = {
-  1: `https://rpc.ankr.com/eth/${ANKR_KEY}`,
-  5: `https://goerli.infura.io/v3/${INFURA_PROJECT_ID}`,
-  56: `https://rpc.ankr.com/bsc/${ANKR_KEY}`,
-  42161: `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
-  43114: `https://rpc.ankr.com/avalanche/${ANKR_KEY}`,
-  421611: `https://arbitrum-rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
-  1088: 'https://andromeda.metis.io/?owner=1088',
-  1337: 'http://127.0.0.1:8545',
-  137: `https://polygon-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
-};
-
-export const CHAIN_ID_TO_EXPLORER: { [key: number]: string } = {
-  1: 'https://etherscan.io/',
-  5: 'https://goerli.etherscan.io/',
-  56: 'https://bscscan.com/',
-  137: 'https://polygonscan.com/',
-  1088: 'https://andromeda-explorer.metis.io/',
-  42161: 'https://arbiscan.io/',
-  43114: 'https://snowtrace.io/',
-  421611: 'https://testnet.arbiscan.io/',
-};
-
-export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
-  [key: string]: { default: number; all: number[] };
-} = {
-  '/': { default: 42161, all: [1, 42161, 137] },
-  '/farms': { default: 42161, all: [1, 42161] },
-  '/nfts/community': { default: 42161, all: [1, 42161, 137] },
-  '/sale': { default: 1, all: [1] },
-  '/oracles': { default: 42161, all: [1, 42161, 137] },
-  '/tzwap': { default: 42161, all: [1, 42161] },
-  '/straddles': { default: 42161, all: [42161, 137] },
-  '/straddles/MATIC': { default: 137, all: [137] },
-  '/ssov': { default: 42161, all: [42161, 137] },
-  '/ssov/MATIC-WEEKLY-CALLS-SSOV-V3': { default: 137, all: [137] },
-};
-
 export const DISCLAIMER_MESSAGE = {
   english:
-    'I am not the person or entities who reside in, are citizens of, are incorporated in, or have a registered office in the United States of America and OFAC restricted localities.\nI will not in the future access this site or use Dopex dApp while located within the United States or OFAC restricted localities.\nI am not using, and will not in the future use, a VPN to mask my physical location from a restricted territory.\nI am lawfully permitted to access this site and use Dopex dApp under the laws of the jurisdiction on which I reside and am located.\nI understand the risks associated with using products by Dopex.',
+    'I am not the person or entities who reside in, are citizens of, are incorporated in, or have a registered office in the United States of America and OFAC restricted localities.\nI will not in the future access this site or use Dopex dApp while located within the United States and OFAC restricted localities.\nI am not using, and will not in the future use, a VPN to mask my physical location from a restricted territory.\nI am lawfully permitted to access this site and use Dopex dApp under the laws of the jurisdiction on which I reside and am located.\nI understand the risks associated with using products by Dopex.',
 };
 
 export const OFAC_COMPLIANCE_LOCAL_STORAGE_KEY =

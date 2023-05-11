@@ -1,18 +1,17 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import Box from '@mui/material/Box';
-import Typography from 'components/UI/Typography';
-import Tooltip from '@mui/material/Tooltip';
+
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
 import format from 'date-fns/format';
-
-import InfoTooltip from 'components/UI/InfoTooltip';
-import CustomButton from 'components/UI/Button';
-
 import useSendTx from 'hooks/useSendTx';
-
 import { useBoundStore } from 'store';
 
+import CustomButton from 'components/UI/Button';
+import InfoTooltip from 'components/UI/InfoTooltip';
+import Typography from 'components/UI/Typography';
+
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import displayAddress from 'utils/general/displayAddress';
 
 type UserBondsProps = {
@@ -25,7 +24,6 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
     accountAddress,
     ensAvatar,
     ensName,
-    connect,
     dpxBondsUserEpochData,
     updateBondsUserEpochData,
     dpxBondsEpochData,
@@ -35,10 +33,6 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
 
   const { userDpxBondsState } = dpxBondsUserEpochData;
   const { depositPerNft, bondPrice } = dpxBondsEpochData;
-
-  const handleWalletConnect = useCallback(() => {
-    connect && connect();
-  }, [connect]);
 
   const handleRedeem = useCallback(async () => {
     if (
@@ -175,17 +169,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
         )
       ) : (
         <Box className="border border-umbra rounded-2xl p-3 flex max-w-[728px] mt-5">
-          <Box className="flex-1">
-            <AccountBalanceWalletIcon /> Connect your wallet to see your bonds
-          </Box>
-          <CustomButton
-            variant="text"
-            size="small"
-            className="text-white bg-primary hover:bg-primary"
-            onClick={handleWalletConnect}
-          >
-            Connect {accountAddress}
-          </CustomButton>
+          <AccountBalanceWalletIcon /> Connect your wallet to see your bonds
         </Box>
       )}
     </Box>

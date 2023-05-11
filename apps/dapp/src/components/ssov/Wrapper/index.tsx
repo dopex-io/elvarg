@@ -1,15 +1,15 @@
 import { useCallback, useState } from 'react';
-import Box from '@mui/material/Box';
+
 import { ethers } from 'ethers';
 
-import Dialog from 'components/UI/Dialog';
-import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
-import Input from 'components/UI/Input';
-
+import Box from '@mui/material/Box';
+import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
-import useSendTx from 'hooks/useSendTx';
+import CustomButton from 'components/UI/Button';
+import Dialog from 'components/UI/Dialog';
+import Input from 'components/UI/Input';
+import Typography from 'components/UI/Typography';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -34,7 +34,11 @@ const Wrapper = ({ open, handleClose }: Props) => {
       signer
     );
 
-    await sendTx(weth, 'deposit', [], getContractReadableAmount(value, 18));
+    await sendTx(weth, 'deposit', [
+      {
+        value: getContractReadableAmount(value, 18),
+      },
+    ]);
   }, [signer, sendTx, value]);
 
   return (
@@ -53,10 +57,10 @@ const Wrapper = ({ open, handleClose }: Props) => {
           </Typography>
           <Typography variant="h6" color="stieglitz">
             {formatAmount(
-              getUserReadableAmount(Number(userAssetBalances['WETH']), 18),
+              getUserReadableAmount(Number(userAssetBalances['ETH']), 18),
               10
             )}{' '}
-            WETH
+            ETH
           </Typography>
         </Box>
         <Input

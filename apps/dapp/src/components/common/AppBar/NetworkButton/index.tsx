@@ -1,12 +1,15 @@
 import { useCallback } from 'react';
 
-import CustomButton from 'components/UI/Button';
-
+import { Button } from '@dopex-io/ui';
 import { useBoundStore } from 'store';
 
-import { CHAIN_ID_TO_NETWORK_DATA } from 'constants/index';
+import { CHAINS } from 'constants/chains';
 
-export default function NetworkButton({ className }: { className?: string }) {
+export default function NetworkButton({
+  className = '',
+}: {
+  className?: string;
+}) {
   const { chainId, setChangeNetwork } = useBoundStore();
 
   const handleOpen = useCallback(
@@ -15,20 +18,13 @@ export default function NetworkButton({ className }: { className?: string }) {
   );
 
   return (
-    <CustomButton
-      size="medium"
-      className={className || ''}
-      color="cod-gray"
-      startIcon={
-        <img
-          src={CHAIN_ID_TO_NETWORK_DATA[chainId]?.icon}
-          alt={CHAIN_ID_TO_NETWORK_DATA[chainId]?.name}
-          style={{ width: 13, height: 'auto' }}
-        />
-      }
-      onClick={handleOpen}
-    >
-      {CHAIN_ID_TO_NETWORK_DATA[chainId]?.name}
-    </CustomButton>
+    <Button className={className} color="carbon" onClick={handleOpen}>
+      <img
+        src={CHAINS[chainId]?.icon}
+        alt={CHAINS[chainId]?.name}
+        className="w-[18px] h-auto mr-2"
+      />
+      {CHAINS[chainId]?.name}
+    </Button>
   );
 }

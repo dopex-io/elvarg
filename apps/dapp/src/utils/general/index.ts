@@ -1,4 +1,3 @@
-export { default as changeOrAddNetwork } from './changeOrAddNetwork';
 export { default as getAssetFromOptionSymbol } from './getAssetFromOptionSymbol';
 export { default as getSymbolFromAddress } from './getSymbolFromAddress';
 export { default as getValueSign } from './getValueSign';

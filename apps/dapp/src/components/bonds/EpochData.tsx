@@ -1,13 +1,14 @@
 import { useEffect, useMemo } from 'react';
-import Box from '@mui/material/Box';
-import LaunchIcon from '@mui/icons-material/Launch';
-import format from 'date-fns/format';
+
 import { BigNumber } from 'ethers';
 
-import Typography from 'components/UI/Typography';
-import WalletButton from 'components/common/WalletButton';
-
+import LaunchIcon from '@mui/icons-material/Launch';
+import Box from '@mui/material/Box';
+import format from 'date-fns/format';
 import { useBoundStore } from 'store';
+
+import Typography from 'components/UI/Typography';
+import SignerButton from 'components/common/SignerButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -112,14 +113,14 @@ export const EpochData = ({
                 </Typography>
               </Box>
             </Box>
-            <WalletButton
+            <SignerButton
               variant="text"
               size="small"
               className="text-white bg-primary hover:bg-primary"
               onClick={handleModal}
             >
               Bond
-            </WalletButton>
+            </SignerButton>
           </Box>
         </Box>
         <Box className="flex justify-between bg-cod-gray rounded-2xl p-2 w-[352px]">

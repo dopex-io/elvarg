@@ -1,6 +1,5 @@
-import cx from 'classnames';
-
 import IconButton from '@mui/material/IconButton';
+import cx from 'classnames';
 
 interface WatchAssetOptions {
   address: string;
@@ -17,8 +16,8 @@ function AddTokenButton({
   options: WatchAssetOptions;
 }) {
   const addToken = () => {
-    if (window && window.ethereum) {
-      window.ethereum
+    if (window && (window as any).ethereum) {
+      (window as any).ethereum
         .request({
           method: 'wallet_watchAsset',
           params: {

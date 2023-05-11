@@ -1,24 +1,23 @@
-import { useState, useMemo } from 'react';
 import Link from 'next/link';
 
-import cx from 'classnames';
+import { useMemo, useState } from 'react';
 
+import SearchIcon from '@mui/icons-material/Search';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
+import Input from '@mui/material/Input';
+import cx from 'classnames';
 import { useBoundStore } from 'store';
 
-import CircularProgress from '@mui/material/CircularProgress';
-import Box from '@mui/material/Box';
-import Input from '@mui/material/Input';
-import SearchIcon from '@mui/icons-material/Search';
-import Button from '@mui/material/Button';
-
-import Typography from 'components/UI/Typography';
 import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
 import Filter from 'components/common/Filter';
-import WalletButton from 'components/common/WalletButton';
+import SignerButton from 'components/common/SignerButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import getValueColorClass from 'utils/general/getValueColorClass';
 import formatAmount from 'utils/general/formatAmount';
+import getValueColorClass from 'utils/general/getValueColorClass';
 
 const sides: string[] = ['CALL', 'PUT'];
 
@@ -176,7 +175,7 @@ export default function Positions() {
                 <CircularProgress className="text-stieglitz p-2 my-8 mx-auto" />
               </Box>
             ) : (
-              <WalletButton className="my-4">Connect Wallet</WalletButton>
+              <SignerButton className="my-4">Connect Wallet</SignerButton>
             )
           ) : filteredSSOVPositions.length === 0 &&
             filteredStraddlesPositions.length === 0 ? (

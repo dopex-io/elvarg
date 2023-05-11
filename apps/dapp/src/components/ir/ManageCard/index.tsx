@@ -1,47 +1,48 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { BigNumber, ethers } from 'ethers';
+
 import {
-  ERC20__factory,
   ERC20SSOV1inchRouter__factory,
+  ERC20__factory,
   NativeSSOV1inchRouter__factory,
 } from '@dopex-io/sdk';
-import Countdown from 'react-countdown';
-import cx from 'classnames';
-import format from 'date-fns/format';
-import { isNaN } from 'formik';
-import axios from 'axios';
-import { BigNumber, ethers } from 'ethers';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
 import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import Checkbox from '@mui/material/Checkbox';
-import Button from '@mui/material/Button';
-
+import axios from 'axios';
+import cx from 'classnames';
+import format from 'date-fns/format';
+import useSendTx from 'hooks/useSendTx';
+import isNaN from 'lodash/isNaN';
+import Countdown from 'react-countdown';
 import { useBoundStore } from 'store';
+import WhiteLockerIcon from 'svgs/icons//WhiteLockerIcon';
+import LockerIcon from 'svgs/icons/LockerIcon';
+import TransparentCrossIcon from 'svgs/icons/TransparentCrossIcon';
+import ZapIcon from 'svgs/icons/ZapIcon';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import ZapInButton from 'components/common/ZapInButton';
 import ZapIn from 'components/common/ZapIn';
+import ZapInButton from 'components/common/ZapInButton';
 import ZapOutButton from 'components/common/ZapOutButton';
-import Curve2PoolDepositSelector from './Curve2PoolDepositSelector';
 
-import useSendTx from 'hooks/useSendTx';
-
-import getTokenDecimals from 'utils/general/getTokenDecimals';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import get1inchQuote from 'utils/general/get1inchQuote';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
+import isNativeToken from 'utils/general/isNativeToken';
 
-import { MAX_VALUE, CHAIN_ID_TO_NATIVE, IS_NATIVE } from 'constants/index';
+import { CHAINS } from 'constants/chains';
+import { MAX_VALUE } from 'constants/index';
 
-import ZapIcon from 'svgs/icons/ZapIcon';
-import TransparentCrossIcon from 'svgs/icons/TransparentCrossIcon';
-import LockerIcon from 'svgs/icons/LockerIcon';
-import WhiteLockerIcon from 'svgs/icons//WhiteLockerIcon';
-
+import Curve2PoolDepositSelector from './Curve2PoolDepositSelector';
 import styles from './styles.module.scss';
 
 const SelectMenuProps = {
@@ -103,10 +104,10 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     []
   );
   const [selectedCallLeverages, setSelectedCallLeverages] = useState<{
-    [key: number]: number | string;
+    [key: number]: number | string | undefined;
   }>({});
   const [selectedPutLeverages, setSelectedPutLeverages] = useState<{
-    [key: number]: number | string;
+    [key: number]: number | string | undefined;
   }>({});
   const [strikeDepositAmounts, setStrikeDepositAmounts] = useState<{
     [key: number]: number | string;
@@ -178,10 +179,11 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
   // Updates the 1inch quote
   useEffect(() => {
     async function updateQuote() {
-      const fromTokenAddress: string = IS_NATIVE(depositTokenName)
+      if (!accountAddress || !chainId) return;
+      const fromTokenAddress: string = isNativeToken(depositTokenName)
         ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
         : contractAddresses[depositTokenName];
-      const toTokenAddress = IS_NATIVE(ssovTokenName)
+      const toTokenAddress = isNativeToken(ssovTokenName)
         ? '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
         : contractAddresses[ssovTokenName];
 
@@ -191,13 +193,14 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
         10 ** getTokenDecimals(depositTokenName, chainId)
       ).toString();
 
-      const quote = await get1inchQuote({
+      const quote = await get1inchQuote(
         fromTokenAddress,
         toTokenAddress,
         amount,
         chainId,
         accountAddress,
-      });
+        '3'
+      );
 
       setQuote(quote);
     }
@@ -310,13 +313,13 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
     if (isZapActive) {
       setIsZapInVisible(true);
     } else {
-      const filteredTokens = [CHAIN_ID_TO_NATIVE[chainId]]
+      const filteredTokens = [CHAINS[chainId]?.nativeToken]
         .concat(tokens)
         .filter(function (item) {
           const address = item ? contractAddresses[item] : undefined;
           return (
             item !== ssovTokenName &&
-            address(address || CHAIN_ID_TO_NATIVE[chainId] === item)
+            address(address || CHAINS[chainId]?.nativeToken === item)
           );
         })
         .sort((a, b) => {
@@ -488,7 +491,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
         totalDepositAmount.toString(),
         getTokenDecimals(ssovTokenName, chainId)
       );
-      if (IS_NATIVE(depositTokenName)) {
+      if (isNativeToken(depositTokenName)) {
         setApproved(true);
       } else if (contractAddresses[depositTokenName]) {
         if (!signer || !accountAddress) return;
@@ -518,7 +521,7 @@ const ManageCard = ({ activeVaultContextSide }: Props) => {
   useEffect(() => {
     if (!depositTokenName || !accountAddress) return;
     (async function () {
-      let userAmount = IS_NATIVE(depositTokenName)
+      let userAmount = isNativeToken(depositTokenName)
         ? BigNumber.from(userAssetBalances[depositTokenName])
         : await ERC20__factory.connect(
             contractAddresses[depositTokenName],

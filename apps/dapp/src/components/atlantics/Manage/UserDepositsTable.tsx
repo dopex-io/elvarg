@@ -27,7 +27,7 @@ import AlarmIcon from 'svgs/icons/AlarmIcon';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import WalletButton from 'components/common/WalletButton';
+import SignerButton from 'components/common/SignerButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -204,7 +204,7 @@ const UserDepositsTable = () => {
     if (!accountAddress)
       return (
         <Box className="w-full text-center bg-cod-gray rounded-xl">
-          <WalletButton>Connect</WalletButton>
+          <SignerButton>Connect</SignerButton>
         </Box>
       );
     else if (!userPositions) {

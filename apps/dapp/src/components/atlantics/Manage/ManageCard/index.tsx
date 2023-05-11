@@ -23,7 +23,8 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 
-import { MAX_VALUE, TOKEN_DECIMALS } from 'constants/index';
+import { CHAINS } from 'constants/chains';
+import { MAX_VALUE } from 'constants/index';
 
 interface ManageCardProps {
   tokenId: string;
@@ -111,7 +112,7 @@ const ManageCard = (props: ManageCardProps) => {
 
       const customApproveAmount = getContractReadableAmount(
         value,
-        TOKEN_DECIMALS[chainId]?.[depositToken] ?? 18
+        CHAINS[chainId]?.tokenDecimals[depositToken] ?? 18
       );
 
       await sendTx(token, 'approve', [
@@ -155,7 +156,7 @@ const ManageCard = (props: ManageCardProps) => {
       allowance.gte(
         getContractReadableAmount(
           value,
-          TOKEN_DECIMALS[chainId]?.[deposit] ?? 18
+          CHAINS[chainId]?.tokenDecimals[deposit] ?? 18
         )
       )
     );
@@ -279,7 +280,7 @@ const ManageCard = (props: ManageCardProps) => {
             {formatAmount(
               getUserReadableAmount(
                 userAssetBalances[depositToken] ?? '0',
-                TOKEN_DECIMALS[chainId]?.[depositToken]
+                CHAINS[chainId]?.tokenDecimals[depositToken]
               ),
               3,
               true

@@ -1,6 +1,10 @@
-import { useEffect } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
+
+import { useEffect } from 'react';
+
 import Box from '@mui/material/Box';
+import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
 import AllLpPositions from 'components/olp/AllLpPositions';
@@ -9,13 +13,7 @@ import Stats from 'components/olp/Stats';
 import TopBar from 'components/olp/TopBar';
 import UserLpPositions from 'components/olp/UserLpPositions';
 
-import { useBoundStore } from 'store';
-
-interface Props {
-  poolName: string;
-}
-
-const Olp = ({ poolName }: Props) => {
+const Olp = ({ poolName }: { poolName: string }) => {
   const {
     setSelectedPoolName,
     updateOlp,
@@ -25,16 +23,22 @@ const Olp = ({ poolName }: Props) => {
   } = useBoundStore();
 
   useEffect(() => {
-    if (poolName && setSelectedPoolName) setSelectedPoolName(poolName);
-  }, [poolName, setSelectedPoolName]);
-
-  useEffect(() => {
-    updateOlp().then(() =>
-      updateOlpEpochData().then(() => {
-        updateOlpUserData();
-      })
-    );
-  }, [updateOlp, updateOlpEpochData, updateOlpUserData, chainId]);
+    if (poolName && setSelectedPoolName) {
+      setSelectedPoolName(poolName);
+      updateOlp().then(() =>
+        updateOlpEpochData().then(() => {
+          updateOlpUserData();
+        })
+      );
+    }
+  }, [
+    updateOlp,
+    updateOlpEpochData,
+    updateOlpUserData,
+    chainId,
+    poolName,
+    setSelectedPoolName,
+  ]);
 
   return (
     <Box className="bg-black min-h-screen">
@@ -65,17 +69,10 @@ const Olp = ({ poolName }: Props) => {
   );
 };
 
-export async function getServerSideProps(context: {
-  query: { poolName: string };
-}) {
-  return {
-    props: {
-      poolName: context.query.poolName,
-    },
-  };
-}
+const ManagePage = () => {
+  const router = useRouter();
+  const poolName = router.query['poolName'] as string;
 
-const ManagePage = ({ poolName }: Props) => {
   return <Olp poolName={poolName} />;
 };
 

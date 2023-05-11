@@ -1,19 +1,20 @@
-import { useEffect, useState } from 'react';
 import Head from 'next/head';
-import Box from '@mui/material/Box';
 import Link from 'next/link';
-import axios from 'axios';
 
-import PieChartIcon from '@mui/icons-material/PieChart';
+import { useEffect, useState } from 'react';
+
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import AgricultureIcon from '@mui/icons-material/Agriculture';
-import SsidChartIcon from '@mui/icons-material/SsidChart';
 import GavelIcon from '@mui/icons-material/Gavel';
-import ShowChartIcon from '@mui/icons-material/ShowChart';
 import GraphicEqIcon from '@mui/icons-material/GraphicEq';
+import PieChartIcon from '@mui/icons-material/PieChart';
+import ShowChartIcon from '@mui/icons-material/ShowChart';
+import SsidChartIcon from '@mui/icons-material/SsidChart';
+import Box from '@mui/material/Box';
+import axios from 'axios';
 
-import AppBar from 'components/common/AppBar';
 import { Typography } from 'components/UI';
+import AppBar from 'components/common/AppBar';
 
 import { formatAmount } from 'utils/general';
 
@@ -49,9 +50,16 @@ const Home = () => {
 
   useEffect(() => {
     async function getTvl() {
-      const res = await axios.get(`${DOPEX_API_BASE_URL}/v2/tvl`);
+      let tvl = '--';
+      try {
+        const res = await axios.get(`${DOPEX_API_BASE_URL}/v2/tvl`);
 
-      setTvl(res.data.tvl);
+        tvl = res.data.tvl;
+      } catch (err) {
+        console.log(err);
+      }
+
+      setTvl(tvl);
     }
     getTvl();
   }, []);
@@ -82,7 +90,7 @@ const Home = () => {
           </Box>
           <Box className="flex flex-col max-w-fit">
             <h1 className="md:text-7xl text-6xl  font-mono font-bold text-wave-blue">
-              ${formatAmount(tvl)}
+              {tvl === '--' ? tvl : `${formatAmount(tvl)}`}
             </h1>
             <span className="text-2xl text-white self-end font-bold font-mono">
               Total Value Locked

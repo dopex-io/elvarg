@@ -1,27 +1,15 @@
-import { StateCreator } from 'zustand';
-import format from 'date-fns/format';
-import { ApolloQueryResult } from '@apollo/client';
 import {
+  AtlanticStraddle__factory,
   ERC20__factory,
   SsovV3__factory,
-  AtlanticStraddle__factory,
 } from '@dopex-io/sdk';
+import format from 'date-fns/format';
+import graphSdk from 'graphql/graphSdk';
+import queryClient from 'queryClient';
+import { StateCreator } from 'zustand';
 
 import { AssetsSlice } from 'store/Assets';
 import { WalletSlice } from 'store/Wallet';
-
-import {
-  GetUserDataDocument,
-  GetUserDataQuery,
-} from 'graphql/generated/portfolio';
-import {
-  GetUserStraddlesDataDocument,
-  GetUserStraddlesDataQuery,
-} from 'graphql/generated/portfolioStraddles';
-import {
-  portfolioGraphClient,
-  portfolioStraddlesGraphClient,
-} from 'graphql/apollo';
 
 import getLinkFromVaultName from 'utils/contracts/getLinkFromVaultName';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -149,7 +137,6 @@ export const createPortfolioSlice: StateCreator<
           owner: owner,
         };
       } catch (err) {
-        console.log(err);
         return;
       }
     };
@@ -221,8 +208,7 @@ export const createPortfolioSlice: StateCreator<
           ).toLocaleUpperCase(),
           owner: accountAddress!,
         };
-      } catch (err) {
-        console.log(err);
+      } catch {
         return;
       }
     };
@@ -258,13 +244,12 @@ export const createPortfolioSlice: StateCreator<
             epoch: epoch,
             strikePrice: userPosition.strikePrice,
             underlyingPurchased: userPosition.underlyingPurchased,
-            link: '/straddles/' + assetName.toUpperCase() + '?epoch=' + epoch,
+            link: '/straddles/' + assetName.toUpperCase(),
             vaultType: 'straddles',
             owner: accountAddress!,
           };
         return;
-      } catch (err) {
-        console.log(err);
+      } catch {
         return;
       }
     };
@@ -300,20 +285,18 @@ export const createPortfolioSlice: StateCreator<
           vaultType: 'straddles',
           owner: accountAddress!,
         };
-      } catch (err) {
-        console.log(err);
+      } catch {
         return;
       }
     };
 
-    const ssovQueryResult: ApolloQueryResult<GetUserDataQuery> =
-      await portfolioGraphClient.query({
-        query: GetUserDataDocument,
-        variables: { user: accountAddress.toLowerCase() },
-        fetchPolicy: 'no-cache',
-      });
+    const ssovQueryResult = await queryClient.fetchQuery({
+      queryKey: ['ssovUserData'],
+      queryFn: () =>
+        graphSdk.getSsovUserData({ user: accountAddress.toLowerCase() }),
+    });
 
-    const data: any = ssovQueryResult['data']['users'][0];
+    const data = ssovQueryResult['ssov_users'][0];
 
     const ssovDepositsPromises = [];
     const ssovDeposits: UserSSOVDeposit[] = [];
@@ -321,7 +304,9 @@ export const createPortfolioSlice: StateCreator<
     const ssovPositions: UserSSOVPosition[] = [];
 
     for (let i in data?.userSSOVDeposit) {
-      ssovDepositsPromises.push(getUserSSOVDeposit(data?.userSSOVDeposit[i]));
+      ssovDepositsPromises.push(
+        getUserSSOVDeposit(data?.userSSOVDeposit[Number(i)])
+      );
     }
 
     const ssovDepositsResponses = await Promise.all(ssovDepositsPromises);
@@ -333,7 +318,7 @@ export const createPortfolioSlice: StateCreator<
 
     for (let i in data?.userSSOVOptionBalance) {
       ssovPositionsPromises.push(
-        getUserSSOVPosition(data?.userSSOVOptionBalance[i])
+        getUserSSOVPosition(data?.userSSOVOptionBalance[Number(i)])
       );
     }
 
@@ -346,14 +331,13 @@ export const createPortfolioSlice: StateCreator<
 
     // Straddles
 
-    const straddlesQueryResult: ApolloQueryResult<GetUserStraddlesDataQuery> =
-      await portfolioStraddlesGraphClient.query({
-        query: GetUserStraddlesDataDocument,
-        variables: { user: accountAddress.toLowerCase() },
-        fetchPolicy: 'no-cache',
-      });
+    const straddlesQueryResult = await queryClient.fetchQuery({
+      queryKey: ['straddlesUserData'],
+      queryFn: () =>
+        graphSdk.getStraddlesUserData({ user: accountAddress.toLowerCase() }),
+    });
 
-    const straddlesData: any = straddlesQueryResult['data']['users'][0];
+    const straddlesData = straddlesQueryResult['straddles_users'][0];
 
     const straddlesDepositsPromises = [];
     const straddlesPositionsPromises = [];
@@ -361,9 +345,11 @@ export const createPortfolioSlice: StateCreator<
     const straddlesDeposits: UserStraddlesDeposit[] = [];
     const straddlesPositions: UserStraddlesPosition[] = [];
 
-    for (let i in straddlesData?.userOpenStraddles) {
+    for (let i in straddlesData?.straddlesUserOpenDeposits) {
       straddlesPositionsPromises.push(
-        getUserStraddlesPosition(straddlesData?.userOpenStraddles[i])
+        getUserStraddlesPosition(
+          straddlesData?.straddlesUserOpenDeposits[Number(i)]
+        )
       );
     }
 
@@ -376,9 +362,11 @@ export const createPortfolioSlice: StateCreator<
         straddlesPositions.push(straddlePositionsResponses[i]!);
     }
 
-    for (let i in straddlesData?.userOpenDeposits) {
+    for (let i in straddlesData?.straddlesUserOpenDeposits) {
       straddlesDepositsPromises.push(
-        getUserStraddlesDeposit(straddlesData?.userOpenDeposits[i])
+        getUserStraddlesDeposit(
+          straddlesData?.straddlesUserOpenDeposits[Number(i)]
+        )
       );
     }
 

@@ -1,9 +1,12 @@
-import { useMemo } from 'react';
 import Link from 'next/link';
+
+import { useMemo } from 'react';
+
 import { BigNumber } from 'ethers';
-import Box from '@mui/material/Box';
+
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import KeyboardArrowUpRoundedIcon from '@mui/icons-material/KeyboardArrowUpRounded';
+import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 
@@ -84,9 +87,11 @@ const Title = (props: TitleProps) => {
           <Typography variant="h6">24H Change</Typography>
           <Typography
             variant="h6"
-            color={(stats?.['change_24h'] ?? 0) >= 0 ? `up-only` : 'down-bad'}
+            color={
+              Number(stats?.['change_24h'] ?? 0) >= 0 ? `up-only` : 'down-bad'
+            }
           >
-            {(stats?.['change_24h'] ?? 0) >= 0 ? (
+            {Number(stats?.['change_24h'] ?? 0) >= 0 ? (
               <KeyboardArrowUpRoundedIcon className="fill-current text-up-only my-auto" />
             ) : (
               <KeyboardArrowDownRoundedIcon className="fill-current text-down-bad my-auto" />

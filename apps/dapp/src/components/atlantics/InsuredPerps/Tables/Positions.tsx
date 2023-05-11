@@ -1,37 +1,37 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { BigNumber } from 'ethers';
+
 import {
   DopexPositionManager__factory,
   GmxVault__factory,
   InsuredLongsStrategy__factory,
   InsuredLongsUtils__factory,
 } from '@dopex-io/sdk';
-import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import CircularProgress from '@mui/material/CircularProgress';
-import Select from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
 import { styled } from '@mui/styles';
+import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import WalletButton from 'components/common/WalletButton';
-import {
-  TableHeader,
-  TableBodyCell,
-} from 'components/atlantics/Manage/UserDepositsTable';
 import ManageModal from 'components/atlantics/InsuredPerps/Dialogs/ManageDialog';
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
-
-import { useBoundStore } from 'store';
-
-import useSendTx from 'hooks/useSendTx';
+import {
+  TableBodyCell,
+  TableHeader,
+} from 'components/atlantics/Manage/UserDepositsTable';
+import SignerButton from 'components/common/SignerButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -374,12 +374,10 @@ const Positions = ({
       signer
     );
 
-    await sendTx(
-      userPositionManagerContract,
-      'decreaseOrder',
-      [decreaseOrder],
-      MIN_EXECUTION_FEE
-    ).then(() => {
+    await sendTx(userPositionManagerContract, 'decreaseOrder', [
+      decreaseOrder,
+      { value: MIN_EXECUTION_FEE },
+    ]).then(() => {
       getUserPositions();
     });
   }, [
@@ -455,12 +453,10 @@ const Positions = ({
       strategyContract.userPositionManagers(accountAddress),
     ]);
 
-    await sendTx(
-      strategyContract,
-      'createIncreaseManagedPositionOrder',
-      [positionId],
-      MIN_EXECUTION_FEE
-    ).then(() => {
+    await sendTx(strategyContract, 'createIncreaseManagedPositionOrder', [
+      positionId,
+      { value: MIN_EXECUTION_FEE },
+    ]).then(() => {
       getUserPositions();
     });
   }, [
@@ -482,14 +478,34 @@ const Positions = ({
   }, [userPositionData]);
 
   const renderButton = useMemo(() => {
-    if (
-      userPositionData.state === ActionState['2'] ||
-      userPositionData.state === ActionState['3']
-    )
+    if (userPositionData.state === ActionState['2'])
       return (
-        <CustomButton onClick={handleIncreaseManagedPosition}>
-          Add Collateral
-        </CustomButton>
+        <Select
+          value={action}
+          onChange={handleActionChange}
+          className="bg-primary rounded-md w-full text-center text-white border border-umbra p-2"
+          MenuProps={{
+            classes: { paper: 'bg-primary' },
+          }}
+          classes={{ icon: 'text-white', select: 'p-0' }}
+          variant="standard"
+          disableUnderline
+        >
+          <MenuItem
+            onClick={handleIncreaseManagedPosition}
+            value={'Add collateral'}
+            className="text-white"
+          >
+            <Typography variant="h6">Add Collateral</Typography>
+          </MenuItem>
+          <MenuItem
+            className="text-white"
+            onClick={handleEmergencyExit}
+            value={'Exit Strategy'}
+          >
+            <Typography variant="h6">Exit strategy</Typography>
+          </MenuItem>
+        </Select>
       );
     else if (userPositionData.state === ActionState['4'])
       return (
@@ -510,6 +526,9 @@ const Positions = ({
     handleManageButtonClick,
     handleReuseStrategy,
     userPositionData.state,
+    action,
+    handleActionChange,
+    handleEmergencyExit,
   ]);
 
   useEffect(() => {
@@ -559,7 +578,7 @@ const Positions = ({
           {accountAddress ? (
             <CircularProgress />
           ) : (
-            <WalletButton>Connect</WalletButton>
+            <SignerButton>Connect</SignerButton>
           )}
         </Box>
       ) : (
@@ -785,7 +804,7 @@ const Positions = ({
                             }
                             value={'Close'}
                           >
-                            <Typography variant="h6">Exit strategy</Typography>
+                            <Typography variant="h6">Exit Position</Typography>
                           </MenuItem>
                         </Select>
                       ) : (

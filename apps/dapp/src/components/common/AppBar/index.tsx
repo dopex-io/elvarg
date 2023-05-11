@@ -1,49 +1,41 @@
+import Link from 'next/link';
+
 import {
+  Key,
+  ReactNode,
+  SetStateAction,
   useCallback,
+  useEffect,
   useMemo,
   useState,
-  ReactNode,
-  MouseEvent,
-  Key,
-  useEffect,
-  SetStateAction,
 } from 'react';
-import Router from 'next/router';
+
 import { ethers } from 'ethers';
-import cx from 'classnames';
-import Link from 'next/link';
-import Button from '@mui/material/Button';
+
+import MenuIcon from '@mui/icons-material/Menu';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import MenuIcon from '@mui/icons-material/Menu';
-import IconButton from '@mui/material/IconButton';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import axios from 'axios';
+import cx from 'classnames';
+import { useBoundStore } from 'store';
+import { useNetwork } from 'wagmi';
 
-import ClaimRdpxDialog from './ClaimRdpxDialog';
-import NetworkButton from './NetworkButton';
 import Typography from 'components/UI/Typography';
-import WalletDialog from 'components/common/AppBar/WalletDialog';
-import CustomButton from 'components/UI/Button';
 import PriceCarousel from 'components/common/AppBar/PriceCarousel';
 import DisclaimerDialog from 'components/common/DisclaimerDialog';
 
-import { getWeb3Modal } from 'store/Wallet/getWeb3Modal';
-import { useBoundStore } from 'store';
-
 import {
-  CHAIN_ID_TO_RPC,
-  CURRENCIES_MAP,
   DISCLAIMER_MESSAGE,
   OFAC_COMPLIANCE_LOCAL_STORAGE_KEY,
-  PAGE_TO_SUPPORTED_CHAIN_IDS,
 } from 'constants/index';
-import { DEFAULT_CHAIN_ID } from 'constants/env';
 
-import formatAmount from 'utils/general/formatAmount';
-import displayAddress from 'utils/general/displayAddress';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import ConnectButton from '../ConnectButton';
+import ClaimRdpxDialog from './ClaimRdpxDialog';
+import NetworkButton from './NetworkButton';
 
 const AppLink = ({
   name,
@@ -147,7 +139,13 @@ const AppSubMenu = ({
   );
 };
 
-const appLinks = {
+const appLinks: {
+  [key: number]: {
+    name: string;
+    to?: string;
+    subLinks?: { name: string; to: string; description: string }[];
+  }[];
+} = {
   1: [
     { name: 'Farms', to: '/farms' },
     { name: 'Sale', to: '/sale' },
@@ -160,16 +158,7 @@ const appLinks = {
     { name: 'faucet', to: '/faucet' },
     { name: 'Atlantics', to: '/atlantics' },
   ],
-  421611: [
-    // { name: 'options', to: '/' },
-    // { name: 'pools', to: '/pools' },
-    // { name: 'portfolio', to: '/portfolio' },
-    // { name: 'faucet', to: '/faucet' },
-    // { name: 'swap', to: '/swap' },
-    // { name: 'SSOV', to: '/ssov' },
-    { name: 'Atlantics', to: '/atlantics' },
-    { name: 'veDPX', to: '/governance/vedpx' },
-  ],
+  421613: [],
   42161: [
     { name: 'Portfolio', to: '/portfolio' },
     { name: 'Stake', to: '/farms' },
@@ -201,6 +190,11 @@ const appLinks = {
           to: '/straddles',
           description: 'Buy/write straddles for crypto assets',
         },
+        {
+          name: 'Zero Day To Expiry Options',
+          to: '/zdte/eth',
+          description: 'Buy/write ZDTE for crypto assets',
+        },
       ],
     },
     {
@@ -228,6 +222,7 @@ const appLinks = {
         },
       ],
     },
+    { name: 'Scalps', to: '/scalps/ETH' },
   ],
   43114: [{ name: 'SSOV', to: '/ssov' }],
   1088: [{ name: 'SSOV', to: '/ssov' }],
@@ -235,7 +230,10 @@ const appLinks = {
     { name: 'faucet', to: '/faucet' },
     { name: 'OLP', to: '/olp' },
   ],
-  137: [{ name: 'Straddles', to: '/straddles' }],
+  137: [
+    { name: 'SSOV', to: '/ssov' },
+    { name: 'Straddles', to: '/straddles' },
+  ],
 };
 
 const menuLinks = [
@@ -244,7 +242,7 @@ const menuLinks = [
   { name: 'Discord', to: 'https://discord.gg/dopex' },
   { name: 'Github', to: 'https://github.com/dopex-io' },
   { name: 'Price Oracles', to: '/oracles' },
-  { name: 'Diamond Pepe NFTs', to: 'https://dp2.dopex.io' },
+  { name: 'Diamond Pepe NFTs', to: '/nfts/diamondpepes' },
   { name: 'Dopex NFTs', to: '/nfts/dopex' },
   { name: 'Community NFTs', to: '/nfts/community' },
 ];
@@ -262,34 +260,31 @@ interface AppBarProps {
     | 'faucet'
     | 'Rate Vaults'
     | 'Straddles'
+    | 'Scalps'
     | 'OLPs'
     | 'SSOV'
     | 'leaderboard'
     | 'swap'
     | 'DPX Bonds'
     | 'vaults'
-    | 'Atlantics';
+    | 'Atlantics'
+    | 'ZDTE';
 }
 
 export default function AppBar(props: AppBarProps) {
   const { active } = props;
   const {
     accountAddress,
-    connect,
-    provider,
-    wrongNetwork,
-    chainId,
-    ensName,
-    ensAvatar,
-    updateState,
     tokenPrices,
     updateTokenPrices,
-    userAssetBalances,
     updateAssetBalances,
     setOpenComplianceDialog,
     openComplianceDialog,
     setUserCompliant,
+    provider,
   } = useBoundStore();
+
+  const { chain } = useNetwork();
 
   useEffect(() => {
     updateAssetBalances();
@@ -297,46 +292,24 @@ export default function AppBar(props: AppBarProps) {
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [anchorElSmall, setAnchorElSmall] = useState<null | HTMLElement>(null);
-  const [walletDialog, setWalletDialog] = useState(false);
   const [claimRdpxDialog, setClaimRdpxDialog] = useState(false);
-  // TODO: FIX
-  // @ts-ignore
-  const links = appLinks[chainId];
+
+  const links = appLinks[chain?.id || 42161];
 
   const handleRdpxDialogClose = () => setClaimRdpxDialog(false);
 
   const handleClose = useCallback(() => setAnchorEl(null), []);
   const handleCloseSmall = useCallback(() => setAnchorElSmall(null), []);
 
-  const handleWalletConnect = useCallback(() => {
-    connect && connect();
-  }, [connect]);
-
-  const handleWalletDialogClose = useCallback(() => {
-    setWalletDialog(false);
-  }, []);
-
   const handleClickMenu = useCallback(
-    (event: MouseEvent<HTMLButtonElement, MouseEvent>) =>
-      setAnchorEl(event.currentTarget),
+    (event: any) => setAnchorEl(event.currentTarget),
     []
   );
 
   const handleClickMenuSmall = useCallback(
-    (event: MouseEvent<HTMLButtonElement, MouseEvent>) =>
-      setAnchorElSmall(event.currentTarget),
+    (event: any) => setAnchorElSmall(event.currentTarget),
     []
   );
-
-  const handleClick = useCallback(() => {
-    setWalletDialog(true);
-  }, []);
-
-  const walletButtonContent = useMemo(() => {
-    if (wrongNetwork) return 'Wrong Network';
-    if (accountAddress) return displayAddress(accountAddress, ensName);
-    return '';
-  }, [accountAddress, ensName, wrongNetwork]);
 
   const handleClaimRdpx = () => {
     setClaimRdpxDialog(true);
@@ -350,15 +323,19 @@ export default function AppBar(props: AppBarProps) {
     // If signature does not exit in local storage
     if (!data) {
       // Get signature from api
-      let res;
       try {
-        res = await axios.get(
-          `https://flo7r5qw6dj5mi337w2esfvhhm0caese.lambda-url.us-east-1.on.aws/?address=${accountAddress}`
-        );
+        await axios
+          .get(
+            `https://flo7r5qw6dj5mi337w2esfvhhm0caese.lambda-url.us-east-1.on.aws/?address=${ethers.utils.getAddress(
+              accountAddress
+            )}`
+          )
+          .then((res) => {
+            signature = res.data.signature;
+          });
       } catch (err) {
         console.log(err);
       }
-      signature = res ? res.data.signature : null;
     } else {
       let objectified = JSON.parse(data) as any;
       signature = objectified[OFAC_COMPLIANCE_LOCAL_STORAGE_KEY];
@@ -383,12 +360,12 @@ export default function AppBar(props: AppBarProps) {
 
   useEffect(() => {
     updateAssetBalances();
-  }, [updateAssetBalances, provider]);
+  }, [updateAssetBalances]);
 
   const menuItems = useMemo(() => {
     return [
       ...menuLinks,
-      chainId === 1 && {
+      chain?.id === 1 && {
         name: 'Claim',
         children: (
           <Button
@@ -402,22 +379,7 @@ export default function AppBar(props: AppBarProps) {
         ),
       },
     ].filter((i) => i);
-  }, [chainId]);
-
-  useEffect(() => {
-    if (getWeb3Modal()?.cachedProvider) {
-      connect();
-    } else {
-      updateState({
-        provider: new ethers.providers.StaticJsonRpcProvider(
-          CHAIN_ID_TO_RPC[
-            PAGE_TO_SUPPORTED_CHAIN_IDS[Router.asPath]?.default ||
-              DEFAULT_CHAIN_ID
-          ]
-        ),
-      });
-    }
-  }, [connect, updateState]);
+  }, [chain]);
 
   useEffect(() => {
     updateTokenPrices();
@@ -438,11 +400,7 @@ export default function AppBar(props: AppBarProps) {
         open={openComplianceDialog}
         handleClose={setOpenComplianceDialog}
       />
-      <WalletDialog
-        open={walletDialog}
-        userBalances={userAssetBalances}
-        handleClose={handleWalletDialogClose}
-      />
+
       <nav className="fixed top-0 w-full text-gray-600 z-50 backdrop-blur-sm h-[74px]">
         <PriceCarousel tokenPrices={tokenPrices} />
         <Box className="flex w-full items-center container pl-5 pr-5 lg:pl-10 lg:pr-10 p-4 justify-between mx-auto max-w-full">
@@ -458,94 +416,44 @@ export default function AppBar(props: AppBarProps) {
               />
             </Link>
             <Box className="space-x-10 mr-10 hidden lg:flex">
-              {links.map(
-                (link: {
-                  name: Key | null | undefined;
-                  to: string;
-                  subLinks: any;
-                  active: string;
-                }) => {
-                  if (link.subLinks) {
-                    return (
-                      <AppSubMenu
-                        key={link.name}
-                        menuName={link.name}
-                        links={link.subLinks}
-                      />
-                    );
-                  }
+              {links?.map((link) => {
+                if (link.subLinks) {
                   return (
-                    <AppLink
-                      to={link.to || ''}
-                      name={link.name}
-                      active={link.name === active}
+                    <AppSubMenu
                       key={link.name}
+                      menuName={link.name}
+                      links={link.subLinks}
                     />
                   );
                 }
-              )}
+                return (
+                  <AppLink
+                    to={link.to || ''}
+                    name={link.name}
+                    active={link.name === active}
+                    key={link.name}
+                  />
+                );
+              })}
             </Box>
           </Box>
           <Box className="flex items-center">
-            {accountAddress ? (
-              <Box className="bg-cod-gray flex flex-row rounded-md items-center">
-                <Button
-                  variant="text"
-                  className="text-white border-cod-gray hover:border-wave-blue border border-solid"
-                  onClick={handleClick}
-                >
-                  {ensAvatar && (
-                    <img
-                      src={ensAvatar}
-                      className="w-5 mr-2"
-                      alt="ens avatar"
-                    />
-                  )}
-                  {walletButtonContent}
-                </Button>
-                <Box className="bg-mineshaft flex-row px-2 py-2 rounded-md items-center mr-1 hidden lg:flex">
-                  <Typography variant="caption" component="div">
-                    {formatAmount(
-                      getUserReadableAmount(
-                        // TODO: FIX
-                        // @ts-ignore
-                        userAssetBalances[CURRENCIES_MAP[chainId]],
-                        18
-                      ),
-                      3
-                    )}{' '}
-                    <span className="text-stieglitz">
-                      {CURRENCIES_MAP[String(chainId)]
-                        ? CURRENCIES_MAP[String(chainId)]
-                        : 'ETH'}
-                    </span>
-                  </Typography>
-                </Box>
-              </Box>
-            ) : (
-              <CustomButton size="medium" onClick={handleWalletConnect}>
-                Connect Wallet
-              </CustomButton>
-            )}
-            <NetworkButton className="lg:inline-flex hidden ml-2 w-28" />
+            <NetworkButton className="lg:inline-flex hidden mr-2" />
+            <ConnectButton />
             <Box>
-              {/* TODO: FIX */}
-              {/* @ts-ignore */}
               <IconButton
                 aria-label="more"
                 aria-controls="long-menu"
                 aria-haspopup="true"
                 onClick={handleClickMenu}
                 style={{ height: 38 }}
-                className="w-9 long-menu ml-2 rounded-md bg-umbra hover:bg-umbra hover:opacity-80 hidden lg:flex"
+                className="w-9 long-menu ml-2 rounded-md bg-carbon hover:bg-carbon hidden lg:flex"
                 size="large"
               >
                 <MoreVertIcon className="text-silver" />
               </IconButton>
             </Box>
             <Box>
-              {/* TODO: FIX */}
-              {/* @ts-ignore */}
               <IconButton
                 onClick={handleClickMenuSmall}
                 className="lg:hidden"
@@ -564,7 +472,7 @@ export default function AppBar(props: AppBarProps) {
                 <Typography variant="h5" className="font-bold ml-4 my-2">
                   App
                 </Typography>
-                {links?.map(({ to, name, subLinks }: LinkType) => {
+                {links?.map(({ to, name, subLinks }) => {
                   if (to)
                     return (
                       <MenuItem

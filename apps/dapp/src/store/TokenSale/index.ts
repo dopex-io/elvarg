@@ -1,6 +1,7 @@
-import { StateCreator } from 'zustand';
-import { TokenSale__factory, ERC20__factory } from '@dopex-io/sdk';
 import { BigNumber } from 'ethers';
+
+import { ERC20__factory, TokenSale__factory } from '@dopex-io/sdk';
+import { StateCreator } from 'zustand';
 
 import { WalletSlice } from 'store/Wallet';
 
@@ -10,7 +11,7 @@ export interface TokenSaleSlice {
   saleStart: number | BigNumber;
   saleWhitelistStart: number | BigNumber;
   maxWhitelistDeposit: number | BigNumber;
-  saleClose: number | BigNumber;
+  saleClose: BigNumber;
   maxDeposits: string | BigNumber;
   tokensAllocated: string | BigNumber;
   claimAmount: string | BigNumber;
@@ -34,7 +35,7 @@ export const createTokenSaleSlice: StateCreator<
   saleStart: 0,
   saleWhitelistStart: 0,
   maxWhitelistDeposit: 0,
-  saleClose: 0,
+  saleClose: BigNumber.from(0),
   maxDeposits: '',
   tokensAllocated: '',
   claimAmount: '',
@@ -45,6 +46,7 @@ export const createTokenSaleSlice: StateCreator<
   dpxTokenSaleAddress: '',
   updateSaleData: async () => {
     const { provider, contractAddresses } = get();
+
     if (!provider || !contractAddresses || !contractAddresses['TokenSale'])
       return;
 

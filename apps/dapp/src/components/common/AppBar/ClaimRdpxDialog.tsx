@@ -1,24 +1,17 @@
-import { useMemo, useState } from 'react';
-import { useFormik } from 'formik';
-import cx from 'classnames';
-import { utils as ethersUtils } from 'ethers';
-import noop from 'lodash/noop';
-import Box from '@mui/material/Box';
-import Input from '@mui/material/Input';
-import CircularProgress from '@mui/material/CircularProgress';
-import { MerkleDistributor__factory } from '@dopex-io/sdk';
+import { useState } from 'react';
 
+import { MerkleDistributor__factory } from '@dopex-io/sdk';
+import Box from '@mui/material/Box';
+import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
+
+import CustomButton from 'components/UI/Button';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
 
-import BalanceTree from 'utils/merkle/balance-tree';
-import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-
-import useSendTx from 'hooks/useSendTx';
-
-import { useBoundStore } from 'store';
+import formatAmount from 'utils/general/formatAmount';
+import BalanceTree from 'utils/merkle/balance-tree';
 
 import airdropAddresses from 'constants/json/airdropAddresses.json';
 
@@ -31,34 +24,14 @@ const ClaimRdpxModal = ({ open, handleClose }: Props) => {
   const { accountAddress, signer, contractAddresses } = useBoundStore();
 
   const [rdpx, setRdpx] = useState<null | string>(null);
-  const [loading, setLoading] = useState(false);
-
-  const formik = useFormik({
-    initialValues: { address: '' },
-    validate: (values) => {
-      const errors = { address: '' };
-      if (!values.address) {
-        errors.address = 'Address is required';
-      } else if (!ethersUtils.isAddress(values.address)) {
-        errors.address = 'Invalid address';
-      }
-      return errors;
-    },
-    onSubmit: noop,
-  });
 
   const sendTx = useSendTx();
 
-  const isAddressError = useMemo(() => {
-    return formik.touched.address && Boolean(formik.errors.address);
-  }, [formik.touched.address, formik.errors.address]);
-
   const handleClick = async () => {
-    if (!signer) return;
+    if (!signer || !accountAddress) return;
 
     const index = airdropAddresses.findIndex(
-      (item) =>
-        item.account.toLowerCase() === formik.values.address.toLowerCase()
+      (item) => item.account.toLowerCase() === accountAddress?.toLowerCase()
     );
 
     // @ts-ignore
@@ -74,32 +47,23 @@ const ClaimRdpxModal = ({ open, handleClose }: Props) => {
 
       if (!rdpx || rdpx === '0') {
         try {
-          setLoading(true);
           await merkleDistributorContract.callStatic.claim(
             index,
-            formik.values.address,
+            accountAddress,
             amount,
-            tree.getProof(index, formik.values.address, amount)
+            tree.getProof(index, accountAddress, amount)
           );
-          setLoading(false);
           setRdpx(amount);
         } catch {
           setRdpx('0');
-          setLoading(false);
         }
       } else {
-        setLoading(true);
-        try {
-          await sendTx(merkleDistributorContract, 'claim', [
-            index,
-            formik.values.address,
-            amount,
-            tree.getProof(index, formik.values.address, amount),
-          ]);
-          setLoading(false);
-        } catch {
-          setLoading(false);
-        }
+        await sendTx(merkleDistributorContract, 'claim', [
+          index,
+          accountAddress,
+          amount,
+          tree.getProof(index, accountAddress, amount),
+        ]);
         setRdpx(null);
         handleClose();
       }
@@ -108,21 +72,6 @@ const ClaimRdpxModal = ({ open, handleClose }: Props) => {
     }
   };
 
-  const buttonProps = useMemo(() => {
-    if (isAddressError)
-      return { disabled: true, children: String(formik.errors.address) };
-    else if (loading) {
-      return {
-        disabled: true,
-        children: <CircularProgress size={25} />,
-      };
-    } else if (!accountAddress)
-      return { disabled: true, children: 'Connect Account to Claim' };
-    else if (rdpx !== null && Number(rdpx) > 0)
-      return { disabled: false, children: 'Claim' };
-    else return { disabled: false, children: 'Check' };
-  }, [isAddressError, formik.errors.address, rdpx, loading, accountAddress]);
-
   return (
     <Dialog open={open} handleClose={handleClose} showCloseIcon>
       <Typography variant="h3" className="mb-4">
@@ -130,33 +79,8 @@ const ClaimRdpxModal = ({ open, handleClose }: Props) => {
       </Typography>
       <Box className="flex flex-col space-y-6">
         <Typography variant="h5" component="p">
-          Enter an address to check if there is any rDPX available to claim. You
-          can proceed to send a transaction if so.
+          Click the below button to check if you have rDPX to claim
         </Typography>
-        <Box>
-          <Box
-            className={cx(
-              'bg-umbra p-3 rounded-xl mb-1',
-              isAddressError ? 'border border-red-400' : ''
-            )}
-          >
-            <Input
-              disableUnderline={true}
-              name="address"
-              value={formik.values.address}
-              onBlur={formik.handleBlur}
-              onChange={formik.handleChange}
-              className="h-9 text-lg text-white ml-2 w-full"
-              placeholder="Enter address"
-              classes={{ input: 'text-white' }}
-            />
-          </Box>
-          {isAddressError ? (
-            <Typography variant="h5" className="text-red-400">
-              {String(formik.errors.address)}
-            </Typography>
-          ) : null}
-        </Box>
         {rdpx !== null ? (
           Number(rdpx) > 0 ? (
             <Typography variant="h4" className="text-wave-blue">
@@ -169,13 +93,8 @@ const ClaimRdpxModal = ({ open, handleClose }: Props) => {
             </Typography>
           )
         ) : null}
-        <CustomButton
-          size="large"
-          fullWidth
-          onClick={handleClick}
-          disabled={buttonProps.disabled}
-        >
-          {buttonProps.children}
+        <CustomButton size="large" fullWidth onClick={handleClick}>
+          Claim
         </CustomButton>
       </Box>
     </Dialog>

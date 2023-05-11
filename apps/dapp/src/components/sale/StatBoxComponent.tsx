@@ -1,31 +1,24 @@
-import c from 'classnames';
-import Box from '@mui/material/Box';
+import { ReactNode } from 'react';
 
-import Typography from 'components/UI/Typography';
+import Box from '@mui/material/Box';
+import c from 'classnames';
 import Equal from 'svgs/icons/Equal';
 
+import Typography from 'components/UI/Typography';
+
 interface StatBoxProps {
-  Top: any;
-  Bottom: any;
-  data: any;
+  Top: ReactNode;
+  Bottom: ReactNode;
 }
-const StatBox = ({ Top, Bottom, data }: StatBoxProps) => {
-  const { formik } = data;
+
+const StatBox = ({ Top, Bottom }: StatBoxProps) => {
   return (
     <Box className="flex flex-col">
       <Typography
         variant="h4"
-        className={c(
-          formik.values.amount > 0
-            ? 'text-wave-blue flex flex-row items-center'
-            : ''
-        )}
+        className={c('text-wave-blue flex flex-row items-center')}
       >
-        <Equal
-          className={c(
-            formik.values.amount > 0 ? 'hidden mr-2' : 'hidden mr-2'
-          )}
-        />
+        <Equal className={c('hidden mr-2')} />
         {Top}
       </Typography>
       <Box className="flex flex-row items-center">

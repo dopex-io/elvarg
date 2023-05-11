@@ -1,35 +1,32 @@
-import { useState, useEffect } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
+
+import { useEffect, useState } from 'react';
+
 import Box from '@mui/material/Box';
+import { useBoundStore } from 'store';
 
-import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
-
+import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import PageLoader from 'components/common/PageLoader';
-import Typography from 'components/UI/Typography';
+import AutoExerciseInfo from 'components/ir/AutoExerciseInfo';
+import Deposits from 'components/ir/Deposits';
 import Description from 'components/ir/Description';
 import ManageCard from 'components/ir/ManageCard';
 import MobileMenu from 'components/ir/MobileMenu';
-import Sidebar from 'components/ir/Sidebar';
-import SelectStrikeWidget from 'components/ir/SelectStrikeWidget';
-import Deposits from 'components/ir/Deposits';
 import Positions from 'components/ir/Positions';
 import PurchaseCard from 'components/ir/PurchaseCard';
 import PurchaseOptions from 'components/ir/PurchaseOptions';
+import SelectStrikeWidget from 'components/ir/SelectStrikeWidget';
+import Sidebar from 'components/ir/Sidebar';
 import Stats from 'components/ir/Stats';
 import WithdrawalInfo from 'components/ir/WithdrawalInfo';
-import AutoExerciseInfo from 'components/ir/AutoExerciseInfo';
 
-import { useBoundStore } from 'store';
+import { CHAINS } from 'constants/chains';
 
-interface Props {
-  poolName: string;
-}
-
-const Manage = ({ poolName }: Props) => {
+const Manage = ({ poolName }: { poolName: string }) => {
   const {
     accountAddress,
-    connect,
     chainId,
     setSelectedPoolName,
     rateVaultData,
@@ -50,15 +47,11 @@ const Manage = ({ poolName }: Props) => {
   }, [poolName, setSelectedPoolName]);
 
   useEffect(() => {
-    if (!accountAddress) {
-      connect();
-    }
     updateRateVaultContract();
     updateRateVaultEpochData();
     updateRateVault();
   }, [
     accountAddress,
-    connect,
     updateRateVaultContract,
     updateRateVault,
     updateRateVaultEpochData,
@@ -162,7 +155,7 @@ const Manage = ({ poolName }: Props) => {
           className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text"
         >
           <a
-            href={`${CHAIN_ID_TO_EXPLORER[chainId]}/address/${rateVaultData?.rateVaultContract.address}`}
+            href={`${CHAINS[chainId]?.explorer}/address/${rateVaultData?.rateVaultContract.address}`}
             rel="noopener noreferrer"
             target={'_blank'}
           >
@@ -174,17 +167,10 @@ const Manage = ({ poolName }: Props) => {
   );
 };
 
-export async function getServerSideProps(context: {
-  query: { poolName: string };
-}) {
-  return {
-    props: {
-      poolName: context.query.poolName,
-    },
-  };
-}
+const ManagePage = () => {
+  const router = useRouter();
+  const poolName = router.query['poolName'] as string;
 
-const ManagePage = ({ poolName }: Props) => {
   return <Manage poolName={poolName} />;
 };
 

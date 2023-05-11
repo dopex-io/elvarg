@@ -13,8 +13,8 @@ import {
   TableRow,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import _ from 'lodash';
-import { isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
+import sortBy from 'lodash/sortBy';
 import { IOlpApi } from 'pages/olp';
 
 import { TablePaginationActions, Typography } from 'components/UI';
@@ -27,11 +27,13 @@ import SsovFilter from 'components/ssov/SsovFilter';
 
 import { getReadableTime } from 'utils/contracts';
 
+import { CHAINS } from 'constants/chains';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
-import { CHAIN_ID_TO_NETWORK_DATA, ROWS_PER_PAGE } from 'constants/index';
 
 import { FeaturedOlp } from './FeaturedOlp';
 import { OlpTableRow } from './OlpTableRow';
+
+const ROWS_PER_PAGE: number = 5;
 
 const StyleSecondHeaderTable = styled(TableContainer)`
   table {
@@ -95,12 +97,12 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
 
     if (!expiries) return [];
 
-    return _.sortBy(expiries)?.map((o) => getReadableTime(o!));
+    return sortBy(expiries)?.map((o) => getReadableTime(o!));
   }, [olps, chainIds]);
 
   const olpNetworks = useMemo(() => {
     if (!olps) return [];
-    return chainIds.map((c) => CHAIN_ID_TO_NETWORK_DATA[Number(c)]?.name || '');
+    return chainIds.map((c) => CHAINS[Number(c)]?.name || '');
   }, [olps, chainIds]);
 
   const filteredMarket = useMemo(() => {
@@ -110,9 +112,7 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
 
     if (!isEmpty(selectedOlpNetworks)) {
       filtered = filtered.filter((o) =>
-        selectedOlpNetworks.includes(
-          CHAIN_ID_TO_NETWORK_DATA[o.chainId!]?.name || ''
-        )
+        selectedOlpNetworks.includes(CHAINS[o.chainId!]?.name || '')
       );
     }
 

@@ -1,22 +1,23 @@
 import { useMemo, useState } from 'react';
+
 import cx from 'classnames';
-import Box from '@mui/material/Box';
 import format from 'date-fns/format';
-
-import formatAmount from 'utils/general/formatAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-
-import { SsovV3EpochData, SsovV3Data, Reward } from 'store/Vault/ssov';
+import noop from 'lodash/noop';
 import { useBoundStore } from 'store';
+import Action from 'svgs/icons/Action';
+import Coin from 'svgs/icons/Coin';
+
+import { Reward, SsovV3Data, SsovV3EpochData } from 'store/Vault/ssov';
 
 import Typography from 'components/UI/Typography';
-import WalletButton from 'components/common/WalletButton';
-import InfoBox from '../InfoBox';
-import EpochSelector from '../EpochSelector';
-import PurchaseDialog from '../PurchaseDialog';
+import SignerButton from 'components/common/SignerButton';
 
-import Coin from 'svgs/icons/Coin';
-import Action from 'svgs/icons/Action';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
+
+import EpochSelector from '../EpochSelector';
+import InfoBox from '../InfoBox';
+import PurchaseDialog from '../PurchaseDialog';
 
 const Description = ({
   ssovData,
@@ -26,7 +27,7 @@ const Description = ({
   ssovEpochData: SsovV3EpochData;
 }) => {
   const [purchaseState, setPurchaseState] = useState<boolean>(false);
-  const { accountAddress, connect } = useBoundStore();
+  const { accountAddress } = useBoundStore();
 
   const { APY, TVL, rewards } = ssovEpochData;
 
@@ -39,27 +40,24 @@ const Description = ({
 
   const Incentives = () => {
     if (rewards?.length === 0) {
-      return (
-        <Typography variant="h5" className="text-stieglitz mb-5">
-          -
-        </Typography>
-      );
+      return null;
     }
 
     return (
-      <Box className="mb-5">
+      <div className="mb-5">
+        <span className="text-white">Current incentives</span>
         {rewards?.map((rewardInfo: Reward, idx: number) => {
+          if (rewardInfo.amount === '0') return null;
           return (
-            <Typography key={idx} variant="h5" className="text-stieglitz">
-              {formatAmount(
-                getUserReadableAmount(rewardInfo.amount.hex, 18),
-                2
-              )}{' '}
-              {rewardInfo.rewardToken}
-            </Typography>
+            <p key={idx}>
+              <span>
+                {formatAmount(getUserReadableAmount(rewardInfo.amount, 18), 2)}{' '}
+              </span>
+              <span>{rewardInfo.rewardToken}</span>
+            </p>
           );
         })}
-      </Box>
+      </div>
     );
   };
 
@@ -77,8 +75,8 @@ const Description = ({
   ];
 
   return (
-    <Box className="flex flex-col md:mr-5 w-full md:w-[400px]">
-      <Box className="flex">
+    <div className="flex flex-col md:mr-5 w-full md:w-[400px]">
+      <div className="flex">
         <Typography variant="h1" className="mb-6 flex items-center space-x-3">
           <span>{ssovData.underlyingSymbol}</span>
           <span
@@ -100,7 +98,7 @@ const Description = ({
             2
           )}
         </Typography>
-      </Box>
+      </div>
       <Typography variant="h5" className="text-stieglitz mb-6">
         <span className="text-white">
           {ssovData.underlyingSymbol} Single Staking Option Vault V3
@@ -108,13 +106,11 @@ const Description = ({
         <br />
         {`Deposit ${ssovData.collateralSymbol} into strikes providing liquidity into option pools to earn yield in premiums and rewards.`}
       </Typography>
-      <Typography variant="h5" className="text-stieglitz">
-        <span className="text-white">Current incentives</span>
-      </Typography>
+
       <Incentives />
       <EpochSelector className="mb-6" />
       {ssovEpochData.isEpochExpired ? (
-        <Box className="mb-3">
+        <div className="mb-3">
           <Typography variant="h5">
             Settlement price was{' $'}
             {formatAmount(
@@ -122,40 +118,39 @@ const Description = ({
               2
             )}
           </Typography>
-        </Box>
+        </div>
       ) : null}
-      <Box className="mb-3">
+      <div className="mb-3">
         Epoch duration
         <p className="font-bold">
           {format(epochStartTime * 1000, 'd MMM yyyy HH:mm')} -{' '}
           {format(epochEndTime * 1000, 'd MMM yyyy HH:mm')}
         </p>
-      </Box>
-      <Box className="flex justify-center items-center flex-row mb-6">
-        <Box className="w-full mr-2">
-          <WalletButton
+      </div>
+      <div className="flex justify-center items-center flex-row mb-6">
+        <div className="w-full mr-2">
+          <SignerButton
             size="medium"
-            fullWidth
             className="rounded-lg"
             onClick={() => {
-              accountAddress ? setPurchaseState(true) : connect();
+              accountAddress ? setPurchaseState(true) : noop;
             }}
             disabled={ssovData?.isCurrentEpochExpired || false}
           >
             Buy {type} Options
-          </WalletButton>
-        </Box>
-      </Box>
-      <Box className="grid grid-cols-3 gap-2 mb-6">
+          </SignerButton>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-2 mb-6">
         {info.map((item) => {
           return <InfoBox key={item.heading} {...item} />;
         })}
-      </Box>
-      <Box>
+      </div>
+      <div>
         <Typography variant={'h6'} className={'text-stieglitz'}>
           *Effective APY if you deposit now
         </Typography>
-      </Box>
+      </div>
       {purchaseState && (
         <PurchaseDialog
           open={purchaseState}
@@ -168,7 +163,7 @@ const Description = ({
           }
         />
       )}
-    </Box>
+    </div>
   );
 };
 

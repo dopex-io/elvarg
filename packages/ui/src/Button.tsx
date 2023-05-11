@@ -61,9 +61,9 @@ const Button: FC<ButtonProps> = (props) => {
       className={`
         ${className} ${
         variant === "contained" ? BACKGROUND_COLORS[color] : ""
-      } text-sm rounded-[5px] max-w-fit text-white ${SIZE_CLASSES[size]} ${
+      } text-sm rounded-[5px] w-max-fit text-white ${SIZE_CLASSES[size]} ${
         variant === "outlined" ? `${BORDER_COLORS[color]} border` : ""
-      } ${disabled ? "opacity-50" : ""}
+      } ${disabled ? "opacity-50" : "hover:opacity-80"}
       `}
       disabled={disabled}
       {...otherProps}
