@@ -35,10 +35,6 @@ function orZero(value: number): BigNumber {
     : BigNumber.from(0);
 }
 
-function getUsdPrice(value: BigNumber): number {
-  return value.mul(100).div(oneEBigNumber(DECIMALS_USD)).toNumber() / 100;
-}
-
 export function roundToTwoDecimals(num: number): number {
   return Math.round(num * 100) / 100;
 }
@@ -216,7 +212,7 @@ const TradeCard = () => {
 
   useEffect(() => {
     async function updatePremiumAndFees() {
-      if (!selectedSpreadPair?.longStrike || !selectedSpreadPair?.shortStrike) {
+      if (!selectedSpreadPair?.longStrike && !selectedSpreadPair?.shortStrike) {
         setPremiumPerOption(0);
         setOpeningFeesPerOption(0);
         return;
@@ -249,9 +245,14 @@ const TradeCard = () => {
               orZero(selectedSpreadPair.shortStrike)
             ),
           ]);
-        setPremiumPerOption(getUsdPrice(longPremium.sub(shortPremium)));
+        setPremiumPerOption(
+          getUserReadableAmount(longPremium.sub(shortPremium), DECIMALS_USD)
+        );
         setOpeningFeesPerOption(
-          getUsdPrice(longOpeningFees.add(shortOpeningFees))
+          getUserReadableAmount(
+            longOpeningFees.add(shortOpeningFees),
+            DECIMALS_USD
+          )
         );
       } catch (err) {
         console.error('fail to updatePremiumAndFees: ', err);
