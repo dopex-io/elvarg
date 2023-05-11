@@ -26,13 +26,8 @@ export const useConnectDialog = create<ConnectDialogState>()(
 );
 
 const ConnectDialog = () => {
-  const { connect, connectors, error, isLoading, pendingConnector } =
-    useConnect();
-
   const open = useConnectDialog((state) => state.isOpen);
   const handleClose = useConnectDialog((state) => state.close);
-
-  const { connector: activeConnector } = useAccount();
 
   const WALLET_DATA: {
     [key: string]: {
@@ -62,6 +57,16 @@ const ConnectDialog = () => {
     },
   };
 
+  const { connect, connectors, error, isLoading, pendingConnector } =
+    useConnect({
+      onError(error, variables) {
+        window.open(WALLET_DATA[variables.connector.id]!.downloadLink);
+        console.log(error);
+      },
+    });
+
+  const { connector: activeConnector } = useAccount();
+
   return (
     <Dialog open={open} handleClose={handleClose} showCloseIcon>
       <div className="text-white font-bold text-lg mb-3">Connect a Wallet</div>
@@ -74,12 +79,7 @@ const ConnectDialog = () => {
               className="w-full bg-umbra text-white rounded-lg p-3 flex space-x-3 cursor-pointer"
               key={connector.id}
               onClick={() => {
-                if (!connector.ready) {
-                  connect({ connector: connectors[connectors.length - 1]! });
-                } else {
-                  connect({ connector });
-                }
-
+                connect({ connector });
                 action && action();
               }}
             >
