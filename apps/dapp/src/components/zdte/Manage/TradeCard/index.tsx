@@ -5,6 +5,7 @@ import { BigNumber } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
 import { Input as MuiInput } from '@mui/material';
 import useSendTx from 'hooks/useSendTx';
+import Countdown from 'react-countdown';
 import { useBoundStore } from 'store';
 
 import { ISpreadPair } from 'store/Vault/zdte';
@@ -12,6 +13,7 @@ import { ISpreadPair } from 'store/Vault/zdte';
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 import PnlChart from 'components/zdte/Manage/PnlChart';
 import TradeButton from 'components/zdte/Manage/TradeCard/TradeButton';
+import { addZeroes } from 'components/zdte/OptionsTable/OptionsTableRow';
 
 import {
   getContractReadableAmount,
@@ -31,10 +33,6 @@ function orZero(value: number): BigNumber {
   return value
     ? getContractReadableAmount(value, DECIMALS_STRIKE)
     : BigNumber.from(0);
-}
-
-function getUsdPrice(value: BigNumber): number {
-  return value.mul(100).div(oneEBigNumber(DECIMALS_USD)).toNumber() / 100;
 }
 
 export function roundToTwoDecimals(num: number): number {
@@ -73,15 +71,15 @@ function getStrikeDisplay(
   if (selectedSpreadPair === undefined || longStrike === undefined) {
     return defaultDisplay;
   } else if (shortStrike !== undefined && longStrike > shortStrike) {
-    prefix = `${longStrike}-P`;
-    suffix = `${shortStrike}-P`;
+    prefix = `${addZeroes(longStrike.toString())}-P`;
+    suffix = `${addZeroes(shortStrike.toString())}-P`;
   } else if (shortStrike !== undefined && longStrike < shortStrike) {
-    prefix = `${longStrike}-C`;
-    suffix = `${shortStrike}-C`;
+    prefix = `${addZeroes(longStrike.toString())}-C`;
+    suffix = `${addZeroes(shortStrike.toString())}-C`;
   } else if (longStrike >= tokenPrice) {
-    prefix = `${longStrike}-C`;
+    prefix = `${addZeroes(longStrike.toString())}-C`;
   } else {
-    prefix = `${longStrike}-P`;
+    prefix = `${addZeroes(longStrike.toString())}-P`;
   }
   return (
     <span className="text-sm text-up-only">
@@ -100,6 +98,7 @@ const TradeCard = () => {
     provider,
     getZdteContract,
     updateZdteData,
+    updateUserZdtePurchaseData,
     updateVolumeFromSubgraph,
     zdteData,
     accountAddress,
@@ -184,8 +183,11 @@ const TradeCard = () => {
           longStrike: undefined,
         });
       });
-      await updateZdteData();
-      await updateVolumeFromSubgraph();
+      await Promise.all([
+        updateZdteData(),
+        updateUserZdtePurchaseData(),
+        updateVolumeFromSubgraph(),
+      ]);
     } catch (err) {
       console.error('fail to open position', err);
       throw new Error('fail to open position');
@@ -201,6 +203,7 @@ const TradeCard = () => {
     sendTx,
     setTextInputRef,
     updateVolumeFromSubgraph,
+    updateUserZdtePurchaseData,
   ]);
 
   useEffect(() => {
@@ -209,7 +212,7 @@ const TradeCard = () => {
 
   useEffect(() => {
     async function updatePremiumAndFees() {
-      if (!selectedSpreadPair?.longStrike || !selectedSpreadPair?.shortStrike) {
+      if (!selectedSpreadPair?.longStrike && !selectedSpreadPair?.shortStrike) {
         setPremiumPerOption(0);
         setOpeningFeesPerOption(0);
         return;
@@ -242,9 +245,14 @@ const TradeCard = () => {
               orZero(selectedSpreadPair.shortStrike)
             ),
           ]);
-        setPremiumPerOption(getUsdPrice(longPremium.sub(shortPremium)));
+        setPremiumPerOption(
+          getUserReadableAmount(longPremium.sub(shortPremium), DECIMALS_USD)
+        );
         setOpeningFeesPerOption(
-          getUsdPrice(longOpeningFees.add(shortOpeningFees))
+          getUserReadableAmount(
+            longOpeningFees.add(shortOpeningFees),
+            DECIMALS_USD
+          )
         );
       } catch (err) {
         console.error('fail to updatePremiumAndFees: ', err);
@@ -414,6 +422,31 @@ const TradeCard = () => {
         </div>
       </div>
       <div className="p-1 space-y-1">
+        <ContentRow
+          title="Time to Expiry"
+          content={
+            zdteData?.expiry !== undefined ? (
+              <h6 className="text-white">
+                <Countdown
+                  date={new Date(zdteData?.expiry * 1000)}
+                  renderer={({ hours, minutes }) => {
+                    return (
+                      <div className="flex space-x-2">
+                        <h6 className="text-white">
+                          {hours}h {minutes}m
+                        </h6>
+                      </div>
+                    );
+                  }}
+                />
+              </h6>
+            ) : (
+              <div className="flex space-x-2">
+                <h6 className="text-white">...</h6>
+              </div>
+            )
+          }
+        />
         <ContentRow
           title="Liquidity Required"
           content={

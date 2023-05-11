@@ -12,6 +12,7 @@ import { IStaticZdteData, IZdteData, IZdteUserData } from 'store/Vault/zdte';
 
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 import Loading from 'components/zdte/Loading';
+import MigrationStepper from 'components/zdte/Manage/MigrationStepper';
 
 import {
   getContractReadableAmount,
@@ -20,6 +21,10 @@ import {
 import { formatAmount } from 'utils/general';
 
 import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
+
+const DEPRECATED_ZDTE_ADDRS = [
+  { asset: 'eth', address: '0xbc70a8625680ec90292e1cef045a5509e123fa9f' },
+];
 
 class QuoteOrBaseAsset {
   private isQuote: boolean;
@@ -94,6 +99,22 @@ class QuoteOrBaseAsset {
       : this.isQuote
       ? this.userZdteLpData?.canWithdrawQuote
       : this.userZdteLpData?.canWithdrawBase;
+  }
+
+  get getLpValue() {
+    return this.isQuote
+      ? this.zdteData.quoteLpValue === undefined
+        ? 0
+        : formatAmount(
+            getUserReadableAmount(this.zdteData.quoteLpValue, DECIMALS_USD),
+            2
+          )
+      : this.zdteData.baseLpValue === undefined
+      ? 0
+      : formatAmount(
+          getUserReadableAmount(this.zdteData.baseLpValue, DECIMALS_TOKEN),
+          3
+        );
   }
 }
 
@@ -245,8 +266,7 @@ const Withdraw = () => {
     Number(tokenWithdrawAmount) <= asset.getActualLpBalance &&
     asset.coolingPeriodOver;
 
-  console.log('staticZdteData: ', staticZdteData);
-  if (!staticZdteData) {
+  if (!staticZdteData || !asset) {
     return <Loading />;
   }
 
@@ -296,6 +316,10 @@ const Withdraw = () => {
           )} ${!asset ? '' : asset.getAssetSymbol}`}
         />
         <ContentRow
+          title={`1 ${asset?.getAssetSymbol}`}
+          content={`${asset.getLpValue} ${asset.getAssetSymbol.split('-')[0]}`}
+        />
+        <ContentRow
           title="Available Liquidity"
           content={`${formatAmount(!asset ? 0 : asset.getActualLpBalance, 2)} ${
             !asset ? '' : asset.getAssetSymbol
@@ -334,6 +358,16 @@ const Withdraw = () => {
             : 'Cooling period not over'
           : 'Approve'}
       </Button>
+      {DEPRECATED_ZDTE_ADDRS.map((addr, idx) => {
+        return (
+          <MigrationStepper
+            key={idx}
+            isQuote={isQuote}
+            symbol={asset ? asset?.getAssetSymbol : ''}
+            deprecatedAddress={addr}
+          />
+        );
+      })}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { FC, useMemo } from 'react';
+import { FC } from 'react';
 
 import format from 'date-fns/format';
 import { useBoundStore } from 'store';
@@ -23,31 +23,21 @@ const StatsColumn: FC<{ title: string; value: string }> = ({
 };
 
 const Stats = () => {
-  const {
-    zdteData,
-    staticZdteData,
-    tokenPrices,
-    selectedPoolName,
-    subgraphVolume,
-  } = useBoundStore();
-
-  const priceChange = useMemo(() => {
-    const item = tokenPrices.find(
-      (token) => token.name.toLowerCase() === selectedPoolName.toLowerCase()
-    );
-    return Number(formatAmount(item?.change24h || 0, 2));
-  }, [tokenPrices, selectedPoolName]);
+  const { zdteData, staticZdteData, subgraphVolume } = useBoundStore();
 
   const tokenSymbol = staticZdteData?.baseTokenSymbol.toUpperCase();
   const quoteTokenSymbol = staticZdteData?.quoteTokenSymbol.toUpperCase();
 
-  if (!zdteData || !tokenSymbol || !quoteTokenSymbol || !priceChange) {
+  if (!zdteData || !tokenSymbol || !quoteTokenSymbol) {
     return <Loading />;
   }
 
   return (
     <div className="grid grid-rows-2 grid-flow-col text-sm ml-5 flex-1 md:grid-rows-1">
-      <StatsColumn title={`24h Volume`} value={`${subgraphVolume}`} />
+      <StatsColumn
+        title={`24h Volume`}
+        value={`${subgraphVolume ? subgraphVolume : '...'}`}
+      />
       <StatsColumn
         title={`Open Interest`}
         value={`$${formatAmount(

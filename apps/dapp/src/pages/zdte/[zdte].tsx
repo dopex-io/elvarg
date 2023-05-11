@@ -1,8 +1,7 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
-import { useCallback, useEffect } from 'react';
-import React, { useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 
 import { useBoundStore } from 'store';
 
@@ -22,7 +21,9 @@ interface Props {
 
 const Zdte = ({ zdte }: Props) => {
   const {
+    provider,
     setSelectedPoolName,
+    selectedPoolName,
     updateZdteData,
     updateStaticZdteData,
     updateUserZdteLpData,
@@ -36,17 +37,21 @@ const Zdte = ({ zdte }: Props) => {
     if (zdte && setSelectedPoolName) setSelectedPoolName(zdte);
   }, [zdte, setSelectedPoolName]);
 
-  const updateAll = useCallback(() => {
+  const updateAll = useCallback(async () => {
+    if (!provider || !selectedPoolName) return;
     updateZdteData().then(() => {
       updateStaticZdteData().then(() => {
-        getUserPurchaseData().then(() => {
-          updateUserZdteLpData();
-          updateUserZdtePurchaseData();
-          updateVolumeFromSubgraph();
-        });
+        Promise.all([
+          getUserPurchaseData(),
+          updateUserZdteLpData(),
+          updateUserZdtePurchaseData(),
+          updateVolumeFromSubgraph(),
+        ]);
       });
     });
   }, [
+    provider,
+    selectedPoolName,
     updateZdteData,
     updateUserZdteLpData,
     getUserPurchaseData,
@@ -67,11 +72,11 @@ const Zdte = ({ zdte }: Props) => {
   }, [updateAll]);
 
   const chart = useMemo(() => {
-    if (!staticZdteData) {
+    if (!staticZdteData || !selectedPoolName) {
       return <Loading />;
     }
-    return <ZdteDexScreenerChart />;
-  }, [staticZdteData]);
+    return <ZdteDexScreenerChart poolName={selectedPoolName} />;
+  }, [staticZdteData, selectedPoolName]);
 
   return (
     <div className="bg-black min-h-screen">

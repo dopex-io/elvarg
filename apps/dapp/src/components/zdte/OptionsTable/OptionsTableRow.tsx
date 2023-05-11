@@ -37,6 +37,13 @@ export const FormatPercentColor = ({ value }: { value: number }) => {
   }
 };
 
+export function addZeroes(num: string) {
+  if (Number(num) > 10) return num;
+  const dec = num.split('(.|,)')[1];
+  const len = dec && dec.length > 2 ? dec.length : 2;
+  return Number(num).toFixed(len);
+}
+
 export const OptionsTableRow = ({
   tokenPrice,
   optionsStats,
@@ -55,7 +62,12 @@ export const OptionsTableRow = ({
       <StyleLeftCell align="left">
         <div className="flex flex-row items-center w-max">
           <h6 className="text-white capitalize">
-            <span>${formatAmount(optionsStats.strike)}</span>
+            <span>
+              $
+              {optionsStats.strike > 10
+                ? formatAmount(optionsStats.strike)
+                : addZeroes(formatAmount(optionsStats.strike, 2))}
+            </span>
           </h6>
         </div>
       </StyleLeftCell>
@@ -116,7 +128,12 @@ export const OptionsTableRowLower = ({
       <StyleLeftTableCell align="left">
         <div className="flex flex-row items-center w-max">
           <h6 className="text-white capitalize">
-            <span>${formatAmount(optionsStats.strike)}</span>
+            <span>
+              $
+              {optionsStats.strike > 10
+                ? formatAmount(optionsStats.strike)
+                : addZeroes(formatAmount(optionsStats.strike, 2))}
+            </span>
           </h6>
         </div>
       </StyleLeftTableCell>

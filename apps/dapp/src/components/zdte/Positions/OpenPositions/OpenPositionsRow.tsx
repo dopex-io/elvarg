@@ -113,6 +113,12 @@ export const OpenPositionsRow = ({
       <StyleLeftCell align="left">
         <span className="text-sm text-white">{getStrikeDisplay(position)}</span>
       </StyleLeftCell>
+      <StyleLeftCell align="left">
+        <span className="text-sm text-white">{`$${formatAmount(
+          getUserReadableAmount(position.breakeven, DECIMALS_STRIKE),
+          2
+        )}`}</span>
+      </StyleLeftCell>
       <StyleCell align="left">
         <h6 className="text-white">
           {`$${formatAmount(

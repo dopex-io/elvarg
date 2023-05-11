@@ -9,7 +9,6 @@ import {
   ERC20__factory,
 } from '@dopex-io/sdk';
 import Alert from '@mui/material/Alert';
-import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Input from '@mui/material/Input';
 import Tooltip from '@mui/material/Tooltip';
@@ -21,7 +20,6 @@ import { useDebounce } from 'use-debounce';
 
 import CustomButton from 'components/UI/Button';
 import NumberDisplay from 'components/UI/NumberDisplay';
-import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -35,11 +33,10 @@ import { MAX_VALUE } from 'constants/index';
 
 import PnlChart from '../PnlChart';
 
-const POOL_TO_SWAPPER_IDS: { [key: string]: number[] } = {
-  ETH: [2, 3],
-  DPX: [5, 6],
-  RDPX: [5, 6],
-  MATIC: [2, 3],
+const POOL_TO_SWAPPER_IDS: { [key: string]: number } = {
+  ETH: 1, // Uniswap V3
+  DPX: 6, // Uniswap V3 and Sushiswap
+  RDPX: 6, // Uniswap V3 and Sushiswap
 };
 
 const SWAPPER_ID_TO_ROUTE: { [key: string]: string } = {
@@ -62,14 +59,10 @@ function InfoBox({
   precision: number;
 }) {
   return (
-    <Box className="flex justify-between mb-2">
-      <Typography variant="caption" color="stieglitz">
-        {info}
-      </Typography>
-      <Typography variant="caption">
-        ~{`${formatAmount(value, precision)} USDC`}
-      </Typography>
-    </Box>
+    <div className="flex justify-between mb-2">
+      <p className="text-sm text-stieglitz">{info}</p>
+      <p className="text-sm">~{`${formatAmount(value, precision)} USDC`}</p>
+    </div>
   );
 }
 
@@ -87,10 +80,6 @@ const PurchaseCard = () => {
     updateStraddlesEpochData,
     updateStraddlesUserData,
   } = useBoundStore();
-
-  const [bestSwapperId, setBestSwapperId] = useState<number>(
-    POOL_TO_SWAPPER_IDS[selectedPoolName]![0]!
-  );
 
   const { isLoading, error, data } = useQuery(
     ['currentPrice'],
@@ -138,43 +127,16 @@ const PurchaseCard = () => {
       if (!accountAddress || !signer || !straddlesData?.straddlesContract)
         return;
 
-      const promises = [];
-
-      for (let i in POOL_TO_SWAPPER_IDS[selectedPoolName]) {
-        const swapperId = POOL_TO_SWAPPER_IDS[selectedPoolName]![Number(i)]!;
-
-        promises.push(
-          (straddlesData.straddlesContract as AtlanticStraddle)
-            .connect(signer)
-            .callStatic.purchase(
-              getContractReadableAmount(2 * amount, 18),
-              0,
-              swapperId,
-              accountAddress
-            )
+      const data = await (straddlesData.straddlesContract as AtlanticStraddle)
+        .connect(signer)
+        .callStatic.purchase(
+          getContractReadableAmount(2 * amount, 18),
+          0,
+          POOL_TO_SWAPPER_IDS[selectedPoolName]!,
+          accountAddress
         );
-      }
 
-      const responses = await Promise.all(promises);
-
-      let bestProtocolFee: BigNumber = BigNumber.from('0');
-      let bestStraddleCost: BigNumber = BigNumber.from('0');
-      let _bestSwapperId: number = 0;
-
-      for (let i in POOL_TO_SWAPPER_IDS[selectedPoolName]) {
-        const swapperId = POOL_TO_SWAPPER_IDS[selectedPoolName]![Number(i)]!;
-
-        const { protocolFee, straddleCost } = responses[Number(i)]!;
-
-        if (bestStraddleCost.eq(0) || straddleCost.lt(bestStraddleCost)) {
-          bestProtocolFee = protocolFee;
-          bestStraddleCost = straddleCost;
-          _bestSwapperId = swapperId;
-        }
-      }
-
-      setFinalCost(bestProtocolFee.add(bestStraddleCost));
-      setBestSwapperId(_bestSwapperId);
+      setFinalCost(data.protocolFee.add(data.straddleCost));
     }
     async function updateFinalCostV2() {
       if (
@@ -308,7 +270,7 @@ const PurchaseCard = () => {
           [
             getContractReadableAmount(2 * amount, 18),
             0,
-            bestSwapperId,
+            POOL_TO_SWAPPER_IDS[selectedPoolName]!,
             accountAddress,
           ]
         );
@@ -319,16 +281,16 @@ const PurchaseCard = () => {
       console.log(err);
     }
   }, [
-    chainId,
     accountAddress,
     signer,
     updateStraddlesEpochData,
     updateStraddlesUserData,
     straddlesData,
-    sendTx,
-    amount,
-    bestSwapperId,
     straddlesEpochData,
+    chainId,
+    amount,
+    sendTx,
+    selectedPoolName,
   ]);
 
   const handleApprove = useCallback(async () => {
@@ -413,31 +375,28 @@ const PurchaseCard = () => {
   if (isLoading) return <CircularProgress />;
   else if (error === undefined || error)
     return (
-      <Box className="mt-4">
+      <div className="mt-4">
         <Alert severity="error">
           Error fetching price. Refresh and try again.
         </Alert>
-      </Box>
+      </div>
     );
 
   return (
-    <Box>
-      <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
-        <Box className="flex flex-row justify-between">
-          <Box className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
-            <Box className="flex flex-row h-10 w-[130px] p-1">
+    <div>
+      <div className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
+        <div className="flex flex-row justify-between">
+          <div className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
+            <div className="flex flex-row h-10 w-[130px] p-1">
               <img
                 src={`/images/tokens/${selectedPoolName.toLowerCase()}.svg`}
                 alt={selectedPoolName}
               />
-              <Typography
-                variant="h6"
-                className="text-stieglitz text-md font-medium pl-1 pt-1.5 ml-1.5"
-              >
-                <span className="text-white">Straddle</span>
-              </Typography>
-            </Box>
-          </Box>
+              <p className="text-sm text-white text-md font-medium pl-1 pt-1.5 ml-1.5">
+                Straddle
+              </p>
+            </div>
+          </div>
           <Input
             disableUnderline
             id="notionalSize"
@@ -449,24 +408,21 @@ const PurchaseCard = () => {
             onChange={(e) => setRawAmount(e.target.value)}
             classes={{ input: 'text-right' }}
           />
-        </Box>
-        <Box className="my-1 w-full border-neutral-800">
-          <Typography
-            variant="h6"
-            className="flex justify-between mx-2 pb-2 text-gray-400"
-          >
-            <Box>Max amount of straddles available:</Box>
-            <Box>
+        </div>
+        <div className="my-1 w-full border-neutral-800">
+          <div className="flex justify-between mx-2 pb-2 text-stieglitz text-sm">
+            <div>Max amount of straddles available:</div>
+            <div>
               <NumberDisplay
                 n={maxStraddlesCanBeBought || BigNumber.from(0)}
                 decimals={18}
                 decimalsToShow={4}
               />
-            </Box>
-          </Typography>
-        </Box>
-      </Box>
-      <Box className="p-3 bg-cod-gray rounded-md border border-neutral-800">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="p-3 bg-cod-gray rounded-md border border-neutral-800">
         <PnlChart
           optionPrice={totalCost}
           amount={amount}
@@ -475,8 +431,8 @@ const PurchaseCard = () => {
           }
           symbol={selectedPoolName}
         />
-      </Box>
-      <Box className="mt-4 flex flex-col mb-4 p-2 w-full rounded border border-neutral-800">
+      </div>
+      <div className="mt-4 flex flex-col mb-4 p-2 w-full rounded border border-neutral-800">
         <InfoBox
           info={'Premium:'}
           value={
@@ -500,68 +456,50 @@ const PurchaseCard = () => {
           }
           precision={4}
         />
-        <Typography variant="caption" color="down-bad">
+        <span className="text-down-bad text-sm">
           Note that the above cost breakdown is an approximation.
-        </Typography>
-      </Box>
-      <Box className="mt-4 flex mb-4 p-2 w-full rounded border border-neutral-800 justify-between">
+        </span>
+      </div>
+      <div className="mt-4 flex mb-4 p-2 w-full rounded border border-neutral-800 justify-between">
         {finalCost.isZero() ? (
           approved ? (
-            <Typography variant="caption" color="down-bad">
+            <span className="text-down-bad text-sm">
               Error calculating final cost
-            </Typography>
+            </span>
           ) : (
-            <Typography variant="caption" color="wave-blue">
+            <span className="text-wave-blue text-sm">
               Please approve to see final cost
-            </Typography>
+            </span>
           )
         ) : (
           <>
-            <Typography variant="caption" color="stieglitz">
-              You will spend{' '}
-            </Typography>
-            <Typography variant="caption">
+            <span className="text-stieglitz text-sm">You will spend </span>
+            <span className="text-sm">
               {ethersUtils.formatUnits(finalCost, 6)} USDC
-            </Typography>
+            </span>
           </>
         )}
-      </Box>
-      <Box className="mt-4 flex mb-4 p-2 w-full rounded border border-neutral-800 justify-between">
-        {bestSwapperId === 0 ? (
-          <Box className="flex">
-            <CircularProgress className="text-stieglitz mr-2" size={13} />
-            <Typography variant="caption" color="stieglitz">
-              Calculating best route...
-            </Typography>
-          </Box>
-        ) : (
-          <>
-            <Typography variant="caption" color="stieglitz">
-              You will swap using
-            </Typography>
-
-            <Typography variant="caption">
-              {chainId === 137 ? '1inch' : SWAPPER_ID_TO_ROUTE[bestSwapperId]}
-            </Typography>
-          </>
-        )}
-      </Box>
-      <Box className="rounded-lg bg-neutral-800">
-        <Box className="p-3">
-          <Box className="rounded-md flex flex-col mb-3 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-mineshaft">
+      </div>
+      <div className="mt-4 flex mb-4 p-2 w-full rounded border border-neutral-800 justify-between">
+        <>
+          <p className="text-xs text-stieglitz">You will swap using</p>
+          <p className="text-xs">
+            {chainId === 137 ? '1inch' : SWAPPER_ID_TO_ROUTE[6]}
+          </p>
+        </>
+      </div>
+      <div className="rounded-lg bg-neutral-800">
+        <div className="p-3">
+          <div className="rounded-md flex flex-col mb-3 p-4 pt-3.5 pb-3.5 border border-neutral-800 w-full bg-mineshaft">
             <EstimatedGasCostButton gas={5000000} chainId={chainId} />
-          </Box>
+          </div>
           {isBlackout && (
             <Tooltip title="There is a 4-hour blackout window before expiry when purchasing cannot occur">
-              <Box className="bg-mineshaft rounded-md flex justify-center pr-2 pl-3.5 py-3 cursor-pointer mt-3">
-                <Typography
-                  variant="h6"
-                  className="mx-2 pl-1"
-                  color="stieglitz"
-                >
+              <div className="bg-mineshaft rounded-md flex justify-center pr-2 pl-3.5 py-3 cursor-pointer mt-3">
+                <span className="mx-2 pl-1 text-stieglitz text-sm">
                   Blackout period
-                </Typography>
-              </Box>
+                </span>
+              </div>
             </Tooltip>
           )}
           {!isBlackout && (
@@ -587,9 +525,9 @@ const PurchaseCard = () => {
               {purchaseButtonMessage}
             </CustomButton>
           )}
-        </Box>
-      </Box>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 };
 
