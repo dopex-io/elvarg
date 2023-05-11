@@ -216,7 +216,7 @@ const TradeCard = () => {
 
   useEffect(() => {
     async function updatePremiumAndFees() {
-      if (!selectedSpreadPair?.longStrike || !selectedSpreadPair?.shortStrike) {
+      if (!selectedSpreadPair?.longStrike && !selectedSpreadPair?.shortStrike) {
         setPremiumPerOption(0);
         setOpeningFeesPerOption(0);
         return;
@@ -249,9 +249,14 @@ const TradeCard = () => {
               orZero(selectedSpreadPair.shortStrike)
             ),
           ]);
-        setPremiumPerOption(getUsdPrice(longPremium.sub(shortPremium)));
+        setPremiumPerOption(
+          getUserReadableAmount(longPremium.sub(shortPremium), DECIMALS_USD)
+        );
         setOpeningFeesPerOption(
-          getUsdPrice(longOpeningFees.add(shortOpeningFees))
+          getUserReadableAmount(
+            longOpeningFees.add(shortOpeningFees),
+            DECIMALS_USD
+          )
         );
       } catch (err) {
         console.error('fail to updatePremiumAndFees: ', err);
