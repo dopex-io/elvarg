@@ -35,9 +35,9 @@ function orZero(value: number): BigNumber {
     : BigNumber.from(0);
 }
 
-function getUsdPrice(value: BigNumber): number {
-  return value.mul(100).div(oneEBigNumber(DECIMALS_USD)).toNumber() / 100;
-}
+// function getUsdPrice(value: BigNumber): number {
+//   return value.mul(100).div(oneEBigNumber(DECIMALS_USD)).toNumber() / 100;
+// }
 
 export function roundToTwoDecimals(num: number): number {
   return Math.round(num * 100) / 100;
