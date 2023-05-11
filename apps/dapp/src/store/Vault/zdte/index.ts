@@ -696,9 +696,9 @@ export const createZdteSlice: StateCreator<
     }));
   },
   updateVolumeFromSubgraph: async () => {
-    const { zdteData } = get();
+    const { zdteData, selectedPoolName } = get();
 
-    if (!zdteData) {
+    if (!zdteData || !selectedPoolName) {
       return;
     }
 
@@ -711,17 +711,33 @@ export const createZdteSlice: StateCreator<
             fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
           }),
       });
-      const _twentyFourHourVolume = payload.trades
-        ? payload.trades.reduce((acc, trade, _index) => {
-            if (trade.amount) {
-              return acc.add(BigNumber.from(trade.amount));
+
+      const _twentyFourHourVolume: { [key: string]: BigNumber } =
+        payload.trades.reduce(
+          (acc: { ETH: BigNumber; ARB: BigNumber }, trade, _index) => {
+            const address = trade.id.split('#')[0]!;
+            if (address.toLowerCase() === ZDTE_ARB.toLowerCase())
+              return {
+                ARB: acc.ARB.add(BigNumber.from(trade.amount)),
+                ETH: acc.ETH,
+              };
+            else {
+              return {
+                ARB: acc.ARB,
+                ETH: acc.ETH.add(BigNumber.from(trade.amount)),
+              };
             }
-            return acc;
-          }, BigNumber.from(0))
-        : BigNumber.from(0);
+          },
+          { ETH: BigNumber.from(0), ARB: BigNumber.from(0) }
+        );
+
+      const asset: string = selectedPoolName.toUpperCase() || '';
+      const volume: BigNumber =
+        _twentyFourHourVolume[asset] || BigNumber.from(0);
+      volume;
 
       subgraphVolume = `$${formatAmount(
-        getUserReadableAmount(_twentyFourHourVolume.mul(2)) *
+        getUserReadableAmount(volume.mul(2), DECIMALS_TOKEN) *
           zdteData.tokenPrice,
         2,
         true
