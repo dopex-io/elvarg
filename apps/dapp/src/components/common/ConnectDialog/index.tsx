@@ -1,7 +1,7 @@
-import { useConnect, useAccount } from 'wagmi';
-import { devtools } from 'zustand/middleware';
-import { create } from 'zustand';
 import CircularProgress from '@mui/material/CircularProgress';
+import { useAccount, useConnect } from 'wagmi';
+import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
 
 import { Dialog } from 'components/UI';
 
@@ -68,15 +68,14 @@ const ConnectDialog = () => {
       <div className="grid gap-3">
         {connectors.map((connector) => {
           const icon = WALLET_DATA[connector.id]?.icon;
-          const downloadLink = WALLET_DATA[connector.id]?.downloadLink;
           const action = WALLET_DATA[connector.id]?.action;
           return (
             <div
               className="w-full bg-umbra text-white rounded-lg p-3 flex space-x-3 cursor-pointer"
               key={connector.id}
               onClick={() => {
-                if (!connector.ready && downloadLink) {
-                  window.open(downloadLink);
+                if (!connector.ready) {
+                  connect({ connector: connectors[connectors.length - 1]! });
                 } else {
                   connect({ connector });
                 }
