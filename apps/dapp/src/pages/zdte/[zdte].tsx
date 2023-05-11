@@ -41,11 +41,12 @@ const Zdte = ({ zdte }: Props) => {
     if (!provider || !selectedPoolName) return;
     updateZdteData().then(() => {
       updateStaticZdteData().then(() => {
-        getUserPurchaseData().then(() => {
-          updateUserZdteLpData().then(() => {
-            updateUserZdtePurchaseData();
-          });
-        });
+        Promise.all([
+          getUserPurchaseData(),
+          updateUserZdteLpData(),
+          updateUserZdtePurchaseData(),
+          updateVolumeFromSubgraph(),
+        ]);
       });
     });
   }, [
@@ -56,11 +57,8 @@ const Zdte = ({ zdte }: Props) => {
     getUserPurchaseData,
     updateStaticZdteData,
     updateUserZdtePurchaseData,
+    updateVolumeFromSubgraph,
   ]);
-
-  useEffect(() => {
-    updateVolumeFromSubgraph();
-  }, [updateVolumeFromSubgraph]);
 
   useEffect(() => {
     updateAll();
