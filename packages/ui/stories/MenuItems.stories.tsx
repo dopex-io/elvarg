@@ -1,5 +1,5 @@
 import React from "react";
-import { ComponentMeta } from "@storybook/react";
+import { Meta } from "@storybook/react";
 import { Menu as HeadlessMenu } from "@headlessui/react";
 
 import MenuItems, { ItemType } from "../src/MenuItems";
@@ -7,7 +7,7 @@ import PegHedgeIcon from "../src/icons/PegHedgeIcon";
 import InsuredPerpsIcon from "../src/icons/InsuredPerpsIcon";
 import LongStraddleIcon from "../src/icons/LongStraddleIcon";
 
-const meta: ComponentMeta<typeof MenuItems> = {
+const meta: Meta<typeof MenuItems> = {
   title: "MenuItem",
   component: MenuItems,
 };
@@ -42,7 +42,6 @@ export const Variant = () => {
             variant="basic"
             data={data}
             handleSelection={(e) => console.log(e.currentTarget.textContent)}
-            static
           />
         </HeadlessMenu>
       </div>
@@ -53,7 +52,6 @@ export const Variant = () => {
             variant="icon"
             data={data}
             handleSelection={(e) => console.log(e.currentTarget.textContent)}
-            static
           />
         </HeadlessMenu>
       </div>
@@ -67,7 +65,6 @@ export const Variant = () => {
             variant="dense"
             data={data}
             handleSelection={(e) => console.log(e.currentTarget.textContent)}
-            static
           />
         </HeadlessMenu>
       </div>
@@ -82,7 +79,6 @@ export const Variant = () => {
             data={data.concat(data)}
             handleSelection={(e) => console.log(e.currentTarget.textContent)}
             scrollable
-            static
           />
         </HeadlessMenu>
       </div>

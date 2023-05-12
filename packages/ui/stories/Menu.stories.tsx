@@ -1,5 +1,5 @@
 import React from "react";
-import { ComponentMeta } from "@storybook/react";
+import { Meta } from "@storybook/react";
 
 import Menu from "../src/Menu";
 import PegHedgeIcon from "../src/icons/PegHedgeIcon";
@@ -8,7 +8,7 @@ import LongStraddleIcon from "../src/icons/LongStraddleIcon";
 import ContentCopyIcon from "../src/icons/ContentCopyIcon";
 import CheckedIcon from "../src/icons/CheckedIcon";
 
-const meta: ComponentMeta<typeof Menu> = {
+const meta: Meta<typeof Menu> = {
   title: "Menu",
   component: Menu,
 };

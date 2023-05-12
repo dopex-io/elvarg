@@ -1,9 +1,9 @@
 import React from "react";
-import { ComponentMeta } from "@storybook/react";
+import { Meta } from "@storybook/react";
 
 import Button from "../src/Button";
 
-const meta: ComponentMeta<typeof Button> = {
+const meta: Meta<typeof Button> = {
   title: "Button",
   component: Button,
 };

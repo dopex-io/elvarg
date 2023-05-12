@@ -1,13 +1,12 @@
-import AlarmIcon from "../../../apps/dapp/src/svgs/icons/AlarmIcon";
 import Tabs from "../src/Tab";
 import TabHeader from "../src/TabHeader";
-import { ComponentMeta } from "@storybook/react";
+import { Meta } from "@storybook/react";
 import React from "react";
 
 export default {
   title: "Tabs",
   component: Tabs,
-} as ComponentMeta<typeof Tabs>;
+} as Meta<typeof Tabs>;
 
 const Template = (args) => {
   return (
@@ -37,30 +36,6 @@ export const Disabled = () => {
         <TabHeader>item one</TabHeader>
         <TabHeader disabled>item two</TabHeader>
         <TabHeader>item three</TabHeader>
-      </Tabs>
-    </div>
-  );
-};
-
-export const Icons = () => {
-  return (
-    <div className="max-w-md px-2 py-16 sm:px-0">
-      <Tabs>
-        <TabHeader>
-          <div className="flex justify-around">
-            <AlarmIcon />
-          </div>
-        </TabHeader>
-        <TabHeader>
-          <div className="flex justify-around">
-            <AlarmIcon />
-          </div>
-        </TabHeader>
-        <TabHeader>
-          <div className="flex justify-around">
-            <AlarmIcon />
-          </div>
-        </TabHeader>
       </Tabs>
     </div>
   );
