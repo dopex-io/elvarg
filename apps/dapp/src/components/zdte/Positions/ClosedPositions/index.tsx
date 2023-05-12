@@ -43,6 +43,7 @@ export const ClosedPositions = () => {
     staticZdteData,
     userZdteExpiredData,
     updateUserZdteExpiredData,
+    loadingAsset,
   } = useBoundStore();
 
   const [page, setPage] = useState<number>(0);
@@ -58,7 +59,7 @@ export const ClosedPositions = () => {
     updateUserZdteExpiredData();
   }, [updateUserZdteExpiredData]);
 
-  if (!zdteData || !staticZdteData) {
+  if (loadingAsset || !zdteData || !staticZdteData) {
     return <Loading />;
   }
 

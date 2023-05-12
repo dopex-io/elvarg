@@ -151,6 +151,8 @@ export interface ZdteSlice {
   subgraphVolume?: string;
   updateVolumeFromSubgraph: Function;
   expireStats?: IExpiryInfo[];
+  updateLoadingAsset: Function;
+  loadingAsset?: boolean;
 }
 
 export const createZdteSlice: StateCreator<
@@ -749,6 +751,12 @@ export const createZdteSlice: StateCreator<
     set((prevState) => ({
       ...prevState,
       subgraphVolume: subgraphVolume,
+    }));
+  },
+  updateLoadingAsset: (loading: boolean) => {
+    set((prevState) => ({
+      ...prevState,
+      loadingAsset: loading,
     }));
   },
 });

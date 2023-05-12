@@ -11,10 +11,11 @@ import OpenPositions from 'components/zdte/Positions/OpenPositions';
 import displayAddress from 'utils/general/displayAddress';
 
 const Positions = () => {
-  const { accountAddress, ensName, zdteData, staticZdteData } = useBoundStore();
+  const { accountAddress, ensName, zdteData, staticZdteData, loadingAsset } =
+    useBoundStore();
   const [activeTab, setActiveTab] = useState<string>('Open');
 
-  if (!zdteData || !staticZdteData) {
+  if (loadingAsset || !zdteData || !staticZdteData) {
     return <Loading />;
   }
 

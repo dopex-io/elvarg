@@ -31,6 +31,7 @@ const Zdte = ({ zdte }: Props) => {
     updateVolumeFromSubgraph,
     staticZdteData,
     getUserPurchaseData,
+    loadingAsset,
   } = useBoundStore();
 
   useEffect(() => {
@@ -41,12 +42,13 @@ const Zdte = ({ zdte }: Props) => {
     if (!provider || !selectedPoolName) return;
     updateZdteData().then(() => {
       updateStaticZdteData().then(() => {
-        Promise.all([
-          getUserPurchaseData(),
-          updateUserZdteLpData(),
-          updateUserZdtePurchaseData(),
-          updateVolumeFromSubgraph(),
-        ]);
+        getUserPurchaseData().then(() => {
+          Promise.all([
+            updateUserZdteLpData(),
+            updateUserZdtePurchaseData(),
+            updateVolumeFromSubgraph(),
+          ]);
+        });
       });
     });
   }, [
@@ -72,11 +74,11 @@ const Zdte = ({ zdte }: Props) => {
   }, [updateAll]);
 
   const chart = useMemo(() => {
-    if (!staticZdteData || !selectedPoolName) {
+    if (loadingAsset || !staticZdteData || !selectedPoolName) {
       return <Loading />;
     }
     return <ZdteDexScreenerChart poolName={selectedPoolName} />;
-  }, [staticZdteData, selectedPoolName]);
+  }, [staticZdteData, selectedPoolName, loadingAsset]);
 
   return (
     <div className="bg-black min-h-screen">

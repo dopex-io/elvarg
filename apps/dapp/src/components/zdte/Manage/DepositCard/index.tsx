@@ -54,6 +54,7 @@ const Deposit = () => {
     getZdteContract,
     updateZdteData,
     userZdteLpData,
+    loadingAsset,
   } = useBoundStore();
 
   const [isQuote, setisQuote] = useState(true);
@@ -175,7 +176,7 @@ const Deposit = () => {
     checkApproved();
   }, [checkApproved]);
 
-  if (!staticZdteData) {
+  if (loadingAsset || !staticZdteData) {
     return <Loading />;
   }
 

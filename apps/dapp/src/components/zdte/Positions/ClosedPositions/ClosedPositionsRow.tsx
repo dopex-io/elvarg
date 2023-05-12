@@ -7,12 +7,14 @@ import useShare from 'hooks/useShare';
 
 import { IZdteExpiredData, IZdtePurchaseData } from 'store/Vault/zdte';
 
+import { Typography } from 'components/UI';
 import {
   StyleCell,
   StyleLeftCell,
   StyleRightCell,
 } from 'components/common/LpCommon/Table';
 import { FormatDollarColor } from 'components/zdte/OptionsTable/OptionsTableRow';
+import { roundOrPad } from 'components/zdte/Positions/OpenPositions/OpenPositionsRow';
 
 import { getUserReadableAmount } from 'utils/contracts';
 import { formatAmount } from 'utils/general';
@@ -22,12 +24,8 @@ import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 function getStrikeDisplay(
   position: IZdtePurchaseData | IZdteExpiredData
 ): ReactNode {
-  const longStrike = formatAmount(
-    getUserReadableAmount(position.longStrike, DECIMALS_STRIKE)
-  );
-  const shortStrike = formatAmount(
-    getUserReadableAmount(position.shortStrike, DECIMALS_STRIKE)
-  );
+  const longStrike = roundOrPad(position.longStrike);
+  const shortStrike = roundOrPad(position.shortStrike);
 
   let prefix = '';
   let suffix = '';
@@ -73,30 +71,24 @@ export const ClosedPositionsRow = ({
 
       share({
         title: (
-          <h4 className="font-bold shadow-2xl">
-            <span>{`${tokenSymbol} ${prefix} Spread ZDTE`}</span>
-          </h4>
+          <Typography variant="h4" className="font-bold shadow-2xl">
+            {`${tokenSymbol} ${prefix} Spread ZDTE`}
+          </Typography>
         ),
         percentage: pnl,
         customPath: '/zdte/eth',
         stats: [
           {
             name: 'Long Strike Price',
-            value: `$${formatAmount(
-              getUserReadableAmount(position.longStrike, DECIMALS_STRIKE),
-              2
-            )}`,
+            value: `$${roundOrPad(position.longStrike)}`,
           },
           {
             name: 'Short Strike Price',
-            value: `$${formatAmount(
-              getUserReadableAmount(position.shortStrike, DECIMALS_STRIKE),
-              2
-            )}`,
+            value: `$${roundOrPad(position.shortStrike)}`,
           },
           {
             name: 'Current Price',
-            value: `$${formatAmount(zdteData!.tokenPrice, 2)}`,
+            value: `$${roundOrPad(zdteData!.tokenPrice)}`,
           },
         ],
       });

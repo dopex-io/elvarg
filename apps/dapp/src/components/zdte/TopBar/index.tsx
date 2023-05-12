@@ -22,6 +22,12 @@ const TopBar = () => {
     tokenPrices,
     staticZdteData,
     zdteData,
+    getUserPurchaseData,
+    setSelectedSpreadPair,
+    updateLoadingAsset,
+    loadingAsset,
+    updateUserZdteLpData,
+    updateVolumeFromSubgraph,
   } = useBoundStore();
   const router = useRouter();
 
@@ -44,22 +50,39 @@ const TopBar = () => {
         undefined,
         { shallow: true }
       );
+      updateLoadingAsset(true);
       await updateZdteData().then(() => {
         updateStaticZdteData().then(() => {
-          updateUserZdtePurchaseData().then(() => {});
+          getUserPurchaseData().then(() => {
+            Promise.all([
+              updateUserZdteLpData(),
+              updateUserZdtePurchaseData(),
+              updateVolumeFromSubgraph(),
+            ]);
+            setSelectedSpreadPair({
+              shortStrike: undefined,
+              longStrike: undefined,
+            });
+          });
         });
       });
+      updateLoadingAsset(false);
     },
     [
       router,
       setSelectedPoolName,
       updateZdteData,
       updateStaticZdteData,
+      updateUserZdteLpData,
       updateUserZdtePurchaseData,
+      updateVolumeFromSubgraph,
+      getUserPurchaseData,
+      setSelectedSpreadPair,
+      updateLoadingAsset,
     ]
   );
 
-  if (!zdteData || !tokenSymbol || !quoteTokenSymbol) {
+  if (loadingAsset || !zdteData || !tokenSymbol || !quoteTokenSymbol) {
     return <Loading />;
   }
 

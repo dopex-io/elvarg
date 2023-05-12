@@ -130,6 +130,7 @@ const Withdraw = () => {
     userZdteLpData,
     accountAddress,
     staticZdteData,
+    loadingAsset,
   } = useBoundStore();
 
   const [tokenWithdrawAmount, setTokenWithdrawAmount] = useState<
@@ -266,7 +267,7 @@ const Withdraw = () => {
     Number(tokenWithdrawAmount) <= asset.getActualLpBalance &&
     asset.coolingPeriodOver;
 
-  if (!staticZdteData || !asset) {
+  if (loadingAsset || !staticZdteData || !asset) {
     return <Loading />;
   }
 

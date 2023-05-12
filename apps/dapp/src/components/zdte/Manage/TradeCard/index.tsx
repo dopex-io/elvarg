@@ -20,7 +20,6 @@ import {
   getUserReadableAmount,
 } from 'utils/contracts';
 import { formatAmount } from 'utils/general';
-import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import {
   DECIMALS_STRIKE,
@@ -33,10 +32,6 @@ function orZero(value: number): BigNumber {
   return value
     ? getContractReadableAmount(value, DECIMALS_STRIKE)
     : BigNumber.from(0);
-}
-
-export function roundToTwoDecimals(num: number): number {
-  return Math.round(num * 100) / 100;
 }
 
 export function getMaxPayoffPerOption(
@@ -96,6 +91,7 @@ const TradeCard = () => {
   const {
     signer,
     provider,
+    selectedPoolName,
     getZdteContract,
     updateZdteData,
     updateUserZdtePurchaseData,
@@ -107,6 +103,7 @@ const TradeCard = () => {
     setSelectedSpreadPair,
     textInputRef,
     staticZdteData,
+    getUserPurchaseData,
     setTextInputRef,
   } = useBoundStore();
   const zdteContract = getZdteContract();
@@ -185,6 +182,7 @@ const TradeCard = () => {
       });
       await Promise.all([
         updateZdteData(),
+        getUserPurchaseData(),
         updateUserZdtePurchaseData(),
         updateVolumeFromSubgraph(),
       ]);
@@ -203,6 +201,7 @@ const TradeCard = () => {
     sendTx,
     setTextInputRef,
     updateVolumeFromSubgraph,
+    getUserPurchaseData,
     updateUserZdtePurchaseData,
   ]);
 
@@ -212,7 +211,10 @@ const TradeCard = () => {
 
   useEffect(() => {
     async function updatePremiumAndFees() {
-      if (!selectedSpreadPair?.longStrike && !selectedSpreadPair?.shortStrike) {
+      if (
+        (!selectedSpreadPair?.longStrike && !selectedSpreadPair?.shortStrike) ||
+        !selectedPoolName
+      ) {
         setPremiumPerOption(0);
         setOpeningFeesPerOption(0);
         return;
@@ -220,7 +222,7 @@ const TradeCard = () => {
 
       try {
         const zdteContract = await getZdteContract();
-        const ether = oneEBigNumber(DECIMALS_TOKEN);
+        const toBuy = getContractReadableAmount(amount, DECIMALS_TOKEN);
 
         // # long >= current, long < short => isCall
         // # long <= current, long > short, => isPut
@@ -229,19 +231,19 @@ const TradeCard = () => {
             zdteContract.calcPremiumCustom(
               selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike,
               orZero(selectedSpreadPair.longStrike),
-              ether
+              toBuy
             ),
             zdteContract.calcPremium(
               selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike,
               orZero(selectedSpreadPair.shortStrike),
-              ether
+              toBuy
             ),
             zdteContract.calcOpeningFees(
-              ether,
+              toBuy,
               orZero(selectedSpreadPair.longStrike)
             ),
             zdteContract.calcOpeningFees(
-              ether,
+              toBuy,
               orZero(selectedSpreadPair.shortStrike)
             ),
           ]);
@@ -259,7 +261,7 @@ const TradeCard = () => {
       }
     }
     updatePremiumAndFees();
-  }, [selectedSpreadPair, getZdteContract]);
+  }, [selectedSpreadPair, getZdteContract, selectedPoolName, amount]);
 
   useEffect(() => {
     async function validateApproval() {
@@ -288,7 +290,8 @@ const TradeCard = () => {
 
   useEffect(() => {
     async function validateCanOpenSpread() {
-      if (!selectedSpreadPair?.shortStrike || !amount) return;
+      if (!selectedSpreadPair?.shortStrike || !amount || !selectedPoolName)
+        return;
       try {
         const zdteContract = await getZdteContract();
         const sufficient = await zdteContract.canOpenSpreadPosition(
@@ -309,14 +312,15 @@ const TradeCard = () => {
       }
     }
     validateCanOpenSpread();
-  }, [selectedSpreadPair, amount, getZdteContract]);
+  }, [selectedSpreadPair, amount, getZdteContract, selectedPoolName]);
 
   useEffect(() => {
     async function updateMargin() {
       if (
         !selectedSpreadPair?.longStrike ||
         !selectedSpreadPair?.shortStrike ||
-        !amount
+        !amount ||
+        !selectedPoolName
       ) {
         setMargin(0);
         return;
@@ -348,7 +352,7 @@ const TradeCard = () => {
       }
     }
     updateMargin();
-  }, [selectedSpreadPair, amount, getZdteContract]);
+  }, [selectedSpreadPair, amount, getZdteContract, selectedPoolName]);
 
   return (
     <div className="rounded-xl space-y-2 p-2">
@@ -455,24 +459,15 @@ const TradeCard = () => {
               : `${margin} ${staticZdteData?.baseTokenSymbol.toUpperCase()}`
           }
         />
-        <ContentRow
-          title="Premium"
-          content={`$${formatAmount(premium * Number(amount), 2)}`}
-        />
-        <ContentRow
-          title="Fees"
-          content={`$${formatAmount(openingFees * Number(amount), 2)}`}
-        />
+        <ContentRow title="Premium" content={`$${formatAmount(premium, 2)}`} />
+        <ContentRow title="Fees" content={`$${formatAmount(openingFees, 2)}`} />
         <ContentRow
           title="Total Cost (Max Loss)"
-          content={`~$${formatAmount(
-            (premium + openingFees) * Number(amount),
-            2
-          )}`}
+          content={`~$${formatAmount(premium + openingFees, 2)}`}
         />
         <div className="p-1">
           <PnlChart
-            cost={roundToTwoDecimals(premium + openingFees)}
+            cost={(premium + openingFees) / Number(amount)}
             selectedSpreadPair={selectedSpreadPair!}
             amount={Number(amount)}
           />

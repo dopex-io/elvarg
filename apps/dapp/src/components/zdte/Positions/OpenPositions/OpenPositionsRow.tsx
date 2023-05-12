@@ -1,5 +1,7 @@
 import { ReactNode, useCallback } from 'react';
 
+import { BigNumber } from 'ethers';
+
 import IosShare from '@mui/icons-material/IosShare';
 import { IconButton, TableRow } from '@mui/material';
 import useShare from 'hooks/useShare';
@@ -7,25 +9,34 @@ import Countdown from 'react-countdown';
 
 import { IZdteExpiredData, IZdtePurchaseData } from 'store/Vault/zdte';
 
+import { Typography } from 'components/UI';
 import {
   StyleCell,
   StyleLeftCell,
   StyleRightCell,
 } from 'components/common/LpCommon/Table';
-import { FormatDollarColor } from 'components/zdte/OptionsTable/OptionsTableRow';
+import {
+  FormatDollarColor,
+  addZeroes,
+} from 'components/zdte/OptionsTable/OptionsTableRow';
 
-import { getUserReadableAmount } from 'utils/contracts';
+import {
+  getContractReadableAmount,
+  getUserReadableAmount,
+} from 'utils/contracts';
 import { formatAmount } from 'utils/general';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
+export function roundOrPad(num: BigNumber) {
+  return num.lt(getContractReadableAmount(10, DECIMALS_STRIKE))
+    ? addZeroes(formatAmount(getUserReadableAmount(num, DECIMALS_STRIKE), 2))
+    : formatAmount(getUserReadableAmount(num, DECIMALS_STRIKE));
+}
+
 function getStrikeDisplay(position: IZdtePurchaseData): ReactNode {
-  const longStrike = formatAmount(
-    getUserReadableAmount(position.longStrike, DECIMALS_STRIKE)
-  );
-  const shortStrike = formatAmount(
-    getUserReadableAmount(position.shortStrike, DECIMALS_STRIKE)
-  );
+  const longStrike = roundOrPad(position.longStrike);
+  const shortStrike = roundOrPad(position.shortStrike);
 
   let prefix = '';
   let suffix = '';
@@ -74,33 +85,24 @@ export const OpenPositionsRow = ({
 
       share({
         title: (
-          <h4 className="font-bold shadow-2xl">
+          <Typography variant="h4" className="font-bold shadow-2xl">
             {`${tokenSymbol} ${prefix} Spread ZDTE`}
-          </h4>
+          </Typography>
         ),
         percentage: pnl,
         customPath: '/zdte/eth',
         stats: [
           {
             name: 'Long Strike Price',
-            value: `$${formatAmount(
-              getUserReadableAmount(position.longStrike, DECIMALS_STRIKE),
-              2
-            )}`,
+            value: `$${roundOrPad(position.longStrike)}`,
           },
           {
             name: 'Short Strike Price',
-            value: `$${formatAmount(
-              getUserReadableAmount(position.shortStrike, DECIMALS_STRIKE),
-              2
-            )}`,
+            value: `$${roundOrPad(position.shortStrike)}`,
           },
           {
             name: 'Entry Price',
-            value: `$${formatAmount(
-              getUserReadableAmount(position.markPrice, DECIMALS_STRIKE),
-              2
-            )}`,
+            value: `$${roundOrPad(position.markPrice)}`,
           },
         ],
       });

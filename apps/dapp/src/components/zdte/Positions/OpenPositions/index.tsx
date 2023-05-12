@@ -38,7 +38,8 @@ const StyleHeaderTable = styled(TableContainer)`
 const ROWS_PER_PAGE = 5;
 
 export const OpenPositions = () => {
-  const { zdteData, staticZdteData, userZdtePurchaseData } = useBoundStore();
+  const { zdteData, staticZdteData, userZdtePurchaseData, loadingAsset } =
+    useBoundStore();
 
   const [page, setPage] = useState<number>(0);
 
@@ -49,7 +50,7 @@ export const OpenPositions = () => {
     [setPage]
   );
 
-  if (!zdteData || !staticZdteData) {
+  if (loadingAsset || !zdteData || !staticZdteData) {
     return <Loading />;
   }
 
@@ -65,7 +66,7 @@ export const OpenPositions = () => {
                 </span>
               </StyleLeftTableCell>
               <StyleTableCellHeader>Breakeven</StyleTableCellHeader>
-              <StyleTableCellHeader>Mark Price</StyleTableCellHeader>
+              <StyleTableCellHeader>Entry Price</StyleTableCellHeader>
               <StyleTableCellHeader>Amount</StyleTableCellHeader>
               <StyleTableCellHeader>Profit & Loss</StyleTableCellHeader>
               <StyleTableCellHeader>Time to Expiry</StyleTableCellHeader>
@@ -91,7 +92,7 @@ export const OpenPositions = () => {
                 ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} align="center" className="border-none">
+                <TableCell colSpan={7} align="center" className="border-none">
                   <div className="py-3">
                     <span className="text-white">
                       Your open positions will appear here
