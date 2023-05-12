@@ -24,6 +24,8 @@ import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
 const DEPRECATED_ZDTE_ADDRS = [
   { asset: 'eth', address: '0xbc70a8625680ec90292e1cef045a5509e123fa9f' },
+  { asset: 'eth', address: '0xc0b0f0b281f5a2b5d8b75193c12fe6433e3929cc' },
+  { asset: 'eth', address: '0x7fdb659838C0594a91E4FD75F698C1A32BB52f8c' },
 ];
 
 class QuoteOrBaseAsset {

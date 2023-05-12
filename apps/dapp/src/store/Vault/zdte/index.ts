@@ -22,8 +22,8 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
-export const ZDTE: string = '0xc0b0f0b281f5a2b5d8b75193c12fe6433e3929cc';
-export const ZDTE_ARB: string = '0x7fdb659838C0594a91E4FD75F698C1A32BB52f8c';
+export const ZDTE: string = '0x0a9efaddab01c0a00edfaf24377460fafba9411d';
+export const ZDTE_ARB: string = '0xebf0ac8896fddeec5b8592f4c9eb5b8ea3d4dc82';
 
 const SECONDS_IN_A_YEAR = 86400 * 365;
 
