@@ -1,8 +1,7 @@
 import Box from '@mui/material/Box';
+import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
-
-import { useBoundStore } from 'store';
 
 import smartTrim from 'utils/general/smartTrim';
 

@@ -1,15 +1,15 @@
-import Box from '@mui/material/Box';
-import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
 
+import { ethers } from 'ethers';
+
+import Box from '@mui/material/Box';
+import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 import SignerButton from 'components/common/SignerButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-
-import useSendTx from 'hooks/useSendTx';
 
 const SsovV2Deposit = ({ deposit }: any) => {
   const { provider, signer } = useBoundStore();

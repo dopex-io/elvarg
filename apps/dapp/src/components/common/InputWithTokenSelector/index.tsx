@@ -5,19 +5,19 @@ import {
   useCallback,
   useState,
 } from 'react';
-import Box from '@mui/material/Box';
+
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import Box from '@mui/material/Box';
+import { useBoundStore } from 'store';
 
 import Input from 'components/UI/Input';
 import Typography from 'components/UI/Typography';
 
-import TokenSelector from '../TokenSelector';
-
-import { useBoundStore } from 'store';
-
 import { getUserReadableAmount } from 'utils/contracts';
 import { formatAmount, getTokenDecimals } from 'utils/general';
+
+import TokenSelector from '../TokenSelector';
 
 interface IOverrides {
   setTokenSelectorOpen?: Dispatch<React.SetStateAction<boolean>>;

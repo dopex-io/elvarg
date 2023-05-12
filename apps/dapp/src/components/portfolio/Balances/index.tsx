@@ -1,16 +1,16 @@
 import { useEffect, useMemo } from 'react';
+
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
+import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 import SignerButton from 'components/common/SignerButton';
 
-import { useBoundStore } from 'store';
-
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import getSrcFromAssetName from 'utils/general/getSrcFromAssetName';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 export default function Balances() {
   const {

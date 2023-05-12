@@ -478,9 +478,7 @@ const Positions = ({
   }, [userPositionData]);
 
   const renderButton = useMemo(() => {
-    if (
-      userPositionData.state === ActionState['2'] 
-    )
+    if (userPositionData.state === ActionState['2'])
       return (
         <Select
           value={action}
@@ -530,7 +528,7 @@ const Positions = ({
     userPositionData.state,
     action,
     handleActionChange,
-    handleEmergencyExit
+    handleEmergencyExit,
   ]);
 
   useEffect(() => {

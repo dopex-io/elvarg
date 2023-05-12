@@ -1,43 +1,43 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { BigNumber, ethers } from 'ethers';
+
 import { ERC20__factory } from '@dopex-io/sdk';
-import Box from '@mui/material/Box';
-import MenuItem from '@mui/material/MenuItem';
-import IconButton from '@mui/material/IconButton';
-import Menu from '@mui/material/Menu';
-import Slide from '@mui/material/Slide';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import { BigNumber, ethers } from 'ethers';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Slide from '@mui/material/Slide';
 import format from 'date-fns/format';
-import { useDebounce } from 'use-debounce';
-
-import Dialog from 'components/UI/Dialog';
-import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
-import PnlChart from 'components/common/PnlChart';
-import InputWithTokenSelector from 'components/common/InputWithTokenSelector';
+import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
+import AlarmIcon from 'svgs/icons/AlarmIcon';
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 import CircleIcon from 'svgs/icons/CircleIcon';
-import AlarmIcon from 'svgs/icons/AlarmIcon';
+import { useDebounce } from 'use-debounce';
+
+import { SsovV3Data, SsovV3EpochData } from 'store/Vault/ssov';
+
+import CustomButton from 'components/UI/Button';
+import Dialog from 'components/UI/Dialog';
+import Typography from 'components/UI/Typography';
+import InputWithTokenSelector from 'components/common/InputWithTokenSelector';
+import PnlChart from 'components/common/PnlChart';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
-import oneEBigNumber from 'utils/math/oneEBigNumber';
 import getTimeToExpirationInYears from 'utils/date/getTimeToExpirationInYears';
-import { getDelta } from 'utils/math/blackScholes/greeks';
-import get1inchQuote from 'utils/general/get1inchQuote';
 import { getTokenDecimals } from 'utils/general';
-
-import useSendTx from 'hooks/useSendTx';
-
-import { useBoundStore } from 'store';
-import { SsovV3Data, SsovV3EpochData } from 'store/Vault/ssov';
-
-import { MAX_VALUE, OPTION_TOKEN_DECIMALS } from 'constants/index';
-
+import formatAmount from 'utils/general/formatAmount';
+import get1inchQuote from 'utils/general/get1inchQuote';
 import get1inchSwap from 'utils/general/get1inchSwap';
 import isNativeToken from 'utils/general/isNativeToken';
+import { getDelta } from 'utils/math/blackScholes/greeks';
+import oneEBigNumber from 'utils/math/oneEBigNumber';
+
+import { MAX_VALUE, OPTION_TOKEN_DECIMALS } from 'constants/index';
 
 export interface Props {
   open: boolean;

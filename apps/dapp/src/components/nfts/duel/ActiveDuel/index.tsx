@@ -1,13 +1,15 @@
 import React, { useMemo } from 'react';
+
 import Box from '@mui/material/Box';
 import Countdown from 'react-countdown';
-
-import { PepeChildrenButton } from 'components/nfts/components/PepeButton';
-import Typography from 'components/UI/Typography';
-import displayAddress from 'utils/general/displayAddress';
-
 import { useBoundStore } from 'store';
+
 import { Duel } from 'store/Duel';
+
+import Typography from 'components/UI/Typography';
+import { PepeChildrenButton } from 'components/nfts/components/PepeButton';
+
+import displayAddress from 'utils/general/displayAddress';
 
 const ActiveDuel = ({
   duel,

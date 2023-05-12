@@ -1,32 +1,32 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ERC20__factory } from '@dopex-io/sdk';
-import format from 'date-fns/format';
+
 import { BigNumber, utils as ethersUtils } from 'ethers';
+
+import { ERC20__factory } from '@dopex-io/sdk';
+import { CircularProgress } from '@mui/material';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
-import { CircularProgress } from '@mui/material';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import format from 'date-fns/format';
+import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
+import LockerIcon from 'svgs/icons/LockerIcon';
 import { useDebounce } from 'use-debounce';
 
-import { useBoundStore } from 'store';
 import { SsovV3EpochData } from 'store/Vault/ssov';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import Wrapper from 'components/ssov/Wrapper';
 import InputWithTokenSelector from 'components/common/InputWithTokenSelector';
+import Wrapper from 'components/ssov/Wrapper';
 
-import LockerIcon from 'svgs/icons/LockerIcon';
-
-import useSendTx from 'hooks/useSendTx';
-
-import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import { getTokenDecimals } from 'utils/general';
+import formatAmount from 'utils/general/formatAmount';
 import get1inchQuote, { defaultQuoteData } from 'utils/general/get1inchQuote';
 import get1inchSwap from 'utils/general/get1inchSwap';
-import { getTokenDecimals } from 'utils/general';
 import isNativeToken from 'utils/general/isNativeToken';
 
 const SelectMenuProps = {

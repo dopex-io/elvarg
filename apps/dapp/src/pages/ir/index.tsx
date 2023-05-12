@@ -1,8 +1,9 @@
-import { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
 import Head from 'next/head';
-import Box from '@mui/material/Box';
 
+import { useCallback, useEffect, useState } from 'react';
+
+import Box from '@mui/material/Box';
+import axios from 'axios';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
@@ -10,8 +11,8 @@ import AppBar from 'components/common/AppBar';
 import Filter from 'components/common/Filter';
 import RateVaultCard from 'components/ir/VaultCard';
 
-import { DOPEX_API_BASE_URL } from 'constants/env';
 import { CHAINS } from 'constants/chains';
+import { DOPEX_API_BASE_URL } from 'constants/env';
 
 const ssovStates: string[] = ['Active', 'Retired'];
 

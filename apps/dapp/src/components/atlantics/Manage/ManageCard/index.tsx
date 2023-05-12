@@ -23,8 +23,8 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 
-import { MAX_VALUE } from 'constants/index';
 import { CHAINS } from 'constants/chains';
+import { MAX_VALUE } from 'constants/index';
 
 interface ManageCardProps {
   tokenId: string;

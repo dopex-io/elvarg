@@ -1,8 +1,10 @@
 import { useRouter } from 'next/router';
-import Box from '@mui/material/Box';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
+
 import { useCallback } from 'react';
+
+import Box from '@mui/material/Box';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';

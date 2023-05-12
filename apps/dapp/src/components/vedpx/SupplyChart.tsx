@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
+
 import axios from 'axios';
+import { format } from 'date-fns';
 import {
-  AreaChart,
   Area,
+  AreaChart,
   ResponsiveContainer,
   Tooltip,
   TooltipProps,
 } from 'recharts';
-import { format } from 'date-fns';
 
 const CustomTooltip = ({ active, payload }: TooltipProps<any, any>) => {
   if (active && payload && payload.length) {

@@ -1,8 +1,7 @@
-import { useRouter } from 'next/router';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 
 import AppBar from 'components/common/AppBar';
-
 import Manage from 'components/ssov/Manage';
 
 const SsovV3Page = () => {

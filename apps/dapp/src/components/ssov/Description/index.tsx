@@ -1,22 +1,23 @@
 import { useMemo, useState } from 'react';
+
 import cx from 'classnames';
 import format from 'date-fns/format';
 import noop from 'lodash/noop';
-
-import formatAmount from 'utils/general/formatAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-
-import { SsovV3EpochData, SsovV3Data, Reward } from 'store/Vault/ssov';
 import { useBoundStore } from 'store';
+import Action from 'svgs/icons/Action';
+import Coin from 'svgs/icons/Coin';
+
+import { Reward, SsovV3Data, SsovV3EpochData } from 'store/Vault/ssov';
 
 import Typography from 'components/UI/Typography';
 import SignerButton from 'components/common/SignerButton';
-import InfoBox from '../InfoBox';
-import EpochSelector from '../EpochSelector';
-import PurchaseDialog from '../PurchaseDialog';
 
-import Coin from 'svgs/icons/Coin';
-import Action from 'svgs/icons/Action';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
+
+import EpochSelector from '../EpochSelector';
+import InfoBox from '../InfoBox';
+import PurchaseDialog from '../PurchaseDialog';
 
 const Description = ({
   ssovData,

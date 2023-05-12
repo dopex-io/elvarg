@@ -1,7 +1,10 @@
-import { useEffect } from 'react';
 import Head from 'next/head';
-import Box from '@mui/material/Box';
 import { useRouter } from 'next/router';
+
+import { useEffect } from 'react';
+
+import Box from '@mui/material/Box';
+import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
 import AllLpPositions from 'components/olp/AllLpPositions';
@@ -9,8 +12,6 @@ import ProvideLp from 'components/olp/ProvideLp';
 import Stats from 'components/olp/Stats';
 import TopBar from 'components/olp/TopBar';
 import UserLpPositions from 'components/olp/UserLpPositions';
-
-import { useBoundStore } from 'store';
 
 const Olp = ({ poolName }: { poolName: string }) => {
   const {

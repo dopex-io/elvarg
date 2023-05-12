@@ -1,20 +1,21 @@
 import { useMemo, useState } from 'react';
+
 import { BigNumber } from 'ethers';
-import Dialog from '@mui/material/Dialog';
-import CloseIcon from '@mui/icons-material/Close';
-import Box from '@mui/material/Box';
-import SearchIcon from '@mui/icons-material/Search';
-import Chip from '@mui/material/Chip';
+
 import AccessibleForwardIcon from '@mui/icons-material/AccessibleForward';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CloseIcon from '@mui/icons-material/Close';
 import ErrorIcon from '@mui/icons-material/Error';
-import Tooltip from '@mui/material/Tooltip';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-
-import Typography from 'components/UI/Typography';
-import Input from 'components/UI/Input';
-
+import SearchIcon from '@mui/icons-material/Search';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Dialog from '@mui/material/Dialog';
+import Tooltip from '@mui/material/Tooltip';
 import { useBoundStore } from 'store';
+
+import Input from 'components/UI/Input';
+import Typography from 'components/UI/Typography';
 
 export interface EligibilityCheckProps {
   eligibilityModal: boolean;

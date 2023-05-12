@@ -7,8 +7,8 @@ import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
 import Countdown from 'react-countdown';
+import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';

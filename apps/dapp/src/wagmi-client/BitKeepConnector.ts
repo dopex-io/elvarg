@@ -1,5 +1,4 @@
 import type { Chain } from 'wagmi/chains';
-
 import { InjectedConnector } from 'wagmi/connectors/injected';
 
 export class BitKeepConnector extends InjectedConnector {

@@ -1,6 +1,5 @@
-import cx from 'classnames';
-
 import IconButton from '@mui/material/IconButton';
+import cx from 'classnames';
 
 interface WatchAssetOptions {
   address: string;

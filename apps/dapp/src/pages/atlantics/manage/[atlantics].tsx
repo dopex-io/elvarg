@@ -1,17 +1,18 @@
-import { useEffect, useMemo } from 'react';
-import { useRouter } from 'next/router';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
+
+import { useEffect, useMemo } from 'react';
+
 import Box from '@mui/material/Box';
-
-import AppBar from 'components/common/AppBar';
-import Typography from 'components/UI/Typography';
-import ManageCard from 'components/atlantics/Manage/ManageCard';
-import Charts from 'components/atlantics/Charts';
-import ManageTitle from 'components/atlantics/Manage/ManageTitle';
-import ContractData from 'components/atlantics/Manage/ContractData';
-import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
-
 import { useBoundStore } from 'store';
+
+import Typography from 'components/UI/Typography';
+import Charts from 'components/atlantics/Charts';
+import ContractData from 'components/atlantics/Manage/ContractData';
+import ManageCard from 'components/atlantics/Manage/ManageCard';
+import ManageTitle from 'components/atlantics/Manage/ManageTitle';
+import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
+import AppBar from 'components/common/AppBar';
 
 import { ATLANTIC_POOL_INFO } from 'constants/atlanticPoolsInfo';
 

@@ -1,23 +1,21 @@
-import cx from 'classnames';
-
-import Countdown from 'react-countdown';
-
 import Box from '@mui/material/Box';
-import TableContainer from '@mui/material/TableContainer';
 import CircularProgress from '@mui/material/CircularProgress';
 import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
-import TableBody from '@mui/material/TableBody';
+import cx from 'classnames';
+import Countdown from 'react-countdown';
+import { useBoundStore } from 'store';
 
+import Typography from 'components/UI/Typography';
 import { PepeButton } from 'components/nfts/components/PepeButton';
 import PepeSimpleText from 'components/nfts/components/PepeSimpleText';
-import Typography from 'components/UI/Typography';
+
 import displayAddress from 'utils/general/displayAddress';
 import formatAmount from 'utils/general/formatAmount';
-
-import { useBoundStore } from 'store';
 
 export const Duels = ({ findDuel }: { findDuel: Function }) => {
   const { duels } = useBoundStore();

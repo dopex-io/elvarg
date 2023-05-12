@@ -1,18 +1,18 @@
 import { useCallback } from 'react';
+
 import { VeDPXYieldDistributor__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
-
-import SignerButton from 'components/common/SignerButton';
-import Typography from 'components/UI/Typography';
-import NumberDisplay from 'components/UI/NumberDisplay';
-import InfoTooltip from 'components/UI/InfoTooltip';
-
-import { vedpxYieldDistributorAddress } from 'store/VeDPX';
+import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
-import formatAmount from 'utils/general/formatAmount';
+import { vedpxYieldDistributorAddress } from 'store/VeDPX';
 
-import useSendTx from 'hooks/useSendTx';
+import InfoTooltip from 'components/UI/InfoTooltip';
+import NumberDisplay from 'components/UI/NumberDisplay';
+import Typography from 'components/UI/Typography';
+import SignerButton from 'components/common/SignerButton';
+
+import formatAmount from 'utils/general/formatAmount';
 
 const VeDPXYield = () => {
   const {

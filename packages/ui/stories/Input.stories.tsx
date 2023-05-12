@@ -1,10 +1,10 @@
 import React, { useCallback } from "react";
-import { ComponentMeta } from "@storybook/react";
+import { Meta } from "@storybook/react";
 
 import Input from "../src/Input";
 import Menu from "../src/Menu";
 
-const meta: ComponentMeta<typeof Input> = {
+const meta: Meta<typeof Input> = {
   title: "Input",
   component: Input,
 };

@@ -1,14 +1,16 @@
-import { StateCreator } from 'zustand';
 import Router from 'next/router';
-import { ethers, Signer } from 'ethers';
+
+import { Signer, ethers } from 'ethers';
+
 import { providers } from '@0xsequence/multicall';
 import { Addresses } from '@dopex-io/sdk';
+import { StateCreator } from 'zustand';
 
 import { AssetsSlice } from 'store/Assets';
+import { FarmingSlice } from 'store/Farming';
 
 import { CHAINS, PAGE_TO_SUPPORTED_CHAIN_IDS } from 'constants/chains';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
-import { FarmingSlice } from 'store/Farming';
 
 export interface WalletSlice {
   updateState: Function;

@@ -1,27 +1,28 @@
-import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Box from '@mui/material/Box';
 import { useRouter } from 'next/router';
 
-import { CHAINS } from 'constants/chains';
+import { useEffect, useState } from 'react';
 
+import Box from '@mui/material/Box';
+import { useBoundStore } from 'store';
+
+import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import PageLoader from 'components/common/PageLoader';
-import Typography from 'components/UI/Typography';
+import AutoExerciseInfo from 'components/ir/AutoExerciseInfo';
+import Deposits from 'components/ir/Deposits';
 import Description from 'components/ir/Description';
 import ManageCard from 'components/ir/ManageCard';
 import MobileMenu from 'components/ir/MobileMenu';
-import Sidebar from 'components/ir/Sidebar';
-import SelectStrikeWidget from 'components/ir/SelectStrikeWidget';
-import Deposits from 'components/ir/Deposits';
 import Positions from 'components/ir/Positions';
 import PurchaseCard from 'components/ir/PurchaseCard';
 import PurchaseOptions from 'components/ir/PurchaseOptions';
+import SelectStrikeWidget from 'components/ir/SelectStrikeWidget';
+import Sidebar from 'components/ir/Sidebar';
 import Stats from 'components/ir/Stats';
 import WithdrawalInfo from 'components/ir/WithdrawalInfo';
-import AutoExerciseInfo from 'components/ir/AutoExerciseInfo';
 
-import { useBoundStore } from 'store';
+import { CHAINS } from 'constants/chains';
 
 const Manage = ({ poolName }: { poolName: string }) => {
   const {

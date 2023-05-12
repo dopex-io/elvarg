@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
 import { BigNumber } from 'ethers';
+
 import { ERC20__factory } from '@dopex-io/sdk';
+import { CircularProgress } from '@mui/material';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
-import { CircularProgress } from '@mui/material';
 import cx from 'classnames';
-
 import useSendTx from 'hooks/useSendTx';
-
 import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';

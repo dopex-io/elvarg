@@ -1,9 +1,12 @@
-import { useMemo } from 'react';
 import Link from 'next/link';
+
+import { useMemo } from 'react';
+
 import { BigNumber } from 'ethers';
-import Box from '@mui/material/Box';
+
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import KeyboardArrowUpRoundedIcon from '@mui/icons-material/KeyboardArrowUpRounded';
+import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
 

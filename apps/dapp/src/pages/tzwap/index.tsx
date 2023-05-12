@@ -1,6 +1,9 @@
 import Head from 'next/head';
+
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+
 import { BigNumber } from 'ethers';
+
 import {
   Addresses,
   ERC20__factory,
@@ -16,10 +19,10 @@ import Select from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
+import Countdown from 'react-countdown';
 import { LoaderIcon } from 'react-hot-toast';
 import { useBoundStore } from 'store';
 import RedTriangleIcon from 'svgs/icons/RedTriangleIcon';
-import Countdown from 'react-countdown';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';

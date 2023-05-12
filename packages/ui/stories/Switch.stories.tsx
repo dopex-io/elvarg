@@ -1,9 +1,9 @@
 import React from "react";
-import { ComponentMeta } from "@storybook/react";
+import { Meta } from "@storybook/react";
 
 import Switch from "../src/Switch";
 
-const meta: ComponentMeta<typeof Switch> = {
+const meta: Meta<typeof Switch> = {
   title: "Switch",
   component: Switch,
 };

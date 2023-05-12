@@ -1,19 +1,19 @@
-import { useEffect, useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-import axios from 'axios';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import Box from '@mui/material/Box';
 
+import { useCallback, useEffect, useState } from 'react';
+
+import Box from '@mui/material/Box';
+import axios from 'axios';
+import { useBoundStore } from 'store';
+import { GmxCandleStick } from 'types';
+
+import ManageCard from 'components/atlantics/InsuredPerps/ManageCard';
+import Tables from 'components/atlantics/InsuredPerps/Tables';
+import Title from 'components/atlantics/InsuredPerps/Title';
 import AppBar from 'components/common/AppBar';
 import SignerButton from 'components/common/SignerButton';
-import Title from 'components/atlantics/InsuredPerps/Title';
-import Tables from 'components/atlantics/InsuredPerps/Tables';
-import ManageCard from 'components/atlantics/InsuredPerps/ManageCard';
-
-import { useBoundStore } from 'store';
-
-import { GmxCandleStick } from 'types';
 
 export const periods = ['1D', '4H', '1H', '15M', '5M'] as const;
 export type Period = (typeof periods)[number];

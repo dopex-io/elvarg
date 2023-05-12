@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
 
 import { ERC20__factory } from '@dopex-io/sdk';
+import { Checkbox } from '@mui/material';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import Slider from '@mui/material/Slider';
@@ -16,11 +17,10 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
 import { MINIMUM_MARGIN } from 'utils/contracts/option-scalps';
+import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE } from 'constants/index';
-import { Checkbox } from '@mui/material';
 
 const TradeCard = () => {
   const {

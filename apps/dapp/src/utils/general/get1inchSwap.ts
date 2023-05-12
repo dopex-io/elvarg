@@ -1,5 +1,6 @@
-import axios from 'axios';
 import { BigNumber } from 'ethers';
+
+import axios from 'axios';
 
 interface Args {
   fromTokenAddress: string;

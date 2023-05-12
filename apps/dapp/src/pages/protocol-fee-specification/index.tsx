@@ -1,20 +1,23 @@
-import { useEffect, useState } from 'react';
 import Head from 'next/head';
-import axios from 'axios';
+
+import { useEffect, useState } from 'react';
+
+import { BigNumber, ethers } from 'ethers';
+
+import { providers } from '@0xsequence/multicall';
 import {
   AtlanticStraddleV2__factory,
   AtlanticStraddle__factory,
 } from '@dopex-io/sdk';
 import Skeleton from '@mui/material/Skeleton';
-import { BigNumber, ethers } from 'ethers';
-import { providers } from '@0xsequence/multicall';
+import axios from 'axios';
 
 import AppBar from 'components/common/AppBar';
 
-import { DOPEX_API_BASE_URL } from 'constants/env';
-import { CHAINS } from 'constants/chains';
-
 import createChunks from 'utils/general/createChunks';
+
+import { CHAINS } from 'constants/chains';
+import { DOPEX_API_BASE_URL } from 'constants/env';
 
 interface SsovCardProps {
   name: string;

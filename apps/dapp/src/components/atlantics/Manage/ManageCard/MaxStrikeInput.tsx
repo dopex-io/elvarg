@@ -1,15 +1,17 @@
-import { useCallback, useState, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+
 import { BigNumber } from 'ethers';
+
+import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import Tooltip from '@mui/material/Tooltip';
-import InfoOutlined from '@mui/icons-material/InfoOutlined';
+import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 
-import { useBoundStore } from 'store';
-
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+
 import { CHAINS } from 'constants/chains';
 
 interface MaxStrikeInputProps {

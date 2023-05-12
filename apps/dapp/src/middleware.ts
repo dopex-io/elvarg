@@ -1,5 +1,4 @@
 import type { NextRequest } from 'next/server';
-
 import { NextResponse } from 'next/server';
 
 const BLOCKED_COUNTRIES_ALPHA_2_CODES: string[] = [

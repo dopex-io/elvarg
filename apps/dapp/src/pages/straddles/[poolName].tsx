@@ -1,19 +1,20 @@
 import Head from 'next/head';
-import { useEffect } from 'react';
-import Box from '@mui/material/Box';
 import { useRouter } from 'next/router';
+
+import { useEffect } from 'react';
+
+import Box from '@mui/material/Box';
+import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
-import TopBar from 'components/straddles/TopBar';
-import Stats from 'components/straddles/Stats';
 import PoolCard from 'components/straddles/Charts/PoolCard';
 import TVLCard from 'components/straddles/Charts/TVLCard';
 import Deposits from 'components/straddles/Deposits';
-import Positions from 'components/straddles/Positions';
 import Manage from 'components/straddles/Manage';
-
-import { useBoundStore } from 'store';
+import Positions from 'components/straddles/Positions';
+import Stats from 'components/straddles/Stats';
+import TopBar from 'components/straddles/TopBar';
 
 const SHOWCHARTS = false;
 

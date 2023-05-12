@@ -1,24 +1,23 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
+
 import { BigNumber, ethers } from 'ethers';
+
 import {
   ERC20__factory,
-  StakingRewards__factory,
   StakingRewardsV3__factory,
+  StakingRewards__factory,
 } from '@dopex-io/sdk';
 import { Button } from '@dopex-io/ui';
-import Stepper from '@mui/material/Stepper';
-import Step from '@mui/material/Step';
-import StepLabel from '@mui/material/StepLabel';
-import StepContent from '@mui/material/StepContent';
 import CircularProgress from '@mui/material/CircularProgress';
-
-import { useBoundStore } from 'store';
-
+import Step from '@mui/material/Step';
+import StepContent from '@mui/material/StepContent';
+import StepLabel from '@mui/material/StepLabel';
+import Stepper from '@mui/material/Stepper';
 import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
+import { FarmStatus } from 'types/farms';
 
 import Dialog from 'components/UI/Dialog';
-
-import { FarmStatus } from 'types/farms';
 
 interface Props {
   data: {

@@ -1,14 +1,14 @@
 import { useEffect } from 'react';
-import Box from '@mui/material/Box';
 
-import Description from 'components/ssov/Description';
+import Box from '@mui/material/Box';
+import { useBoundStore } from 'store';
+
+import Typography from 'components/UI/Typography';
+import PageLoader from 'components/common/PageLoader';
 import DepositPanel from 'components/ssov/DepositPanel';
+import Description from 'components/ssov/Description';
 import ExerciseList from 'components/ssov/ExerciseList';
 import Stats from 'components/ssov/Stats';
-import PageLoader from 'components/common/PageLoader';
-import Typography from 'components/UI/Typography';
-
-import { useBoundStore } from 'store';
 import WritePositions from 'components/ssov/WritePositions';
 
 import { CHAINS } from 'constants/chains';

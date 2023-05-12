@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 
+import { Box, Button, ButtonGroup, Typography } from '@mui/material';
+
 import DepositCard from 'components/scalps/DepositCard';
 import WithdrawCard from 'components/scalps/WithdrawCard';
-import { Box, Button, ButtonGroup, Typography } from '@mui/material';
 
 const Manage = () => {
   const [section, setSection] = useState('Deposit');
