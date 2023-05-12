@@ -9,7 +9,7 @@
     "export": {},
     "storybook": { "cache": false, "persistent": true },
     "lint": {},
-    "generate": { "outputs": [".graphclient"] },
+    "generate": { "inputs": ["src/graphql"], "outputs": [".graphclient"] },
     "build": {
       "cache": false,
       "outputs": [".next/**"],

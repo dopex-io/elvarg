@@ -1,5 +1,5 @@
 import { Tab as HeadlessTab } from "@headlessui/react";
-import React, { FC, ReactNode } from "react";
+import { FC, ReactNode } from "react";
 
 const SIZES: { [key: string]: string } = {
   small: "h-[1.875rem] w-[41.625rem]",

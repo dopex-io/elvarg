@@ -61,6 +61,7 @@ importers:
       sass: ^1.62.1
       tailwindcss: ^3.3.2
       ts-node: ^10.9.1
+      tsconfig: workspace:*
       typescript: ^5.0.4
       use-debounce: ^9.0.4
       wagmi: ^0.12.12
@@ -115,6 +116,7 @@ importers:
       prettier: 2.8.8
       tailwindcss: 3.3.2_ts-node@10.9.1
       ts-node: 10.9.1_typescript@5.0.4
+      tsconfig: link:../../packages/tsconfig
       typescript: 5.0.4
 
   apps/share:
@@ -128,6 +130,7 @@ importers:
       next-seo: ^6
       react: ^18.2.0
       react-dom: ^18.2.0
+      tsconfig: workspace:*
       typescript: 5.0.4
     dependencies:
       '@types/node': 18.15.11
@@ -139,7 +142,11 @@ importers:
       next-seo: 6.0.0_ld2jel3hspngo3u5lti2kgl2sq
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
+      tsconfig: link:../../packages/tsconfig
       typescript: 5.0.4
+
+  packages/tsconfig:
+    specifiers: {}
 
   packages/ui:
     specifiers:
@@ -165,6 +172,7 @@ importers:
       storybook: ^7.0.10
       storybook-dark-mode: ^3.0.0
       tailwindcss: ^3.3.2
+      tsconfig: workspace:*
       tslib: ^2.5.0
       typescript: ^5.0.4
     dependencies:
@@ -191,6 +199,7 @@ importers:
       storybook: 7.0.10
       storybook-dark-mode: 3.0.0_biqbaboplfbrettd7655fr4n2y
       tailwindcss: 3.3.2
+      tsconfig: link:../tsconfig
       tslib: 2.5.0
       typescript: 5.0.4
 
@@ -8198,15 +8207,6 @@ packages:
       indent-string: 4.0.0
     dev: true
 
-  /ajv-formats/2.1.1:
-    resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
-    peerDependenciesMeta:
-      ajv:
-        optional: true
-    dependencies:
-      ajv: 8.12.0
-    dev: true
-
   /ajv-formats/2.1.1_ajv@8.12.0:
     resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
     peerDependencies:
@@ -13394,7 +13394,7 @@ packages:
       react: '>=16.0.0'
       react-dom: '>=16.0.0'
     dependencies:
-      next: 13.2.4_biqbaboplfbrettd7655fr4n2y
+      next: 13.2.4_txdvpvppf2ilsh27xadmwrzlmm
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     dev: false
@@ -15089,7 +15089,7 @@ packages:
     dependencies:
       '@types/json-schema': 7.0.11
       ajv: 8.12.0
-      ajv-formats: 2.1.1
+      ajv-formats: 2.1.1_ajv@8.12.0
       ajv-keywords: 5.1.0_ajv@8.12.0
     dev: true
 
