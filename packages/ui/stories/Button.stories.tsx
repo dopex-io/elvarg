@@ -16,7 +16,9 @@ const Template = (args) => {
       style={{
         display: "grid",
         gap: "12px",
+        padding: "24px",
       }}
+      className="bg-cod-gray"
     >
       {args.array.map((item) => {
         return (
