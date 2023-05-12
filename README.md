@@ -17,54 +17,48 @@ Please have these installed on your machine:
 pnpm i
 ```
 
-### Install `turbo` globally:
-
-```
-pnpm add -g turbo
-```
-
 ### Turbo pipeline commands
 
 `dev` - Runs the dapp in dev mode
 
 ```
-turbo dev
+pnpm dev
 ```
 
 `build` - Builds the dapp
 
 ```
-turbo build
+pnpm build
 ```
 
 `storybook` - Run the storybook in dev mode
 
 ```
-turbo storybook
+pnpm storybook
 ```
 
 `lint` - Runs linting
 
 ```
-turbo lint
+pnpm lint
 ```
 
 `generate` - Runs the graphql codegen in dapp
 
 ```
-turbo generate
+pnpm generate
 ```
 
 `build-ui` - Builds the UI package
 
 ```
-turbo build-ui
+pnpm build-ui
 ```
 
 `build-storybook` - Builds the storybook
 
 ```
-turbo build-storybook
+pnpm build-storybook
 ```
 
 ### Installing dependencies into a workspace
