@@ -1,7 +1,7 @@
-import Box from '@mui/material/Box';
-import cx from 'classnames';
-import Tooltip from '@mui/material/Tooltip';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
+import cx from 'classnames';
 
 import Typography from 'components/UI/Typography';
 

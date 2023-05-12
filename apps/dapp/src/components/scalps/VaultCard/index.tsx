@@ -10,8 +10,8 @@ import format from 'date-fns/format';
 import Coin from 'svgs/icons/Coin';
 
 import CustomButton from 'components/UI/Button';
+import InfoBox from 'components/UI/InfoBox';
 import Typography from 'components/UI/Typography';
-import InfoBox from 'components/ir/InfoBox';
 
 import formatAmount from 'utils/general/formatAmount';
 
