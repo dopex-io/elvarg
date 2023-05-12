@@ -12,7 +12,6 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import cx from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
 import { useBoundStore } from 'store';
@@ -25,7 +24,6 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import isZeroAddress from 'utils/contracts/isZeroAddress';
 
 import ExerciseTableData from './ExerciseTableData';
-import styles from './styles.module.scss';
 
 interface userExercisableOption {
   strikeIndex: number;
@@ -165,7 +163,7 @@ const ExerciseList = () => {
         </Typography>
       </Box>
       <Box className="balances-table text-white pb-4">
-        <TableContainer className={cx(styles['optionsTable'], 'bg-cod-gray')}>
+        <TableContainer className="bg-cod-gray">
           {!accountAddress ? (
             <Box className="p-4 flex items-center justify-center">
               <SignerButton size="medium">Connect a Wallet</SignerButton>
@@ -183,7 +181,7 @@ const ExerciseList = () => {
               ))}
             </Box>
           ) : (
-            <Table>
+            <Table className="border-separate border-spacing-y-2">
               <TableHead className="bg-umbra">
                 <TableRow className="bg-umbra">
                   <TableCell
@@ -234,7 +232,7 @@ const ExerciseList = () => {
                   </TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody className={cx('rounded-lg')}>
+              <TableBody className="rounded-lg">
                 {userExercisableOptions
                   .slice(
                     page * ROWS_PER_PAGE,

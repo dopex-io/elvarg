@@ -1,26 +1,27 @@
-import { useCallback, useState, useMemo, SetStateAction } from 'react';
+import { SetStateAction, useCallback, useMemo, useState } from 'react';
+
 import { BigNumber } from 'ethers';
-import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
+
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import TableCell from '@mui/material/TableCell';
+import TableRow from '@mui/material/TableRow';
 import { format } from 'date-fns';
-
+import useShare from 'hooks/useShare';
 import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import Settle from './Dialogs/Settle';
-import Transfer from './Dialogs/Transfer';
 
-import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 import getPercentageDifference from 'utils/math/getPercentageDifference';
 
-import useShare from 'hooks/useShare';
+import Settle from './Dialogs/Settle';
+import Transfer from './Dialogs/Transfer';
 
 interface ExerciseTableDataProps {
   strikeIndex: number;
@@ -149,7 +150,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         handleClose={handleClose}
         strikeIndex={strikeIndex}
       />
-      <TableCell align="left">
+      <TableCell align="left" className="border-0 py-1">
         <Box className="h-12 flex flex-row items-center">
           <Box className="flex flex-row h-8 w-8 mr-2">
             <img
@@ -164,18 +165,18 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
           </Typography>
         </Box>
       </TableCell>
-      <TableCell align="left" className="mx-0 pt-2">
+      <TableCell align="left" className="border-0 py-1">
         <Typography variant="h6">${formatAmount(strikePrice, 5)}</Typography>
       </TableCell>
-      <TableCell align="left" className="pt-2">
+      <TableCell align="left" className="border-0 py-1">
         <Typography variant="h6">{formatAmount(purchasedAmount, 5)}</Typography>
       </TableCell>
-      <TableCell align="left" className="px-6 pt-2">
+      <TableCell align="left" className="border-0 py-1">
         <Typography variant="h6">
           {formatAmount(getUserReadableAmount(settleableAmount, 18), 5)}
         </Typography>
       </TableCell>
-      <TableCell align="left" className="px-6 pt-2">
+      <TableCell align="left" className="border-0 py-1">
         <Typography variant="h6">
           {pnlAmount.gte(0)
             ? `${formatAmount(getUserReadableAmount(pnlAmount, 18), 5)} ${
@@ -184,7 +185,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
             : `0 ${ssovData?.collateralSymbol}`}
         </Typography>
       </TableCell>
-      <TableCell align="right">
+      <TableCell align="right" className="border-0 py-1">
         <Box className="flex justify-end">
           <CustomButton
             size="medium"
