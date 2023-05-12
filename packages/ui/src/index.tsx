@@ -9,5 +9,3 @@ export { default as MenuItems } from "./MenuItems";
 export { default as Input } from "./Input";
 
 export * from "./icons";
-
-export { default as tailwindThemeConfig } from "./tailwindThemeConfig.json";

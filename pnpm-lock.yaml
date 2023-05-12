@@ -60,6 +60,7 @@ importers:
       react-hot-toast: ^2.4.1
       react-tradingview-embed: ^3.0.6
       recharts: 2.5.0
+      tailwind-config: workspace:*
       tailwindcss: ^3.3.2
       ts-node: ^10.9.1
       tsconfig: workspace:*
@@ -114,6 +115,7 @@ importers:
       eslint-config-next: 13.3.4_iacogk7kkaymxepzhgcbytyi7q
       postcss: 8.4.23
       prettier: 2.8.8
+      tailwind-config: link:../../packages/tailwind-config
       tailwindcss: 3.3.2_ts-node@10.9.1
       ts-node: 10.9.1_typescript@5.0.4
       tsconfig: link:../../packages/tsconfig
@@ -145,6 +147,9 @@ importers:
       tsconfig: link:../../packages/tsconfig
       typescript: 5.0.4
 
+  packages/tailwind-config:
+    specifiers: {}
+
   packages/tsconfig:
     specifiers: {}
 
@@ -171,6 +176,7 @@ importers:
       rimraf: ^5.0.0
       storybook: ^7.0.10
       storybook-dark-mode: ^3.0.0
+      tailwind-config: workspace:*
       tailwindcss: ^3.3.2
       tsconfig: workspace:*
       tslib: ^2.5.0
@@ -198,6 +204,7 @@ importers:
       rimraf: 5.0.0
       storybook: 7.0.10
       storybook-dark-mode: 3.0.0_biqbaboplfbrettd7655fr4n2y
+      tailwind-config: link:../tailwind-config
       tailwindcss: 3.3.2
       tsconfig: link:../tsconfig
       tslib: 2.5.0

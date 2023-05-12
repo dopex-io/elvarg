@@ -49,13 +49,7 @@ pnpm lint
 pnpm generate
 ```
 
-`build-ui` - Builds the UI package
-
-```
-pnpm build-ui
-```
-
-`build-storybook` - Builds the storybook
+`build-storybook` - Builds the storybook for the ui package
 
 ```
 pnpm build-storybook
