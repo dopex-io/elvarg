@@ -1,16 +1,17 @@
+import Link from 'next/link';
+
 import { useMemo } from 'react';
-import cx from 'classnames';
+
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
-import Link from 'next/link';
 import { styled } from '@mui/material/styles';
+import cx from 'classnames';
 import format from 'date-fns/format';
+import Coin from 'svgs/icons/Coin';
 
 import CustomButton from 'components/UI/Button';
+import InfoBox from 'components/UI/InfoBox';
 import Typography from 'components/UI/Typography';
-import InfoBox from 'components/ir/InfoBox';
-
-import Coin from 'svgs/icons/Coin';
 
 import formatAmount from 'utils/general/formatAmount';
 
