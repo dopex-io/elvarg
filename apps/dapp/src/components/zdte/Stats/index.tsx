@@ -23,13 +23,13 @@ const StatsColumn: FC<{ title: string; value: string }> = ({
 };
 
 const Stats = () => {
-  const { zdteData, staticZdteData, subgraphVolume, loadingAsset } =
+  const { zdteData, staticZdteData, subgraphVolume, isLoading } =
     useBoundStore();
 
   const tokenSymbol = staticZdteData?.baseTokenSymbol.toUpperCase();
   const quoteTokenSymbol = staticZdteData?.quoteTokenSymbol.toUpperCase();
 
-  if (loadingAsset || !zdteData || !tokenSymbol || !quoteTokenSymbol) {
+  if (isLoading || !zdteData || !tokenSymbol || !quoteTokenSymbol) {
     return <Loading />;
   }
 

@@ -24,10 +24,10 @@ const TopBar = () => {
     zdteData,
     getUserPurchaseData,
     setSelectedSpreadPair,
-    updateLoadingAsset,
-    loadingAsset,
+    isLoading,
     updateUserZdteLpData,
     updateVolumeFromSubgraph,
+    setIsLoading,
   } = useBoundStore();
   const router = useRouter();
 
@@ -50,7 +50,7 @@ const TopBar = () => {
         undefined,
         { shallow: true }
       );
-      updateLoadingAsset(true);
+      setIsLoading(true);
       await updateZdteData().then(() => {
         updateStaticZdteData().then(() => {
           getUserPurchaseData().then(() => {
@@ -66,7 +66,7 @@ const TopBar = () => {
           });
         });
       });
-      updateLoadingAsset(false);
+      setIsLoading(false);
     },
     [
       router,
@@ -78,11 +78,11 @@ const TopBar = () => {
       updateVolumeFromSubgraph,
       getUserPurchaseData,
       setSelectedSpreadPair,
-      updateLoadingAsset,
+      setIsLoading,
     ]
   );
 
-  if (loadingAsset || !zdteData || !tokenSymbol || !quoteTokenSymbol) {
+  if (isLoading || !zdteData || !tokenSymbol || !quoteTokenSymbol) {
     return <Loading />;
   }
 

@@ -38,7 +38,7 @@ const StyleHeaderTable = styled(TableContainer)`
 const ROWS_PER_PAGE = 5;
 
 export const OpenPositions = () => {
-  const { zdteData, staticZdteData, userZdtePurchaseData, loadingAsset } =
+  const { zdteData, staticZdteData, userZdtePurchaseData, isLoading } =
     useBoundStore();
 
   const [page, setPage] = useState<number>(0);
@@ -50,7 +50,7 @@ export const OpenPositions = () => {
     [setPage]
   );
 
-  if (loadingAsset || !zdteData || !staticZdteData) {
+  if (isLoading || !zdteData || !staticZdteData) {
     return <Loading />;
   }
 

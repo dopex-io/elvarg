@@ -31,7 +31,7 @@ const Zdte = ({ zdte }: Props) => {
     updateVolumeFromSubgraph,
     staticZdteData,
     getUserPurchaseData,
-    loadingAsset,
+    isLoading,
   } = useBoundStore();
 
   useEffect(() => {
@@ -74,11 +74,11 @@ const Zdte = ({ zdte }: Props) => {
   }, [updateAll]);
 
   const chart = useMemo(() => {
-    if (loadingAsset || !staticZdteData || !selectedPoolName) {
+    if (isLoading || !staticZdteData || !selectedPoolName) {
       return <Loading />;
     }
     return <ZdteDexScreenerChart poolName={selectedPoolName} />;
-  }, [staticZdteData, selectedPoolName, loadingAsset]);
+  }, [staticZdteData, selectedPoolName, isLoading]);
 
   return (
     <div className="bg-black min-h-screen">

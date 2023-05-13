@@ -51,7 +51,7 @@ export const OptionsTable = () => {
     setFocusTrade,
     setTextInputRef,
     selectedPoolName,
-    loadingAsset,
+    isLoading,
   } = useBoundStore();
 
   const zdteContract = getZdteContract();
@@ -111,7 +111,7 @@ export const OptionsTable = () => {
     ]
   );
 
-  if (loadingAsset || !zdteData || !staticZdteData) {
+  if (isLoading || !zdteData || !staticZdteData) {
     return <Loading />;
   }
 
