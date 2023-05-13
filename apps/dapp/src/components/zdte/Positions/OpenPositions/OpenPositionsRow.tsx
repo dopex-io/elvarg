@@ -9,7 +9,6 @@ import Countdown from 'react-countdown';
 
 import { IZdteExpiredData, IZdtePurchaseData } from 'store/Vault/zdte';
 
-import { Typography } from 'components/UI';
 import {
   StyleCell,
   StyleLeftCell,
@@ -85,9 +84,9 @@ export const OpenPositionsRow = ({
 
       share({
         title: (
-          <Typography variant="h4" className="font-bold shadow-2xl">
+          <h4 className="font-bold shadow-2xl">
             {`${tokenSymbol} ${prefix} Spread ZDTE`}
-          </Typography>
+          </h4>
         ),
         percentage: pnl,
         customPath: '/zdte/eth',
