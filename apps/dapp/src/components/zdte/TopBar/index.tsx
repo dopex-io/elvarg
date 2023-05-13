@@ -17,12 +17,12 @@ const TopBar = () => {
     setSelectedPoolName,
     updateZdteData,
     updateStaticZdteData,
-    updateUserZdtePurchaseData,
+    updateUserZdteOpenPositions,
     selectedPoolName,
     tokenPrices,
     staticZdteData,
     zdteData,
-    getUserPurchaseData,
+    updateUserZdteSpreadPositions,
     setSelectedSpreadPair,
     isLoading,
     updateUserZdteLpData,
@@ -53,10 +53,10 @@ const TopBar = () => {
       setIsLoading(true);
       await updateZdteData().then(() => {
         updateStaticZdteData().then(() => {
-          getUserPurchaseData().then(() => {
+          updateUserZdteSpreadPositions().then(() => {
             Promise.all([
               updateUserZdteLpData(),
-              updateUserZdtePurchaseData(),
+              updateUserZdteOpenPositions(),
               updateVolumeFromSubgraph(),
             ]);
             setSelectedSpreadPair({
@@ -74,9 +74,9 @@ const TopBar = () => {
       updateZdteData,
       updateStaticZdteData,
       updateUserZdteLpData,
-      updateUserZdtePurchaseData,
+      updateUserZdteOpenPositions,
       updateVolumeFromSubgraph,
-      getUserPurchaseData,
+      updateUserZdteSpreadPositions,
       setSelectedSpreadPair,
       setIsLoading,
     ]

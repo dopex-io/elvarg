@@ -7,7 +7,7 @@ import { IconButton, TableRow } from '@mui/material';
 import useShare from 'hooks/useShare';
 import Countdown from 'react-countdown';
 
-import { IZdteExpiredData, IZdtePurchaseData } from 'store/Vault/zdte';
+import { IZdteClosedPositions, IZdteOpenPositions } from 'store/Vault/zdte';
 
 import {
   StyleCell,
@@ -33,7 +33,7 @@ export function roundOrPad(num: BigNumber) {
     : formatAmount(getUserReadableAmount(num, DECIMALS_STRIKE));
 }
 
-function getStrikeDisplay(position: IZdtePurchaseData): ReactNode {
+function getStrikeDisplay(position: IZdteOpenPositions): ReactNode {
   const longStrike = roundOrPad(position.longStrike);
   const shortStrike = roundOrPad(position.shortStrike);
 
@@ -62,14 +62,14 @@ export const OpenPositionsRow = ({
   idx,
   staticZdteData,
 }: {
-  position: IZdtePurchaseData;
+  position: IZdteOpenPositions;
   idx: number;
   staticZdteData: any;
 }) => {
   const share = useShare((state) => state.open);
 
   const handleShare = useCallback(
-    async (position: IZdtePurchaseData | IZdteExpiredData) => {
+    async (position: IZdteOpenPositions | IZdteClosedPositions) => {
       const tokenSymbol = staticZdteData?.baseTokenSymbol.toUpperCase();
 
       const livePnl = getUserReadableAmount(

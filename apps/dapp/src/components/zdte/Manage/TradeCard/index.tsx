@@ -94,7 +94,7 @@ const TradeCard = () => {
     selectedPoolName,
     getZdteContract,
     updateZdteData,
-    updateUserZdtePurchaseData,
+    updateUserZdteOpenPositions,
     updateVolumeFromSubgraph,
     zdteData,
     accountAddress,
@@ -103,7 +103,7 @@ const TradeCard = () => {
     setSelectedSpreadPair,
     textInputRef,
     staticZdteData,
-    getUserPurchaseData,
+    updateUserZdteSpreadPositions,
     setTextInputRef,
   } = useBoundStore();
   const zdteContract = getZdteContract();
@@ -182,8 +182,8 @@ const TradeCard = () => {
       });
       await Promise.all([
         updateZdteData(),
-        getUserPurchaseData(),
-        updateUserZdtePurchaseData(),
+        updateUserZdteSpreadPositions(),
+        updateUserZdteOpenPositions(),
         updateVolumeFromSubgraph(),
       ]);
     } catch (err) {
@@ -201,8 +201,8 @@ const TradeCard = () => {
     sendTx,
     setTextInputRef,
     updateVolumeFromSubgraph,
-    getUserPurchaseData,
-    updateUserZdtePurchaseData,
+    updateUserZdteSpreadPositions,
+    updateUserZdteOpenPositions,
   ]);
 
   useEffect(() => {

@@ -27,10 +27,10 @@ const Zdte = ({ zdte }: Props) => {
     updateZdteData,
     updateStaticZdteData,
     updateUserZdteLpData,
-    updateUserZdtePurchaseData,
+    updateUserZdteOpenPositions,
     updateVolumeFromSubgraph,
     staticZdteData,
-    getUserPurchaseData,
+    updateUserZdteSpreadPositions,
     isLoading,
   } = useBoundStore();
 
@@ -42,10 +42,10 @@ const Zdte = ({ zdte }: Props) => {
     if (!provider || !selectedPoolName) return;
     updateZdteData().then(() => {
       updateStaticZdteData().then(() => {
-        getUserPurchaseData().then(() => {
+        updateUserZdteSpreadPositions().then(() => {
           Promise.all([
             updateUserZdteLpData(),
-            updateUserZdtePurchaseData(),
+            updateUserZdteOpenPositions(),
             updateVolumeFromSubgraph(),
           ]);
         });
@@ -56,9 +56,9 @@ const Zdte = ({ zdte }: Props) => {
     selectedPoolName,
     updateZdteData,
     updateUserZdteLpData,
-    getUserPurchaseData,
+    updateUserZdteSpreadPositions,
     updateStaticZdteData,
-    updateUserZdtePurchaseData,
+    updateUserZdteOpenPositions,
     updateVolumeFromSubgraph,
   ]);
 
