@@ -381,8 +381,6 @@ export const createZdteSlice: StateCreator<
     const {
       selectedPoolName,
       getZdteContract,
-      updateUserZdteLpData,
-      updateUserZdteOpenPositions,
       getBaseLpContract,
       getQuoteLpContract,
     } = get();
@@ -390,9 +388,6 @@ export const createZdteSlice: StateCreator<
     if (!selectedPoolName || !getZdteContract) return;
 
     try {
-      await updateUserZdteLpData();
-      await updateUserZdteOpenPositions();
-
       const [zdteContract, baseLpContract, quoteLpContract] = await Promise.all(
         [getZdteContract(), getBaseLpContract(), getQuoteLpContract()]
       );
