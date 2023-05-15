@@ -2488,7 +2488,7 @@ export const createOptionScalpSlice: StateCreator<
 
       const tick = (ticks[0] + ticks[1]) / 2;
 
-      const price = BigNumber.from(Math.round(1.0001 ** tick));
+      const price = BigNumber.from(Math.round(1.0001 ** tick * 10 ** 18));
 
       const maxFundingTime = await limitOrdersContract.maxFundingTime();
 
@@ -2619,7 +2619,6 @@ export const createOptionScalpSlice: StateCreator<
     }
 
     for (let i in closeOrdersEvents) {
-      console.log(closeOrdersEvents[i]);
       if (
         !closeOrdersIndexes.includes(Number(closeOrdersEvents[i]['args'][0])) &&
         closeOrdersEvents[i]['args'][1] === accountAddress
