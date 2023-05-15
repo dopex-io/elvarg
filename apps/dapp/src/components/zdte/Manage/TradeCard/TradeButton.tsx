@@ -1,7 +1,5 @@
 import { useMemo } from 'react';
 
-import { BigNumber } from 'ethers';
-
 import { Button } from '@dopex-io/ui';
 
 import { ISpreadPair, IZdteUserData } from 'store/Vault/zdte';
@@ -19,7 +17,8 @@ type PositionStatus =
 
 function canOpenPosition(
   amount: number,
-  quoteTokenBalance: BigNumber,
+  totalCost: number,
+  quoteTokenBalance: number,
   selectedSpreadPair: ISpreadPair | undefined,
   canOpenSpread: boolean
 ): PositionStatus {
@@ -30,7 +29,8 @@ function canOpenPosition(
   if (amount <= 0) {
     return 'Insert an Amount';
   }
-  if (amount > getUserReadableAmount(quoteTokenBalance, DECIMALS_USD)) {
+  if (totalCost > quoteTokenBalance) {
+    console.log(getUserReadableAmount(quoteTokenBalance, DECIMALS_USD));
     return 'Insufficient Balance';
   }
   // check if it's possible to open position
@@ -54,6 +54,7 @@ const TradeButton = ({
   handleApprove,
   handleOpenPosition,
   approved,
+  totalCost,
   canOpenSpread,
 }: {
   amount: string | number;
@@ -63,15 +64,17 @@ const TradeButton = ({
   handleOpenPosition: () => Promise<void>;
   approved: boolean;
   canOpenSpread: boolean;
+  totalCost: number;
 }) => {
   const positionStatus: PositionStatus = useMemo(() => {
     return canOpenPosition(
       Number(amount),
-      userZdteLpData?.userQuoteTokenBalance!,
+      totalCost,
+      getUserReadableAmount(userZdteLpData.userQuoteTokenBalance, DECIMALS_USD),
       selectedSpreadPair,
       canOpenSpread
     );
-  }, [selectedSpreadPair, amount, userZdteLpData, canOpenSpread]);
+  }, [selectedSpreadPair, totalCost, amount, userZdteLpData, canOpenSpread]);
 
   return (
     <Button
