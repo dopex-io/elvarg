@@ -191,6 +191,9 @@ const TradeCard = () => {
     ) {
       _props.disabled = true;
       _props.text = 'Insufficient balance';
+    } else if (limitError) {
+      _props.disabled = true;
+      _props.text = limitError;
     }
 
     return _props;
@@ -200,6 +203,7 @@ const TradeCard = () => {
     userTokenBalance,
     optionScalpData,
     selectedPoolName,
+    limitError,
   ]);
 
   const liquidationPrice: number = useMemo(() => {
