@@ -1,7 +1,6 @@
 import { ReactNode, forwardRef } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
 
-import { Typography } from 'components/UI';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface StatProps {
   name: string;
@@ -18,12 +17,10 @@ export interface ShareImageProps {
 const Stat = ({ name, value }: StatProps) => {
   return (
     <div className="flex flex-col">
-      <Typography variant="h5" className="font-bold">
-        {name}
-      </Typography>
-      <Typography variant="h3" className="font-mono font-bold shadow-2xl">
+      <h5 className="font-bold text-white">{name}</h5>
+      <h3 className="text-2xl font-mono font-bold shadow-2xl text-white">
         {value}
-      </Typography>
+      </h3>
     </div>
   );
 };
@@ -39,14 +36,14 @@ const ShareImage = (
     >
       <div className="flex w-full justify-between">
         <div>
-          <div className="mb-4">{title}</div>
-          <Typography
-            variant="h1"
-            className="font-mono font-bold text-[48px]"
-            color={percentage > 0 ? 'up-only' : 'down-bad'}
+          <div className="text-white">{title}</div>
+          <h1
+            className={`font-mono font-bold text-[48px] ${
+              percentage > 0 ? 'text-up-only' : 'text-down-bad'
+            }`}
           >
             {percentage.toFixed(2)}%
-          </Typography>
+          </h1>
         </div>
         <div className="self-end justify-end shadow-2xl mt-[-16px]">
           <QRCodeSVG value={`https://app.dopex.io${customPath}`} />

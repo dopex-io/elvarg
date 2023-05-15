@@ -50,6 +50,8 @@ export const OptionsTable = () => {
     setSelectedSpreadPair,
     setFocusTrade,
     setTextInputRef,
+    selectedPoolName,
+    isLoading,
   } = useBoundStore();
 
   const zdteContract = getZdteContract();
@@ -57,7 +59,13 @@ export const OptionsTable = () => {
 
   const handleSelectLongStrike = useCallback(
     async (value: number) => {
-      if (!signer || !provider || !zdteContract || !setSelectedSpreadPair)
+      if (
+        !signer ||
+        !provider ||
+        !zdteContract ||
+        !setSelectedSpreadPair ||
+        !selectedPoolName
+      )
         return;
       try {
         if (
@@ -99,10 +107,11 @@ export const OptionsTable = () => {
       setSelectedSpreadPair,
       setFocusTrade,
       setTextInputRef,
+      selectedPoolName,
     ]
   );
 
-  if (!zdteData || !staticZdteData) {
+  if (isLoading || !zdteData || !staticZdteData) {
     return <Loading />;
   }
 

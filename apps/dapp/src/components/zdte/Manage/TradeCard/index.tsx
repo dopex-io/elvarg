@@ -20,7 +20,6 @@ import {
   getUserReadableAmount,
 } from 'utils/contracts';
 import { formatAmount } from 'utils/general';
-import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import {
   DECIMALS_STRIKE,
@@ -33,10 +32,6 @@ function orZero(value: number): BigNumber {
   return value
     ? getContractReadableAmount(value, DECIMALS_STRIKE)
     : BigNumber.from(0);
-}
-
-export function roundToTwoDecimals(num: number): number {
-  return Math.round(num * 100) / 100;
 }
 
 export function getMaxPayoffPerOption(
@@ -96,9 +91,10 @@ const TradeCard = () => {
   const {
     signer,
     provider,
+    selectedPoolName,
     getZdteContract,
     updateZdteData,
-    updateUserZdtePurchaseData,
+    updateUserZdteOpenPositions,
     updateVolumeFromSubgraph,
     zdteData,
     accountAddress,
@@ -107,6 +103,7 @@ const TradeCard = () => {
     setSelectedSpreadPair,
     textInputRef,
     staticZdteData,
+    updateUserZdteSpreadPositions,
     setTextInputRef,
   } = useBoundStore();
   const zdteContract = getZdteContract();
@@ -185,7 +182,8 @@ const TradeCard = () => {
       });
       await Promise.all([
         updateZdteData(),
-        updateUserZdtePurchaseData(),
+        updateUserZdteSpreadPositions(),
+        updateUserZdteOpenPositions(),
         updateVolumeFromSubgraph(),
       ]);
     } catch (err) {
@@ -203,7 +201,8 @@ const TradeCard = () => {
     sendTx,
     setTextInputRef,
     updateVolumeFromSubgraph,
-    updateUserZdtePurchaseData,
+    updateUserZdteSpreadPositions,
+    updateUserZdteOpenPositions,
   ]);
 
   useEffect(() => {
@@ -212,7 +211,14 @@ const TradeCard = () => {
 
   useEffect(() => {
     async function updatePremiumAndFees() {
-      if (!selectedSpreadPair?.longStrike && !selectedSpreadPair?.shortStrike) {
+      if (
+        (!selectedSpreadPair?.longStrike && !selectedSpreadPair?.shortStrike) ||
+        !selectedPoolName ||
+        !accountAddress ||
+        !staticZdteData ||
+        !signer ||
+        !amount
+      ) {
         setPremiumPerOption(0);
         setOpeningFeesPerOption(0);
         return;
@@ -220,7 +226,7 @@ const TradeCard = () => {
 
       try {
         const zdteContract = await getZdteContract();
-        const ether = oneEBigNumber(DECIMALS_TOKEN);
+        const toBuy = getContractReadableAmount(amount, DECIMALS_TOKEN);
 
         // # long >= current, long < short => isCall
         // # long <= current, long > short, => isPut
@@ -229,19 +235,19 @@ const TradeCard = () => {
             zdteContract.calcPremiumCustom(
               selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike,
               orZero(selectedSpreadPair.longStrike),
-              ether
+              toBuy
             ),
             zdteContract.calcPremium(
               selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike,
               orZero(selectedSpreadPair.shortStrike),
-              ether
+              toBuy
             ),
             zdteContract.calcOpeningFees(
-              ether,
+              toBuy,
               orZero(selectedSpreadPair.longStrike)
             ),
             zdteContract.calcOpeningFees(
-              ether,
+              toBuy,
               orZero(selectedSpreadPair.shortStrike)
             ),
           ]);
@@ -254,41 +260,51 @@ const TradeCard = () => {
             DECIMALS_USD
           )
         );
+
+        const approvalAmount =
+          getUserReadableAmount(longPremium.sub(shortPremium), DECIMALS_USD) +
+          getUserReadableAmount(
+            longOpeningFees.add(shortOpeningFees),
+            DECIMALS_USD
+          );
+
+        // validate allowance
+        try {
+          const quoteTokenContract = ERC20__factory.connect(
+            staticZdteData?.quoteTokenAddress,
+            signer
+          );
+          const allowance: number = getUserReadableAmount(
+            await quoteTokenContract.allowance(
+              accountAddress,
+              staticZdteData?.zdteAddress
+            ),
+            DECIMALS_USD
+          );
+          setApproved(allowance > approvalAmount);
+        } catch (err) {
+          console.error('fail to validateApproval: ', err);
+        }
       } catch (err) {
         console.error('fail to updatePremiumAndFees: ', err);
       }
     }
     updatePremiumAndFees();
-  }, [selectedSpreadPair, getZdteContract]);
-
-  useEffect(() => {
-    async function validateApproval() {
-      if (!signer || !accountAddress || !staticZdteData || !amount) return;
-      try {
-        const quoteTokenContract = await ERC20__factory.connect(
-          staticZdteData?.quoteTokenAddress,
-          signer
-        );
-        const allowance: BigNumber = await quoteTokenContract.allowance(
-          accountAddress,
-          staticZdteData?.zdteAddress
-        );
-        const toApproveAmount = Math.max(
-          Number(amount),
-          Math.round((premium + openingFees) * Number(amount))
-        );
-        const toOpen = getContractReadableAmount(toApproveAmount, DECIMALS_USD);
-        setApproved(allowance.gte(toOpen));
-      } catch (err) {
-        console.error('fail to validateApproval: ', err);
-      }
-    }
-    validateApproval();
-  }, [signer, accountAddress, staticZdteData, amount, premium, openingFees]);
+  }, [
+    selectedSpreadPair,
+    getZdteContract,
+    selectedPoolName,
+    amount,
+    accountAddress,
+    staticZdteData,
+    signer,
+    openingFees,
+  ]);
 
   useEffect(() => {
     async function validateCanOpenSpread() {
-      if (!selectedSpreadPair?.shortStrike || !amount) return;
+      if (!selectedSpreadPair?.shortStrike || !amount || !selectedPoolName)
+        return;
       try {
         const zdteContract = await getZdteContract();
         const sufficient = await zdteContract.canOpenSpreadPosition(
@@ -309,14 +325,15 @@ const TradeCard = () => {
       }
     }
     validateCanOpenSpread();
-  }, [selectedSpreadPair, amount, getZdteContract]);
+  }, [selectedSpreadPair, amount, getZdteContract, selectedPoolName]);
 
   useEffect(() => {
     async function updateMargin() {
       if (
         !selectedSpreadPair?.longStrike ||
         !selectedSpreadPair?.shortStrike ||
-        !amount
+        !amount ||
+        !selectedPoolName
       ) {
         setMargin(0);
         return;
@@ -348,7 +365,7 @@ const TradeCard = () => {
       }
     }
     updateMargin();
-  }, [selectedSpreadPair, amount, getZdteContract]);
+  }, [selectedSpreadPair, amount, getZdteContract, selectedPoolName]);
 
   return (
     <div className="rounded-xl space-y-2 p-2">
@@ -366,13 +383,10 @@ const TradeCard = () => {
           <MuiInput
             inputRef={textRef}
             disableUnderline
+            type="number"
             id="notionalSize"
             name="notionalSize"
             placeholder="1"
-            onFocus={() => {
-              setAmount('1');
-            }}
-            type="number"
             className="h-16 text-md text-white font-mono mr-2"
             value={amount}
             onChange={handleTradeAmount}
@@ -455,24 +469,15 @@ const TradeCard = () => {
               : `${margin} ${staticZdteData?.baseTokenSymbol.toUpperCase()}`
           }
         />
-        <ContentRow
-          title="Premium"
-          content={`$${formatAmount(premium * Number(amount), 2)}`}
-        />
-        <ContentRow
-          title="Fees"
-          content={`$${formatAmount(openingFees * Number(amount), 2)}`}
-        />
+        <ContentRow title="Premium" content={`$${formatAmount(premium, 2)}`} />
+        <ContentRow title="Fees" content={`$${formatAmount(openingFees, 2)}`} />
         <ContentRow
           title="Total Cost (Max Loss)"
-          content={`~$${formatAmount(
-            (premium + openingFees) * Number(amount),
-            2
-          )}`}
+          content={`~$${formatAmount(premium + openingFees, 2)}`}
         />
         <div className="p-1">
           <PnlChart
-            cost={roundToTwoDecimals(premium + openingFees)}
+            cost={(premium + openingFees) / Number(amount)}
             selectedSpreadPair={selectedSpreadPair!}
             amount={Number(amount)}
           />

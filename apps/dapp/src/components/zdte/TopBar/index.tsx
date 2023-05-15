@@ -17,11 +17,17 @@ const TopBar = () => {
     setSelectedPoolName,
     updateZdteData,
     updateStaticZdteData,
-    updateUserZdtePurchaseData,
+    updateUserZdteOpenPositions,
     selectedPoolName,
     tokenPrices,
     staticZdteData,
     zdteData,
+    updateUserZdteSpreadPositions,
+    setSelectedSpreadPair,
+    isLoading,
+    updateUserZdteLpData,
+    updateVolumeFromSubgraph,
+    setIsLoading,
   } = useBoundStore();
   const router = useRouter();
 
@@ -44,22 +50,39 @@ const TopBar = () => {
         undefined,
         { shallow: true }
       );
+      setIsLoading(true);
       await updateZdteData().then(() => {
         updateStaticZdteData().then(() => {
-          updateUserZdtePurchaseData().then(() => {});
+          updateUserZdteSpreadPositions().then(() => {
+            Promise.all([
+              updateUserZdteLpData(),
+              updateUserZdteOpenPositions(),
+              updateVolumeFromSubgraph(),
+            ]);
+            setSelectedSpreadPair({
+              shortStrike: undefined,
+              longStrike: undefined,
+            });
+          });
         });
       });
+      setIsLoading(false);
     },
     [
       router,
       setSelectedPoolName,
       updateZdteData,
       updateStaticZdteData,
-      updateUserZdtePurchaseData,
+      updateUserZdteLpData,
+      updateUserZdteOpenPositions,
+      updateVolumeFromSubgraph,
+      updateUserZdteSpreadPositions,
+      setSelectedSpreadPair,
+      setIsLoading,
     ]
   );
 
-  if (!zdteData || !tokenSymbol || !quoteTokenSymbol) {
+  if (isLoading || !zdteData || !tokenSymbol || !quoteTokenSymbol) {
     return <Loading />;
   }
 

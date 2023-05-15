@@ -5,7 +5,7 @@ import { IconButton, TableRow } from '@mui/material';
 import { formatDistance } from 'date-fns';
 import useShare from 'hooks/useShare';
 
-import { IZdteExpiredData, IZdtePurchaseData } from 'store/Vault/zdte';
+import { IZdteClosedPositions, IZdteOpenPositions } from 'store/Vault/zdte';
 
 import {
   StyleCell,
@@ -13,6 +13,7 @@ import {
   StyleRightCell,
 } from 'components/common/LpCommon/Table';
 import { FormatDollarColor } from 'components/zdte/OptionsTable/OptionsTableRow';
+import { roundOrPad } from 'components/zdte/Positions/OpenPositions/OpenPositionsRow';
 
 import { getUserReadableAmount } from 'utils/contracts';
 import { formatAmount } from 'utils/general';
@@ -20,14 +21,10 @@ import { formatAmount } from 'utils/general';
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
 function getStrikeDisplay(
-  position: IZdtePurchaseData | IZdteExpiredData
+  position: IZdteOpenPositions | IZdteClosedPositions
 ): ReactNode {
-  const longStrike = formatAmount(
-    getUserReadableAmount(position.longStrike, DECIMALS_STRIKE)
-  );
-  const shortStrike = formatAmount(
-    getUserReadableAmount(position.shortStrike, DECIMALS_STRIKE)
-  );
+  const longStrike = roundOrPad(position.longStrike);
+  const shortStrike = roundOrPad(position.shortStrike);
 
   let prefix = '';
   let suffix = '';
@@ -55,7 +52,7 @@ export const ClosedPositionsRow = ({
   zdteData,
   staticZdteData,
 }: {
-  position: IZdteExpiredData;
+  position: IZdteClosedPositions;
   idx: number;
   zdteData: any;
   staticZdteData: any;
@@ -63,7 +60,7 @@ export const ClosedPositionsRow = ({
   const share = useShare((state) => state.open);
 
   const handleShare = useCallback(
-    async (position: IZdteExpiredData) => {
+    async (position: IZdteClosedPositions) => {
       const tokenSymbol = staticZdteData?.baseTokenSymbol.toUpperCase();
 
       const livePnl = getUserReadableAmount(position.pnl, DECIMALS_USD);
@@ -74,7 +71,7 @@ export const ClosedPositionsRow = ({
       share({
         title: (
           <h4 className="font-bold shadow-2xl">
-            <span>{`${tokenSymbol} ${prefix} Spread ZDTE`}</span>
+            {`${tokenSymbol} ${prefix} Spread ZDTE`}
           </h4>
         ),
         percentage: pnl,
@@ -82,21 +79,15 @@ export const ClosedPositionsRow = ({
         stats: [
           {
             name: 'Long Strike Price',
-            value: `$${formatAmount(
-              getUserReadableAmount(position.longStrike, DECIMALS_STRIKE),
-              2
-            )}`,
+            value: `$${roundOrPad(position.longStrike)}`,
           },
           {
             name: 'Short Strike Price',
-            value: `$${formatAmount(
-              getUserReadableAmount(position.shortStrike, DECIMALS_STRIKE),
-              2
-            )}`,
+            value: `$${roundOrPad(position.shortStrike)}`,
           },
           {
             name: 'Current Price',
-            value: `$${formatAmount(zdteData!.tokenPrice, 2)}`,
+            value: `$${roundOrPad(zdteData!.tokenPrice)}`,
           },
         ],
       });
