@@ -213,7 +213,11 @@ const TradeCard = () => {
     async function updatePremiumAndFees() {
       if (
         (!selectedSpreadPair?.longStrike && !selectedSpreadPair?.shortStrike) ||
-        !selectedPoolName
+        !selectedPoolName ||
+        !accountAddress ||
+        !staticZdteData ||
+        !signer ||
+        !amount
       ) {
         setPremiumPerOption(0);
         setOpeningFeesPerOption(0);
@@ -256,37 +260,46 @@ const TradeCard = () => {
             DECIMALS_USD
           )
         );
+
+        const approvalAmount =
+          getUserReadableAmount(longPremium.sub(shortPremium), DECIMALS_USD) +
+          getUserReadableAmount(
+            longOpeningFees.add(shortOpeningFees),
+            DECIMALS_USD
+          );
+
+        // validate allowance
+        try {
+          const quoteTokenContract = ERC20__factory.connect(
+            staticZdteData?.quoteTokenAddress,
+            signer
+          );
+          const allowance: number = getUserReadableAmount(
+            await quoteTokenContract.allowance(
+              accountAddress,
+              staticZdteData?.zdteAddress
+            ),
+            DECIMALS_USD
+          );
+          setApproved(allowance > approvalAmount);
+        } catch (err) {
+          console.error('fail to validateApproval: ', err);
+        }
       } catch (err) {
         console.error('fail to updatePremiumAndFees: ', err);
       }
     }
     updatePremiumAndFees();
-  }, [selectedSpreadPair, getZdteContract, selectedPoolName, amount]);
-
-  useEffect(() => {
-    async function validateApproval() {
-      if (!signer || !accountAddress || !staticZdteData || !amount) return;
-      try {
-        const quoteTokenContract = await ERC20__factory.connect(
-          staticZdteData?.quoteTokenAddress,
-          signer
-        );
-        const allowance: BigNumber = await quoteTokenContract.allowance(
-          accountAddress,
-          staticZdteData?.zdteAddress
-        );
-        const toApproveAmount = Math.max(
-          Number(amount),
-          Math.round((premium + openingFees) * Number(amount))
-        );
-        const toOpen = getContractReadableAmount(toApproveAmount, DECIMALS_USD);
-        setApproved(allowance.gte(toOpen));
-      } catch (err) {
-        console.error('fail to validateApproval: ', err);
-      }
-    }
-    validateApproval();
-  }, [signer, accountAddress, staticZdteData, amount, premium, openingFees]);
+  }, [
+    selectedSpreadPair,
+    getZdteContract,
+    selectedPoolName,
+    amount,
+    accountAddress,
+    staticZdteData,
+    signer,
+    openingFees,
+  ]);
 
   useEffect(() => {
     async function validateCanOpenSpread() {
@@ -370,13 +383,10 @@ const TradeCard = () => {
           <MuiInput
             inputRef={textRef}
             disableUnderline
+            type="number"
             id="notionalSize"
             name="notionalSize"
             placeholder="1"
-            onFocus={() => {
-              setAmount('1');
-            }}
-            type="number"
             className="h-16 text-md text-white font-mono mr-2"
             value={amount}
             onChange={handleTradeAmount}
