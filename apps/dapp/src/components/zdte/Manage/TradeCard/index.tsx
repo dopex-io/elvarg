@@ -491,6 +491,7 @@ const TradeCard = () => {
         handleOpenPosition={handleOpenPosition}
         approved={approved}
         canOpenSpread={canOpenSpread}
+        totalCost={premium + openingFees}
       />
     </div>
   );
