@@ -137,6 +137,27 @@ const TradeCard = () => {
     setRawAmount(e.target.value === '' ? '0' : e.target.value);
   }, []);
 
+  const limitError = useMemo(() => {
+    if (!optionScalpData) return null;
+
+    const _markPrice = getUserReadableAmount(
+      optionScalpData?.markPrice!,
+      optionScalpData?.quoteDecimals!.toNumber()!
+    );
+
+    const _limitPrice = Number(rawLimitPrice);
+
+    if (isShort) {
+      return _limitPrice < _markPrice * 1.001
+        ? 'Entry limit price is too low'
+        : null;
+    } else {
+      return _limitPrice > _markPrice * 0.999
+        ? 'Entry limit price is too high'
+        : null;
+    }
+  }, [isShort, rawLimitPrice, markPrice, optionScalpData]);
+
   const tradeButtonProps = useMemo(() => {
     let _props = {
       text: 'Open Position',
@@ -544,6 +565,9 @@ const TradeCard = () => {
               className={`mt-2 border border-mineshaft rounded-md px-2 bg-umbra w-full !w-auto`}
               classes={{ input: 'text-white text-xs text-left py-2' }}
             />
+            {limitError ? (
+              <p className="text-xs text-red-400 mt-2.5">{limitError}</p>
+            ) : null}
           </div>
         ) : null}
       </div>
