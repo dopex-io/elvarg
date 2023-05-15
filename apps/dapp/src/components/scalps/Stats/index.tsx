@@ -39,7 +39,10 @@ const Stats = () => {
       });
 
       const _twentyFourHourVolume = payload.trades.reduce(
-        (acc: { ETH: BigNumber; ARB: BigNumber }, trade, _index) => {
+        (
+          acc: { ETH: BigNumber; ARB: BigNumber },
+          trade: { id: string; size: string }
+        ) => {
           const address = trade.id.split('#')[0]!;
           if (address === '0xdaf4ffb05bfcb2c328c19135e3e74e1182c88283')
             return {
