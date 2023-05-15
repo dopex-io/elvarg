@@ -98,7 +98,7 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [updateAll]);
 
   useEffect(() => {
     const wethWs = new WebSocket(

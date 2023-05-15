@@ -13,7 +13,6 @@
       "outputs": [".graphclient/**"]
     },
     "build": {
-      "cache": false,
       "outputs": [".next/**", "!.next/cache/**", "dist/**"],
       "dependsOn": ["generate", "^build"]
     },
