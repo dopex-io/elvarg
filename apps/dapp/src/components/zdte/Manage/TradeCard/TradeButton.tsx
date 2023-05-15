@@ -69,7 +69,10 @@ const TradeButton = ({
     return canOpenPosition(
       Number(amount),
       totalCost,
-      getUserReadableAmount(userZdteLpData.userQuoteTokenBalance, DECIMALS_USD),
+      getUserReadableAmount(
+        userZdteLpData?.userQuoteTokenBalance || '0',
+        DECIMALS_USD
+      ),
       selectedSpreadPair,
       canOpenSpread
     );
