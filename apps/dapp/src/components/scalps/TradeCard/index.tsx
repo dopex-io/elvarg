@@ -132,6 +132,11 @@ const TradeCard = () => {
     calcPremium();
   }, [calcPremium]);
 
+  useEffect(() => {
+    setRawLimitPrice('');
+    setRawAmount('');
+  }, [selectedPoolName, setRawLimitPrice, setRawAmount]);
+
   const handleInputChange = useCallback((e: any) => {
     if (parseFloat(e.target.value) < 0) return;
     setRawAmount(e.target.value === '' ? '0' : e.target.value);
@@ -560,6 +565,7 @@ const TradeCard = () => {
                   optionScalpData?.quoteDecimals!.toNumber()
                 )
               )}
+              value={rawLimitPrice}
               onChange={(e) => setRawLimitPrice(e.target.value)}
               type="number"
               className={`mt-2 border border-mineshaft rounded-md px-2 bg-umbra w-full !w-auto`}
