@@ -30,7 +30,6 @@ function canOpenPosition(
     return 'Insert an Amount';
   }
   if (totalCost > quoteTokenBalance) {
-    console.log(getUserReadableAmount(quoteTokenBalance, DECIMALS_USD));
     return 'Insufficient Balance';
   }
   // check if it's possible to open position
