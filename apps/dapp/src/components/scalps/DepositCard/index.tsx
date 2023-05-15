@@ -138,7 +138,14 @@ const DepositCard = () => {
     } else {
       setIsBaseApproved(baseAllowance.gte(depositAmount));
     }
-  }, [accountAddress, contractAddresses, isQuote, optionScalpData, signer]);
+  }, [
+    accountAddress,
+    contractAddresses,
+    isQuote,
+    optionScalpData,
+    signer,
+    rawAmount,
+  ]);
 
   const depositButtonMessage: string = useMemo(() => {
     if (!approved) return 'Approve';
@@ -184,6 +191,7 @@ const DepositCard = () => {
     contractAddresses,
     isQuote,
     checkApproved,
+    rawAmount,
   ]);
 
   // Handle deposit
