@@ -1,6 +1,7 @@
-import type { AppProps } from 'next/app';
-
 import { useEffect } from 'react';
+
+import type { AppProps } from 'next/app';
+import Script from 'next/script';
 
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 import StylesProvider from '@mui/styles/StylesProvider';
@@ -65,6 +66,19 @@ function App({ Component, pageProps }: AppProps) {
           </ThemeProvider>
         </StyledEngineProvider>
       </StylesProvider>
+      <Script
+        src="https://www.googletagmanager.com/gtag/js?id=G-QLYLX4HN05"
+        strategy="afterInteractive"
+      />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){window.dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-QLYLX4HN05');
+        `}
+      </Script>
     </>
   );
 }

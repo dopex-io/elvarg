@@ -2,8 +2,8 @@
   "singleQuote": true,
   "tabWidth": 2,
   "importOrder": [
-    "^(next/(.*)$)|^(next$)",
     "^(react/(.*)$)|^(react$)",
+    "^(next/(.*)$)|^(next$)",
     "^(ethers/(.*)$)|^(ethers$)",
     "<THIRD_PARTY_MODULES>",
     "^store/(.*)$",
@@ -14,7 +14,5 @@
   ],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
-  "plugins": [
-    "@ianvs/prettier-plugin-sort-imports"
-  ]
+  "plugins": ["@ianvs/prettier-plugin-sort-imports"]
 }
