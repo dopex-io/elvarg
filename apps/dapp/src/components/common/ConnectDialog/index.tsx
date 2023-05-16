@@ -1,7 +1,7 @@
-import { useConnect, useAccount } from 'wagmi';
-import { devtools } from 'zustand/middleware';
-import { create } from 'zustand';
 import CircularProgress from '@mui/material/CircularProgress';
+import { useAccount, useConnect } from 'wagmi';
+import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
 
 import { Dialog } from 'components/UI';
 
@@ -56,6 +56,10 @@ const ConnectDialog = () => {
     bitKeep: {
       icon: 'bitkeep.svg',
       downloadLink: 'https://bitkeep.com/en/download?type=2',
+    },
+    rabby: {
+      icon: 'rabby.svg',
+      downloadLink: 'https://rabby.io',
     },
     injected: {
       icon: 'injected.svg',

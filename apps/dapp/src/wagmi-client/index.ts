@@ -10,6 +10,7 @@ import { infuraProvider } from 'wagmi/providers/infura';
 import { INFURA_PROJECT_ID, WALLETCONNECT_PROJECT_ID } from 'constants/env';
 
 import { BitKeepConnector } from './BitKeepConnector';
+import { RabbyConnector } from './RabbyConnector';
 
 const { chains, provider, webSocketProvider } = configureChains(
   [mainnet, arbitrum, polygon],
@@ -22,6 +23,8 @@ const wagmiClient = createClient({
   webSocketProvider,
   connectors: [
     new MetaMaskConnector({ chains }),
+    new BitKeepConnector({ chains }),
+    new RabbyConnector({ chains }),
     new CoinbaseWalletConnector({
       chains,
       options: {
@@ -35,11 +38,10 @@ const wagmiClient = createClient({
       },
     }),
     new LedgerConnector({ chains }),
-    new BitKeepConnector({ chains }),
     new InjectedConnector({
       chains,
       options: {
-        name: 'Injected',
+        name: 'Other Browser Wallets',
         shimDisconnect: true,
       },
     }),
