@@ -1,13 +1,13 @@
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-
 import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { useRouter } from 'next/router';
 
 import { ethers } from 'ethers';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
+import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
@@ -135,9 +135,25 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
   return (
     <>
       <Box className="bg-black flex w-screen items-center justify-center">
-        <Head>
-          <title>Option Scalps | Dopex</title>
-        </Head>
+        <NextSeo
+          title={`${poolName} Dopex Option Scalps`}
+          description="Scalp trading with small time frame options"
+          canonical={`https://dopex.io/scalps/${poolName}`}
+          openGraph={{
+            url: `https://dopex.io/scalps/${poolName}`,
+            title: `${poolName} Dopex Option Scalps`,
+            description: 'Scalp trading with small time frame options',
+            images: [
+              {
+                url: `https://dopex.io/images/banners/scalps.png`,
+                width: 800,
+                height: 600,
+                alt: 'Scalps',
+                type: 'image/png',
+              },
+            ],
+          }}
+        />
         <AppBar active="Scalps" />
         <Box className="my-12 mx-[15%]">
           <Box className="mt-8 sm:mt-14 md:mt-20 lg:mr-full">

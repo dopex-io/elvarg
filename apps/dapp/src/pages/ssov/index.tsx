@@ -1,12 +1,11 @@
-import Head from 'next/head';
-
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useQuery } from '@tanstack/react-query';
 import isEmpty from 'lodash/isEmpty';
+import { NextSeo } from 'next-seo';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
@@ -102,9 +101,25 @@ const SsovData = () => {
 
   return (
     <Box className="min-h-screen">
-      <Head>
-        <title>SSOV | Dopex</title>
-      </Head>
+      <NextSeo
+        title="SSOV | Dopex Single Staking Options Vault"
+        description="Sell covered options to earn yield"
+        canonical="https://dopex.io/ssov"
+        openGraph={{
+          url: 'https://dopex.io/ssov',
+          title: 'SSOV | Dopex Single Staking Options Vault',
+          description: 'Sell covered options to earn yield',
+          images: [
+            {
+              url: `https://dopex.io/images/banners/ssov.png`,
+              width: 800,
+              height: 600,
+              alt: 'SSOV',
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
       <AppBar active="SSOV" />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         <Box className="text-center mx-auto max-w-xl mb-8 mt-32">

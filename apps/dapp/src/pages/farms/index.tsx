@@ -1,11 +1,10 @@
-import Head from 'next/head';
-
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { BigNumber } from 'ethers';
 
 import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
+import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
 import { Farm, FarmData, UserData } from 'types/farms';
 
@@ -103,9 +102,25 @@ const Farms = () => {
 
   return (
     <Box className="overflow-x-hidden bg-black text-white min-h-screen">
-      <Head>
-        <title>Farms | Dopex</title>
-      </Head>
+      <NextSeo
+        title="Dopex Yield Farms"
+        description="Earn rewards for liquidity staking"
+        canonical="https://dopex.io/farms"
+        openGraph={{
+          url: 'https://dopex.io/farms',
+          title: 'Dopex Yield Farms',
+          description: 'Earn rewards for liquidity staking',
+          images: [
+            {
+              url: `https://dopex.io/images/banners/farms.png`,
+              width: 800,
+              height: 600,
+              alt: 'veDPX',
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
       {chainId !== 42161 ? <FarmingMigrationBanner /> : null}
       <AppBar active="Stake" />
       <SushiMigrationBanner />

@@ -1,9 +1,9 @@
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-
 import { useEffect, useMemo } from 'react';
 
+import { useRouter } from 'next/router';
+
 import Box from '@mui/material/Box';
+import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
@@ -102,9 +102,25 @@ export const Manage = (props: ManageProps) => {
 
   return (
     <Box className="bg-black bg-contain bg-no-repeat h-screen">
-      <Head>
-        <title>Atlantics | Dopex</title>
-      </Head>
+      <NextSeo
+        title={`${tokenId} Dopex Atlantic Insured Perps`}
+        description="Open liquidation-free longs"
+        canonical={`https://dopex.io/atlantics/manage/${tokenId}`}
+        openGraph={{
+          url: `https://dopex.io/atlantics/manage/${tokenId}`,
+          title: `${tokenId} Dopex Atlantic Insured Perps`,
+          description: 'Open liquidation-free longs',
+          images: [
+            {
+              url: `https://dopex.io/images/banners/insuredperp.png`,
+              width: 800,
+              height: 600,
+              alt: 'Insured Perp',
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
       <AppBar active="Atlantics" />
       <Box className="py-12 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
         <Box className="flex mt-20 space-x-0 lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">

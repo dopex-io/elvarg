@@ -1,9 +1,9 @@
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-
 import { useEffect } from 'react';
 
+import { useRouter } from 'next/router';
+
 import Box from '@mui/material/Box';
+import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
@@ -52,9 +52,25 @@ const Straddles = ({ poolName }: { poolName: string }) => {
 
   return (
     <Box className="bg-black min-h-screen">
-      <Head>
-        <title>Straddles | Dopex</title>
-      </Head>
+      <NextSeo
+        title={`${poolName} Dopex Atlantic Straddles`}
+        description="Buy/Write straddles on crypto assets"
+        canonical={`https://dopex.io/straddles/${poolName}`}
+        openGraph={{
+          url: `https://dopex.io/straddles/${poolName}`,
+          title: `Dopex Atlantic Straddles`,
+          description: 'Buy/Write straddles on crypto assets',
+          images: [
+            {
+              url: `https://dopex.io/images/banners/straddles.png`,
+              width: 800,
+              height: 600,
+              alt: 'Straddles',
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
       <AppBar active="Straddles" />
       <Box className="md:flex pt-5">
         <Box className="ml-auto lg:w-[45%]">

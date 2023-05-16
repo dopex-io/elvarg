@@ -1,13 +1,13 @@
-import { useEffect } from 'react';
-import Head from 'next/head';
+import React, { useEffect } from 'react';
+
 import Box from '@mui/material/Box';
+import { NextSeo } from 'next-seo';
+import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
 import Overview from 'components/vedpx/Overview';
 import UserVeDPX from 'components/vedpx/UserVeDPX';
 import VeDPXYield from 'components/vedpx/VeDPXYield';
-
-import { useBoundStore } from 'store';
 
 const VeDPX = () => {
   const { signer, provider, updateVedpxData, updateUserVedpxData } =
@@ -23,9 +23,25 @@ const VeDPX = () => {
 
   return (
     <Box className="bg-black min-h-screen">
-      <Head>
-        <title>veDPX | Dopex</title>
-      </Head>
+      <NextSeo
+        title="veDPX | Escrowed DPX"
+        description="Earn yield, protocol fees, and vote in the protocol"
+        canonical="https://dopex.io/governance/vedpx"
+        openGraph={{
+          url: 'https://dopex.io/governance/vedpx',
+          title: 'veDPX | Escrowed DPX',
+          description: 'Earn yield, protocol fees, and vote in the protocol',
+          images: [
+            {
+              url: `https://dopex.io/images/banners/vedpx.png`,
+              width: 800,
+              height: 600,
+              alt: 'veDPX',
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
       <AppBar active="Governance" />
       <Box className="py-32 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
         <Overview />

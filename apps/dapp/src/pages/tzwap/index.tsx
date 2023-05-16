@@ -1,5 +1,3 @@
-import Head from 'next/head';
-
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { BigNumber } from 'ethers';
@@ -18,6 +16,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
 import useSendTx from 'hooks/useSendTx';
+import { NextSeo } from 'next-seo';
 import Countdown from 'react-countdown';
 import { LoaderIcon } from 'react-hot-toast';
 import { useBoundStore } from 'store';
@@ -509,9 +508,25 @@ const Tzwap = () => {
 
   return (
     <Box className="min-h-screen">
-      <Head>
-        <title>Tzwap | Dopex</title>
-      </Head>
+      <NextSeo
+        title={`Tzwap`}
+        description="Dopex Time-Weighted Average Price Swap"
+        canonical={`https://dopex.io/tzwap`}
+        openGraph={{
+          url: `https://dopex.io/tzwap`,
+          title: `Tzwap`,
+          description: 'Dopex Time-Weighted Average Price Swap',
+          images: [
+            {
+              url: `https://dopex.io/images/banners/tzwap.png`,
+              width: 800,
+              height: 600,
+              alt: 'Tzwap',
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
       <AppBar />
       <Kill
         openOrder={openOrder}

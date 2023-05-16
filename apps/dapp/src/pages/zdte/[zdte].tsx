@@ -1,8 +1,8 @@
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-
 import React, { useCallback, useEffect, useMemo } from 'react';
 
+import { useRouter } from 'next/router';
+
+import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
@@ -82,9 +82,25 @@ const Zdte = ({ zdte }: Props) => {
 
   return (
     <div className="bg-black min-h-screen">
-      <Head>
-        <title>ZDTE | Dopex</title>
-      </Head>
+      <NextSeo
+        title={`${zdte} 0dte | Dopex Zero Day-to-Expiry options`}
+        description="Options that expire on day of purchase"
+        canonical={`https://dopex.io/zdte/${zdte}`}
+        openGraph={{
+          url: `https://dopex.io/zdte/${zdte}`,
+          title: `${zdte} 0dte | Dopex Zero Day-to-Expiry options`,
+          description: 'Options that expire on day of purchase',
+          images: [
+            {
+              url: `https://dopex.io/images/banners/zdte.png`,
+              width: 800,
+              height: 600,
+              alt: 'ZDTE',
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
       <AppBar active="ZDTE" />
       <div className="md:flex py-5 justify-center">
         <div className="ml-auto space-y-8">

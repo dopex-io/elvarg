@@ -1,9 +1,9 @@
-import Head from 'next/head';
+import React, { useEffect } from 'react';
+
 import { useRouter } from 'next/router';
 
-import { useEffect } from 'react';
-
 import Box from '@mui/material/Box';
+import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
@@ -42,9 +42,25 @@ const Olp = ({ poolName }: { poolName: string }) => {
 
   return (
     <Box className="bg-black min-h-screen">
-      <Head>
-        <title>OLP | Dopex</title>
-      </Head>
+      <NextSeo
+        title={`${poolName} OLP | Dopex Option Liquidity Pools`}
+        description="Liquidity Pool for SSOV options"
+        canonical={`https://dopex.io/olp/${poolName}`}
+        openGraph={{
+          url: `https://dopex.io/olp/${poolName}`,
+          title: `${poolName} OLP | Dopex Option Liquidity Pools`,
+          description: 'Liquidity Pool for SSOV options',
+          images: [
+            {
+              url: `https://dopex.io/images/banners/olp.png`,
+              width: 800,
+              height: 600,
+              alt: 'OLP',
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
       <AppBar active="OLPs" />
       <Box className="md:flex py-5 flex-row justify-around">
         <Box className="ml-auto lg:w-[50%] space-y-8">
