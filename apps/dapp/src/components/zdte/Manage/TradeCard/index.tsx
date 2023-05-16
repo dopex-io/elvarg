@@ -20,6 +20,7 @@ import {
   getUserReadableAmount,
 } from 'utils/contracts';
 import { formatAmount } from 'utils/general';
+import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import {
   DECIMALS_STRIKE,
@@ -32,6 +33,54 @@ function orZero(value: number): BigNumber {
   return value
     ? getContractReadableAmount(value, DECIMALS_STRIKE)
     : BigNumber.from(0);
+}
+
+async function calcPremiumCustom(
+  zdteContract: any,
+  amount: BigNumber,
+  isPut: boolean,
+  longStrike: BigNumber,
+  shortStrike: BigNumber,
+  baseLpTotalAsset: BigNumber,
+  baseLpAssetBalance: BigNumber,
+  quoteLpTotalAsset: BigNumber,
+  quoteLpAssetBalance: BigNumber,
+  maxLongStrikeVolAdjust: BigNumber,
+  minLongStrikeVolAdjust: BigNumber
+) {
+  const [vol, markPrice, margin] = await Promise.all([
+    zdteContract.getVolatility(longStrike),
+    zdteContract.getMarkPrice(),
+    zdteContract.calcMargin(isPut, longStrike, shortStrike),
+  ]);
+  const adjMargin = margin.mul(amount).div(oneEBigNumber(DECIMALS_TOKEN));
+  let utilisation = BigNumber.from(0);
+  if (isPut && quoteLpTotalAsset.gt(BigNumber.from(0))) {
+    utilisation = quoteLpTotalAsset
+      .sub(quoteLpAssetBalance)
+      .add(adjMargin)
+      .mul(BigNumber.from(10000))
+      .div(quoteLpTotalAsset);
+  } else if (!isPut && baseLpTotalAsset.gt(BigNumber.from(0))) {
+    utilisation = baseLpTotalAsset
+      .sub(baseLpAssetBalance)
+      .add(adjMargin)
+      .mul(BigNumber.from(10000))
+      .div(baseLpTotalAsset);
+  }
+  const adjVol_1 = vol.mul(minLongStrikeVolAdjust).div(BigNumber.from(100));
+  const adjVol_2 = vol
+    .mul(utilisation)
+    .mul(maxLongStrikeVolAdjust.sub(minLongStrikeVolAdjust))
+    .div(BigNumber.from(100 * 10000));
+  const adjVol = vol.add(adjVol_1).add(adjVol_2);
+  return await zdteContract.calcPremiumWithVol(
+    isPut,
+    markPrice,
+    longStrike,
+    adjVol,
+    amount
+  );
 }
 
 export function getMaxPayoffPerOption(
@@ -217,7 +266,8 @@ const TradeCard = () => {
         !accountAddress ||
         !staticZdteData ||
         !signer ||
-        !amount
+        !amount ||
+        !zdteData
       ) {
         setPremiumPerOption(0);
         setOpeningFeesPerOption(0);
@@ -232,10 +282,24 @@ const TradeCard = () => {
         // # long <= current, long > short, => isPut
         const [longPremium, shortPremium, longOpeningFees, shortOpeningFees] =
           await Promise.all([
-            zdteContract.calcPremiumCustom(
+            calcPremiumCustom(
+              zdteContract,
+              toBuy,
               selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike,
-              orZero(selectedSpreadPair.longStrike),
-              toBuy
+              getContractReadableAmount(
+                selectedSpreadPair.longStrike,
+                DECIMALS_STRIKE
+              ),
+              getContractReadableAmount(
+                selectedSpreadPair.shortStrike,
+                DECIMALS_STRIKE
+              ),
+              zdteData.baseLpTotalAsset,
+              zdteData.baseLpAssetBalance,
+              zdteData.quoteLpTotalAsset,
+              zdteData.quoteLpAssetBalance,
+              zdteData.maxLongStrikeVolAdjust,
+              zdteData.minLongStrikeVolAdjust
             ),
             zdteContract.calcPremium(
               selectedSpreadPair.longStrike > selectedSpreadPair.shortStrike,
@@ -299,6 +363,7 @@ const TradeCard = () => {
     staticZdteData,
     signer,
     openingFees,
+    zdteData,
   ]);
 
   useEffect(() => {

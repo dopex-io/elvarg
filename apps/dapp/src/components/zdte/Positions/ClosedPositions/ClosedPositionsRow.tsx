@@ -46,6 +46,38 @@ function getStrikeDisplay(
   );
 }
 
+function getClosedPutPnl(position: IZdteClosedPositions) {
+  return (
+    Math.max(
+      getUserReadableAmount(position.longStrike, DECIMALS_STRIKE) -
+        getUserReadableAmount(position.settlementPrice, DECIMALS_STRIKE),
+      0
+    ) -
+    Math.max(
+      getUserReadableAmount(position.longStrike, DECIMALS_STRIKE) -
+        getUserReadableAmount(position.settlementPrice, DECIMALS_STRIKE),
+      0
+    ) -
+    getUserReadableAmount(position.cost, DECIMALS_USD)
+  );
+}
+
+function getClosedCallPnl(position: IZdteClosedPositions) {
+  return (
+    Math.max(
+      getUserReadableAmount(position.settlementPrice, DECIMALS_STRIKE) -
+        getUserReadableAmount(position.longStrike, DECIMALS_STRIKE),
+      0
+    ) -
+    Math.max(
+      getUserReadableAmount(position.settlementPrice, DECIMALS_STRIKE) -
+        getUserReadableAmount(position.longStrike, DECIMALS_STRIKE),
+      0
+    ) -
+    getUserReadableAmount(position.cost, DECIMALS_USD)
+  );
+}
+
 export const ClosedPositionsRow = ({
   position,
   idx,
@@ -63,9 +95,11 @@ export const ClosedPositionsRow = ({
     async (position: IZdteClosedPositions) => {
       const tokenSymbol = staticZdteData?.baseTokenSymbol.toUpperCase();
 
-      const livePnl = getUserReadableAmount(position.pnl, DECIMALS_USD);
+      const closedPnl = position.isPut
+        ? getClosedPutPnl(position)
+        : getClosedCallPnl(position);
       const cost = getUserReadableAmount(position.cost, DECIMALS_USD);
-      const pnl = (livePnl / cost - 1) * 100;
+      const pnl = (closedPnl / cost - 1) * 100;
       const prefix = position.isPut ? 'Put' : 'Call';
 
       share({
