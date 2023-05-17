@@ -1,0 +1,225 @@
+const CallbackForwarderAbi = [
+  { inputs: [], name: 'NotOwner', type: 'error' },
+  { inputs: [], name: 'ZeroAddress', type: 'error' },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'address',
+        name: '_caller',
+        type: 'address',
+      },
+      { indexed: false, internalType: 'bool', name: '_set', type: 'bool' },
+    ],
+    name: 'CallbackCallerSet',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: '_positionId',
+        type: 'uint256',
+      },
+    ],
+    name: 'CreatedIncreaseOrder',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: '_positionId',
+        type: 'uint256',
+      },
+    ],
+    name: 'ExecutedIncreaseOrder',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'bytes32',
+        name: 'positionKey',
+        type: 'bytes32',
+      },
+      {
+        indexed: false,
+        internalType: 'bool',
+        name: 'isExecuted',
+        type: 'bool',
+      },
+    ],
+    name: 'ForwardGmxPositionCallback',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'previousOwner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
+    name: 'OwnershipTransferred',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'bytes32',
+        name: 'positionKey',
+        type: 'bytes32',
+      },
+      {
+        indexed: false,
+        internalType: 'bool',
+        name: 'isExecuted',
+        type: 'bool',
+      },
+    ],
+    name: 'PendingCallbackCreated',
+    type: 'event',
+  },
+  {
+    inputs: [{ internalType: 'uint256', name: '_positionId', type: 'uint256' }],
+    name: 'createIncreaseOrder',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { internalType: 'address', name: '_strategy', type: 'address' },
+      { internalType: 'uint256', name: '_startIndex', type: 'uint256' },
+      { internalType: 'uint256', name: '_endIndex', type: 'uint256' },
+    ],
+    name: 'executeIncreaseOrders',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { internalType: 'address', name: '_strategy', type: 'address' },
+      { internalType: 'uint256', name: '_startIndex', type: 'uint256' },
+      { internalType: 'uint256', name: '_endIndex', type: 'uint256' },
+    ],
+    name: 'forwardGmxPositionCallback',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    name: 'gmxPendingCallbacks',
+    outputs: [
+      { internalType: 'bytes32', name: 'key', type: 'bytes32' },
+      { internalType: 'bool', name: 'isExecuted', type: 'bool' },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'gmxPendingCallbacksEndIndex',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'gmxPendingCallbacksStartIndex',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { internalType: 'bytes32', name: 'positionKey', type: 'bytes32' },
+      { internalType: 'bool', name: 'isExecuted', type: 'bool' },
+      { internalType: 'bool', name: '', type: 'bool' },
+    ],
+    name: 'gmxPositionCallback',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'owner',
+    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    name: 'pendingIncreaseOrders',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'pendingIncreaseOrdersEndIndex',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'pendingIncreaseOrdersStartIndex',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { internalType: 'address', name: '_address', type: 'address' },
+      { internalType: 'bool', name: '_set', type: 'bool' },
+    ],
+    name: 'setCallbackCaller',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'address', name: 'newOwner', type: 'address' }],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'address', name: '', type: 'address' }],
+    name: 'validCallbackCallers',
+    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+];
+export default CallbackForwarderAbi;
