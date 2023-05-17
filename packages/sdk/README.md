@@ -6,47 +6,22 @@
 
 ### Installation
 
+Note: You need ethers v5 to use the sdk, install it alongside the sdk.
+
 Via npm:
 
 ```bash
-npm i @dopex-io/sdk
+npm i @dopex-io/sdk ethers@^5
 ```
 
 Via yarn:
 
 ```bash
-yarn add @dopex-io/sdk
+yarn add @dopex-io/sdk ethers@^5
 ```
 
-Note: You need ethers to use the sdk. Install it the following way:
-
-Via npm:
+Via pnpm:
 
 ```bash
-npm i ethers
-```
-
-Via yarn:
-
-```bash
-yarn add ethers
-```
-
-## Development
-
-Please have these installed on your machine:
-
-- [Node.js 14+](https://nodejs.org/)
-- [Yarn v1](https://classic.yarnpkg.com/lang/)
-
-Install dependencies:
-
-```
-yarn
-```
-
-To make the production build, run:
-
-```
-yarn build
+pnpm add @dopex-io/sdk ethers@^5
 ```
