@@ -3,6 +3,7 @@
   "version": "1.0.0-beta.62",
   "license": "UNLICENSED",
   "description": "Dopex SDK",
+  "type": "module",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
@@ -14,7 +15,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "pnpm clean && pnpm generate-types && node build.js && tsc --emitDeclarationOnly --outDir dist",
+    "build": "pnpm clean && pnpm generate-types && node build.cjs && tsc --emitDeclarationOnly --outDir dist",
     "clean": "rimraf dist src/types/typechain",
     "generate-types": "typechain --target ethers-v5 src/abis/*.json --out-dir src/types/typechain"
   },
