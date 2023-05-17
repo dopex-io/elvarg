@@ -16,7 +16,7 @@ export class RabbyConnector extends InjectedConnector {
       shimDisconnect: true,
       getProvider() {
         if (typeof window !== 'undefined') {
-          if ((window as any).ethereum.isRabby) {
+          if ((window as any).ethereum && (window as any).ethereum.isRabby) {
             const provider = (window as any).ethereum;
             return provider;
           }
