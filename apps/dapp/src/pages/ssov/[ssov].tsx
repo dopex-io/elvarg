@@ -17,9 +17,9 @@ const SsovV3Page = () => {
       <NextSeo
         title={`${ssov} SSOV | Dopex Single Staking Options Vault`}
         description="Sell covered options to earn yield"
-        canonical="https://dopex.io/ssov"
+        canonical={`https://dopex.io/ssov/${ssov}`}
         openGraph={{
-          url: 'https://dopex.io/ssov',
+          url: `https://dopex.io/ssov/${ssov}`,
           title: `${ssov} SSOV | Dopex Single Staking Options Vault`,
           description: 'Sell covered options to earn yield',
           images: [
