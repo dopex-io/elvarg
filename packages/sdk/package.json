@@ -16,7 +16,7 @@
   "scripts": {
     "build": "pnpm clean && pnpm generate-types && node build.js && tsc --emitDeclarationOnly --outDir dist",
     "clean": "rimraf dist src/types/typechain",
-    "generate-types": "typechain --target ethers-v5 abi-jsons/*.json --out-dir src/types/typechain"
+    "generate-types": "typechain --target ethers-v5 src/abis/*.json --out-dir src/types/typechain"
   },
   "peerDependencies": {
     "ethers": "^5.6.0"
