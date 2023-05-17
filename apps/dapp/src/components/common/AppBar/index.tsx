@@ -1,5 +1,3 @@
-import Link from 'next/link';
-
 import {
   Key,
   ReactNode,
@@ -9,6 +7,8 @@ import {
   useMemo,
   useState,
 } from 'react';
+
+import Link from 'next/link';
 
 import { ethers } from 'ethers';
 
@@ -238,6 +238,7 @@ const menuLinks = [
   { name: 'Docs', to: 'https://docs.dopex.io/' },
   { name: 'Discord', to: 'https://discord.gg/dopex' },
   { name: 'Github', to: 'https://github.com/dopex-io' },
+  { name: 'Bug Bounty', to: 'https://github.com/dopex-io/bug-bounty' },
   { name: 'Price Oracles', to: '/oracles' },
   { name: 'Diamond Pepe NFTs', to: '/nfts/diamondpepes' },
   { name: 'Dopex NFTs', to: '/nfts/dopex' },
