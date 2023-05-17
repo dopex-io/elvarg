@@ -3,6 +3,13 @@
   "compilerOptions": {
     "baseUrl": "src"
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "sentry.server.config.ts",
+    "sentry.edge.config.ts",
+    "sentry.client.config.ts"
+  ],
   "exclude": ["node_modules"]
 }
