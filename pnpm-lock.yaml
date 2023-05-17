@@ -245,6 +245,9 @@ importers:
       rimraf:
         specifier: ^5.0.0
         version: 5.0.0
+      tsconfig:
+        specifier: workspace:*
+        version: link:../tsconfig
       typechain:
         specifier: ^8.0.0
         version: 8.0.0(typescript@5.0.4)

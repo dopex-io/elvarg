@@ -38,7 +38,8 @@
     "microbundle": "^0.15.0",
     "rimraf": "^5.0.0",
     "typechain": "^8.0.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "tsconfig": "workspace:*"
   },
   "prettier": {
     "singleQuote": true
