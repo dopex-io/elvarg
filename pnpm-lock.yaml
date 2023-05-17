@@ -236,6 +236,9 @@ importers:
       '@typechain/ethers-v5':
         specifier: ^10.2.1
         version: 10.2.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2)(ethers@5.7.2)(typechain@8.0.0)(typescript@5.0.4)
+      esbuild:
+        specifier: ^0.17.18
+        version: 0.17.18
       ethers:
         specifier: ^5.6.0
         version: 5.7.2

@@ -3,11 +3,9 @@
   "version": "1.0.0-beta.62",
   "license": "UNLICENSED",
   "description": "Dopex SDK",
-  "homepage": "https://github.com/dopex-io/sdk#readme",
-  "type": "module",
-  "module": "dist/index.js",
-  "main": "dist/index.cjs",
-  "typings": "dist/index.d.ts",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist",
     "src"
@@ -15,15 +13,8 @@
   "engines": {
     "node": ">=18"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/dopex-io/sdk.git"
-  },
-  "bugs": {
-    "url": "https://github.com/dopex-io/sdk/issues"
-  },
   "scripts": {
-    "build": "pnpm generate-types && microbundle",
+    "build": "pnpm clean && pnpm generate-types && node build.js && tsc --emitDeclarationOnly --outDir dist",
     "clean": "rimraf dist src/types/typechain",
     "generate-types": "typechain --target ethers-v5 abi-jsons/*.json --out-dir src/types/typechain"
   },
@@ -34,12 +25,13 @@
     "@ethersproject/abi": "^5.7.0",
     "@ethersproject/providers": "^5.7.2",
     "@typechain/ethers-v5": "^10.2.1",
+    "esbuild": "^0.17.18",
     "ethers": "^5.6.0",
     "microbundle": "^0.15.0",
     "rimraf": "^5.0.0",
+    "tsconfig": "workspace:*",
     "typechain": "^8.0.0",
-    "typescript": "^5.0.4",
-    "tsconfig": "workspace:*"
+    "typescript": "^5.0.4"
   },
   "prettier": {
     "singleQuote": true

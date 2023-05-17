@@ -3,7 +3,9 @@
   "compilerOptions": {
     "target": "ESNEXT",
     "module": "ESNext",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "declarationDir": "dist",
+    "noEmit": false
   },
   "include": ["src/**/*.ts"]
 }
