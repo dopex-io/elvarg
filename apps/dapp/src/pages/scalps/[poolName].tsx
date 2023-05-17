@@ -22,6 +22,7 @@ import TopBar from 'components/scalps/TopBar';
 import TradeCard from 'components/scalps/TradeCard';
 
 import { CHAINS } from 'constants/chains';
+import banners from 'constants/json/banners.json';
 
 // const SHOWCHARTS = false;
 
@@ -145,7 +146,7 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
             description: 'Scalp trading with small time frame options',
             images: [
               {
-                url: `https://dopex.io/images/banners/scalps.png`,
+                url: banners.scalps,
                 width: 800,
                 height: 600,
                 alt: 'Scalps',

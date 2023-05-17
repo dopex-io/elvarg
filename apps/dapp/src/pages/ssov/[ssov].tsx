@@ -1,11 +1,11 @@
-import React from 'react/index';
-
 import { useRouter } from 'next/router';
 
 import { NextSeo } from 'next-seo';
 
 import AppBar from 'components/common/AppBar';
 import Manage from 'components/ssov/Manage';
+
+import banners from 'constants/json/banners.json';
 
 const SsovV3Page = () => {
   const router = useRouter();
@@ -24,7 +24,7 @@ const SsovV3Page = () => {
           description: 'Sell covered options to earn yield',
           images: [
             {
-              url: `https://dopex.io/images/banners/ssov.png`,
+              url: banners.ssov,
               width: 800,
               height: 600,
               alt: 'SSOV',

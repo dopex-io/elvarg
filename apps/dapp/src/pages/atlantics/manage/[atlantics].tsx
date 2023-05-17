@@ -15,6 +15,7 @@ import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
 import AppBar from 'components/common/AppBar';
 
 import { ATLANTIC_POOL_INFO } from 'constants/atlanticPoolsInfo';
+import banners from 'constants/json/banners.json';
 
 // Placeholder data for charts
 const line_chart_data = [
@@ -103,16 +104,16 @@ export const Manage = (props: ManageProps) => {
   return (
     <Box className="bg-black bg-contain bg-no-repeat h-screen">
       <NextSeo
-        title={`${tokenId} Dopex Atlantic Insured Perps`}
-        description="Open liquidation-free longs"
+        title={`${tokenId} Dopex Atlantic Insured Perps LP`}
+        description="Write weekly atlantic puts to earn premium + funding"
         canonical={`https://dopex.io/atlantics/manage/${tokenId}`}
         openGraph={{
           url: `https://dopex.io/atlantics/manage/${tokenId}`,
-          title: `${tokenId} Dopex Atlantic Insured Perps`,
-          description: 'Open liquidation-free longs',
+          title: `${tokenId} Dopex Atlantic Insured Perps LP`,
+          description: 'Write weekly atlantic puts to earn premium + funding',
           images: [
             {
-              url: `https://dopex.io/images/banners/insuredperp.png`,
+              url: banners.insuredPerpsLP,
               width: 800,
               height: 600,
               alt: 'Insured Perp',

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { useRouter } from 'next/router';
 
@@ -14,6 +14,8 @@ import Positions from 'components/zdte/Positions';
 import TopBar from 'components/zdte/TopBar';
 import ZdteContractBox from 'components/zdte/ZdteContractBox';
 import ZdteDexScreenerChart from 'components/zdte/ZdteDexScreenerChart';
+
+import banners from 'constants/json/banners.json';
 
 interface Props {
   zdte: string;
@@ -92,7 +94,7 @@ const Zdte = ({ zdte }: Props) => {
           description: 'Options that expire on day of purchase',
           images: [
             {
-              url: `https://dopex.io/images/banners/zdte.png`,
+              url: banners.zdte,
               width: 800,
               height: 600,
               alt: 'ZDTE',

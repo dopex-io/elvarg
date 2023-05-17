@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 
 import { useRouter } from 'next/router';
 
@@ -12,6 +12,8 @@ import ProvideLp from 'components/olp/ProvideLp';
 import Stats from 'components/olp/Stats';
 import TopBar from 'components/olp/TopBar';
 import UserLpPositions from 'components/olp/UserLpPositions';
+
+import banners from 'constants/json/banners.json';
 
 const Olp = ({ poolName }: { poolName: string }) => {
   const {
@@ -52,7 +54,7 @@ const Olp = ({ poolName }: { poolName: string }) => {
           description: 'Liquidity Pool for SSOV options',
           images: [
             {
-              url: `https://dopex.io/images/banners/olp.png`,
+              url: banners.olp,
               width: 800,
               height: 600,
               alt: 'OLP',

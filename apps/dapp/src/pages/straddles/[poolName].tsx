@@ -16,6 +16,8 @@ import Positions from 'components/straddles/Positions';
 import Stats from 'components/straddles/Stats';
 import TopBar from 'components/straddles/TopBar';
 
+import banners from 'constants/json/banners.json';
+
 const SHOWCHARTS = false;
 
 const Straddles = ({ poolName }: { poolName: string }) => {
@@ -62,7 +64,7 @@ const Straddles = ({ poolName }: { poolName: string }) => {
           description: 'Buy/Write straddles on crypto assets',
           images: [
             {
-              url: `https://dopex.io/images/banners/straddles.png`,
+              url: banners.straddles,
               width: 800,
               height: 600,
               alt: 'Straddles',

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import Box from '@mui/material/Box';
@@ -11,6 +11,7 @@ import AppBar from 'components/common/AppBar';
 import { OlpHome } from 'components/olp/OlpHome';
 
 import { DOPEX_API_BASE_URL } from 'constants/env';
+import banners from 'constants/json/banners.json';
 
 const OLP_INTRO: string =
   'https://blog.dopex.io/articles/product-launches-updates/Option-Liquidity-Pools-Walkthrough';
@@ -60,7 +61,7 @@ const Olp = () => {
           description: 'Liquidity Pool for SSOV options',
           images: [
             {
-              url: `https://dopex.io/images/banners/olp.png`,
+              url: banners.olp,
               width: 800,
               height: 600,
               alt: 'OLP',

@@ -1,11 +1,11 @@
-import dynamic from 'next/dynamic';
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-
 import { useCallback, useEffect, useState } from 'react';
+
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 
 import Box from '@mui/material/Box';
 import axios from 'axios';
+import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
 import { GmxCandleStick } from 'types';
 
@@ -14,6 +14,8 @@ import Tables from 'components/atlantics/InsuredPerps/Tables';
 import Title from 'components/atlantics/InsuredPerps/Title';
 import AppBar from 'components/common/AppBar';
 import SignerButton from 'components/common/SignerButton';
+
+import banners from 'constants/json/banners.json';
 
 export const periods = ['1D', '4H', '1H', '15M', '5M'] as const;
 export type Period = (typeof periods)[number];
@@ -146,16 +148,32 @@ export const Main = (props: TickerProps) => {
 
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
-      <Head>
-        {marketData.latest === 0 || !underlying || !depositToken ? (
-          <title>... | ... | Insured Perps | Dopex</title>
-        ) : (
-          <title>
-            ${marketData.latest} | {underlying.concat('/', depositToken)} |
-            Insured Perps | Dopex
-          </title>
-        )}
-      </Head>
+      <NextSeo
+        title={`${
+          marketData.latest === 0 || !underlying || !depositToken
+            ? ''
+            : marketData.latest +
+              ' | ' +
+              underlying.concat('/', depositToken) +
+              ' - '
+        }${selectedPoolName} Dopex Atlantic Insured Perps`}
+        description="Open liquidation-free longs"
+        canonical={`https://dopex.io/atlantics/manage/${selectedPoolName}`}
+        openGraph={{
+          url: `https://dopex.io/atlantics/manage/${selectedPoolName}`,
+          title: `${selectedPoolName} Dopex Atlantic Insured Perps`,
+          description: 'Open liquidation-free longs',
+          images: [
+            {
+              url: banners.insuredPerps,
+              width: 800,
+              height: 600,
+              alt: 'Insured Perp',
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
       <AppBar active="Atlantics" />
       <Box className="py-12 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         {accountAddress ? (

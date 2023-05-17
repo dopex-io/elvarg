@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import { NextSeo } from 'next-seo';
@@ -8,6 +8,8 @@ import AppBar from 'components/common/AppBar';
 import Deposits from 'components/portfolio/Deposits';
 import Positions from 'components/portfolio/Positions';
 import Sidebar from 'components/portfolio/Sidebar';
+
+import banners from 'constants/json/banners.json';
 
 const Portfolio = () => {
   const { updatePortfolioData, accountAddress } = useBoundStore();
@@ -28,7 +30,7 @@ const Portfolio = () => {
           description: 'Check your Dopex positions',
           images: [
             {
-              url: `https://dopex.io/images/banners/portfolio.png`,
+              url: banners.portfolio,
               width: 800,
               height: 600,
               alt: 'Portfolio',

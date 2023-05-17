@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import { NextSeo } from 'next-seo';
@@ -8,6 +8,8 @@ import AppBar from 'components/common/AppBar';
 import Overview from 'components/vedpx/Overview';
 import UserVeDPX from 'components/vedpx/UserVeDPX';
 import VeDPXYield from 'components/vedpx/VeDPXYield';
+
+import banners from 'constants/json/banners.json';
 
 const VeDPX = () => {
   const { signer, provider, updateVedpxData, updateUserVedpxData } =
@@ -33,7 +35,7 @@ const VeDPX = () => {
           description: 'Earn yield, protocol fees, and vote in the protocol',
           images: [
             {
-              url: `https://dopex.io/images/banners/vedpx.png`,
+              url: banners.vedpx,
               width: 800,
               height: 600,
               alt: 'veDPX',

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { BigNumber } from 'ethers';
 
@@ -20,6 +20,7 @@ import ManageDialog, {
 import QuickLinks from 'components/farms/QuickLinks';
 
 import { FARMS } from 'constants/farms';
+import banners from 'constants/json/banners.json';
 
 const CustomBox = styled(Box)`
   @media (min-width: 1100px) {
@@ -112,7 +113,7 @@ const Farms = () => {
           description: 'Earn rewards for liquidity staking',
           images: [
             {
-              url: `https://dopex.io/images/banners/farms.png`,
+              url: banners.farms,
               width: 800,
               height: 600,
               alt: 'veDPX',
