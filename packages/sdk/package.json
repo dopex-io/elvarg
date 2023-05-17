@@ -23,9 +23,8 @@
     "url": "https://github.com/dopex-io/sdk/issues"
   },
   "scripts": {
-    "build": "microbundle",
+    "build": "pnpm generate-types && microbundle",
     "clean": "rimraf dist src/types/typechain",
-    "prebuild": "pnpm generate-types",
     "generate-types": "typechain --target ethers-v5 abi-jsons/*.json --out-dir src/types/typechain"
   },
   "peerDependencies": {
