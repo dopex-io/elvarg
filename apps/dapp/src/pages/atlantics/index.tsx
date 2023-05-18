@@ -138,7 +138,7 @@ const AtlanticsPage = () => {
             {
               url: seo.insuredPerps,
               width: 800,
-              height: 400,
+              height: 450,
               alt: 'Insured Perp',
               type: 'image/png',
             },
