@@ -12,7 +12,7 @@ import Stats from 'components/atlantics/Stats';
 import AppBar from 'components/common/AppBar';
 
 import { DOPEX_API_BASE_URL } from 'constants/env';
-import banners from 'constants/json/banners.json';
+import seo from 'constants/seo';
 
 export const ATLANTIC_POOLS: string[] | string = ['WETH'];
 
@@ -79,9 +79,9 @@ const Atlantics = () => {
           description: 'Open liquidation-free longs',
           images: [
             {
-              url: banners.insuredPerps,
+              url: seo.insuredPerps,
               width: 800,
-              height: 600,
+              height: 500,
               alt: 'Insured Perp',
               type: 'image/png',
             },

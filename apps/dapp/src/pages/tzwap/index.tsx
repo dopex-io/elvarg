@@ -38,7 +38,7 @@ import getTokenDecimals from 'utils/general/getTokenDecimals';
 import isNativeToken from 'utils/general/isNativeToken';
 
 import { CURRENCIES_MAP, MAX_VALUE } from 'constants/index';
-import banners from 'constants/json/banners.json';
+import seo from 'constants/seo';
 
 import { Order } from '../../types/tzwap';
 
@@ -519,9 +519,9 @@ const Tzwap = () => {
           description: 'Dopex Time-Weighted Average Price Swap',
           images: [
             {
-              url: banners.tzwap,
+              url: seo.tzwap,
               width: 800,
-              height: 600,
+              height: 500,
               alt: 'Tzwap',
               type: 'image/png',
             },

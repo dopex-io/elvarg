@@ -20,7 +20,7 @@ import ManageDialog, {
 import QuickLinks from 'components/farms/QuickLinks';
 
 import { FARMS } from 'constants/farms';
-import banners from 'constants/json/banners.json';
+import seo from 'constants/seo';
 
 const CustomBox = styled(Box)`
   @media (min-width: 1100px) {
@@ -113,9 +113,9 @@ const Farms = () => {
           description: 'Earn rewards for liquidity staking',
           images: [
             {
-              url: banners.farms,
+              url: seo.farms,
               width: 800,
-              height: 600,
+              height: 500,
               alt: 'veDPX',
               type: 'image/png',
             },

@@ -41,7 +41,7 @@ function App({ Component, pageProps }: AppProps) {
             {
               url: 'https://res.cloudinary.com/dxitdndu3/image/upload/v1682556687/dopex_images/preview_images/default_kayszw.png',
               width: 800,
-              height: 600,
+              height: 500,
               alt: 'SSOV',
               type: 'image/png',
             },

@@ -11,7 +11,7 @@ import VaultCard from 'components/straddles/VaultCard';
 
 import { CHAINS } from 'constants/chains';
 import { DOPEX_API_BASE_URL } from 'constants/env';
-import banners from 'constants/json/banners.json';
+import seo from 'constants/seo';
 
 const states: string[] = ['Active', 'Retired'];
 
@@ -102,9 +102,9 @@ const Straddles = () => {
           description: 'Buy/Write straddles on crypto assets',
           images: [
             {
-              url: banners.straddles,
+              url: seo.straddles,
               width: 800,
-              height: 600,
+              height: 500,
               alt: 'Straddles',
               type: 'image/png',
             },

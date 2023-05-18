@@ -15,7 +15,7 @@ import TopBar from 'components/zdte/TopBar';
 import ZdteContractBox from 'components/zdte/ZdteContractBox';
 import ZdteDexScreenerChart from 'components/zdte/ZdteDexScreenerChart';
 
-import banners from 'constants/json/banners.json';
+import seo from 'constants/seo';
 
 interface Props {
   zdte: string;
@@ -94,9 +94,9 @@ const Zdte = ({ zdte }: Props) => {
           description: 'Options that expire on day of purchase',
           images: [
             {
-              url: banners.zdte,
+              url: seo.zdte,
               width: 800,
-              height: 600,
+              height: 500,
               alt: 'ZDTE',
               type: 'image/png',
             },

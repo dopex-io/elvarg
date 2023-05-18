@@ -15,7 +15,7 @@ import Title from 'components/atlantics/InsuredPerps/Title';
 import AppBar from 'components/common/AppBar';
 import SignerButton from 'components/common/SignerButton';
 
-import banners from 'constants/json/banners.json';
+import seo from 'constants/seo';
 
 export const periods = ['1D', '4H', '1H', '15M', '5M'] as const;
 export type Period = (typeof periods)[number];
@@ -165,9 +165,9 @@ export const Main = (props: TickerProps) => {
           description: 'Open liquidation-free longs',
           images: [
             {
-              url: banners.insuredPerps,
+              url: seo.insuredPerps,
               width: 800,
-              height: 600,
+              height: 500,
               alt: 'Insured Perp',
               type: 'image/png',
             },

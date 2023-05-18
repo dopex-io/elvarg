@@ -13,7 +13,7 @@ import Stats from 'components/olp/Stats';
 import TopBar from 'components/olp/TopBar';
 import UserLpPositions from 'components/olp/UserLpPositions';
 
-import banners from 'constants/json/banners.json';
+import seo from 'constants/seo';
 
 const Olp = ({ poolName }: { poolName: string }) => {
   const {
@@ -54,9 +54,9 @@ const Olp = ({ poolName }: { poolName: string }) => {
           description: 'Liquidity Pool for SSOV options',
           images: [
             {
-              url: banners.olp,
+              url: seo.olp,
               width: 800,
-              height: 600,
+              height: 500,
               alt: 'OLP',
               type: 'image/png',
             },

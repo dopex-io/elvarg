@@ -4,7 +4,7 @@ import { NextSeo } from 'next-seo';
 import BondsPage from 'components/bonds/Bonds';
 import AppBar from 'components/common/AppBar';
 
-import banners from 'constants/json/banners.json';
+import seo from 'constants/seo';
 
 const DpxBonds = () => {
   return (
@@ -19,9 +19,9 @@ const DpxBonds = () => {
           description: 'Commit stables to received DPX at a discount',
           images: [
             {
-              url: banners.bonds,
+              url: seo.bonds,
               width: 800,
-              height: 600,
+              height: 500,
               alt: 'Bonds',
               type: 'image/png',
             },

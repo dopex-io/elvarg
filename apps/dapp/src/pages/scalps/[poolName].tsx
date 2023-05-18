@@ -22,7 +22,7 @@ import TopBar from 'components/scalps/TopBar';
 import TradeCard from 'components/scalps/TradeCard';
 
 import { CHAINS } from 'constants/chains';
-import banners from 'constants/json/banners.json';
+import seo from 'constants/seo';
 
 // const SHOWCHARTS = false;
 
@@ -146,9 +146,9 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
             description: 'Scalp trading with small time frame options',
             images: [
               {
-                url: banners.scalps,
+                url: seo.scalps,
                 width: 800,
-                height: 600,
+                height: 500,
                 alt: 'Scalps',
                 type: 'image/png',
               },

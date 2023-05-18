@@ -5,7 +5,7 @@ import { NextSeo } from 'next-seo';
 import AppBar from 'components/common/AppBar';
 import Manage from 'components/ssov/Manage';
 
-import banners from 'constants/json/banners.json';
+import seo from 'constants/seo';
 
 const SsovV3Page = () => {
   const router = useRouter();
@@ -24,9 +24,9 @@ const SsovV3Page = () => {
           description: 'Sell covered options to earn yield',
           images: [
             {
-              url: banners.ssov,
+              url: seo.ssov,
               width: 800,
-              height: 600,
+              height: 500,
               alt: 'SSOV',
               type: 'image/png',
             },

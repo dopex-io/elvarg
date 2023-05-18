@@ -11,7 +11,7 @@ import AppBar from 'components/common/AppBar';
 import { OlpHome } from 'components/olp/OlpHome';
 
 import { DOPEX_API_BASE_URL } from 'constants/env';
-import banners from 'constants/json/banners.json';
+import seo from 'constants/seo';
 
 const OLP_INTRO: string =
   'https://blog.dopex.io/articles/product-launches-updates/Option-Liquidity-Pools-Walkthrough';
@@ -61,9 +61,9 @@ const Olp = () => {
           description: 'Liquidity Pool for SSOV options',
           images: [
             {
-              url: banners.olp,
+              url: seo.olp,
               width: 800,
-              height: 600,
+              height: 500,
               alt: 'OLP',
               type: 'image/png',
             },

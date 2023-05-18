@@ -16,7 +16,7 @@ import formatAmount from 'utils/general/formatAmount';
 
 import { CHAINS } from 'constants/chains';
 import { DOPEX_API_BASE_URL } from 'constants/env';
-import banners from 'constants/json/banners.json';
+import seo from 'constants/seo';
 
 const ssovStrategies: string[] = ['CALL', 'PUT'];
 const sortOptions: string[] = ['TVL', 'APY'];
@@ -112,9 +112,9 @@ const SsovData = () => {
           description: 'Sell covered options to earn yield',
           images: [
             {
-              url: banners.ssov,
+              url: seo.ssov,
               width: 800,
-              height: 600,
+              height: 500,
               alt: 'SSOV',
               type: 'image/png',
             },

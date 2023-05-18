@@ -16,7 +16,7 @@ import Positions from 'components/straddles/Positions';
 import Stats from 'components/straddles/Stats';
 import TopBar from 'components/straddles/TopBar';
 
-import banners from 'constants/json/banners.json';
+import seo from 'constants/seo';
 
 const SHOWCHARTS = false;
 
@@ -64,9 +64,9 @@ const Straddles = ({ poolName }: { poolName: string }) => {
           description: 'Buy/Write straddles on crypto assets',
           images: [
             {
-              url: banners.straddles,
+              url: seo.straddles,
               width: 800,
-              height: 600,
+              height: 500,
               alt: 'Straddles',
               type: 'image/png',
             },

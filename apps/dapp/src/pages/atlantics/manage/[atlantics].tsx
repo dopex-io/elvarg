@@ -15,7 +15,7 @@ import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
 import AppBar from 'components/common/AppBar';
 
 import { ATLANTIC_POOL_INFO } from 'constants/atlanticPoolsInfo';
-import banners from 'constants/json/banners.json';
+import seo from 'constants/seo';
 
 // Placeholder data for charts
 const line_chart_data = [
@@ -113,9 +113,9 @@ export const Manage = (props: ManageProps) => {
           description: 'Write weekly atlantic puts to earn premium + funding',
           images: [
             {
-              url: banners.insuredPerpsLP,
+              url: seo.insuredPerpsLP,
               width: 800,
-              height: 600,
+              height: 500,
               alt: 'Insured Perp',
               type: 'image/png',
             },

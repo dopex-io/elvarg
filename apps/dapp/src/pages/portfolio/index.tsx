@@ -9,7 +9,7 @@ import Deposits from 'components/portfolio/Deposits';
 import Positions from 'components/portfolio/Positions';
 import Sidebar from 'components/portfolio/Sidebar';
 
-import banners from 'constants/json/banners.json';
+import seo from 'constants/seo';
 
 const Portfolio = () => {
   const { updatePortfolioData, accountAddress } = useBoundStore();
@@ -30,9 +30,9 @@ const Portfolio = () => {
           description: 'Check your Dopex positions',
           images: [
             {
-              url: banners.portfolio,
+              url: seo.portfolio,
               width: 800,
-              height: 600,
+              height: 500,
               alt: 'Portfolio',
               type: 'image/png',
             },

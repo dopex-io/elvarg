@@ -9,7 +9,7 @@ import Overview from 'components/vedpx/Overview';
 import UserVeDPX from 'components/vedpx/UserVeDPX';
 import VeDPXYield from 'components/vedpx/VeDPXYield';
 
-import banners from 'constants/json/banners.json';
+import seo from 'constants/seo';
 
 const VeDPX = () => {
   const { signer, provider, updateVedpxData, updateUserVedpxData } =
@@ -35,9 +35,9 @@ const VeDPX = () => {
           description: 'Earn yield, protocol fees, and vote in the protocol',
           images: [
             {
-              url: banners.vedpx,
+              url: seo.vedpx,
               width: 800,
-              height: 600,
+              height: 500,
               alt: 'veDPX',
               type: 'image/png',
             },
