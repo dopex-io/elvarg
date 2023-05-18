@@ -21,7 +21,7 @@ const DpxBonds = () => {
             {
               url: seo.bonds,
               width: 800,
-              height: 450,
+              height: 400,
               alt: 'Bonds',
               type: 'image/png',
             },

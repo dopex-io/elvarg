@@ -102,25 +102,6 @@ const SsovData = () => {
 
   return (
     <Box className="min-h-screen">
-      <NextSeo
-        title="SSOV | Dopex Single Staking Options Vault"
-        description="Sell covered options to earn yield"
-        canonical="https://dopex.io/ssov"
-        openGraph={{
-          url: 'https://dopex.io/ssov',
-          title: 'SSOV | Dopex Single Staking Options Vault',
-          description: 'Sell covered options to earn yield',
-          images: [
-            {
-              url: seo.ssov,
-              width: 800,
-              height: 450,
-              alt: 'SSOV',
-              type: 'image/png',
-            },
-          ],
-        }}
-      />
       <AppBar active="SSOV" />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         <Box className="text-center mx-auto max-w-xl mb-8 mt-32">
@@ -223,5 +204,28 @@ const SsovData = () => {
 };
 
 export default function Ssov() {
-  return <SsovData />;
+  return (
+    <>
+      <NextSeo
+        title="SSOV | Dopex Single Staking Options Vault"
+        description="Sell covered options to earn yield"
+        canonical="https://app.dopex.io/ssov"
+        openGraph={{
+          url: 'https://app.dopex.io/ssov',
+          title: 'SSOV | Dopex Single Staking Options Vault',
+          description: 'Sell covered options to earn yield',
+          images: [
+            {
+              url: seo.ssov,
+              width: 800,
+              height: 400,
+              alt: 'SSOV',
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
+      <SsovData />
+    </>
+  );
 }

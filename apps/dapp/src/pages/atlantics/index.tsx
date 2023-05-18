@@ -69,25 +69,6 @@ const Atlantics = () => {
 
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
-      <NextSeo
-        title={`Dopex Atlantic Insured Perps`}
-        description="Open liquidation-free longs"
-        canonical={`https://dopex.io/atlantics`}
-        openGraph={{
-          url: `https://dopex.io/atlantics`,
-          title: `Dopex Atlantic Insured Perps`,
-          description: 'Open liquidation-free longs',
-          images: [
-            {
-              url: seo.insuredPerps,
-              width: 800,
-              height: 450,
-              alt: 'Insured Perp',
-              type: 'image/png',
-            },
-          ],
-        }}
-      />
       <AppBar active="Atlantics" />
       <Box className="container pt-32 mx-auto px-4 lg:px-0 h-screen">
         <Box className="mx-auto mb-8">
@@ -143,7 +124,30 @@ const Atlantics = () => {
 };
 
 const AtlanticsPage = () => {
-  return <Atlantics />;
+  return (
+    <>
+      <NextSeo
+        title={`Dopex Atlantic Insured Perps`}
+        description="Open liquidation-free longs"
+        canonical={`https://app.dopex.io/atlantics`}
+        openGraph={{
+          url: `https://app.dopex.io/atlantics`,
+          title: `Dopex Atlantic Insured Perps`,
+          description: 'Open liquidation-free longs',
+          images: [
+            {
+              url: seo.insuredPerps,
+              width: 800,
+              height: 400,
+              alt: 'Insured Perp',
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
+      <Atlantics />
+    </>
+  );
 };
 
 export default AtlanticsPage;

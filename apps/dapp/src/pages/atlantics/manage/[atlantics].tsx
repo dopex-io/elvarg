@@ -115,7 +115,7 @@ export const Manage = (props: ManageProps) => {
             {
               url: seo.insuredPerpsLP,
               width: 800,
-              height: 450,
+              height: 400,
               alt: 'Insured Perp',
               type: 'image/png',
             },

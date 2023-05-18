@@ -32,7 +32,7 @@ const Portfolio = () => {
             {
               url: seo.portfolio,
               width: 800,
-              height: 450,
+              height: 400,
               alt: 'Portfolio',
               type: 'image/png',
             },

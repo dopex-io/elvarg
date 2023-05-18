@@ -63,7 +63,7 @@ const Olp = () => {
             {
               url: seo.olp,
               width: 800,
-              height: 450,
+              height: 400,
               alt: 'OLP',
               type: 'image/png',
             },
