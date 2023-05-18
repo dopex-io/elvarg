@@ -114,7 +114,7 @@ const SsovData = () => {
             {
               url: seo.ssov,
               width: 800,
-              height: 400,
+              height: 450,
               alt: 'SSOV',
               type: 'image/png',
             },
