@@ -37,7 +37,7 @@ const VeDPX = () => {
             {
               url: seo.vedpx,
               width: 800,
-              height: 500,
+              height: 400,
               alt: 'veDPX',
               type: 'image/png',
             },

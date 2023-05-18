@@ -26,7 +26,7 @@ const SsovV3Page = () => {
             {
               url: seo.ssov,
               width: 800,
-              height: 500,
+              height: 400,
               alt: 'SSOV',
               type: 'image/png',
             },

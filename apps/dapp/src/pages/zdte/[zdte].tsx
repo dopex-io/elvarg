@@ -96,7 +96,7 @@ const Zdte = ({ zdte }: Props) => {
             {
               url: seo.zdte,
               width: 800,
-              height: 500,
+              height: 400,
               alt: 'ZDTE',
               type: 'image/png',
             },

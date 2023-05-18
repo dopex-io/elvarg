@@ -521,7 +521,7 @@ const Tzwap = () => {
             {
               url: seo.tzwap,
               width: 800,
-              height: 500,
+              height: 400,
               alt: 'Tzwap',
               type: 'image/png',
             },

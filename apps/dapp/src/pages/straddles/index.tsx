@@ -104,7 +104,7 @@ const Straddles = () => {
             {
               url: seo.straddles,
               width: 800,
-              height: 500,
+              height: 400,
               alt: 'Straddles',
               type: 'image/png',
             },
