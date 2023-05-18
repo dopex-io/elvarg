@@ -57,8 +57,7 @@ function getClosedPutPnl(position: IZdteClosedPositions) {
       getUserReadableAmount(position.longStrike, DECIMALS_STRIKE) -
         getUserReadableAmount(position.settlementPrice, DECIMALS_STRIKE),
       0
-    ) -
-    getUserReadableAmount(position.cost, DECIMALS_USD)
+    )
   );
 }
 
@@ -73,8 +72,7 @@ function getClosedCallPnl(position: IZdteClosedPositions) {
       getUserReadableAmount(position.settlementPrice, DECIMALS_STRIKE) -
         getUserReadableAmount(position.longStrike, DECIMALS_STRIKE),
       0
-    ) -
-    getUserReadableAmount(position.cost, DECIMALS_USD)
+    )
   );
 }
 

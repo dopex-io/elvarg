@@ -27,7 +27,10 @@ import { formatAmount } from 'utils/general';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
-export function roundOrPad(num: BigNumber) {
+export function roundOrPad(num: number | BigNumber) {
+  if (typeof num === 'number') {
+    return num.toFixed(2);
+  }
   return num.lt(getContractReadableAmount(10, DECIMALS_STRIKE))
     ? addZeroes(formatAmount(getUserReadableAmount(num, DECIMALS_STRIKE), 2))
     : formatAmount(getUserReadableAmount(num, DECIMALS_STRIKE));
