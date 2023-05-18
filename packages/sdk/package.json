@@ -1,0 +1,38 @@
+{
+  "name": "@dopex-io/sdk",
+  "version": "1.0.0-beta.62",
+  "license": "UNLICENSED",
+  "description": "Dopex SDK",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "pnpm clean && pnpm generate-types && node build.js && tsc --emitDeclarationOnly --outDir dist",
+    "clean": "rimraf dist src/types/typechain",
+    "generate-types": "typechain --target ethers-v5 src/abis/*.json --out-dir src/types/typechain"
+  },
+  "peerDependencies": {
+    "ethers": "^5"
+  },
+  "devDependencies": {
+    "@ethersproject/abi": "^5.7.0",
+    "@ethersproject/providers": "^5.7.2",
+    "@typechain/ethers-v5": "^10.2.1",
+    "esbuild": "^0.17.19",
+    "ethers": "^5.7.2",
+    "rimraf": "^5.0.1",
+    "tsconfig": "workspace:*",
+    "typechain": "^8.1.1",
+    "typescript": "^5.0.4"
+  },
+  "prettier": {
+    "singleQuote": true
+  }
+}
