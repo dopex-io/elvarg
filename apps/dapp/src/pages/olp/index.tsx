@@ -61,7 +61,7 @@ const Olp = () => {
           description: seo.olp.description,
           images: [
             {
-              url: seo.olp,
+              url: seo.olp.banner,
               width: seo.default.width,
               height: seo.default.height,
               alt: seo.olp.alt,

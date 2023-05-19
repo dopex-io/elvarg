@@ -146,7 +146,7 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
             description: seo.scalps.description,
             images: [
               {
-                url: seo.scalps,
+                url: seo.scalps.banner,
                 width: seo.default.width,
                 height: seo.default.height,
                 alt: seo.scalps.alt,
