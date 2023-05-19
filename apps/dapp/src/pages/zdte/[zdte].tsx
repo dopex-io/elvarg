@@ -84,25 +84,6 @@ const Zdte = ({ zdte }: Props) => {
 
   return (
     <div className="bg-black min-h-screen">
-      <NextSeo
-        title={`${zdte} ${seo.zdte.title}`}
-        description={seo.zdte.description}
-        canonical={`${seo.zdte.url}${zdte}`}
-        openGraph={{
-          url: `${seo.zdte.url}${zdte}`,
-          title: `${zdte} ${seo.zdte.title}`,
-          description: seo.zdte.description,
-          images: [
-            {
-              url: seo.zdte.banner,
-              width: seo.default.width,
-              height: seo.default.height,
-              alt: seo.zdte.alt,
-              type: 'image/png',
-            },
-          ],
-        }}
-      />
       <AppBar active="ZDTE" />
       <div className="md:flex py-5 justify-center">
         <div className="ml-auto space-y-8">
@@ -136,6 +117,25 @@ const ManagePage = () => {
 
   return (
     <ErrorBoundary>
+      <NextSeo
+        title={`${zdte} ${seo.zdte.title}`}
+        description={seo.zdte.description}
+        canonical={`${seo.zdte.url}${zdte}`}
+        openGraph={{
+          url: `${seo.zdte.url}${zdte}`,
+          title: `${zdte} ${seo.zdte.title}`,
+          description: seo.zdte.description,
+          images: [
+            {
+              url: seo.zdte.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.zdte.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
       <Zdte zdte={zdte} />
     </ErrorBoundary>
   );
