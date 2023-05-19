@@ -104,19 +104,19 @@ const Farms = () => {
   return (
     <Box className="overflow-x-hidden bg-black text-white min-h-screen">
       <NextSeo
-        title="Dopex Yield Farms"
-        description="Earn rewards for liquidity staking"
-        canonical="https://dopex.io/farms"
+        title={seo.farms.title}
+        description={seo.farms.description}
+        canonical={seo.farms.url}
         openGraph={{
-          url: 'https://dopex.io/farms',
-          title: 'Dopex Yield Farms',
-          description: 'Earn rewards for liquidity staking',
+          url: seo.farms.url,
+          title: seo.farms.title,
+          description: seo.farms.description,
           images: [
             {
               url: seo.farms,
-              width: 800,
-              height: 450,
-              alt: 'veDPX',
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.farms.alt,
               type: 'image/png',
             },
           ],

@@ -156,19 +156,19 @@ export const Main = (props: TickerProps) => {
               ' | ' +
               underlying.concat('/', depositToken) +
               ' - '
-        }${selectedPoolName} Dopex Atlantic Insured Perps`}
-        description="Open liquidation-free longs"
-        canonical={`https://dopex.io/atlantics/manage/${selectedPoolName}`}
+        }${selectedPoolName} ${seo.insuredPerps.title}`}
+        description={seo.insuredPerps.description}
+        canonical={`${seo.insuredPerps.url}manage/${selectedPoolName}`}
         openGraph={{
-          url: `https://dopex.io/atlantics/manage/${selectedPoolName}`,
-          title: `${selectedPoolName} Dopex Atlantic Insured Perps`,
-          description: 'Open liquidation-free longs',
+          url: `${seo.insuredPerps.url}manage/${selectedPoolName}`,
+          title: `${selectedPoolName} ${seo.insuredPerps.title}`,
+          description: seo.insuredPerps.description,
           images: [
             {
-              url: seo.insuredPerps,
-              width: 800,
-              height: 450,
-              alt: 'Insured Perp',
+              url: seo.insuredPerps.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.insuredPerps.alt,
               type: 'image/png',
             },
           ],

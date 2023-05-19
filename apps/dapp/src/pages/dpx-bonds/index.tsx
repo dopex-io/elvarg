@@ -10,19 +10,19 @@ const DpxBonds = () => {
   return (
     <Box className="bg-black min-h-screen m-auto p-3">
       <NextSeo
-        title={`Dopex Bonds`}
-        description="Commit stables to received DPX at a discount"
-        canonical={`https://dopex.io/dpx-bonds`}
+        title={seo.bonds.title}
+        description={seo.bonds.description}
+        canonical={seo.bonds.url}
         openGraph={{
-          url: `https://dopex.io/dpx-bonds`,
-          title: `Dopex Bonds`,
-          description: 'Commit stables to received DPX at a discount',
+          url: seo.bonds.url,
+          title: seo.bonds.title,
+          description: seo.bonds.description,
           images: [
             {
-              url: seo.bonds,
-              width: 800,
-              height: 450,
-              alt: 'Bonds',
+              url: seo.bonds.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.bonds.alt,
               type: 'image/png',
             },
           ],

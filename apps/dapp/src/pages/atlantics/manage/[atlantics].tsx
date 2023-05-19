@@ -104,19 +104,19 @@ export const Manage = (props: ManageProps) => {
   return (
     <Box className="bg-black bg-contain bg-no-repeat h-screen">
       <NextSeo
-        title={`${tokenId} Dopex Atlantic Insured Perps LP`}
-        description="Write weekly atlantic puts to earn premium + funding"
-        canonical={`https://dopex.io/atlantics/manage/${tokenId}`}
+        title={`${tokenId} ${seo.insuredPerpsLP.title}`}
+        description={seo.insuredPerpsLP.description}
+        canonical={`${seo.insuredPerpsLP.url}manage/${tokenId}`}
         openGraph={{
-          url: `https://dopex.io/atlantics/manage/${tokenId}`,
-          title: `${tokenId} Dopex Atlantic Insured Perps LP`,
-          description: 'Write weekly atlantic puts to earn premium + funding',
+          url: `${seo.insuredPerpsLP.url}manage/${tokenId}`,
+          title: `${tokenId} ${seo.insuredPerpsLP.title}`,
+          description: seo.insuredPerpsLP.description,
           images: [
             {
-              url: seo.insuredPerpsLP,
-              width: 800,
-              height: 450,
-              alt: 'Insured Perp',
+              url: seo.insuredPerpsLP.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.insuredPerpsLP.alt,
               type: 'image/png',
             },
           ],

@@ -59,7 +59,7 @@ const Straddles = ({ poolName }: { poolName: string }) => {
         description={seo.straddles.description}
         canonical={`${seo.straddles.url}${poolName}`}
         openGraph={{
-          url: `https://dopex.io/straddles/${poolName}`,
+          url: `${seo.straddles.url}${poolName}`,
           title: seo.straddles.title,
           description: seo.straddles.description,
           images: [
