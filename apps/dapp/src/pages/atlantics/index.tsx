@@ -127,19 +127,19 @@ const AtlanticsPage = () => {
   return (
     <>
       <NextSeo
-        title={`Dopex Atlantic Insured Perps`}
-        description="Open liquidation-free longs"
-        canonical={`https://app.dopex.io/atlantics`}
+        title={seo.insuredPerps.title}
+        description={seo.insuredPerps.description}
+        canonical={seo.insuredPerps.url}
         openGraph={{
-          url: `https://app.dopex.io/atlantics`,
-          title: `Dopex Atlantic Insured Perps`,
-          description: 'Open liquidation-free longs',
+          url: seo.insuredPerps.url,
+          title: seo.insuredPerps.title,
+          description: seo.insuredPerps.description,
           images: [
             {
-              url: seo.insuredPerps,
-              width: 800,
-              height: 450,
-              alt: 'Insured Perp',
+              url: seo.insuredPerps.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.insuredPerps.alt,
               type: 'image/png',
             },
           ],
