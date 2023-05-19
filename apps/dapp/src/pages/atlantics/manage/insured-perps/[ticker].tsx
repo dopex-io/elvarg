@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import dynamic from 'next/dynamic';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 
 import Box from '@mui/material/Box';
@@ -148,6 +149,16 @@ export const Main = (props: TickerProps) => {
 
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
+      <Head>
+        {marketData.latest === 0 || !underlying || !depositToken ? (
+          <title>... | ... | Insured Perps | Dopex</title>
+        ) : (
+          <title>
+            ${marketData.latest} | {underlying.concat('/', depositToken)} |
+            Insured Perps | Dopex
+          </title>
+        )}
+      </Head>
       <AppBar active="Atlantics" />
       <Box className="py-12 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         {accountAddress ? (
@@ -204,19 +215,12 @@ const InsuredLongPerps = () => {
   return (
     <>
       <NextSeo
-        title={`${
-          marketData.latest === 0 || !underlying || !depositToken
-            ? ''
-            : marketData.latest +
-              ' | ' +
-              underlying.concat('/', depositToken) +
-              ' - '
-        }${selectedPoolName} ${seo.insuredPerps.title}`}
+        title={`${ticker} ${seo.insuredPerps.title}`}
         description={seo.insuredPerps.description}
-        canonical={`${seo.insuredPerps.url}manage/${selectedPoolName}`}
+        canonical={`${seo.insuredPerps.url}manage/${ticker}`}
         openGraph={{
-          url: `${seo.insuredPerps.url}manage/${selectedPoolName}`,
-          title: `${selectedPoolName} ${seo.insuredPerps.title}`,
+          url: `${seo.insuredPerps.url}manage/${ticker}`,
+          title: `${ticker} ${seo.insuredPerps.title}`,
           description: seo.insuredPerps.description,
           images: [
             {
