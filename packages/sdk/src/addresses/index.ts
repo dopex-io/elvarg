@@ -261,6 +261,7 @@ const Addresses: { [key: number]: any } = {
           '0x475a5a712b741b9ab992e6af0b9e5adee3d1851b',
         'ARB-MONTHLY-CALLS-SSOV-V3':
           '0xDF3d96299275E2Fb40124b8Ad9d270acFDcc6148',
+        'CVX-WEEKLY-PUTS-SSOV-V3': '0x3e138322b86897eDf4Ffc6060Edc0C1220b4F8B0',
       },
     },
     SSOV: {
