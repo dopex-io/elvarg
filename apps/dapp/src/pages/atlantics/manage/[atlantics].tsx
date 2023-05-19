@@ -103,25 +103,6 @@ export const Manage = (props: ManageProps) => {
 
   return (
     <Box className="bg-black bg-contain bg-no-repeat h-screen">
-      <NextSeo
-        title={`${tokenId} ${seo.insuredPerpsLP.title}`}
-        description={seo.insuredPerpsLP.description}
-        canonical={`${seo.insuredPerpsLP.url}manage/${tokenId}`}
-        openGraph={{
-          url: `${seo.insuredPerpsLP.url}manage/${tokenId}`,
-          title: `${tokenId} ${seo.insuredPerpsLP.title}`,
-          description: seo.insuredPerpsLP.description,
-          images: [
-            {
-              url: seo.insuredPerpsLP.banner,
-              width: seo.default.width,
-              height: seo.default.height,
-              alt: seo.insuredPerpsLP.alt,
-              type: 'image/png',
-            },
-          ],
-        }}
-      />
       <AppBar active="Atlantics" />
       <Box className="py-12 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
         <Box className="flex mt-20 space-x-0 lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">
@@ -178,12 +159,33 @@ const ManagePage = () => {
   const split: string[] = atlantics.split('-');
 
   return (
-    <Manage
-      tokenId={atlantics}
-      underlying={split[0]!}
-      type={split[1]!}
-      duration={split[2]!}
-    />
+    <>
+      <NextSeo
+        title={`${tokenId} ${seo.insuredPerpsLP.title}`}
+        description={seo.insuredPerpsLP.description}
+        canonical={`${seo.insuredPerpsLP.url}manage/${tokenId}`}
+        openGraph={{
+          url: `${seo.insuredPerpsLP.url}manage/${tokenId}`,
+          title: `${tokenId} ${seo.insuredPerpsLP.title}`,
+          description: seo.insuredPerpsLP.description,
+          images: [
+            {
+              url: seo.insuredPerpsLP.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.insuredPerpsLP.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
+      <Manage
+        tokenId={atlantics}
+        underlying={split[0]!}
+        type={split[1]!}
+        duration={split[2]!}
+      />
+    </>
   );
 };
 

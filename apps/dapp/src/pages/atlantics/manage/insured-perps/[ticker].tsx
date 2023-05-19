@@ -148,32 +148,6 @@ export const Main = (props: TickerProps) => {
 
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
-      <NextSeo
-        title={`${
-          marketData.latest === 0 || !underlying || !depositToken
-            ? ''
-            : marketData.latest +
-              ' | ' +
-              underlying.concat('/', depositToken) +
-              ' - '
-        }${selectedPoolName} ${seo.insuredPerps.title}`}
-        description={seo.insuredPerps.description}
-        canonical={`${seo.insuredPerps.url}manage/${selectedPoolName}`}
-        openGraph={{
-          url: `${seo.insuredPerps.url}manage/${selectedPoolName}`,
-          title: `${selectedPoolName} ${seo.insuredPerps.title}`,
-          description: seo.insuredPerps.description,
-          images: [
-            {
-              url: seo.insuredPerps.banner,
-              width: seo.default.width,
-              height: seo.default.height,
-              alt: seo.insuredPerps.alt,
-              type: 'image/png',
-            },
-          ],
-        }}
-      />
       <AppBar active="Atlantics" />
       <Box className="py-12 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         {accountAddress ? (
@@ -227,7 +201,37 @@ const InsuredLongPerps = () => {
   if (!ticker) return null;
 
   const [underlying, depositToken] = ticker.split('-');
-  return <Main underlying={underlying} depositToken={depositToken} />;
+  return (
+    <>
+      <NextSeo
+        title={`${
+          marketData.latest === 0 || !underlying || !depositToken
+            ? ''
+            : marketData.latest +
+              ' | ' +
+              underlying.concat('/', depositToken) +
+              ' - '
+        }${selectedPoolName} ${seo.insuredPerps.title}`}
+        description={seo.insuredPerps.description}
+        canonical={`${seo.insuredPerps.url}manage/${selectedPoolName}`}
+        openGraph={{
+          url: `${seo.insuredPerps.url}manage/${selectedPoolName}`,
+          title: `${selectedPoolName} ${seo.insuredPerps.title}`,
+          description: seo.insuredPerps.description,
+          images: [
+            {
+              url: seo.insuredPerps.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.insuredPerps.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
+      <Main underlying={underlying} depositToken={depositToken} />
+    </>
+  );
 };
 
 export default InsuredLongPerps;
