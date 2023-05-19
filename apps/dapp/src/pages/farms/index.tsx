@@ -113,7 +113,7 @@ const Farms = () => {
           description: seo.farms.description,
           images: [
             {
-              url: seo.farms,
+              url: seo.farms.banner,
               width: seo.default.width,
               height: seo.default.height,
               alt: seo.farms.alt,
