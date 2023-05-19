@@ -26,19 +26,19 @@ const VeDPX = () => {
   return (
     <Box className="bg-black min-h-screen">
       <NextSeo
-        title="veDPX | Escrowed DPX"
-        description="Earn yield, protocol fees, and vote in the protocol"
-        canonical="https://dopex.io/governance/vedpx"
+        title={seo.vedpx.title}
+        description={seo.vedpx.description}
+        canonical={seo.vedpx.url}
         openGraph={{
-          url: 'https://dopex.io/governance/vedpx',
-          title: 'veDPX | Escrowed DPX',
-          description: 'Earn yield, protocol fees, and vote in the protocol',
+          url: seo.vedpx.url,
+          title: seo.vedpx.title,
+          description: seo.vedpx.description,
           images: [
             {
-              url: seo.vedpx,
-              width: 800,
-              height: 450,
-              alt: 'veDPX',
+              url: seo.vedpx.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.vedpx.alt,
               type: 'image/png',
             },
           ],

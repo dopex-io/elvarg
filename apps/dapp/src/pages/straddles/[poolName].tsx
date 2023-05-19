@@ -55,19 +55,19 @@ const Straddles = ({ poolName }: { poolName: string }) => {
   return (
     <Box className="bg-black min-h-screen">
       <NextSeo
-        title={`${poolName} Dopex Atlantic Straddles`}
-        description="Buy/Write straddles on crypto assets"
-        canonical={`https://dopex.io/straddles/${poolName}`}
+        title={`${poolName} ${seo.straddles.title}`}
+        description={seo.straddles.description}
+        canonical={`${seo.straddles.url}${poolName}`}
         openGraph={{
           url: `https://dopex.io/straddles/${poolName}`,
-          title: `Dopex Atlantic Straddles`,
-          description: 'Buy/Write straddles on crypto assets',
+          title: seo.straddles.title,
+          description: seo.straddles.description,
           images: [
             {
-              url: seo.straddles,
-              width: 800,
-              height: 450,
-              alt: 'Straddles',
+              url: seo.straddles.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.straddles.alt,
               type: 'image/png',
             },
           ],

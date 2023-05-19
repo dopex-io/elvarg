@@ -137,19 +137,19 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
     <>
       <Box className="bg-black flex w-screen items-center justify-center">
         <NextSeo
-          title={`${poolName} Dopex Option Scalps`}
-          description="Scalp trading with small time frame options"
-          canonical={`https://dopex.io/scalps/${poolName}`}
+          title={`${poolName} ${seo.scalps.title}`}
+          description={seo.scalps.description}
+          canonical={`${seo.scalps.url}${poolName}`}
           openGraph={{
-            url: `https://dopex.io/scalps/${poolName}`,
-            title: `${poolName} Dopex Option Scalps`,
-            description: 'Scalp trading with small time frame options',
+            url: `${seo.scalps.url}${poolName}`,
+            title: `${poolName} ${seo.scalps.title}`,
+            description: seo.scalps.description,
             images: [
               {
                 url: seo.scalps,
-                width: 800,
-                height: 450,
-                alt: 'Scalps',
+                width: seo.default.width,
+                height: seo.default.height,
+                alt: seo.scalps.alt,
                 type: 'image/png',
               },
             ],

@@ -15,19 +15,19 @@ const SsovV3Page = () => {
   return (
     <div className="overflow-x-hidden bg-black h-screen">
       <NextSeo
-        title={`${ssov} SSOV | Dopex Single Staking Options Vault`}
-        description="Sell covered options to earn yield"
-        canonical={`https://dopex.io/ssov/${ssov}`}
+        title={`${ssov} ${seo.ssov.title}`}
+        description={seo.ssov.description}
+        canonical={`${seo.ssov.url}${ssov}`}
         openGraph={{
-          url: `https://dopex.io/ssov/${ssov}`,
-          title: `${ssov} SSOV | Dopex Single Staking Options Vault`,
-          description: 'Sell covered options to earn yield',
+          url: `${seo.ssov.url}${ssov}`,
+          title: `${ssov} ${seo.ssov.title}`,
+          description: seo.ssov.description,
           images: [
             {
-              url: seo.ssov,
-              width: 800,
-              height: 450,
-              alt: 'SSOV',
+              url: seo.ssov.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.ssov.alt,
               type: 'image/png',
             },
           ],

@@ -85,19 +85,19 @@ const Zdte = ({ zdte }: Props) => {
   return (
     <div className="bg-black min-h-screen">
       <NextSeo
-        title={`${zdte} 0dte | Dopex Zero Day-to-Expiry options`}
-        description="Options that expire on day of purchase"
-        canonical={`https://dopex.io/zdte/${zdte}`}
+        title={`${zdte} ${seo.zdte.title}`}
+        description={seo.zdte.description}
+        canonical={`${seo.zdte.url}${zdte}`}
         openGraph={{
-          url: `https://dopex.io/zdte/${zdte}`,
-          title: `${zdte} 0dte | Dopex Zero Day-to-Expiry options`,
-          description: 'Options that expire on day of purchase',
+          url: `${seo.zdte.url}${zdte}`,
+          title: `${zdte} ${seo.zdte.title}`,
+          description: seo.zdte.description,
           images: [
             {
-              url: seo.zdte,
-              width: 800,
-              height: 450,
-              alt: 'ZDTE',
+              url: seo.zdte.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.zdte.alt,
               type: 'image/png',
             },
           ],

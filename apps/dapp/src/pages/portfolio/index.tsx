@@ -21,19 +21,19 @@ const Portfolio = () => {
   return (
     <Box className="min-h-screen">
       <NextSeo
-        title="Portfolio Page"
-        description="Check your Dopex positions"
-        canonical="https://dopex.io/zdte"
+        title={seo.portfolio.title}
+        description={seo.portfolio.description}
+        canonical={seo.portfolio.url}
         openGraph={{
-          url: 'https://dopex.io/portfolio',
-          title: 'Portfolio Page',
-          description: 'Check your Dopex positions',
+          url: seo.portfolio.url,
+          title: seo.portfolio.title,
+          description: seo.portfolio.description,
           images: [
             {
-              url: seo.portfolio,
-              width: 800,
-              height: 450,
-              alt: 'Portfolio',
+              url: seo.portfolio.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.portfolio.alt,
               type: 'image/png',
             },
           ],

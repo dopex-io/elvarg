@@ -510,19 +510,19 @@ const Tzwap = () => {
   return (
     <Box className="min-h-screen">
       <NextSeo
-        title={`Tzwap`}
-        description="Dopex Time-Weighted Average Price Swap"
-        canonical={`https://dopex.io/tzwap`}
+        title={seo.tzwap.title}
+        description={seo.tzwap.description}
+        canonical={seo.tzwap.url}
         openGraph={{
-          url: `https://dopex.io/tzwap`,
-          title: `Tzwap`,
-          description: 'Dopex Time-Weighted Average Price Swap',
+          url: seo.tzwap.url,
+          title: seo.tzwap.title,
+          description: seo.tzwap.description,
           images: [
             {
-              url: seo.tzwap,
-              width: 800,
-              height: 450,
-              alt: 'Tzwap',
+              url: seo.tzwap.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.tzwap.alt,
               type: 'image/png',
             },
           ],

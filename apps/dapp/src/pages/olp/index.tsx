@@ -52,19 +52,19 @@ const Olp = () => {
   return (
     <Box className="min-h-screen">
       <NextSeo
-        title="OLP | Dopex Option Liquidity Pools"
-        description="Liquidity Pool for SSOV options"
-        canonical="https://dopex.io/olp"
+        title={seo.olp.title}
+        description={seo.olp.description}
+        canonical={seo.olp.url}
         openGraph={{
-          url: 'https://dopex.io/olp',
-          title: 'OLP | Dopex Option Liquidity Pools',
-          description: 'Liquidity Pool for SSOV options',
+          url: seo.olp.url,
+          title: seo.olp.title,
+          description: seo.olp.description,
           images: [
             {
               url: seo.olp,
-              width: 800,
-              height: 450,
-              alt: 'OLP',
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.olp.alt,
               type: 'image/png',
             },
           ],
