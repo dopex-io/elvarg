@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 
 import Box from '@mui/material/Box';
@@ -103,6 +104,9 @@ export const Manage = (props: ManageProps) => {
 
   return (
     <Box className="bg-black bg-contain bg-no-repeat h-screen">
+      <Head>
+        <title>{`${tokenId} ${seo.insuredPerpsLP.title}`}</title>
+      </Head>
       <AppBar active="Atlantics" />
       <Box className="py-12 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
         <Box className="flex mt-20 space-x-0 lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">
@@ -159,12 +163,12 @@ const ManagePage = () => {
   return (
     <>
       <NextSeo
-        title={`${atlantics} ${seo.insuredPerpsLP.title}`}
+        title={`${seo.insuredPerpsLP.title}`}
         description={seo.insuredPerpsLP.description}
         canonical={`${seo.insuredPerpsLP.url}manage/${atlantics}`}
         openGraph={{
           url: `${seo.insuredPerpsLP.url}manage/${atlantics}`,
-          title: `${atlantics} ${seo.insuredPerpsLP.title}`,
+          title: `${seo.insuredPerpsLP.title}`,
           description: seo.insuredPerpsLP.description,
           images: [
             {
