@@ -209,9 +209,7 @@ const InsuredLongPerps = () => {
   const router = useRouter();
   const ticker = router.query['ticker'] as string;
 
-  if (!ticker) return null;
-
-  const [underlying, depositToken] = ticker.split('-');
+  const [underlying, depositToken] = ticker ? ticker.split('-') : ['', ''];
 
   return (
     <>
