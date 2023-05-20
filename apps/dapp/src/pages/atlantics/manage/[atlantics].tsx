@@ -154,9 +154,7 @@ const ManagePage = () => {
   const router = useRouter();
   const atlantics = router.query['atlantics'] as string;
 
-  if (!atlantics) return null;
-
-  const split: string[] = atlantics.split('-');
+  const split: string[] = atlantics ? atlantics.split('-') : ['', '', ''];
 
   return (
     <>
@@ -179,12 +177,14 @@ const ManagePage = () => {
           ],
         }}
       />
-      <Manage
-        tokenId={atlantics}
-        underlying={split[0]!}
-        type={split[1]!}
-        duration={split[2]!}
-      />
+      {atlantics ? (
+        <Manage
+          tokenId={atlantics}
+          underlying={split[0]!}
+          type={split[1]!}
+          duration={split[2]!}
+        />
+      ) : null}
     </>
   );
 };

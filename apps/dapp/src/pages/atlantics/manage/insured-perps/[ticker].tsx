@@ -209,9 +209,8 @@ const InsuredLongPerps = () => {
   const router = useRouter();
   const ticker = router.query['ticker'] as string;
 
-  if (!ticker) return null;
+  const [underlying, depositToken] = ticker ? ticker.split('-') : ['', ''];
 
-  const [underlying, depositToken] = ticker.split('-');
   return (
     <>
       <NextSeo
@@ -233,7 +232,9 @@ const InsuredLongPerps = () => {
           ],
         }}
       />
-      <Main underlying={underlying} depositToken={depositToken} />
+      {ticker ? (
+        <Main underlying={underlying} depositToken={depositToken} />
+      ) : null}
     </>
   );
 };
