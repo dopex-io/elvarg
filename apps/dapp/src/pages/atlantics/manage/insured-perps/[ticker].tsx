@@ -209,17 +209,19 @@ const InsuredLongPerps = () => {
   const router = useRouter();
   const ticker = router.query['ticker'] as string;
 
-  const [underlying, depositToken] = ticker ? ticker.split('-') : ['', ''];
+  if (!ticker) return null;
+
+  const [underlying, depositToken] = ticker.split('-');
 
   return (
     <>
       <NextSeo
-        title={`${ticker} ${seo.insuredPerps.title}`}
+        title={`${seo.insuredPerps.title}`}
         description={seo.insuredPerps.description}
         canonical={`${seo.insuredPerps.url}manage/${ticker}`}
         openGraph={{
           url: `${seo.insuredPerps.url}manage/${ticker}`,
-          title: `${ticker} ${seo.insuredPerps.title}`,
+          title: `${seo.insuredPerps.title}`,
           description: seo.insuredPerps.description,
           images: [
             {

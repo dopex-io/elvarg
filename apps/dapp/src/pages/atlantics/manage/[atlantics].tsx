@@ -158,7 +158,9 @@ const ManagePage = () => {
   const router = useRouter();
   const atlantics = router.query['atlantics'] as string;
 
-  const split: string[] = atlantics ? atlantics.split('-') : ['', '', ''];
+  if (!atlantics) return null;
+
+  const split: string[] = atlantics.split('-');
 
   return (
     <>
