@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
+import { devtools, persist } from 'zustand/middleware';
 
 import { AssetsSlice, createAssetsSlice } from './Assets';
 import { DpxBondsSlice, createDpxBondsSlice } from './Bonds';
@@ -16,6 +16,7 @@ import { OlpSlice, createOlpSlice } from './Vault/olp';
 import { OptionScalpSlice, createOptionScalpSlice } from './Vault/scalps';
 import { SsovV3Slice, createSsovV3Slice } from './Vault/ssov';
 import { StraddlesSlice, createStraddlesSlice } from './Vault/straddles';
+import { VaultsSlice, createVaultsSlice } from './Vault/vault';
 import { ZdteSlice, createZdteSlice } from './Vault/zdte';
 import { VeDPXSlice, createVedpxSlice } from './VeDPX';
 import { WalletSlice, createWalletSlice } from './Wallet';
@@ -37,27 +38,37 @@ type T = WalletSlice &
   OlpSlice &
   GmxSlice &
   AtlanticPoolsSlice &
-  ZdteSlice;
+  ZdteSlice &
+  VaultsSlice;
 
 export const useBoundStore = create<T>()(
-  devtools((...a) => ({
-    ...createWalletSlice(...a),
-    ...createTokenSaleSlice(...a),
-    ...createPortfolioSlice(...a),
-    ...createAssetsSlice(...a),
-    ...createFarmingSlice(...a),
-    ...createDuelSlice(...a),
-    ...createNftsSlice(...a),
-    ...createCommonSlice(...a),
-    ...createSsovV3Slice(...a),
-    ...createRateVaultSlice(...a),
-    ...createVedpxSlice(...a),
-    ...createStraddlesSlice(...a),
-    ...createOptionScalpSlice(...a),
-    ...createDpxBondsSlice(...a),
-    ...createOlpSlice(...a),
-    ...createAtlanticsSlice(...a),
-    ...createGmxSlice(...a),
-    ...createZdteSlice(...a),
-  }))
+  persist(
+    devtools((...a) => ({
+      ...createWalletSlice(...a),
+      ...createTokenSaleSlice(...a),
+      ...createPortfolioSlice(...a),
+      ...createAssetsSlice(...a),
+      ...createFarmingSlice(...a),
+      ...createDuelSlice(...a),
+      ...createNftsSlice(...a),
+      ...createCommonSlice(...a),
+      ...createSsovV3Slice(...a),
+      ...createRateVaultSlice(...a),
+      ...createVedpxSlice(...a),
+      ...createStraddlesSlice(...a),
+      ...createOptionScalpSlice(...a),
+      ...createDpxBondsSlice(...a),
+      ...createOlpSlice(...a),
+      ...createAtlanticsSlice(...a),
+      ...createGmxSlice(...a),
+      ...createZdteSlice(...a),
+      ...createVaultsSlice(...a),
+    })),
+    {
+      partialize: (state) => ({
+        filter: state.filter,
+      }),
+      name: 'app.dopex.io/vaults/cache',
+    }
+  )
 );

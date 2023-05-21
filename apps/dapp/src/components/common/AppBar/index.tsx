@@ -266,7 +266,8 @@ interface AppBarProps {
     | 'DPX Bonds'
     | 'vaults'
     | 'Atlantics'
-    | 'ZDTE';
+    | 'ZDTE'
+    | 'Vaults';
 }
 
 export default function AppBar(props: AppBarProps) {
