@@ -65,7 +65,11 @@ const Stats = () => {
       });
     }
 
-    getVolume();
+    try {
+      getVolume();
+    } catch (e) {
+      console.log(e);
+    }
   }, []);
 
   const markPrice = useMemo(() => {

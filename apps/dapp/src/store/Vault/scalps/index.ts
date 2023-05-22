@@ -2408,6 +2408,8 @@ export const createOptionScalpSlice: StateCreator<
 
     const optionScalpContract = await getOptionScalpContract();
 
+    if (!optionScalpContract) return;
+
     let scalpPositionsIndexes: any = [];
     let positionsOfOwner: any = [];
 
@@ -2665,10 +2667,14 @@ export const createOptionScalpSlice: StateCreator<
 
     const scalpPositions = await getScalpPositions();
     const scalpOrders = await getScalpOrders();
+    const quoteLpContract = await getOptionScalpsQuoteLpContract();
+    const baseLpContract = await getOptionScalpsBaseLpContract();
+
+    if (!quoteLpContract) return;
 
     const [quoteCoolingPeriod, baseCoolingPeriod] = await Promise.all([
-      getOptionScalpsQuoteLpContract().lockedUsers(accountAddress),
-      getOptionScalpsBaseLpContract().lockedUsers(accountAddress),
+      quoteLpContract.lockedUsers(accountAddress),
+      baseLpContract.lockedUsers(accountAddress),
     ]);
 
     set((prevState) => ({
@@ -2703,6 +2709,9 @@ export const createOptionScalpSlice: StateCreator<
     } = get();
 
     const optionScalpContract = getOptionScalpContract();
+
+    if (!optionScalpContract) return;
+
     const limitOrdersContract = getLimitOrdersContract();
     const quoteLpContract = getOptionScalpsQuoteLpContract();
     const baseLpContract = getOptionScalpsBaseLpContract();
