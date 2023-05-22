@@ -59,10 +59,12 @@ const TradeCard = () => {
   const [orderType, setOrderType] = useState<string>('Market');
 
   const markPrice = useMemo(() => {
+    if (uniWethPrice.eq(0) || uniArbPrice.eq(0))
+      return optionScalpData?.markPrice;
     if (selectedPoolName === 'ETH') return uniWethPrice;
     else if (selectedPoolName === 'ARB') return uniArbPrice;
     return BigNumber.from('0');
-  }, [uniWethPrice, uniArbPrice, selectedPoolName]);
+  }, [uniWethPrice, uniArbPrice, selectedPoolName, optionScalpData]);
 
   const isShortAfterAdjustments = useMemo(() => {
     if (optionScalpData?.inverted) return !isShort;

@@ -76,7 +76,16 @@ const Stats = () => {
     if (
       selectedPoolName.toUpperCase() === 'ETH' ||
       selectedPoolName.toUpperCase() === 'ARB'
-    )
+    ) {
+      if (uniWethPrice.eq(0) || uniArbPrice.eq(0))
+        return formatAmount(
+          getUserReadableAmount(
+            optionScalpData?.markPrice!,
+            optionScalpData?.quoteDecimals!.toNumber()
+          ),
+          4
+        );
+
       return formatAmount(
         getUserReadableAmount(
           selectedPoolName === 'ETH' ? uniWethPrice : uniArbPrice,
@@ -84,9 +93,16 @@ const Stats = () => {
         ),
         4
       );
+    }
 
     return '';
-  }, [selectedPoolName, optionScalpData, uniWethPrice, uniArbPrice]);
+  }, [
+    selectedPoolName,
+    optionScalpData,
+    uniWethPrice,
+    uniArbPrice,
+    optionScalpData,
+  ]);
 
   const stats = useMemo(() => {
     let _stats = {
