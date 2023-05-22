@@ -60,7 +60,7 @@ const TradeCard = () => {
 
   const markPrice = useMemo(() => {
     if (uniWethPrice.eq(0) || uniArbPrice.eq(0))
-      return optionScalpData?.markPrice;
+      return optionScalpData.markPrice || BigNumber.from('0');
     if (selectedPoolName === 'ETH') return uniWethPrice;
     else if (selectedPoolName === 'ARB') return uniArbPrice;
     return BigNumber.from('0');

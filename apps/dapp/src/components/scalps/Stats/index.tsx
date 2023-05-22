@@ -80,7 +80,7 @@ const Stats = () => {
       if (uniWethPrice.eq(0) || uniArbPrice.eq(0))
         return formatAmount(
           getUserReadableAmount(
-            optionScalpData?.markPrice!,
+            optionScalpData?.markPrice || BigNumber.from('0'),
             optionScalpData?.quoteDecimals!.toNumber()
           ),
           4
