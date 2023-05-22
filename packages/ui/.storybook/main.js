@@ -9,6 +9,12 @@ module.exports = {
     "@storybook/addon-interactions",
     "storybook-dark-mode",
   ],
-  framework: "@storybook/react",
+  framework: {
+    name: "@storybook/react-webpack5",
+    options: {},
+  },
   staticDirs: ["../public"],
+  docs: {
+    autodocs: true,
+  },
 };

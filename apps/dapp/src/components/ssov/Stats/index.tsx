@@ -1,25 +1,24 @@
 import { useMemo } from 'react';
-import cx from 'classnames';
+
+import { ethers } from 'ethers';
+
 import Box from '@mui/material/Box';
-import TableHead from '@mui/material/TableHead';
-import TableContainer from '@mui/material/TableContainer';
-import TableRow from '@mui/material/TableRow';
+import Skeleton from '@mui/material/Skeleton';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
-import Skeleton from '@mui/material/Skeleton';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import cx from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
-import { ethers } from 'ethers';
+import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 
-import { useBoundStore } from 'store';
-
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-
-import styles from './styles.module.scss';
 
 interface StatsTableDataProps {
   strikeIndex: number;
@@ -46,7 +45,7 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
 
   return (
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
-      <TableCell align="left">
+      <TableCell className="border-0 py-1" align="left">
         <Box className="h-12 flex flex-row items-center">
           <Box className="flex flex-row h-8 w-8 mr-2">
             <img
@@ -59,22 +58,22 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
           </Typography>
         </Box>
       </TableCell>
-      <TableCell align="left" className="mx-0 pt-2">
+      <TableCell align="left" className="border-0 py-1">
         <Typography variant="h6">${formatAmount(strikePrice, 5)}</Typography>
       </TableCell>
-      <TableCell align="left" className="pt-2">
+      <TableCell align="left" className="border-0 py-1">
         <Typography variant="h6">
           {formatAmount(
             isPut ? totalAvailable / strikePrice : totalAvailable,
             5
           )}
         </Typography>
-        <Box component="h6" className="text-xs text-stieglitz">
+        <Box component="h6" className="text-xs text-stieglitz border-0">
           {'$'}
           {formatAmount(isPut ? totalAvailable : totalAvailable * price, 2)}
         </Box>
       </TableCell>
-      <TableCell align="left" className="pt-2">
+      <TableCell align="left" className="border-0 py-1">
         <Typography variant="h6">{formatAmount(totalPurchased, 5)}</Typography>
         <Box component="h6" className="text-xs text-stieglitz">
           {formatAmount(
@@ -88,7 +87,7 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
           {'%'}
         </Box>
       </TableCell>
-      <TableCell align="left" className="px-6 pt-2">
+      <TableCell align="left" className="border-0 py-1">
         <Typography variant="h6">
           {formatAmount(totalPremiums, 5)} {collateralSymbol}
         </Typography>
@@ -156,7 +155,7 @@ const Stats = (props: { className?: string }) => {
         </Typography>
       </Box>
       <Box className="balances-table text-white pb-4">
-        <TableContainer className={cx(styles['optionsTable'], 'bg-cod-gray')}>
+        <TableContainer className="bg-cod-gray">
           {isEmpty(ssovEpochData?.epochStrikes) ? (
             <Box className="border-4 border-umbra rounded-lg mt-2 p-3">
               {range(3).map((_, index) => (
@@ -170,7 +169,7 @@ const Stats = (props: { className?: string }) => {
               ))}
             </Box>
           ) : (
-            <Table>
+            <Table className="border-separate border-spacing-y-2">
               <TableHead className="bg-umbra">
                 <TableRow className="bg-umbra">
                   <TableCell
@@ -213,7 +212,7 @@ const Stats = (props: { className?: string }) => {
                   </TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody className={cx('rounded-lg')}>
+              <TableBody className="rounded-lg">
                 {stats?.map(
                   ({
                     strikeIndex,

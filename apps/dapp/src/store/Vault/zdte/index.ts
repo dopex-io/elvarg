@@ -22,8 +22,8 @@ import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
-export const ZDTE: string = '0xc0b0f0b281f5a2b5d8b75193c12fe6433e3929cc';
-export const ZDTE_ARB: string = '0x7fdb659838C0594a91E4FD75F698C1A32BB52f8c';
+export const ZDTE: string = '0x0a9efaddab01c0a00edfaf24377460fafba9411d';
+export const ZDTE_ARB: string = '0xebf0ac8896fddeec5b8592f4c9eb5b8ea3d4dc82';
 
 const SECONDS_IN_A_YEAR = 86400 * 365;
 
@@ -66,6 +66,8 @@ export interface IZdteData {
   quoteLpValue: BigNumber;
   openInterest: BigNumber;
   expiry: number;
+  maxLongStrikeVolAdjust: BigNumber;
+  minLongStrikeVolAdjust: BigNumber;
 }
 
 export interface IZdteUserData {
@@ -77,7 +79,7 @@ export interface IZdteUserData {
   canWithdrawQuote: boolean;
 }
 
-export interface IZdteRawPurchaseData {
+export interface IZdteSpreadPosition {
   isOpen: boolean;
   isPut: boolean;
   isSpread: boolean;
@@ -95,12 +97,12 @@ export interface IZdteRawPurchaseData {
   cost: BigNumber;
 }
 
-export interface IZdtePurchaseData extends IZdteRawPurchaseData {
+export interface IZdteOpenPositions extends IZdteSpreadPosition {
   livePnl: BigNumber;
   breakeven: BigNumber;
 }
 
-export interface IZdteExpiredData extends IZdteRawPurchaseData {
+export interface IZdteClosedPositions extends IZdteSpreadPosition {
   pnl: BigNumber;
   settlementPrice: BigNumber;
 }
@@ -132,12 +134,12 @@ export interface ZdteSlice {
   getBaseLpContract: Function;
   userZdteLpData?: IZdteUserData;
   updateUserZdteLpData: Function;
-  userPurchaseData?: IZdteRawPurchaseData[];
-  getUserPurchaseData: Function;
-  userZdtePurchaseData?: IZdtePurchaseData[];
-  updateUserZdtePurchaseData: Function;
-  userZdteExpiredData?: IZdteExpiredData[];
-  updateUserZdteExpiredData: Function;
+  userZdteSpreadPositions?: IZdteSpreadPosition[];
+  updateUserZdteSpreadPositions: Function;
+  userZdteOpenPositions?: IZdteOpenPositions[];
+  updateUserZdteOpenPositions: Function;
+  userZdteClosedPositions?: IZdteClosedPositions[];
+  updateUserZdteClosedPositions: Function;
   zdteData?: IZdteData;
   updateStaticZdteData: Function;
   staticZdteData?: IStaticZdteData;
@@ -268,7 +270,7 @@ export const createZdteSlice: StateCreator<
       // throw Error('fail to update userZdteLpData');
     }
   },
-  getUserPurchaseData: async () => {
+  updateUserZdteSpreadPositions: async () => {
     try {
       const { accountAddress, getZdteContract, provider } = get();
 
@@ -300,28 +302,28 @@ export const createZdteSlice: StateCreator<
             positionId: tokenId,
             cost: cost,
             ...zdtePosition,
-          } as IZdteRawPurchaseData;
+          } as IZdteSpreadPosition;
         })
       );
       set((prevState) => ({
         ...prevState,
-        userPurchaseData: positions,
+        userZdteSpreadPositions: positions,
       }));
     } catch (err) {
       console.error(err);
-      // throw new Error('fail to getUserPurchaseData');
+      // throw new Error('fail to updateUserZdteSpreadPositions');
     }
   },
-  updateUserZdtePurchaseData: async () => {
+  updateUserZdteOpenPositions: async () => {
     try {
-      const { userPurchaseData, getZdteContract } = get();
+      const { userZdteSpreadPositions, getZdteContract } = get();
 
-      if (!getZdteContract || !userPurchaseData) return;
+      if (!getZdteContract || !userZdteSpreadPositions) return;
 
       const zdteContract = await getZdteContract();
 
       const purchaseData = await Promise.all(
-        userPurchaseData?.map(async (pos: IZdteRawPurchaseData) => {
+        userZdteSpreadPositions?.map(async (pos: IZdteSpreadPosition) => {
           const livePnl = await zdteContract.calcPnl(pos.positionId);
           const cost = pos.longPremium.sub(pos.shortPremium).add(pos.fees);
           const finalCost = cost
@@ -336,53 +338,51 @@ export const createZdteSlice: StateCreator<
             ...pos,
             livePnl: livePnl,
             breakeven: breakeven,
-          } as IZdtePurchaseData;
+          } as IZdteOpenPositions;
         })
       );
       set((prevState) => ({
         ...prevState,
-        userZdtePurchaseData: purchaseData.filter((p) => p.isOpen),
+        userZdteOpenPositions: purchaseData.filter((p) => p.isOpen),
       }));
     } catch (err) {
       console.error(err);
-      throw new Error('fail to update userZdtePurchaseData');
+      throw new Error('fail to update userZdteOpenPositions');
     }
   },
-  updateUserZdteExpiredData: async () => {
+  updateUserZdteClosedPositions: async () => {
     try {
-      const { userPurchaseData, getZdteContract } = get();
-      if (!userPurchaseData || !getZdteContract) return;
+      const { userZdteSpreadPositions, getZdteContract } = get();
+      if (!userZdteSpreadPositions || !getZdteContract) return;
 
       const zdteContract = await getZdteContract();
       const positions = await Promise.all(
-        userPurchaseData
+        userZdteSpreadPositions
           .filter((p) => !p.isOpen)
-          .map(async (pos: IZdteRawPurchaseData) => {
+          .map(async (pos: IZdteSpreadPosition) => {
             const ei: IExpiryInfo = await zdteContract.expiryInfo(pos.expiry);
             const pnl = await zdteContract.calcPnl(pos.positionId);
             return {
               ...pos,
               pnl: pnl,
               settlementPrice: ei.settlementPrice,
-            } as IZdteExpiredData;
+            } as IZdteClosedPositions;
           })
       );
 
       set((prevState) => ({
         ...prevState,
-        userZdteExpiredData: reverse(positions),
+        userZdteClosedPositions: reverse(positions),
       }));
     } catch (err) {
       console.error(err);
-      throw new Error('fail to update userZdteExpiredData');
+      throw new Error('fail to update userZdteClosedPositions');
     }
   },
   updateZdteData: async () => {
     const {
       selectedPoolName,
       getZdteContract,
-      updateUserZdteLpData,
-      updateUserZdtePurchaseData,
       getBaseLpContract,
       getQuoteLpContract,
     } = get();
@@ -390,9 +390,6 @@ export const createZdteSlice: StateCreator<
     if (!selectedPoolName || !getZdteContract) return;
 
     try {
-      await updateUserZdteLpData();
-      await updateUserZdtePurchaseData();
-
       const [zdteContract, baseLpContract, quoteLpContract] = await Promise.all(
         [getZdteContract(), getBaseLpContract(), getQuoteLpContract()]
       );
@@ -405,6 +402,8 @@ export const createZdteSlice: StateCreator<
         quoteLpTokenLiquidity,
         expiry,
         openInterestAmount,
+        maxLongStrikeVolAdjust,
+        minLongStrikeVolAdjust,
       ] = await Promise.all([
         zdteContract.getMarkPrice(),
         zdteContract.strikeIncrement(),
@@ -413,6 +412,8 @@ export const createZdteSlice: StateCreator<
         zdteContract.quoteLpTokenLiquidity(),
         zdteContract.getCurrentExpiry(),
         zdteContract.openInterestAmount(),
+        zdteContract.maxLongStrikeVolAdjust(),
+        zdteContract.minLongStrikeVolAdjust(),
       ]);
 
       const step = getUserReadableAmount(strikeIncrement, DECIMALS_STRIKE);
@@ -496,7 +497,7 @@ export const createZdteSlice: StateCreator<
 
         try {
           const [premium, iv] = await Promise.all([
-            zdteContract.calcPremiumCustom(
+            zdteContract.calcPremium(
               strike <= tokenPrice,
               getContractReadableAmount(strike, DECIMALS_STRIKE),
               oneEBigNumber(DECIMALS_TOKEN)
@@ -600,6 +601,8 @@ export const createZdteSlice: StateCreator<
           quoteLpValue,
           openInterest,
           expiry: expiry.toNumber(),
+          maxLongStrikeVolAdjust,
+          minLongStrikeVolAdjust,
         },
       }));
     } catch (err) {

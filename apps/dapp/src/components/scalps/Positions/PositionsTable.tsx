@@ -13,7 +13,7 @@ import Countdown from 'react-countdown';
 import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
-import LimitOrderPopover from 'components/scalps/LimitOrderPopover';
+import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -75,7 +75,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       if (!baseSymbol || !quoteSymbol || !markPrice) return;
       share({
         title: (
-          <h5 className="font-bold shadow-2xl">
+          <Typography variant="h5" className="font-bold shadow-2xl">
             <span className={cx(isShort ? 'text-red-500' : 'text-green-500')}>
               {isShort ? 'Short' : 'Long'}
             </span>
@@ -83,7 +83,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
             <span>{formatAmount(leverage, 1)}x</span>
             {' | '}
             <span>{`${baseSymbol}${quoteSymbol}`}</span>
-          </h5>
+          </Typography>
         ),
         percentage:
           (pnl /
@@ -368,14 +368,13 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                 <div className="flex flex-row justify-end w-full">
                   {position.isOpen && (
                     <CustomButton
-                      className="cursor-pointer text-white w-2 mr-2"
+                      className="cursor-pointer text-white w-2"
                       color={'primary'}
                       onClick={() => handleClose(position.id)}
                     >
                       <span className="text-xs md:sm">Close</span>
                     </CustomButton>
                   )}
-                  {position.isOpen && <LimitOrderPopover id={position.id} />}
                   <IconButton
                     aria-label="share"
                     aria-haspopup="true"
@@ -391,7 +390,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           </div>
         </div>
       ) : (
-        <span className="ml-auto mr-auto text-[0.8rem] h-full mb-10 mt-4">
+        <span className="ml-auto mr-auto text-[0.8rem] h-full mb-10">
           Your {tab === 'Open' ? 'active' : 'closed'} positions will appear here
         </span>
       )}

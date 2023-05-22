@@ -1,29 +1,30 @@
 import { SetStateAction, useCallback, useState } from 'react';
+
 import { BigNumber } from 'ethers';
-import Table from '@mui/material/Table';
+
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-
-import { useBoundStore } from 'store';
-import { StraddlePosition } from 'store/Vault/straddles';
-
 import useSendTx from 'hooks/useSendTx';
 import useShare from 'hooks/useShare';
+import { useBoundStore } from 'store';
 
-import Typography from 'components/UI/Typography';
+import { StraddlePosition } from 'store/Vault/straddles';
+
 import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
 import { TableHeader } from 'components/straddles/Deposits/DepositsTable';
 
-import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 import getPercentageDifference from 'utils/math/getPercentageDifference';
 
 import { DECIMALS_STRIKE } from 'constants/index';

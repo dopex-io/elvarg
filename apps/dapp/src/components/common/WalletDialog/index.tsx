@@ -1,21 +1,22 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
+
 import { BigNumber } from 'ethers';
-import Box from '@mui/material/Box';
+
 import LaunchIcon from '@mui/icons-material/Launch';
+import Box from '@mui/material/Box';
 import delay from 'lodash/delay';
+import { useBoundStore } from 'store';
+import { useDisconnect } from 'wagmi';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import BalanceItem from 'components/common/BalanceItem';
 
-import { useBoundStore } from 'store';
-
-import getExplorerUrl from 'utils/general/getExplorerUrl';
-import displayAddress from 'utils/general/displayAddress';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import displayAddress from 'utils/general/displayAddress';
+import getExplorerUrl from 'utils/general/getExplorerUrl';
 
 import { CHAINS } from 'constants/chains';
-import { useDisconnect } from 'wagmi';
 
 interface Props {
   open: boolean;

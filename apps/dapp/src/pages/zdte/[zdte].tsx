@@ -1,7 +1,7 @@
+import React, { useCallback, useEffect, useMemo } from 'react';
+
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-
-import React, { useCallback, useEffect, useMemo } from 'react';
 
 import { useBoundStore } from 'store';
 
@@ -27,10 +27,11 @@ const Zdte = ({ zdte }: Props) => {
     updateZdteData,
     updateStaticZdteData,
     updateUserZdteLpData,
-    updateUserZdtePurchaseData,
+    updateUserZdteOpenPositions,
     updateVolumeFromSubgraph,
     staticZdteData,
-    getUserPurchaseData,
+    updateUserZdteSpreadPositions,
+    isLoading,
   } = useBoundStore();
 
   useEffect(() => {
@@ -41,12 +42,13 @@ const Zdte = ({ zdte }: Props) => {
     if (!provider || !selectedPoolName) return;
     updateZdteData().then(() => {
       updateStaticZdteData().then(() => {
-        Promise.all([
-          getUserPurchaseData(),
-          updateUserZdteLpData(),
-          updateUserZdtePurchaseData(),
-          updateVolumeFromSubgraph(),
-        ]);
+        updateUserZdteSpreadPositions().then(() => {
+          Promise.all([
+            updateUserZdteLpData(),
+            updateUserZdteOpenPositions(),
+            updateVolumeFromSubgraph(),
+          ]);
+        });
       });
     });
   }, [
@@ -54,9 +56,9 @@ const Zdte = ({ zdte }: Props) => {
     selectedPoolName,
     updateZdteData,
     updateUserZdteLpData,
-    getUserPurchaseData,
+    updateUserZdteSpreadPositions,
     updateStaticZdteData,
-    updateUserZdtePurchaseData,
+    updateUserZdteOpenPositions,
     updateVolumeFromSubgraph,
   ]);
 
@@ -72,11 +74,11 @@ const Zdte = ({ zdte }: Props) => {
   }, [updateAll]);
 
   const chart = useMemo(() => {
-    if (!staticZdteData || !selectedPoolName) {
+    if (isLoading || !staticZdteData || !selectedPoolName) {
       return <Loading />;
     }
     return <ZdteDexScreenerChart poolName={selectedPoolName} />;
-  }, [staticZdteData, selectedPoolName]);
+  }, [staticZdteData, selectedPoolName, isLoading]);
 
   return (
     <div className="bg-black min-h-screen">

@@ -47,6 +47,7 @@ const ManageComponent = () => {
     setFocusTrade,
     setTextInputRef,
     setSelectedSpreadPair,
+    isLoading,
   } = useBoundStore();
 
   const [manageSection, setManageSection] = useState<string>('Trade');
@@ -55,7 +56,7 @@ const ManageComponent = () => {
     if (focusTrade) setManageSection('Trade');
   }, [focusTrade]);
 
-  if (!zdteData || !staticZdteData) {
+  if (isLoading || !zdteData || !staticZdteData) {
     return <></>;
   }
 

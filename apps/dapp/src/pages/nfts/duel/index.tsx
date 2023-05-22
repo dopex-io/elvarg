@@ -1,32 +1,33 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
 import Head from 'next/head';
-import { useCallback, useMemo, useState, useEffect } from 'react';
 
 import { BigNumber } from 'ethers';
 
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
-import AppBar from 'components/common/AppBar';
-import Typography from 'components/UI/Typography';
+import { useBoundStore } from 'store';
 
+import { Duel } from 'store/Duel';
+
+import Typography from 'components/UI/Typography';
+import AppBar from 'components/common/AppBar';
 import {
   BackgroundBox,
-  MobileBackgroundOverlay,
   BackgroundOverlay,
+  MobileBackgroundOverlay,
 } from 'components/nfts/components/PepeBackground';
+import { PepeButton } from 'components/nfts/components/PepeButton';
 import PepeLink from 'components/nfts/components/PepeLink';
 import PepeText from 'components/nfts/components/PepeText';
-import { PepeButton } from 'components/nfts/components/PepeButton';
 import ActiveDuel from 'components/nfts/duel/ActiveDuel';
-import Duels from 'components/nfts/duel/Duels';
 import CreateDuel from 'components/nfts/duel/Dialogs/CreateDuel';
 import FindDuel from 'components/nfts/duel/Dialogs/FindDuel';
 import RevealDuel from 'components/nfts/duel/Dialogs/RevealDuel';
+import Duels from 'components/nfts/duel/Duels';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-
-import { useBoundStore } from 'store';
-import { Duel } from 'store/Duel';
 
 const DuelPepes = () => {
   const {

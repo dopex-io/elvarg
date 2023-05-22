@@ -1,27 +1,24 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { BigNumber } from 'ethers';
-import Box from '@mui/material/Box';
-import Input from '@mui/material/Input';
-import IconButton from '@mui/material/IconButton';
 
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Input from '@mui/material/Input';
+import cx from 'classnames';
+import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
+import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import { PepeButton } from 'components/nfts/components/PepeButton';
-import PepeText from 'components/nfts/components/PepeText';
 import PepeButtonSquare from 'components/nfts/components/PepeButtonSquare';
+import PepeText from 'components/nfts/components/PepeText';
 
-import useSendTx from 'hooks/useSendTx';
-
-import BigCrossIcon from 'svgs/icons/BigCrossIcon';
-
-import { useBoundStore } from 'store';
-
-import cx from 'classnames';
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 export interface Props {
   open: boolean;

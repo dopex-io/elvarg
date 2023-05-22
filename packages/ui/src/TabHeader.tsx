@@ -1,6 +1,6 @@
 import cx from "./utils/cx";
 import { Tab as HeadlessTab } from "@headlessui/react";
-import React, { ReactNode, FC } from "react";
+import { ReactNode, FC } from "react";
 
 export interface TabHeaderProps {
   children: ReactNode;

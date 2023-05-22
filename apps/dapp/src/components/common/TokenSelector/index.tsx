@@ -1,21 +1,21 @@
 import { Dispatch, SetStateAction, useCallback, useState } from 'react';
+
 import { Addresses } from '@dopex-io/sdk';
+import SearchIcon from '@mui/icons-material/Search';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Input from '@mui/material/Input';
-import SearchIcon from '@mui/icons-material/Search';
 import Slide from '@mui/material/Slide';
+import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 
-import { useBoundStore } from 'store';
-
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
 import formatAmount from 'utils/general/formatAmount';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
 
-import { TOKEN_DATA } from 'constants/tokens';
 import { CHAINS } from 'constants/chains';
+import { TOKEN_DATA } from 'constants/tokens';
 
 export interface Props {
   open: boolean;

@@ -1,30 +1,30 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import axios from 'axios';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
 import { BigNumber } from 'ethers';
+
 import { ERC20__factory } from '@dopex-io/sdk';
-import Dialog from '@mui/material/Dialog';
-import Box from '@mui/material/Box';
-import LaunchIcon from '@mui/icons-material/Launch';
 import AccessibleForwardIcon from '@mui/icons-material/AccessibleForward';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-
-import Typography from 'components/UI/Typography';
-import Input from 'components/UI/Input';
-import CustomButton from 'components/UI/Button';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import LaunchIcon from '@mui/icons-material/Launch';
+import Box from '@mui/material/Box';
+import Dialog from '@mui/material/Dialog';
+import axios from 'axios';
+import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
 import WhiteLockerIcon from 'svgs/icons/WhiteLockerIcon';
 
-import { useBoundStore } from 'store';
-
-import useSendTx from 'hooks/useSendTx';
+import CustomButton from 'components/UI/Button';
+import Input from 'components/UI/Input';
+import Typography from 'components/UI/Typography';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import displayAddress from 'utils/general/displayAddress';
 import formatAmount from 'utils/general/formatAmount';
 
-import { MAX_VALUE } from 'constants/index';
-import { DOPEX_API_BASE_URL } from 'constants/env';
 import { CHAINS } from 'constants/chains';
+import { DOPEX_API_BASE_URL } from 'constants/env';
+import { MAX_VALUE } from 'constants/index';
 
 export interface ModalBondsProps {
   modalOpen: boolean;

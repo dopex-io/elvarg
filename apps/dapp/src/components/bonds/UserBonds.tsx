@@ -1,18 +1,17 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import Box from '@mui/material/Box';
-import Typography from 'components/UI/Typography';
-import Tooltip from '@mui/material/Tooltip';
+
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
 import format from 'date-fns/format';
-
-import InfoTooltip from 'components/UI/InfoTooltip';
-import CustomButton from 'components/UI/Button';
-
 import useSendTx from 'hooks/useSendTx';
-
 import { useBoundStore } from 'store';
 
+import CustomButton from 'components/UI/Button';
+import InfoTooltip from 'components/UI/InfoTooltip';
+import Typography from 'components/UI/Typography';
+
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import displayAddress from 'utils/general/displayAddress';
 
 type UserBondsProps = {

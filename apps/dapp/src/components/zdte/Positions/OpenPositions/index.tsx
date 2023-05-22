@@ -38,7 +38,8 @@ const StyleHeaderTable = styled(TableContainer)`
 const ROWS_PER_PAGE = 5;
 
 export const OpenPositions = () => {
-  const { zdteData, staticZdteData, userZdtePurchaseData } = useBoundStore();
+  const { zdteData, staticZdteData, userZdteOpenPositions, isLoading } =
+    useBoundStore();
 
   const [page, setPage] = useState<number>(0);
 
@@ -49,7 +50,7 @@ export const OpenPositions = () => {
     [setPage]
   );
 
-  if (!zdteData || !staticZdteData) {
+  if (isLoading || !zdteData || !staticZdteData) {
     return <Loading />;
   }
 
@@ -65,7 +66,7 @@ export const OpenPositions = () => {
                 </span>
               </StyleLeftTableCell>
               <StyleTableCellHeader>Breakeven</StyleTableCellHeader>
-              <StyleTableCellHeader>Mark Price</StyleTableCellHeader>
+              <StyleTableCellHeader>Entry Price</StyleTableCellHeader>
               <StyleTableCellHeader>Amount</StyleTableCellHeader>
               <StyleTableCellHeader>Profit & Loss</StyleTableCellHeader>
               <StyleTableCellHeader>Time to Expiry</StyleTableCellHeader>
@@ -75,8 +76,8 @@ export const OpenPositions = () => {
             </TableRow>
           </TableHead>
           <TableBody className="rounded-lg">
-            {userZdtePurchaseData && userZdtePurchaseData?.length > 0 ? (
-              userZdtePurchaseData
+            {userZdteOpenPositions && userZdteOpenPositions?.length > 0 ? (
+              userZdteOpenPositions
                 .slice(
                   page * ROWS_PER_PAGE,
                   page * ROWS_PER_PAGE + ROWS_PER_PAGE
@@ -91,7 +92,7 @@ export const OpenPositions = () => {
                 ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} align="center" className="border-none">
+                <TableCell colSpan={7} align="center" className="border-none">
                   <div className="py-3">
                     <span className="text-white">
                       Your open positions will appear here
@@ -103,12 +104,13 @@ export const OpenPositions = () => {
           </TableBody>
         </Table>
       </StyleHeaderTable>
-      {userZdtePurchaseData && userZdtePurchaseData?.length > ROWS_PER_PAGE ? (
+      {userZdteOpenPositions &&
+      userZdteOpenPositions?.length > ROWS_PER_PAGE ? (
         <TablePagination
           component="div"
           id="stats"
           rowsPerPageOptions={[ROWS_PER_PAGE]}
-          count={userZdtePurchaseData?.length}
+          count={userZdteOpenPositions?.length}
           page={page}
           onPageChange={handleChangePage}
           rowsPerPage={ROWS_PER_PAGE}

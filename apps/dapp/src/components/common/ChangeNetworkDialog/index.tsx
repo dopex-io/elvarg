@@ -1,9 +1,9 @@
 import { useCallback, useEffect } from 'react';
+
+import { useBoundStore } from 'store';
 import { useSwitchNetwork } from 'wagmi';
 
 import Dialog from 'components/UI/Dialog';
-
-import { useBoundStore } from 'store';
 
 import { CHAINS } from 'constants/chains';
 

@@ -1,5 +1,3 @@
-import Link from 'next/link';
-
 import {
   Key,
   ReactNode,
@@ -9,6 +7,8 @@ import {
   useMemo,
   useState,
 } from 'react';
+
+import Link from 'next/link';
 
 import { ethers } from 'ethers';
 
@@ -150,15 +150,6 @@ const appLinks: {
     { name: 'Farms', to: '/farms' },
     { name: 'Sale', to: '/sale' },
   ],
-  56: [{ name: 'SSOV', to: '/ssov' }],
-  1337: [
-    { name: 'options', to: '/' },
-    { name: 'pools', to: '/pools' },
-    { name: 'portfolio', to: '/portfolio' },
-    { name: 'faucet', to: '/faucet' },
-    { name: 'Atlantics', to: '/atlantics' },
-  ],
-  421613: [],
   42161: [
     { name: 'Portfolio', to: '/portfolio' },
     { name: 'Stake', to: '/farms' },
@@ -211,6 +202,12 @@ const appLinks: {
           description: 'Write weekly atlantic puts to earn premium + funding',
         },
         {
+          name: 'Scalps',
+          to: '/scalps/ETH',
+          description:
+            'Scalp market moves with short term positions & high leverage',
+        },
+        {
           name: 'DPX Bonds',
           to: '/dpx-bonds',
           description: 'Commit stables upfront to receive DPX at a discount',
@@ -222,13 +219,6 @@ const appLinks: {
         },
       ],
     },
-    { name: 'Scalps', to: '/scalps/ETH' },
-  ],
-  43114: [{ name: 'SSOV', to: '/ssov' }],
-  1088: [{ name: 'SSOV', to: '/ssov' }],
-  5: [
-    { name: 'faucet', to: '/faucet' },
-    { name: 'OLP', to: '/olp' },
   ],
   137: [
     { name: 'SSOV', to: '/ssov' },
@@ -236,11 +226,19 @@ const appLinks: {
   ],
 };
 
+const baseAppLinks = [
+  {
+    name: 'Analytics',
+    to: 'https://dune.com/rebeca/dopex',
+  },
+];
+
 const menuLinks = [
   { name: 'Home', to: 'https://dopex.io' },
   { name: 'Docs', to: 'https://docs.dopex.io/' },
   { name: 'Discord', to: 'https://discord.gg/dopex' },
   { name: 'Github', to: 'https://github.com/dopex-io' },
+  { name: 'Bug Bounty', to: 'https://github.com/dopex-io/bug-bounty' },
   { name: 'Price Oracles', to: '/oracles' },
   { name: 'Diamond Pepe NFTs', to: '/nfts/diamondpepes' },
   { name: 'Dopex NFTs', to: '/nfts/dopex' },
@@ -294,7 +292,7 @@ export default function AppBar(props: AppBarProps) {
   const [anchorElSmall, setAnchorElSmall] = useState<null | HTMLElement>(null);
   const [claimRdpxDialog, setClaimRdpxDialog] = useState(false);
 
-  const links = appLinks[chain?.id || 42161];
+  const links = appLinks[chain?.id || 42161].concat(baseAppLinks);
 
   const handleRdpxDialogClose = () => setClaimRdpxDialog(false);
 

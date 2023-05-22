@@ -1,31 +1,29 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
 import { BigNumber, utils } from 'ethers';
+
 import {
   ERC20__factory,
-  StakingRewards__factory,
   StakingRewardsV3__factory,
+  StakingRewards__factory,
 } from '@dopex-io/sdk';
-import { useDebounce } from 'use-debounce';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
-
 import useSendTx from 'hooks/useSendTx';
-
-import Dialog from 'components/UI/Dialog';
-import Typography from 'components/UI/Typography';
-import Input from 'components/UI/Input';
-import CustomButton from 'components/UI/Button';
-import Tab from 'components/UI/Tab';
-
-import ArrowRightIcon from 'svgs/icons/ArrowRightIcon';
-
 import { useBoundStore } from 'store';
+import ArrowRightIcon from 'svgs/icons/ArrowRightIcon';
+import { FarmStatus } from 'types/farms';
+import { useDebounce } from 'use-debounce';
+
+import CustomButton from 'components/UI/Button';
+import Dialog from 'components/UI/Dialog';
+import Input from 'components/UI/Input';
+import Tab from 'components/UI/Tab';
+import Typography from 'components/UI/Typography';
 
 import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE } from 'constants/index';
-
-import { FarmStatus } from 'types/farms';
 
 export interface BasicManageDialogProps {
   data: {

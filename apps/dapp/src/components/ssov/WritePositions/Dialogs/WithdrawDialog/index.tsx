@@ -1,19 +1,20 @@
 import { useCallback } from 'react';
-import IconButton from '@mui/material/IconButton';
+
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-
-import Dialog from 'components/UI/Dialog';
-import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
-import NumberDisplay from 'components/UI/NumberDisplay';
-import Stat from '../Stat';
-
+import IconButton from '@mui/material/IconButton';
+import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
+
 import { WritePositionInterface } from 'store/Vault/ssov';
+
+import CustomButton from 'components/UI/Button';
+import Dialog from 'components/UI/Dialog';
+import NumberDisplay from 'components/UI/NumberDisplay';
+import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-import useSendTx from 'hooks/useSendTx';
+import Stat from '../Stat';
 
 export interface Props {
   open: boolean;

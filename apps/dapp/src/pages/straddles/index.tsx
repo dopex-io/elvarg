@@ -1,11 +1,13 @@
-import { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
-import Head from 'next/head';
-import Box from '@mui/material/Box';
+import { useCallback, useEffect, useState } from 'react';
 
+import Head from 'next/head';
+
+import Box from '@mui/material/Box';
+import axios from 'axios';
+
+import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import Filter from 'components/common/Filter';
-import Typography from 'components/UI/Typography';
 import VaultCard from 'components/straddles/VaultCard';
 
 import { CHAINS } from 'constants/chains';

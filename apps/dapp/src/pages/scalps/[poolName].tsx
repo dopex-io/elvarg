@@ -1,7 +1,7 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-
-import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ethers } from 'ethers';
 
@@ -91,7 +91,7 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [updateAll]);
 
   useEffect(() => {
     const wethWs = new WebSocket(

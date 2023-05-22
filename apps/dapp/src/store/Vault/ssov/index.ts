@@ -1,18 +1,18 @@
-import { StateCreator } from 'zustand';
-import {
-  SsovV3__factory,
-  SsovV3,
-  SSOVOptionPricing,
-  SsovV3Viewer__factory,
-  SSOVOptionPricing__factory,
-  ERC20__factory,
-  SsovV3Router__factory,
-  SsovV3Router,
-} from '@dopex-io/sdk';
 import { BigNumber, ethers } from 'ethers';
-import axios from 'axios';
 
+import {
+  ERC20__factory,
+  SSOVOptionPricing,
+  SSOVOptionPricing__factory,
+  SsovV3,
+  SsovV3Router,
+  SsovV3Router__factory,
+  SsovV3Viewer__factory,
+  SsovV3__factory,
+} from '@dopex-io/sdk';
+import axios from 'axios';
 import { TokenData } from 'types';
+import { StateCreator } from 'zustand';
 
 import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';

@@ -1,7 +1,12 @@
+const { withSentryConfig } = require('@sentry/nextjs');
+
 /**
  * @type {import('next').NextConfig}
  */
-module.exports = {
+const nextConfig = {
+  sentry: {
+    hideSourceMaps: true,
+  },
   generateBuildId: () => 'build',
   images: {
     domains: ['lh3.googleusercontent.com'],
@@ -25,16 +30,6 @@ module.exports = {
         permanent: false,
       },
       {
-        source: '/ir',
-        destination: '/straddles',
-        permanent: false,
-      },
-      {
-        source: '/ir/:path*',
-        destination: '/straddles',
-        permanent: false,
-      },
-      {
         source: '/ssov-v3/:path*',
         destination: '/ssov/:path*',
         permanent: false,
@@ -42,3 +37,11 @@ module.exports = {
     ];
   },
 };
+
+const sentryWebpackPluginOptions = {
+  org: 'dopex-io',
+  project: 'dapp',
+  silent: true, // Suppresses all logs
+};
+
+module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);

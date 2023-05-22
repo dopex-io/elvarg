@@ -1,21 +1,22 @@
-import { StateCreator } from 'zustand';
 import { BigNumber } from 'ethers';
+
 import {
   Addresses,
-  ERC20__factory,
-  DuelDiamondPepesNFTsDuel__factory,
-  DuelDiamondPepesNFTsMint__factory,
-  DuelDiamondPepesNFTsLeaderboard__factory,
-  DuelDiamondPepesNFTs__factory,
   BaseNFT__factory,
+  DuelDiamondPepesNFTsDuel__factory,
+  DuelDiamondPepesNFTsLeaderboard__factory,
+  DuelDiamondPepesNFTsMint__factory,
+  DuelDiamondPepesNFTs__factory,
+  ERC20__factory,
 } from '@dopex-io/sdk';
+import { StateCreator } from 'zustand';
 
 import { AssetsSlice } from 'store/Assets';
 import { WalletSlice } from 'store/Wallet';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
 import addHoursToDate from 'utils/date/addHoursToDate';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
 
 export interface Duel {
   id: number;

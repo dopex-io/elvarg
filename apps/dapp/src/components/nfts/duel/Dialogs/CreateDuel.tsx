@@ -1,34 +1,33 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
 import { BigNumber, ethers } from 'ethers';
+
 import { ERC20__factory } from '@dopex-io/sdk';
-
-import Box from '@mui/material/Box';
-import MenuItem from '@mui/material/MenuItem';
-import Tooltip from '@mui/material/Tooltip';
-import Select from '@mui/material/Select';
-import IconButton from '@mui/material/IconButton';
-import Checkbox from '@mui/material/Checkbox';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import Box from '@mui/material/Box';
+import Checkbox from '@mui/material/Checkbox';
+import IconButton from '@mui/material/IconButton';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import Tooltip from '@mui/material/Tooltip';
+import { useBoundStore } from 'store';
+import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
-import { PepeButton } from 'components/nfts/components/PepeButton';
-import Moves from 'components/nfts/duel/Moves';
-import Instructions from 'components/nfts/duel/Instructions';
-import Details from 'components/nfts/duel/Details';
-import DuelExpiry from 'components/nfts/duel/DuelExpiry';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 import TokenSelector from 'components/common/TokenSelector';
+import { PepeButton } from 'components/nfts/components/PepeButton';
+import Details from 'components/nfts/duel/Details';
+import DuelExpiry from 'components/nfts/duel/DuelExpiry';
+import Instructions from 'components/nfts/duel/Instructions';
+import Moves from 'components/nfts/duel/Moves';
 
-import BigCrossIcon from 'svgs/icons/BigCrossIcon';
-
-import formatAmount from 'utils/general/formatAmount';
-import downloadTxt from 'utils/general/downloadTxt';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import downloadTxt from 'utils/general/downloadTxt';
+import formatAmount from 'utils/general/formatAmount';
 import { getRandomString } from 'utils/general/getRandomString';
-
-import { useBoundStore } from 'store';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
 
 import { MAX_VALUE } from 'constants/index';
 

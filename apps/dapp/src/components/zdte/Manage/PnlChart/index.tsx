@@ -16,10 +16,7 @@ import { useBoundStore } from 'store';
 import { ISpreadPair } from 'store/Vault/zdte';
 
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
-import {
-  getMaxPayoffPerOption,
-  roundToTwoDecimals,
-} from 'components/zdte/Manage/TradeCard';
+import { getMaxPayoffPerOption } from 'components/zdte/Manage/TradeCard';
 import { FormatPercentColor } from 'components/zdte/OptionsTable/OptionsTableRow';
 
 import { formatAmount } from 'utils/general';
@@ -45,17 +42,17 @@ function getInterval(number: number): number {
   } else if (number > 10 && number <= 100) {
     return 5;
   } else {
-    return 0.05;
+    return 0.01;
   }
 }
 
 function CustomYAxisTick(props: any) {
   const { x, y, payload } = props;
   let res = '';
-  if (payload.value > 1000) {
+  if (payload.value > 10) {
     res = formatAmount(payload.value, 0, true);
-  } else if (payload.value > 10) {
-    res = payload.value.toString();
+  } else if (payload.value > 1 && payload < 10) {
+    res = formatAmount(payload.value, 2);
   } else if (payload.value < 0) {
     res = formatAmountWithNegative(payload.value, 0, true);
   } else if (payload.value > 0.01) {
@@ -65,6 +62,21 @@ function CustomYAxisTick(props: any) {
   }
   return (
     <text x={x} y={y} textAnchor="end" fill="#666" fontSize={14}>
+      {res}
+    </text>
+  );
+}
+
+function CustomXAxisTick(props: any) {
+  const { x, y, payload } = props;
+  let res = '';
+  if (payload.value > 10) {
+    res = formatAmount(payload.value, 0, true);
+  } else {
+    res = formatAmount(payload.value, 2);
+  }
+  return (
+    <text x={x} y={y + 10} textAnchor="end" fill="#666" fontSize={14}>
       {res}
     </text>
   );
@@ -142,7 +154,7 @@ const PnlChart = (props: PnlChartProps) => {
         : getCallPayoff(spreadPair, s, cost) * amount;
       return {
         strike: s,
-        value: roundToTwoDecimals(payoff),
+        value: payoff,
       };
     });
   }, [spreadPair, price, amount, cost, isPut, step]);
@@ -200,7 +212,8 @@ const PnlChart = (props: PnlChartProps) => {
               type="number"
               dataKey={'strike'}
               domain={['dataMin', 'dataMax']}
-              fontSize={14}
+              fontSize={12}
+              tick={<CustomXAxisTick />}
             />
             <YAxis
               padding={{ bottom: 1 }}
@@ -222,7 +235,7 @@ const PnlChart = (props: PnlChartProps) => {
         />
         <ContentRow
           title="Est. PnL"
-          content={`${useFake ? 0 : roundToTwoDecimals(state.pnl)}`}
+          content={`${useFake ? 0 : state.pnl}`}
           highlightPnl
           comma
         />
@@ -252,11 +265,7 @@ const PnlChart = (props: PnlChartProps) => {
         <ContentRow
           title="Max Payoff"
           content={`${
-            useFake
-              ? 0
-              : roundToTwoDecimals(
-                  getMaxPayoffPerOption(spreadPair, cost) * amount
-                )
+            useFake ? 0 : getMaxPayoffPerOption(spreadPair, cost) * amount
           }`}
           highlightPnl
           comma

@@ -1,16 +1,17 @@
-import { Box, Typography } from '@mui/material';
 import { useCallback, useState } from 'react';
-import { useBoundStore } from 'store';
-import axios from 'axios';
+
+import { Box, Typography } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
+import axios from 'axios';
+import { useBoundStore } from 'store';
+
+import CustomButton from 'components/UI/Button';
+import Dialog from 'components/UI/Dialog';
 
 import {
   DISCLAIMER_MESSAGE,
   OFAC_COMPLIANCE_LOCAL_STORAGE_KEY,
 } from 'constants/index';
-
-import Dialog from 'components/UI/Dialog';
-import CustomButton from 'components/UI/Button';
 
 const DisclaimerDialog = (props: any) => {
   const { open, handleClose } = props;

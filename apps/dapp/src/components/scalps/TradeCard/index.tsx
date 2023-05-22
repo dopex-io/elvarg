@@ -3,7 +3,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
 
 import { ERC20__factory } from '@dopex-io/sdk';
-import Checkbox from '@mui/material/Checkbox';
+import { Checkbox } from '@mui/material';
+import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import Slider from '@mui/material/Slider';
 import cx from 'classnames';
@@ -11,6 +12,7 @@ import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -48,15 +50,11 @@ const TradeCard = () => {
 
   const [rawAmount, setRawAmount] = useState<string>('10');
 
-  const [rawLimitPrice, setRawLimitPrice] = useState<string>('10');
-
   const [leverage, setLeverage] = useState<number>(20);
 
   const [isShort, setIsShort] = useState<boolean>(false);
 
   const [showAsQuote, setShowAsQuote] = useState<boolean>(false);
-
-  const [orderType, setOrderType] = useState<string>('Market');
 
   const markPrice = useMemo(() => {
     if (selectedPoolName === 'ETH') return uniWethPrice;
@@ -132,36 +130,10 @@ const TradeCard = () => {
     calcPremium();
   }, [calcPremium]);
 
-  useEffect(() => {
-    setRawLimitPrice('');
-    setRawAmount('');
-  }, [selectedPoolName, setRawLimitPrice, setRawAmount]);
-
   const handleInputChange = useCallback((e: any) => {
     if (parseFloat(e.target.value) < 0) return;
     setRawAmount(e.target.value === '' ? '0' : e.target.value);
   }, []);
-
-  const limitError = useMemo(() => {
-    if (!optionScalpData) return null;
-
-    const _markPrice = getUserReadableAmount(
-      optionScalpData?.markPrice!,
-      optionScalpData?.quoteDecimals!.toNumber()!
-    );
-
-    const _limitPrice = Number(rawLimitPrice);
-
-    if (isShort) {
-      return _limitPrice < _markPrice * 1.001
-        ? 'Entry limit price is too low'
-        : null;
-    } else {
-      return _limitPrice > _markPrice * 0.999
-        ? 'Entry limit price is too high'
-        : null;
-    }
-  }, [isShort, rawLimitPrice, markPrice, optionScalpData]);
 
   const tradeButtonProps = useMemo(() => {
     let _props = {
@@ -191,9 +163,6 @@ const TradeCard = () => {
     ) {
       _props.disabled = true;
       _props.text = 'Insufficient balance';
-    } else if (limitError) {
-      _props.disabled = true;
-      _props.text = limitError;
     }
 
     return _props;
@@ -203,7 +172,6 @@ const TradeCard = () => {
     userTokenBalance,
     optionScalpData,
     selectedPoolName,
-    limitError,
   ]);
 
   const liquidationPrice: number = useMemo(() => {
@@ -263,24 +231,18 @@ const TradeCard = () => {
           signer
         ),
         'approve',
-        [
-          orderType === 'Limit'
-            ? optionScalpData?.limitOrdersContract?.address
-            : optionScalpData?.optionScalpContract?.address,
-          MAX_VALUE,
-        ]
+        [optionScalpData?.optionScalpContract?.address, MAX_VALUE]
       );
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [sendTx, signer, optionScalpData, contractAddresses, orderType]);
+  }, [sendTx, signer, optionScalpData, contractAddresses]);
 
   // Handle trade
   const handleTrade = useCallback(async () => {
     if (
       !optionScalpData?.optionScalpContract ||
-      !optionScalpData?.limitOrdersContract ||
       !accountAddress ||
       !signer ||
       !updateOptionScalp ||
@@ -296,61 +258,23 @@ const TradeCard = () => {
           .markPrice!.mul(BigNumber.from(1005))
           .div(BigNumber.from(1000));
 
-    if (orderType === 'Market') {
-      try {
-        await sendTx(
-          optionScalpData.optionScalpContract.connect(signer),
-          'openPosition',
-          [
-            isShortAfterAdjustments,
-            posSize,
-            timeframeIndex,
-            getContractReadableAmount(
-              positionDetails.marginInQuote.toFixed(5),
-              optionScalpData?.quoteDecimals!.toNumber()
-            ),
-            entryLimit,
-          ]
-        ).then(() =>
-          updateOptionScalp().then(() => updateOptionScalpUserData())
-        );
-      } catch (err) {
-        console.log(err);
-      }
-    } else if (orderType === 'Limit') {
-      try {
-        const limitPrice =
-          Number(rawLimitPrice) *
-          10 **
-            (optionScalpData?.quoteDecimals!.toNumber() -
-              optionScalpData?.baseDecimals!.toNumber());
-
-        const spacing = 10;
-        const tick0 =
-          Math.round(Math.log(limitPrice) / Math.log(1.0001) / 10) * 10;
-        const tick1 = tick0 + spacing;
-
-        await sendTx(
-          optionScalpData.limitOrdersContract.connect(signer),
-          'createOpenOrder',
-          [
-            optionScalpData.optionScalpContract.address,
-            isShort,
-            posSize,
-            timeframeIndex,
-            getContractReadableAmount(
-              positionDetails.marginInQuote.toFixed(5),
-              optionScalpData?.quoteDecimals!.toNumber()
-            ), // margin + fees + premium
-            tick0,
-            tick1,
-          ]
-        ).then(() =>
-          updateOptionScalp().then(() => updateOptionScalpUserData())
-        );
-      } catch (err) {
-        console.log(err);
-      }
+    try {
+      await sendTx(
+        optionScalpData.optionScalpContract.connect(signer),
+        'openPosition',
+        [
+          isShortAfterAdjustments,
+          posSize,
+          timeframeIndex,
+          getContractReadableAmount(
+            positionDetails.marginInQuote.toFixed(5),
+            optionScalpData?.quoteDecimals!.toNumber()
+          ),
+          entryLimit,
+        ]
+      ).then(() => updateOptionScalp().then(() => updateOptionScalpUserData()));
+    } catch (err) {
+      console.log(err);
     }
   }, [
     accountAddress,
@@ -363,9 +287,6 @@ const TradeCard = () => {
     timeframeIndex,
     positionDetails.marginInQuote,
     isShortAfterAdjustments,
-    orderType,
-    rawLimitPrice,
-    isShort,
   ]);
 
   const handleMax = useCallback(() => {}, []);
@@ -387,9 +308,7 @@ const TradeCard = () => {
       );
       const allowance: BigNumber = await token.allowance(
         accountAddress,
-        orderType === 'Limit'
-          ? optionScalpData?.limitOrdersContract?.address
-          : optionScalpData?.optionScalpContract?.address
+        optionScalpData?.optionScalpContract?.address
       );
       const balance: BigNumber = await token.balanceOf(accountAddress);
       setApproved(allowance.gte(finalAmount));
@@ -403,16 +322,11 @@ const TradeCard = () => {
     signer,
     chainId,
     optionScalpData,
-    orderType,
   ]);
 
   const handleCheckbox = useCallback((event: any) => {
     setShowAsQuote(event.target.checked);
   }, []);
-
-  const handleOrderTypeToggle = useCallback(() => {
-    setOrderType(orderType === 'Market' ? 'Limit' : 'Market');
-  }, [orderType]);
 
   const setSelectedMargin = useCallback(
     async (option: number) => {
@@ -462,36 +376,23 @@ const TradeCard = () => {
   );
 
   return (
-    <div className="px-4 pb-4 pt-5 min-w-[24.5rem]">
-      <div className="w-full flex items-center justify-center px-3 mb-4">
-        <p className="text-xs text-stieglitz mr-2 ml-auto">
-          Open with a limit order
-        </p>
-        <Checkbox
-          // @ts-ignore
-          size="xs"
-          className={
-            orderType === 'Limit' ? 'p-0 text-white' : 'p-0 text-white border'
-          }
-          checked={orderType === 'Limit'}
-          onChange={handleOrderTypeToggle}
-        />
-
-        <p className="text-xs text-stieglitz mr-2 ml-3">
-          Show as {optionScalpData?.quoteSymbol}
-        </p>
-        <Checkbox
-          // @ts-ignore
-          size="xs"
-          className={showAsQuote ? 'p-0 text-white' : 'p-0 text-white border'}
-          checked={showAsQuote}
-          onChange={handleCheckbox}
-        />
-      </div>
-      <div className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
-        <div className="flex flex-row justify-between mt-0.5">
-          <div className="bg-cod-gray rounded-full pl-1 pr-1 flex pb-2 flex-row items-center">
-            <div className="flex flex-row w-auto p-1 pl-3 pr-2">
+    <Box className="px-4 pb-4 pt-5 min-w-[24.5rem]">
+      <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
+        <Box className="w-full flex items-center justify-center px-3">
+          <p className="text-xs text-stieglitz mr-2 ml-auto">
+            Show as {optionScalpData?.quoteSymbol}
+          </p>
+          <Checkbox
+            // @ts-ignore
+            size="xs"
+            className={showAsQuote ? 'p-0 text-white' : 'p-0 text-white border'}
+            checked={showAsQuote}
+            onChange={handleCheckbox}
+          />
+        </Box>
+        <Box className="flex flex-row justify-between">
+          <Box className="bg-cod-gray rounded-full pl-1 pr-1 flex pb-2 flex-row items-center">
+            <Box className="flex flex-row w-auto p-1 pl-3 pr-2">
               <p
                 className={cx(
                   'text-[0.8rem] mt-1 cursor-pointer hover:opacity-50',
@@ -501,8 +402,8 @@ const TradeCard = () => {
               >
                 Long
               </p>
-            </div>
-            <div className="flex flex-row w-auto p-1 pr-3 pl-2">
+            </Box>
+            <Box className="flex flex-row w-auto p-1 pr-3 pl-2">
               <p
                 className={cx(
                   'text-[0.8rem] mt-1 cursor-pointer hover:opacity-50',
@@ -512,9 +413,9 @@ const TradeCard = () => {
               >
                 Short
               </p>
-            </div>
-          </div>
-          <div className="flex items-center">
+            </Box>
+          </Box>
+          <Box className="flex items-center">
             <Input
               disableUnderline
               placeholder="0"
@@ -524,26 +425,32 @@ const TradeCard = () => {
               onChange={handleInputChange}
               classes={{ input: 'text-right' }}
             />
-            <h6 className="text-stieglitz mr-3 ml-1 mb-1">
+            <Typography variant="h6" className="text-stieglitz mr-3 ml-1 mb-1">
               {showAsQuote ? optionScalpData?.quoteSymbol : selectedPoolName}
-            </h6>
-          </div>
-        </div>
-        <div className="flex flex-row justify-between items-center mt-2">
-          <div className=" flex mr-2 border border-mineshaft rounded-md">
+            </Typography>
+          </Box>
+        </Box>
+        <Box className="flex flex-row justify-between items-center mt-2">
+          <Box className=" flex mr-2 border border-mineshaft rounded-md ">
             {[10, 25, 50, 75, 100].map((option, i) => (
-              <div
+              <Box
                 key={i}
                 className={`text-center w-auto cursor-pointer group hover:bg-mineshaft hover:opacity-80`}
                 onClick={() => setSelectedMargin(option)}
               >
-                <h6 className="text-xs font-light py-2 px-2">{option}%</h6>
-              </div>
+                <Typography
+                  variant="h6"
+                  className="text-xs font-light py-2 px-2"
+                >
+                  {option}%
+                </Typography>
+              </Box>
             ))}
-          </div>
+          </Box>
 
-          <div className="ml-auto mr-0 flex">
-            <h6
+          <Box className="ml-auto mr-0 flex">
+            <Typography
+              variant="h6"
               onClick={handleMax}
               className="text-stieglitz text-xs font-light pl-1 pr-3 text-[12px]"
             >
@@ -555,35 +462,13 @@ const TradeCard = () => {
                 8
               )}{' '}
               {optionScalpData?.quoteSymbol}
-            </h6>
-          </div>
-        </div>
-        {orderType === 'Limit' ? (
-          <div className="mt-3">
-            <p className="text-xs text-stieglitz">Limit price</p>
-            <Input
-              disableUnderline
-              placeholder={String(
-                getUserReadableAmount(
-                  markPrice,
-                  optionScalpData?.quoteDecimals!.toNumber()
-                )
-              )}
-              value={rawLimitPrice}
-              onChange={(e) => setRawLimitPrice(e.target.value)}
-              type="number"
-              className={`mt-2 border border-mineshaft rounded-md px-2 bg-umbra w-full !w-auto`}
-              classes={{ input: 'text-white text-xs text-left py-2' }}
-            />
-            {limitError ? (
-              <p className="text-xs text-red-400 mt-2.5">{limitError}</p>
-            ) : null}
-          </div>
-        ) : null}
-      </div>
-      <div className="flex mb-4">
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+      <Box className="flex mb-4">
         {['1m', '5m', '15m', '30m', '60m'].map((time, i) => (
-          <div
+          <Box
             key={i}
             className={
               (i === 0
@@ -596,24 +481,32 @@ const TradeCard = () => {
             }
             onClick={() => setSelectedTimeWindow(time)}
           >
-            <h6 className="text-xs font-normal">{time}</h6>
-          </div>
+            <Typography variant="h6" className="text-xs font-normal">
+              {time}
+            </Typography>
+          </Box>
         ))}
-      </div>
-      <div className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
-        <div className="flex flex-row justify-between">
-          <div>
-            <h6 className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]">
+      </Box>
+      <Box className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
+        <Box className="flex flex-row justify-between">
+          <Box>
+            <Typography
+              variant="h6"
+              className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]"
+            >
               Leverage
-            </h6>
-          </div>
-          <div className="ml-auto mr-0">
-            <h6 className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]">
+            </Typography>
+          </Box>
+          <Box className="ml-auto mr-0">
+            <Typography
+              variant="h6"
+              className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]"
+            >
               {leverage}x
-            </h6>
-          </div>
-        </div>
-        <div className="flex flex-row justify-between mt-2 pl-2 pr-3">
+            </Typography>
+          </Box>
+        </Box>
+        <Box className="flex flex-row justify-between mt-2 pl-2 pr-3">
           <Slider
             aria-label="Leverage"
             defaultValue={20}
@@ -623,16 +516,22 @@ const TradeCard = () => {
             valueLabelDisplay="auto"
             onChange={handleLeverageChange}
           />
-        </div>
-      </div>
-      <div className="bg-umbra rounded-2xl">
-        <div className="flex flex-col mb-4 p-4 w-full">
-          <div className={'flex mb-2'}>
-            <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
+        </Box>
+      </Box>
+      <Box className="bg-umbra rounded-2xl">
+        <Box className="flex flex-col mb-4 p-4 w-full">
+          <Box className={'flex mb-2'}>
+            <Typography
+              variant="h6"
+              className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
+            >
               Available Liquidity
-            </h6>
-            <div className={'text-right'}>
-              <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography
+                variant="h6"
+                className="text-white mr-auto ml-0 text-[0.8rem]"
+              >
                 {formatAmount(
                   getUserReadableAmount(
                     isShort
@@ -650,26 +549,35 @@ const TradeCard = () => {
                 {isShort
                   ? optionScalpData?.baseSymbol!
                   : optionScalpData?.quoteSymbol!}
-              </h6>
-            </div>
-          </div>
-          <div className={'flex mb-2'}>
-            <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={'flex mb-2'}>
+            <Typography
+              variant="h6"
+              className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
+            >
               Margin
-            </h6>
-            <div className={'text-right'}>
-              <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography
+                variant="h6"
+                className="text-white mr-auto ml-0 text-[0.8rem]"
+              >
                 {formatAmount(positionDetails.marginInQuote, 3)}{' '}
                 {optionScalpData?.quoteSymbol}
-              </h6>
-            </div>
-          </div>
-          <div className={'flex mb-2'}>
-            <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={'flex mb-2'}>
+            <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
               Premium
-            </h6>
-            <div className={'text-right'}>
-              <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography
+                variant="h6"
+                className="text-white mr-auto ml-0 text-[0.8rem]"
+              >
                 {formatAmount(
                   getUserReadableAmount(
                     premium,
@@ -678,13 +586,21 @@ const TradeCard = () => {
                   2
                 )}{' '}
                 {optionScalpData?.quoteSymbol}
-              </h6>
-            </div>
-          </div>
-          <div className={'flex mb-2'}>
-            <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">Fees</h6>
-            <div className={'text-right'}>
-              <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={'flex mb-2'}>
+            <Typography
+              variant="h6"
+              className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
+            >
+              Fees
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography
+                variant="h6"
+                className="text-white mr-auto ml-0 text-[0.8rem]"
+              >
                 {formatAmount(
                   getUserReadableAmount(
                     posSize,
@@ -697,34 +613,48 @@ const TradeCard = () => {
                   2
                 )}{' '}
                 {optionScalpData?.quoteSymbol}
-              </h6>
-            </div>
-          </div>
-          <div className={'flex mb-2'}>
-            <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={'flex mb-2'}>
+            <Typography
+              variant="h6"
+              className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
+            >
               Liquidation Price
-            </h6>
-            <div className={'text-right'}>
-              <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography
+                variant="h6"
+                className="text-white mr-auto ml-0 text-[0.8rem]"
+              >
                 {formatAmount(liquidationPrice, 4)}{' '}
-              </h6>
-            </div>
-          </div>
-          <div className={'flex mb-1'}>
-            <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={'flex mb-1'}>
+            <Typography
+              variant="h6"
+              className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
+            >
               Max. Slippage
-            </h6>
-            <div className={'text-right'}>
-              <h6 className="text-white mr-auto ml-0 text-[0.8rem]">0.5%</h6>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
+            </Typography>
+            <Box className={'text-right'}>
+              <Typography
+                variant="h6"
+                className="text-white mr-auto ml-0 text-[0.8rem]"
+              >
+                0.5%
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+      <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
         <EstimatedGasCostButton gas={500000} chainId={chainId} />
-      </div>
-      <div className="rounded-lg bg-neutral-800">
-        <div className="p-3">
+      </Box>
+      <Box className="rounded-lg bg-neutral-800">
+        <Box className="p-3">
           <CustomButton
             size="small"
             className="w-full !rounded-md"
@@ -734,9 +664,9 @@ const TradeCard = () => {
           >
             <p className="text-[0.8rem]">{tradeButtonProps.text}</p>
           </CustomButton>
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Box>
   );
 };
 

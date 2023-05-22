@@ -1,21 +1,20 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
 import { ethers } from 'ethers';
 
 import Box from '@mui/material/Box';
-import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
-
-import { PepeButton } from 'components/nfts/components/PepeButton';
-import Details from 'components/nfts/duel/Details';
-import Instructions from 'components/nfts/duel/Instructions';
-import DuelExpiry from 'components/nfts/duel/DuelExpiry';
-import Moves from 'components/nfts/duel/Moves';
-import Dialog from 'components/UI/Dialog';
-import Typography from 'components/UI/Typography';
-
+import Tooltip from '@mui/material/Tooltip';
+import { useBoundStore } from 'store';
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
-import { useBoundStore } from 'store';
+import Dialog from 'components/UI/Dialog';
+import Typography from 'components/UI/Typography';
+import { PepeButton } from 'components/nfts/components/PepeButton';
+import Details from 'components/nfts/duel/Details';
+import DuelExpiry from 'components/nfts/duel/DuelExpiry';
+import Instructions from 'components/nfts/duel/Instructions';
+import Moves from 'components/nfts/duel/Moves';
 
 export interface Props {
   open: boolean;

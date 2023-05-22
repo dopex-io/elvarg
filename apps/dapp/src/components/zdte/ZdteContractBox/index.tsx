@@ -5,9 +5,9 @@ import Loading from 'components/zdte/Loading';
 import { CHAINS } from 'constants/chains';
 
 const ZdteContractBox = () => {
-  const { chainId, staticZdteData, zdteData } = useBoundStore();
+  const { chainId, staticZdteData, zdteData, isLoading } = useBoundStore();
 
-  if (!zdteData || !staticZdteData) {
+  if (isLoading || !zdteData || !staticZdteData) {
     return <Loading />;
   }
 

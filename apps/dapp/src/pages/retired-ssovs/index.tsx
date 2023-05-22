@@ -1,15 +1,17 @@
-import { useState, useCallback } from 'react';
-import { BigNumber, ethers, Signer } from 'ethers';
-import axios from 'axios';
+import { useCallback, useState } from 'react';
+
 import Head from 'next/head';
-import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
+
+import { BigNumber, Signer, ethers } from 'ethers';
+
 import {
   Addresses,
-  SsovV3Viewer__factory,
   ERC20__factory,
+  SsovV3Viewer__factory,
 } from '@dopex-io/sdk';
-
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import axios from 'axios';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
@@ -18,8 +20,8 @@ import SignerButton from 'components/common/SignerButton';
 import SsovDepositCard from 'components/retired-ssovs/SsovDepositCard';
 import SsovOption from 'components/retired-ssovs/SsovOption';
 
-import retiredStrikeTokens from 'constants/json/retiredStrikeTokens.json';
 import { DOPEX_API_BASE_URL } from 'constants/env';
+import retiredStrikeTokens from 'constants/json/retiredStrikeTokens.json';
 
 interface Ssov {
   type: string;

@@ -1,11 +1,10 @@
 import { useState } from 'react';
 
-import ButtonGroup from '@mui/material/ButtonGroup';
 import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import { useBoundStore } from 'store';
 
 import displayAddress from 'utils/general/displayAddress';
-
-import { useBoundStore } from 'store';
 
 import PositionsTable from './PositionsTable';
 

@@ -1,6 +1,9 @@
-import Head from 'next/head';
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+
+import Head from 'next/head';
+
 import { BigNumber } from 'ethers';
+
 import {
   Addresses,
   ERC20__factory,
@@ -14,12 +17,11 @@ import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
-import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
+import Countdown from 'react-countdown';
 import { LoaderIcon } from 'react-hot-toast';
 import { useBoundStore } from 'store';
 import RedTriangleIcon from 'svgs/icons/RedTriangleIcon';
-import Countdown from 'react-countdown';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
@@ -39,7 +41,6 @@ import isNativeToken from 'utils/general/isNativeToken';
 import { CURRENCIES_MAP, MAX_VALUE } from 'constants/index';
 
 import { Order } from '../../types/tzwap';
-import styles from './styles.module.scss';
 
 function TabPanel(props: {
   children: ReactNode;
@@ -600,12 +601,7 @@ const Tzwap = () => {
           </Box>
         </Box>
         <Box className="flex mx-auto max-w-xl mb-8 mt-8">
-          <Box
-            className={cx(
-              'bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 ml-auto mr-auto',
-              styles['cardWidth']
-            )}
-          >
+          <Box className="bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 ml-auto mr-auto w-100 md:w-[378px]">
             {!(isFromTokenSelectorVisible || isToTokenSelectorVisible) ? (
               <Box className={''}>
                 <Box className={'w-full'}>
@@ -1105,12 +1101,7 @@ const Tzwap = () => {
             )}
           </Box>
         </Box>
-        <Box
-          className={cx(
-            'flex mx-auto max-w-xl mb-8 mt-32 text-center',
-            styles['cardWidth']
-          )}
-        >
+        <Box className="flex mx-auto max-w-xl mb-8 mt-32 text-center w-100 md:w-[378px]">
           <Typography variant="h5" className="z-1 text-stieglitz">
             <span className={'text-white'}>TZWAP</span> allows anyone to create
             an on-chain TWAP order split by intervals and ticksizes that can be

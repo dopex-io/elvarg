@@ -61,7 +61,8 @@ const WritePositionTableData = (props: Props) => {
       </TableCell>
       <TableCell>
         {accruedRewards.map((rewards, index) => {
-          return rewards.gt(0) ? (
+          return rewards.gt(0) ||
+            rewardTokens[index]?.symbol === collateralSymbol ? (
             <Typography variant="h6" key={index}>
               <NumberDisplay n={rewards} decimals={18} />{' '}
               {rewardTokens[index]?.symbol}

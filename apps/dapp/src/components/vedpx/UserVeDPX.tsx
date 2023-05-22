@@ -1,18 +1,19 @@
 import { useMemo, useState } from 'react';
+
+import { DPXVotingEscrow__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import format from 'date-fns/format';
-import { DPXVotingEscrow__factory } from '@dopex-io/sdk';
-
-import Typography from 'components/UI/Typography';
-import NumberDisplay from 'components/UI/NumberDisplay';
-import SignerButton from 'components/common/SignerButton';
-import LockDialog from './LockDialog';
-import Stat from './Stat';
-
-import { vedpxAddress } from 'store/VeDPX';
+import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
-import useSendTx from 'hooks/useSendTx';
+import { vedpxAddress } from 'store/VeDPX';
+
+import NumberDisplay from 'components/UI/NumberDisplay';
+import Typography from 'components/UI/Typography';
+import SignerButton from 'components/common/SignerButton';
+
+import LockDialog from './LockDialog';
+import Stat from './Stat';
 
 const UserVeDPX = () => {
   const [dialog, setDialog] = useState<{ open: boolean }>({ open: false });

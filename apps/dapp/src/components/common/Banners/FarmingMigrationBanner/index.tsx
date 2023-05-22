@@ -1,5 +1,5 @@
-import { useSwitchNetwork } from 'wagmi';
 import Button from '@mui/material/Button';
+import { useSwitchNetwork } from 'wagmi';
 
 import CtaBanner from 'components/UI/CtaBanner';
 

@@ -1,30 +1,29 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
 import { BigNumber } from 'ethers';
-import cx from 'classnames';
+
+import { ERC20__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
-import TableHead from '@mui/material/TableHead';
-import TableContainer from '@mui/material/TableContainer';
-import TableRow from '@mui/material/TableRow';
+import Skeleton from '@mui/material/Skeleton';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
+import TableRow from '@mui/material/TableRow';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
-import Skeleton from '@mui/material/Skeleton';
-
-import Typography from 'components/UI/Typography';
-import TablePaginationActions from 'components/UI/TablePaginationActions';
-import SignerButton from 'components/common/SignerButton';
-import ExerciseTableData from './ExerciseTableData';
-
 import { useBoundStore } from 'store';
+
+import TablePaginationActions from 'components/UI/TablePaginationActions';
+import Typography from 'components/UI/Typography';
+import SignerButton from 'components/common/SignerButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import isZeroAddress from 'utils/contracts/isZeroAddress';
 
-import styles from './styles.module.scss';
-import { ERC20__factory } from '@dopex-io/sdk';
+import ExerciseTableData from './ExerciseTableData';
 
 interface userExercisableOption {
   strikeIndex: number;
@@ -164,7 +163,7 @@ const ExerciseList = () => {
         </Typography>
       </Box>
       <Box className="balances-table text-white pb-4">
-        <TableContainer className={cx(styles['optionsTable'], 'bg-cod-gray')}>
+        <TableContainer className="bg-cod-gray">
           {!accountAddress ? (
             <Box className="p-4 flex items-center justify-center">
               <SignerButton size="medium">Connect a Wallet</SignerButton>
@@ -182,7 +181,7 @@ const ExerciseList = () => {
               ))}
             </Box>
           ) : (
-            <Table>
+            <Table className="border-separate border-spacing-y-2">
               <TableHead className="bg-umbra">
                 <TableRow className="bg-umbra">
                   <TableCell
@@ -233,7 +232,7 @@ const ExerciseList = () => {
                   </TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody className={cx('rounded-lg')}>
+              <TableBody className="rounded-lg">
                 {userExercisableOptions
                   .slice(
                     page * ROWS_PER_PAGE,

@@ -1,20 +1,18 @@
-import { StateCreator } from 'zustand';
-import format from 'date-fns/format';
 import {
+  AtlanticStraddle__factory,
   ERC20__factory,
   SsovV3__factory,
-  AtlanticStraddle__factory,
 } from '@dopex-io/sdk';
+import format from 'date-fns/format';
+import graphSdk from 'graphql/graphSdk';
+import queryClient from 'queryClient';
+import { StateCreator } from 'zustand';
 
 import { AssetsSlice } from 'store/Assets';
 import { WalletSlice } from 'store/Wallet';
 
 import getLinkFromVaultName from 'utils/contracts/getLinkFromVaultName';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-
-import queryClient from 'queryClient';
-
-import graphSdk from 'graphql/graphSdk';
 
 export interface UserSSOVPosition {
   amount: string;

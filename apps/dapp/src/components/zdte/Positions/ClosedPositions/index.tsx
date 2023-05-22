@@ -41,8 +41,9 @@ export const ClosedPositions = () => {
   const {
     zdteData,
     staticZdteData,
-    userZdteExpiredData,
-    updateUserZdteExpiredData,
+    userZdteClosedPositions,
+    updateUserZdteClosedPositions,
+    isLoading,
   } = useBoundStore();
 
   const [page, setPage] = useState<number>(0);
@@ -55,10 +56,10 @@ export const ClosedPositions = () => {
   );
 
   useEffect(() => {
-    updateUserZdteExpiredData();
-  }, [updateUserZdteExpiredData]);
+    updateUserZdteClosedPositions();
+  }, [updateUserZdteClosedPositions]);
 
-  if (!zdteData || !staticZdteData) {
+  if (isLoading || !zdteData || !staticZdteData) {
     return <Loading />;
   }
 
@@ -83,8 +84,8 @@ export const ClosedPositions = () => {
             </TableRow>
           </TableHead>
           <TableBody className="rounded-lg">
-            {userZdteExpiredData && userZdteExpiredData?.length > 0 ? (
-              userZdteExpiredData
+            {userZdteClosedPositions && userZdteClosedPositions?.length > 0 ? (
+              userZdteClosedPositions
                 .slice(
                   page * ROWS_PER_PAGE,
                   page * ROWS_PER_PAGE + ROWS_PER_PAGE
@@ -112,12 +113,13 @@ export const ClosedPositions = () => {
           </TableBody>
         </Table>
       </StyleHeaderTable>
-      {userZdteExpiredData && userZdteExpiredData?.length > ROWS_PER_PAGE ? (
+      {userZdteClosedPositions &&
+      userZdteClosedPositions?.length > ROWS_PER_PAGE ? (
         <TablePagination
           component="div"
           id="stats"
           rowsPerPageOptions={[ROWS_PER_PAGE]}
-          count={userZdteExpiredData?.length}
+          count={userZdteClosedPositions?.length}
           page={page}
           onPageChange={handleChangePage}
           rowsPerPage={ROWS_PER_PAGE}

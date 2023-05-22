@@ -1,4 +1,3 @@
-import React from "react";
 import { Switch as HeadlessSwitch } from "@headlessui/react";
 
 export interface SwitchProps {

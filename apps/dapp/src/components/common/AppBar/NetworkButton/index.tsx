@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import { Button } from '@dopex-io/ui';
 
+import { Button } from '@dopex-io/ui';
 import { useBoundStore } from 'store';
 
 import { CHAINS } from 'constants/chains';
