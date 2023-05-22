@@ -2321,7 +2321,7 @@ export const createOptionScalpSlice: StateCreator<
     if (!selectedPoolName || !provider) return;
     return new ethers.Contract(
       selectedPoolName === 'ETH'
-        ? '0xF78de79345d707A08b2eE25108290a6D1E5e560F'
+        ? '0xC4e871AF2FdFdBFf499678642234E83ADD982f08'
         : '0x8c5b7D87D80726768a4a8D0C39690aCAB2F66C3a',
       optionScalpsABI,
       provider
@@ -2332,7 +2332,7 @@ export const createOptionScalpSlice: StateCreator<
 
     if (!selectedPoolName || !provider) return;
     return new ethers.Contract(
-      '0x1DD610752F0704C90Ec00066d2714681cf2ae788',
+      '0x62C272f0b0fe90eF16C87C5040692f9fef0d0709',
       limitOrdersABI,
       provider
     );
@@ -2344,7 +2344,7 @@ export const createOptionScalpSlice: StateCreator<
 
     return OptionScalpsLp__factory.connect(
       selectedPoolName === 'ETH'
-        ? '0xb2604dA1F306Ff40dca2E62610ded903890579F5'
+        ? '0xc0efa2a4A054dF1D5FF25671E667d17DdaD32F29'
         : '0x0dd032de45ae834e7950d455084ff4c896ab781c',
       provider
     );
@@ -2356,7 +2356,7 @@ export const createOptionScalpSlice: StateCreator<
 
     return OptionScalpsLp__factory.connect(
       selectedPoolName === 'ETH'
-        ? '0x78Da399FE3a0d5f16F5Ce72C1C223a58ecb7a532'
+        ? '0x190e499F96A0f005F96833f9F07e4070121Ee804'
         : '0x79f41545df078ad3b6168fe4c5379101682c4ee3',
       provider
     );
