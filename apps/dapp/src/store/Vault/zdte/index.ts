@@ -66,6 +66,8 @@ export interface IZdteData {
   quoteLpValue: BigNumber;
   openInterest: BigNumber;
   expiry: number;
+  maxLongStrikeVolAdjust: BigNumber;
+  minLongStrikeVolAdjust: BigNumber;
 }
 
 export interface IZdteUserData {
@@ -400,6 +402,8 @@ export const createZdteSlice: StateCreator<
         quoteLpTokenLiquidity,
         expiry,
         openInterestAmount,
+        maxLongStrikeVolAdjust,
+        minLongStrikeVolAdjust,
       ] = await Promise.all([
         zdteContract.getMarkPrice(),
         zdteContract.strikeIncrement(),
@@ -408,6 +412,8 @@ export const createZdteSlice: StateCreator<
         zdteContract.quoteLpTokenLiquidity(),
         zdteContract.getCurrentExpiry(),
         zdteContract.openInterestAmount(),
+        zdteContract.maxLongStrikeVolAdjust(),
+        zdteContract.minLongStrikeVolAdjust(),
       ]);
 
       const step = getUserReadableAmount(strikeIncrement, DECIMALS_STRIKE);
@@ -491,7 +497,7 @@ export const createZdteSlice: StateCreator<
 
         try {
           const [premium, iv] = await Promise.all([
-            zdteContract.calcPremiumCustom(
+            zdteContract.calcPremium(
               strike <= tokenPrice,
               getContractReadableAmount(strike, DECIMALS_STRIKE),
               oneEBigNumber(DECIMALS_TOKEN)
@@ -595,6 +601,8 @@ export const createZdteSlice: StateCreator<
           quoteLpValue,
           openInterest,
           expiry: expiry.toNumber(),
+          maxLongStrikeVolAdjust,
+          minLongStrikeVolAdjust,
         },
       }));
     } catch (err) {
