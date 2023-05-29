@@ -105,6 +105,8 @@ const seo = {
     alt: 'Default',
     banner:
       'https://res.cloudinary.com/dxitdndu3/image/upload/v1684326255/dopex_images/preview_images/default_qfq5rc.png',
+    width: 800,
+    height: 450,
   },
 };
 
