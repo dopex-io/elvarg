@@ -39,8 +39,8 @@ function App({ Component, pageProps }: AppProps) {
           images: [
             {
               url: seo.default.banner,
-              width: 800,
-              height: 450,
+              width: seo.default.width,
+              height: seo.default.height,
               alt: seo.default.alt,
               type: 'image/png',
             },
