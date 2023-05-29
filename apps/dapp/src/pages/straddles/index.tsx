@@ -1,9 +1,8 @@
-import Head from 'next/head';
-
 import { useCallback, useEffect, useState } from 'react';
 
 import Box from '@mui/material/Box';
 import axios from 'axios';
+import { NextSeo } from 'next-seo';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
@@ -12,6 +11,7 @@ import VaultCard from 'components/straddles/VaultCard';
 
 import { CHAINS } from 'constants/chains';
 import { DOPEX_API_BASE_URL } from 'constants/env';
+import seo from 'constants/seo';
 
 const states: string[] = ['Active', 'Retired'];
 
@@ -92,9 +92,25 @@ const Straddles = () => {
 
   return (
     <Box className="min-h-screen">
-      <Head>
-        <title>Straddles | Dopex</title>
-      </Head>
+      <NextSeo
+        title={seo.straddles.title}
+        description={seo.straddles.description}
+        canonical={seo.straddles.url}
+        openGraph={{
+          url: seo.straddles.url,
+          title: seo.straddles.title,
+          description: seo.straddles.description,
+          images: [
+            {
+              url: seo.straddles.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.straddles.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
       <AppBar active="Straddles" />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         <Box className="text-center mx-auto max-w-xl mb-8 mt-32">

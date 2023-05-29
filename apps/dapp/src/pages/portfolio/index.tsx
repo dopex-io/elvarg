@@ -1,14 +1,15 @@
 import { useEffect } from 'react';
-import Head from 'next/head';
-
-import { useBoundStore } from 'store';
 
 import Box from '@mui/material/Box';
+import { NextSeo } from 'next-seo';
+import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
-import Sidebar from 'components/portfolio/Sidebar';
-import Positions from 'components/portfolio/Positions';
 import Deposits from 'components/portfolio/Deposits';
+import Positions from 'components/portfolio/Positions';
+import Sidebar from 'components/portfolio/Sidebar';
+
+import seo from 'constants/seo';
 
 const Portfolio = () => {
   const { updatePortfolioData, accountAddress } = useBoundStore();
@@ -19,9 +20,25 @@ const Portfolio = () => {
 
   return (
     <Box className="min-h-screen">
-      <Head>
-        <title>Portfolio | Dopex</title>
-      </Head>
+      <NextSeo
+        title={seo.portfolio.title}
+        description={seo.portfolio.description}
+        canonical={seo.portfolio.url}
+        openGraph={{
+          url: seo.portfolio.url,
+          title: seo.portfolio.title,
+          description: seo.portfolio.description,
+          images: [
+            {
+              url: seo.portfolio.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.portfolio.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
       <AppBar active="Portfolio" />
       <Box
         className="py-12 lg:max-w-full md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 lg:grid lg:grid-cols-12"

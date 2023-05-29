@@ -1,16 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
-import Head from 'next/head';
-import Box from '@mui/material/Box';
-import axios from 'axios';
-import CircularProgress from '@mui/material/CircularProgress';
 
-import AppBar from 'components/common/AppBar';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import axios from 'axios';
+import { NextSeo } from 'next-seo';
+
 import Accordion from 'components/atlantics/Accordion';
 import Description from 'components/atlantics/Description';
-import Stats from 'components/atlantics/Stats';
 import Filter from 'components/atlantics/Filter';
+import Stats from 'components/atlantics/Stats';
+import AppBar from 'components/common/AppBar';
 
 import { DOPEX_API_BASE_URL } from 'constants/env';
+import seo from 'constants/seo';
 
 export const ATLANTIC_POOLS: string[] | string = ['WETH'];
 
@@ -67,9 +69,6 @@ const Atlantics = () => {
 
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
-      <Head>
-        <title>Atlantic Pools | Dopex</title>
-      </Head>
       <AppBar active="Atlantics" />
       <Box className="container pt-32 mx-auto px-4 lg:px-0 h-screen">
         <Box className="mx-auto mb-8">
@@ -125,7 +124,30 @@ const Atlantics = () => {
 };
 
 const AtlanticsPage = () => {
-  return <Atlantics />;
+  return (
+    <>
+      <NextSeo
+        title={seo.insuredPerps.title}
+        description={seo.insuredPerps.description}
+        canonical={seo.insuredPerps.url}
+        openGraph={{
+          url: seo.insuredPerps.url,
+          title: seo.insuredPerps.title,
+          description: seo.insuredPerps.description,
+          images: [
+            {
+              url: seo.insuredPerps.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.insuredPerps.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
+      <Atlantics />
+    </>
+  );
 };
 
 export default AtlanticsPage;
