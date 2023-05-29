@@ -60,6 +60,18 @@ const SsovData = () => {
     fetch(`${DOPEX_API_BASE_URL}/v2/ssov`).then((res) => res.json())
   );
 
+  const { data: tradesData } = useQuery(
+    ['getSsovPurchasesFromTimestamp'],
+    async () =>
+      queryClient.fetchQuery({
+        queryKey: ['getSsovPurchasesFromTimestamp'],
+        queryFn: () =>
+          graphSdk.getSsovPurchasesFromTimestamp({
+            fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
+          }),
+      })
+  );
+
   let ssovs: any;
   if (!isLoading || !error) {
     ssovs = data;
@@ -68,22 +80,7 @@ const SsovData = () => {
   const [selectedSsovTokens, setSelectedSsovTokens] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>('TVL');
-  const [trades, setTrades] = useState<any>({});
   const [ssovsWithVol, setSsovsWithVol] = useState<any>({});
-
-  useEffect(() => {
-    async function getTrades() {
-      const payload = await queryClient.fetchQuery({
-        queryKey: ['getSsovPurchasesFromTimestamp'],
-        queryFn: () =>
-          graphSdk.getSsovPurchasesFromTimestamp({
-            fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
-          }),
-      });
-      setTrades(payload);
-    }
-    getTrades();
-  }, []);
 
   const tvl = useMemo(() => {
     let total = 0;
@@ -110,11 +107,11 @@ const SsovData = () => {
 
   useEffect(() => {
     async function getVolumes() {
-      if (!ssovs || !trades) return [];
+      if (!ssovs || !tradesData) return [];
       let ssovsVol: any = {};
       for (const key of Object.keys(ssovs)) {
         for (const so of ssovs[key]) {
-          const volume = await getVolume(trades, so.address);
+          const volume = await getVolume(tradesData, so.address);
           if (!ssovsVol[key]) ssovsVol[key] = [];
           ssovsVol[key].push({
             ...so,
@@ -127,7 +124,7 @@ const SsovData = () => {
       setSsovsWithVol(ssovsVol);
     }
     getVolumes();
-  }, [ssovs, trades]);
+  }, [ssovs, tradesData]);
 
   const ssovsTokens = useMemo(() => {
     if (!ssovs) return [];
@@ -143,20 +140,6 @@ const SsovData = () => {
     const tokens = Array.from(tokensSet);
 
     return tokens.sort((a, b) => (a > b ? 1 : -1));
-  }, [ssovs]);
-
-  useEffect(() => {
-    async function getTrades() {
-      const payload = await queryClient.fetchQuery({
-        queryKey: ['getSsovPurchasesFromTimestamp'],
-        queryFn: () =>
-          graphSdk.getSsovPurchasesFromTimestamp({
-            fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
-          }),
-      });
-      setTrades(payload);
-    }
-    getTrades();
   }, [ssovs]);
 
   if (isLoading) {
