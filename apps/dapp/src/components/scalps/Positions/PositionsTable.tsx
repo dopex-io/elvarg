@@ -14,6 +14,7 @@ import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
+import LimitOrderPopover from 'components/scalps/LimitOrderPopover';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -374,6 +375,11 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                     >
                       <span className="text-xs md:sm">Close</span>
                     </CustomButton>
+                  )}
+                  {position.isOpen && (
+                    <div className="mx-2">
+                      <LimitOrderPopover id={position.id} />
+                    </div>
                   )}
                   <IconButton
                     aria-label="share"
