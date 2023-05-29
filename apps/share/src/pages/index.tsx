@@ -28,7 +28,7 @@ const Share = ({
           {
             url: `https://res.cloudinary.com/dxitdndu3/image/upload/share_images/${imageID}.png`,
             width: 800,
-            height: 450,
+            height: 600,
             alt: "Share Image",
             type: "image/png",
           },
