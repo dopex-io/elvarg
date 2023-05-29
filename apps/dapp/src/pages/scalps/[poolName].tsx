@@ -136,25 +136,6 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
   return (
     <>
       <Box className="bg-black flex w-screen items-center justify-center">
-        <NextSeo
-          title={`${poolName} ${seo.scalps.title}`}
-          description={seo.scalps.description}
-          canonical={`${seo.scalps.url}/${poolName}`}
-          openGraph={{
-            url: `${seo.scalps.url}/${poolName}`,
-            title: `${poolName} ${seo.scalps.title}`,
-            description: seo.scalps.description,
-            images: [
-              {
-                url: seo.scalps.banner,
-                width: seo.default.width,
-                height: seo.default.height,
-                alt: seo.scalps.alt,
-                type: 'image/png',
-              },
-            ],
-          }}
-        />
         <AppBar active="Scalps" />
         <Box className="my-12 mx-[15%]">
           <Box className="mt-8 sm:mt-14 md:mt-20 lg:mr-full">
@@ -210,7 +191,30 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
 const ManagePage = () => {
   const router = useRouter();
   const poolName = router.query['poolName'] as string;
-  return <OptionScalps poolName={poolName} />;
+  return (
+    <>
+      <NextSeo
+        title={`${seo.scalps.title}`}
+        description={seo.scalps.description}
+        canonical={`${seo.scalps.url}/${poolName}`}
+        openGraph={{
+          url: `${seo.scalps.url}/${poolName}`,
+          title: `${poolName} ${seo.scalps.title}`,
+          description: seo.scalps.description,
+          images: [
+            {
+              url: seo.scalps.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.scalps.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
+      <OptionScalps poolName={poolName} />
+    </>
+  );
 };
 
 export default ManagePage;
