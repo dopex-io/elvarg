@@ -2609,10 +2609,7 @@ export const createOptionScalpSlice: StateCreator<
     const closeOrdersTransactionsHashes: string[] = [];
 
     for (let i in openOrdersEvents) {
-      if (
-        !openOrdersIndexes.includes(Number(openOrdersEvents[i]['args'][0])) &&
-        openOrdersEvents[i]['args'][1] === accountAddress
-      ) {
+      if (!openOrdersIndexes.includes(Number(openOrdersEvents[i]['args'][0]))) {
         openOrdersIndexes.push(openOrdersEvents[i]['args'][0]);
         openOrdersTransactionsHashes.push(
           openOrdersEvents[i]['transactionHash']
@@ -2622,8 +2619,7 @@ export const createOptionScalpSlice: StateCreator<
 
     for (let i in closeOrdersEvents) {
       if (
-        !closeOrdersIndexes.includes(Number(closeOrdersEvents[i]['args'][0])) &&
-        closeOrdersEvents[i]['args'][1] === accountAddress
+        !closeOrdersIndexes.includes(Number(closeOrdersEvents[i]['args'][0]))
       ) {
         closeOrdersIndexes.push(closeOrdersEvents[i]['args'][0]);
         closeOrdersTransactionsHashes.push(
@@ -2727,8 +2723,6 @@ export const createOptionScalpSlice: StateCreator<
       markPrice,
       totalQuoteDeposits,
       totalBaseDeposits,
-      totalQuoteAvailable,
-      totalBaseAvailable,
       quoteSupply,
       baseSupply,
     ] = await Promise.all([
@@ -2742,11 +2736,20 @@ export const createOptionScalpSlice: StateCreator<
       optionScalpContract!['getMarkPrice'](),
       quoteLpContract!['totalAssets'](),
       baseLpContract!['totalAssets'](),
-      quoteLpContract!['totalAvailableAssets'](),
-      baseLpContract!['totalAvailableAssets'](),
       quoteLpContract!['totalSupply'](),
       baseLpContract!['totalSupply'](),
     ]);
+
+    let totalQuoteAvailable = BigNumber.from('0');
+    let totalBaseAvailable = BigNumber.from('0');
+
+    try {
+      totalQuoteAvailable = await quoteLpContract!['totalAvailableAssets']();
+    } catch (e) {}
+
+    try {
+      totalBaseAvailable = await baseLpContract!['totalAvailableAssets']();
+    } catch (e) {}
 
     const quoteDecimals: BigNumber =
       selectedPoolName === 'ETH' || selectedPoolName === 'ARB'
