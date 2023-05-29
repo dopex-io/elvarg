@@ -47,9 +47,9 @@ const Olp = ({ poolName }: { poolName: string }) => {
       <NextSeo
         title={`${poolName} ${seo.olp.title}`}
         description={seo.olp.description}
-        canonical={`${seo.olp.url}${poolName}`}
+        canonical={`${seo.olp.url}/${poolName}`}
         openGraph={{
-          url: `${seo.olp.url}${poolName}`,
+          url: `${seo.olp.url}/${poolName}`,
           title: `${poolName} ${seo.olp.title}`,
           description: seo.olp.description,
           images: [

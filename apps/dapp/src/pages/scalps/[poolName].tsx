@@ -139,9 +139,9 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
         <NextSeo
           title={`${poolName} ${seo.scalps.title}`}
           description={seo.scalps.description}
-          canonical={`${seo.scalps.url}${poolName}`}
+          canonical={`${seo.scalps.url}/${poolName}`}
           openGraph={{
-            url: `${seo.scalps.url}${poolName}`,
+            url: `${seo.scalps.url}/${poolName}`,
             title: `${poolName} ${seo.scalps.title}`,
             description: seo.scalps.description,
             images: [

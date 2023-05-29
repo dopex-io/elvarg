@@ -216,9 +216,9 @@ const InsuredLongPerps = () => {
       <NextSeo
         title={`${seo.insuredPerps.title}`}
         description={seo.insuredPerps.description}
-        canonical={`${seo.insuredPerps.url}manage/${ticker}`}
+        canonical={`${seo.insuredPerps.url}/manage/${ticker}`}
         openGraph={{
-          url: `${seo.insuredPerps.url}manage/${ticker}`,
+          url: `${seo.insuredPerps.url}/manage/${ticker}`,
           title: `${seo.insuredPerps.title}`,
           description: seo.insuredPerps.description,
           images: [
