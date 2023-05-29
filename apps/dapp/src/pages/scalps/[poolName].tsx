@@ -194,12 +194,12 @@ const ManagePage = () => {
   return (
     <>
       <NextSeo
-        title={`${seo.scalps.title}`}
+        title={seo.scalps.title}
         description={seo.scalps.description}
-        canonical={`${seo.scalps.url}/${poolName}`}
+        canonical={seo.scalps.url}
         openGraph={{
-          url: `${seo.scalps.url}/${poolName}`,
-          title: `${poolName} ${seo.scalps.title}`,
+          url: seo.scalps.url,
+          title: seo.scalps.title,
           description: seo.scalps.description,
           images: [
             {

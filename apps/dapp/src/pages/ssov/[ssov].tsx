@@ -17,10 +17,10 @@ const SsovV3Page = () => {
       <NextSeo
         title={`${ssov} ${seo.ssov.title}`}
         description={seo.ssov.description}
-        canonical={`${seo.ssov.url}/${ssov}`}
+        canonical={seo.ssov.url}
         openGraph={{
-          url: `${seo.ssov.url}/${ssov}`,
-          title: `${ssov} ${seo.ssov.title}`,
+          url: seo.ssov.url,
+          title: seo.ssov.title,
           description: seo.ssov.description,
           images: [
             {

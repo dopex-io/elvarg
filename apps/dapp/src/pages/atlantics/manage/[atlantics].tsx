@@ -163,12 +163,12 @@ const ManagePage = () => {
   return (
     <>
       <NextSeo
-        title={`${seo.insuredPerpsLP.title}`}
+        title={seo.insuredPerpsLP.title}
         description={seo.insuredPerpsLP.description}
-        canonical={`${seo.insuredPerpsLP.url}/manage/${atlantics}`}
+        canonical={seo.insuredPerpsLP.url}
         openGraph={{
-          url: `${seo.insuredPerpsLP.url}/manage/${atlantics}`,
-          title: `${seo.insuredPerpsLP.title}`,
+          url: seo.insuredPerpsLP.url,
+          title: seo.insuredPerpsLP.title,
           description: seo.insuredPerpsLP.description,
           images: [
             {

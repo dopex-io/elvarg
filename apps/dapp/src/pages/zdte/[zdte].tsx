@@ -118,12 +118,12 @@ const ManagePage = () => {
   return (
     <ErrorBoundary>
       <NextSeo
-        title={`${seo.zdte.title}`}
+        title={seo.zdte.title}
         description={seo.zdte.description}
-        canonical={`${seo.zdte.url}/${zdte}`}
+        canonical={seo.zdte.url}
         openGraph={{
-          url: `${seo.zdte.url}/${zdte}`,
-          title: `${seo.zdte.title}`,
+          url: seo.zdte.url,
+          title: seo.zdte.title,
           description: seo.zdte.description,
           images: [
             {

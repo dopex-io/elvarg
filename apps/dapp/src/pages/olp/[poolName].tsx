@@ -44,25 +44,6 @@ const Olp = ({ poolName }: { poolName: string }) => {
 
   return (
     <Box className="bg-black min-h-screen">
-      <NextSeo
-        title={`${poolName} ${seo.olp.title}`}
-        description={seo.olp.description}
-        canonical={`${seo.olp.url}/${poolName}`}
-        openGraph={{
-          url: `${seo.olp.url}/${poolName}`,
-          title: `${poolName} ${seo.olp.title}`,
-          description: seo.olp.description,
-          images: [
-            {
-              url: seo.olp.banner,
-              width: seo.default.width,
-              height: seo.default.height,
-              alt: seo.olp.alt,
-              type: 'image/png',
-            },
-          ],
-        }}
-      />
       <AppBar active="OLPs" />
       <Box className="md:flex py-5 flex-row justify-around">
         <Box className="ml-auto lg:w-[50%] space-y-8">
@@ -91,7 +72,30 @@ const ManagePage = () => {
   const router = useRouter();
   const poolName = router.query['poolName'] as string;
 
-  return <Olp poolName={poolName} />;
+  return (
+    <>
+      <NextSeo
+        title={seo.olp.title}
+        description={seo.olp.description}
+        canonical={seo.olp.url}
+        openGraph={{
+          url: seo.olp.url,
+          title: seo.olp.title,
+          description: seo.olp.description,
+          images: [
+            {
+              url: seo.olp.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.olp.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
+      <Olp poolName={poolName} />
+    </>
+  );
 };
 
 export default ManagePage;

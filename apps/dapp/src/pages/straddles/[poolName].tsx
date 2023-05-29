@@ -54,25 +54,6 @@ const Straddles = ({ poolName }: { poolName: string }) => {
 
   return (
     <Box className="bg-black min-h-screen">
-      <NextSeo
-        title={`${poolName} ${seo.straddles.title}`}
-        description={seo.straddles.description}
-        canonical={`${seo.straddles.url}/${poolName}`}
-        openGraph={{
-          url: `${seo.straddles.url}/${poolName}`,
-          title: seo.straddles.title,
-          description: seo.straddles.description,
-          images: [
-            {
-              url: seo.straddles.banner,
-              width: seo.default.width,
-              height: seo.default.height,
-              alt: seo.straddles.alt,
-              type: 'image/png',
-            },
-          ],
-        }}
-      />
       <AppBar active="Straddles" />
       <Box className="md:flex pt-5">
         <Box className="ml-auto lg:w-[45%]">
@@ -142,7 +123,30 @@ const ManagePage = () => {
   const router = useRouter();
   const poolName = router.query['poolName'] as string;
 
-  return <Straddles poolName={poolName} />;
+  return (
+    <>
+      <NextSeo
+        title={seo.straddles.title}
+        description={seo.straddles.description}
+        canonical={seo.straddles.url}
+        openGraph={{
+          url: seo.straddles.url,
+          title: seo.straddles.title,
+          description: seo.straddles.description,
+          images: [
+            {
+              url: seo.straddles.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.straddles.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
+      <Straddles poolName={poolName} />
+    </>
+  );
 };
 
 export default ManagePage;
