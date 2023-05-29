@@ -724,7 +724,6 @@ const PurchaseDialog = ({
                           open={Boolean(anchorEl)}
                           onClose={() => setAnchorEl(null)}
                           classes={{ paper: 'bg-umbra' }}
-                          className="mt-12"
                         >
                           {strikes.map((strike, strikeIndex) => (
                             <MenuItem
