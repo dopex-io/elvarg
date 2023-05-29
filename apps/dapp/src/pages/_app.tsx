@@ -14,7 +14,7 @@ import wagmiClient from 'wagmi-client';
 
 import GlobalDialogs from 'components/common/GlobalDialogs';
 
-import { HOST_URL } from 'constants/env';
+import seo from 'constants/seo';
 
 import theme from '../style/muiTheme';
 
@@ -29,20 +29,19 @@ function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <DefaultSeo
-        title="Dopex"
-        description="Dopex is a maximum liquidity and minimal exposure options protocol"
-        canonical={HOST_URL || 'https://app.dopex.io'}
+        title={seo.default.title}
+        description={seo.default.description}
+        canonical={seo.default.url}
         openGraph={{
-          url: HOST_URL || 'https://app.dopex.io',
-          title: 'Dopex',
-          description:
-            'Dopex is a maximum liquidity and minimal exposure options protocol',
+          url: seo.default.url,
+          title: seo.default.title,
+          description: seo.default.description,
           images: [
             {
-              url: 'https://res.cloudinary.com/dxitdndu3/image/upload/v1682556687/dopex_images/preview_images/default_kayszw.png',
+              url: seo.default.banner,
               width: 800,
               height: 450,
-              alt: 'SSOV',
+              alt: seo.default.alt,
               type: 'image/png',
             },
           ],
