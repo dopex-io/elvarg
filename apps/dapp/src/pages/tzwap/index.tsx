@@ -1,5 +1,3 @@
-import Head from 'next/head';
-
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { BigNumber } from 'ethers';
@@ -18,6 +16,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
 import useSendTx from 'hooks/useSendTx';
+import { NextSeo } from 'next-seo';
 import Countdown from 'react-countdown';
 import { LoaderIcon } from 'react-hot-toast';
 import { useBoundStore } from 'store';
@@ -39,6 +38,7 @@ import getTokenDecimals from 'utils/general/getTokenDecimals';
 import isNativeToken from 'utils/general/isNativeToken';
 
 import { CURRENCIES_MAP, MAX_VALUE } from 'constants/index';
+import seo from 'constants/seo';
 
 import { Order } from '../../types/tzwap';
 
@@ -509,9 +509,25 @@ const Tzwap = () => {
 
   return (
     <Box className="min-h-screen">
-      <Head>
-        <title>Tzwap | Dopex</title>
-      </Head>
+      <NextSeo
+        title={seo.tzwap.title}
+        description={seo.tzwap.description}
+        canonical={seo.tzwap.url}
+        openGraph={{
+          url: seo.tzwap.url,
+          title: seo.tzwap.title,
+          description: seo.tzwap.description,
+          images: [
+            {
+              url: seo.tzwap.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.tzwap.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
       <AppBar />
       <Kill
         openOrder={openOrder}

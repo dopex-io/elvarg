@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import Head from 'next/head';
-
 import { BigNumber } from 'ethers';
 
 import Alert from '@mui/material/Alert';
@@ -11,6 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import graphSdk from 'graphql/graphSdk';
 import isEmpty from 'lodash/isEmpty';
 import queryClient from 'queryClient';
+import { NextSeo } from 'next-seo';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
@@ -23,6 +22,7 @@ import formatAmount from 'utils/general/formatAmount';
 import { CHAINS } from 'constants/chains';
 import { DOPEX_API_BASE_URL } from 'constants/env';
 import { DECIMALS_TOKEN } from 'constants/index';
+import seo from 'constants/seo';
 
 const ssovStrategies: string[] = ['CALL', 'PUT'];
 const sortOptions: string[] = ['TVL', 'APY'];
@@ -157,9 +157,6 @@ const SsovData = () => {
 
   return (
     <Box className="min-h-screen">
-      <Head>
-        <title>SSOV | Dopex</title>
-      </Head>
       <AppBar active="SSOV" />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         <Box className="text-center mx-auto max-w-xl mb-8 mt-32">
@@ -264,5 +261,28 @@ const SsovData = () => {
 };
 
 export default function Ssov() {
-  return <SsovData />;
+  return (
+    <>
+      <NextSeo
+        title={seo.ssov.title}
+        description={seo.ssov.description}
+        canonical={seo.ssov.url}
+        openGraph={{
+          url: seo.ssov.url,
+          title: seo.ssov.title,
+          description: seo.ssov.description,
+          images: [
+            {
+              url: seo.ssov.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.ssov.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
+      <SsovData />
+    </>
+  );
 }
