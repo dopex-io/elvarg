@@ -50,6 +50,7 @@ function SsovCard(props: any) {
     epochTimes,
     volume,
     totalEpochPurchases,
+    underlyingPrice,
   } = data;
 
   const name = underlyingSymbol as string;
@@ -151,7 +152,8 @@ function SsovCard(props: any) {
             </h6>
             <h6>
               <span className="text-sm">
-                Open Interest: ${formatAmount(totalEpochPurchases, 2, true)}
+                Open Interest: $
+                {formatAmount(totalEpochPurchases * underlyingPrice, 2, true)}
               </span>
             </h6>
           </div>

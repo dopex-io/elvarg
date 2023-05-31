@@ -40,7 +40,7 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
   );
 };
 
-async function getVolume(payload: any, wantContract: string) {
+export async function getVolume(payload: any, wantContract: string) {
   if (!payload.ssov_ssovoptionPurchases) return BigNumber.from(0);
 
   const _twentyFourHourVolume: BigNumber =
