@@ -2322,7 +2322,7 @@ export const createOptionScalpSlice: StateCreator<
     return new ethers.Contract(
       selectedPoolName === 'ETH'
         ? '0x55c7E4cA9b05ED2C69a80B443484c57F61B0D65A'
-        : '0x8c5b7D87D80726768a4a8D0C39690aCAB2F66C3a',
+        : '0xC90Df309b090114eeBF294d7D26CD976FAbEd840',
       optionScalpsABI,
       provider
     );
@@ -2345,7 +2345,7 @@ export const createOptionScalpSlice: StateCreator<
     return OptionScalpsLp__factory.connect(
       selectedPoolName === 'ETH'
         ? '0xbff757B42d9F0B084aF418dFb48004ECAFdbCE6a'
-        : '0x0dd032de45ae834e7950d455084ff4c896ab781c',
+        : '0xAe0d0A22d627ad1D2e438eFD839ADD1f1469e1cf',
       provider
     );
   },
@@ -2357,7 +2357,7 @@ export const createOptionScalpSlice: StateCreator<
     return OptionScalpsLp__factory.connect(
       selectedPoolName === 'ETH'
         ? '0xa42cC29637f728b75Aa7FBdf2D1759f732408913'
-        : '0x79f41545df078ad3b6168fe4c5379101682c4ee3',
+        : '0xFB5Db0193f6613bec1fb9E65e25E8B71e7fBA110',
       provider
     );
   },
@@ -2397,8 +2397,8 @@ export const createOptionScalpSlice: StateCreator<
     return price;
   },
   getScalpPositions: async () => {
+    const accountAddress = '0xDaBad79F4d1cC4C6D1bF5a586138dbDd02Cdd64D';
     const {
-      accountAddress,
       provider,
       getOptionScalpContract,
       getScalpPosition,
@@ -2464,6 +2464,7 @@ export const createOptionScalpSlice: StateCreator<
         ? pnls[index]!.sub(position.premium).sub(position.fees)
         : position.pnl,
       liquidationPrice: calcLiqPrice(position),
+      isOpen: true,
     }));
 
     scalpPositions.reverse();
