@@ -1,10 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+
+import { BigNumber } from 'ethers';
 
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useQuery } from '@tanstack/react-query';
+import graphSdk from 'graphql/graphSdk';
 import isEmpty from 'lodash/isEmpty';
+import queryClient from 'queryClient';
 import { NextSeo } from 'next-seo';
 
 import Typography from 'components/UI/Typography';
@@ -12,10 +16,12 @@ import AppBar from 'components/common/AppBar';
 import SsovCard from 'components/ssov/SsovCard';
 import SsovFilter from 'components/ssov/SsovFilter';
 
+import { getUserReadableAmount } from 'utils/contracts';
 import formatAmount from 'utils/general/formatAmount';
 
 import { CHAINS } from 'constants/chains';
 import { DOPEX_API_BASE_URL } from 'constants/env';
+import { DECIMALS_TOKEN } from 'constants/index';
 import seo from 'constants/seo';
 
 const ssovStrategies: string[] = ['CALL', 'PUT'];
@@ -34,9 +40,36 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
   );
 };
 
+export async function getVolume(payload: any, wantContract: string) {
+  if (!payload.ssov_ssovoptionPurchases) return BigNumber.from(0);
+
+  const _twentyFourHourVolume: BigNumber =
+    payload.ssov_ssovoptionPurchases.reduce((acc: BigNumber, trade: any) => {
+      const address = trade.ssov;
+      if (address.id.toLowerCase() === wantContract.toLowerCase()) {
+        return acc.add(BigNumber.from(trade.amount));
+      } else {
+        return acc;
+      }
+    }, BigNumber.from(0));
+  return _twentyFourHourVolume;
+}
+
 const SsovData = () => {
   const { isLoading, error, data } = useQuery(['ssovData'], () =>
     fetch(`${DOPEX_API_BASE_URL}/v2/ssov`).then((res) => res.json())
+  );
+
+  const { data: tradesData } = useQuery(
+    ['getSsovPurchasesFromTimestamp'],
+    async () =>
+      queryClient.fetchQuery({
+        queryKey: ['getSsovPurchasesFromTimestamp'],
+        queryFn: () =>
+          graphSdk.getSsovPurchasesFromTimestamp({
+            fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
+          }),
+      })
   );
 
   let ssovs: any;
@@ -47,6 +80,7 @@ const SsovData = () => {
   const [selectedSsovTokens, setSelectedSsovTokens] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>('TVL');
+  const [ssovsWithVol, setSsovsWithVol] = useState<any>({});
 
   const tvl = useMemo(() => {
     let total = 0;
@@ -70,6 +104,27 @@ const SsovData = () => {
     if (!ssovs) return [];
     else return [42161, 137];
   }, [ssovs]);
+
+  useEffect(() => {
+    async function getVolumes() {
+      if (!ssovs || !tradesData) return [];
+      let ssovsVol: any = {};
+      for (const key of Object.keys(ssovs)) {
+        for (const so of ssovs[key]) {
+          const volume = await getVolume(tradesData, so.address);
+          if (!ssovsVol[key]) ssovsVol[key] = [];
+          ssovsVol[key].push({
+            ...so,
+            volume:
+              getUserReadableAmount(volume, DECIMALS_TOKEN) *
+              so.underlyingPrice,
+          });
+        }
+      }
+      setSsovsWithVol(ssovsVol);
+    }
+    getVolumes();
+  }, [ssovs, tradesData]);
 
   const ssovsTokens = useMemo(() => {
     if (!ssovs) return [];
@@ -148,14 +203,14 @@ const SsovData = () => {
             showImages={false}
           />
         </Box>
-        {!isEmpty(ssovs)
+        {!isEmpty(ssovsWithVol)
           ? keys.map((key) => {
               return (
                 <Box key={key} className="mb-12">
                   <NetworkHeader chainId={Number(key)} />
                   <Box className="grid xl:grid-cols-3 md:grid-cols-2 grid-cols-1 place-items-center gap-y-10">
-                    {ssovs
-                      ? ssovs[key]
+                    {ssovsWithVol[key]
+                      ? ssovsWithVol[key]
                           .sort(
                             (
                               a: { [x: string]: string },
@@ -172,6 +227,7 @@ const SsovData = () => {
                                 underlyingSymbol: any;
                                 type: string;
                                 retired: any;
+                                volume: number;
                               },
                               index: number
                             ) => {
@@ -187,6 +243,7 @@ const SsovData = () => {
                                   ))
                               )
                                 visible = true;
+
                               return visible ? (
                                 <SsovCard key={index} data={{ ...ssov }} />
                               ) : null;
