@@ -2464,7 +2464,6 @@ export const createOptionScalpSlice: StateCreator<
         ? pnls[index]!.sub(position.premium).sub(position.fees)
         : position.pnl,
       liquidationPrice: calcLiqPrice(position),
-      isOpen: true,
     }));
 
     scalpPositions.reverse();
