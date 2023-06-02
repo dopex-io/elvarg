@@ -67,7 +67,7 @@ export interface SsovV3EpochData {
   rewards: Reward[];
   collateralExchangeRate: BigNumber;
   strikeToIdx: Map<string, number>;
-  volumeInUSD: BigNumber;
+  volumeInUSD: number;
   totalEpochPurchasesInUSD: BigNumber;
 }
 
@@ -257,7 +257,9 @@ export const createSsovV3Slice: StateCreator<
     });
 
     const volume = await getVolume(tradesData, ssovAddress);
-    const volumeInUSD = volume.mul(underlyingPrice);
+    const volumeInUSD =
+      getUserReadableAmount(volume, DECIMALS_TOKEN) *
+      getUserReadableAmount(underlyingPrice, DECIMALS_STRIKE);
 
     const _ssovEpochData = {
       isEpochExpired: epochData.expired,
