@@ -8,8 +8,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useQuery } from '@tanstack/react-query';
 import graphSdk from 'graphql/graphSdk';
 import isEmpty from 'lodash/isEmpty';
-import queryClient from 'queryClient';
 import { NextSeo } from 'next-seo';
+import queryClient from 'queryClient';
 
 import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
@@ -113,11 +113,11 @@ const SsovData = () => {
         for (const so of ssovs[key]) {
           const volume = await getVolume(tradesData, so.address);
           if (!ssovsVol[key]) ssovsVol[key] = [];
+          const volumeInUSD =
+            getUserReadableAmount(volume, DECIMALS_TOKEN) * so.underlyingPrice;
           ssovsVol[key].push({
             ...so,
-            volume:
-              getUserReadableAmount(volume, DECIMALS_TOKEN) *
-              so.underlyingPrice,
+            volume: volumeInUSD,
           });
         }
       }

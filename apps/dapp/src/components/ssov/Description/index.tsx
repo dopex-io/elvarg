@@ -109,16 +109,12 @@ const Description = ({
         </Typography>
         <SsovStat
           name="24h Volume"
-          value={`$${formatAmount(
-            getUserReadableAmount(ssovEpochData.totalEpochPurchasesInUSD, 28),
-            2,
-            true
-          )}`}
+          value={`$${formatAmount(ssovEpochData.volumeInUSD, 2, true)}`}
         />
         <SsovStat
           name="Open Interest"
           value={`$${formatAmount(
-            getUserReadableAmount(ssovEpochData.volumeInUSD, 24),
+            getUserReadableAmount(ssovEpochData.totalEpochPurchasesInUSD, 26),
             2,
             true
           )}`}
