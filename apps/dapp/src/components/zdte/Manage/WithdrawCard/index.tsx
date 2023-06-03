@@ -304,7 +304,7 @@ const Withdraw = () => {
           <Input
             variant="small"
             color="cod-gray"
-            handleChange={handleWithdrawAmount}
+            onChange={handleWithdrawAmount}
             value={tokenWithdrawAmount}
             placeholder="0"
           />

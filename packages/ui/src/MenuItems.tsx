@@ -46,63 +46,63 @@ interface MenuItemsProps<T extends ItemType> {
   handleSelection: React.ReactEventHandler<Element>;
 }
 
-const MenuItems: React.FC<MenuItemsProps<ItemType>> = <T extends ItemType>(
-  props: MenuItemsProps<T>
-) => {
-  const {
-    data,
-    handleSelection,
-    variant = "basic",
-    scrollable = false,
-    topElement = null,
-    ...rest
-  } = props;
+const MenuItems: React.FC<MenuItemsProps<ItemType>> = React.forwardRef(
+  <T extends ItemType>(props: MenuItemsProps<T>) => {
+    const {
+      data,
+      handleSelection,
+      variant = "basic",
+      scrollable = false,
+      topElement = null,
+      ...rest
+    } = props;
 
-  const selectedVariant = VARIANT_CLASSES[variant];
+    const selectedVariant = VARIANT_CLASSES[variant];
 
-  return (
-    <Menu.Items
-      className={`absolute left-50 mt-2 w-56 origin-top-right rounded-[10px] bg-umbra shadow-lg focus:outline-none border border-carbon`}
-      {...rest}
-    >
-      {topElement}
-      <div
-        className={`p-1 min-h-fit ${
-          scrollable ? "max-h-32 overflow-auto" : null
-        }`}
+    return (
+      <Menu.Items
+        className={`absolute left-50 mt-2 w-56 origin-top-right rounded-[10px] bg-umbra shadow-lg focus:outline-none border border-carbon`}
+        {...rest}
       >
-        {data.map((dataItem) => (
-          <Menu.Item>
-            {({ active }: { active: boolean }) => (
-              <button
-                className={`${
-                  selectedVariant["padding"]
-                } flex justify-between rounded-md w-full ${
-                  active ? "bg-carbon" : "bg-umbra"
-                } text-sm ${
-                  Boolean(Object(dataItem)["disabled"])
-                    ? "bg-opacity-50 text-stieglitz cursor-not-allowed"
-                    : "text-white cursor-pointer"
-                }`}
-                onClick={handleSelection}
-                disabled={Boolean(Object(dataItem)["disabled"])}
-              >
-                <div className="flex space-x-2">
-                  {dataItem["icon"] && variant === "icon"
-                    ? (dataItem["icon"] as JSX.Element)
-                    : null}
-                  <div className="flex justify-between">
-                    {Object(dataItem)["textContent"]}
+        {topElement}
+        <div
+          className={`p-1 min-h-fit ${
+            scrollable ? "max-h-32 overflow-auto" : null
+          }`}
+        >
+          {data.map((dataItem, index) => (
+            <Menu.Item key={index}>
+              {({ active }: { active: boolean }) => (
+                <button
+                  className={`${
+                    selectedVariant["padding"]
+                  } flex justify-between rounded-md w-full ${
+                    active ? "bg-carbon" : "bg-umbra"
+                  } text-sm ${
+                    Boolean(Object(dataItem)["disabled"])
+                      ? "bg-opacity-50 text-stieglitz cursor-not-allowed"
+                      : "text-white cursor-pointer"
+                  }`}
+                  onClick={handleSelection}
+                  disabled={Boolean(Object(dataItem)["disabled"])}
+                >
+                  <div className="flex space-x-2">
+                    {dataItem["icon"] && variant === "icon"
+                      ? (dataItem["icon"] as JSX.Element)
+                      : null}
+                    <div className="flex justify-between">
+                      {Object(dataItem)["textContent"]}
+                    </div>
                   </div>
-                </div>
-              </button>
-            )}
-          </Menu.Item>
-        ))}
-      </div>
-    </Menu.Items>
-  );
-};
+                </button>
+              )}
+            </Menu.Item>
+          ))}
+        </div>
+      </Menu.Items>
+    );
+  }
+);
 
 MenuItems.displayName = "MenuItems";
 

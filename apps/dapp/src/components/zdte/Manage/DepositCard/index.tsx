@@ -217,7 +217,7 @@ const Deposit = () => {
           <Input
             variant="small"
             color="cod-gray"
-            handleChange={handleDepositAmount}
+            onChange={handleDepositAmount}
             placeholder="0"
             value={amount}
           />

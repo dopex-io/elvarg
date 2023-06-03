@@ -1,9 +1,11 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { Button } from '@dopex-io/ui';
-import Countdown from 'react-countdown';
+import { format } from 'date-fns';
+import useVaultQuery from 'hooks/vaults/query';
+import useVaultState from 'hooks/vaults/state';
+import useFetchStrikes from 'hooks/vaults/strikes';
 import { Column, useTable } from 'react-table';
-import { useBoundStore } from 'store';
 import PlusIcon from 'svgs/icons/PlusIcon';
 
 import { DurationType } from 'store/Vault/vault';
@@ -11,138 +13,134 @@ import { DurationType } from 'store/Vault/vault';
 import Placeholder from 'components/vaults/Tables/Placeholder';
 import FilterPanel from 'components/vaults/Tables/StrikesChain/FilterPanel';
 
-import { getUserReadableAmount } from 'utils/contracts';
-import { formatAmount } from 'utils/general';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
-import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
+import { DECIMALS_TOKEN } from 'constants/index';
 
 export type MenuDataType = { textContent: DurationType }[];
 
-const DURATION_TYPE_OPTIONS: MenuDataType = [
-  {
-    textContent: 'WEEKLY',
-  },
-  {
-    textContent: 'MONTHLY',
-  },
-];
+const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
+  const vault = useVaultState((vault) => vault.vault);
+  const setActiveStrikeIndex = useVaultState(
+    (vault) => vault.setActiveStrikeIndex
+  );
+  const activeStrikeIndex = useVaultState((vault) => vault.activeStrikeIndex);
+  const { selectedVault, vaults, updateSelectedVault } = useVaultQuery({
+    vaultSymbol: selectedToken,
+  });
+  const strikes = useFetchStrikes({
+    contractAddress: selectedVault?.contractAddress,
+    epoch: selectedVault?.currentEpoch,
+  });
 
-const StrikesChain = () => {
-  const { isLoading, selectedVaultData, filter } = useBoundStore();
-
-  const [activeStrike, setActiveStrike] = useState<number>(0);
+  useEffect(() => {
+    updateSelectedVault(vault.durationType, vault.isPut as boolean);
+  }, [updateSelectedVault, vault]);
 
   const strikeData = useMemo(() => {
-    if (!selectedVaultData || !selectedVaultData.epochData) return [];
+    if (
+      !strikes.epochStrikeData ||
+      !strikes.data ||
+      !strikes.data[0] ||
+      !strikes.data[0].expiry ||
+      !vaults
+    )
+      return [];
 
-    const handleActiveStrike = (index: number) => {
-      setActiveStrike(index);
-    };
-
-    return selectedVaultData.epochData.strikeData.map((strikeData, idx) => {
-      if (!strikeData) return [];
-      const availableCollateralPercentage =
-        ((getUserReadableAmount(strikeData.totalCollateral, DECIMALS_TOKEN) -
-          getUserReadableAmount(strikeData.activeCollateral, DECIMALS_TOKEN)) /
-          getUserReadableAmount(strikeData.totalCollateral, DECIMALS_TOKEN)) *
-          100 || 0;
-
-      const totalAvailable = getUserReadableAmount(
-        strikeData.totalCollateral.div(
-          selectedVaultData.epochData?.collateralExchangeRate ?? '1'
-        ),
-        10
-      );
-
-      const totalPurchased = getUserReadableAmount(
-        strikeData.activeCollateral.div(
-          selectedVaultData.epochData?.collateralExchangeRate ?? '1'
-        ),
-        10
-      );
-
+    return strikes.epochStrikeData.map((strikeData, index) => {
       return {
+        asset: (
+          <span className="space-x-2 text-left">
+            <img
+              src={`images/tokens/${vault.base.toLowerCase()}.svg`}
+              alt={vault.base.toLowerCase()}
+              className="w-6 h-6"
+            />
+          </span>
+        ),
         strike: (
           <span className="space-x-2 text-left">
-            <p className="text-stieglitz font-bold inline-block">$</p>
-            <p className="inline-block">
-              {getUserReadableAmount(strikeData.strike, DECIMALS_STRIKE)}
-            </p>
+            <p className="text-stieglitz inline-block">$</p>
+            <p className="inline-block">{strikeData.strike}</p>
           </span>
         ),
         availableCollateral: (
-          <span className="space-y-1">
+          <span className="space-y-1 text-xs">
             <span className="space-x-2">
-              <p className="inline-block">{formatAmount(totalAvailable, 3)}</p>
-              <p className="text-stieglitz font-bold inline-block">
-                {filter.base}
+              <p className="inline-block">
+                {formatAmount(strikeData.totalAvailableCollateral, 3)}
               </p>
+              <p className="text-stieglitz inline-block">{vault.base}</p>
             </span>
             <p className="text-stieglitz text-xs">
-              {formatAmount(availableCollateralPercentage, 2)}%
+              {formatAmount(strikeData.availableCollateralPercentage, 3)}%
             </p>
           </span>
         ),
         premiumsAccrued: (
           <span className="space-x-2">
-            <p className="inline-block">{totalPurchased}</p>
-            <p className="text-stieglitz font-bold inline-block">
-              {filter.base}
+            <p className="inline-block">
+              {formatAmount(strikeData.totalPurchased, 3)}
             </p>
           </span>
         ),
         expiry: (
           <p className="inline-block">
-            <Countdown
-              date={new Date(strikeData.expiry.toNumber() * 1000)}
-              renderer={({ days, hours, minutes }) => {
-                return (
-                  <span className="flex space-x-2">
-                    <img
-                      src="/assets/timer.svg"
-                      className="h-[0.9rem] my-auto"
-                      alt="timer"
-                    />
-                    <span className="ml-auto mr-1">
-                      {days}d {hours}h {minutes}m
-                    </span>
-                  </span>
-                );
-              }}
-            />
+            {format(
+              new Date(strikes.data![0].expiry.toNumber() * 1000),
+              'dd LLL yyy'
+            )}
           </p>
         ),
         button: (
           <Button
-            id={`strike-chain-button-${idx}`}
-            key={idx}
+            id={`strike-chain-button-${index}`}
+            key={index}
             color="mineshaft"
-            onClick={() => handleActiveStrike(idx)}
-            className={`w-fit space-x-2 ${
-              idx === activeStrike ? 'ring-1 ring-frost animate-pulse' : null
+            onClick={() => setActiveStrikeIndex(index)}
+            className={`w-fit space-x-2 text-xs ${
+              index === activeStrikeIndex
+                ? 'ring-1 ring-frost animate-pulse'
+                : null
             }`}
           >
             <p className="text-stieglitz my-auto inline-block">
-              {strikeData.isPut ? '$' : filter.base}
+              {vault.isPut ? '$' : vault.base}
             </p>
             <p className="inline-block">
-              {getUserReadableAmount(
-                strikeData.premiumPerOption,
-                DECIMALS_TOKEN
-              ).toFixed(3)}
+              {formatAmount(
+                getUserReadableAmount(
+                  strikeData.premiumPerOption,
+                  DECIMALS_TOKEN
+                ),
+                3
+              )}
             </p>
             <PlusIcon
-              className="my-auto w-[12px] h-[12px] inline-block"
+              className="w-[10px] h-[10px] inline-block"
               color="#8E8E8E"
             />
           </Button>
         ),
       };
     });
-  }, [activeStrike, filter.base, selectedVaultData]);
+  }, [
+    strikes.epochStrikeData,
+    strikes.data,
+    vaults,
+    vault.base,
+    vault.isPut,
+    activeStrikeIndex,
+    setActiveStrikeIndex,
+  ]);
 
   const columns: Array<Column> = useMemo(() => {
     return [
+      {
+        Header: 'Asset',
+        accessor: 'asset',
+      },
       {
         Header: 'Strike Price',
         accessor: 'strike',
@@ -152,7 +150,7 @@ const StrikesChain = () => {
         accessor: 'availableCollateral',
       },
       {
-        Header: 'Total Purchased',
+        Header: 'Purchased',
         accessor: 'premiumsAccrued',
       },
       {
@@ -174,24 +172,29 @@ const StrikesChain = () => {
   return (
     <div className="space-y-2 bg-cod-gray rounded-lg py-3">
       <div className="relative h-12 mx-3">
-        <FilterPanel isPut={filter.isPut} expiries={DURATION_TYPE_OPTIONS} />
+        {vaults[0] && (
+          <FilterPanel
+            selectedToken={selectedToken}
+            isPut={vault.isPut}
+            durationType={vault.durationType}
+          />
+        )}
       </div>
       <div className="overflow-x-auto">
-        {strikeData.length > 0 ? (
+        {strikeData.length > 0 && !strikes.isLoading ? (
           <table {...getTableProps()} className="bg-cod-gray rounded-lg w-full">
             <thead className="border-b border-umbra sticky">
               {headerGroups.map((headerGroup: any, index: number) => (
                 <tr {...headerGroup.getHeaderGroupProps()} key={index}>
                   {headerGroup.headers.map((column: any, index: number) => {
                     let textAlignment;
-                    if (index === length - 1) {
+                    if (index === 0) {
                       textAlignment = 'text-left';
-                    } else if (index === 0) {
-                      textAlignment = 'text-left';
-                    } else {
+                    } else if (index === columns.length - 1) {
                       textAlignment = 'text-right';
+                    } else {
+                      textAlignment = 'text-left';
                     }
-
                     return (
                       <th
                         {...column.getHeaderProps()}
@@ -221,12 +224,12 @@ const StrikesChain = () => {
                   >
                     {row.cells.map((cell, index) => {
                       let textAlignment;
-                      if (index === length - 1) {
+                      if (index === 0) {
                         textAlignment = 'text-left';
-                      } else if (index === 0) {
-                        textAlignment = 'text-left';
-                      } else {
+                      } else if (index === columns.length - 1) {
                         textAlignment = 'text-right';
+                      } else {
+                        textAlignment = 'text-left';
                       }
                       return (
                         <td
@@ -244,7 +247,7 @@ const StrikesChain = () => {
             </tbody>
           </table>
         ) : (
-          <Placeholder isLoading={isLoading} />
+          <Placeholder isLoading={strikes.isLoading} />
         )}
       </div>
     </div>

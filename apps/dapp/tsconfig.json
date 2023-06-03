@@ -4,7 +4,8 @@
     "baseUrl": "src",
     "paths": {
       "public/*": ["../public/*"]
-    }
+    },
+    "target": "EsNext"
   },
   "include": [
     "next-env.d.ts",

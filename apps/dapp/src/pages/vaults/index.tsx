@@ -1,72 +1,30 @@
-import { useEffect /*, useState */ } from 'react';
+import { useCallback, useState } from 'react';
 
-// import dynamic from 'next/dynamic';
 import Head from 'next/head';
 
-// import Script from 'next/script';
-
-// import {
-//   ChartingLibraryWidgetOptions,
-//   ResolutionString,
-// } from 'public/static/charting_library/charting_library';
-import { useBoundStore } from 'store';
-
-import { DurationType } from 'store/Vault/vault';
+import useVaultState, { Vault } from 'hooks/vaults/state';
 
 import AppBar from 'components/common/AppBar';
 import AsidePanel from 'components/vaults/AsidePanel';
+import Positions from 'components/vaults/Tables/Positions';
 import StrikesChain from 'components/vaults/Tables/StrikesChain';
 import TitleBar from 'components/vaults/TitleBar';
 
-// todo replace
-// const defaultWidgetProps: Partial<ChartingLibraryWidgetOptions> = {
-//   symbol: 'AMZN',
-//   interval: '1D' as ResolutionString,
-//   library_path: '/static/charting_library/',
-//   locale: 'en',
-//   charts_storage_url: 'https://saveload.tradingview.com',
-//   charts_storage_api_version: '1.1',
-//   client_id: 'tradingview.com',
-//   user_id: 'public_user_id',
-//   fullscreen: false,
-//   autosize: true,
-// };
-
-// const TVChartContainer = dynamic(
-//   () => import('components/common/TVContainer').then((mod) => mod.default),
-//   { ssr: false }
-// );
-
 const Vaults = () => {
-  const {
-    provider,
-    updateSelectedVaultData,
-    updateVaultsBatch,
-    vaultsBatch,
-    updateFromBatch,
-  } = useBoundStore();
+  const update = useVaultState((vault) => vault.update);
+  const vault = useVaultState((vault) => vault.vault);
+  const [selectedToken, setSelectedToken] = useState<string>('ETH');
 
-  useEffect(() => {
-    const cache: {
-      state: {
-        filter: {
-          isPut: {
-            isPut: boolean;
-          };
-          base: string;
-          durationType: DurationType;
-        };
-      };
-    } = JSON.parse(localStorage.getItem('app.dopex.io/vaults/cache') || '');
-    if (vaultsBatch.length !== 0 || !cache.state.filter) return;
-
-    updateVaultsBatch(cache.state.filter.base);
-  }, [
-    updateSelectedVaultData,
-    provider,
-    updateVaultsBatch,
-    vaultsBatch.length,
-  ]);
+  const handleSelectToken = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSelectedToken(e.target.innerText);
+      update({
+        ...vault,
+        base: e.target.innerText,
+      } as Vault);
+    },
+    [update, vault]
+  );
 
   return (
     <div className="bg-black bg-contain min-h-screen">
@@ -74,30 +32,24 @@ const Vaults = () => {
         <title>Vaults | Dopex</title>
       </Head>
       <AppBar active="Vaults" />
-      <div className="py-8 w-full px-[10vw] mx-auto">
-        <div className="flex mt-20 space-x-0 lg:space-x-8 flex-col sm:flex-col md:flex-col lg:flex-row">
-          <div className="flex flex-col space-y-8 w-full sm:w-full lg:w-3/4 h-full">
+      <div className="py-8 w-full px-[8vw] lg:px-[18vw] mx-auto">
+        <div className="flex mt-20 space-x-0 lg:space-x-6 flex-col sm:flex-col md:flex-col lg:flex-row">
+          <div className="flex flex-col space-y-4 w-full sm:w-full lg:w-3/4 h-full">
             <div>
-              <TitleBar />
+              <TitleBar
+                selectedToken={selectedToken}
+                handleSelectToken={handleSelectToken}
+              />
             </div>
             <div className="w-full space-y-4 flex flex-col">
-              {/* <Script
-                src="/static/datafeeds/udf/dist/bundle.js"
-                strategy="lazyOnload"
-                onReady={() => {
-                  setIsScriptReady(true);
-                }}
-              />
-              {isScriptReady && (
-                <TVChartContainer
-                  {...defaultWidgetProps}
-                  className="rounded-xl h-[35vh]"
-                />
-              )} */}
+              {/* Placeholder */}
+              <div className="h-[420px] bg-cod-gray rounded-lg text-center flex flex-col justify-center text-stieglitz">
+                TV Chart
+              </div>
             </div>
             <div className="w-full space-y-4">
-              <StrikesChain />
-              <div>Bottom Table</div>
+              <StrikesChain selectedToken={selectedToken} />
+              <Positions />
             </div>
           </div>
           <div className="flex flex-col w-full sm:w-full lg:w-1/4 h-full mt-4 lg:mt-0">
