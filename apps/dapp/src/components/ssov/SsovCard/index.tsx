@@ -1,6 +1,6 @@
-import Link from 'next/link';
-
 import { useMemo } from 'react';
+
+import Link from 'next/link';
 
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
@@ -48,6 +48,9 @@ function SsovCard(props: any) {
     retired,
     symbol,
     epochTimes,
+    volume,
+    totalEpochPurchases,
+    underlyingPrice,
   } = data;
 
   const name = underlyingSymbol as string;
@@ -141,6 +144,19 @@ function SsovCard(props: any) {
               </Tooltip>
             ) : null}
           </Box>
+          <div className="flex justify-between">
+            <h6>
+              <span className="text-sm">
+                24h Volume: ${formatAmount(volume, 2, true)}
+              </span>
+            </h6>
+            <h6>
+              <span className="text-sm">
+                Open Interest: $
+                {formatAmount(totalEpochPurchases * underlyingPrice, 2, true)}
+              </span>
+            </h6>
+          </div>
         </Box>
       </Box>
     </CustomBox>

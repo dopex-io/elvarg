@@ -1,11 +1,12 @@
+import { useCallback, useEffect, useState } from 'react';
+
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
-import { useCallback, useEffect, useState } from 'react';
-
 import Box from '@mui/material/Box';
 import axios from 'axios';
+import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
 import { GmxCandleStick } from 'types';
 
@@ -14,6 +15,8 @@ import Tables from 'components/atlantics/InsuredPerps/Tables';
 import Title from 'components/atlantics/InsuredPerps/Title';
 import AppBar from 'components/common/AppBar';
 import SignerButton from 'components/common/SignerButton';
+
+import seo from 'constants/seo';
 
 export const periods = ['1D', '4H', '1H', '15M', '5M'] as const;
 export type Period = (typeof periods)[number];
@@ -206,10 +209,34 @@ const InsuredLongPerps = () => {
   const router = useRouter();
   const ticker = router.query['ticker'] as string;
 
-  if (!ticker) return null;
+  const [underlying, depositToken] = ticker ? ticker.split('-') : ['', ''];
 
-  const [underlying, depositToken] = ticker.split('-');
-  return <Main underlying={underlying} depositToken={depositToken} />;
+  return (
+    <>
+      <NextSeo
+        title={seo.insuredPerps.title}
+        description={seo.insuredPerps.description}
+        canonical={seo.insuredPerps.url}
+        openGraph={{
+          url: seo.insuredPerps.url,
+          title: `${seo.insuredPerps.title}`,
+          description: seo.insuredPerps.description,
+          images: [
+            {
+              url: seo.insuredPerps.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.insuredPerps.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
+      {ticker ? (
+        <Main underlying={underlying} depositToken={depositToken} />
+      ) : null}
+    </>
+  );
 };
 
 export default InsuredLongPerps;

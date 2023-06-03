@@ -1,11 +1,10 @@
-import Head from 'next/head';
-
 import { useEffect, useState } from 'react';
 
 import { BigNumber } from 'ethers';
 
 import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
+import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
 import { Farm, FarmData, UserData } from 'types/farms';
 
@@ -21,6 +20,7 @@ import ManageDialog, {
 import QuickLinks from 'components/farms/QuickLinks';
 
 import { FARMS } from 'constants/farms';
+import seo from 'constants/seo';
 
 const CustomBox = styled(Box)`
   @media (min-width: 1100px) {
@@ -103,9 +103,25 @@ const Farms = () => {
 
   return (
     <Box className="overflow-x-hidden bg-black text-white min-h-screen">
-      <Head>
-        <title>Farms | Dopex</title>
-      </Head>
+      <NextSeo
+        title={seo.farms.title}
+        description={seo.farms.description}
+        canonical={seo.farms.url}
+        openGraph={{
+          url: seo.farms.url,
+          title: seo.farms.title,
+          description: seo.farms.description,
+          images: [
+            {
+              url: seo.farms.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.farms.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
       {chainId !== 42161 ? <FarmingMigrationBanner /> : null}
       <AppBar active="Stake" />
       <SushiMigrationBanner />

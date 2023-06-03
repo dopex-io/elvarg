@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { ReactNode, useMemo, useState } from 'react';
 
 import cx from 'classnames';
 import format from 'date-fns/format';
@@ -18,6 +18,15 @@ import formatAmount from 'utils/general/formatAmount';
 import EpochSelector from '../EpochSelector';
 import InfoBox from '../InfoBox';
 import PurchaseDialog from '../PurchaseDialog';
+
+const SsovStat = ({ name, value }: { name: ReactNode; value: ReactNode }) => (
+  <div className="flex flex-col px-2 py-1 ml-1">
+    <span className="text-white text-[0.5rem] sm:text-[0.8rem]">{value}</span>
+    <span className="text-stieglitz text-[0.5rem] sm:text-[0.8rem]">
+      {name}
+    </span>
+  </div>
+);
 
 const Description = ({
   ssovData,
@@ -75,7 +84,7 @@ const Description = ({
   ];
 
   return (
-    <div className="flex flex-col md:mr-5 w-full md:w-[400px]">
+    <div className="flex flex-col md:mr-5 w-full md:w-[480px]">
       <div className="flex">
         <Typography variant="h1" className="mb-6 flex items-center space-x-3">
           <span>{ssovData.underlyingSymbol}</span>
@@ -98,6 +107,18 @@ const Description = ({
             2
           )}
         </Typography>
+        <SsovStat
+          name="24h Volume"
+          value={`$${formatAmount(ssovEpochData.volumeInUSD, 2, true)}`}
+        />
+        <SsovStat
+          name="Open Interest"
+          value={`$${formatAmount(
+            getUserReadableAmount(ssovEpochData.totalEpochPurchasesInUSD, 26),
+            2,
+            true
+          )}`}
+        />
       </div>
       <Typography variant="h5" className="text-stieglitz mb-6">
         <span className="text-white">

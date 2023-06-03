@@ -11,6 +11,9 @@ import {
   SsovV3__factory,
 } from '@dopex-io/sdk';
 import axios from 'axios';
+import graphSdk from 'graphql/graphSdk';
+import { getVolume } from 'pages/ssov';
+import queryClient from 'queryClient';
 import { TokenData } from 'types';
 import { StateCreator } from 'zustand';
 
@@ -20,6 +23,7 @@ import { WalletSlice } from 'store/Wallet';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { DOPEX_API_BASE_URL } from 'constants/env';
+import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 import { TOKEN_ADDRESS_TO_DATA } from 'constants/tokens';
 
 export interface SsovV3Signer {
@@ -63,6 +67,8 @@ export interface SsovV3EpochData {
   rewards: Reward[];
   collateralExchangeRate: BigNumber;
   strikeToIdx: Map<string, number>;
+  volumeInUSD: number;
+  totalEpochPurchasesInUSD: BigNumber;
 }
 
 export interface WritePositionInterface {
@@ -234,6 +240,27 @@ export const createSsovV3Slice: StateCreator<
         getUserReadableAmount(underlyingPrice, 8)
       : getUserReadableAmount(totalEpochDeposits, 18);
 
+    const totalEpochPurchases = totalEpochOptionsPurchased.reduce(
+      (accumulator, val) => {
+        return accumulator.add(val);
+      },
+      BigNumber.from(0)
+    );
+    const totalEpochPurchasesInUSD = totalEpochPurchases.mul(underlyingPrice);
+
+    const tradesData = await queryClient.fetchQuery({
+      queryKey: ['getSsovPurchasesFromTimestamp'],
+      queryFn: () =>
+        graphSdk.getSsovPurchasesFromTimestamp({
+          fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
+        }),
+    });
+
+    const volume = await getVolume(tradesData, ssovAddress);
+    const volumeInUSD =
+      getUserReadableAmount(volume, DECIMALS_TOKEN) *
+      getUserReadableAmount(underlyingPrice, DECIMALS_STRIKE);
+
     const _ssovEpochData = {
       isEpochExpired: epochData.expired,
       settlementPrice: epochData.settlementPrice,
@@ -257,6 +284,8 @@ export const createSsovV3Slice: StateCreator<
       rewards: rewardsPayLoad.data.rewards,
       collateralExchangeRate: epochData.collateralExchangeRate,
       strikeToIdx: strikeToIdx,
+      volumeInUSD: volumeInUSD,
+      totalEpochPurchasesInUSD: totalEpochPurchasesInUSD,
     };
 
     set((prevState) => ({ ...prevState, ssovEpochData: _ssovEpochData }));

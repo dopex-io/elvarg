@@ -1,13 +1,13 @@
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-
 import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { useRouter } from 'next/router';
 
 import { ethers } from 'ethers';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
+import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
@@ -22,6 +22,7 @@ import TopBar from 'components/scalps/TopBar';
 import TradeCard from 'components/scalps/TradeCard';
 
 import { CHAINS } from 'constants/chains';
+import seo from 'constants/seo';
 
 // const SHOWCHARTS = false;
 
@@ -135,9 +136,6 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
   return (
     <>
       <Box className="bg-black flex w-screen items-center justify-center">
-        <Head>
-          <title>Option Scalps | Dopex</title>
-        </Head>
         <AppBar active="Scalps" />
         <Box className="my-12 mx-[15%]">
           <Box className="mt-8 sm:mt-14 md:mt-20 lg:mr-full">
@@ -193,7 +191,30 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
 const ManagePage = () => {
   const router = useRouter();
   const poolName = router.query['poolName'] as string;
-  return <OptionScalps poolName={poolName} />;
+  return (
+    <>
+      <NextSeo
+        title={seo.scalps.title}
+        description={seo.scalps.description}
+        canonical={seo.scalps.url}
+        openGraph={{
+          url: seo.scalps.url,
+          title: seo.scalps.title,
+          description: seo.scalps.description,
+          images: [
+            {
+              url: seo.scalps.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.scalps.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
+      <OptionScalps poolName={poolName} />
+    </>
+  );
 };
 
 export default ManagePage;

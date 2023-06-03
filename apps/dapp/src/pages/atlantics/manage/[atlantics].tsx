@@ -1,9 +1,10 @@
+import { useEffect, useMemo } from 'react';
+
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
-import { useEffect, useMemo } from 'react';
-
 import Box from '@mui/material/Box';
+import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
@@ -15,6 +16,7 @@ import UserDepositsTable from 'components/atlantics/Manage/UserDepositsTable';
 import AppBar from 'components/common/AppBar';
 
 import { ATLANTIC_POOL_INFO } from 'constants/atlanticPoolsInfo';
+import seo from 'constants/seo';
 
 // Placeholder data for charts
 const line_chart_data = [
@@ -103,7 +105,7 @@ export const Manage = (props: ManageProps) => {
   return (
     <Box className="bg-black bg-contain bg-no-repeat h-screen">
       <Head>
-        <title>Atlantics | Dopex</title>
+        <title>{`${tokenId} ${seo.insuredPerpsLP.title}`}</title>
       </Head>
       <AppBar active="Atlantics" />
       <Box className="py-12 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
@@ -156,17 +158,38 @@ const ManagePage = () => {
   const router = useRouter();
   const atlantics = router.query['atlantics'] as string;
 
-  if (!atlantics) return null;
-
-  const split: string[] = atlantics.split('-');
+  const split: string[] = atlantics ? atlantics.split('-') : ['', '', ''];
 
   return (
-    <Manage
-      tokenId={atlantics}
-      underlying={split[0]!}
-      type={split[1]!}
-      duration={split[2]!}
-    />
+    <>
+      <NextSeo
+        title={seo.insuredPerpsLP.title}
+        description={seo.insuredPerpsLP.description}
+        canonical={seo.insuredPerpsLP.url}
+        openGraph={{
+          url: seo.insuredPerpsLP.url,
+          title: seo.insuredPerpsLP.title,
+          description: seo.insuredPerpsLP.description,
+          images: [
+            {
+              url: seo.insuredPerpsLP.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.insuredPerpsLP.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
+      {atlantics ? (
+        <Manage
+          tokenId={atlantics}
+          underlying={split[0]!}
+          type={split[1]!}
+          duration={split[2]!}
+        />
+      ) : null}
+    </>
   );
 };
 
