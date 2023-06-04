@@ -463,8 +463,8 @@ const DepositPanel = () => {
       </Box>
       {!isTokenSelectorOpen && (
         <Box>
-          <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full">
-            <Box className="mt-2 flex">
+          <Box className="rounded-lg p-0 mt-4 border border-neutral-800 w-full">
+            <Box className="flex">
               <Box className={'w-full'}>
                 <Select
                   className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
