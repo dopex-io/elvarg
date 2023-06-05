@@ -158,11 +158,11 @@ const TradeCard = () => {
     const _limitPrice = Number(rawLimitPrice);
 
     if (isShort) {
-      return _limitPrice < _markPrice * 1.001
+      return _limitPrice < _markPrice * 1.0001
         ? 'Entry limit price is too low'
         : null;
     } else {
-      return _limitPrice > _markPrice * 0.999
+      return _limitPrice > _markPrice * 0.9999
         ? 'Entry limit price is too high'
         : null;
     }
@@ -331,9 +331,17 @@ const TradeCard = () => {
               optionScalpData?.baseDecimals!.toNumber());
 
         const spacing = 10;
-        const tick0 =
-          Math.round(Math.log(limitPrice) / Math.log(1.0001) / 10) * 10;
-        const tick1 = tick0 + spacing;
+
+        let tick0;
+        let tick1;
+
+        if (isShort) {
+          tick0 = Math.round(Math.log(limitPrice) / Math.log(1.0001) / 10) * 10;
+          tick1 = tick0 + spacing;
+        } else {
+          tick1 = Math.round(Math.log(limitPrice) / Math.log(1.0001) / 10) * 10;
+          tick0 = tick1 - spacing;
+        }
 
         await sendTx(
           optionScalpData.limitOrdersContract.connect(signer),
