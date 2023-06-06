@@ -199,12 +199,22 @@ const TradeCard = () => {
     } else if (limitError) {
       _props.disabled = true;
       _props.text = limitError;
+    } else if (
+      positionDetails.sizeInQuote > isShort
+        ? optionScalpData?.totalBaseAvailable
+            .mul(markPrice)
+            .div(10 ** optionScalpData?.quoteDecimals!.toNumber())
+        : optionScalpData?.totalQuoteAvailable
+    ) {
+      _props.disabled = true;
+      _props.text = 'Insufficient Liquidity';
     }
 
     return _props;
   }, [
+    markPrice,
     approved,
-    positionDetails.marginInQuote,
+    positionDetails,
     userTokenBalance,
     optionScalpData,
     selectedPoolName,
