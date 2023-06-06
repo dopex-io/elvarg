@@ -136,7 +136,7 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
   return (
     <>
       <Box className="bg-black flex w-screen items-center justify-center">
-        <AppBar active="Scalps" />
+        <AppBar />
         <Box className="my-12 mx-[15%]">
           <Box className="mt-8 sm:mt-14 md:mt-20 lg:mr-full">
             <TopBar />

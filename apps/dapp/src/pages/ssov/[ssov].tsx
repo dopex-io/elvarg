@@ -33,7 +33,7 @@ const SsovV3Page = () => {
           ],
         }}
       />
-      <AppBar active="SSOV" />
+      <AppBar />
       <Manage ssov={ssov} />
     </div>
   );
