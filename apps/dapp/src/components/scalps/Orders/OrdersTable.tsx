@@ -1,6 +1,6 @@
-import Link from 'next/link';
-
 import { useCallback, useMemo } from 'react';
+
+import Link from 'next/link';
 
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
@@ -18,6 +18,7 @@ const OrdersTable = () => {
     optionScalpUserData,
     optionScalpData,
     updateOptionScalpUserData,
+    getScalpOrders,
   } = useBoundStore();
 
   const sendTx = useSendTx();
@@ -146,6 +147,7 @@ const OrdersTable = () => {
         );
       }
       await updateOptionScalpUserData();
+      await getScalpOrders();
     },
     [optionScalpData, sendTx, signer, updateOptionScalpUserData]
   );
