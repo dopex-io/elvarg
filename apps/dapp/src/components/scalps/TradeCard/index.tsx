@@ -148,7 +148,7 @@ const TradeCard = () => {
   }, []);
 
   const limitError = useMemo(() => {
-    if (!optionScalpData) return null;
+    if (!optionScalpData || orderType === 'Market') return null;
 
     const _markPrice = getUserReadableAmount(
       optionScalpData?.markPrice!,
@@ -166,7 +166,7 @@ const TradeCard = () => {
         ? 'Entry limit price is too high'
         : null;
     }
-  }, [isShort, rawLimitPrice, markPrice, optionScalpData]);
+  }, [isShort, rawLimitPrice, markPrice, optionScalpData, orderType]);
 
   const tradeButtonProps = useMemo(() => {
     let _props = {
