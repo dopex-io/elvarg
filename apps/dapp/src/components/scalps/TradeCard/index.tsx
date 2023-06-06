@@ -146,7 +146,7 @@ const TradeCard = () => {
   }, [optionScalpData, setRawLimitPrice]);
 
   const roundedLimitPrice = useMemo(() => {
-    if (isNaN(Number(rawLimitPrice))) return;
+    if (isNaN(Number(rawLimitPrice)) || !optionScalpData) return;
 
     const limitPrice =
       Number(rawLimitPrice) *
