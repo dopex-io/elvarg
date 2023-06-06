@@ -133,6 +133,42 @@ const TradeCard = () => {
     }
   }, [posSize, optionScalpData, selectedTimeWindow]);
 
+  const setMaximumTick = useCallback(() => {
+    const _markPrice = getUserReadableAmount(
+      optionScalpData?.markPrice!,
+      optionScalpData?.quoteDecimals!.toNumber()!
+    );
+
+    let tick =
+      Math.round(Math.log(_markPrice) / Math.log(1.0001) / 10) * 10 - 10;
+
+    setRawLimitPrice((1.0001 ** tick).toFixed(4));
+  }, [optionScalpData, setRawLimitPrice]);
+
+  const roundedLimitPrice = useMemo(() => {
+    if (isNaN(Number(rawLimitPrice))) return;
+
+    const limitPrice =
+      Number(rawLimitPrice) *
+      10 **
+        (optionScalpData?.quoteDecimals!.toNumber() -
+          optionScalpData?.baseDecimals!.toNumber());
+
+    let tick0;
+    let tick1;
+    const spacing = 0;
+
+    if (isShort) {
+      tick0 = Math.round(Math.log(limitPrice) / Math.log(1.0001) / 10) * 10;
+      tick1 = tick0 + spacing;
+    } else {
+      tick1 = Math.round(Math.log(limitPrice) / Math.log(1.0001) / 10) * 10;
+      tick0 = tick1 - spacing;
+    }
+
+    return (1.0001 ** ((tick0 + tick1) / 2) * 10 ** 12).toFixed(4);
+  }, [rawLimitPrice]);
+
   useEffect(() => {
     calcPremium();
   }, [calcPremium]);
@@ -159,11 +195,11 @@ const TradeCard = () => {
 
     if (isShort) {
       return _limitPrice < _markPrice * 1.0001
-        ? 'Entry limit price is too low'
+        ? `Short entry limit price is below the current price, please set limit price higher than ${_markPrice}`
         : null;
     } else {
       return _limitPrice > _markPrice * 0.9999
-        ? 'Entry limit price is too high'
+        ? `Long entry limit price is above the current price, please set limit price lower than ${_markPrice}`
         : null;
     }
   }, [isShort, rawLimitPrice, markPrice, optionScalpData, orderType]);
@@ -598,8 +634,19 @@ const TradeCard = () => {
               className={`mt-2 border border-mineshaft rounded-md px-2 bg-umbra w-full !w-auto`}
               classes={{ input: 'text-white text-xs text-left py-2' }}
             />
+            <p className="text-xs text-stieglitz mt-2.5">
+              Your price will be rounded to {roundedLimitPrice}
+            </p>
             {limitError ? (
-              <p className="text-xs text-red-400 mt-2.5">{limitError}</p>
+              <div className="mr-2">
+                <p className="text-xs text-red-400 mt-2.5">{limitError}</p>
+                <p
+                  className="text-xs text-white mt-2.5 mr-2 cursor-pointer"
+                  onClick={setMaximumTick}
+                >
+                  {'-> Click here to choose closest tick to spot <-'}
+                </p>
+              </div>
             ) : null}
           </div>
         ) : null}
