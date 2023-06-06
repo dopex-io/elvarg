@@ -470,10 +470,6 @@ const TradeCard = () => {
     orderType,
   ]);
 
-  const handleCheckbox = useCallback((event: any) => {
-    setShowAsQuote(event.target.checked);
-  }, []);
-
   const handleOrderTypeToggle = useCallback(() => {
     setOrderType(orderType === 'Market' ? 'Limit' : 'Market');
   }, [orderType]);
@@ -539,17 +535,6 @@ const TradeCard = () => {
           }
           checked={orderType === 'Limit'}
           onChange={handleOrderTypeToggle}
-        />
-
-        <p className="text-xs text-stieglitz mr-2 ml-3">
-          Show as {optionScalpData?.quoteSymbol}
-        </p>
-        <Checkbox
-          // @ts-ignore
-          size="xs"
-          className={showAsQuote ? 'p-0 text-white' : 'p-0 text-white border'}
-          checked={showAsQuote}
-          onChange={handleCheckbox}
         />
       </div>
       <div className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">

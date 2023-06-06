@@ -40,6 +40,7 @@ const OrdersTable = () => {
     'isOpen',
     'price',
     'collateral',
+    'expiry',
     'transactionHash',
   ];
 

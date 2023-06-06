@@ -202,6 +202,7 @@ const Stats = () => {
             true
           )}%`}
         />
+        <Stat name={`FUNDING LP APR`} value={`18.5%`} />
       </div>
     </div>
   );
