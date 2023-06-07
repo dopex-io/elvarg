@@ -1,10 +1,6 @@
-import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
-
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-
 import { ethers } from 'ethers';
-
-import { Button } from '@dopex-io/ui';
 import MenuIcon from '@mui/icons-material/Menu';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import IconButton from '@mui/material/IconButton';
@@ -13,20 +9,16 @@ import MenuItem from '@mui/material/MenuItem';
 import axios from 'axios';
 import { useBoundStore } from 'store';
 import { useNetwork } from 'wagmi';
-
 import PriceCarousel from 'components/common/AppBar/PriceCarousel';
 import DisclaimerDialog from 'components/common/DisclaimerDialog';
-
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 import {
   DISCLAIMER_MESSAGE,
   OFAC_COMPLIANCE_LOCAL_STORAGE_KEY,
 } from 'constants/index';
-
 import ConnectButton from '../ConnectButton';
 import AppLink from './AppLink';
 import AppSubMenu from './AppSubMenu';
-import ClaimRdpxDialog from './ClaimRdpxDialog';
 import NetworkButton from './NetworkButton';
 import { LinkType } from './types';
 
@@ -152,13 +144,10 @@ export default function AppBar() {
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [anchorElSmall, setAnchorElSmall] = useState<null | HTMLElement>(null);
-  const [claimRdpxDialog, setClaimRdpxDialog] = useState(false);
 
   const links = (appLinks[chain?.id! || DEFAULT_CHAIN_ID] || []).concat(
     baseAppLinks
   );
-
-  const handleRdpxDialogClose = () => setClaimRdpxDialog(false);
 
   const handleClose = useCallback(() => setAnchorEl(null), []);
   const handleCloseSmall = useCallback(() => setAnchorElSmall(null), []);
@@ -172,10 +161,6 @@ export default function AppBar() {
     (event: any) => setAnchorElSmall(event.currentTarget),
     []
   );
-
-  const handleClaimRdpx = () => {
-    setClaimRdpxDialog(true);
-  };
 
   const userComplianceCheck = useCallback(async () => {
     if (!accountAddress) return;
@@ -224,29 +209,6 @@ export default function AppBar() {
     updateAssetBalances();
   }, [updateAssetBalances]);
 
-  const menuItems = useMemo(() => {
-    const returnValue: { name: string; to?: string; children?: ReactNode }[] = [
-      ...menuLinks,
-    ];
-
-    if (chain?.id === 1)
-      returnValue.push({
-        name: 'Claim',
-        children: (
-          <Button
-            variant="contained"
-            color="primary"
-            size="medium"
-            onClick={handleClaimRdpx}
-          >
-            Claim rDPX
-          </Button>
-        ),
-      });
-
-    return returnValue;
-  }, [chain]);
-
   useEffect(() => {
     updateTokenPrices();
     const intervalId = setInterval(updateTokenPrices, 60000);
@@ -258,10 +220,6 @@ export default function AppBar() {
 
   return (
     <>
-      <ClaimRdpxDialog
-        open={claimRdpxDialog}
-        handleClose={handleRdpxDialogClose}
-      />
       <DisclaimerDialog
         open={openComplianceDialog}
         handleClose={setOpenComplianceDialog}
@@ -360,28 +318,16 @@ export default function AppBar() {
                 })}
                 <div>
                   <div className="font-bold ml-4 my-2 text-white">Links</div>
-                  {menuItems.map((item) => {
-                    if (item.children) {
-                      return (
-                        <MenuItem
-                          onClick={handleClose}
-                          className="ml-2"
-                          key={item.name}
-                        >
-                          {item.children}
-                        </MenuItem>
-                      );
-                    } else if (item.to) {
-                      return (
-                        <MenuItem
-                          onClick={handleClose}
-                          className="ml-2 text-white"
-                          key={item.name}
-                        >
-                          <AppLink to={item.to} name={item.name} />
-                        </MenuItem>
-                      );
-                    }
+                  {menuLinks.map((item) => {
+                    return (
+                      <MenuItem
+                        onClick={handleClose}
+                        className="ml-2 text-white"
+                        key={item.name}
+                      >
+                        <AppLink to={item.to} name={item.name} />
+                      </MenuItem>
+                    );
                   })}
                 </div>
                 <div className="border border-stieglitz" />
@@ -395,28 +341,16 @@ export default function AppBar() {
                 onClose={handleClose}
                 classes={{ paper: 'bg-cod-gray' }}
               >
-                {menuItems.map((item) => {
-                  if (item.children) {
-                    return (
-                      <MenuItem
-                        onClick={handleClose}
-                        className="ml-2"
-                        key={item.name}
-                      >
-                        {item.children}
-                      </MenuItem>
-                    );
-                  } else if (item.to) {
-                    return (
-                      <MenuItem
-                        onClick={handleClose}
-                        className="ml-2 text-white"
-                        key={item.name}
-                      >
-                        <AppLink to={item.to} name={item.name} />
-                      </MenuItem>
-                    );
-                  }
+                {menuLinks.map((item) => {
+                  return (
+                    <MenuItem
+                      onClick={handleClose}
+                      className="ml-2 text-white"
+                      key={item.name}
+                    >
+                      <AppLink to={item.to} name={item.name} />
+                    </MenuItem>
+                  );
                 })}
               </Menu>
             </div>
