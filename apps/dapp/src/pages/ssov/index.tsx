@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-
 import { BigNumber } from 'ethers';
-
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -10,15 +8,13 @@ import graphSdk from 'graphql/graphSdk';
 import isEmpty from 'lodash/isEmpty';
 import { NextSeo } from 'next-seo';
 import queryClient from 'queryClient';
-
-import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import SsovCard from 'components/ssov/SsovCard';
 import SsovFilter from 'components/ssov/SsovFilter';
-
+import SsovStat from 'components/ssov/Stats/SsovStat';
+import Typography from 'components/UI/Typography';
 import { getUserReadableAmount } from 'utils/contracts';
 import formatAmount from 'utils/general/formatAmount';
-
 import { CHAINS } from 'constants/chains';
 import { DOPEX_API_BASE_URL } from 'constants/env';
 import { DECIMALS_TOKEN } from 'constants/index';
@@ -192,18 +188,21 @@ const SsovData = () => {
           </Typography>
           <Box
             className={
-              'flex mb-6 mt-5 rounded-md space-x-1 mx-auto content-center justify-center'
+              'flex mb-6 mt-5 rounded-md justify-center items-center mx-auto'
             }
           >
-            <span className="text-umbra opacity-90 bg-white rounded-md p-2">
-              <span>TVL ${formatAmount(tvl, 0)}</span>
-            </span>
-            <span className="text-umbra opacity-90 bg-white rounded-md p-2">
-              24h Volume ${formatAmount(total24hVol, 0, true)}
-            </span>
-            <span className="text-umbra opacity-90 bg-white rounded-md p-2">
-              Open Interest ${formatAmount(openInterest, 0, true)}
-            </span>
+            <SsovStat
+              title="Total Value Locked"
+              value={'$' + formatAmount(tvl, 0)}
+            />
+            <SsovStat
+              title="24h Volume"
+              value={'$' + formatAmount(total24hVol, 0, true)}
+            />
+            <SsovStat
+              title="Open Interest"
+              value={'$' + formatAmount(openInterest, 0, true)}
+            />
           </Box>
           <Typography variant="h5" className="text-stieglitz">
             Supply option liquidity to an Option Vault. Collect premiums from
