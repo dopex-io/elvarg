@@ -2332,7 +2332,9 @@ export const createOptionScalpSlice: StateCreator<
 
     if (!selectedPoolName || !provider) return;
     return new ethers.Contract(
-      '0x99177D8B53a9E2AEBD936760D654D742773A2EeD',
+      selectedPoolName === 'ETH'
+        ? '0x99177D8B53a9E2AEBD936760D654D742773A2EeD'
+        : '0x99177D8B53a9E2AEBD936760D654D742773A2EeD',
       limitOrdersABI,
       provider
     );
@@ -2397,8 +2399,8 @@ export const createOptionScalpSlice: StateCreator<
     return price;
   },
   getScalpPositions: async () => {
-    const accountAddress = '0xDaBad79F4d1cC4C6D1bF5a586138dbDd02Cdd64D';
     const {
+      accountAddress,
       provider,
       getOptionScalpContract,
       getScalpPosition,
