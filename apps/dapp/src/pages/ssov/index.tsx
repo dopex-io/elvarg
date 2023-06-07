@@ -79,6 +79,7 @@ const SsovData = () => {
 
   const [selectedSsovTokens, setSelectedSsovTokens] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [total24hVol, setTotal24hVol] = useState<number>(0);
   const [sortBy, setSortBy] = useState<string>('TVL');
   const [ssovsWithVol, setSsovsWithVol] = useState<any>({});
 
@@ -100,6 +101,29 @@ const SsovData = () => {
     return total;
   }, [ssovs]);
 
+  const openInterest = useMemo(() => {
+    let total = 0;
+    if (isEmpty(ssovs)) return total;
+
+    total = Object.keys(ssovs).reduce((acc, key) => {
+      return (
+        acc +
+        ssovs[key]?.reduce(
+          (
+            _acc: number,
+            ssov: { totalEpochPurchases: string; underlyingPrice: string }
+          ) =>
+            (_acc +=
+              parseFloat(ssov.totalEpochPurchases) *
+              parseFloat(ssov.underlyingPrice)),
+          0
+        )
+      );
+    }, 0);
+
+    return total;
+  }, [ssovs]);
+
   const keys = useMemo(() => {
     if (!ssovs) return [];
     else return [42161, 137];
@@ -109,12 +133,14 @@ const SsovData = () => {
     async function getVolumes() {
       if (!ssovs || !tradesData) return [];
       let ssovsVol: any = {};
+      let totalVol = 0;
       for (const key of Object.keys(ssovs)) {
         for (const so of ssovs[key]) {
           const volume = await getVolume(tradesData, so.address);
           if (!ssovsVol[key]) ssovsVol[key] = [];
           const volumeInUSD =
             getUserReadableAmount(volume, DECIMALS_TOKEN) * so.underlyingPrice;
+          totalVol += volumeInUSD;
           ssovsVol[key].push({
             ...so,
             volume: volumeInUSD,
@@ -122,6 +148,7 @@ const SsovData = () => {
         }
       }
       setSsovsWithVol(ssovsVol);
+      setTotal24hVol(totalVol);
     }
     getVolumes();
   }, [ssovs, tradesData]);
@@ -165,12 +192,18 @@ const SsovData = () => {
           </Typography>
           <Box
             className={
-              'mb-6 mt-5 opacity-90 bg-white ml-auto mr-auto w-[5rem] rounded-md p-[0.3px]'
+              'flex mb-6 mt-5 rounded-md space-x-1 mx-auto content-center justify-center'
             }
           >
-            <Typography variant="h6" color="umbra" className="text-[0.7rem]">
-              TVL ${formatAmount(tvl, 0)}
-            </Typography>
+            <span className="text-umbra opacity-90 bg-white rounded-md p-2">
+              <span>TVL ${formatAmount(tvl, 0)}</span>
+            </span>
+            <span className="text-umbra opacity-90 bg-white rounded-md p-2">
+              24h Volume ${formatAmount(total24hVol, 0, true)}
+            </span>
+            <span className="text-umbra opacity-90 bg-white rounded-md p-2">
+              Open Interest ${formatAmount(openInterest, 0, true)}
+            </span>
           </Box>
           <Typography variant="h5" className="text-stieglitz">
             Supply option liquidity to an Option Vault. Collect premiums from
