@@ -1,37 +1,25 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { useRouter } from 'next/router';
-
 import { ethers } from 'ethers';
-
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import ButtonGroup from '@mui/material/ButtonGroup';
+import { Button } from '@dopex-io/ui';
 import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
-
-import Typography from 'components/UI/Typography';
-import AppBar from 'components/common/AppBar';
 import DexScreenerChart from 'components/common/DexScreenerChart';
+import PageLayout from 'components/common/PageLayout';
 import QuickLink from 'components/common/QuickLink';
 import Manage from 'components/scalps/Manage';
-// import PoolCard from 'components/scalps/Charts/PoolCard';
-// import TVLCard from 'components/scalps/Charts/TVLCard';
 import Positions from 'components/scalps/Positions';
 import TopBar from 'components/scalps/TopBar';
 import TradeCard from 'components/scalps/TradeCard';
-
 import { CHAINS } from 'constants/chains';
 import seo from 'constants/seo';
-
-// const SHOWCHARTS = false;
 
 const ManageComponent = () => {
   const [manageSection, setManageSection] = useState<string>('Trade');
 
   return (
-    <Box className="w-full !mt-4 h-fit-content">
-      <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-top-lg mb-2">
+    <div className="w-full !mt-4 h-fit-content">
+      <div className="flex w-full justify-between bg-cod-gray border border-umbra rounded-top-lg mb-2">
         {['LP', 'Trade'].map((label, index) => (
           <Button
             key={index}
@@ -40,19 +28,18 @@ const ManageComponent = () => {
                 ? 'text-white bg-carbon hover:bg-carbon'
                 : 'text-stieglitz bg-transparent hover:bg-transparent'
             } hover:text-white`}
-            disableRipple
+            color="carbon"
+            size="small"
             onClick={() => setManageSection(label)}
           >
-            <Typography variant="h6" className="text-xs pb-1">
-              {label}
-            </Typography>
+            <span className="text-white text-xs pb-1">{label}</span>
           </Button>
         ))}
-      </ButtonGroup>
-      <Box className="bg-cod-gray rounded-b-xl min-w-[23rem]">
+      </div>
+      <div className="bg-cod-gray rounded-b-xl min-w-[23rem]">
         {manageSection === 'Trade' ? <TradeCard /> : <Manage />}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 
@@ -134,57 +121,52 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
   }, [setUniWethPrice, setUniArbPrice]);
 
   return (
-    <>
-      <Box className="bg-black flex w-screen items-center justify-center">
-        <AppBar />
-        <Box className="my-12 mx-[15%]">
-          <Box className="mt-8 sm:mt-14 md:mt-20 lg:mr-full">
-            <TopBar />
-          </Box>
-          <Box className="w-full h-full flex flex-col space-y-2 xl:flex-row xl:space-x-5">
-            <Box className="flex flex-col w-full space-y-4 h-full">
-              <Box className="flex-1 mt-4">{Chart}</Box>
-              <Positions />
-            </Box>
-            <Box>
-              <ManageComponent />
-              <Box className="mt-6 w-auto">
-                <Box className="flex flex-col space-y-2">
-                  <QuickLink
-                    text="Option Scalps Guide"
-                    href="https://blog.dopex.io/articles/product-launches-updates/introducing-option-scalps"
-                  />
-                  <QuickLink
-                    text="Trading Competition Explainer"
-                    href="https://blog.dopex.io/articles/marketing-campaigns/option-scalps-trading-competition"
-                  />
-                  <QuickLink
-                    text="Leaderboard"
-                    href="https://app.dopex.io/scalps/leaderboard"
-                  />
-                </Box>
-              </Box>
-            </Box>
-          </Box>
-          <Box className="flex justify-center w-full mt-10">
-            <Typography variant="h5" className="text-silver">
-              Contract Address:
-            </Typography>
-            <p className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text">
-              <a
-                href={`${CHAINS[chainId]?.explorer}/address/${
-                  optionScalpData?.optionScalpContract?.address ?? ''
-                }`}
-                rel="noopener noreferrer"
-                target={'_blank'}
-              >
-                {optionScalpData?.optionScalpContract?.address}
-              </a>
-            </p>
-          </Box>
-        </Box>
-      </Box>
-    </>
+    <div className="bg-black flex w-screen items-center justify-center">
+      <PageLayout>
+        <div className="mt-8 sm:mt-14 md:mt-20 lg:mr-full">
+          <TopBar />
+        </div>
+        <div className="w-full h-full flex flex-col space-y-2 xl:flex-row xl:space-x-5">
+          <div className="flex flex-col w-full space-y-4 h-full">
+            <div className="flex-1 mt-4">{Chart}</div>
+            <Positions />
+          </div>
+          <div>
+            <ManageComponent />
+            <div className="mt-6 w-auto">
+              <div className="flex flex-col space-y-2">
+                <QuickLink
+                  text="Option Scalps Guide"
+                  href="https://blog.dopex.io/articles/product-launches-updates/introducing-option-scalps"
+                />
+                <QuickLink
+                  text="Trading Competition Explainer"
+                  href="https://blog.dopex.io/articles/marketing-campaigns/option-scalps-trading-competition"
+                />
+                <QuickLink
+                  text="Leaderboard"
+                  href="https://app.dopex.io/scalps/leaderboard"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-center w-full mt-10">
+          <div className="text-silver">Contract Address:</div>
+          <p className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text">
+            <a
+              href={`${CHAINS[chainId]?.explorer}/address/${
+                optionScalpData?.optionScalpContract?.address ?? ''
+              }`}
+              rel="noopener noreferrer"
+              target={'_blank'}
+            >
+              {optionScalpData?.optionScalpContract?.address}
+            </a>
+          </p>
+        </div>
+      </PageLayout>
+    </div>
   );
 };
 
