@@ -20,6 +20,7 @@ import ConnectButton from '../ConnectButton';
 import AppLink from './AppLink';
 import AppSubMenu from './AppSubMenu';
 import NetworkButton from './NetworkButton';
+import RdpxAirdropButton from './RdpxAirdropButton';
 import { LinkType } from './types';
 
 const appLinks: {
@@ -260,6 +261,9 @@ export default function AppBar() {
             </div>
           </div>
           <div className="flex items-center">
+            {accountAddress ? (
+              <RdpxAirdropButton account={accountAddress} />
+            ) : null}
             <NetworkButton className="inline-flex mr-2" />
             <ConnectButton />
             <IconButton
