@@ -195,15 +195,15 @@ const SsovData = () => {
               'flex mb-6 mt-5 rounded-md space-x-1 mx-auto content-center justify-center'
             }
           >
-            <h6 className="text-umbra opacity-90 bg-white rounded-md p-1">
+            <span className="text-umbra opacity-90 bg-white rounded-md p-2">
               <span>TVL ${formatAmount(tvl, 0)}</span>
-            </h6>
-            <h6 className="text-umbra opacity-90 bg-white rounded-md p-1">
+            </span>
+            <span className="text-umbra opacity-90 bg-white rounded-md p-2">
               24h Volume ${formatAmount(total24hVol, 0, true)}
-            </h6>
-            <h6 className="text-umbra opacity-90 bg-white rounded-md p-1">
+            </span>
+            <span className="text-umbra opacity-90 bg-white rounded-md p-2">
               Open Interest ${formatAmount(openInterest, 0, true)}
-            </h6>
+            </span>
           </Box>
           <Typography variant="h5" className="text-stieglitz">
             Supply option liquidity to an Option Vault. Collect premiums from
