@@ -398,7 +398,6 @@ const TradeCard = () => {
           optionScalpData.limitOrdersContract.connect(signer),
           'createOpenOrder',
           [
-            optionScalpData.optionScalpContract.address,
             isShort,
             posSize,
             timeframeIndex,

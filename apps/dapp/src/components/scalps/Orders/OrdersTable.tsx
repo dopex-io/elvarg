@@ -4,6 +4,7 @@ import Link from 'next/link';
 
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
+import Countdown from 'react-countdown';
 import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
@@ -32,6 +33,7 @@ const OrdersTable = () => {
     'Type',
     'Price',
     'Collateral',
+    'Expiry',
     'View on Etherscan',
   ];
 
@@ -103,7 +105,18 @@ const OrdersTable = () => {
       }
 
       if (key === 'expiry') {
-        data = formatAmount(getUserReadableAmount(order.expiry, 0), 4);
+        data = (
+          <Countdown
+            date={order.expiry * 1000}
+            renderer={({ hours, minutes, seconds }) => {
+              return (
+                <span className="text-xs md:text-sm text-white pt-1">
+                  {hours}h {minutes}m {seconds}s
+                </span>
+              );
+            }}
+          />
+        );
       }
 
       if (key === 'transactionHash') {

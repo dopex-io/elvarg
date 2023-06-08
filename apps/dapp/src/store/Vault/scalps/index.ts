@@ -1667,6 +1667,19 @@ const limitOrdersABI = [
       {
         indexed: true,
         internalType: 'address',
+        name: 'receiver',
+        type: 'address',
+      },
+    ],
+    name: 'EmergencyWithdraw',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
         name: 'previousOwner',
         type: 'address',
       },
@@ -1722,12 +1735,12 @@ const limitOrdersABI = [
   {
     inputs: [
       {
-        internalType: 'address[]',
-        name: '_optionScalps',
-        type: 'address[]',
+        internalType: 'address',
+        name: '_optionScalp',
+        type: 'address',
       },
     ],
-    name: 'addOptionScalps',
+    name: 'attachOptionScalp',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -1766,13 +1779,27 @@ const limitOrdersABI = [
         type: 'uint256',
       },
     ],
-    name: 'closeOrders',
+    name: 'closeOrderCreatedForPosition',
     outputs: [
       {
-        internalType: 'address',
-        name: 'optionScalp',
-        type: 'address',
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
       },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'closeOrders',
+    outputs: [
       {
         internalType: 'bool',
         name: 'filled',
@@ -1780,7 +1807,25 @@ const limitOrdersABI = [
       },
       {
         internalType: 'uint256',
-        name: 'positionId',
+        name: 'nftPositionId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'scalpPositionId',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'closeOrdersCount',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
         type: 'uint256',
       },
     ],
@@ -1790,13 +1835,8 @@ const limitOrdersABI = [
   {
     inputs: [
       {
-        internalType: 'contract OptionScalp',
-        name: 'optionScalp',
-        type: 'address',
-      },
-      {
         internalType: 'uint256',
-        name: 'id',
+        name: 'scalpPositionId',
         type: 'uint256',
       },
       {
@@ -1811,17 +1851,18 @@ const limitOrdersABI = [
       },
     ],
     name: 'createCloseOrder',
-    outputs: [],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'orderId',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
     inputs: [
-      {
-        internalType: 'contract OptionScalp',
-        name: 'optionScalp',
-        type: 'address',
-      },
       {
         internalType: 'bool',
         name: 'isShort',
@@ -1854,7 +1895,13 @@ const limitOrdersABI = [
       },
     ],
     name: 'createOpenOrder',
-    outputs: [],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'orderId',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'function',
   },
@@ -1869,6 +1916,24 @@ const limitOrdersABI = [
       },
     ],
     stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address[]',
+        name: 'tokens',
+        type: 'address[]',
+      },
+      {
+        internalType: 'bool',
+        name: 'transferNative',
+        type: 'bool',
+      },
+    ],
+    name: 'emergencyWithdraw',
+    outputs: [],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
@@ -1920,13 +1985,8 @@ const limitOrdersABI = [
     inputs: [
       {
         internalType: 'uint256',
-        name: 'positionId',
+        name: 'nftPositionId',
         type: 'uint256',
-      },
-      {
-        internalType: 'contract IOptionScalp',
-        name: 'optionScalp',
-        type: 'address',
       },
     ],
     name: 'getNFTPositionTicks',
@@ -1942,7 +2002,7 @@ const limitOrdersABI = [
         type: 'int24',
       },
     ],
-    stateMutability: 'nonpayable',
+    stateMutability: 'view',
     type: 'function',
   },
   {
@@ -1967,12 +2027,50 @@ const limitOrdersABI = [
   {
     inputs: [
       {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+    ],
+    name: 'isCloseOrderFullFillable',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
         internalType: 'address',
         name: 'addr',
         type: 'address',
       },
     ],
     name: 'isContract',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+    ],
+    name: 'isOpenOrderFullFillable',
     outputs: [
       {
         internalType: 'bool',
@@ -2042,11 +2140,6 @@ const limitOrdersABI = [
     outputs: [
       {
         internalType: 'address',
-        name: 'optionScalp',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
         name: 'user',
         type: 'address',
       },
@@ -2087,7 +2180,7 @@ const limitOrdersABI = [
       },
       {
         internalType: 'uint256',
-        name: 'positionId',
+        name: 'nftPositionId',
         type: 'uint256',
       },
       {
@@ -2101,7 +2194,7 @@ const limitOrdersABI = [
   },
   {
     inputs: [],
-    name: 'orderCount',
+    name: 'openOrdersCount',
     outputs: [
       {
         internalType: 'uint256',
@@ -2321,7 +2414,7 @@ export const createOptionScalpSlice: StateCreator<
     if (!selectedPoolName || !provider) return;
     return new ethers.Contract(
       selectedPoolName === 'ETH'
-        ? '0x8556a96603AdED2870261005872610EA5ef17DCB'
+        ? '0xFC7AB37556c1461B667F3DFbc5701EF1635A4Db8'
         : '0xbBe5373C6D656388Db6c710A49461224a85A235E',
       optionScalpsABI,
       provider
@@ -2333,7 +2426,7 @@ export const createOptionScalpSlice: StateCreator<
     if (!selectedPoolName || !provider) return;
     return new ethers.Contract(
       selectedPoolName === 'ETH'
-        ? '0x99177D8B53a9E2AEBD936760D654D742773A2EeD'
+        ? '0xd0F4D0545D208956f6d4D0f51F6538cb4c774842'
         : '0x99177D8B53a9E2AEBD936760D654D742773A2EeD',
       limitOrdersABI,
       provider
@@ -2346,7 +2439,7 @@ export const createOptionScalpSlice: StateCreator<
 
     return OptionScalpsLp__factory.connect(
       selectedPoolName === 'ETH'
-        ? '0x21a47aBde92D6b677672A0AAee312553C2220d99'
+        ? '0xd8E2955FF23CBDF76467699E81692D8b36f901AF'
         : '0x37590098b1C81301fdbB4EE8236D0a3b9d63b594',
       provider
     );
@@ -2358,7 +2451,7 @@ export const createOptionScalpSlice: StateCreator<
 
     return OptionScalpsLp__factory.connect(
       selectedPoolName === 'ETH'
-        ? '0x6862A6124173D35CAC736F711156844eD7596202'
+        ? '0x85dFB9187d27BAa3877C9B91AfF8F9C93313358B'
         : '0xF7f6412AC6b822A654B1F4F085b9E87460Cd5c3d',
       provider
     );
@@ -2486,8 +2579,7 @@ export const createOptionScalpSlice: StateCreator<
       const openOrder = await limitOrdersContract.callStatic.openOrders(id);
 
       const ticks = await limitOrdersContract.callStatic.getNFTPositionTicks(
-        openOrder['positionId'],
-        openOrder['optionScalp']
+        openOrder['nftPositionId']
       );
 
       const tick = (ticks[0] + ticks[1]) / 2;
@@ -2505,10 +2597,7 @@ export const createOptionScalpSlice: StateCreator<
         .mul(BigNumber.from(10 ** optionScalpData?.quoteDecimals.toNumber()))
         .div(price);
 
-      if (
-        openOrder['cancelled'] === false &&
-        openOrder['optionScalp'] === optionScalpContract.address
-      )
+      if (openOrder['cancelled'] === false)
         return {
           transactionHash: hash,
           id: id,
@@ -2545,8 +2634,7 @@ export const createOptionScalpSlice: StateCreator<
       const closeOrder = await limitOrdersContract.closeOrders(id);
 
       const ticks = await limitOrdersContract.callStatic.getNFTPositionTicks(
-        closeOrder['positionId'],
-        closeOrder['optionScalp']
+        closeOrder['nftPositionId']
       );
 
       const tick = (ticks[0] + ticks[1]) / 2;
