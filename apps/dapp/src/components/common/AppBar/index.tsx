@@ -9,17 +9,21 @@ import MenuItem from '@mui/material/MenuItem';
 import axios from 'axios';
 import { useBoundStore } from 'store';
 import { useNetwork } from 'wagmi';
+
 import PriceCarousel from 'components/common/AppBar/PriceCarousel';
 import DisclaimerDialog from 'components/common/DisclaimerDialog';
+
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 import {
   DISCLAIMER_MESSAGE,
   OFAC_COMPLIANCE_LOCAL_STORAGE_KEY,
 } from 'constants/index';
+
 import ConnectButton from '../ConnectButton';
 import AppLink from './AppLink';
 import AppSubMenu from './AppSubMenu';
 import NetworkButton from './NetworkButton';
+import NftClaims from './NftClaims';
 import RdpxAirdropButton from './RdpxAirdropButton';
 import { LinkType } from './types';
 
@@ -261,6 +265,7 @@ export default function AppBar() {
             </div>
           </div>
           <div className="flex items-center">
+            {accountAddress ? <NftClaims account={accountAddress} /> : null}
             {accountAddress ? (
               <RdpxAirdropButton account={accountAddress} />
             ) : null}
