@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { BigNumber } from 'ethers';
-
 import { ERC20__factory } from '@dopex-io/sdk';
+import { Switch } from '@dopex-io/ui';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
@@ -10,13 +9,12 @@ import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 import LockerIcon from 'svgs/icons/LockerIcon';
 
-import CustomButton from 'components/UI/Button';
-import Input from 'components/UI/Input';
-import Switch from 'components/UI/Switch';
-import Typography from 'components/UI/Typography';
 import MaxStrikeInput from 'components/atlantics/Manage/ManageCard/MaxStrikeInput';
 import PoolStats from 'components/atlantics/Manage/ManageCard/PoolStats';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import CustomButton from 'components/UI/Button';
+import Input from 'components/UI/Input';
+import Typography from 'components/UI/Typography';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -88,10 +86,8 @@ const ManageCard = (props: ManageCardProps) => {
     []
   );
 
-  const handleRolloverEnableCheck = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRolloverEnabled(event.target.checked);
+  const handleRolloverEnableCheck = () => {
+    setRolloverEnabled((c) => !c);
   };
 
   const handleApprove = useCallback(async () => {
@@ -301,7 +297,6 @@ const ManageCard = (props: ManageCardProps) => {
           <Switch
             checked={rolloverEnabled}
             onChange={handleRolloverEnableCheck}
-            inputProps={{ 'aria-label': 'controlled' }}
           />
           <Typography variant="h6" className="mx-2 py-2">
             Rollover
@@ -328,7 +323,7 @@ const ManageCard = (props: ManageCardProps) => {
               <InfoOutlinedIcon className="fill-current text-stieglitz p-0 w-4 h-4 my-auto" />
             </Tooltip>
           </Box>
-          <Switch value={maxApprove} onChange={handleMaxApprove} />
+          <Switch checked={maxApprove} onChange={handleMaxApprove} />
         </Box>
       ) : null}
       <Box className="rounded-xl bg-umbra p-3 space-y-2">

@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { BigNumber } from 'ethers';
-
 import {
   DopexPositionManager__factory,
   GmxVault__factory,
@@ -19,12 +17,9 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Tooltip from '@mui/material/Tooltip';
-import { styled } from '@mui/styles';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
-import CustomButton from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
 import ManageModal from 'components/atlantics/InsuredPerps/Dialogs/ManageDialog';
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 import {
@@ -32,6 +27,8 @@ import {
   TableHeader,
 } from 'components/atlantics/Manage/UserDepositsTable';
 import SignerButton from 'components/common/SignerButton';
+import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -53,14 +50,6 @@ interface IUserPositionData {
   depositUnderlying: boolean;
   type: 'Long';
 }
-
-const StyledTooltip = styled(({ className, ...props }) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(({ color }) => ({
-  '& .MuiTooltip-tooltip': {
-    background: color,
-  },
-}));
 
 export const ActionState: { [key: string]: string } = {
   '0': 'None', // 0
@@ -627,7 +616,7 @@ const Positions = ({
                       </Box>
                     </TableBodyCell>
                     <TableBodyCell>
-                      <StyledTooltip
+                      <Tooltip
                         followCursor
                         arrow={true}
                         color="transparent"
@@ -715,7 +704,7 @@ const Positions = ({
                             )}(${pnlPercentage}%)`}
                           </Typography>
                         </span>
-                      </StyledTooltip>
+                      </Tooltip>
                     </TableBodyCell>
                     <TableBodyCell>
                       <Typography variant="h6">
