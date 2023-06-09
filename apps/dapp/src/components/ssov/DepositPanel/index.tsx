@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { BigNumber, utils as ethersUtils } from 'ethers';
-
 import { ERC20__factory } from '@dopex-io/sdk';
 import { CircularProgress } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -16,11 +14,11 @@ import { useDebounce } from 'use-debounce';
 
 import { SsovV3EpochData } from 'store/Vault/ssov';
 
-import CustomButton from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import InputWithTokenSelector from 'components/common/InputWithTokenSelector';
 import Wrapper from 'components/ssov/Wrapper';
+import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import { getTokenDecimals } from 'utils/general';
@@ -46,14 +44,12 @@ const DepositPanel = () => {
     accountAddress,
     chainId,
     signer,
-    updateAssetBalances,
     updateSsovV3EpochData: updateSsovEpochData,
     updateSsovV3UserData: updateSsovUserData,
     ssovData,
     ssovEpochData,
     ssovSigner,
     selectedEpoch,
-    userAssetBalances,
     getContractAddress,
   } = useBoundStore();
 
@@ -135,6 +131,20 @@ const DepositPanel = () => {
     fromTokenSymbol,
     strikeDepositAmount,
   ]);
+
+  const updateUserTokenBalance = useCallback(async () => {
+    if (!accountAddress || !signer) return;
+
+    const tokenAddress = getContractAddress(fromTokenSymbol);
+
+    if (!tokenAddress) return;
+
+    setUserTokenBalance(
+      await ERC20__factory.connect(tokenAddress, signer).balanceOf(
+        accountAddress
+      )
+    );
+  }, [accountAddress, fromTokenSymbol, getContractAddress, signer]);
 
   const depositButtonProps = useMemo(() => {
     let disable = false;
@@ -251,9 +261,9 @@ const DepositPanel = () => {
     const method = routerMode ? 'swapAndDeposit' : ('deposit' as any);
 
     try {
-      await sendTx(contractWithSigner, method, params).then(() => {
+      await sendTx(contractWithSigner, method, params).then(async () => {
         setStrikeDepositAmount('0');
-        updateAssetBalances();
+        updateUserTokenBalance();
         updateSsovEpochData();
         updateSsovUserData();
       });
@@ -261,6 +271,7 @@ const DepositPanel = () => {
       console.log(err);
     }
   }, [
+    updateUserTokenBalance,
     getContractAddress,
     sendTx,
     routerMode,
@@ -268,7 +279,6 @@ const DepositPanel = () => {
     ssovContractWithSigner,
     strike,
     strikeDepositAmount,
-    updateAssetBalances,
     updateSsovEpochData,
     updateSsovUserData,
     fromTokenSymbol,
@@ -322,27 +332,8 @@ const DepositPanel = () => {
 
   // Updates user token balance
   useEffect(() => {
-    (async () => {
-      if (!accountAddress || !signer) return;
-
-      const tokenAddress = getContractAddress(fromTokenSymbol);
-
-      if (!tokenAddress) return;
-
-      setUserTokenBalance(
-        await ERC20__factory.connect(tokenAddress, signer).balanceOf(
-          accountAddress
-        )
-      );
-    })();
-  }, [
-    accountAddress,
-    signer,
-    ssovData,
-    userAssetBalances,
-    getContractAddress,
-    fromTokenSymbol,
-  ]);
+    updateUserTokenBalance();
+  }, [updateUserTokenBalance]);
 
   // @todo remove this useEffect once router is enabled
   useEffect(() => {
