@@ -14,12 +14,12 @@
   },
   "packageManager": "pnpm@8.5.0",
   "devDependencies": {
-    "@commitlint/cli": "^17.0.3",
-    "@commitlint/config-conventional": "^17.0.3",
-    "husky": "^8.0.3",
-    "lint-staged": "^13.0.0",
-    "prettier": "^2.8.8",
+    "@commitlint/cli": "^17.6.5",
+    "@commitlint/config-conventional": "^17.6.5",
     "@ianvs/prettier-plugin-sort-imports": "^4.0.2",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.2",
+    "prettier": "^2.8.8",
     "turbo": "latest"
   },
   "lint-staged": {
