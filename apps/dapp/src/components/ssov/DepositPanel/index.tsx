@@ -89,7 +89,7 @@ const DepositPanel = () => {
     ssovSigner?.ssovContractWithSigner?.address,
   ]);
 
-  const strikes = epochStrikes.map((strike: string | number | BigNumber) =>
+  const strikes = epochStrikes.map((strike: BigNumber) =>
     getUserReadableAmount(strike, 8).toString()
   );
 
@@ -535,7 +535,7 @@ const DepositPanel = () => {
                     >
                       {formatAmount(
                         getUserReadableAmount(
-                          debouncedQuote.toTokenAmount,
+                          BigNumber.from(debouncedQuote.toTokenAmount),
                           debouncedQuote.toToken.decimals
                         ),
                         3

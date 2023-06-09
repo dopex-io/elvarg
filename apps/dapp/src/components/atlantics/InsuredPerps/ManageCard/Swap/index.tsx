@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
+import { BigNumber } from 'ethers';
 import { ERC20__factory, GmxRouter__factory } from '@dopex-io/sdk';
 import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
 import Box from '@mui/material/Box';
@@ -7,11 +7,11 @@ import IconButton from '@mui/material/IconButton';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
+import SwapInfo from 'components/atlantics/InsuredPerps/ManageCard/Swap/SwapInfo';
+import Wrapper from 'components/ssov/Wrapper';
 import Button from 'components/UI/Button';
 import Input from 'components/UI/Input';
 import Typography from 'components/UI/Typography';
-import SwapInfo from 'components/atlantics/InsuredPerps/ManageCard/Swap/SwapInfo';
-import Wrapper from 'components/ssov/Wrapper';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -60,12 +60,12 @@ const Swap = (props: SwapProps) => {
     if (!chainId || !stable || !underlying || !userAssetBalances) return;
 
     const underlyingBalance = getUserReadableAmount(
-      userAssetBalances[underlying.toUpperCase() ?? ''] ?? '0',
+      BigNumber.from(userAssetBalances[underlying.toUpperCase() ?? ''] ?? '0'),
       CHAINS[chainId]?.tokenDecimals[underlying?.toUpperCase() ?? '']
     );
 
     const stableBalance = getUserReadableAmount(
-      userAssetBalances[stable.toUpperCase() ?? ''] ?? '0',
+      BigNumber.from(userAssetBalances[stable.toUpperCase() ?? ''] ?? '0'),
       CHAINS[chainId]?.tokenDecimals[stable?.toUpperCase() ?? '']
     );
 
@@ -95,7 +95,7 @@ const Swap = (props: SwapProps) => {
     ).toUpperCase();
 
     const maxValue = getUserReadableAmount(
-      userAssetBalances[inputTokenSymbol] ?? '0',
+      BigNumber.from(userAssetBalances[inputTokenSymbol] ?? '0'),
       CHAINS[chainId]?.tokenDecimals[inputTokenSymbol]
     ).toString();
 
