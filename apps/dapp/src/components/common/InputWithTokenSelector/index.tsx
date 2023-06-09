@@ -5,7 +5,7 @@ import {
   useCallback,
   useState,
 } from 'react';
-
+import { BigNumber } from 'ethers';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Box from '@mui/material/Box';
@@ -125,7 +125,7 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
             >
               {formatAmount(
                 getUserReadableAmount(
-                  userAssetBalances[selectedTokenSymbol] || 0,
+                  BigNumber.from(userAssetBalances[selectedTokenSymbol] || '0'),
                   getTokenDecimals(selectedTokenSymbol, chainId)
                 )
               )}

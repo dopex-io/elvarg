@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
+import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
+import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 
-import { useBoundStore } from 'store';
-
-import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 import { CURRENCIES_MAP } from 'constants/index';
 
@@ -35,7 +35,10 @@ const EstimatedGasCostButton = ({ gas, chainId }: Props) => {
       const feeData = await provider.getFeeData();
       if (feeData.gasPrice)
         setEstimatedGasCost(
-          getUserReadableAmount(gas * feeData.gasPrice.toNumber(), 18)
+          getUserReadableAmount(
+            BigNumber.from(String(gas)).mul(feeData.gasPrice),
+            18
+          )
         );
     };
     updateEstimatedGasCost();
