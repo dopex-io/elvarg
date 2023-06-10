@@ -448,6 +448,7 @@ const DepositPanel = () => {
           setSelectedToken={setFromTokenSymbol}
           handleMax={handleMax}
           inputAmount={strikeDepositAmount}
+          userTokenBalance={userTokenBalance}
           handleInputAmountChange={handleDepositAmount}
           overrides={{ setTokenSelectorOpen }}
         />

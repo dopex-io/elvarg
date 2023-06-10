@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { BigNumber, ethers } from 'ethers';
-
 import { ERC20__factory } from '@dopex-io/sdk';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
@@ -20,11 +18,11 @@ import { useDebounce } from 'use-debounce';
 
 import { SsovV3Data, SsovV3EpochData } from 'store/Vault/ssov';
 
+import InputWithTokenSelector from 'components/common/InputWithTokenSelector';
+import PnlChart from 'components/common/PnlChart';
 import CustomButton from 'components/UI/Button';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import InputWithTokenSelector from 'components/common/InputWithTokenSelector';
-import PnlChart from 'components/common/PnlChart';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -57,7 +55,6 @@ const PurchaseDialog = ({
     provider,
     signer,
     contractAddresses,
-    updateAssetBalances,
     ssovSigner,
     updateSsovV3UserData,
     updateSsovV3EpochData,
@@ -164,10 +161,6 @@ const PurchaseDialog = ({
       getContractAddress(fromTokenSymbol),
       provider
     );
-
-    const userAmount = await _token.balanceOf(accountAddress);
-
-    setUserTokenBalance(userAmount);
 
     const allowance = await _token.allowance(accountAddress, spender);
 
@@ -294,6 +287,24 @@ const PurchaseDialog = ({
     []
   );
 
+  const updateUserTokenBalance = useCallback(async () => {
+    if (!accountAddress || !signer) return;
+
+    const tokenAddress = getContractAddress(fromTokenSymbol);
+
+    if (!tokenAddress) return;
+
+    setUserTokenBalance(
+      await ERC20__factory.connect(tokenAddress, signer).balanceOf(
+        accountAddress
+      )
+    );
+  }, [accountAddress, fromTokenSymbol, getContractAddress, signer]);
+
+  useEffect(() => {
+    updateUserTokenBalance();
+  }, [updateUserTokenBalance]);
+
   const collateralCTA = useMemo(() => {
     if (ssovData?.isPut) {
       return (
@@ -389,7 +400,7 @@ const PurchaseDialog = ({
     try {
       await sendTx(contractWithSigner!, method, params);
       setRawOptionsAmount('0');
-      updateAssetBalances();
+      updateUserTokenBalance();
       updateSsovV3UserData();
       updateSsovV3EpochData();
     } catch (err) {
@@ -397,6 +408,7 @@ const PurchaseDialog = ({
       setRawOptionsAmount('0');
     }
   }, [
+    updateUserTokenBalance,
     ssovData.collateralAddress,
     ssovData.isPut,
     accountAddress,
@@ -404,7 +416,6 @@ const PurchaseDialog = ({
     sendTx,
     ssovContractWithSigner,
     strikeIndex,
-    updateAssetBalances,
     updateSsovV3UserData,
     updateSsovV3EpochData,
     fromTokenSymbol,
@@ -646,6 +657,7 @@ const PurchaseDialog = ({
         <Box className="bg-umbra rounded-2xl flex flex-col mb-4  pr-2">
           <Box className="flex flex-row justify-between">
             <InputWithTokenSelector
+              userTokenBalance={userTokenBalance}
               topRightTag="Options Size"
               topLeftTag="Pay With"
               selectedTokenSymbol={fromTokenSymbol}

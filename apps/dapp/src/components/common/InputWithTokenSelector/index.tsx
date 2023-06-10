@@ -34,6 +34,7 @@ interface IInputWithTokenSelectorProps {
   topLeftTag?: string;
   topRightTag?: string;
   overrides?: IOverrides;
+  userTokenBalance: BigNumber;
 }
 
 const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
@@ -42,13 +43,14 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
     handleInputAmountChange,
     setSelectedToken,
     selectedTokenSymbol,
+    userTokenBalance,
     topLeftTag,
     topRightTag,
     overrides,
     handleMax,
   } = props;
 
-  const { chainId, userAssetBalances } = useBoundStore();
+  const { chainId } = useBoundStore();
 
   const [tokenSelectorOpen, setTokenSelectorOpen] = useState(false);
 
@@ -125,9 +127,10 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
             >
               {formatAmount(
                 getUserReadableAmount(
-                  BigNumber.from(userAssetBalances[selectedTokenSymbol] || '0'),
+                  BigNumber.from(userTokenBalance),
                   getTokenDecimals(selectedTokenSymbol, chainId)
-                )
+                ),
+                3
               )}
             </Typography>
           </Box>
