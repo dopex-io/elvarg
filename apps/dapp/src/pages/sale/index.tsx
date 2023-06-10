@@ -1,6 +1,6 @@
-import Head from 'next/head';
-
 import { useCallback, useEffect } from 'react';
+
+import Head from 'next/head';
 
 import { TokenSale__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
@@ -75,7 +75,7 @@ const TokenSale = () => {
       <Head>
         <title>Token Sale | Dopex</title>
       </Head>
-      <AppBar active="token sale" />
+      <AppBar />
       <Box className="py-32 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
         <Box className="mb-10 text-center rounded-xl">
           <Typography variant="h2" className="mb-4">

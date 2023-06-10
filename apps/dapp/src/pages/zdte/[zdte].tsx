@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
-import Head from 'next/head';
 import { useRouter } from 'next/router';
+
+import { NextSeo } from 'next-seo';
 
 import { useBoundStore } from 'store';
 
@@ -14,6 +15,8 @@ import Positions from 'components/zdte/Positions';
 import TopBar from 'components/zdte/TopBar';
 import ZdteContractBox from 'components/zdte/ZdteContractBox';
 import ZdteDexScreenerChart from 'components/zdte/ZdteDexScreenerChart';
+
+import seo from 'constants/seo';
 
 interface Props {
   zdte: string;
@@ -82,10 +85,7 @@ const Zdte = ({ zdte }: Props) => {
 
   return (
     <div className="bg-black min-h-screen">
-      <Head>
-        <title>ZDTE | Dopex</title>
-      </Head>
-      <AppBar active="ZDTE" />
+      <AppBar />
       <div className="md:flex py-5 justify-center">
         <div className="ml-auto space-y-8">
           <div className="lg:pt-28 sm:pt-20 pt-20 lg:max-w-4xl md:max-w-3xl sm:max-w-2xl max-w-md mx-auto px-4 lg:px-0 space-y-6">
@@ -118,6 +118,25 @@ const ManagePage = () => {
 
   return (
     <ErrorBoundary>
+      <NextSeo
+        title={seo.zdte.title}
+        description={seo.zdte.description}
+        canonical={seo.zdte.url}
+        openGraph={{
+          url: seo.zdte.url,
+          title: seo.zdte.title,
+          description: seo.zdte.description,
+          images: [
+            {
+              url: seo.zdte.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.zdte.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
       <Zdte zdte={zdte} />
     </ErrorBoundary>
   );

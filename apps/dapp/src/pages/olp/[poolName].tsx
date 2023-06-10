@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 
-import Head from 'next/head';
 import { useRouter } from 'next/router';
 
 import Box from '@mui/material/Box';
+import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
@@ -12,6 +12,8 @@ import ProvideLp from 'components/olp/ProvideLp';
 import Stats from 'components/olp/Stats';
 import TopBar from 'components/olp/TopBar';
 import UserLpPositions from 'components/olp/UserLpPositions';
+
+import seo from 'constants/seo';
 
 const Olp = ({ poolName }: { poolName: string }) => {
   const {
@@ -42,10 +44,7 @@ const Olp = ({ poolName }: { poolName: string }) => {
 
   return (
     <Box className="bg-black min-h-screen">
-      <Head>
-        <title>OLP | Dopex</title>
-      </Head>
-      <AppBar active="OLPs" />
+      <AppBar />
       <Box className="md:flex py-5 flex-row justify-around">
         <Box className="ml-auto lg:w-[50%] space-y-8">
           <Box className="lg:pt-28 sm:pt-20 pt-20 lg:max-w-4xl md:max-w-3xl sm:max-w-2xl max-w-md mx-auto px-4 lg:px-0 space-y-6">
@@ -73,7 +72,30 @@ const ManagePage = () => {
   const router = useRouter();
   const poolName = router.query['poolName'] as string;
 
-  return <Olp poolName={poolName} />;
+  return (
+    <>
+      <NextSeo
+        title={seo.olp.title}
+        description={seo.olp.description}
+        canonical={seo.olp.url}
+        openGraph={{
+          url: seo.olp.url,
+          title: seo.olp.title,
+          description: seo.olp.description,
+          images: [
+            {
+              url: seo.olp.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.olp.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
+      <Olp poolName={poolName} />
+    </>
+  );
 };
 
 export default ManagePage;

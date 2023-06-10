@@ -1,10 +1,7 @@
 import { useEffect } from 'react';
-
 import type { AppProps } from 'next/app';
 import Script from 'next/script';
-
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
-import StylesProvider from '@mui/styles/StylesProvider';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { DefaultSeo } from 'next-seo';
 import queryClient from 'queryClient';
@@ -14,7 +11,7 @@ import wagmiClient from 'wagmi-client';
 
 import GlobalDialogs from 'components/common/GlobalDialogs';
 
-import { HOST_URL } from 'constants/env';
+import seo from 'constants/seo';
 
 import theme from '../style/muiTheme';
 
@@ -29,20 +26,19 @@ function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <DefaultSeo
-        title="Dopex"
-        description="Dopex is a maximum liquidity and minimal exposure options protocol"
-        canonical={HOST_URL || 'https://app.dopex.io'}
+        title={seo.default.title}
+        description={seo.default.description}
+        canonical={seo.default.url}
         openGraph={{
-          url: HOST_URL || 'https://app.dopex.io',
-          title: 'Dopex',
-          description:
-            'Dopex is a maximum liquidity and minimal exposure options protocol',
+          url: seo.default.url,
+          title: seo.default.title,
+          description: seo.default.description,
           images: [
             {
-              url: 'https://res.cloudinary.com/dxitdndu3/image/upload/v1682556687/dopex_images/preview_images/default_kayszw.png',
-              width: 800,
-              height: 600,
-              alt: 'SSOV',
+              url: seo.default.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.default.alt,
               type: 'image/png',
             },
           ],
@@ -53,19 +49,17 @@ function App({ Component, pageProps }: AppProps) {
           cardType: 'summary_large_image',
         }}
       />
-      <StylesProvider injectFirst>
-        <StyledEngineProvider injectFirst>
-          <ThemeProvider theme={theme}>
-            <QueryClientProvider client={queryClient}>
-              <WagmiConfig client={wagmiClient}>
-                <Toaster position="bottom-right" reverseOrder={true} />
-                <GlobalDialogs />
-                <Component {...pageProps} />
-              </WagmiConfig>
-            </QueryClientProvider>
-          </ThemeProvider>
-        </StyledEngineProvider>
-      </StylesProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <QueryClientProvider client={queryClient}>
+            <WagmiConfig client={wagmiClient}>
+              <Toaster position="bottom-right" reverseOrder={true} />
+              <GlobalDialogs />
+              <Component {...pageProps} />
+            </WagmiConfig>
+          </QueryClientProvider>
+        </ThemeProvider>
+      </StyledEngineProvider>
       <Script
         src="https://www.googletagmanager.com/gtag/js?id=G-QLYLX4HN05"
         strategy="afterInteractive"

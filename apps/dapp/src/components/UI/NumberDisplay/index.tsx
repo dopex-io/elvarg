@@ -1,8 +1,6 @@
 import { ReactNode } from 'react';
+import { BigNumber, utils as ethersUtils } from 'ethers';
 import Tooltip from '@mui/material/Tooltip';
-import BN from 'bignumber.js';
-import { BigNumber } from 'ethers';
-
 import formatAmount from 'utils/general/formatAmount';
 
 interface Props {
@@ -24,9 +22,9 @@ const NumberDisplay = ({
 }: Props) => {
   if (BigNumber.from(decimals).gt(18)) throw Error('Decimals cannot exceed 18');
 
-  const _val = new BN(n.toString()).dividedBy(`1e${decimals.toString()}`);
+  const _val = Number(ethersUtils.formatUnits(n, decimals));
 
-  if (_val.lt(minNumber) && !_val.isZero()) {
+  if (_val < minNumber && _val !== 0) {
     return (
       <Tooltip title={_val.toString()} placement="top">
         <span className="text-white">

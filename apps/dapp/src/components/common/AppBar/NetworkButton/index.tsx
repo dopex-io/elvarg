@@ -22,9 +22,9 @@ export default function NetworkButton({
       <img
         src={CHAINS[chainId]?.icon}
         alt={CHAINS[chainId]?.name}
-        className="w-[18px] h-auto mr-2"
+        className="w-[18px] h-auto mx-1"
       />
-      {CHAINS[chainId]?.name}
+      <span className="hidden lg:block ml-1">{CHAINS[chainId]?.name}</span>
     </Button>
   );
 }

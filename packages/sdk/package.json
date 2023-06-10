@@ -24,15 +24,12 @@
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",
     "@ethersproject/providers": "^5.7.2",
-    "@typechain/ethers-v5": "^10.2.1",
+    "@typechain/ethers-v5": "^11.0.0",
     "esbuild": "^0.17.19",
     "ethers": "^5.7.2",
     "rimraf": "^5.0.1",
     "tsconfig": "workspace:*",
-    "typechain": "^8.1.1",
-    "typescript": "^5.0.4"
-  },
-  "prettier": {
-    "singleQuote": true
+    "typechain": "^8.2.0",
+    "typescript": "^5.1.3"
   }
 }

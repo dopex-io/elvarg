@@ -6,13 +6,16 @@
     "^(next/(.*)$)|^(next$)",
     "^(ethers/(.*)$)|^(ethers$)",
     "<THIRD_PARTY_MODULES>",
+    "",
     "^store/(.*)$",
+    "",
     "^components/(.*)$",
+    "",
     "^utils/(.*)$",
+    "",
     "^constants/(.*)$",
+    "",
     "^[./]"
   ],
-  "importOrderSeparation": true,
-  "importOrderSortSpecifiers": true,
   "plugins": ["@ianvs/prettier-plugin-sort-imports"]
 }

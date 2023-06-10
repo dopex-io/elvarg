@@ -10,5 +10,4 @@ export { default as getUserReadableAmount } from './getUserReadableAmount';
 export { default as getReadableTime } from './getReadableTime';
 export { default as isValidStrike } from './isValidStrike';
 export { default as isZeroAddress } from './isZeroAddress';
-export { default as sanitizeValue } from './sanitizeValue';
 export { default as getCurrentTime } from './getCurrentTime';

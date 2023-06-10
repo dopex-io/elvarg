@@ -14,9 +14,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-
 import { BigNumber, ethers } from 'ethers';
-
 import {
   ERC20__factory,
   GmxVault__factory,
@@ -35,11 +33,11 @@ import { useDebounce } from 'use-debounce';
 
 import { IAtlanticPoolEpochStrikeData } from 'store/Vault/atlantics';
 
+import StrategyDetails from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/StrategyDetails';
+import TokenSelector from 'components/atlantics/TokenSelector';
 import CustomButton from 'components/UI/Button';
 import Input from 'components/UI/Input';
 import Typography from 'components/UI/Typography';
-import StrategyDetails from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/StrategyDetails';
-import TokenSelector from 'components/atlantics/TokenSelector';
 
 import {
   getEligiblePutStrike,
@@ -47,16 +45,16 @@ import {
 } from 'utils/contracts/atlantics/insuredPerps';
 import {
   BLACKOUT_WINDOW,
-  OPTIONS_TOKEN_DECIMALS,
   getFundingFees,
   getPurchaseFees,
+  OPTIONS_TOKEN_DECIMALS,
 } from 'utils/contracts/atlantics/pool';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import {
-  LIQUIDATION_FEE_USD,
   getPositionFee,
   getSwapFees,
+  LIQUIDATION_FEE_USD,
   tokenToUsdMin,
   usdToTokenMin,
 } from 'utils/contracts/gmx';
@@ -925,7 +923,7 @@ const ManagePosition = () => {
           >
             {formatAmount(
               getUserReadableAmount(
-                userAssetBalances[selectedToken] ?? '0',
+                BigNumber.from(userAssetBalances[selectedToken] ?? '0'),
                 CHAINS[chainId]?.tokenDecimals[selectedToken]
               ),
               3,

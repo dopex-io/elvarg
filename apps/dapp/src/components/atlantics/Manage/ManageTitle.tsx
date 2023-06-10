@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
+import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
+import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 
-import { useBoundStore } from 'store';
-
-import formatAmount from 'utils/general/formatAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 interface ManageCardTitleProps {
   depositToken: string;
@@ -77,7 +77,10 @@ const ManageTitle = (props: ManageCardTitleProps) => {
           className="my-auto border border-primary rounded-md px-2 py-1"
         >
           {`$${formatAmount(
-            getUserReadableAmount(atlanticPool?.underlyingPrice || '0', 8),
+            getUserReadableAmount(
+              BigNumber.from(atlanticPool?.underlyingPrice || '0'),
+              8
+            ),
             3
           )}`}
         </Typography>
