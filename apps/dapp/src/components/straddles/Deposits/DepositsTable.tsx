@@ -1,20 +1,19 @@
 import { useState } from 'react';
-import Table from '@mui/material/Table';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import Box from '@mui/material/Box';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-
-import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
-
 import { useBoundStore } from 'store';
 
-import formatAmount from 'utils/general/formatAmount';
+import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 import WithdrawModal from '../Dialogs/Withdraw';
 
@@ -104,7 +103,7 @@ const DepositsTable = () => {
                           className="px-1 py-[2px]"
                           color="stieglitz"
                         >
-                          USDC
+                          USDC.e
                         </Typography>
                       </Box>
                     </Box>
