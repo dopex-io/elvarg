@@ -100,7 +100,7 @@ const seo = {
       'https://res.cloudinary.com/dxitdndu3/image/upload/v1684326253/dopex_images/preview_images/dpx-bonds_ihgulw.png',
     alt: 'Dopex Bonds',
     title: 'Dopex Bonds',
-    description: 'Commit $USDC to receive $DPX at a discount',
+    description: 'Commit $USDC.e to receive $DPX at a discount',
   },
   default: {
     url: HOST_URL,
