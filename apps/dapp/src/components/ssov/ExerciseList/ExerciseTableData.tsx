@@ -1,7 +1,5 @@
 import { SetStateAction, useCallback, useMemo, useState } from 'react';
-
 import { BigNumber } from 'ethers';
-
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -84,7 +82,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   );
 
   const handleShare = useCallback(() => {
-    const tokenPrice = getUserReadableAmount(ssovData?.tokenPrice || 0, 8);
+    const tokenPrice = getUserReadableAmount(ssovData?.tokenPrice, 8);
 
     share({
       title: (

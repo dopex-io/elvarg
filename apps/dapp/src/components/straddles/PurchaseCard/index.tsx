@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { BigNumber, ethers, utils as ethersUtils } from 'ethers';
-
 import {
   Addresses,
   AtlanticStraddle,
@@ -18,9 +16,9 @@ import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 import { useDebounce } from 'use-debounce';
 
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CustomButton from 'components/UI/Button';
 import NumberDisplay from 'components/UI/NumberDisplay';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -319,10 +317,7 @@ const PurchaseCard = () => {
   const purchaseButtonMessage: string = useMemo(() => {
     if (!approved) return 'Approve';
     else if (amount == 0) return 'Insert an amount';
-    else if (
-      getUserReadableAmount(totalCost, 26) >
-      getUserReadableAmount(userTokenBalance, 6)
-    )
+    else if (totalCost > getUserReadableAmount(userTokenBalance, 6))
       return 'Insufficient balance';
     else if (!(straddlesData?.isVaultReady! && !straddlesData?.isEpochExpired!))
       return 'Vault not ready';

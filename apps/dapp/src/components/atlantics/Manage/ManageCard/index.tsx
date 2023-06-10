@@ -198,7 +198,7 @@ const ManageCard = (props: ManageCardProps) => {
     if (!depositToken) return;
     setValue(
       getUserReadableAmount(
-        userAssetBalances[depositToken || underlying] ?? '0',
+        BigNumber.from(userAssetBalances[depositToken || underlying] ?? '0'),
         getTokenDecimals(depositToken, chainId)
       )
     );
@@ -275,7 +275,7 @@ const ManageCard = (props: ManageCardProps) => {
           <Typography variant="h6">
             {formatAmount(
               getUserReadableAmount(
-                userAssetBalances[depositToken] ?? '0',
+                BigNumber.from(userAssetBalances[depositToken] ?? '0'),
                 CHAINS[chainId]?.tokenDecimals[depositToken]
               ),
               3,

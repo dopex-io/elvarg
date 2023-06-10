@@ -1,27 +1,25 @@
 import {
+  SetStateAction,
   useCallback,
   useEffect,
-  useState,
   useMemo,
-  SetStateAction,
+  useState,
 } from 'react';
-import Box from '@mui/material/Box';
-import Input from '@mui/material/Input';
-import IconButton from '@mui/material/IconButton';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { utils as ethersUtils } from 'ethers';
+import { BigNumber, utils as ethersUtils } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Input from '@mui/material/Input';
+import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
 
+import CustomButton from 'components/UI/Button';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
-
-import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-
-import useSendTx from 'hooks/useSendTx';
 
 export interface Props {
   open: boolean;
@@ -46,7 +44,7 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
   const [transferAmount, setTransferAmount] = useState('0');
   const [recipient, setRecipient] = useState('');
   const [userEpochStrikeTokenBalance, setUserEpochStrikeTokenBalance] =
-    useState<string>('0');
+    useState<BigNumber>(BigNumber.from(0));
 
   // @ts-ignore TODO: FIX
   const { epochStrikes, epochStrikeTokens } = ssovEpochData;
@@ -75,14 +73,14 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
 
   const updateUserEpochStrikeTokenBalance = useCallback(async () => {
     if (!epochStrikeToken || !accountAddress) {
-      setUserEpochStrikeTokenBalance('0');
+      setUserEpochStrikeTokenBalance(BigNumber.from(0));
       return;
     }
     const userEpochStrikeTokenBalance = await ERC20__factory.connect(
       epochStrikeToken,
       provider
     ).balanceOf(accountAddress);
-    setUserEpochStrikeTokenBalance(userEpochStrikeTokenBalance.toString());
+    setUserEpochStrikeTokenBalance(userEpochStrikeTokenBalance);
   }, [epochStrikeToken, accountAddress, provider]);
 
   const handleRecipientChange = useCallback(
