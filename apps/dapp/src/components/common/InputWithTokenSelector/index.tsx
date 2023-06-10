@@ -127,7 +127,7 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
             >
               {formatAmount(
                 getUserReadableAmount(
-                  userTokenBalance,
+                  BigNumber.from(userTokenBalance),
                   getTokenDecimals(selectedTokenSymbol, chainId)
                 ),
                 3
