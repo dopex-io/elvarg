@@ -1,10 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-
 import { ethers } from 'ethers';
-
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import { useBoundStore } from 'store';
@@ -13,6 +10,7 @@ import AppBar from 'components/common/AppBar';
 import DexScreenerChart from 'components/common/DexScreenerChart';
 import QuickLink from 'components/common/QuickLink';
 import Manage from 'components/scalps/Manage';
+import MigrationStepper from 'components/scalps/MigrationStepper';
 import Orders from 'components/scalps/Orders';
 import Positions from 'components/scalps/Positions';
 import TopBar from 'components/scalps/TopBar';
@@ -143,6 +141,42 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
               <Positions />
             </div>
             <div>
+              {selectedPoolName === 'ETH' ? (
+                <>
+                  <MigrationStepper
+                    deprecatedAddress={{
+                      asset: 'ETH',
+                      address: '0x49f517Cfed2679Fb8B31Df102150b81b25Ee552b',
+                    }}
+                    isQuote={false}
+                  />
+                  <MigrationStepper
+                    deprecatedAddress={{
+                      asset: 'USDC',
+                      address: '0x49f517Cfed2679Fb8B31Df102150b81b25Ee552b',
+                    }}
+                    isQuote={true}
+                  />
+                </>
+              ) : (
+                <>
+                  <MigrationStepper
+                    deprecatedAddress={{
+                      asset: 'ARB',
+                      address: '0xdaf4ffb05bfcb2c328c19135e3e74e1182c88283',
+                    }}
+                    isQuote={false}
+                  />
+                  <MigrationStepper
+                    deprecatedAddress={{
+                      asset: 'USDC',
+                      address: '0xdaf4ffb05bfcb2c328c19135e3e74e1182c88283',
+                    }}
+                    isQuote={true}
+                  />
+                </>
+              )}
+
               <ManageComponent />
               <div className="mt-6 w-auto">
                 <div className="flex flex-col space-y-2">
