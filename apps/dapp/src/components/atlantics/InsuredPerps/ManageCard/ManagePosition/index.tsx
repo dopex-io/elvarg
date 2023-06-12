@@ -15,16 +15,19 @@ import React, {
   useState,
 } from 'react';
 import { BigNumber, ethers } from 'ethers';
+
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import Slider from '@mui/material/Slider';
+
+import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import KeyboardArrowUpRoundedIcon from '@mui/icons-material/KeyboardArrowUpRounded';
+
 import {
   ERC20__factory,
   GmxVault__factory,
   InsuredLongsStrategy__factory,
 } from '@dopex-io/sdk';
-import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
-import KeyboardArrowUpRoundedIcon from '@mui/icons-material/KeyboardArrowUpRounded';
-import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
-import Slider from '@mui/material/Slider';
 import axios from 'axios';
 import { AtlanticsContext } from 'contexts/Atlantics';
 import useSendTx from 'hooks/useSendTx';
@@ -39,6 +42,7 @@ import CustomButton from 'components/UI/Button';
 import Input from 'components/UI/Input';
 import Typography from 'components/UI/Typography';
 
+import { getBlockTime } from 'utils/contracts';
 import {
   getEligiblePutStrike,
   getStrategyFee,
@@ -58,9 +62,7 @@ import {
   tokenToUsdMin,
   usdToTokenMin,
 } from 'utils/contracts/gmx';
-import formatAmount from 'utils/general/formatAmount';
-import { getBlockTime } from 'utils/general/getBlocktime';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
+import { formatAmount, getTokenDecimals } from 'utils/general';
 
 import { CHAINS } from 'constants/chains';
 import { DOPEX_API_BASE_URL } from 'constants/env';
@@ -640,7 +642,7 @@ const ManagePosition = () => {
     );
 
     if (
-      currentTimestamp >
+      currentTimestamp.toNumber() >
       Number(atlanticPoolEpochData.expiry) - BLACKOUT_WINDOW
     ) {
       setIsBlackoutWindow(true);

@@ -26,13 +26,12 @@ import { Skeleton } from 'components/UI';
 import CustomButton from 'components/UI/Button';
 import Dialog from 'components/UI/Dialog';
 
+import { get1inchQuote, get1inchSwap } from 'utils/1inch';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getTimeToExpirationInYears from 'utils/date/getTimeToExpirationInYears';
 import { getTokenDecimals } from 'utils/general';
 import formatAmount from 'utils/general/formatAmount';
-import get1inchQuote from 'utils/general/get1inchQuote';
-import get1inchSwap from 'utils/general/get1inchSwap';
 import isNativeToken from 'utils/general/isNativeToken';
 import { getDelta } from 'utils/math/blackScholes/greeks';
 import oneEBigNumber from 'utils/math/oneEBigNumber';

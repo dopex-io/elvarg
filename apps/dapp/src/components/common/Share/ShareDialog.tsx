@@ -1,18 +1,17 @@
 import { useCallback, useRef, useState } from 'react';
 
-import { Button } from '@dopex-io/ui';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DownloadIcon from '@mui/icons-material/Download';
 import TwitterIcon from '@mui/icons-material/Twitter';
+
+import { Button } from '@dopex-io/ui';
 import useShare from 'hooks/useShare';
 import { toPng } from 'html-to-image';
 import { toast } from 'react-hot-toast';
 
 import Dialog from 'components/UI/Dialog';
 
-import getShareURL from 'utils/general/getShareURL';
-import getTwitterIntentURL from 'utils/general/getTwitterIntentURL';
-import imageUpload from 'utils/general/imageUpload';
+import { getShareURL, getTwitterIntentURL, imageUpload } from 'utils/share';
 
 import { CLOUDINARY_API_KEY } from 'constants/env';
 

@@ -1,15 +1,17 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber, ethers, utils as ethersUtils } from 'ethers';
+
+import Alert from '@mui/material/Alert';
+import CircularProgress from '@mui/material/CircularProgress';
+import Input from '@mui/material/Input';
+import Tooltip from '@mui/material/Tooltip';
+
 import {
   Addresses,
   AtlanticStraddle,
   AtlanticStraddleV2__factory,
   ERC20__factory,
 } from '@dopex-io/sdk';
-import Alert from '@mui/material/Alert';
-import CircularProgress from '@mui/material/CircularProgress';
-import Input from '@mui/material/Input';
-import Tooltip from '@mui/material/Tooltip';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import useSendTx from 'hooks/useSendTx';
@@ -20,11 +22,10 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CustomButton from 'components/UI/Button';
 import NumberDisplay from 'components/UI/NumberDisplay';
 
+import { get1inchParams, get1inchSwap } from 'utils/1inch';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-import get1inchParams from 'utils/general/get1inchParams';
-import get1inchSwap from 'utils/general/get1inchSwap';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import { MAX_VALUE } from 'constants/index';

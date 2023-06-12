@@ -2,9 +2,9 @@ import { BigNumber } from 'ethers';
 
 import {
   ERC20__factory,
+  Zdte__factory,
   ZdteLP__factory,
   ZdtePositionMinter__factory,
-  Zdte__factory,
 } from '@dopex-io/sdk';
 import graphSdk from 'graphql/graphSdk';
 import { reverse } from 'lodash';
@@ -14,8 +14,11 @@ import { StateCreator } from 'zustand';
 import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';
 
-import { getContractReadableAmount, getCurrentTime } from 'utils/contracts';
-import { getUserReadableAmount } from 'utils/contracts';
+import {
+  getContractReadableAmount,
+  getUserReadableAmount,
+} from 'utils/contracts';
+import getCurrentTime from 'utils/date/getCurrentTime';
 import { formatAmount } from 'utils/general';
 import { getDelta } from 'utils/math/blackScholes/greeks';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
