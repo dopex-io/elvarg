@@ -397,10 +397,10 @@ const Addresses: { [key: number]: any } = {
     },
     'OPTION-SCALPS': {
       ETH: '0x916cD69ee5854A055F3c73763F87446905597d8B',
-      ARB: '0xDaF4FfB05bfCb2C328c19135E3e74e1182C88283',
+      ARB: '0xEA042b76cB5ac66372867eAD8FdafDe251026b4e',
       LIMIT: {
         ETH: '0xc10C6B9561Ee9E4669064bB52a1CdaE3E7062051',
-        ARB: '0xc10C6B9561Ee9E4669064bB52a1CdaE3E7062051',
+        ARB: '0x25506ec69867A50eCa6F854a2c9E6ad576b5CA55',
       },
       LP: {
         ETH: {
@@ -408,8 +408,8 @@ const Addresses: { [key: number]: any } = {
           BASE: '0xF6e4D4311c9878AE3ecaf4d47f8487C2Ab48258F',
         },
         ARB: {
-          QUOTE: '0xeebeb3b7a846b7567e2c581ecabcf3bec2fb46c5',
-          BASE: '0x7e9f05a02893d5c09c66b128866b86f66d12fe1f',
+          QUOTE: '0x16F907a4d1FC1EC67D2f23b45EE404eD4aDfd019',
+          BASE: '0x016e02850cAef9d53A6b10F9A8875AEC3DdE29f8',
         },
       },
     },
