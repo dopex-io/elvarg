@@ -1,5 +1,4 @@
 import { BigNumber, ethers } from 'ethers';
-
 import { OptionScalpsLp, OptionScalpsLp__factory } from '@dopex-io/sdk';
 import graphSdk from 'graphql/graphSdk';
 import queryClient from 'queryClient';
@@ -2414,7 +2413,7 @@ export const createOptionScalpSlice: StateCreator<
     if (!selectedPoolName || !provider) return;
     return new ethers.Contract(
       selectedPoolName === 'ETH'
-        ? '0x37f92c14C2dEaF8026d1F403612d034B5269259b'
+        ? '0x916cD69ee5854A055F3c73763F87446905597d8B'
         : '0xbBe5373C6D656388Db6c710A49461224a85A235E',
       optionScalpsABI,
       provider
@@ -2426,7 +2425,7 @@ export const createOptionScalpSlice: StateCreator<
     if (!selectedPoolName || !provider) return;
     return new ethers.Contract(
       selectedPoolName === 'ETH'
-        ? '0xDa0625172D8B29521378694cdFFC260257669eFb'
+        ? '0xc10C6B9561Ee9E4669064bB52a1CdaE3E7062051'
         : '0x99177D8B53a9E2AEBD936760D654D742773A2EeD',
       limitOrdersABI,
       provider
@@ -2439,7 +2438,7 @@ export const createOptionScalpSlice: StateCreator<
 
     return OptionScalpsLp__factory.connect(
       selectedPoolName === 'ETH'
-        ? '0x4D211FBc49CdC11B16E97a28426c5D5CD6F38b18'
+        ? '0x050Ad81e4aF45d919B68ab93452F1C4F5E72fB2D'
         : '0x37590098b1C81301fdbB4EE8236D0a3b9d63b594',
       provider
     );
@@ -2451,7 +2450,7 @@ export const createOptionScalpSlice: StateCreator<
 
     return OptionScalpsLp__factory.connect(
       selectedPoolName === 'ETH'
-        ? '0xF506f148fa675FEB11839602D271435DD34d5aE6'
+        ? '0xF6e4D4311c9878AE3ecaf4d47f8487C2Ab48258F'
         : '0xF7f6412AC6b822A654B1F4F085b9E87460Cd5c3d',
       provider
     );
