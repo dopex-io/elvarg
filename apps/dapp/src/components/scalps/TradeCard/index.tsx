@@ -139,11 +139,12 @@ const TradeCard = () => {
       optionScalpData?.quoteDecimals!.toNumber()!
     );
 
-    let tick =
-      Math.round(Math.log(_markPrice) / Math.log(1.0001) / 10) * 10 - 10;
+    let tick = Math.round(Math.log(_markPrice) / Math.log(1.0001) / 10) * 10;
+
+    tick += isShort ? 10 : -10;
 
     setRawLimitPrice((1.0001 ** tick).toFixed(4));
-  }, [optionScalpData, setRawLimitPrice]);
+  }, [optionScalpData, setRawLimitPrice, isShort]);
 
   const roundedLimitPrice = useMemo(() => {
     if (isNaN(Number(rawLimitPrice)) || !optionScalpData) return;
