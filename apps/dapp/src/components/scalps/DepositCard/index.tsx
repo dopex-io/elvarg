@@ -1,19 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { BigNumber } from 'ethers';
 
-import { ERC20__factory } from '@dopex-io/sdk';
 import { CircularProgress } from '@mui/material';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
+
+import { ERC20__factory } from '@dopex-io/sdk';
+import { Button } from '@dopex-io/ui';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
-import CustomButton from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import Wrapper from 'components/ssov/Wrapper';
+import Typography from 'components/UI/Typography';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -402,7 +402,7 @@ const DepositCard = () => {
           <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
             <EstimatedGasCostButton gas={500000} chainId={chainId} />
           </Box>
-          <CustomButton
+          <Button
             size="small"
             className="w-full"
             color={
@@ -420,7 +420,7 @@ const DepositCard = () => {
                 depositButtonMessage
               )}
             </p>
-          </CustomButton>
+          </Button>
         </Box>
       </Box>
     </Box>

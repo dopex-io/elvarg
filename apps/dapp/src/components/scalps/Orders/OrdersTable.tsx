@@ -1,13 +1,11 @@
 import { useCallback, useMemo } from 'react';
-
 import Link from 'next/link';
 
+import { Button } from '@dopex-io/ui';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
 import Countdown from 'react-countdown';
 import { useBoundStore } from 'store';
-
-import CustomButton from 'components/UI/Button';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import displayAddress from 'utils/general/displayAddress';
@@ -163,7 +161,7 @@ const OrdersTable = () => {
       await updateOptionScalpUserData();
       await getScalpOrders();
     },
-    [optionScalpData, sendTx, signer, updateOptionScalpUserData]
+    [optionScalpData, sendTx, signer, updateOptionScalpUserData, getScalpOrders]
   );
 
   return (
@@ -186,13 +184,13 @@ const OrdersTable = () => {
               >
                 {ordersKeys.map((info) => getCellComponent(info, order))}
                 <div className="flex flex-row justify-end w-full">
-                  <CustomButton
+                  <Button
                     className="cursor-pointer text-white w-2 mr-2"
                     color={'primary'}
                     onClick={() => handleCancel(order.type, order.id)}
                   >
                     <span className="text-xs md:sm">Cancel</span>
-                  </CustomButton>
+                  </Button>
                 </div>
               </div>
             ))}

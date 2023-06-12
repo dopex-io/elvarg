@@ -6,12 +6,12 @@ import Input from '@mui/material/Input';
 import Slider from '@mui/material/Slider';
 
 import { ERC20__factory } from '@dopex-io/sdk';
+import { Button } from '@dopex-io/ui';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import CustomButton from 'components/UI/Button';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -170,7 +170,7 @@ const TradeCard = () => {
     }
 
     return (1.0001 ** ((tick0 + tick1) / 2) * 10 ** 12).toFixed(4);
-  }, [rawLimitPrice]);
+  }, [rawLimitPrice, isShort, optionScalpData]);
 
   useEffect(() => {
     calcPremium();
@@ -205,7 +205,7 @@ const TradeCard = () => {
         ? `Long entry limit price is above the current price, please set limit price lower than ${_markPrice}`
         : null;
     }
-  }, [isShort, rawLimitPrice, markPrice, optionScalpData, orderType]);
+  }, [isShort, rawLimitPrice, optionScalpData, orderType]);
 
   const tradeButtonProps = useMemo(() => {
     let _props = {
@@ -256,6 +256,7 @@ const TradeCard = () => {
 
     return _props;
   }, [
+    isShort,
     markPrice,
     approved,
     positionDetails,
@@ -789,7 +790,7 @@ const TradeCard = () => {
       </div>
       <div className="rounded-lg bg-neutral-800">
         <div className="p-3">
-          <CustomButton
+          <Button
             size="small"
             className="w-full !rounded-md"
             color={!tradeButtonProps.disabled ? 'primary' : 'mineshaft'}
@@ -797,7 +798,7 @@ const TradeCard = () => {
             onClick={approved ? handleTrade : handleApprove}
           >
             <p className="text-[0.8rem]">{tradeButtonProps.text}</p>
-          </CustomButton>
+          </Button>
         </div>
       </div>
     </div>

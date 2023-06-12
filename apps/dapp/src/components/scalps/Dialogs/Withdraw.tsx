@@ -1,16 +1,16 @@
 import React, { useCallback, useMemo } from 'react';
 
-import CloseIcon from '@mui/icons-material/Close';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
+
+import CloseIcon from '@mui/icons-material/Close';
+
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
 import Countdown from 'react-countdown';
 import { useBoundStore } from 'store';
-
-import CustomButton from 'components/UI/Button';
 
 export interface Props {
   open: boolean;
@@ -142,7 +142,7 @@ const WithdrawModal = ({
                 Withdraw manually
               </Typography>
               <Box className="flex items-center">
-                <CustomButton
+                <Button
                   onClick={handleWithdraw}
                   className={cx(
                     'rounded-md h-10 ml-1 hover:bg-opacity-70 pl-2 pr-2',
@@ -151,7 +151,6 @@ const WithdrawModal = ({
                       : 'bg-primary hover:bg-primary text-white'
                   )}
                   disabled={!isWithdrawalEnabled}
-                  color={isWithdrawalEnabled ? 'primary' : 'mineshaft'}
                 >
                   {isWithdrawalEnabled || !straddlesData?.isEpochExpired ? (
                     'Withdraw'
@@ -177,7 +176,7 @@ const WithdrawModal = ({
                       }}
                     />
                   )}
-                </CustomButton>
+                </Button>
               </Box>
             </Box>
             <Box className="m-2 mt-5">

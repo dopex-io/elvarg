@@ -1,16 +1,18 @@
 import { useCallback, useEffect, useState } from 'react';
 import { BigNumber } from 'ethers';
+
+import CircularProgress from '@mui/material/CircularProgress';
+import Step from '@mui/material/Step';
+import StepContent from '@mui/material/StepContent';
+import StepLabel from '@mui/material/StepLabel';
+import Stepper from '@mui/material/Stepper';
+
 import {
   ERC20__factory,
   OptionScalps__factory,
   OptionScalpsLp__factory,
 } from '@dopex-io/sdk';
 import { Button } from '@dopex-io/ui';
-import CircularProgress from '@mui/material/CircularProgress';
-import Step from '@mui/material/Step';
-import StepContent from '@mui/material/StepContent';
-import StepLabel from '@mui/material/StepLabel';
-import Stepper from '@mui/material/Stepper';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
@@ -143,7 +145,15 @@ export default function MigrationStepper({
       setLoading(false);
       console.log(err);
     }
-  }, [signer, sendTx, isQuote, handleNext, optionScalpData, toWithdrawAmount]);
+  }, [
+    signer,
+    sendTx,
+    isQuote,
+    handleNext,
+    optionScalpData,
+    toWithdrawAmount,
+    deprecatedScalpsContract,
+  ]);
 
   const handleDeposit = useCallback(async () => {
     if (!signer) return;

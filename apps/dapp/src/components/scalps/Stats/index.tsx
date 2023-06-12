@@ -1,6 +1,4 @@
-import React, { ReactNode, useEffect, useState } from 'react';
-import { useMemo } from 'react';
-
+import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 import { BigNumber, utils } from 'ethers';
 
 import graphSdk from 'graphql/graphSdk';
@@ -96,13 +94,7 @@ const Stats = () => {
     }
 
     return '';
-  }, [
-    selectedPoolName,
-    optionScalpData,
-    uniWethPrice,
-    uniArbPrice,
-    optionScalpData,
-  ]);
+  }, [selectedPoolName, optionScalpData, uniWethPrice, uniArbPrice]);
 
   const stats = useMemo(() => {
     let _stats = {

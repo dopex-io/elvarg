@@ -1,10 +1,12 @@
 import { useCallback, useMemo } from 'react';
-
 import { BigNumber } from 'ethers';
 
-import IosShare from '@mui/icons-material/IosShare';
 import { IconButton } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
+
+import IosShare from '@mui/icons-material/IosShare';
+
+import { Button } from '@dopex-io/ui';
 import cx from 'classnames';
 import { formatDistance } from 'date-fns';
 import useSendTx from 'hooks/useSendTx';
@@ -12,9 +14,8 @@ import useShare from 'hooks/useShare';
 import Countdown from 'react-countdown';
 import { useBoundStore } from 'store';
 
-import CustomButton from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
 import LimitOrderPopover from 'components/scalps/LimitOrderPopover';
+import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -368,13 +369,13 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                 {positionKeys.map((info) => getCellComponent(info, position))}
                 <div className="flex flex-row justify-end w-full">
                   {position.isOpen && (
-                    <CustomButton
+                    <Button
                       className="cursor-pointer text-white w-2"
                       color={'primary'}
                       onClick={() => handleClose(position.id)}
                     >
                       <span className="text-xs md:sm">Close</span>
-                    </CustomButton>
+                    </Button>
                   )}
                   {position.isOpen && (
                     <div className="mx-2">

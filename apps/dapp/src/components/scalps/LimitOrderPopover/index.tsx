@@ -1,14 +1,15 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
+
 import IconButton from '@mui/material/IconButton';
 import Input from '@mui/material/Input';
 import Popover from '@mui/material/Popover';
 import Tooltip from '@mui/material/Tooltip';
+
+import { Button } from '@dopex-io/ui';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 import CrossIcon from 'svgs/icons/CrossIcon';
-
-import CustomButton from 'components/UI/Button';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
@@ -37,14 +38,16 @@ const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
     return BigNumber.from('0');
   }, [uniWethPrice, uniArbPrice, selectedPoolName]);
 
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
   const handleCloseLimitOrderPopover = useCallback(() => setAnchorEl(null), []);
   const handleOpenLimitOrderPopover = useCallback(
-    // @ts-ignore TODO: FIX
-    (event) => setAnchorEl(event.currentTarget),
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      if (event.currentTarget != null) {
+        setAnchorEl(event.currentTarget);
+      }
+    },
     []
   );
-
   const handleCreate = useCallback(async () => {
     if (
       !optionScalpData?.optionScalpContract ||
@@ -70,7 +73,15 @@ const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
       'createCloseOrder',
       [id, tick0, tick1]
     ).then(() => updateOptionScalp().then(() => updateOptionScalpUserData()));
-  }, [signer, rawLimitPrice, optionScalpData, id]);
+  }, [
+    signer,
+    rawLimitPrice,
+    optionScalpData,
+    id,
+    sendTx,
+    updateOptionScalp,
+    updateOptionScalpUserData,
+  ]);
 
   return (
     <div>
@@ -79,13 +90,13 @@ const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
         aria-label="add"
         placement="top"
       >
-        <CustomButton
+        <Button
           className="cursor-pointer text-white w-2"
           color={'primary'}
           onClick={handleOpenLimitOrderPopover}
         >
           <span className="text-xs md:sm">Limit Close</span>
-        </CustomButton>
+        </Button>
       </Tooltip>
       <Popover
         anchorEl={anchorEl}
@@ -127,13 +138,13 @@ const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
               classes={{ input: 'text-white text-xs text-left py-2' }}
             />
           </div>
-          <CustomButton
+          <Button
             className="cursor-pointer text-white w-full mt-3"
             color={'primary'}
             onClick={handleCreate}
           >
             <span className="text-xs md:sm">Create limit order</span>
-          </CustomButton>
+          </Button>
         </div>
       </Popover>
     </div>
