@@ -1,7 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-
 import { BigNumber } from 'ethers';
-
 import IconButton from '@mui/material/IconButton';
 import Input from '@mui/material/Input';
 import Popover from '@mui/material/Popover';
@@ -70,7 +68,7 @@ const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
     await sendTx(
       optionScalpData.limitOrdersContract.connect(signer),
       'createCloseOrder',
-      [optionScalpData.optionScalpContract.address, id, tick0, tick1]
+      [id, tick0, tick1]
     ).then(() => updateOptionScalp().then(() => updateOptionScalpUserData()));
   }, [signer, rawLimitPrice, optionScalpData, id]);
 
