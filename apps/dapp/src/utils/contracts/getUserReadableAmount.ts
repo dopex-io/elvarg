@@ -1,5 +1,8 @@
 import { BigNumber, utils as ethersUtils } from 'ethers';
 
+/**
+ * @deprecated
+ */
 export default function getUserReadableAmount(
   amount: BigNumber | undefined,
   decimals: string | number = 18
