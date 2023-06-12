@@ -1,12 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber, ethers } from 'ethers';
-import { ERC20__factory } from '@dopex-io/sdk';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Slide from '@mui/material/Slide';
+
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+
+import { ERC20__factory } from '@dopex-io/sdk';
 import format from 'date-fns/format';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
@@ -22,7 +25,6 @@ import PnlChart from 'components/common/PnlChart';
 import { Skeleton } from 'components/UI';
 import CustomButton from 'components/UI/Button';
 import Dialog from 'components/UI/Dialog';
-import Typography from 'components/UI/Typography';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
