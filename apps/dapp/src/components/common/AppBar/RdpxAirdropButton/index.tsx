@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { utils as ethersUtils } from 'ethers';
+
 import { Addresses, MerkleDistributor__factory } from '@dopex-io/sdk';
 import { Button } from '@dopex-io/ui';
 import { useQuery } from '@tanstack/react-query';
@@ -45,7 +46,7 @@ const RdpxAirdropButton = ({ account }: { account: string }) => {
     );
   }, [contract, network.chain?.id, query.data, signer, switchNetwork]);
 
-  if (!query.isLoading && query.data.valid) {
+  if (!query.isLoading && query.data?.valid) {
     return (
       <Button
         color="carbon"

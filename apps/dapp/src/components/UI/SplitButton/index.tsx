@@ -1,15 +1,20 @@
 import { useRef, useState } from 'react';
+
 import ButtonGroup from '@mui/material/ButtonGroup';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Grow from '@mui/material/Grow';
-import Paper from '@mui/material/Paper';
-import Popper from '@mui/material/Popper';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
+import Paper from '@mui/material/Paper';
+import Popper from '@mui/material/Popper';
+
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 import CustomButton from '../Button';
 
+/**
+ * @deprecated
+ */
 export default function SplitButton({
   options,
   handleClick,

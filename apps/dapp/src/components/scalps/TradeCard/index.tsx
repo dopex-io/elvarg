@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
-import { ERC20__factory } from '@dopex-io/sdk';
+
 import Checkbox from '@mui/material/Checkbox';
 import Input from '@mui/material/Input';
 import Slider from '@mui/material/Slider';
+
+import { ERC20__factory } from '@dopex-io/sdk';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';

@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber, utils as ethersUtils } from 'ethers';
-import { ERC20__factory } from '@dopex-io/sdk';
+
 import { CircularProgress } from '@mui/material';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+
+import { ERC20__factory } from '@dopex-io/sdk';
 import format from 'date-fns/format';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
@@ -20,11 +22,10 @@ import Wrapper from 'components/ssov/Wrapper';
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 
+import { defaultQuoteData, get1inchQuote, get1inchSwap } from 'utils/1inch';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import { getTokenDecimals } from 'utils/general';
 import formatAmount from 'utils/general/formatAmount';
-import get1inchQuote, { defaultQuoteData } from 'utils/general/get1inchQuote';
-import get1inchSwap from 'utils/general/get1inchSwap';
 import isNativeToken from 'utils/general/isNativeToken';
 
 const SelectMenuProps = {
