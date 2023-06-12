@@ -396,12 +396,16 @@ const Addresses: { [key: number]: any } = {
       },
     },
     'OPTION-SCALPS': {
-      ETH: '0x49f517Cfed2679Fb8B31Df102150b81b25Ee552b',
+      ETH: '0x916cD69ee5854A055F3c73763F87446905597d8B',
       ARB: '0xDaF4FfB05bfCb2C328c19135E3e74e1182C88283',
+      LIMIT: {
+        ETH: '0xc10C6B9561Ee9E4669064bB52a1CdaE3E7062051',
+        ARB: '0xc10C6B9561Ee9E4669064bB52a1CdaE3E7062051',
+      },
       LP: {
         ETH: {
-          QUOTE: '0x2c123b7f3028bfec69a6ab1237c212dfa10e8866',
-          BASE: '0x28ac2aa81be11a8822880d91c19643fe5e343999',
+          QUOTE: '0x050Ad81e4aF45d919B68ab93452F1C4F5E72fB2D',
+          BASE: '0xF6e4D4311c9878AE3ecaf4d47f8487C2Ab48258F',
         },
         ARB: {
           QUOTE: '0xeebeb3b7a846b7567e2c581ecabcf3bec2fb46c5',

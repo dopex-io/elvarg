@@ -1,5 +1,11 @@
-import { BigNumber, ethers } from 'ethers';
-import { OptionScalpsLp, OptionScalpsLp__factory } from '@dopex-io/sdk';
+import { BigNumber } from 'ethers';
+
+import {
+  OptionScalps__factory,
+  OptionScalpsLimitOrderManager__factory,
+  OptionScalpsLp,
+  OptionScalpsLp__factory,
+} from '@dopex-io/sdk';
 import graphSdk from 'graphql/graphSdk';
 import queryClient from 'queryClient';
 import { StateCreator } from 'zustand';
@@ -2408,50 +2414,45 @@ export const createOptionScalpSlice: StateCreator<
     },
   },
   getOptionScalpContract: () => {
-    const { selectedPoolName, provider } = get();
+    const { selectedPoolName, provider, contractAddresses } = get();
 
     if (!selectedPoolName || !provider) return;
-    return new ethers.Contract(
-      selectedPoolName === 'ETH'
-        ? '0x916cD69ee5854A055F3c73763F87446905597d8B'
-        : '0xbBe5373C6D656388Db6c710A49461224a85A235E',
-      optionScalpsABI,
-      provider
-    );
+
+    const optionScalpsAddress =
+      contractAddresses['OPTION-SCALPS'][selectedPoolName];
+
+    return OptionScalps__factory.connect(optionScalpsAddress, provider);
   },
   getLimitOrdersContract: () => {
-    const { selectedPoolName, provider } = get();
+    const { selectedPoolName, provider, contractAddresses } = get();
 
     if (!selectedPoolName || !provider) return;
-    return new ethers.Contract(
-      selectedPoolName === 'ETH'
-        ? '0xc10C6B9561Ee9E4669064bB52a1CdaE3E7062051'
-        : '0x99177D8B53a9E2AEBD936760D654D742773A2EeD',
-      limitOrdersABI,
+
+    const optionScalpsAddress =
+      contractAddresses['OPTION-SCALPS']['LIMIT'][selectedPoolName];
+
+    return OptionScalpsLimitOrderManager__factory.connect(
+      optionScalpsAddress,
       provider
     );
   },
   getOptionScalpsQuoteLpContract: () => {
-    const { selectedPoolName, provider } = get();
+    const { selectedPoolName, provider, contractAddresses } = get();
 
     if (!selectedPoolName || !provider) return;
 
     return OptionScalpsLp__factory.connect(
-      selectedPoolName === 'ETH'
-        ? '0x050Ad81e4aF45d919B68ab93452F1C4F5E72fB2D'
-        : '0x37590098b1C81301fdbB4EE8236D0a3b9d63b594',
+      contractAddresses['OPTION-SCALPS']['LP'][selectedPoolName]['QUOTE'],
       provider
     );
   },
   getOptionScalpsBaseLpContract: () => {
-    const { selectedPoolName, provider } = get();
+    const { selectedPoolName, provider, contractAddresses } = get();
 
     if (!selectedPoolName || !provider) return;
 
     return OptionScalpsLp__factory.connect(
-      selectedPoolName === 'ETH'
-        ? '0xF6e4D4311c9878AE3ecaf4d47f8487C2Ab48258F'
-        : '0xF7f6412AC6b822A654B1F4F085b9E87460Cd5c3d',
+      contractAddresses['OPTION-SCALPS']['LP'][selectedPoolName]['BASE'],
       provider
     );
   },
