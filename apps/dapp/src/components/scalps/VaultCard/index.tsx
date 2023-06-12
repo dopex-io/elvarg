@@ -1,15 +1,15 @@
 import { useMemo } from 'react';
-
 import Link from 'next/link';
 
 import Box from '@mui/material/Box';
-import Tooltip from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
+import Tooltip from '@mui/material/Tooltip';
+
+import { Button } from '@dopex-io/ui';
 import cx from 'classnames';
 import format from 'date-fns/format';
 import Coin from 'svgs/icons/Coin';
 
-import CustomButton from 'components/UI/Button';
 import InfoBox from 'components/UI/InfoBox';
 import Typography from 'components/UI/Typography';
 
@@ -105,9 +105,9 @@ function VaultCard(props: Props) {
             })}
           </Box>
           <Link href={`/straddles/${underlyingSymbol}`} passHref>
-            <CustomButton size="medium" className="my-4" fullWidth>
+            <Button size="medium" className="my-4 w-full">
               Manage
-            </CustomButton>
+            </Button>
           </Link>
           <Box className="flex justify-between">
             <Typography variant="h6" className="text-stieglitz">
