@@ -1,8 +1,6 @@
-export { default as Accordion } from './Accordion';
 export { default as CustomButton } from './Button';
 export { default as CtaBanner } from './CtaBanner';
 export { default as Dialog } from './Dialog';
-export { default as InfoPopover } from './InfoPopover';
 export { default as InfoTooltip } from './InfoTooltip';
 export { default as Input } from './Input';
 export { default as NumberDisplay } from './NumberDisplay';
