@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { BigNumber } from 'ethers';
-
 import { ERC20__factory } from '@dopex-io/sdk';
 import Checkbox from '@mui/material/Checkbox';
 import Input from '@mui/material/Input';
@@ -10,8 +8,8 @@ import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
-import CustomButton from 'components/UI/Button';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import CustomButton from 'components/UI/Button';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -118,6 +116,8 @@ const TradeCard = () => {
       '15m': 15 * 60,
       '30m': 30 * 60,
       '60m': 60 * 60,
+      '2h': 2 * 60 * 60,
+      '4h': 2 * 60 * 60,
     };
 
     try {
@@ -303,6 +303,8 @@ const TradeCard = () => {
       '15m': 2,
       '30m': 3,
       '60m': 4,
+      '2h': 5,
+      '4h': 6,
     };
 
     return indexes[selectedTimeWindow];
@@ -641,7 +643,7 @@ const TradeCard = () => {
         ) : null}
       </div>
       <div className="flex mb-4">
-        {['1m', '5m', '15m', '30m', '60m'].map((time, i) => (
+        {['1m', '5m', '15m', '30m', '60m', '2h', '4h'].map((time, i) => (
           <div
             key={i}
             className={
