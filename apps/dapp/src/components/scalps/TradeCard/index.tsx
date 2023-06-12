@@ -578,37 +578,8 @@ const TradeCard = () => {
               onChange={handleInputChange}
               classes={{ input: 'text-right' }}
             />
-            <h6 className="text-stieglitz mr-3 ml-1 mb-1">
+            <h6 className="text-stieglitz mr-3 ml-1">
               {showAsQuote ? optionScalpData?.quoteSymbol : selectedPoolName}
-            </h6>
-          </div>
-        </div>
-        <div className="flex flex-row justify-between items-center mt-2">
-          <div className=" flex mr-2 border border-mineshaft rounded-md">
-            {[10, 25, 50, 75, 100].map((option, i) => (
-              <div
-                key={i}
-                className={`text-center w-auto cursor-pointer group hover:bg-mineshaft hover:opacity-80`}
-                onClick={() => setSelectedMargin(option)}
-              >
-                <h6 className="text-xs font-light py-2 px-2">{option}%</h6>
-              </div>
-            ))}
-          </div>
-
-          <div className="ml-auto mr-0 flex">
-            <h6
-              onClick={handleMax}
-              className="text-stieglitz text-xs font-light pl-1 pr-3 text-[12px]"
-            >
-              {formatAmount(
-                getUserReadableAmount(
-                  userTokenBalance,
-                  optionScalpData?.quoteDecimals!.toNumber()
-                ),
-                8
-              )}{' '}
-              {optionScalpData?.quoteSymbol}
             </h6>
           </div>
         </div>
