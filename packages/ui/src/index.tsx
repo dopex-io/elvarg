@@ -22,4 +22,7 @@ export type { MenuItemsProps, ItemType } from './MenuItems';
 export { default as Input } from './Input';
 export type { InputProps } from './Input';
 
+export { default as Skeleton } from './Skeleton';
+export type { SkeletonProps } from './Skeleton';
+
 export * from './icons';
