@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 
-import { ButtonGroup } from '@mui/material';
-
-import { Button } from '@dopex-io/ui';
+import { Button, ButtonGroup } from '@mui/material';
 
 import DepositCard from 'components/scalps/DepositCard';
 import WithdrawCard from 'components/scalps/WithdrawCard';

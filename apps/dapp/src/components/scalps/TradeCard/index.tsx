@@ -592,7 +592,7 @@ const TradeCard = () => {
               </p>
             </div>
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center ml-6">
             <Input
               color="cod-gray"
               variant="small"
