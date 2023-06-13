@@ -8,7 +8,6 @@ import useVaultQuery from 'hooks/vaults/query';
 import useVaultState from 'hooks/vaults/state';
 import useFetchStrikes from 'hooks/vaults/strikes';
 import { useDebounce } from 'use-debounce';
-import { Address } from 'viem';
 import {
   erc20ABI,
   useAccount,
@@ -77,14 +76,14 @@ const AsidePanel = () => {
     contracts: [
       {
         abi: erc20ABI,
-        address: TOKEN_SYMBOL_TO_ADDRESS[vault.base] as Address,
+        address: TOKEN_SYMBOL_TO_ADDRESS[vault.base] as `0x${string}`,
         functionName: 'allowance',
-        args: [address as Address, vault.address as Address],
+        args: [address as `0x${string}`, vault.address as `0x${string}`],
         chainId: client.lastUsedChainId,
       },
       {
         abi: erc20ABI,
-        address: TOKEN_SYMBOL_TO_ADDRESS[vault.base] as Address,
+        address: TOKEN_SYMBOL_TO_ADDRESS[vault.base] as `0x${string}`,
         functionName: 'balanceOf',
         args: [address!],
         chainId: client.lastUsedChainId,
@@ -93,16 +92,16 @@ const AsidePanel = () => {
   });
   const { config: approveConfig } = usePrepareContractWrite({
     abi: erc20ABI,
-    address: TOKEN_SYMBOL_TO_ADDRESS[vault.base] as Address,
+    address: TOKEN_SYMBOL_TO_ADDRESS[vault.base] as `0x${string}`,
     functionName: 'approve',
     args: [
-      vault.address as Address,
+      vault.address as `0x${string}`,
       getContractReadableAmount(amountDebounced, DECIMALS_TOKEN),
     ],
   });
   const { config } = usePrepareContractWrite({
     abi: vault.abi as any,
-    address: vault.address as Address,
+    address: vault.address as `0x${string}`,
     ...(activeIndex === 0 // 0: purchase, 1: deposit
       ? { functionName: 'purchase' }
       : { functionName: 'deposit' }),

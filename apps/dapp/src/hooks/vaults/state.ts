@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
+// All currently active SSOVs
 export const SSOV_VAULTS: { [key: string]: string } = {
   // 'ETH-MONTHLY-CALLS-SSOV-V3-3': '0xC59836FEC63Cfb2E48b0aa00515056436D74Dc03',
   'ETH-WEEKLY-PUTS-SSOV-V3-3': '0x32449DF9c617C59f576dfC461D03f261F617aD5a',

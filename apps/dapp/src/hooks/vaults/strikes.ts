@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
 
 import { SsovV3__factory } from '@dopex-io/sdk';
-import { Address } from 'viem';
 import { readContracts, useContractReads } from 'wagmi';
 
 import {
@@ -54,18 +53,18 @@ const useFetchStrikes = (props: Props) => {
     contracts: [
       {
         abi: SsovV3__factory.abi,
-        address: contractAddress as Address,
+        address: contractAddress as `0x${string}`,
         functionName: 'getEpochData',
         args: [BigNumber.from(epoch || 1)],
       },
       {
         abi: SsovV3__factory.abi,
-        address: contractAddress as Address,
+        address: contractAddress as `0x${string}`,
         functionName: 'getUnderlyingPrice',
       },
       {
         abi: SsovV3__factory.abi,
-        address: contractAddress as Address,
+        address: contractAddress as `0x${string}`,
         functionName: 'isPut',
       },
     ],

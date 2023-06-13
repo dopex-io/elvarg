@@ -3,12 +3,10 @@ import { useEffect, useMemo } from 'react';
 import { Button } from '@dopex-io/ui';
 import { format } from 'date-fns';
 import useVaultQuery from 'hooks/vaults/query';
-import useVaultState from 'hooks/vaults/state';
+import useVaultState, { DurationType } from 'hooks/vaults/state';
 import useFetchStrikes from 'hooks/vaults/strikes';
 import { Column, useTable } from 'react-table';
 import PlusIcon from 'svgs/icons/PlusIcon';
-
-import { DurationType } from 'store/Vault/vault';
 
 import Placeholder from 'components/vaults/Tables/Placeholder';
 import FilterPanel from 'components/vaults/Tables/StrikesChain/FilterPanel';
