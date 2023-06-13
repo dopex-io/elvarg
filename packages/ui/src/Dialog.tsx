@@ -17,11 +17,7 @@ const Dialog = (props: DialogProps) => {
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <HeadlessDialog
-        as="div"
-        className="relative z-10 backdrop-blur-lg"
-        onClose={handleClose}
-      >
+      <HeadlessDialog as="div" className="relative z-10" onClose={handleClose}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
