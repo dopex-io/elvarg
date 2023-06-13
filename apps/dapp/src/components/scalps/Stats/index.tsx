@@ -186,16 +186,6 @@ const Stats = () => {
           ${optionScalpData?.quoteSymbol}`}
         />
         <Stat
-          name="24h Volume"
-          value={`${formatAmount(
-            optionScalpData?.baseSymbol === 'ETH'
-              ? twentyFourHourVolume.ETH
-              : twentyFourHourVolume.ARB,
-            0,
-            true
-          )} ${optionScalpData?.quoteSymbol}`}
-        />
-        <Stat
           name={`${optionScalpData?.quoteSymbol} LP APR`}
           value={`${
             optionScalpData?.quoteLpAPR
