@@ -185,7 +185,7 @@ const OrdersTable = () => {
                 {ordersKeys.map((info) => getCellComponent(info, order))}
                 <div className="flex flex-row justify-end w-full">
                   <Button
-                    className="cursor-pointer text-white w-2 mr-2"
+                    className="cursor-pointer text-white w-2 mr-2 w-full"
                     color={'primary'}
                     onClick={() => handleCancel(order.type, order.id)}
                   >

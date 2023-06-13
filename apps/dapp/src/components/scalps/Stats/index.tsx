@@ -42,7 +42,7 @@ const Stats = () => {
           trade: { id: string; size: string }
         ) => {
           const address = trade.id.split('#')[0]!;
-          if (address === '0xdaf4ffb05bfcb2c328c19135e3e74e1182c88283')
+          if (address === '0xea042b76cb5ac66372867ead8fdafde251026b4e')
             return {
               ARB: acc.ARB.add(BigNumber.from(trade.size)),
               ETH: acc.ETH,
