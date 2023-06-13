@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { BigNumber } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 
 import { IconButton } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
@@ -15,9 +15,7 @@ import Countdown from 'react-countdown';
 import { useBoundStore } from 'store';
 
 import LimitOrderPopover from 'components/scalps/LimitOrderPopover';
-import Typography from 'components/UI/Typography';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 const PositionsTable = ({ tab }: { tab: string }) => {
@@ -60,14 +58,16 @@ const PositionsTable = ({ tab }: { tab: string }) => {
 
       const leverage =
         size /
-        getUserReadableAmount(
-          position.margin,
-          optionScalpData?.quoteDecimals.toNumber()
+        Number(
+          utils.formatUnits(
+            position.margin,
+            optionScalpData?.quoteDecimals.toNumber()
+          )
         );
 
       const _markPrice: any = formatAmount(
         isOpen
-          ? getUserReadableAmount(isOpen ? markPrice : closePrice, 6)
+          ? Number(utils.formatUnits(isOpen ? markPrice : closePrice, 6))
           : closePrice,
         4
       );
@@ -77,7 +77,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       if (!baseSymbol || !quoteSymbol || !markPrice) return;
       share({
         title: (
-          <Typography variant="h5" className="font-bold shadow-2xl">
+          <h5 className="font-bold shadow-2xl">
             <span className={cx(isShort ? 'text-red-500' : 'text-green-500')}>
               {isShort ? 'Short' : 'Long'}
             </span>
@@ -85,13 +85,15 @@ const PositionsTable = ({ tab }: { tab: string }) => {
             <span>{formatAmount(leverage, 1)}x</span>
             {' | '}
             <span>{`${baseSymbol}${quoteSymbol}`}</span>
-          </Typography>
+          </h5>
         ),
         percentage:
           (pnl /
-            getUserReadableAmount(
-              margin.add(premium).add(fees),
-              optionScalpData?.quoteDecimals.toNumber()
+            Number(
+              utils.formatUnits(
+                margin.add(premium).add(fees),
+                optionScalpData?.quoteDecimals.toNumber()
+              )
             )) *
           100,
         customPath: `/scalps/${selectedPoolName}`,
@@ -143,38 +145,46 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         const entry = formatAmount(
           inverted
             ? 1 /
-                getUserReadableAmount(position.entry, quoteDecimals.toNumber())
-            : getUserReadableAmount(position.entry, quoteDecimals.toNumber()),
+                Number(
+                  utils.formatUnits(position.entry, quoteDecimals.toNumber())
+                )
+            : Number(
+                utils.formatUnits(position.entry, quoteDecimals.toNumber())
+              ),
           4
         );
 
-        const size = getUserReadableAmount(
-          position.size,
-          quoteDecimals.toNumber()
+        const size = Number(
+          utils.formatUnits(position.size, quoteDecimals.toNumber())
         );
 
         const liquidationPrice = formatAmount(
           inverted
             ? 1 /
-                getUserReadableAmount(
+                Number(
+                  utils.formatUnits(
+                    position.liquidationPrice,
+                    quoteDecimals.toNumber()
+                  )
+                )
+            : Number(
+                utils.formatUnits(
                   position.liquidationPrice,
                   quoteDecimals.toNumber()
                 )
-            : getUserReadableAmount(
-                position.liquidationPrice,
-                quoteDecimals.toNumber()
               ),
           4
         );
 
         const positions = formatAmount(
-          getUserReadableAmount(position.positions, quoteDecimals.toNumber()),
+          Number(
+            utils.formatUnits(position.positions, quoteDecimals.toNumber())
+          ),
           5
         );
 
-        const pnl = getUserReadableAmount(
-          position.pnl,
-          quoteDecimals.toNumber()
+        const pnl = Number(
+          utils.formatUnits(position.pnl, quoteDecimals.toNumber())
         );
 
         const variation = position.pnl
@@ -183,11 +193,13 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           .mul(10 ** optionScalpData!.quoteDecimals!.toNumber())
           .div(position.positions.abs());
 
-        const closePrice = getUserReadableAmount(
-          position.isShort
-            ? position.entry.sub(variation)
-            : position.entry.add(variation),
-          optionScalpData?.quoteDecimals!.toNumber()!
+        const closePrice = Number(
+          utils.formatUnits(
+            position.isShort
+              ? position.entry.sub(variation)
+              : position.entry.add(variation),
+            optionScalpData?.quoteDecimals!.toNumber()!
+          )
         );
 
         const openedAt = position.openedAt.toNumber();
@@ -265,16 +277,20 @@ const PositionsTable = ({ tab }: { tab: string }) => {
             title={
               <div>
                 <div>{`Fees ${formatAmount(
-                  getUserReadableAmount(
-                    position.fees,
-                    optionScalpData?.quoteDecimals.toNumber()
+                  Number(
+                    utils.formatUnits(
+                      position.fees,
+                      optionScalpData?.quoteDecimals.toNumber()
+                    )
                   ),
                   4
                 )}`}</div>
                 <div>{`Premium ${formatAmount(
-                  getUserReadableAmount(
-                    position.premium,
-                    optionScalpData?.quoteDecimals.toNumber()
+                  Number(
+                    utils.formatUnits(
+                      position.premium,
+                      optionScalpData?.quoteDecimals.toNumber()
+                    )
                   ),
                   4
                 )}`}</div>
@@ -283,9 +299,11 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           >
             <span>{`${formatAmount(data.toFixed(4), 2)} (${formatAmount(
               (position.pnl /
-                getUserReadableAmount(
-                  position.margin.add(position.premium).add(position.fees),
-                  optionScalpData?.quoteDecimals.toNumber()
+                Number(
+                  utils.formatUnits(
+                    position.margin.add(position.premium).add(position.fees),
+                    optionScalpData?.quoteDecimals.toNumber()
+                  )
                 )) *
                 100,
               2
@@ -300,9 +318,8 @@ const PositionsTable = ({ tab }: { tab: string }) => {
 
       if (key === 'margin' || key === 'premium') {
         data = formatAmount(
-          getUserReadableAmount(
-            data,
-            optionScalpData?.quoteDecimals.toNumber()
+          Number(
+            utils.formatUnits(data, optionScalpData?.quoteDecimals.toNumber())
           ),
           4
         );
@@ -370,7 +387,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                 <div className="flex flex-row justify-end w-full">
                   {position.isOpen && (
                     <Button
-                      className="cursor-pointer text-white w-2"
+                      variant="contained"
                       color={'primary'}
                       onClick={() => handleClose(position.id)}
                     >

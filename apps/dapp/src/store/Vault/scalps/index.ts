@@ -310,7 +310,9 @@ export const createOptionScalpSlice: StateCreator<
         .mul(BigNumber.from(10 ** optionScalpData?.quoteDecimals.toNumber()))
         .div(price);
 
-      if (openOrder['cancelled'] === false)
+      const today = new Date().getTime();
+
+      if (openOrder['cancelled'] === false && expiry.toNumber() > today)
         return {
           transactionHash: hash,
           id: id,
@@ -358,19 +360,20 @@ export const createOptionScalpSlice: StateCreator<
         .mul(BigNumber.from(10 ** optionScalpData.quoteDecimals.toNumber()))
         .div(price);
 
-      return {
-        transactionHash: hash,
-        id: id,
-        isOpen: false,
-        isShort: scalpPosition['isShort'],
-        size: scalpPosition['size'],
-        timeframe: scalpPosition['timeframe'],
-        collateral: scalpPosition['collateral'],
-        price: price,
-        expiry: null,
-        positions: positions,
-        type: 'close',
-      };
+      if (scalpPosition['size'].gt(0))
+        return {
+          transactionHash: hash,
+          id: id,
+          isOpen: false,
+          isShort: scalpPosition['isShort'],
+          size: scalpPosition['size'],
+          timeframe: scalpPosition['timeframe'],
+          collateral: scalpPosition['collateral'],
+          price: price,
+          expiry: null,
+          positions: positions,
+          type: 'close',
+        };
     } catch (e) {
       console.log(e);
       return;

@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import Link from 'next/link';
+import { utils } from 'ethers';
 
 import { Button } from '@dopex-io/ui';
 import cx from 'classnames';
@@ -7,9 +8,7 @@ import useSendTx from 'hooks/useSendTx';
 import Countdown from 'react-countdown';
 import { useBoundStore } from 'store';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import displayAddress from 'utils/general/displayAddress';
-import formatAmount from 'utils/general/formatAmount';
+import { displayAddress, formatAmount } from 'utils/general';
 
 const OrdersTable = () => {
   const {
@@ -67,39 +66,47 @@ const OrdersTable = () => {
 
         rightContentStyle = dataStyle + ' text-xs hidden md:inline-block';
         data = (optionScalpData?.inverted ? !order.isShort : order.isShort)
-          ? '-' +
-            getUserReadableAmount(
-              data,
-              optionScalpData?.quoteDecimals.toNumber()
+          ? '-' + data
+            ? Number(
+                utils.formatUnits(
+                  data,
+                  optionScalpData?.quoteDecimals.toNumber()
+                )
+              )
+            : null
+          : '+' + data
+          ? Number(
+              utils.formatUnits(data, optionScalpData?.quoteDecimals.toNumber())
             )
-          : '+' +
-            getUserReadableAmount(
-              data,
-              optionScalpData?.quoteDecimals.toNumber()
-            );
+          : null;
       }
 
       if (key === 'size' || key === 'price') {
-        data = formatAmount(
-          getUserReadableAmount(
-            order[key],
-            optionScalpData?.quoteDecimals.toNumber()
-          ),
-          4
-        );
+        data = order[key]
+          ? formatAmount(
+              Number(
+                utils.formatUnits(
+                  order[key],
+                  optionScalpData?.quoteDecimals.toNumber()
+                )
+              ),
+              4
+            )
+          : null;
       }
 
       if (key === 'collateral') {
-        data =
-          formatAmount(
-            getUserReadableAmount(
-              order[key],
-              optionScalpData?.quoteDecimals.toNumber()
-            ),
-            4
-          ) +
-          ' ' +
-          optionScalpData.quoteSymbol;
+        data = order[key]
+          ? formatAmount(
+              Number(
+                utils.formatUnits(
+                  order[key],
+                  optionScalpData?.quoteDecimals.toNumber()
+                )
+              ),
+              4
+            )
+          : null + ' ' + optionScalpData.quoteSymbol;
       }
 
       if (key === 'expiry') {
@@ -185,7 +192,7 @@ const OrdersTable = () => {
                 {ordersKeys.map((info) => getCellComponent(info, order))}
                 <div className="flex flex-row justify-end w-full">
                   <Button
-                    className="cursor-pointer text-white w-2 mr-2 w-full"
+                    variant="contained"
                     color={'primary'}
                     onClick={() => handleCancel(order.type, order.id)}
                   >

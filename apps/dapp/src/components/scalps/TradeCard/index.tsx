@@ -1,20 +1,17 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { BigNumber } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 
 import Checkbox from '@mui/material/Checkbox';
-import Input from '@mui/material/Input';
 import Slider from '@mui/material/Slider';
 
 import { ERC20__factory } from '@dopex-io/sdk';
-import { Button } from '@dopex-io/ui';
+import { Button, Input } from '@dopex-io/ui';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import { MINIMUM_MARGIN } from 'utils/contracts/option-scalps';
 import formatAmount from 'utils/general/formatAmount';
 
@@ -103,7 +100,7 @@ const TradeCard = () => {
   const posSize = useMemo(() => {
     if (!optionScalpData || positionDetails.marginInQuote === 0)
       return BigNumber.from('0');
-    return getContractReadableAmount(
+    return utils.parseUnits(
       (positionDetails.marginInQuote * leverage).toFixed(5),
       optionScalpData?.quoteDecimals!.toNumber()!
     );
@@ -136,9 +133,11 @@ const TradeCard = () => {
   }, [posSize, optionScalpData, selectedTimeWindow]);
 
   const setMaximumTick = useCallback(() => {
-    const _markPrice = getUserReadableAmount(
-      optionScalpData?.markPrice!,
-      optionScalpData?.quoteDecimals!.toNumber()!
+    const _markPrice = Number(
+      utils.formatUnits(
+        optionScalpData?.markPrice!,
+        optionScalpData?.quoteDecimals!.toNumber()!
+      )
     );
 
     let tick = Math.round(Math.log(_markPrice) / Math.log(1.0001) / 10) * 10;
@@ -181,17 +180,24 @@ const TradeCard = () => {
     setRawAmount('');
   }, [selectedPoolName, setRawLimitPrice, setRawAmount]);
 
-  const handleInputChange = useCallback((e: any) => {
-    if (parseFloat(e.target.value) < 0) return;
-    setRawAmount(e.target.value === '' ? '0' : e.target.value);
-  }, []);
+  const handleInputChange = useCallback(
+    (e: { target: { value: React.SetStateAction<string | number> } }) => {
+      if (parseFloat(String(e.target.value)) < 0) return;
+      setRawAmount(
+        String(e.target.value) === '' ? '0' : String(e.target.value)
+      );
+    },
+    []
+  );
 
   const limitError = useMemo(() => {
     if (!optionScalpData || orderType === 'Market') return null;
 
-    const _markPrice = getUserReadableAmount(
-      optionScalpData?.markPrice!,
-      optionScalpData?.quoteDecimals!.toNumber()!
+    const _markPrice = Number(
+      utils.formatUnits(
+        optionScalpData?.markPrice!,
+        optionScalpData?.quoteDecimals!.toNumber()!
+      )
     );
 
     const _limitPrice = Number(rawLimitPrice);
@@ -228,9 +234,11 @@ const TradeCard = () => {
         'Minium Margin ' + minMargin + ' ' + optionScalpData?.quoteSymbol;
     } else if (
       positionDetails.marginInQuote >
-      getUserReadableAmount(
-        userTokenBalance,
-        optionScalpData.quoteDecimals.toNumber()
+      Number(
+        utils.formatUnits(
+          userTokenBalance,
+          optionScalpData?.quoteDecimals!.toNumber()!
+        )
       )
     ) {
       _props.disabled = true;
@@ -239,16 +247,18 @@ const TradeCard = () => {
       _props.disabled = true;
       _props.text = limitError;
     } else if (
-      getContractReadableAmount(
-        positionDetails.sizeInQuote,
-        optionScalpData?.quoteDecimals!.toNumber()
-      ).gt(
-        isShort
-          ? optionScalpData
-              ?.totalBaseAvailable!.mul(markPrice)
-              .div(10 ** optionScalpData?.quoteDecimals!.toNumber())
-          : optionScalpData?.totalQuoteAvailable!
-      )
+      utils
+        .parseUnits(
+          String(positionDetails.sizeInQuote),
+          optionScalpData?.quoteDecimals!.toNumber()
+        )
+        .gt(
+          isShort
+            ? optionScalpData
+                ?.totalBaseAvailable!.mul(markPrice)
+                .div(10 ** optionScalpData?.quoteDecimals!.toNumber())
+            : optionScalpData?.totalQuoteAvailable!
+        )
     ) {
       _props.disabled = true;
       _props.text = 'Insufficient Liquidity';
@@ -267,22 +277,27 @@ const TradeCard = () => {
   ]);
 
   const liquidationPrice: number = useMemo(() => {
+    if (!optionScalpData?.markPrice) return 0;
+
     let _liquidationPrice = 0;
-    const price = getUserReadableAmount(
-      optionScalpData?.markPrice!,
-      optionScalpData?.quoteDecimals!.toNumber()!
+    const price = Number(
+      utils.formatUnits(
+        optionScalpData?.markPrice!,
+        optionScalpData?.quoteDecimals!.toNumber()!
+      )
     );
-    const size = getUserReadableAmount(
-      posSize,
-      optionScalpData?.quoteDecimals!.toNumber()!
+    const size = Number(
+      utils.formatUnits(posSize!, optionScalpData?.quoteDecimals!.toNumber()!)
     );
 
     const positions = size / price;
 
     if (positions || positionDetails.marginInQuote) {
-      const minAbsThreshold = getUserReadableAmount(
-        optionScalpData?.minimumAbsoluteLiquidationThreshold!,
-        optionScalpData?.quoteDecimals!.toNumber()
+      const minAbsThreshold = Number(
+        utils.formatUnits(
+          optionScalpData?.minimumAbsoluteLiquidationThreshold!,
+          optionScalpData?.quoteDecimals!.toNumber()!
+        )
       );
 
       const variation =
@@ -367,7 +382,7 @@ const TradeCard = () => {
             isShortAfterAdjustments,
             posSize,
             timeframeIndex,
-            getContractReadableAmount(
+            utils.parseUnits(
               positionDetails.marginInQuote.toFixed(5),
               optionScalpData?.quoteDecimals!.toNumber()
             ),
@@ -407,7 +422,7 @@ const TradeCard = () => {
             isShort,
             posSize,
             timeframeIndex,
-            getContractReadableAmount(
+            utils.parseUnits(
               positionDetails.marginInQuote.toFixed(5),
               optionScalpData?.quoteDecimals!.toNumber()
             ), // margin + fees + premium
@@ -446,7 +461,7 @@ const TradeCard = () => {
         return;
       if (positionDetails.marginInQuote === 0) return;
 
-      const finalAmount: BigNumber = getContractReadableAmount(
+      const finalAmount: BigNumber = utils.parseUnits(
         positionDetails.marginInQuote.toFixed(5),
         optionScalpData?.quoteDecimals!.toNumber()!
       );
@@ -488,20 +503,29 @@ const TradeCard = () => {
       if (option == 100) option = 98;
 
       const fee =
-        getUserReadableAmount(
-          posSize,
-          optionScalpData?.quoteDecimals!.toNumber()
-        ) * getUserReadableAmount(optionScalpData?.feeOpenPosition!, 10);
+        Number(
+          utils.formatUnits(
+            posSize,
+            optionScalpData?.quoteDecimals!.toNumber()!
+          )
+        ) * Number(utils.formatUnits(optionScalpData?.feeOpenPosition!, 10));
 
       let _premium: number = 0;
       await calcPremium().then(
         () =>
-          (_premium = getUserReadableAmount(premium, quoteDecimals.toNumber()))
+          (_premium = Number(
+            utils.formatUnits(
+              premium,
+              optionScalpData?.quoteDecimals!.toNumber()!
+            )
+          ))
       );
 
-      const balance = getUserReadableAmount(
-        userTokenBalance,
-        quoteDecimals.toNumber()
+      const balance = Number(
+        utils.formatUnits(
+          userTokenBalance,
+          optionScalpData?.quoteDecimals!.toNumber()!
+        )
       );
 
       const price = showAsQuote ? 1 : Number(markPrice) / 1e6;
@@ -570,13 +594,12 @@ const TradeCard = () => {
           </div>
           <div className="flex items-center">
             <Input
-              disableUnderline
+              color="cod-gray"
+              variant="small"
               placeholder="0"
               type="number"
-              className="text-md text-white font-mono"
               value={rawAmount}
-              onChange={handleInputChange}
-              classes={{ input: 'text-right' }}
+              handleChange={handleInputChange}
             />
             <h6 className="text-stieglitz mr-3 ml-1">
               {showAsQuote ? optionScalpData?.quoteSymbol : selectedPoolName}
@@ -587,18 +610,21 @@ const TradeCard = () => {
           <div className="mt-3">
             <p className="text-xs text-stieglitz">Limit price</p>
             <Input
-              disableUnderline
+              color="cod-gray"
               placeholder={String(
-                getUserReadableAmount(
-                  markPrice,
-                  optionScalpData?.quoteDecimals!.toNumber()
+                Number(
+                  utils.formatUnits(
+                    markPrice,
+                    optionScalpData?.quoteDecimals!.toNumber()!
+                  )
                 )
               )}
               value={rawLimitPrice}
-              onChange={(e) => setRawLimitPrice(e.target.value)}
+              handleChange={(e: {
+                target: { value: React.SetStateAction<string | number> };
+              }) => setRawLimitPrice(String(e.target.value))}
               type="number"
-              className={`mt-2 border border-mineshaft rounded-md px-2 bg-umbra w-full !w-auto`}
-              classes={{ input: 'text-white text-xs text-left py-2' }}
+              variant="small"
             />
             <p className="text-xs text-stieglitz mt-2.5">
               Your price will be rounded to {roundedLimitPrice}
@@ -670,16 +696,19 @@ const TradeCard = () => {
             <div className={'text-right'}>
               <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
                 {formatAmount(
-                  getUserReadableAmount(
-                    isShort
-                      ? optionScalpData?.totalBaseAvailable ?? BigNumber.from(0)
-                      : optionScalpData?.totalQuoteAvailable ??
-                          BigNumber.from(0)
-                            .mul(1e6)
-                            .div(markPrice.isZero() ? 1 : markPrice),
-                    isShort
-                      ? optionScalpData?.baseDecimals!.toNumber()!
-                      : optionScalpData?.quoteDecimals!.toNumber()!
+                  Number(
+                    utils.formatUnits(
+                      isShort
+                        ? optionScalpData?.totalBaseAvailable ??
+                            BigNumber.from(0)
+                        : optionScalpData?.totalQuoteAvailable ??
+                            BigNumber.from(0)
+                              .mul(1e6)
+                              .div(markPrice.isZero() ? 1 : markPrice),
+                      isShort
+                        ? optionScalpData?.baseDecimals!.toNumber()!
+                        : optionScalpData?.quoteDecimals!.toNumber()!
+                    )
                   ),
                   2
                 )}{' '}
@@ -707,9 +736,11 @@ const TradeCard = () => {
             <div className={'text-right'}>
               <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
                 {formatAmount(
-                  getUserReadableAmount(
-                    premium,
-                    optionScalpData?.quoteDecimals!.toNumber()
+                  Number(
+                    utils.formatUnits(
+                      premium,
+                      optionScalpData?.quoteDecimals!.toNumber()!
+                    )
                   ),
                   2
                 )}{' '}
@@ -721,17 +752,23 @@ const TradeCard = () => {
             <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">Fees</h6>
             <div className={'text-right'}>
               <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
-                {formatAmount(
-                  getUserReadableAmount(
-                    posSize,
-                    optionScalpData?.quoteDecimals!.toNumber()
-                  ) *
-                    getUserReadableAmount(
-                      optionScalpData?.feeOpenPosition!,
-                      10
-                    ),
-                  2
-                )}{' '}
+                {optionScalpData?.feeOpenPosition
+                  ? formatAmount(
+                      Number(
+                        utils.formatUnits(
+                          posSize,
+                          optionScalpData?.quoteDecimals!.toNumber()!
+                        )
+                      ) *
+                        Number(
+                          utils.formatUnits(
+                            optionScalpData?.feeOpenPosition!,
+                            10
+                          )
+                        ),
+                      2
+                    )
+                  : 0}{' '}
                 {optionScalpData?.quoteSymbol}
               </h6>
             </div>

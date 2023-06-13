@@ -5,7 +5,6 @@ import graphSdk from 'graphql/graphSdk';
 import queryClient from 'queryClient';
 import { useBoundStore } from 'store';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 const Stat = ({ name, value }: { name: ReactNode; value: ReactNode }) => (
@@ -77,17 +76,21 @@ const Stats = () => {
     ) {
       if (uniWethPrice.eq(0) || uniArbPrice.eq(0))
         return formatAmount(
-          getUserReadableAmount(
-            optionScalpData?.markPrice || BigNumber.from('0'),
-            optionScalpData?.quoteDecimals!.toNumber()
+          Number(
+            utils.formatUnits(
+              optionScalpData?.markPrice || BigNumber.from('0'),
+              optionScalpData?.quoteDecimals.toNumber()
+            )
           ),
           4
         );
 
       return formatAmount(
-        getUserReadableAmount(
-          selectedPoolName === 'ETH' ? uniWethPrice : uniArbPrice,
-          optionScalpData?.quoteDecimals!.toNumber()
+        Number(
+          utils.formatUnits(
+            selectedPoolName === 'ETH' ? uniWethPrice : uniArbPrice,
+            optionScalpData?.quoteDecimals!.toNumber()
+          )
         ),
         4
       );
@@ -112,19 +115,21 @@ const Stats = () => {
     const _totalShorts = shortOpenInterest.mul(1e6).div(markPrice);
 
     _stats.openInterest = formatAmount(
-      getUserReadableAmount(
-        _totalLongs.add(_totalShorts),
-        quoteDecimals.toNumber()
+      Number(
+        utils.formatUnits(
+          _totalLongs.add(_totalShorts),
+          quoteDecimals.toNumber()
+        )
       ),
       10
     );
 
     _stats.totalLongs = formatAmount(
-      getUserReadableAmount(_totalLongs, quoteDecimals.toNumber()),
+      Number(utils.formatUnits(_totalLongs, quoteDecimals.toNumber())),
       5
     );
     _stats.totalShorts = formatAmount(
-      getUserReadableAmount(_totalShorts, quoteDecimals.toNumber()),
+      Number(utils.formatUnits(_totalShorts, quoteDecimals.toNumber())),
       5
     );
 
@@ -149,23 +154,35 @@ const Stats = () => {
         />
         <Stat
           name="Total Deposits"
-          value={`${formatAmount(
-            getUserReadableAmount(
-              optionScalpData?.totalBaseDeposits!,
-              optionScalpData?.baseDecimals!.toNumber()
-            ),
-            0,
-            true
-          )}
+          value={`${
+            optionScalpData?.totalQuoteDeposits
+              ? formatAmount(
+                  Number(
+                    utils.formatUnits(
+                      optionScalpData?.totalBaseDeposits!,
+                      optionScalpData?.baseDecimals!.toNumber()
+                    )
+                  ),
+                  0,
+                  true
+                )
+              : null
+          }
           ${optionScalpData?.baseSymbol} / 
-          ${formatAmount(
-            getUserReadableAmount(
-              optionScalpData?.totalQuoteDeposits!,
-              optionScalpData?.quoteDecimals!.toNumber()
-            ),
-            0,
-            true
-          )} 
+          ${
+            optionScalpData?.totalQuoteDeposits
+              ? formatAmount(
+                  Number(
+                    utils.formatUnits(
+                      optionScalpData?.totalQuoteDeposits!,
+                      optionScalpData?.quoteDecimals!.toNumber()
+                    )
+                  ),
+                  0,
+                  true
+                )
+              : null
+          } 
           ${optionScalpData?.quoteSymbol}`}
         />
         <Stat
@@ -180,19 +197,27 @@ const Stats = () => {
         />
         <Stat
           name={`${optionScalpData?.quoteSymbol} LP APR`}
-          value={`${formatAmount(
-            getUserReadableAmount(optionScalpData?.quoteLpAPR!, 0),
-            0,
-            true
-          )}%`}
+          value={`${
+            optionScalpData?.quoteLpAPR
+              ? formatAmount(
+                  Number(utils.formatUnits(optionScalpData?.quoteLpAPR!, 0)),
+                  0,
+                  true
+                )
+              : null
+          }%`}
         />
         <Stat
           name={`${optionScalpData?.baseSymbol} LP APR`}
-          value={`${formatAmount(
-            getUserReadableAmount(optionScalpData?.baseLpAPR!, 0),
-            0,
-            true
-          )}%`}
+          value={`${
+            optionScalpData?.baseLpAPR
+              ? formatAmount(
+                  Number(utils.formatUnits(optionScalpData?.baseLpAPR!, 0)),
+                  0,
+                  true
+                )
+              : null
+          }%`}
         />
         <Stat name={`FUNDING LP APR`} value={`18.5%`} />
       </div>

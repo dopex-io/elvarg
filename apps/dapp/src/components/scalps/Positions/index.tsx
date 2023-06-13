@@ -1,7 +1,8 @@
 import { useState } from 'react';
 
-import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
+
+import { Button } from '@dopex-io/ui';
 import { useBoundStore } from 'store';
 
 import displayAddress from 'utils/general/displayAddress';
@@ -30,7 +31,6 @@ const Positions = () => {
                     ? 'text-white bg-carbon hover:bg-carbon'
                     : 'text-stieglitz bg-transparent hover:bg-transparent'
                 } hover:text-white`}
-                disableRipple
                 onClick={() => setActiveTab(label)}
               >
                 <span

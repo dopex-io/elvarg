@@ -1,17 +1,14 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { BigNumber } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 
 import IconButton from '@mui/material/IconButton';
-import Input from '@mui/material/Input';
 import Popover from '@mui/material/Popover';
 import Tooltip from '@mui/material/Tooltip';
 
-import { Button } from '@dopex-io/ui';
+import { Button, Input } from '@dopex-io/ui';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 import CrossIcon from 'svgs/icons/CrossIcon';
-
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 interface LimitOrderPopoverProps {
   id: BigNumber;
@@ -125,17 +122,21 @@ const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
           <div className="mt-3">
             <p className="text-xs text-stieglitz">Limit price</p>
             <Input
-              disableUnderline
+              color="cod-gray"
               placeholder={String(
-                getUserReadableAmount(
-                  markPrice,
-                  optionScalpData?.quoteDecimals!.toNumber()
+                Number(
+                  utils.formatUnits(
+                    markPrice,
+                    optionScalpData?.quoteDecimals.toNumber()
+                  )
                 )
               )}
-              onChange={(e) => setRawLimitPrice(e.target.value)}
+              handleChange={(e: {
+                target: { value: React.SetStateAction<string | number> };
+              }) => setRawLimitPrice(String(e.target.value))}
               type="number"
               className={`mt-2 border border-mineshaft rounded-md px-2 bg-umbra w-full !w-auto`}
-              classes={{ input: 'text-white text-xs text-left py-2' }}
+              variant="small"
             />
           </div>
           <Button
