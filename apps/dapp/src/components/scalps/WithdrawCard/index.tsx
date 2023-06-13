@@ -275,7 +275,6 @@ const WithdrawCard = () => {
             name="notionalSize"
             placeholder="0"
             type="number"
-            className="h-12 mr-2"
             value={rawAmount}
             handleChange={(e: {
               target: { value: React.SetStateAction<string | number> };
