@@ -62,7 +62,7 @@ const TitleBar = (props: Props) => {
   }, [selectedVault, update]);
 
   return (
-    <div className="flex space-x-4 w-full">
+    <div className="flex space-x-4 mb-4">
       <img
         src={`/images/tokens/${selectedToken.toLowerCase()}.svg`}
         className="w-[38px] h-[38px] my-auto border rounded-full border-carbon"

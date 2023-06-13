@@ -1,6 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-
-import { BigNumber } from 'ethers';
+import {
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { BigNumber, ethers } from 'ethers';
 
 import { Button, Input } from '@dopex-io/ui';
 import { format } from 'date-fns';
@@ -19,10 +24,6 @@ import client from 'wagmi-client';
 
 import RowItem from 'components/vaults/AsidePanel/RowItem';
 
-import {
-  getContractReadableAmount,
-  getUserReadableAmount,
-} from 'utils/contracts';
 import formatAmount from 'utils/general/formatAmount';
 
 import { DECIMALS_TOKEN } from 'constants/index';
@@ -58,7 +59,7 @@ export const ButtonGroup = ({
 };
 
 const AsidePanel = () => {
-  const [amount, setAmount] = useState<string | number>(0);
+  const [amount, setAmount] = useState<string>('0');
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
   const vault = useVaultState((vault) => vault.vault);
@@ -96,7 +97,7 @@ const AsidePanel = () => {
     functionName: 'approve',
     args: [
       vault.address as `0x${string}`,
-      getContractReadableAmount(amountDebounced, DECIMALS_TOKEN),
+      ethers.utils.parseUnits(amountDebounced || '0', DECIMALS_TOKEN),
     ],
   });
   const { config } = usePrepareContractWrite({
@@ -107,7 +108,7 @@ const AsidePanel = () => {
       : { functionName: 'deposit' }),
     args: [
       activeStrikeIndex,
-      getContractReadableAmount(amountDebounced, DECIMALS_TOKEN),
+      ethers.utils.parseUnits(amountDebounced || '0', DECIMALS_TOKEN),
       address,
     ],
   });
@@ -143,15 +144,21 @@ const AsidePanel = () => {
     const strikeData = strikes.epochStrikeData[activeStrikeIndex];
     const premiumInUSD =
       (selectedVault.isPut ? 1 : Number(selectedVault.currentPrice)) *
-      getUserReadableAmount(strikeData.premiumPerOption, DECIMALS_TOKEN);
+      Number(
+        ethers.utils.formatUnits(
+          strikeData.premiumPerOption || '0',
+          DECIMALS_TOKEN
+        )
+      );
     const breakeven = selectedVault.isPut
       ? strikeData.strike - premiumInUSD
       : premiumInUSD + strikeData.strike;
     const availableCollateral = formatAmount(
       selectedVault.isPut
-        ? getUserReadableAmount(strikeData.availableCollateral, 18) /
-            Number(strikeData.strike)
-        : getUserReadableAmount(strikeData.availableCollateral, 18),
+        ? Number(
+            ethers.utils.formatUnits(strikeData.availableCollateral || '0', 18)
+          ) / Number(strikeData.strike)
+        : ethers.utils.formatUnits(strikeData.availableCollateral || '0', 18),
       5
     );
     const totalPremium = premiumInUSD * Number(amountDebounced);
@@ -169,7 +176,8 @@ const AsidePanel = () => {
   };
 
   const handleChange = useCallback(
-    (e: { target: { value: React.SetStateAction<string | number> } }) => {
+    (e: { target: { value: SetStateAction<any> } }) => {
+      console.log(e.target.value);
       setAmount(e.target.value);
     },
     []
@@ -186,14 +194,14 @@ const AsidePanel = () => {
     )
       return { ...alerts[5] };
     else if (
-      data[1].lt(getContractReadableAmount(amountDebounced, DECIMALS_TOKEN))
+      data[1].lt(ethers.utils.parseUnits(amountDebounced, DECIMALS_TOKEN))
     )
       return {
         ...alerts[1],
         buttonContent,
       };
     else if (
-      data[0].lt(getContractReadableAmount(amountDebounced, DECIMALS_TOKEN))
+      data[0].lt(ethers.utils.parseUnits(amountDebounced, DECIMALS_TOKEN))
     ) {
       return {
         ...alerts[3],
@@ -273,7 +281,10 @@ const AsidePanel = () => {
               <p className="text-stieglitz">Premium</p>
               <p>
                 {formatAmount(
-                  getUserReadableAmount(selectedStrike.premiumPerOption, 18),
+                  ethers.utils.formatUnits(
+                    selectedStrike.premiumPerOption || '0',
+                    18
+                  ),
                   3
                 )}{' '}
                 <span className="text-stieglitz">
@@ -354,8 +365,8 @@ const AsidePanel = () => {
               >
                 <p>
                   {formatAmount(
-                    getUserReadableAmount(
-                      selectedStrike.premiumPerOption,
+                    ethers.utils.formatUnits(
+                      selectedStrike.premiumPerOption || '0',
                       DECIMALS_TOKEN
                     ),
                     3
@@ -371,13 +382,17 @@ const AsidePanel = () => {
             label="Premium APR"
             content={
               formatAmount(
-                (getUserReadableAmount(
-                  selectedStrike?.premiumsAccrued,
-                  DECIMALS_TOKEN
-                ) /
-                  getUserReadableAmount(
-                    selectedStrike.activeCollateral,
+                (Number(
+                  ethers.utils.formatUnits(
+                    selectedStrike?.premiumsAccrued,
                     DECIMALS_TOKEN
+                  )
+                ) /
+                  Number(
+                    ethers.utils.formatUnits(
+                      selectedStrike.activeCollateral,
+                      DECIMALS_TOKEN
+                    )
                   )) *
                   100,
                 3

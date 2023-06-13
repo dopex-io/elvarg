@@ -102,6 +102,14 @@ const seo = {
     title: 'Dopex Bonds',
     description: 'Commit $USDC to receive $DPX at a discount',
   },
+  vaults: {
+    url: `${HOST_URL}/vaults`,
+    banner:
+      'https://res.cloudinary.com/dxitdndu3/image/upload/v1684326255/dopex_images/preview_images/default_qfq5rc.png',
+    alt: 'Vaults',
+    title: 'Vaults | Dopex',
+    description: 'Buy/Sell vanilla options from the SSOVs',
+  },
   default: {
     url: HOST_URL,
     title: 'Dopex',

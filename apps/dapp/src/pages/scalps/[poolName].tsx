@@ -124,12 +124,10 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
   }, [setUniWethPrice, setUniArbPrice]);
 
   return (
-    <div className="bg-black flex w-screen items-center justify-center">
+    <>
       <PageLayout>
-        <div className="mt-8 sm:mt-14 md:mt-20 lg:mr-full">
-          <TopBar />
-        </div>
-        <div className="w-full h-full flex flex-col space-y-2 xl:flex-row xl:space-x-5">
+        <TopBar />
+        <div className="h-full flex flex-col space-y-2 xl:flex-row xl:space-x-5 justify-center">
           <div className="flex flex-col w-full space-y-4 h-full">
             <div className="flex-1 mt-4">{Chart}</div>
             <Positions />
@@ -169,7 +167,7 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
           </p>
         </div>
       </PageLayout>
-    </div>
+    </>
   );
 };
 
