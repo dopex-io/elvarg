@@ -1,0 +1,26 @@
+{
+  "singleQuote": true,
+  "tabWidth": 2,
+  "importOrder": [
+    "^(react/(.*)$)|^(react$)",
+    "^(next/(.*)$)|^(next$)",
+    "^(ethers/(.*)$)|^(ethers$)",
+    "",
+    "^(@mui/material/(.*)$)|^(@mui/material$)",
+    "",
+    "^(@mui/icons-material/(.*)$)|^(@mui/icons-material$)",
+    "",
+    "<THIRD_PARTY_MODULES>",
+    "",
+    "^store/(.*)$",
+    "",
+    "^components/(.*)$",
+    "",
+    "^utils/(.*)$",
+    "",
+    "^constants/(.*)$",
+    "",
+    "^[./]"
+  ],
+  "plugins": ["@ianvs/prettier-plugin-sort-imports"]
+}

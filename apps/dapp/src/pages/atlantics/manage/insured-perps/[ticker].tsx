@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
 import Box from '@mui/material/Box';
+
 import axios from 'axios';
 import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
@@ -159,7 +159,7 @@ export const Main = (props: TickerProps) => {
           </title>
         )}
       </Head>
-      <AppBar active="Atlantics" />
+      <AppBar />
       <Box className="py-12 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         {accountAddress ? (
           <Box className="flex mt-20 space-x-0 lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">

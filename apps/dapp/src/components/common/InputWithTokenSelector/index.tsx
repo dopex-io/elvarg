@@ -5,10 +5,13 @@ import {
   useCallback,
   useState,
 } from 'react';
+import { BigNumber } from 'ethers';
+
+import Box from '@mui/material/Box';
 
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import Box from '@mui/material/Box';
+
 import { useBoundStore } from 'store';
 
 import Input from 'components/UI/Input';
@@ -34,6 +37,7 @@ interface IInputWithTokenSelectorProps {
   topLeftTag?: string;
   topRightTag?: string;
   overrides?: IOverrides;
+  userTokenBalance: BigNumber;
 }
 
 const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
@@ -42,13 +46,14 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
     handleInputAmountChange,
     setSelectedToken,
     selectedTokenSymbol,
+    userTokenBalance,
     topLeftTag,
     topRightTag,
     overrides,
     handleMax,
   } = props;
 
-  const { chainId, userAssetBalances } = useBoundStore();
+  const { chainId } = useBoundStore();
 
   const [tokenSelectorOpen, setTokenSelectorOpen] = useState(false);
 
@@ -91,7 +96,7 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
             <Box
               className="flex w-fit bg-cod-gray rounded-md justify-content items-center space-x-2 py-2 px-2"
               role={`${chainId === 137 ? 'Box' : 'Button'}`}
-              // onClick={handleTokenSelectorClick}
+              onClick={handleTokenSelectorClick}
             >
               <img
                 src={`/images/tokens/${selectedTokenSymbol.toLowerCase()}.svg`}
@@ -125,9 +130,10 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
             >
               {formatAmount(
                 getUserReadableAmount(
-                  userAssetBalances[selectedTokenSymbol] || 0,
+                  BigNumber.from(userTokenBalance),
                   getTokenDecimals(selectedTokenSymbol, chainId)
-                )
+                ),
+                3
               )}
             </Typography>
           </Box>

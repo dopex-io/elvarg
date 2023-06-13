@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import { BigNumber, utils as ethersUtils } from 'ethers';
 
 import {
   ERC20__factory,
@@ -6,7 +6,6 @@ import {
   UniswapPair__factory,
 } from '@dopex-io/sdk';
 import axios from 'axios';
-import BN from 'bignumber.js';
 import { Farm, LpData, UserData } from 'types/farms';
 import { StateCreator } from 'zustand';
 
@@ -119,13 +118,17 @@ export const createFarmingSlice: StateCreator<
       rdpxWethPair.totalSupply(),
     ]);
 
-    let dpxPrice: number = new BN(dpxWethReserve[1].toString())
-      .dividedBy(dpxWethReserve[0].toString())
-      .toNumber();
-    let rdpxPrice: number = new BN(rdpxWethReserve[1].toString())
-      .dividedBy(rdpxWethReserve[0].toString())
-      .toNumber();
+    let dpxPrice: number = Number(
+      ethersUtils.formatEther(
+        dpxWethReserve[1].mul(1e18).div(dpxWethReserve[0])
+      )
+    );
 
+    let rdpxPrice: number = Number(
+      ethersUtils.formatEther(
+        rdpxWethReserve[1].mul(1e18).div(rdpxWethReserve[0])
+      )
+    );
     let ethReserveOfRdpxWethPool: number;
     let rdpxReserveOfRdpxWethPool: number;
 
@@ -133,20 +136,20 @@ export const createFarmingSlice: StateCreator<
     let dpxReserveOfDpxWethPool: number;
 
     // DPX and ETH from DPX-ETH pair
-    ethReserveOfDpxWethPool = new BN(dpxWethReserve[1].toString())
-      .dividedBy(1e18)
-      .toNumber();
-    dpxReserveOfDpxWethPool = new BN(dpxWethReserve[0].toString())
-      .dividedBy(1e18)
-      .toNumber();
+    ethReserveOfDpxWethPool = Number(
+      ethersUtils.formatEther(dpxWethReserve[1])
+    );
 
+    dpxReserveOfDpxWethPool = Number(
+      ethersUtils.formatEther(dpxWethReserve[0])
+    );
     // RDPX and ETH from RDPX-ETH pair
-    ethReserveOfRdpxWethPool = new BN(rdpxWethReserve[1].toString())
-      .dividedBy(1e18)
-      .toNumber();
-    rdpxReserveOfRdpxWethPool = new BN(rdpxWethReserve[0].toString())
-      .dividedBy(1e18)
-      .toNumber();
+    ethReserveOfRdpxWethPool = Number(
+      ethersUtils.formatEther(rdpxWethReserve[1])
+    );
+    rdpxReserveOfRdpxWethPool = Number(
+      ethersUtils.formatEther(rdpxWethReserve[0])
+    );
 
     dpxPrice = Number(dpxPrice) * ethPriceFinal;
     rdpxPrice = Number(rdpxPrice) * ethPriceFinal;
@@ -162,28 +165,29 @@ export const createFarmingSlice: StateCreator<
         dpxPrice,
         rdpxPrice,
         rdpxWethLpTokenRatios: {
-          rdpx: new BN(rdpxReserveOfRdpxWethPool)
-            .dividedBy(new BN(rdpxWethTotalSupply.toString()).dividedBy(1e18))
-            .toNumber(),
-          weth: new BN(ethReserveOfRdpxWethPool)
-            .dividedBy(new BN(rdpxWethTotalSupply.toString()).dividedBy(1e18))
-            .toNumber(),
+          rdpx:
+            rdpxReserveOfRdpxWethPool /
+            Number(ethersUtils.formatEther(rdpxWethTotalSupply)),
+          weth:
+            ethReserveOfRdpxWethPool /
+            Number(ethersUtils.formatEther(rdpxWethTotalSupply)),
           lpPrice:
             (rdpxPrice * Number(rdpxReserveOfRdpxWethPool) +
               ethPriceFinal * Number(ethReserveOfRdpxWethPool)) /
-            Number(new BN(rdpxWethTotalSupply.toString()).dividedBy(1e18)),
+            Number(ethersUtils.formatEther(rdpxWethTotalSupply)),
         },
         dpxWethLpTokenRatios: {
-          dpx: new BN(dpxReserveOfDpxWethPool)
-            .dividedBy(new BN(dpxWethTotalSupply.toString()).dividedBy(1e18))
-            .toNumber(),
-          weth: new BN(ethReserveOfDpxWethPool)
-            .dividedBy(new BN(dpxWethTotalSupply.toString()).dividedBy(1e18))
-            .toNumber(),
+          dpx:
+            dpxReserveOfDpxWethPool /
+            Number(ethersUtils.formatEther(dpxWethTotalSupply)),
+
+          weth:
+            ethReserveOfDpxWethPool /
+            Number(ethersUtils.formatEther(dpxWethTotalSupply)),
           lpPrice:
             (dpxPrice * Number(dpxReserveOfDpxWethPool) +
               ethPriceFinal * Number(ethReserveOfDpxWethPool)) /
-            Number(new BN(dpxWethTotalSupply.toString()).dividedBy(1e18)),
+            Number(ethersUtils.formatEther(dpxWethTotalSupply)),
         },
       },
     }));
@@ -237,12 +241,12 @@ export const createFarmingSlice: StateCreator<
       priceLP =
         (dpxPrice * Number(dpxReserveOfDpxWethPool) +
           ethPriceFinal * Number(ethReserveOfDpxWethPool)) /
-        Number(new BN(tokenTotalSupply.toString()).dividedBy(1e18));
+        Number(ethersUtils.formatEther(tokenTotalSupply));
     } else {
       priceLP =
         (rdpxPrice * Number(rdpxReserveOfRdpxWethPool) +
           ethPriceFinal * Number(ethReserveOfRdpxWethPool)) /
-        Number(new BN(tokenTotalSupply.toString()).dividedBy(1e18));
+        Number(ethersUtils.formatEther(tokenTotalSupply));
     }
 
     let [DPX] = await Promise.all([stakingRewardsContract.rewardRate()]);

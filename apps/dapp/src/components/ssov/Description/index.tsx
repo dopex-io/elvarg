@@ -1,4 +1,5 @@
 import { ReactNode, useMemo, useState } from 'react';
+import { BigNumber } from 'ethers';
 
 import cx from 'classnames';
 import format from 'date-fns/format';
@@ -103,7 +104,7 @@ const Description = ({
         >
           $
           {formatAmount(
-            getUserReadableAmount(ssovData.tokenPrice || '0', 8),
+            getUserReadableAmount(BigNumber.from(ssovData.tokenPrice), 8),
             2
           )}
         </Typography>

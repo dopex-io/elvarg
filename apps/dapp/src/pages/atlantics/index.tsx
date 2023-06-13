@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
+
 import axios from 'axios';
 import { NextSeo } from 'next-seo';
 
@@ -69,7 +70,7 @@ const Atlantics = () => {
 
   return (
     <Box className="bg-black bg-contain bg-no-repeat min-h-screen">
-      <AppBar active="Atlantics" />
+      <AppBar />
       <Box className="container pt-32 mx-auto px-4 lg:px-0 h-screen">
         <Box className="mx-auto mb-8">
           <Box className="flex flex-col divide-umbra md:divide-y divide-y-0">

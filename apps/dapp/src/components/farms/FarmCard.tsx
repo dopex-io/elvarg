@@ -1,10 +1,8 @@
 import { ReactNode, useMemo, useState } from 'react';
-
-import { BigNumber, utils } from 'ethers';
+import { BigNumber } from 'ethers';
 
 import LaunchIcon from '@mui/icons-material/Launch';
-import Box from '@mui/material/Box';
-import BN from 'bignumber.js';
+
 import { FarmStatus, LpData } from 'types/farms';
 
 import { useBoundStore } from 'store/index';
@@ -12,7 +10,6 @@ import { useBoundStore } from 'store/index';
 import CustomButton from 'components/UI/Button';
 import NumberDisplay from 'components/UI/NumberDisplay';
 import Skeleton from 'components/UI/Skeleton';
-import Typography from 'components/UI/Typography';
 
 import formatAmount from 'utils/general/formatAmount';
 import getExplorerUrl from 'utils/general/getExplorerUrl';
@@ -38,24 +35,24 @@ const Header = ({
   userStakingRewardsBalance: BigNumber;
 }) => {
   return (
-    <Box className="flex justify-between">
-      <Box className="flex space-x-3 items-center">
+    <div className="flex justify-between">
+      <div className="flex space-x-3 items-center">
         <img
           src={`/images/tokens/${stakingTokenSymbol.toLowerCase()}.svg`}
           alt={stakingTokenSymbol}
           className="w-8 h-8 block"
         />
-        <Box>
-          <Typography variant="h5">{stakingTokenSymbol}</Typography>
-          <Typography variant="caption" color="stieglitz">
+        <div>
+          <div className="text-white">{stakingTokenSymbol}</div>
+          <div className="text-xs text-stieglitz">
             {type === 'SINGLE' ? 'Single Side Farm' : 'LP Farm'}
             <span className="text-down-bad">
               {' '}
               {status !== 'ACTIVE' ? `(${status})` : null}
             </span>
-          </Typography>
-        </Box>
-      </Box>
+          </div>
+        </div>
+      </div>
       {type === 'LP' && userStakingRewardsBalance.gt(0) ? (
         <CustomButton size="small" onClick={onMigrate}>
           Migrate
@@ -64,7 +61,7 @@ const Header = ({
       <CustomButton size="small" onClick={onManage}>
         Manage
       </CustomButton>
-    </Box>
+    </div>
   );
 };
 
@@ -76,14 +73,12 @@ const UserStat = ({
   children: ReactNode;
 }) => {
   return (
-    <Box className="w-full mb-3">
-      <Typography variant="caption" color="stieglitz" className="mb-3">
-        {title}
-      </Typography>
-      <Box className="bg-carbon p-2 w-full rounded-md flex justify-between items-center mb-1">
-        <Box className="flex items-center space-x-1">{children}</Box>
-      </Box>
-    </Box>
+    <div className="w-full mb-3">
+      <div className="mb-3 text-xs text-stieglitz">{title}</div>
+      <div className="bg-carbon p-2 w-full rounded-md flex justify-between items-center mb-1">
+        <div className="flex items-center space-x-1">{children}</div>
+      </div>
+    </div>
   );
 };
 
@@ -163,7 +158,7 @@ const FarmCard = (props: Props) => {
   if (userStakingRewardsBalance.isZero() && status !== 'ACTIVE') return <></>;
 
   return (
-    <Box className="bg-cod-gray text-red rounded-2xl p-3 flex flex-col space-y-3 w-[343px]">
+    <div className="bg-cod-gray text-red rounded-2xl p-3 flex flex-col space-y-3 w-[343px]">
       <SushiMigrationStepper
         data={{
           status,
@@ -187,7 +182,7 @@ const FarmCard = (props: Props) => {
         onMigrate={onMigrate}
         userStakingRewardsBalance={userStakingRewardsBalance}
       />
-      <Box className="flex space-x-3">
+      <div className="flex space-x-3">
         {farmsDataLoading ? (
           <>
             <Skeleton variant="rectangular" width={153.5} height={64} />
@@ -202,26 +197,26 @@ const FarmCard = (props: Props) => {
             />
           </>
         )}
-      </Box>
+      </div>
       {userDataLoading ? (
         <Skeleton variant="rectangular" width={319} height={180} />
       ) : (
-        <Box className="bg-umbra p-3 w-full rounded-md">
+        <div className="bg-umbra p-3 w-full rounded-md">
           {!accountAddress ? (
-            <Box className="h-24 text-stieglitz text-base">
+            <div className="h-24 text-stieglitz text-base">
               Please connect your wallet to see your deposits
-            </Box>
+            </div>
           ) : (
             <>
               <UserStat title="Deposits">
-                <Box className="flex items-center space-x-1">
-                  <Typography variant="caption">
+                <div className="flex items-center space-x-1">
+                  <div className="text-white text-xs">
                     <NumberDisplay
                       n={userStakingRewardsBalance}
                       decimals={18}
                     />
-                  </Typography>
-                </Box>
+                  </div>
+                </div>
                 {type === 'LP' ? (
                   <LpRatios
                     userStakingRewardsBalance={userStakingRewardsBalance}
@@ -231,33 +226,9 @@ const FarmCard = (props: Props) => {
                   <Chip text={stakingTokenSymbol} />
                 )}
               </UserStat>
-              <Box className="flex space-x-3">
-                <UserStat title="Pool Share">
-                  <Typography variant="caption">
-                    {formatAmount(
-                      new BN(userStakingRewardsBalance.toString())
-                        .multipliedBy(1e2)
-                        .dividedBy(new BN(farmTotalSupply.toString()))
-                        .toNumber(),
-                      8
-                    )}
-                    %
-                  </Typography>
-                </UserStat>
-                <UserStat title="USD Value">
-                  <Typography variant="caption">
-                    $
-                    {formatAmount(
-                      Number(utils.formatEther(userStakingRewardsBalance)) *
-                        stakingTokenPrice,
-                      2
-                    )}
-                  </Typography>
-                </UserStat>
-              </Box>
             </>
           )}
-        </Box>
+        </div>
       )}
       <a
         href={`${getExplorerUrl(chainId)}address/${stakingRewardsAddress}`}
@@ -265,11 +236,11 @@ const FarmCard = (props: Props) => {
         rel="noopener noreferrer"
         className="self-end"
       >
-        <Typography variant="caption" color="stieglitz" component="span">
+        <span className="text-xs text-stieglitz">
           Contract <LaunchIcon className="w-3" />
-        </Typography>
+        </span>
       </a>
-    </Box>
+    </div>
   );
 };
 

@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-
 import { ethers } from 'ethers';
 
 import Box from '@mui/material/Box';
@@ -10,6 +9,7 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+
 import cx from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
@@ -106,7 +106,7 @@ const Stats = (props: { className?: string }) => {
   const { ssovData, selectedEpoch, ssovEpochData } = useBoundStore();
 
   const price = useMemo(
-    () => getUserReadableAmount(ssovData?.tokenPrice ?? 0, 8),
+    () => getUserReadableAmount(ssovData?.tokenPrice, 8),
     [ssovData]
   );
 

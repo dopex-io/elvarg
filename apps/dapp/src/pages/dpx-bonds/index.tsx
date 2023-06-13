@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box';
+
 import { NextSeo } from 'next-seo';
 
 import BondsPage from 'components/bonds/Bonds';
@@ -28,7 +29,7 @@ const DpxBonds = () => {
           ],
         }}
       />
-      <AppBar active="DPX Bonds" />
+      <AppBar />
       <Box className="py-20 md:py-32 md:flex mx-auto lg:w-[980px]">
         <Box className="mx-auto">
           <BondsPage />

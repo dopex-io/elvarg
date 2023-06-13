@@ -1,12 +1,12 @@
-import { BigNumber } from 'bignumber.js';
-import { BigNumber as ethersBigNumber } from 'ethers';
+import { BigNumber, utils as ethersUtils } from 'ethers';
 
+/**
+ * @deprecated
+ */
 export default function getUserReadableAmount(
-  amount: string | number | BigNumber | ethersBigNumber,
+  amount: BigNumber | undefined,
   decimals: string | number = 18
 ): number {
   if (amount === undefined || amount === null) return 0;
-  return new BigNumber(amount.toString())
-    .dividedBy(new BigNumber(10).pow(decimals))
-    .toNumber();
+  return Number(ethersUtils.formatUnits(amount, Number(decimals)));
 }

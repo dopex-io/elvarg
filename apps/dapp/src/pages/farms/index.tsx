@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-
 import { BigNumber } from 'ethers';
 
 import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
+
 import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
 import { Farm, FarmData, UserData } from 'types/farms';
@@ -123,7 +123,7 @@ const Farms = () => {
         }}
       />
       {chainId !== 42161 ? <FarmingMigrationBanner /> : null}
-      <AppBar active="Stake" />
+      <AppBar />
       <SushiMigrationBanner />
       <Box className="flex mb-32 justify-end lg:mx-6 lg:space-x-reverse lg:flex-row-reverse flex-col">
         <Box className="mb-4 xl:mb-0 mx-4">

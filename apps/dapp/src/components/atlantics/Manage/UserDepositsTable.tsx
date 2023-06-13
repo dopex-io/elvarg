@@ -5,10 +5,8 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { BigNumber } from 'ethers';
 
-import CheckIcon from '@mui/icons-material/Check';
-import ClearIcon from '@mui/icons-material/Clear';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
@@ -20,6 +18,11 @@ import TableCell, { TableCellProps } from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+
+import CheckIcon from '@mui/icons-material/Check';
+import ClearIcon from '@mui/icons-material/Clear';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+
 import { formatDistance } from 'date-fns';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
@@ -240,7 +243,11 @@ const UserDepositsTable = () => {
             <TableRow key={index}>
               {
                 <TableBodyCell>
-                  ${getUserReadableAmount(position?.strike ?? 0, 8)}
+                  $
+                  {getUserReadableAmount(
+                    BigNumber.from(position?.strike ?? '0'),
+                    8
+                  )}
                 </TableBodyCell>
               }
               <TableBodyCell>
@@ -286,7 +293,7 @@ const UserDepositsTable = () => {
                 <Typography variant="h6">
                   {formatAmount(
                     getUserReadableAmount(
-                      position?.underlyingEarned ?? 0,
+                      BigNumber.from(position?.underlyingEarned ?? '0'),
                       tokenDecimals.underlying
                     ),
                     3,

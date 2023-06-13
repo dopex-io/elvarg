@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { BigNumber } from 'ethers';
 
-import { ERC20__factory } from '@dopex-io/sdk';
 import { Checkbox } from '@mui/material';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import Slider from '@mui/material/Slider';
+
+import { ERC20__factory } from '@dopex-io/sdk';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
@@ -17,10 +17,17 @@ import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import { MINIMUM_MARGIN } from 'utils/contracts/option-scalps';
 import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE } from 'constants/index';
+
+type ScalpPools = 'ETH' | 'BTC' | string;
+
+export const MINIMUM_MARGIN: Record<ScalpPools, number> = {
+  ETH: 10,
+  BTC: 0.0005,
+  ARB: 10,
+};
 
 const TradeCard = () => {
   const {

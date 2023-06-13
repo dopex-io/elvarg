@@ -1,15 +1,13 @@
-import { StateCreator } from 'zustand';
 import { Addresses, ERC20__factory } from '@dopex-io/sdk';
-
-import { WalletSlice } from 'store/Wallet';
-
-import { TOKENS, TOKEN_DATA } from 'constants/tokens';
-
 import axios from 'axios';
+import queryClient from 'queryClient';
+import { StateCreator } from 'zustand';
 
 import { FarmingSlice } from 'store/Farming';
-
 import { vedpxAddress } from 'store/VeDPX';
+import { WalletSlice } from 'store/Wallet';
+
+import { TOKEN_DATA, TOKENS } from 'constants/tokens';
 
 const initKeysToVal = (arr: Array<string>, val: any) => {
   return arr.reduce((acc, item) => {
@@ -54,9 +52,13 @@ export const createAssetsSlice: StateCreator<
       }
     }
 
-    const payload = await axios.get(
-      `https://api.coingecko.com/api/v3/simple/price?ids=${cgIds}&vs_currencies=usd&include_24hr_change=true`
-    );
+    const payload = await queryClient.fetchQuery({
+      queryKey: ['token_prices'],
+      queryFn: () =>
+        axios.get(
+          `https://api.coingecko.com/api/v3/simple/price?ids=${cgIds}&vs_currencies=usd&include_24hr_change=true`
+        ),
+    });
 
     const data = Object.keys(payload.data)
       .map((_key, index) => {

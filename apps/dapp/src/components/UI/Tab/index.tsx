@@ -1,5 +1,6 @@
-import cx from 'classnames';
 import Box from '@mui/material/Box';
+
+import cx from 'classnames';
 import noop from 'lodash/noop';
 
 import Typography from 'components/UI/Typography';
@@ -11,6 +12,9 @@ interface Props {
   disabled?: boolean;
 }
 
+/**
+ * @deprecated
+ */
 const Tab = ({ active, title, onClick, disabled = false }: Props) => {
   return (
     <Box

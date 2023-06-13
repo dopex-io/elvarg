@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
-
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 
 import Box from '@mui/material/Box';
+
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
@@ -57,7 +57,10 @@ const Wrapper = ({ open, handleClose }: Props) => {
           </Typography>
           <Typography variant="h6" color="stieglitz">
             {formatAmount(
-              getUserReadableAmount(Number(userAssetBalances['ETH']), 18),
+              getUserReadableAmount(
+                BigNumber.from(userAssetBalances['ETH']),
+                18
+              ),
               10
             )}{' '}
             ETH

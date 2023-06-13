@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
 import Box from '@mui/material/Box';
+
 import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
 
@@ -44,7 +45,7 @@ const VeDPX = () => {
           ],
         }}
       />
-      <AppBar active="Governance" />
+      <AppBar />
       <Box className="py-32 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
         <Overview />
         <Box className="flex flex-col space-x-0 lg:space-x-4 lg:flex-row">

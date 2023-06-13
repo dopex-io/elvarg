@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import Box from '@mui/material/Box';
+
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+
 import axios from 'axios';
 import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
@@ -70,7 +72,7 @@ const Olp = () => {
           ],
         }}
       />
-      <AppBar active="OLPs" />
+      <AppBar />
       <Box className="pt-1 pb-32 lg:max-w-6xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         <Box className="text-center mx-auto max-w-xl mb-8 mt-32 flex flex-col items-center">
           <span className="z-1 mb-4 uppercase font-bold text-3xl tracking-[.5em]">

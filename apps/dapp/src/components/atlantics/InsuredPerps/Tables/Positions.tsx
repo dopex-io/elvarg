@@ -1,13 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { BigNumber } from 'ethers';
 
-import {
-  DopexPositionManager__factory,
-  GmxVault__factory,
-  InsuredLongsStrategy__factory,
-  InsuredLongsUtils__factory,
-} from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Menu from '@mui/material/Menu';
@@ -19,7 +12,13 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Tooltip from '@mui/material/Tooltip';
-import { styled } from '@mui/styles';
+
+import {
+  DopexPositionManager__factory,
+  GmxVault__factory,
+  InsuredLongsStrategy__factory,
+  InsuredLongsUtils__factory,
+} from '@dopex-io/sdk';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
@@ -53,14 +52,6 @@ interface IUserPositionData {
   depositUnderlying: boolean;
   type: 'Long';
 }
-
-const StyledTooltip = styled(({ className, ...props }) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(({ color }) => ({
-  '& .MuiTooltip-tooltip': {
-    background: color,
-  },
-}));
 
 export const ActionState: { [key: string]: string } = {
   '0': 'None', // 0
@@ -228,7 +219,7 @@ const Positions = ({
 
     setUserPositionData(() => position);
     setTriggerMarker(() =>
-      getUserReadableAmount(position.putStrike, 8).toString()
+      getUserReadableAmount(BigNumber.from(position.putStrike), 8).toString()
     );
     setIsPositionReleased(() => strategyPosition.state === 1);
   }, [
@@ -627,7 +618,7 @@ const Positions = ({
                       </Box>
                     </TableBodyCell>
                     <TableBodyCell>
-                      <StyledTooltip
+                      <Tooltip
                         followCursor
                         arrow={true}
                         color="transparent"
@@ -637,7 +628,9 @@ const Positions = ({
                               title="Initial Collateral:"
                               content={`$${formatAmount(
                                 getUserReadableAmount(
-                                  userPositionData.initialCollateral,
+                                  BigNumber.from(
+                                    userPositionData.initialCollateral
+                                  ),
                                   30
                                 ),
                                 2
@@ -648,7 +641,7 @@ const Positions = ({
                               title="Put Strike:"
                               content={`$${formatAmount(
                                 getUserReadableAmount(
-                                  userPositionData.putStrike,
+                                  BigNumber.from(userPositionData.putStrike),
                                   8
                                 ),
                                 3
@@ -659,7 +652,7 @@ const Positions = ({
                               title="PnL:"
                               content={`${formatAmount(
                                 getUserReadableAmount(
-                                  userPositionData.delta,
+                                  BigNumber.from(userPositionData.delta),
                                   30
                                 ),
                                 2
@@ -671,7 +664,7 @@ const Positions = ({
                               title="Collateral:"
                               content={`$${formatAmount(
                                 getUserReadableAmount(
-                                  userPositionData.collateral,
+                                  BigNumber.from(userPositionData.collateral),
                                   30
                                 ),
                                 2
@@ -695,7 +688,7 @@ const Positions = ({
                             $
                             {formatAmount(
                               getUserReadableAmount(
-                                userPositionData.collateral,
+                                BigNumber.from(userPositionData.collateral),
                                 30
                               ),
                               2
@@ -710,28 +703,22 @@ const Positions = ({
                             variant="caption"
                           >
                             {`${formatAmount(
-                              getUserReadableAmount(userPositionData.delta, 30),
+                              getUserReadableAmount(
+                                BigNumber.from(userPositionData.delta),
+                                30
+                              ),
                               2
                             )}(${pnlPercentage}%)`}
                           </Typography>
                         </span>
-                      </StyledTooltip>
-                    </TableBodyCell>
-                    <TableBodyCell>
-                      <Typography variant="h6">
-                        $
-                        {formatAmount(
-                          getUserReadableAmount(userPositionData.size, 30),
-                          2
-                        )}
-                      </Typography>
+                      </Tooltip>
                     </TableBodyCell>
                     <TableBodyCell>
                       <Typography variant="h6">
                         $
                         {formatAmount(
                           getUserReadableAmount(
-                            userPositionData.collateral,
+                            BigNumber.from(userPositionData.size),
                             30
                           ),
                           2
@@ -742,7 +729,10 @@ const Positions = ({
                       <Typography variant="h6">
                         $
                         {formatAmount(
-                          getUserReadableAmount(userPositionData.markPrice, 8),
+                          getUserReadableAmount(
+                            BigNumber.from(userPositionData.collateral),
+                            30
+                          ),
                           2
                         )}
                       </Typography>
@@ -752,7 +742,19 @@ const Positions = ({
                         $
                         {formatAmount(
                           getUserReadableAmount(
-                            userPositionData.entryPrice,
+                            BigNumber.from(userPositionData.markPrice),
+                            8
+                          ),
+                          2
+                        )}
+                      </Typography>
+                    </TableBodyCell>
+                    <TableBodyCell>
+                      <Typography variant="h6">
+                        $
+                        {formatAmount(
+                          getUserReadableAmount(
+                            BigNumber.from(userPositionData.entryPrice),
                             30
                           ),
                           3
@@ -764,7 +766,7 @@ const Positions = ({
                         $
                         {formatAmount(
                           getUserReadableAmount(
-                            userPositionData.liquidationPrice,
+                            BigNumber.from(userPositionData.liquidationPrice),
                             30
                           ),
                           2

@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-
 import { BigNumber } from 'ethers';
 
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
+
 import { useQuery } from '@tanstack/react-query';
 import graphSdk from 'graphql/graphSdk';
 import isEmpty from 'lodash/isEmpty';
@@ -15,6 +15,7 @@ import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import SsovCard from 'components/ssov/SsovCard';
 import SsovFilter from 'components/ssov/SsovFilter';
+import SsovStat from 'components/ssov/Stats/SsovStat';
 
 import { getUserReadableAmount } from 'utils/contracts';
 import formatAmount from 'utils/general/formatAmount';
@@ -79,6 +80,7 @@ const SsovData = () => {
 
   const [selectedSsovTokens, setSelectedSsovTokens] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [total24hVol, setTotal24hVol] = useState<number>(0);
   const [sortBy, setSortBy] = useState<string>('TVL');
   const [ssovsWithVol, setSsovsWithVol] = useState<any>({});
 
@@ -100,6 +102,29 @@ const SsovData = () => {
     return total;
   }, [ssovs]);
 
+  const openInterest = useMemo(() => {
+    let total = 0;
+    if (isEmpty(ssovs)) return total;
+
+    total = Object.keys(ssovs).reduce((acc, key) => {
+      return (
+        acc +
+        ssovs[key]?.reduce(
+          (
+            _acc: number,
+            ssov: { totalEpochPurchases: string; underlyingPrice: string }
+          ) =>
+            (_acc +=
+              parseFloat(ssov.totalEpochPurchases) *
+              parseFloat(ssov.underlyingPrice)),
+          0
+        )
+      );
+    }, 0);
+
+    return total;
+  }, [ssovs]);
+
   const keys = useMemo(() => {
     if (!ssovs) return [];
     else return [42161, 137];
@@ -109,12 +134,14 @@ const SsovData = () => {
     async function getVolumes() {
       if (!ssovs || !tradesData) return [];
       let ssovsVol: any = {};
+      let totalVol = 0;
       for (const key of Object.keys(ssovs)) {
         for (const so of ssovs[key]) {
           const volume = await getVolume(tradesData, so.address);
           if (!ssovsVol[key]) ssovsVol[key] = [];
           const volumeInUSD =
             getUserReadableAmount(volume, DECIMALS_TOKEN) * so.underlyingPrice;
+          totalVol += volumeInUSD;
           ssovsVol[key].push({
             ...so,
             volume: volumeInUSD,
@@ -122,6 +149,7 @@ const SsovData = () => {
         }
       }
       setSsovsWithVol(ssovsVol);
+      setTotal24hVol(totalVol);
     }
     getVolumes();
   }, [ssovs, tradesData]);
@@ -157,7 +185,7 @@ const SsovData = () => {
 
   return (
     <Box className="min-h-screen">
-      <AppBar active="SSOV" />
+      <AppBar />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         <Box className="text-center mx-auto max-w-xl mb-8 mt-32">
           <Typography variant="h2" className="z-1">
@@ -165,12 +193,21 @@ const SsovData = () => {
           </Typography>
           <Box
             className={
-              'mb-6 mt-5 opacity-90 bg-white ml-auto mr-auto w-[5rem] rounded-md p-[0.3px]'
+              'flex mb-6 mt-5 rounded-md justify-center items-center mx-auto'
             }
           >
-            <Typography variant="h6" color="umbra" className="text-[0.7rem]">
-              TVL ${formatAmount(tvl, 0)}
-            </Typography>
+            <SsovStat
+              title="Total Value Locked"
+              value={'$' + formatAmount(tvl, 0)}
+            />
+            <SsovStat
+              title="24h Volume"
+              value={'$' + formatAmount(total24hVol, 0, true)}
+            />
+            <SsovStat
+              title="Open Interest"
+              value={'$' + formatAmount(openInterest, 0, true)}
+            />
           </Box>
           <Typography variant="h5" className="text-stieglitz">
             Supply option liquidity to an Option Vault. Collect premiums from

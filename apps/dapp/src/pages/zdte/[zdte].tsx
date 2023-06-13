@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo } from 'react';
-
 import { useRouter } from 'next/router';
 
 import { NextSeo } from 'next-seo';
@@ -84,7 +83,7 @@ const Zdte = ({ zdte }: Props) => {
 
   return (
     <div className="bg-black min-h-screen">
-      <AppBar active="ZDTE" />
+      <AppBar />
       <div className="md:flex py-5 justify-center">
         <div className="ml-auto space-y-8">
           <div className="lg:pt-28 sm:pt-20 pt-20 lg:max-w-4xl md:max-w-3xl sm:max-w-2xl max-w-md mx-auto px-4 lg:px-0 space-y-6">

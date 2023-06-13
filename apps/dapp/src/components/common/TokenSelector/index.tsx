@@ -1,11 +1,14 @@
 import { Dispatch, SetStateAction, useCallback, useState } from 'react';
+import { BigNumber } from 'ethers';
 
-import { Addresses } from '@dopex-io/sdk';
-import SearchIcon from '@mui/icons-material/Search';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Input from '@mui/material/Input';
 import Slide from '@mui/material/Slide';
+
+import SearchIcon from '@mui/icons-material/Search';
+
+import { Addresses } from '@dopex-io/sdk';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
@@ -136,7 +139,7 @@ const TokenSelector = ({
                     <Typography variant="h5" className="text-white font-medium">
                       {formatAmount(
                         getUserReadableAmount(
-                          userAssetBalances[symbol] ?? '0',
+                          BigNumber.from(userAssetBalances[symbol] ?? '0'),
                           getTokenDecimals(symbol, chainId)
                         ),
                         3

@@ -1,15 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { BigNumber, ethers } from 'ethers';
 
-import { ERC20__factory } from '@dopex-io/sdk';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Slide from '@mui/material/Slide';
+
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+
+import { ERC20__factory } from '@dopex-io/sdk';
 import format from 'date-fns/format';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
@@ -20,19 +20,18 @@ import { useDebounce } from 'use-debounce';
 
 import { SsovV3Data, SsovV3EpochData } from 'store/Vault/ssov';
 
+import { Skeleton } from 'components/UI';
 import CustomButton from 'components/UI/Button';
 import Dialog from 'components/UI/Dialog';
-import Typography from 'components/UI/Typography';
 import InputWithTokenSelector from 'components/common/InputWithTokenSelector';
 import PnlChart from 'components/common/PnlChart';
 
+import { get1inchQuote, get1inchSwap } from 'utils/1inch';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getTimeToExpirationInYears from 'utils/date/getTimeToExpirationInYears';
 import { getTokenDecimals } from 'utils/general';
 import formatAmount from 'utils/general/formatAmount';
-import get1inchQuote from 'utils/general/get1inchQuote';
-import get1inchSwap from 'utils/general/get1inchSwap';
 import isNativeToken from 'utils/general/isNativeToken';
 import { getDelta } from 'utils/math/blackScholes/greeks';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
@@ -57,7 +56,6 @@ const PurchaseDialog = ({
     provider,
     signer,
     contractAddresses,
-    updateAssetBalances,
     ssovSigner,
     updateSsovV3UserData,
     updateSsovV3EpochData,
@@ -94,17 +92,15 @@ const PurchaseDialog = ({
     amountOut: BigNumber.from(0),
     swapData: '',
   });
-
   const [isPurchaseStatsLoading, setIsPurchaseStatsLoading] = useState(true);
   const [tokenSelectorOpen, setTokenSelectorOpen] = useState(false);
-
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [isChartVisible, setIsChartVisible] = useState<boolean>(false);
+  const [rawOptionsAmount, setRawOptionsAmount] = useState<string>('1');
+
+  const [debouncedOptionsAmount] = useDebounce(rawOptionsAmount, 1000);
 
   const ssovTokenName = useMemo(() => underlyingSymbol, [underlyingSymbol]);
-
-  const [isChartVisible, setIsChartVisible] = useState<boolean>(false);
-
-  const [debouncedQuote] = useDebounce(quote, 1000);
 
   const amountPayable = useMemo(() => {
     let _amountPayable = '0';
@@ -113,7 +109,7 @@ const PurchaseDialog = ({
     return formatAmount(
       getUserReadableAmount(
         fromTokenSymbol !== ssovData.collateralSymbol
-          ? debouncedQuote.amountOut
+          ? quote.amountOut
           : state.totalCost,
         getTokenDecimals(fromTokenSymbol, chainId)
       ),
@@ -123,7 +119,7 @@ const PurchaseDialog = ({
     chainId,
     fromTokenSymbol,
     state.totalCost,
-    debouncedQuote.amountOut,
+    quote,
     ssovData.collateralSymbol,
   ]);
 
@@ -149,7 +145,6 @@ const PurchaseDialog = ({
     [epochStrikes]
   );
 
-  const [rawOptionsAmount, setRawOptionsAmount] = useState<string>('1');
   const optionsAmount: number = useMemo(() => {
     return parseFloat(rawOptionsAmount) || 0;
   }, [rawOptionsAmount]);
@@ -164,10 +159,6 @@ const PurchaseDialog = ({
       getContractAddress(fromTokenSymbol),
       provider
     );
-
-    const userAmount = await _token.balanceOf(accountAddress);
-
-    setUserTokenBalance(userAmount);
 
     const allowance = await _token.allowance(accountAddress, spender);
 
@@ -192,8 +183,10 @@ const PurchaseDialog = ({
       !ssovData ||
       !ssovData?.collateralSymbol ||
       !routerMode
-    )
+    ) {
+      setQuoteDataLoading(false);
       return;
+    }
 
     const fromTokenAddress = getContractAddress(fromTokenSymbol);
 
@@ -213,10 +206,10 @@ const PurchaseDialog = ({
       !ssovData ||
       !ssovData.collateralSymbol ||
       state.totalCost.isZero()
-    )
+    ) {
+      setQuoteDataLoading(false);
       return;
-
-    setQuoteDataLoading(true);
+    }
 
     const {
       toTokenAmount,
@@ -258,7 +251,10 @@ const PurchaseDialog = ({
       .div(toTokenAmount)
       .div(divisor);
 
-    if (fromTokenAmountRequired.isZero()) return;
+    if (fromTokenAmountRequired.isZero()) {
+      setQuoteDataLoading(false);
+      return;
+    }
 
     await get1inchSwap({
       fromTokenAddress,
@@ -289,23 +285,41 @@ const PurchaseDialog = ({
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setQuoteDataLoading(true);
+      setIsPurchaseStatsLoading(true);
       setRawOptionsAmount(e.target.value);
     },
     []
   );
 
+  const updateUserTokenBalance = useCallback(async () => {
+    if (!accountAddress || !signer) return;
+
+    const tokenAddress = getContractAddress(fromTokenSymbol);
+
+    if (!tokenAddress) return;
+
+    setUserTokenBalance(
+      await ERC20__factory.connect(tokenAddress, signer).balanceOf(
+        accountAddress
+      )
+    );
+  }, [accountAddress, fromTokenSymbol, getContractAddress, signer]);
+
+  useEffect(() => {
+    updateUserTokenBalance();
+  }, [updateUserTokenBalance]);
+
   const collateralCTA = useMemo(() => {
     if (ssovData?.isPut) {
       return (
-        <Box
+        <div
           role="button"
-          className="underline ml-auto mt-1"
+          className="underline ml-auto mt-1 text-stieglitz text-sm"
           onClick={() => setFromTokenSymbol(ssovData.collateralSymbol!)}
         >
-          <Typography variant="h6" className="text-stieglitz underline">
-            Use 2CRV
-          </Typography>
-        </Box>
+          Use 2CRV
+        </div>
       );
     } else if (ssovData?.collateralSymbol === 'wstETH') {
       return (
@@ -315,11 +329,9 @@ const PurchaseDialog = ({
           rel="noopener noreferrer"
           className="ml-auto mt-1"
         >
-          <Box role="button" className="underline">
-            <Typography variant="h6" className="text-stieglitz">
-              Get wstETH
-            </Typography>
-          </Box>
+          <div role="button" className="underline text-stieglitz text-sm">
+            Get wstETH
+          </div>
         </a>
       );
     }
@@ -376,9 +388,9 @@ const PurchaseDialog = ({
           toTokenAddress,
           accountAddress,
           strikeIndex,
-          routerMode ? debouncedQuote.amountOut : state.totalCost,
+          routerMode ? quote.amountOut : state.totalCost,
           '0',
-          debouncedQuote.swapData,
+          quote.swapData,
         ]
       : [strikeIndex, _amount, accountAddress];
 
@@ -389,7 +401,7 @@ const PurchaseDialog = ({
     try {
       await sendTx(contractWithSigner!, method, params);
       setRawOptionsAmount('0');
-      updateAssetBalances();
+      updateUserTokenBalance();
       updateSsovV3UserData();
       updateSsovV3EpochData();
     } catch (err) {
@@ -397,6 +409,7 @@ const PurchaseDialog = ({
       setRawOptionsAmount('0');
     }
   }, [
+    updateUserTokenBalance,
     ssovData.collateralAddress,
     ssovData.isPut,
     accountAddress,
@@ -404,7 +417,6 @@ const PurchaseDialog = ({
     sendTx,
     ssovContractWithSigner,
     strikeIndex,
-    updateAssetBalances,
     updateSsovV3UserData,
     updateSsovV3EpochData,
     fromTokenSymbol,
@@ -412,8 +424,7 @@ const PurchaseDialog = ({
     routerMode,
     ssovSigner,
     state.totalCost,
-    debouncedQuote.amountOut,
-    debouncedQuote.swapData,
+    quote,
     chainId,
   ]);
 
@@ -422,8 +433,7 @@ const PurchaseDialog = ({
     if (
       !ssovContract ||
       strikeIndex === null ||
-      optionsAmount === 0 ||
-      optionsAmount.toString() === ''
+      debouncedOptionsAmount === ''
     ) {
       setState((prev) => ({
         ...prev,
@@ -438,7 +448,10 @@ const PurchaseDialog = ({
     }
 
     async function updateOptionPrice() {
-      if (!ssovContract || !ssovEpochData || !ssovData) return;
+      if (!ssovContract || !ssovEpochData || !ssovData) {
+        setIsPurchaseStatsLoading(false);
+        return;
+      }
 
       const strike = epochStrikes[strikeIndex];
 
@@ -456,7 +469,7 @@ const PurchaseDialog = ({
           ),
           ssovContract.calculatePurchaseFees(
             strike!,
-            getContractReadableAmount(String(optionsAmount), 18)
+            getContractReadableAmount(debouncedOptionsAmount, 18)
           ),
         ]);
 
@@ -467,7 +480,7 @@ const PurchaseDialog = ({
           .div(oneEBigNumber(18));
 
         let premium = optionPrice
-          .mul(getContractReadableAmount(optionsAmount, 18))
+          .mul(getContractReadableAmount(debouncedOptionsAmount, 18))
           .div(oneEBigNumber(18)); // avoid crashing when users buy <1 options
 
         let fees = _fees;
@@ -514,7 +527,7 @@ const PurchaseDialog = ({
   }, [
     strikeIndex,
     epochStrikes,
-    optionsAmount,
+    debouncedOptionsAmount,
     ssovContract,
     provider,
     isPut,
@@ -529,7 +542,7 @@ const PurchaseDialog = ({
   }, [checkApproved]);
 
   const purchaseButtonProps = useMemo(() => {
-    const totalCost = routerMode ? debouncedQuote.amountOut : state.totalCost;
+    const totalCost = routerMode ? quote.amountOut : state.totalCost;
 
     const disabled = Boolean(
       optionsAmount <= 0 ||
@@ -601,7 +614,7 @@ const PurchaseDialog = ({
     };
   }, [
     quoteDataLoading,
-    debouncedQuote.amountOut,
+    quote,
     routerMode,
     optionsAmount,
     isPurchaseStatsLoading,
@@ -629,349 +642,309 @@ const PurchaseDialog = ({
         paperScrollPaper: 'overflow-x-hidden',
       }}
     >
-      <>
-        <Box className="flex flex-row items-center mb-4">
-          <Box className="flex w-full justify-between">
-            <Typography variant="h5">Buy Options</Typography>
-            <Box className="flex mb-3 mr-3">{collateralCTA}</Box>
-          </Box>
-          <IconButton
-            className={'p-0 pb-1 mr-0 mt-0.5 ml-auto'}
-            onClick={handleClose}
-            size="large"
-          >
-            <BigCrossIcon className="" />
-          </IconButton>
-        </Box>
-        <Box className="bg-umbra rounded-2xl flex flex-col mb-4  pr-2">
-          <Box className="flex flex-row justify-between">
-            <InputWithTokenSelector
-              topRightTag="Options Size"
-              topLeftTag="Pay With"
-              selectedTokenSymbol={fromTokenSymbol}
-              setSelectedToken={setFromTokenSymbol}
-              inputAmount={rawOptionsAmount}
-              handleMax={handleMax}
-              handleInputAmountChange={handleInputChange}
-              overrides={{ setTokenSelectorOpen }}
-            />
-          </Box>
-          <Box className="flex flex-row justify-between"></Box>
-        </Box>
-        {!tokenSelectorOpen && (
-          <Box>
-            {debouncedIsChartVisible[0] && (
-              <Slide direction="left" in={isChartVisible}>
-                <Box className="p-3 bg-cod-gray rounded-md border border-neutral-800">
-                  <PnlChart
-                    breakEven={
-                      isPut
-                        ? Number(strikes[strikeIndex]) -
-                          getUserReadableAmount(state.optionPrice, 8)
-                        : Number(strikes[strikeIndex]) +
-                          getUserReadableAmount(state.optionPrice, 8)
-                    }
-                    optionPrice={getUserReadableAmount(state.optionPrice, 8)}
-                    amount={optionsAmount}
-                    isPut={isPut!}
-                    price={getUserReadableAmount(tokenPrice!, 8)}
-                    symbol={ssovTokenName!}
-                  />
-                </Box>
-              </Slide>
-            )}
-            {!debouncedIsChartVisible[0] && (
-              <Slide direction="left" in={!isChartVisible}>
-                <Box className="h-full">
-                  <Box className={'flex'}>
-                    <Box className="rounded-tl-xl flex p-3 border border-neutral-800 w-full">
-                      <Box className={'w-5/6'}>
-                        <Typography
-                          variant="h5"
-                          className="text-white pb-1 pr-2"
-                        >
-                          ${strikes[strikeIndex]}
-                        </Typography>
-                        <Typography
-                          variant="h6"
-                          className="text-stieglitz pb-1 pr-2"
-                        >
-                          Strike Price
-                        </Typography>
-                      </Box>
-                      <Box className="bg-mineshaft hover:bg-neutral-700 rounded-md items-center w-1/6 h-fit clickable">
-                        <IconButton
-                          className="p-0"
-                          onClick={(e) => setAnchorEl(e.currentTarget)}
-                          size="large"
-                        >
-                          {anchorEl ? (
-                            <ArrowDropUpIcon
-                              className={
-                                'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'
-                              }
-                            />
-                          ) : (
-                            <ArrowDropDownIcon
-                              className={
-                                'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'
-                              }
-                            />
-                          )}
-                        </IconButton>
-                        <Menu
-                          anchorEl={anchorEl}
-                          open={Boolean(anchorEl)}
-                          onClose={() => setAnchorEl(null)}
-                          classes={{ paper: 'bg-umbra' }}
-                        >
-                          {strikes.map((strike, strikeIndex) => (
-                            <MenuItem
-                              key={strikeIndex}
-                              className="capitalize text-white hover:bg-mineshaft cursor-pointer"
-                              onClick={() => {
-                                setStrikeIndex(strikeIndex);
-                                setAnchorEl(null);
-                              }}
-                            >
-                              ${strike}
-                            </MenuItem>
-                          ))}
-                        </Menu>
-                      </Box>
-                    </Box>
-                    <Box className="rounded-tr-xl flex flex-col p-3 border border-neutral-800 w-full">
-                      <Typography variant="h5" className="text-white pb-1 pr-2">
-                        {state.expiry
-                          ? format(new Date(state.expiry * 1000), 'd LLL yyyy')
-                          : '-'}
-                      </Typography>
-                      <Typography
-                        variant="h6"
-                        className="text-stieglitz pb-1 pr-2"
-                      >
-                        Expiry
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Box className="rounded-bl-xl rounded-br-xl flex flex-col mb-4 p-3 border border-neutral-800 w-full">
-                    <Box className={'flex mb-2'}>
-                      <Typography
-                        variant="h6"
-                        className="text-stieglitz ml-0 mr-auto"
-                      >
-                        Breakeven
-                      </Typography>
-                      <Box className={'text-right'}>
-                        <Typography
-                          variant="h6"
-                          className="text-white mr-auto ml-0"
-                        >
-                          $
-                          {isPut
-                            ? formatAmount(
-                                Number(strikes[strikeIndex]) -
-                                  getUserReadableAmount(state.optionPrice, 8),
-                                5
-                              )
-                            : formatAmount(
-                                Number(strikes[strikeIndex]) +
-                                  getUserReadableAmount(state.optionPrice, 8),
-                                5
-                              )}
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box className={'flex mb-2'}>
-                      <Typography
-                        variant="h6"
-                        className="text-stieglitz ml-0 mr-auto"
-                      >
-                        Available
-                      </Typography>
-                      <Box className={'text-right'}>
-                        <Typography
-                          variant="h6"
-                          className="text-white mr-auto ml-0"
-                        >
-                          {formatAmount(
-                            isPut
-                              ? getUserReadableAmount(
-                                  availableCollateralForStrikes[strikeIndex]!,
-                                  18
-                                ) / Number(strikes[strikeIndex])
-                              : getUserReadableAmount(
-                                  availableCollateralForStrikes[strikeIndex]!,
-                                  18
-                                ),
-                            5
-                          )}{' '}
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box className={'flex mb-2'}>
-                      <Typography
-                        variant="h6"
-                        className="text-stieglitz ml-0 mr-auto"
-                      >
-                        Option Price
-                      </Typography>
-                      <Box className={'text-right'}>
-                        <Typography
-                          variant="h6"
-                          className="text-white mr-auto ml-0"
-                        >
-                          ${ethers.utils.formatUnits(state.optionPrice, 8)}
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box className={'flex mb-2'}>
-                      <Typography
-                        variant="h6"
-                        className="text-stieglitz ml-0 mr-auto"
-                      >
-                        Side
-                      </Typography>
-                      <Box className={'text-right'}>
-                        <Typography
-                          variant="h6"
-                          className="text-white mr-auto ml-0"
-                        >
-                          {isPut ? 'PUT' : 'CALL'}
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box className={'flex mb-2'}>
-                      <Typography
-                        variant="h6"
-                        className="text-stieglitz ml-0 mr-auto"
-                      >
-                        IV
-                      </Typography>
-                      <Box className={'text-right'}>
-                        <Typography
-                          variant="h6"
-                          className="text-white mr-auto ml-0"
-                        >
-                          {state.volatility}
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box className={'flex'}>
-                      <Typography
-                        variant="h6"
-                        className="text-stieglitz ml-0 mr-auto"
-                      >
-                        Delta
-                      </Typography>
-                      <Box className={'text-right'}>
-                        <Typography
-                          variant="h6"
-                          className="text-white mr-auto ml-0"
-                        >
-                          {state.greeks.delta.toFixed(2)}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Box>
-                </Box>
-              </Slide>
-            )}
-          </Box>
-        )}
-        <Box className="flex mt-5 mb-5">
-          <CircleIcon
-            className={
-              isChartVisible
-                ? 'ml-auto mr-3 h-5 w-5 fill-gray-800 stroke-gray-100 opacity-10 cursor-pointer'
-                : 'ml-auto mr-3 h-5 w-5 fill-white stroke-white cursor-pointer'
-            }
-            onClick={() => setIsChartVisible(false)}
+      <div className="flex flex-row items-center mb-4">
+        <div className="flex w-full justify-between">
+          <div className="text-white">Buy Options</div>
+          <div className="flex mb-3 mr-3">{collateralCTA}</div>
+        </div>
+        <IconButton
+          className="p-0 pb-1 mr-0 mt-0.5 ml-auto"
+          onClick={handleClose}
+          size="large"
+        >
+          <BigCrossIcon />
+        </IconButton>
+      </div>
+      <div className="bg-umbra rounded-2xl flex flex-col mb-4 pr-2">
+        <div className="flex flex-row justify-between">
+          <InputWithTokenSelector
+            userTokenBalance={userTokenBalance}
+            topRightTag="Options Size"
+            topLeftTag="Pay With"
+            selectedTokenSymbol={fromTokenSymbol}
+            setSelectedToken={setFromTokenSymbol}
+            inputAmount={rawOptionsAmount}
+            handleMax={handleMax}
+            handleInputAmountChange={handleInputChange}
+            overrides={{ setTokenSelectorOpen }}
           />
-          <CircleIcon
-            className={
-              isChartVisible
-                ? 'mr-auto ml-0 h-5 w-5 fill-white stroke-white cursor-pointer'
-                : 'mr-auto ml-0 h-5 w-5 fill-gray-800 stroke-gray-100 opacity-10 cursor-pointer'
-            }
-            onClick={() => setIsChartVisible(true)}
-          />
-        </Box>
-        <Box className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra">
-          <Box className="rounded-md flex flex-col mb-4 p-4 border border-neutral-800 w-full bg-neutral-800">
-            <Box className={'flex mb-2'}>
-              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-                Option Size
-              </Typography>
-              <Box className={'text-right'}>
-                <Typography variant="h6" className="text-white mr-auto ml-0">
-                  {formatAmount(optionsAmount, 5)}
-                </Typography>
-              </Box>
-            </Box>
-            <Box className={'flex mb-2'}>
-              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-                Fees
-              </Typography>
-              <Box className={'text-right'}>
-                <Typography variant="h6" className="text-white mr-auto ml-0">
-                  $
-                  {formatAmount(
+        </div>
+        <div className="flex flex-row justify-between"></div>
+      </div>
+      {!tokenSelectorOpen && (
+        <div>
+          {debouncedIsChartVisible[0] && (
+            <Slide direction="left" in={isChartVisible}>
+              <div className="p-3 bg-cod-gray rounded-md border border-neutral-800">
+                <PnlChart
+                  breakEven={
                     isPut
-                      ? getUserReadableAmount(
-                          state.fees.mul(ssovData.lpPrice!),
-                          36
-                        )
-                      : getUserReadableAmount(
-                          state.fees.mul(ssovData.collateralPrice!),
-                          26
-                        ),
-                    5
-                  )}
-                </Typography>
-              </Box>
-            </Box>
-            <Box className={'flex mb-2'}>
-              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-                Premium
-              </Typography>
-              <Box className={'text-right'}>
-                <Typography variant="h6" className="text-white mr-auto ml-0">
-                  ${formatAmount(getUserReadableAmount(state.premium, 8), 5)}{' '}
-                </Typography>
-              </Box>
-            </Box>
-            <Box className={'flex'}>
-              <Typography variant="h6" className="text-stieglitz ml-0 mr-auto">
-                You will pay
-              </Typography>
-              <Box className={'text-right'}>
-                <Typography variant="h6" className="text-white mr-auto ml-0">
-                  {amountPayable} {fromTokenSymbol}
-                </Typography>
-              </Box>
-            </Box>
-          </Box>
-          <Box className="flex">
-            <Box className="flex text-center p-2 mr-2 mt-1">
-              <AlarmIcon />
-            </Box>
-            <Typography variant="h6" className="text-stieglitz">
-              This option will <span className="text-white">Auto Exercise</span>{' '}
-              and can be settled anytime after expiry.
-            </Typography>
-          </Box>
-          <CustomButton
-            size="medium"
-            className="w-full mt-4 !rounded-md"
-            color={purchaseButtonProps.color}
-            disabled={purchaseButtonProps.disabled}
-            onClick={purchaseButtonProps.onClick}
-          >
-            {purchaseButtonProps.children}
-          </CustomButton>
-        </Box>
-      </>
+                      ? Number(strikes[strikeIndex]) -
+                        getUserReadableAmount(state.optionPrice, 8)
+                      : Number(strikes[strikeIndex]) +
+                        getUserReadableAmount(state.optionPrice, 8)
+                  }
+                  optionPrice={getUserReadableAmount(state.optionPrice, 8)}
+                  amount={optionsAmount}
+                  isPut={isPut!}
+                  price={getUserReadableAmount(tokenPrice!, 8)}
+                  symbol={ssovTokenName!}
+                />
+              </div>
+            </Slide>
+          )}
+          {!debouncedIsChartVisible[0] && (
+            <Slide direction="left" in={!isChartVisible}>
+              <div className="h-full">
+                <div className={'flex'}>
+                  <div className="rounded-tl-xl flex p-3 border border-neutral-800 w-full">
+                    <div className={'w-5/6'}>
+                      <div className="text-white pb-1 pr-2">
+                        ${strikes[strikeIndex]}
+                      </div>
+                      <div className="text-stieglitz text-sm pb-1 pr-2">
+                        Strike Price
+                      </div>
+                    </div>
+                    <div className="bg-mineshaft hover:bg-neutral-700 rounded-md items-center w-1/6 h-fit clickable">
+                      <IconButton
+                        className="p-0"
+                        onClick={(e) => setAnchorEl(e.currentTarget)}
+                        size="large"
+                      >
+                        {anchorEl ? (
+                          <ArrowDropUpIcon
+                            className={'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'}
+                          />
+                        ) : (
+                          <ArrowDropDownIcon
+                            className={'fill-gray-100 h-50 pl-0.5 pr-1 md:pr-0'}
+                          />
+                        )}
+                      </IconButton>
+                      <Menu
+                        anchorEl={anchorEl}
+                        open={Boolean(anchorEl)}
+                        onClose={() => setAnchorEl(null)}
+                        classes={{ paper: 'bg-umbra' }}
+                      >
+                        {strikes.map((strike, strikeIndex) => (
+                          <MenuItem
+                            key={strikeIndex}
+                            className="capitalize text-white hover:bg-mineshaft cursor-pointer"
+                            onClick={() => {
+                              setStrikeIndex(strikeIndex);
+                              setAnchorEl(null);
+                            }}
+                          >
+                            ${strike}
+                          </MenuItem>
+                        ))}
+                      </Menu>
+                    </div>
+                  </div>
+                  <div className="rounded-tr-xl flex flex-col p-3 border border-neutral-800 w-full">
+                    <div className="text-white pb-1 pr-2">
+                      {state.expiry
+                        ? format(new Date(state.expiry * 1000), 'd LLL yyyy')
+                        : '-'}
+                    </div>
+                    <div className="text-stieglitz text-sm pb-1 pr-2">
+                      Expiry
+                    </div>
+                  </div>
+                </div>
+                <div className="rounded-bl-xl rounded-br-xl flex flex-col mb-4 p-3 border border-neutral-800 w-full">
+                  <div className="flex mb-2">
+                    <div className="text-stieglitz text-sm ml-0 mr-auto">
+                      Breakeven
+                    </div>
+                    <div className="text-right">
+                      <div className="text-white text-sm mr-auto ml-0">
+                        $
+                        {isPut
+                          ? formatAmount(
+                              Number(strikes[strikeIndex]) -
+                                getUserReadableAmount(state.optionPrice, 8),
+                              5
+                            )
+                          : formatAmount(
+                              Number(strikes[strikeIndex]) +
+                                getUserReadableAmount(state.optionPrice, 8),
+                              5
+                            )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex mb-2">
+                    <div className="text-stieglitz text-sm ml-0 mr-auto">
+                      Available
+                    </div>
+                    <div className="text-right">
+                      <div className="text-white text-sm mr-auto ml-0">
+                        {formatAmount(
+                          isPut
+                            ? getUserReadableAmount(
+                                availableCollateralForStrikes[strikeIndex]!,
+                                18
+                              ) / Number(strikes[strikeIndex])
+                            : getUserReadableAmount(
+                                availableCollateralForStrikes[strikeIndex]!,
+                                18
+                              ),
+                          5
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex mb-2">
+                    <div className="text-stieglitz text-sm ml-0 mr-auto">
+                      Option Price
+                    </div>
+                    <div className="text-right">
+                      <div className="text-white text-sm mr-auto ml-0">
+                        ${ethers.utils.formatUnits(state.optionPrice, 8)}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex mb-2">
+                    <div className="text-stieglitz text-sm ml-0 mr-auto">
+                      Side
+                    </div>
+                    <div className="text-right">
+                      <div className="text-white text-sm mr-auto ml-0">
+                        {isPut ? 'PUT' : 'CALL'}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex mb-2">
+                    <div className="text-stieglitz text-sm ml-0 mr-auto">
+                      IV
+                    </div>
+                    <div className="text-right">
+                      <div className="text-white text-sm mr-auto ml-0">
+                        {state.volatility}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex">
+                    <div className="text-stieglitz text-sm ml-0 mr-auto">
+                      Delta
+                    </div>
+                    <div className="text-right">
+                      <div className="text-white text-sm mr-auto ml-0">
+                        {state.greeks.delta.toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Slide>
+          )}
+        </div>
+      )}
+      <div className="flex mt-5 mb-5">
+        <CircleIcon
+          className={
+            isChartVisible
+              ? 'ml-auto mr-3 h-5 w-5 fill-gray-800 stroke-gray-100 opacity-10 cursor-pointer'
+              : 'ml-auto mr-3 h-5 w-5 fill-white stroke-white cursor-pointer'
+          }
+          onClick={() => setIsChartVisible(false)}
+        />
+        <CircleIcon
+          className={
+            isChartVisible
+              ? 'mr-auto ml-0 h-5 w-5 fill-white stroke-white cursor-pointer'
+              : 'mr-auto ml-0 h-5 w-5 fill-gray-800 stroke-gray-100 opacity-10 cursor-pointer'
+          }
+          onClick={() => setIsChartVisible(true)}
+        />
+      </div>
+      <div className="rounded-xl p-4 border border-neutral-800 w-full bg-umbra">
+        <div className="rounded-md flex flex-col mb-4 p-4 border border-neutral-800 w-full bg-neutral-800">
+          <div className="flex mb-2">
+            <div className="text-stieglitz text-sm ml-0 mr-auto">
+              Option Size
+            </div>
+            <div className="text-right">
+              <div className="text-white text-sm mr-auto ml-0">
+                {formatAmount(optionsAmount, 5)}
+              </div>
+            </div>
+          </div>
+          <div className="flex mb-2">
+            <div className="text-stieglitz text-sm ml-0 mr-auto">Fees</div>
+            <div className="text-right">
+              <div className="text-white text-sm mr-auto ml-0">
+                {quoteDataLoading || isPurchaseStatsLoading ? (
+                  <Skeleton width={40} />
+                ) : (
+                  <>
+                    $
+                    {formatAmount(
+                      isPut
+                        ? getUserReadableAmount(
+                            state.fees.mul(ssovData.lpPrice!),
+                            36
+                          )
+                        : getUserReadableAmount(
+                            state.fees.mul(ssovData.collateralPrice!),
+                            26
+                          ),
+                      5
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="flex mb-2">
+            <div className="text-stieglitz text-sm ml-0 mr-auto">Premium</div>
+            <div className="text-right">
+              <div className="text-white text-sm mr-auto ml-0">
+                {quoteDataLoading || isPurchaseStatsLoading ? (
+                  <Skeleton width={70} />
+                ) : (
+                  '$' + formatAmount(getUserReadableAmount(state.premium, 8), 5)
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="flex">
+            <div className="text-stieglitz text-sm ml-0 mr-auto">
+              You will pay
+            </div>
+            <div className="text-right">
+              <div className="text-white text-sm mr-auto ml-0">
+                {quoteDataLoading || isPurchaseStatsLoading ? (
+                  <Skeleton width={70} />
+                ) : (
+                  `${amountPayable} ${fromTokenSymbol}`
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="flex">
+          <div className="flex text-center p-2 mr-2 mt-1">
+            <AlarmIcon />
+          </div>
+          <div className="text-stieglitz text-sm">
+            This option will <span className="text-white">Auto Exercise</span>{' '}
+            and can be settled anytime after expiry.
+          </div>
+        </div>
+        <CustomButton
+          size="medium"
+          className="w-full mt-4 !rounded-md"
+          color={purchaseButtonProps.color}
+          disabled={purchaseButtonProps.disabled}
+          onClick={purchaseButtonProps.onClick}
+        >
+          {purchaseButtonProps.children}
+        </CustomButton>
+      </div>
     </Dialog>
   );
 };
