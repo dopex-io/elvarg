@@ -14,9 +14,7 @@
     "build": "pnpm clean && node build.js && tsc --emitDeclarationOnly --outDir dist",
     "clean": "rimraf dist",
     "storybook": "concurrently \"pnpm:watch:*\"",
-    "build-storybook": "concurrently \"pnpm:build:*\"",
-    "build:css": "npx tailwindcss -i ./styles/tailwind.css -o ./storybook-static/tailwind.css",
-    "build:storybook": "storybook build",
+    "build-storybook": "storybook build && npx tailwindcss -i ./styles/tailwind.css -o ./storybook-static/tailwind.css",
     "watch:css": "npx tailwindcss -i ./styles/tailwind.css -o ./public/tailwind.css --watch",
     "watch:storybook": "storybook dev -p 6006"
   },
