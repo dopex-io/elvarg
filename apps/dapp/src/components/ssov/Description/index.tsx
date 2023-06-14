@@ -1,5 +1,5 @@
 import { ReactNode, useMemo, useState } from 'react';
-
+import { BigNumber } from 'ethers';
 import cx from 'classnames';
 import format from 'date-fns/format';
 import noop from 'lodash/noop';
@@ -9,8 +9,8 @@ import Coin from 'svgs/icons/Coin';
 
 import { Reward, SsovV3Data, SsovV3EpochData } from 'store/Vault/ssov';
 
-import Typography from 'components/UI/Typography';
 import SignerButton from 'components/common/SignerButton';
+import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -103,7 +103,7 @@ const Description = ({
         >
           $
           {formatAmount(
-            getUserReadableAmount(ssovData.tokenPrice || '0', 8),
+            getUserReadableAmount(BigNumber.from(ssovData.tokenPrice), 8),
             2
           )}
         </Typography>

@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+
 import { Addresses, MerkleDistributor__factory } from '@dopex-io/sdk';
 import { Button } from '@dopex-io/ui';
 import { useQuery } from '@tanstack/react-query';
@@ -38,7 +39,7 @@ const NftClaimButton = ({ account, name }: NftClaimButtonProps) => {
       switchNetwork?.(42161);
     }
 
-    const txData = query.data.data;
+    const txData = query?.data?.data;
 
     await contract?.claim(
       txData.index,
@@ -48,7 +49,7 @@ const NftClaimButton = ({ account, name }: NftClaimButtonProps) => {
     );
   }, [contract, network.chain?.id, query.data, signer, switchNetwork]);
 
-  if (!query.isLoading && query.data.valid) {
+  if (!query.isLoading && query?.data?.valid) {
     return (
       <Button
         className="flex space-x-2 mx-2 bg-gradient-to-r from-blue-700 to-purple-700"

@@ -5,7 +5,7 @@ import {
   useMemo,
   useState,
 } from 'react';
-
+import { BigNumber } from 'ethers';
 import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -25,9 +25,9 @@ import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
 
+import SignerButton from 'components/common/SignerButton';
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import SignerButton from 'components/common/SignerButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -240,7 +240,11 @@ const UserDepositsTable = () => {
             <TableRow key={index}>
               {
                 <TableBodyCell>
-                  ${getUserReadableAmount(position?.strike ?? 0, 8)}
+                  $
+                  {getUserReadableAmount(
+                    BigNumber.from(position?.strike ?? '0'),
+                    8
+                  )}
                 </TableBodyCell>
               }
               <TableBodyCell>
@@ -286,7 +290,7 @@ const UserDepositsTable = () => {
                 <Typography variant="h6">
                   {formatAmount(
                     getUserReadableAmount(
-                      position?.underlyingEarned ?? 0,
+                      BigNumber.from(position?.underlyingEarned ?? '0'),
                       tokenDecimals.underlying
                     ),
                     3,
