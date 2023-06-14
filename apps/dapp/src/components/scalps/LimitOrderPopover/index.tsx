@@ -88,7 +88,7 @@ const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
         placement="top"
       >
         <Button
-          className="cursor-pointer text-white w-2"
+          className="cursor-pointer text-white w-[9rem]"
           color={'primary'}
           variant={'contained'}
           onClick={handleOpenLimitOrderPopover}
@@ -121,7 +121,7 @@ const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
           </div>
 
           <div className="mt-3">
-            <p className="text-xs text-stieglitz">Limit price</p>
+            <p className="text-xs text-stieglitz mb-1">Limit price</p>
             <Input
               color="cod-gray"
               placeholder={String(
@@ -136,12 +136,13 @@ const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
                 target: { value: React.SetStateAction<string | number> };
               }) => setRawLimitPrice(String(e.target.value))}
               type="number"
-              className={`mt-2 border border-mineshaft rounded-md px-2 bg-umbra w-full !w-auto`}
+              className={`bg-umbra w-[8rem]`}
               variant="small"
             />
           </div>
           <Button
             className="cursor-pointer text-white w-full mt-3"
+            variant="contained"
             color={'primary'}
             onClick={handleCreate}
           >

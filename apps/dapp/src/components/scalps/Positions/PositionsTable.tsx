@@ -403,7 +403,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                     aria-label="share"
                     aria-haspopup="true"
                     onClick={() => handleShare(position)}
-                    className="flex"
+                    className="flex ml-3"
                     size="small"
                   >
                     <IosShare className="fill-current text-white opacity-90 hover:opacity-100 text-lg" />

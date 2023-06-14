@@ -650,7 +650,7 @@ const TradeCard = () => {
             className={
               (i === 0
                 ? 'ml-auto mr-1.5'
-                : i === 4
+                : i === 6
                 ? 'mr-auto ml-1.5'
                 : 'mx-1.5') +
               (time === selectedTimeWindow ? ' bg-mineshaft' : ' bg-umbra') +

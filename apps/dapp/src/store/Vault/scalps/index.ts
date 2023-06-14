@@ -310,9 +310,7 @@ export const createOptionScalpSlice: StateCreator<
         .mul(BigNumber.from(10 ** optionScalpData?.quoteDecimals.toNumber()))
         .div(price);
 
-      const today = new Date().getTime();
-
-      if (openOrder['cancelled'] === false && expiry.toNumber() > today)
+      if (openOrder['cancelled'] === false)
         return {
           transactionHash: hash,
           id: id,
