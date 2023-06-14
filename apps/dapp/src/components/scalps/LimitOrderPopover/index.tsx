@@ -136,7 +136,7 @@ const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
                 target: { value: React.SetStateAction<string | number> };
               }) => setRawLimitPrice(String(e.target.value))}
               type="number"
-              className={`bg-umbra w-[8rem]`}
+              className={`bg-umbra w-[8rem] text-white`}
               variant="small"
             />
           </div>
