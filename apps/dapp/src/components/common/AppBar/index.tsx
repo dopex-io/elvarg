@@ -10,7 +10,6 @@ import axios from 'axios';
 import { useBoundStore } from 'store';
 import { useNetwork } from 'wagmi';
 
-import PriceCarousel from 'components/common/AppBar/PriceCarousel';
 import DisclaimerDialog from 'components/common/DisclaimerDialog';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
@@ -230,7 +229,6 @@ export default function AppBar() {
         handleClose={setOpenComplianceDialog}
       />
       <nav className="fixed top-0 w-full text-gray-600 z-50 backdrop-blur-sm h-[74px]">
-        <PriceCarousel tokenPrices={tokenPrices} />
         <div className="flex w-full items-center container pl-5 pr-5 lg:pl-10 lg:pr-10 p-4 justify-between mx-auto max-w-full">
           <div className="flex items-center">
             <Link

@@ -1,5 +1,8 @@
 import { BigNumber, utils } from 'ethers';
 
+/**
+ * @deprecated
+ */
 export default function getContractReadableAmount(
   amount: string | number,
   decimals: string | number

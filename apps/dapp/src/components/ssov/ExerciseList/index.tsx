@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
-
 import { BigNumber } from 'ethers';
 
-import { ERC20__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 import Table from '@mui/material/Table';
@@ -12,16 +10,18 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
+
+import { ERC20__factory } from '@dopex-io/sdk';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
 import { useBoundStore } from 'store';
 
+import SignerButton from 'components/common/SignerButton';
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 import Typography from 'components/UI/Typography';
-import SignerButton from 'components/common/SignerButton';
 
+import { isZeroAddress } from 'utils/contracts';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import isZeroAddress from 'utils/contracts/isZeroAddress';
 
 import ExerciseTableData from './ExerciseTableData';
 

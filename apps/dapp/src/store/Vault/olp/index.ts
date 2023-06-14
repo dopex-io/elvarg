@@ -7,7 +7,7 @@ import { StateCreator } from 'zustand';
 import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';
 
-import { getCurrentTime } from 'utils/contracts';
+import getCurrentTime from 'utils/date/getCurrentTime';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import {
