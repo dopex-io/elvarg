@@ -1,10 +1,7 @@
 import { useEffect } from 'react';
-
 import type { AppProps } from 'next/app';
 import Script from 'next/script';
-
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
-import StylesProvider from '@mui/styles/StylesProvider';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { DefaultSeo } from 'next-seo';
 import queryClient from 'queryClient';
@@ -52,19 +49,17 @@ function App({ Component, pageProps }: AppProps) {
           cardType: 'summary_large_image',
         }}
       />
-      <StylesProvider injectFirst>
-        <StyledEngineProvider injectFirst>
-          <ThemeProvider theme={theme}>
-            <QueryClientProvider client={queryClient}>
-              <WagmiConfig client={wagmiClient}>
-                <Toaster position="bottom-right" reverseOrder={true} />
-                <GlobalDialogs />
-                <Component {...pageProps} />
-              </WagmiConfig>
-            </QueryClientProvider>
-          </ThemeProvider>
-        </StyledEngineProvider>
-      </StylesProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <QueryClientProvider client={queryClient}>
+            <WagmiConfig client={wagmiClient}>
+              <Toaster position="bottom-right" reverseOrder={true} />
+              <GlobalDialogs />
+              <Component {...pageProps} />
+            </WagmiConfig>
+          </QueryClientProvider>
+        </ThemeProvider>
+      </StyledEngineProvider>
       <Script
         src="https://www.googletagmanager.com/gtag/js?id=G-QLYLX4HN05"
         strategy="afterInteractive"

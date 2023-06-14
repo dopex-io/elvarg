@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useCallback, useState } from 'react';
-
+import { BigNumber } from 'ethers';
 import { Addresses } from '@dopex-io/sdk';
 import SearchIcon from '@mui/icons-material/Search';
 import Box from '@mui/material/Box';
@@ -136,7 +136,7 @@ const TokenSelector = ({
                     <Typography variant="h5" className="text-white font-medium">
                       {formatAmount(
                         getUserReadableAmount(
-                          userAssetBalances[symbol] ?? '0',
+                          BigNumber.from(userAssetBalances[symbol] ?? '0'),
                           getTokenDecimals(symbol, chainId)
                         ),
                         3

@@ -5,6 +5,9 @@ const StyledSkeleton = styled(MuiSkeleton)`
   background-color: rgba(1, 1, 1, 0.3);
 `;
 
+/**
+ * @deprecated
+ */
 const Skeleton = (props: SkeletonProps) => {
   return <StyledSkeleton {...props} />;
 };

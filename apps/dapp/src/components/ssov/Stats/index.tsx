@@ -1,7 +1,5 @@
 import { useMemo } from 'react';
-
 import { ethers } from 'ethers';
-
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 import Table from '@mui/material/Table';
@@ -106,7 +104,7 @@ const Stats = (props: { className?: string }) => {
   const { ssovData, selectedEpoch, ssovEpochData } = useBoundStore();
 
   const price = useMemo(
-    () => getUserReadableAmount(ssovData?.tokenPrice ?? 0, 8),
+    () => getUserReadableAmount(ssovData?.tokenPrice, 8),
     [ssovData]
   );
 

@@ -1,10 +1,12 @@
-import { BigNumberish, utils as ethersUtils } from 'ethers';
+import { BigNumber, utils as ethersUtils } from 'ethers';
 
+/**
+ * @deprecated
+ */
 export default function getUserReadableAmount(
-  amount: BigNumberish,
+  amount: BigNumber | undefined,
   decimals: string | number = 18
 ): number {
   if (amount === undefined || amount === null) return 0;
-  if (typeof amount === 'number') amount = String(amount);
   return Number(ethersUtils.formatUnits(amount, Number(decimals)));
 }
