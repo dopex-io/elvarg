@@ -105,23 +105,28 @@ const OrdersTable = () => {
                 )
               ),
               4
-            )
-          : null + ' ' + optionScalpData.quoteSymbol;
+            ) +
+            ' ' +
+            optionScalpData.quoteSymbol
+          : '-';
       }
 
       if (key === 'expiry') {
-        data = (
-          <Countdown
-            date={order.expiry * 1000}
-            renderer={({ hours, minutes, seconds }) => {
-              return (
-                <span className="text-xs md:text-sm text-white pt-1">
-                  {hours}h {minutes}m {seconds}s
-                </span>
-              );
-            }}
-          />
-        );
+        data =
+          order.type === 'open' ? (
+            <Countdown
+              date={order.expiry * 1000}
+              renderer={({ hours, minutes, seconds }) => {
+                return (
+                  <span className="text-xs md:text-sm text-white pt-1">
+                    {hours}h {minutes}m {seconds}s
+                  </span>
+                );
+              }}
+            />
+          ) : (
+            '-'
+          );
       }
 
       if (key === 'transactionHash') {

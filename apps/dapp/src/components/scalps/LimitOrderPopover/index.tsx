@@ -88,7 +88,7 @@ const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
         placement="top"
       >
         <Button
-          className="cursor-pointer text-white w-[9rem]"
+          className="cursor-pointer text-white w-[5.7rem]"
           color={'primary'}
           variant={'contained'}
           onClick={handleOpenLimitOrderPopover}
