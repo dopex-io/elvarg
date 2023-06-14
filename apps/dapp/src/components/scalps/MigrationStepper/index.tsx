@@ -129,7 +129,7 @@ export default function MigrationStepper({
     try {
       setLoading(true);
       const quote = await deprecatedScalpsContract.quote();
-      const base = await deprecatedScalpsContract.baseLp();
+      const base = await deprecatedScalpsContract.base();
 
       const tokenContract = await ERC20__factory.connect(
         isQuote ? quote : base,
