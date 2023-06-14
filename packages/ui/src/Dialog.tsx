@@ -27,7 +27,7 @@ const Dialog = (props: DialogProps) => {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black bg-opacity-50" />
+          <div className="fixed inset-0 backdrop-blur-sm" />
         </Transition.Child>
         <div className="fixed inset-0 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
@@ -44,7 +44,10 @@ const Dialog = (props: DialogProps) => {
                 <HeadlessDialog.Title className="text-lg font-medium flex justify-between">
                   <span className="text-white">{title}</span>
                   {showCloseIcon ? (
-                    <CloseIcon onClick={handleClose} className="text-white" />
+                    <CloseIcon
+                      onClick={handleClose}
+                      className="text-white cursor-pointer"
+                    />
                   ) : null}
                 </HeadlessDialog.Title>
                 {children}
