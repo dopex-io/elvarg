@@ -33,6 +33,9 @@ const variants: Record<string, Record<string, string>> = {
   },
 };
 
+/**
+ * @deprecated
+ */
 const Input = (props: InputProps) => {
   const {
     leftElement = '',

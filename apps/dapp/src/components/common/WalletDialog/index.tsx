@@ -1,16 +1,14 @@
 import { useCallback, useState } from 'react';
-
 import { BigNumber } from 'ethers';
-
 import LaunchIcon from '@mui/icons-material/Launch';
 import Box from '@mui/material/Box';
 import delay from 'lodash/delay';
 import { useBoundStore } from 'store';
 import { useDisconnect } from 'wagmi';
 
+import BalanceItem from 'components/common/BalanceItem';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import BalanceItem from 'components/common/BalanceItem';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import displayAddress from 'utils/general/displayAddress';
@@ -99,7 +97,7 @@ const WalletDialog = ({ open, handleClose, userBalances }: Props) => {
                 <BalanceItem
                   key={index}
                   balance={getUserReadableAmount(
-                    userBalances[key] ?? '0',
+                    BigNumber.from(userBalances[key] ?? '0'),
                     chainId === 56 ? 8 : 18
                   ).toString()}
                   decimals={18}

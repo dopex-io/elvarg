@@ -1,11 +1,11 @@
 import { useEffect, useMemo } from 'react';
-
+import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useBoundStore } from 'store';
 
-import Typography from 'components/UI/Typography';
 import SignerButton from 'components/common/SignerButton';
+import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -62,7 +62,7 @@ export default function Balances() {
                   <span className="text-white">
                     {formatAmount(
                       getUserReadableAmount(
-                        String(userAssetBalances[asset]),
+                        BigNumber.from(userAssetBalances[asset]),
                         getTokenDecimals(asset, chainId)
                       ),
                       6
