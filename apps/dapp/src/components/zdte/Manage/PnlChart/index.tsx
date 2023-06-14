@@ -20,7 +20,6 @@ import { getMaxPayoffPerOption } from 'components/zdte/Manage/TradeCard';
 import { FormatPercentColor } from 'components/zdte/OptionsTable/OptionsTableRow';
 
 import { formatAmount } from 'utils/general';
-import formatAmountWithNegative from 'utils/general/formatAmountWithNegative';
 import getPercentageDifference from 'utils/math/getPercentageDifference';
 
 interface PnlChartProps {
@@ -54,7 +53,7 @@ function CustomYAxisTick(props: any) {
   } else if (payload.value > 1 && payload < 10) {
     res = formatAmount(payload.value, 2);
   } else if (payload.value < 0) {
-    res = formatAmountWithNegative(payload.value, 0, true);
+    res = formatAmount(payload.value, 0, true);
   } else if (payload.value > 0.01) {
     res = payload.value.toFixed(2).toString();
   } else {

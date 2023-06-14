@@ -1,21 +1,20 @@
-import React, { ReactEventHandler } from "react";
-import { Menu as HeadlessMenu, Transition } from "@headlessui/react";
+import React, { ReactEventHandler } from 'react';
 
-import Button from "../src/Button";
-import MenuItems, { dropdownVariants } from "../src/MenuItems";
-import { ItemType } from "../src/MenuItems";
+import { Menu as HeadlessMenu, Transition } from '@headlessui/react';
 
-import DropdownArrowIcon from "./icons/DropdownArrowIcon";
+import Button from '../src/Button';
+import MenuItems, { dropdownVariants, ItemType } from '../src/MenuItems';
+import DropdownArrowIcon from './icons/DropdownArrowIcon';
 
 type colors =
-  | "primary"
-  | "mineshaft"
-  | "carbon"
-  | "umbra"
-  | "success"
-  | "error";
+  | 'primary'
+  | 'mineshaft'
+  | 'carbon'
+  | 'umbra'
+  | 'success'
+  | 'error';
 
-interface MenuProps<T> {
+export interface MenuProps<T> {
   data: T[];
   selection?: string;
   handleSelection: ReactEventHandler;
@@ -30,10 +29,10 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
     data,
     selection,
     handleSelection,
-    dropdownVariant = "basic",
+    dropdownVariant = 'basic',
     scrollable = false,
     topElement = null,
-    color = "carbon",
+    color = 'carbon',
     ...rest
   } = props;
 
@@ -50,7 +49,7 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
             <div className="flex justify-between">
               {selection}
               <DropdownArrowIcon
-                className={open ? `transform rotate-180` : ""}
+                className={open ? `transform rotate-180` : ''}
               />
             </div>
           )}
@@ -78,6 +77,6 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
   );
 };
 
-Menu.displayName = "Menu";
+Menu.displayName = 'Menu';
 
 export default Menu;
