@@ -80,13 +80,6 @@ const TopBar = () => {
             >
               ETH/USDC
             </MenuItem>
-            <MenuItem
-              value={'ARB'}
-              key={'ARB'}
-              className="text-white text-[0.5rem] sm:text-[0.8rem] py-1 m-0"
-            >
-              ARB/USDC
-            </MenuItem>
           </Select>
         </div>
       </div>
