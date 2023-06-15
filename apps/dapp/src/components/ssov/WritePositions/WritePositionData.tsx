@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
+
 import { TokenData } from 'types';
 
 import { WritePositionInterface } from 'store/Vault/ssov';
@@ -18,6 +19,7 @@ interface Props extends WritePositionInterface {
   rewardTokens: TokenData[];
   openTransfer: () => void;
   openWithdraw: () => void;
+  openClaim: () => void;
   epochExpired: boolean;
 }
 
@@ -31,10 +33,13 @@ const WritePositionTableData = (props: Props) => {
     collateralSymbol,
     openTransfer,
     openWithdraw,
+    openClaim,
     rewardTokens,
     utilization,
     // estimatedPnl,
     epochExpired,
+    stakeRewardAmounts,
+    stakeRewardTokens,
   } = props;
 
   return (
@@ -69,6 +74,16 @@ const WritePositionTableData = (props: Props) => {
             </Typography>
           ) : null;
         })}
+        {stakeRewardAmounts.map((rewardAmount, index) => {
+          return (
+            rewardAmount.gt(0) && (
+              <Typography variant="h6" key={index}>
+                <NumberDisplay n={rewardAmount} decimals={18} />{' '}
+                {stakeRewardTokens[index]?.symbol}
+              </Typography>
+            )
+          );
+        })}
       </TableCell>
       <TableCell>
         <Typography variant="h6">
@@ -83,10 +98,11 @@ const WritePositionTableData = (props: Props) => {
       </TableCell> */}
       <TableCell align="left" className="pt-2 flex space-x-2">
         <SplitButton
-          options={['Transfer', 'Withdraw']}
+          options={['Transfer', 'Withdraw', 'Claim']}
           handleClick={(index: number) => {
             if (index === 0) openTransfer();
-            else openWithdraw();
+            if (index === 1) openWithdraw();
+            if (index === 2) openClaim();
           }}
           disableButtons={[false, !epochExpired]}
         />
