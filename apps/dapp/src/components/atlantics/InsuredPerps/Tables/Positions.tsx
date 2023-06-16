@@ -1,11 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { BigNumber } from 'ethers';
-import {
-  DopexPositionManager__factory,
-  GmxVault__factory,
-  InsuredLongsStrategy__factory,
-  InsuredLongsUtils__factory,
-} from '@dopex-io/sdk';
+import { BigNumber, ethers } from 'ethers';
+
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Menu from '@mui/material/Menu';
@@ -17,6 +12,13 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Tooltip from '@mui/material/Tooltip';
+
+import {
+  DopexPositionManager__factory,
+  GmxVault__factory,
+  InsuredLongsStrategy__factory,
+  InsuredLongsUtils__factory,
+} from '@dopex-io/sdk';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
@@ -638,10 +640,14 @@ const Positions = ({
                             <ContentRow
                               title="Put Strike:"
                               content={`$${formatAmount(
-                                getUserReadableAmount(
-                                  BigNumber.from(userPositionData.putStrike),
-                                  8
-                                ),
+                                ethers.utils
+                                  .parseUnits(
+                                    BigNumber.from(
+                                      userPositionData.putStrike
+                                    ).toString(),
+                                    '8'
+                                  )
+                                  .toString(),
                                 3
                               )}`}
                               textSize="caption"
@@ -649,10 +655,14 @@ const Positions = ({
                             <ContentRow
                               title="PnL:"
                               content={`${formatAmount(
-                                getUserReadableAmount(
-                                  BigNumber.from(userPositionData.delta),
-                                  30
-                                ),
+                                ethers.utils
+                                  .parseUnits(
+                                    BigNumber.from(
+                                      userPositionData.delta
+                                    ).toString(),
+                                    '30'
+                                  )
+                                  .toString(),
                                 2
                               )}`}
                               textSize="caption"
@@ -661,10 +671,14 @@ const Positions = ({
                             <ContentRow
                               title="Collateral:"
                               content={`$${formatAmount(
-                                getUserReadableAmount(
-                                  BigNumber.from(userPositionData.collateral),
-                                  30
-                                ),
+                                ethers.utils
+                                  .parseUnits(
+                                    BigNumber.from(
+                                      userPositionData.collateral
+                                    ).toString(),
+                                    '30'
+                                  )
+                                  .toString(),
                                 2
                               )}`}
                               textSize="caption"
