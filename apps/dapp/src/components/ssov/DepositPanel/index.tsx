@@ -28,6 +28,8 @@ import { getTokenDecimals } from 'utils/general';
 import formatAmount from 'utils/general/formatAmount';
 import isNativeToken from 'utils/general/isNativeToken';
 
+import { SSOV_SUPPORTS_STAKING_REWARDS } from 'constants/index';
+
 const SelectMenuProps = {
   PaperProps: {
     style: {
@@ -290,7 +292,15 @@ const DepositPanel = () => {
           updateSsovEpochData();
           updateSsovUserData();
         })
-        .then(() => handleStake());
+        .then(async () => {
+          if (
+            SSOV_SUPPORTS_STAKING_REWARDS.includes(
+              ssovContractWithSigner.address
+            )
+          ) {
+            await handleStake();
+          }
+        });
     } catch (err) {
       console.log(err);
     }

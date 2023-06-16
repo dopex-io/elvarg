@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 
+import { useBoundStore } from 'store';
 import { TokenData } from 'types';
 
 import { WritePositionInterface } from 'store/Vault/ssov';
@@ -13,6 +14,8 @@ import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+
+import { SSOV_SUPPORTS_STAKING_REWARDS } from 'constants/index';
 
 interface Props extends WritePositionInterface {
   collateralSymbol: string;
@@ -41,6 +44,23 @@ const WritePositionTableData = (props: Props) => {
     stakeRewardAmounts,
     stakeRewardTokens,
   } = props;
+
+  const { ssovSigner } = useBoundStore();
+
+  const options = useMemo(() => {
+    let _options = ['Transfer', 'Withdraw'];
+
+    if (
+      ssovSigner.ssovContractWithSigner &&
+      SSOV_SUPPORTS_STAKING_REWARDS.includes(
+        ssovSigner.ssovContractWithSigner.address
+      ) &&
+      stakeRewardAmounts.length > 0
+    ) {
+      _options.push('Claim');
+    }
+    return _options;
+  }, [ssovSigner.ssovContractWithSigner, stakeRewardAmounts.length]);
 
   return (
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
@@ -98,7 +118,7 @@ const WritePositionTableData = (props: Props) => {
       </TableCell> */}
       <TableCell align="left" className="pt-2 flex space-x-2">
         <SplitButton
-          options={['Transfer', 'Withdraw', 'Claim']}
+          options={options}
           handleClick={(index: number) => {
             if (index === 0) openTransfer();
             if (index === 1) openWithdraw();

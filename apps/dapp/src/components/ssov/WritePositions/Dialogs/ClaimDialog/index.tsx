@@ -74,8 +74,13 @@ const TransferDialog = ({ open, handleClose, data }: Props) => {
           </IconButton>
           <Typography variant="h3">Claim Rewards</Typography>
         </Box>
-        <Box className="bg-umbra rounded-md flex flex-col p-4 space-y-4">
-          <span className="text-white">Claimable rewards</span>
+        <Box className="bg-umbra rounded-md flex flex-col p-4 space-y-4 pt-2">
+          <span className="text-white">
+            {' '}
+            {data.stakeRewardAmounts.length > 0
+              ? 'Claimable Rewards'
+              : 'No Rewards to claim'}
+          </span>
           {data.stakeRewardAmounts.map((rewardAmount, index) => {
             return (
               <Stat
