@@ -363,27 +363,31 @@ export const createSsovV3Slice: StateCreator<
     // Staking rewards
     let rewardTokens: TokenData[] = [];
     let rewardAmounts: BigNumber[] = [];
-    if (ssovStakingRewardsWithSigner) {
-      const earned = await ssovStakingRewardsWithSigner[
-        'earned(address,uint256)'
-      ](ssov.address, 1275);
+    for (const positionId of writePositions) {
+      if (ssovStakingRewardsWithSigner) {
+        const earned = await ssovStakingRewardsWithSigner[
+          'earned(address,uint256)'
+        ](ssov.address, positionId);
 
-      rewardAmounts.push(...earned.rewardAmounts);
+        rewardAmounts.push(...earned.rewardAmounts);
 
-      for (const rewardToken of earned.rewardTokens) {
-        const tokenData = TOKEN_ADDRESS_TO_DATA[rewardToken.toLowerCase()] || {
-          symbol: 'UNKNOWN',
-          imgSrc: '',
-        };
+        for (const rewardToken of earned.rewardTokens) {
+          const tokenData = TOKEN_ADDRESS_TO_DATA[
+            rewardToken.toLowerCase()
+          ] || {
+            symbol: 'UNKNOWN',
+            imgSrc: '',
+          };
 
-        if (ssovEpochData?.epochStrikeTokens.includes(rewardToken)) {
-          tokenData.symbol = await ERC20__factory.connect(
-            rewardToken,
-            provider
-          ).symbol();
+          if (ssovEpochData?.epochStrikeTokens.includes(rewardToken)) {
+            tokenData.symbol = await ERC20__factory.connect(
+              rewardToken,
+              provider
+            ).symbol();
+          }
+
+          rewardTokens.push(tokenData);
         }
-
-        rewardTokens.push(tokenData);
       }
     }
 
