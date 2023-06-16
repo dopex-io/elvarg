@@ -24,6 +24,7 @@ interface Props extends WritePositionInterface {
   openWithdraw: () => void;
   openClaim: () => void;
   epochExpired: boolean;
+  ssovAddress: string | undefined;
 }
 
 const WritePositionTableData = (props: Props) => {
@@ -43,6 +44,7 @@ const WritePositionTableData = (props: Props) => {
     epochExpired,
     stakeRewardAmounts,
     stakeRewardTokens,
+    ssovAddress,
   } = props;
 
   const { ssovSigner } = useBoundStore();
@@ -85,25 +87,30 @@ const WritePositionTableData = (props: Props) => {
         </Typography>
       </TableCell>
       <TableCell>
-        {accruedRewards.map((rewards, index) => {
-          return rewards.gt(0) ||
-            rewardTokens[index]?.symbol === collateralSymbol ? (
-            <Typography variant="h6" key={index}>
-              <NumberDisplay n={rewards} decimals={18} />{' '}
-              {rewardTokens[index]?.symbol}
-            </Typography>
-          ) : null;
-        })}
-        {stakeRewardAmounts.map((rewardAmount, index) => {
-          return (
-            rewardAmount.gt(0) && (
-              <Typography variant="h6" key={index}>
-                <NumberDisplay n={rewardAmount} decimals={18} />{' '}
-                {stakeRewardTokens[index]?.symbol}
-              </Typography>
-            )
-          );
-        })}
+        {/* Shows either new stakingRewards rewards or stakingStrategy rewards */}
+        {!SSOV_SUPPORTS_STAKING_REWARDS.includes(ssovAddress!)
+          ? accruedRewards.map((rewards, index) => {
+              return rewards.gt(0) ||
+                rewardTokens[index]?.symbol === collateralSymbol ? (
+                <Typography variant="h6" key={index}>
+                  <NumberDisplay n={rewards} decimals={18} />{' '}
+                  {rewardTokens[index]?.symbol}
+                </Typography>
+              ) : null;
+            })
+          : stakeRewardAmounts.map((rewardAmount, index) => {
+              return rewardAmount.gt(0) ? (
+                <Typography variant="h6" key={index}>
+                  <NumberDisplay n={rewardAmount} decimals={18} />{' '}
+                  {stakeRewardTokens[index]?.symbol}
+                </Typography>
+              ) : (
+                <span className="text-white">-</span>
+              );
+            })}
+        {accruedRewards.length === 0 && stakeRewardAmounts.length === 0 && (
+          <span className="text-white">-</span>
+        )}
       </TableCell>
       <TableCell>
         <Typography variant="h6">

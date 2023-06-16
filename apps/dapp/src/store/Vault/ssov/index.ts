@@ -361,34 +361,41 @@ export const createSsovV3Slice: StateCreator<
     );
 
     // Staking rewards
-    let rewardTokens: TokenData[] = [];
-    let rewardAmounts: BigNumber[] = [];
-    for (const positionId of writePositions) {
+    const earnedCalls = writePositions.map((writePositionId) => {
       if (ssovStakingRewardsWithSigner) {
-        const earned = await ssovStakingRewardsWithSigner[
-          'earned(address,uint256)'
-        ](ssov.address, positionId);
-
-        rewardAmounts.push(...earned.rewardAmounts);
-
-        for (const rewardToken of earned.rewardTokens) {
-          const tokenData = TOKEN_ADDRESS_TO_DATA[
-            rewardToken.toLowerCase()
-          ] || {
-            symbol: 'UNKNOWN',
-            imgSrc: '',
-          };
-
-          if (ssovEpochData?.epochStrikeTokens.includes(rewardToken)) {
-            tokenData.symbol = await ERC20__factory.connect(
-              rewardToken,
-              provider
-            ).symbol();
-          }
-
-          rewardTokens.push(tokenData);
-        }
+        return ssovStakingRewardsWithSigner['earned(address,uint256)'](
+          ssov.address,
+          writePositionId
+        );
       }
+    });
+
+    let earnings = await Promise.all(earnedCalls);
+
+    let _rewardTokens: TokenData[][] = [];
+    let _rewardAmounts: BigNumber[][] = [];
+
+    for (const earning of earnings) {
+      _rewardAmounts.push(earning?.rewardAmounts!);
+      let _rewardsTokenData = [];
+
+      for (const rewardToken of earning?.rewardTokens!) {
+        let tokenData = TOKEN_ADDRESS_TO_DATA[rewardToken.toLowerCase()] || {
+          symbol: 'UNKNOWN',
+          imgSrc: '',
+        };
+
+        if (ssovEpochData?.epochStrikeTokens.includes(rewardToken)) {
+          tokenData.symbol = await ERC20__factory.connect(
+            rewardToken,
+            provider
+          ).symbol();
+        }
+
+        _rewardsTokenData.push(tokenData);
+      }
+
+      _rewardTokens.push(_rewardsTokenData);
     }
 
     const _writePositions = data.map((o, i) => {
@@ -406,8 +413,10 @@ export const createSsovV3Slice: StateCreator<
         accruedRewards: moreData[i]?.rewardTokenWithdrawAmounts || [],
         accruedPremiums: moreData[i]?.accruedPremium || BigNumber.from(0),
         utilization: utilization!,
-        stakeRewardAmounts: rewardAmounts,
-        stakeRewardTokens: rewardTokens,
+        stakeRewardAmounts:
+          _rewardAmounts[i].length === 0 ? [] : _rewardAmounts[i],
+        stakeRewardTokens:
+          _rewardTokens[i].length === 0 ? [] : _rewardTokens[i],
       };
     });
 

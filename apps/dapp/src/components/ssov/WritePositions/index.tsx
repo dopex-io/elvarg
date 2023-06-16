@@ -99,10 +99,12 @@ const WritePositions = (props: { className?: string }) => {
   const filteredWritePositions = useMemo(() => {
     return (
       ssovUserData?.writePositions.filter(
-        (position) => !position.collateralAmount.isZero()
+        (position) =>
+          !position.collateralAmount.isZero() &&
+          selectedEpoch === position.epoch
       ) || []
     );
-  }, [ssovUserData]);
+  }, [ssovUserData, selectedEpoch]);
 
   const [dialog, setDialog] = useState<null | {
     open: boolean;
@@ -194,6 +196,7 @@ const WritePositions = (props: { className?: string }) => {
                       <WritePositionTableData
                         key={i}
                         {...o}
+                        ssovAddress={ssovData?.ssovContract?.address}
                         collateralSymbol={collateralSymbol || ''}
                         openTransfer={openTransfer}
                         openWithdraw={openWithdraw}
