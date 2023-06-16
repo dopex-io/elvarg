@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import React, { ReactNode, useMemo } from 'react';
+import { BigNumber } from 'ethers';
 
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
@@ -49,6 +50,60 @@ const WritePositionTableData = (props: Props) => {
 
   const { ssovSigner } = useBoundStore();
 
+  const rewardsInformation = useMemo(() => {
+    const supportsStakingRewards = SSOV_SUPPORTS_STAKING_REWARDS.includes(
+      ssovAddress!
+    );
+
+    const nilRewardsComponent = <span className="text-white">-</span>;
+    let component: ReactNode = nilRewardsComponent;
+
+    let totalRewards = BigNumber.from(0);
+
+    // If supports staking rewards, show rewards from staking rewards contract
+    if (supportsStakingRewards) {
+      component = stakeRewardAmounts.map((rewardAmount, index) => {
+        totalRewards = totalRewards.add(rewardAmount);
+
+        return rewardAmount.gt(0) ? (
+          <Typography variant="h6" key={index}>
+            <NumberDisplay n={rewardAmount} decimals={18} />{' '}
+            {stakeRewardTokens[index]?.symbol}
+          </Typography>
+        ) : (
+          <span className="text-white">-</span>
+        );
+      });
+    }
+    // Else show rewards from current staking strategy of the ssov
+    else {
+      component = accruedRewards.map((rewards, index) => {
+        totalRewards = totalRewards.add(rewards);
+
+        return rewards.gt(0) ||
+          rewardTokens[index]?.symbol === collateralSymbol ? (
+          <Typography variant="h6" key={index}>
+            <NumberDisplay n={rewards} decimals={18} />{' '}
+            {rewardTokens[index]?.symbol}
+          </Typography>
+        ) : (
+          <span className="text-white">-</span>
+        );
+      });
+    }
+
+    // Incase there are absolutely no rewards
+    if (totalRewards.eq(0)) return nilRewardsComponent;
+    return component;
+  }, [
+    accruedRewards,
+    collateralSymbol,
+    rewardTokens,
+    ssovAddress,
+    stakeRewardAmounts,
+    stakeRewardTokens,
+  ]);
+
   const options = useMemo(() => {
     let _options = ['Transfer', 'Withdraw'];
 
@@ -86,32 +141,7 @@ const WritePositionTableData = (props: Props) => {
           {collateralSymbol}
         </Typography>
       </TableCell>
-      <TableCell>
-        {/* Shows either new stakingRewards rewards or stakingStrategy rewards */}
-        {!SSOV_SUPPORTS_STAKING_REWARDS.includes(ssovAddress!)
-          ? accruedRewards.map((rewards, index) => {
-              return rewards.gt(0) ||
-                rewardTokens[index]?.symbol === collateralSymbol ? (
-                <Typography variant="h6" key={index}>
-                  <NumberDisplay n={rewards} decimals={18} />{' '}
-                  {rewardTokens[index]?.symbol}
-                </Typography>
-              ) : null;
-            })
-          : stakeRewardAmounts.map((rewardAmount, index) => {
-              return rewardAmount.gt(0) ? (
-                <Typography variant="h6" key={index}>
-                  <NumberDisplay n={rewardAmount} decimals={18} />{' '}
-                  {stakeRewardTokens[index]?.symbol}
-                </Typography>
-              ) : (
-                <span className="text-white">-</span>
-              );
-            })}
-        {accruedRewards.length === 0 && stakeRewardAmounts.length === 0 && (
-          <span className="text-white">-</span>
-        )}
-      </TableCell>
+      <TableCell>{rewardsInformation}</TableCell>
       <TableCell>
         <Typography variant="h6">
           {formatAmount(utilization.toNumber(), 2)}%
