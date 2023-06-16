@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { ReactNode, useMemo } from 'react';
+import { BigNumber } from 'ethers';
 
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
+
+import { useBoundStore } from 'store';
 import { TokenData } from 'types';
 
 import { WritePositionInterface } from 'store/Vault/ssov';
@@ -13,12 +16,16 @@ import Typography from 'components/UI/Typography';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
+import { SSOV_SUPPORTS_STAKING_REWARDS } from 'constants/index';
+
 interface Props extends WritePositionInterface {
   collateralSymbol: string;
   rewardTokens: TokenData[];
   openTransfer: () => void;
   openWithdraw: () => void;
+  openClaim: () => void;
   epochExpired: boolean;
+  ssovAddress: string | undefined;
 }
 
 const WritePositionTableData = (props: Props) => {
@@ -31,11 +38,86 @@ const WritePositionTableData = (props: Props) => {
     collateralSymbol,
     openTransfer,
     openWithdraw,
+    openClaim,
     rewardTokens,
     utilization,
     // estimatedPnl,
     epochExpired,
+    stakeRewardAmounts,
+    stakeRewardTokens,
+    ssovAddress,
   } = props;
+
+  const { ssovSigner } = useBoundStore();
+
+  const rewardsInformation = useMemo(() => {
+    const supportsStakingRewards = SSOV_SUPPORTS_STAKING_REWARDS.includes(
+      ssovAddress!
+    );
+
+    const nilRewardsComponent = <span className="text-white">-</span>;
+    let component: ReactNode = nilRewardsComponent;
+
+    let totalRewards = BigNumber.from(0);
+
+    // If supports staking rewards, show rewards from staking rewards contract
+    if (supportsStakingRewards) {
+      component = stakeRewardAmounts.map((rewardAmount, index) => {
+        totalRewards = totalRewards.add(rewardAmount);
+
+        return rewardAmount.gt(0) ? (
+          <Typography variant="h6" key={index}>
+            <NumberDisplay n={rewardAmount} decimals={18} />{' '}
+            {stakeRewardTokens[index]?.symbol}
+          </Typography>
+        ) : (
+          <span className="text-white">-</span>
+        );
+      });
+    }
+    // Else show rewards from current staking strategy of the ssov
+    else {
+      component = accruedRewards.map((rewards, index) => {
+        totalRewards = totalRewards.add(rewards);
+
+        return rewards.gt(0) ||
+          rewardTokens[index]?.symbol === collateralSymbol ? (
+          <Typography variant="h6" key={index}>
+            <NumberDisplay n={rewards} decimals={18} />{' '}
+            {rewardTokens[index]?.symbol}
+          </Typography>
+        ) : (
+          <span className="text-white">-</span>
+        );
+      });
+    }
+
+    // Incase there are absolutely no rewards
+    if (totalRewards.eq(0)) return nilRewardsComponent;
+    return component;
+  }, [
+    accruedRewards,
+    collateralSymbol,
+    rewardTokens,
+    ssovAddress,
+    stakeRewardAmounts,
+    stakeRewardTokens,
+  ]);
+
+  const options = useMemo(() => {
+    let _options = ['Transfer', 'Withdraw'];
+
+    if (
+      ssovSigner.ssovContractWithSigner &&
+      SSOV_SUPPORTS_STAKING_REWARDS.includes(
+        ssovSigner.ssovContractWithSigner.address
+      ) &&
+      stakeRewardAmounts.length > 0
+    ) {
+      _options.push('Claim');
+    }
+    return _options;
+  }, [ssovSigner.ssovContractWithSigner, stakeRewardAmounts.length]);
 
   return (
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
@@ -59,17 +141,7 @@ const WritePositionTableData = (props: Props) => {
           {collateralSymbol}
         </Typography>
       </TableCell>
-      <TableCell>
-        {accruedRewards.map((rewards, index) => {
-          return rewards.gt(0) ||
-            rewardTokens[index]?.symbol === collateralSymbol ? (
-            <Typography variant="h6" key={index}>
-              <NumberDisplay n={rewards} decimals={18} />{' '}
-              {rewardTokens[index]?.symbol}
-            </Typography>
-          ) : null;
-        })}
-      </TableCell>
+      <TableCell>{rewardsInformation}</TableCell>
       <TableCell>
         <Typography variant="h6">
           {formatAmount(utilization.toNumber(), 2)}%
@@ -83,10 +155,11 @@ const WritePositionTableData = (props: Props) => {
       </TableCell> */}
       <TableCell align="left" className="pt-2 flex space-x-2">
         <SplitButton
-          options={['Transfer', 'Withdraw']}
+          options={options}
           handleClick={(index: number) => {
             if (index === 0) openTransfer();
-            else openWithdraw();
+            if (index === 1) openWithdraw();
+            if (index === 2) openClaim();
           }}
           disableButtons={[false, !epochExpired]}
         />

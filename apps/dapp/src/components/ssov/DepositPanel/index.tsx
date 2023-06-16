@@ -7,7 +7,7 @@ import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 
-import { ERC20__factory } from '@dopex-io/sdk';
+import { ERC20__factory, SsovV3Viewer__factory } from '@dopex-io/sdk';
 import format from 'date-fns/format';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
@@ -27,6 +27,8 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import { getTokenDecimals } from 'utils/general';
 import formatAmount from 'utils/general/formatAmount';
 import isNativeToken from 'utils/general/isNativeToken';
+
+import { SSOV_SUPPORTS_STAKING_REWARDS } from 'constants/index';
 
 const SelectMenuProps = {
   PaperProps: {
@@ -52,6 +54,7 @@ const DepositPanel = () => {
     ssovSigner,
     selectedEpoch,
     getContractAddress,
+    getSsovViewerAddress,
   } = useBoundStore();
 
   const sendTx = useSendTx();
@@ -132,6 +135,26 @@ const DepositPanel = () => {
     fromTokenSymbol,
     strikeDepositAmount,
   ]);
+
+  const handleStake = useCallback(async () => {
+    if (!signer || !accountAddress || !ssovSigner) {
+      return;
+    }
+
+    const { ssovContractWithSigner, ssovStakingRewardsWithSigner } = ssovSigner;
+
+    if (!ssovContractWithSigner || !ssovStakingRewardsWithSigner) return;
+
+    const positions = await SsovV3Viewer__factory.connect(
+      getSsovViewerAddress(),
+      signer
+    ).walletOfOwner(accountAddress, ssovContractWithSigner.address);
+
+    await sendTx(ssovStakingRewardsWithSigner, 'stake', [
+      ssovContractWithSigner.address,
+      positions[positions.length - 1],
+    ]);
+  }, [ssovSigner, signer, getSsovViewerAddress, accountAddress, sendTx]);
 
   const updateUserTokenBalance = useCallback(async () => {
     if (!accountAddress || !signer) return;
@@ -262,16 +285,23 @@ const DepositPanel = () => {
     const method = routerMode ? 'swapAndDeposit' : ('deposit' as any);
 
     try {
-      await sendTx(contractWithSigner, method, params).then(async () => {
-        setStrikeDepositAmount('0');
-        updateUserTokenBalance();
-        updateSsovEpochData();
-        updateSsovUserData();
-      });
+      await sendTx(contractWithSigner, method, params);
+
+      setStrikeDepositAmount('0');
+      updateUserTokenBalance();
+      updateSsovEpochData();
+      updateSsovUserData();
+
+      if (
+        SSOV_SUPPORTS_STAKING_REWARDS.includes(ssovContractWithSigner.address)
+      ) {
+        await handleStake();
+      }
     } catch (err) {
       console.log(err);
     }
   }, [
+    handleStake,
     updateUserTokenBalance,
     getContractAddress,
     sendTx,
@@ -361,7 +391,6 @@ const DepositPanel = () => {
       !ssovSigner.ssovRouterWithSigner
     )
       return;
-
     setLoading(true);
 
     await get1inchQuote(
