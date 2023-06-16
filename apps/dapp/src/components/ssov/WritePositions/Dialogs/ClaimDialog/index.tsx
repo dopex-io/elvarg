@@ -24,7 +24,7 @@ export interface Props {
   data: WritePositionInterface;
 }
 
-const TransferDialog = ({ open, handleClose, data }: Props) => {
+const WithdrawDialog = ({ open, handleClose, data }: Props) => {
   const { accountAddress, ssovData, ssovSigner, updateSsovV3UserData } =
     useBoundStore();
 
@@ -103,4 +103,4 @@ const TransferDialog = ({ open, handleClose, data }: Props) => {
   );
 };
 
-export default TransferDialog;
+export default WithdrawDialog;
