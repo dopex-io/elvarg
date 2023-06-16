@@ -356,8 +356,9 @@ const Addresses: { [key: number]: any } = {
       WETH: {
         PUTS: {
           WEEKLY: {
-            ACTIVE: '0xf075b561f2657fF9300C01141Dc2748F5b24a384',
+            ACTIVE: '0x5C1A7b0bD21278107f4DBDA5A5C64c82DC2E36fe',
             RETIRED: [
+              '0xf075b561f2657fF9300C01141Dc2748F5b24a384',
               '0x1640eda814072286FDDc5b952D1C56E576621379',
               '0x5c267496043F864CE8beB62bBd1BBFc20EfF5248',
               '0x9a63529255D57f9B6e26B2965E8285e6B06761c4',
