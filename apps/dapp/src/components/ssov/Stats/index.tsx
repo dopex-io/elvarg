@@ -101,20 +101,23 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
           {formatAmount(isPut ? totalPremiums : totalPremiums * price, 2)}
         </Box>
       </TableCell>
-      <TableCell align="left" className="border-0 py-1">
-        {stakingRewards.length > 0 ? (
-          stakingRewards.map(({ reward, amount }, index) => {
-            return (
-              <div key={index} className="w-full h-full">
-                <NumberDisplay n={amount} decimals={18} />{' '}
-                <span className="text-white text-sm">{reward.symbol}</span>
-              </div>
-            );
-          })
-        ) : (
-          <span className="text-white text-sm">-</span>
-        )}
-      </TableCell>
+      {/* @TODO Remove when all ssovs support staking rewards */}
+      {stakingRewards.length > 0 && (
+        <TableCell align="left" className="border-0 py-1">
+          {stakingRewards.length > 0 ? (
+            stakingRewards.map(({ reward, amount }, index) => {
+              return (
+                <div key={index} className="w-full h-full">
+                  <NumberDisplay n={amount} decimals={18} />{' '}
+                  <span className="text-white text-sm">{reward.symbol}</span>
+                </div>
+              );
+            })
+          ) : (
+            <span className="text-white text-sm">-</span>
+          )}
+        </TableCell>
+      )}
     </TableRow>
   );
 };
@@ -230,9 +233,11 @@ const Stats = (props: { className?: string }) => {
                       Total Premiums
                     </Typography>
                   </TableCell>
-                  <TableCell className="text-stieglitz bg-cod-gray border-0 pb-0">
-                    <span className="text-white">Rewards</span>
-                  </TableCell>
+                  {ssovEpochData && ssovEpochData.stakingRewards.length > 0 && (
+                    <TableCell className="text-stieglitz bg-cod-gray border-0 pb-0">
+                      <span className="text-white">Rewards</span>
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody className="rounded-lg">
