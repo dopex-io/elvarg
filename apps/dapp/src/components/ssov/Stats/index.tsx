@@ -32,7 +32,7 @@ interface StatsTableDataProps {
   underlyingSymbol: string;
   collateralSymbol: string;
   isPut: boolean;
-  stakingRewards: StakingRewards[];
+  stakingRewards: StakingRewards[] | null;
 }
 
 const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
@@ -102,20 +102,22 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
         </Box>
       </TableCell>
       {/* @TODO Remove when all ssovs support staking rewards */}
-      <TableCell align="left" className="border-0 py-1">
-        {stakingRewards.length > 0 ? (
-          stakingRewards.map(({ reward, amount }, index) => {
-            return (
-              <div key={index} className="w-full h-full">
-                <NumberDisplay n={amount} decimals={18} />{' '}
-                <span className="text-white text-sm">{reward.symbol}</span>
-              </div>
-            );
-          })
-        ) : (
-          <span className="text-white text-sm">-</span>
-        )}
-      </TableCell>
+      {stakingRewards && (
+        <TableCell align="left" className="border-0 py-1">
+          {stakingRewards.length > 0 ? (
+            stakingRewards.map(({ reward, amount }, index) => {
+              return (
+                <div key={index} className="w-full h-full">
+                  <NumberDisplay n={amount} decimals={18} />{' '}
+                  <span className="text-white text-sm">{reward.symbol}</span>
+                </div>
+              );
+            })
+          ) : (
+            <span className="text-white text-sm">-</span>
+          )}
+        </TableCell>
+      )}
     </TableRow>
   );
 };
@@ -261,7 +263,12 @@ const Stats = (props: { className?: string }) => {
                         underlyingSymbol={ssovData?.underlyingSymbol || ''}
                         collateralSymbol={ssovData?.collateralSymbol || ''}
                         isPut={ssovData?.isPut || false}
-                        stakingRewards={stakingRewards}
+                        stakingRewards={
+                          ssovEpochData &&
+                          ssovEpochData.stakingRewards.length > 0
+                            ? stakingRewards
+                            : null
+                        }
                       />
                     );
                   }
