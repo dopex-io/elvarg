@@ -102,22 +102,20 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
         </Box>
       </TableCell>
       {/* @TODO Remove when all ssovs support staking rewards */}
-      {stakingRewards.length > 0 && (
-        <TableCell align="left" className="border-0 py-1">
-          {stakingRewards.length > 0 ? (
-            stakingRewards.map(({ reward, amount }, index) => {
-              return (
-                <div key={index} className="w-full h-full">
-                  <NumberDisplay n={amount} decimals={18} />{' '}
-                  <span className="text-white text-sm">{reward.symbol}</span>
-                </div>
-              );
-            })
-          ) : (
-            <span className="text-white text-sm">-</span>
-          )}
-        </TableCell>
-      )}
+      <TableCell align="left" className="border-0 py-1">
+        {stakingRewards.length > 0 ? (
+          stakingRewards.map(({ reward, amount }, index) => {
+            return (
+              <div key={index} className="w-full h-full">
+                <NumberDisplay n={amount} decimals={18} />{' '}
+                <span className="text-white text-sm">{reward.symbol}</span>
+              </div>
+            );
+          })
+        ) : (
+          <span className="text-white text-sm">-</span>
+        )}
+      </TableCell>
     </TableRow>
   );
 };
