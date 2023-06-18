@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { ethers } from 'ethers';
+
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 import Table from '@mui/material/Table';
@@ -8,11 +9,15 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+
 import cx from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
 import { useBoundStore } from 'store';
 
+import { StakingRewards } from 'store/Vault/ssov';
+
+import { NumberDisplay } from 'components/UI';
 import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -27,6 +32,7 @@ interface StatsTableDataProps {
   underlyingSymbol: string;
   collateralSymbol: string;
   isPut: boolean;
+  stakingRewards: StakingRewards[];
 }
 
 const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
@@ -39,6 +45,7 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
     underlyingSymbol,
     collateralSymbol,
     isPut,
+    stakingRewards,
   } = props;
 
   return (
@@ -94,6 +101,20 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
           {formatAmount(isPut ? totalPremiums : totalPremiums * price, 2)}
         </Box>
       </TableCell>
+      <TableCell align="left" className="border-0 py-1">
+        {stakingRewards.length > 0 ? (
+          stakingRewards.map(({ reward, amount }, index) => {
+            return (
+              <div key={index} className="w-full h-full">
+                <NumberDisplay n={amount} decimals={18} />{' '}
+                <span className="text-white text-sm">{reward.symbol}</span>
+              </div>
+            );
+          })
+        ) : (
+          <span className="text-white text-sm">-</span>
+        )}
+      </TableCell>
     </TableRow>
   );
 };
@@ -137,6 +158,7 @@ const Stats = (props: { className?: string }) => {
           totalAvailable,
           totalPurchased,
           totalPremiums,
+          stakingRewards: ssovEpochData?.stakingRewards[strikeIndex] ?? [],
         };
       }) ?? [],
     [ssovEpochData]
@@ -208,6 +230,9 @@ const Stats = (props: { className?: string }) => {
                       Total Premiums
                     </Typography>
                   </TableCell>
+                  <TableCell className="text-stieglitz bg-cod-gray border-0 pb-0">
+                    <span className="text-white">Rewards</span>
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody className="rounded-lg">
@@ -218,6 +243,7 @@ const Stats = (props: { className?: string }) => {
                     totalAvailable,
                     totalPurchased,
                     totalPremiums,
+                    stakingRewards,
                   }) => {
                     return (
                       <StatsTableData
@@ -231,6 +257,7 @@ const Stats = (props: { className?: string }) => {
                         underlyingSymbol={ssovData?.underlyingSymbol || ''}
                         collateralSymbol={ssovData?.collateralSymbol || ''}
                         isPut={ssovData?.isPut || false}
+                        stakingRewards={stakingRewards}
                       />
                     );
                   }
