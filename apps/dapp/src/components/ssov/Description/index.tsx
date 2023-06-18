@@ -1,5 +1,6 @@
 import { ReactNode, useMemo, useState } from 'react';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
+
 import cx from 'classnames';
 import format from 'date-fns/format';
 import noop from 'lodash/noop';
@@ -48,9 +49,11 @@ const Description = ({
   const epochEndTime = Number(ssovEpochData.epochTimes[1]?.toNumber());
 
   const Incentives = () => {
-    if (rewards?.length === 0) {
-      return null;
-    }
+    const totalRewards = rewards.reduce((prev, rewards) => {
+      return prev.add(ethers.utils.parseUnits(rewards.amount, 18));
+    }, BigNumber.from(0));
+
+    if (totalRewards.eq(0)) return null;
 
     return (
       <div className="mb-5">
