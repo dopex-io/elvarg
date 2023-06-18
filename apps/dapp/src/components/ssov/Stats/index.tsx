@@ -233,6 +233,7 @@ const Stats = (props: { className?: string }) => {
                       Total Premiums
                     </Typography>
                   </TableCell>
+                  {/* @TODO Remove when all ssovs support staking rewards */}
                   {ssovEpochData && ssovEpochData.stakingRewards.length > 0 && (
                     <TableCell className="text-stieglitz bg-cod-gray border-0 pb-0">
                       <span className="text-white">Rewards</span>
