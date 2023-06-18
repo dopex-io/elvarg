@@ -285,18 +285,22 @@ const DepositPanel = () => {
     const method = routerMode ? 'swapAndDeposit' : ('deposit' as any);
 
     try {
-      await sendTx(contractWithSigner, method, params);
-
-      setStrikeDepositAmount('0');
-      updateUserTokenBalance();
-      updateSsovEpochData();
-      updateSsovUserData();
-
-      if (
-        SSOV_SUPPORTS_STAKING_REWARDS.includes(ssovContractWithSigner.address)
-      ) {
-        await handleStake();
-      }
+      await sendTx(contractWithSigner, method, params)
+        .then(async () => {
+          if (
+            SSOV_SUPPORTS_STAKING_REWARDS.includes(
+              ssovContractWithSigner.address
+            )
+          ) {
+            await handleStake();
+          }
+        })
+        .then(() => {
+          setStrikeDepositAmount('0');
+          updateUserTokenBalance();
+          updateSsovEpochData();
+          updateSsovUserData();
+        });
     } catch (err) {
       console.log(err);
     }
