@@ -1,6 +1,6 @@
 import React, { FC, ReactNode } from 'react';
 
-import ChipCloseIcon from './icons/ChipCloseIcon';
+import CloseIcon from './icons/CloseIcon';
 
 type colors =
   | 'primary'
@@ -67,8 +67,8 @@ const Chip: FC<ChipProps> = (props) => {
       {icon && <div className="self-center mr-2">{icon}</div>}
       {children}
       {deletable && (
-        <div className="ml-2 self-center w-[15px] h-[15px] bg-stieglitz rounded-full will-change-transform transition-all duration-200">
-          <ChipCloseIcon />
+        <div className="ml-2 self-center bg-stieglitz rounded-full">
+          <CloseIcon />
         </div>
       )}
     </button>
