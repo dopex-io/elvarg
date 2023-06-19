@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
-
 import Link from 'next/link';
+
+import { useMemo, useState } from 'react';
 
 import SearchIcon from '@mui/icons-material/Search';
 import Box from '@mui/material/Box';
