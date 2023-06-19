@@ -16,6 +16,7 @@
     "@dopex-io/ui": "workspace:*",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@heroicons/react": "^2.0.18",
     "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.13.5",
     "@sentry/nextjs": "^7.55.2",

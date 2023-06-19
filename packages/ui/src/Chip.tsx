@@ -1,6 +1,6 @@
 import React, { FC, ReactNode } from 'react';
 
-import CloseIcon from './icons/CloseIcon';
+import { XMarkIcon } from '@heroicons/react/20/solid';
 
 type colors =
   | 'primary'
@@ -59,16 +59,16 @@ const Chip: FC<ChipProps> = (props) => {
     <button
       className={`rounded-lg text-sm w-fit text-white 
         ${hover ? 'cursor-pointer hover:opacity-80' : ''} ${className}
-        ${deletable || icon ? 'flex justify-between' : ''}
+        ${deletable || icon ? 'flex justify-between items-center' : ''}
         ${hide ? 'hidden' : ''}
         ${BACKGROUND_COLORS[color]} ${SIZE_CLASSES[size]} ${otherProps}`}
       onClick={handleDelete}
     >
-      {icon && <div className="self-center mr-2">{icon}</div>}
+      {icon && <div className="mr-2">{icon}</div>}
       {children}
       {deletable && (
-        <div className="ml-2 self-center bg-stieglitz rounded-full">
-          <CloseIcon />
+        <div className="ml-2 bg-stieglitz rounded-full w-4">
+          <XMarkIcon className="text-white" />
         </div>
       )}
     </button>
