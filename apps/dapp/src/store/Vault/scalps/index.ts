@@ -1,4 +1,5 @@
 import { BigNumber } from 'ethers';
+
 import {
   OptionScalps__factory,
   OptionScalpsLimitOrderManager__factory,
@@ -643,7 +644,7 @@ export const createOptionScalpSlice: StateCreator<
         baseLpAPR: baseLpAPR,
         quoteDecimals: quoteDecimals,
         baseDecimals: baseDecimals,
-        quoteSymbol: 'USDC.e',
+        quoteSymbol: 'USDC',
         baseSymbol: baseSymbol,
         inverted: selectedPoolName === 'BTC',
       },

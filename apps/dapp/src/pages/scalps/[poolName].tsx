@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { ethers } from 'ethers';
+
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
+
+import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
 
-import AppBar from 'components/common/AppBar';
 import DexScreenerChart from 'components/common/DexScreenerChart';
+import PageLayout from 'components/common/PageLayout';
 import QuickLink from 'components/common/QuickLink';
 import Manage from 'components/scalps/Manage';
 import MigrationStepper from 'components/scalps/MigrationStepper';
@@ -17,6 +19,7 @@ import TopBar from 'components/scalps/TopBar';
 import TradeCard from 'components/scalps/TradeCard';
 
 import { CHAINS } from 'constants/chains';
+import seo from 'constants/seo';
 
 const ManageComponent = () => {
   const [manageSection, setManageSection] = useState<string>('Trade');
@@ -126,11 +129,7 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
   return (
     <>
       <div className="bg-black flex w-screen items-center justify-center">
-        <Head>
-          <title>Option Scalps | Dopex</title>
-        </Head>
-        <AppBar />
-        <div className="my-12 mx-[15%]">
+        <PageLayout>
           <div className="mt-8 sm:mt-14 md:mt-20 lg:mr-full">
             <TopBar />
           </div>
@@ -210,7 +209,7 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
               </a>
             </p>
           </div>
-        </div>
+        </PageLayout>
       </div>
     </>
   );
@@ -220,7 +219,30 @@ const ManagePage = () => {
   const router = useRouter();
   const poolName = router.query['poolName'] as string;
 
-  return <OptionScalps poolName={poolName} />;
+  return (
+    <>
+      <NextSeo
+        title={seo.scalps.title}
+        description={seo.scalps.description}
+        canonical={seo.scalps.url}
+        openGraph={{
+          url: seo.scalps.url,
+          title: seo.scalps.title,
+          description: seo.scalps.description,
+          images: [
+            {
+              url: seo.scalps.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.scalps.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
+      <OptionScalps poolName={poolName} />
+    </>
+  );
 };
 
 export default ManagePage;

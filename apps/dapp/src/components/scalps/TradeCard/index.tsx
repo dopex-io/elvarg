@@ -475,6 +475,7 @@ const TradeCard = () => {
           ? optionScalpData?.limitOrdersContract?.address
           : optionScalpData?.optionScalpContract?.address
       );
+
       const balance: BigNumber = await token.balanceOf(accountAddress);
       setApproved(allowance.gte(finalAmount));
       setUserTokenBalance(balance);
