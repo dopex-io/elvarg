@@ -26,7 +26,7 @@
     "@ethersproject/providers": "^5.7.2",
     "@typechain/ethers-v5": "^11.0.0",
     "esbuild": "^0.17.19",
-    "ethers": "^5.7.2",
+    "ethers": "^6.6.0",
     "rimraf": "^5.0.1",
     "tsconfig": "workspace:*",
     "typechain": "^8.2.0",
