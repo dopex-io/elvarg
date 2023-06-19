@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
-
 import dynamic from 'next/dynamic';
+
+import { useMemo } from 'react';
 
 import { BigNumber } from 'ethers';
 
