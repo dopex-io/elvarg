@@ -1,15 +1,16 @@
-import React from "react";
-import { Meta } from "@storybook/react";
+import React from 'react';
 
-import Menu from "../src/Menu";
-import PegHedgeIcon from "../src/icons/PegHedgeIcon";
-import InsuredPerpsIcon from "../src/icons/InsuredPerpsIcon";
-import LongStraddleIcon from "../src/icons/LongStraddleIcon";
-import ContentCopyIcon from "../src/icons/ContentCopyIcon";
-import CheckedIcon from "../src/icons/CheckedIcon";
+import { CheckIcon } from '@heroicons/react/20/solid';
+import { ClipboardDocumentIcon } from '@heroicons/react/24/outline';
+import { Meta } from '@storybook/react';
+
+import InsuredPerpsIcon from '../src/icons/InsuredPerpsIcon';
+import LongStraddleIcon from '../src/icons/LongStraddleIcon';
+import PegHedgeIcon from '../src/icons/PegHedgeIcon';
+import Menu from '../src/Menu';
 
 const meta: Meta<typeof Menu> = {
-  title: "Menu",
+  title: 'Menu',
   component: Menu,
 };
 
@@ -28,17 +29,17 @@ export const Variant = () => {
 
   const data: ItemType[] = [
     {
-      textContent: "Menu Item 1",
+      textContent: 'Menu Item 1',
       icon: <LongStraddleIcon />,
       disabled: false,
     },
     {
-      textContent: "Menu Item 2",
+      textContent: 'Menu Item 2',
       icon: <InsuredPerpsIcon />,
       disabled: false,
     },
     {
-      textContent: "Menu Item 3",
+      textContent: 'Menu Item 3',
       icon: <PegHedgeIcon />,
       disabled: true,
     },
@@ -47,7 +48,7 @@ export const Variant = () => {
   const [selection, setSelection] = React.useState<any>(data[0].textContent);
   const [copy, setCopy] = React.useState<boolean>(false);
 
-  const copyText = "Lorem Ipsum";
+  const copyText = 'Lorem Ipsum';
 
   const handleCopy = React.useCallback(() => {
     setCopy(true);
@@ -66,9 +67,9 @@ export const Variant = () => {
           className="py-1 px-2 rounded-md bg-mineshaft hover:bg-opacity-70 text-white"
         >
           {copy ? (
-            <CheckedIcon className="w-[12px]" />
+            <CheckIcon className="w-[12px] text-green-500" />
           ) : (
-            <ContentCopyIcon className="w-[12px]" />
+            <ClipboardDocumentIcon className="w-[12px]" />
           )}
         </button>
       </div>

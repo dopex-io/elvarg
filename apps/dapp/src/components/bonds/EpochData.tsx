@@ -1,7 +1,5 @@
 import { useEffect, useMemo } from 'react';
-
 import { BigNumber } from 'ethers';
-
 import LaunchIcon from '@mui/icons-material/Launch';
 import Box from '@mui/material/Box';
 import format from 'date-fns/format';
@@ -77,7 +75,7 @@ export const EpochData = ({
           </Box>
         </Box>
         <Box className="p-3 md:flex-1 border-t border-r md:border-t-0 border-umbra">
-          <Box className="text-stieglitz mb-1">Max USDC Deposit</Box>$
+          <Box className="text-stieglitz mb-1">Max USDC.e Deposit</Box>$
           {formatAmount(
             getUserReadableAmount(dpxBondsEpochData.maxEpochDeposits, 6),
             2
@@ -106,7 +104,7 @@ export const EpochData = ({
               />
               <Box className="flex flex-col">
                 <Typography variant="h5" color="white">
-                  {getUserReadableAmount(depositPerNft, 6)} USDC per Bond
+                  {getUserReadableAmount(depositPerNft, 6)} USDC.e per Bond
                 </Typography>
                 <Typography variant="h6" color="wave-blue">
                   {bondsAvailable} bonds available
@@ -143,15 +141,15 @@ export const EpochData = ({
         <Box className="p-3 w-[352px] mr-5">
           <Typography variant="h5">Program Goals</Typography>
           <Box className="text-stieglitz h-24  mb-7">
-            Commit USDC upfront and receive vested DPX from treasury at a lower
-            market price. Proceeds support Dopex operations.
+            Commit USDC.e upfront and receive vested DPX from treasury at a
+            lower market price. Proceeds support Dopex operations.
           </Box>
         </Box>
         <Box className="p-3 w-[352px]">
           <Typography variant="h5">Eligibility</Typography>
           <Box className="text-stieglitz md:h-24 mb-5">
             Every Bridgoor NFT increases your deposit by an additional{' '}
-            {getUserReadableAmount(depositPerNft, 6)} USDC for every epoch.
+            {getUserReadableAmount(depositPerNft, 6)} USDC.e for every epoch.
           </Box>
           <Box className="flex">
             <Box

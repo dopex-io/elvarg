@@ -1,5 +1,5 @@
-import Box from '@mui/material/Box';
 import { BigNumber } from 'ethers';
+import Box from '@mui/material/Box';
 
 import { Typography } from 'components/UI';
 
@@ -35,7 +35,7 @@ const BalanceBox = ({
               getUserReadableAmount(usdBalance, DECIMALS_USD),
               2
             )}`}
-            <span className="text-stieglitz ml-1">USDC</span>
+            <span className="text-stieglitz ml-1">USDC.e</span>
           </Typography>
         ) : (
           <Typography variant="h6" className="text-sm pl-1 pt-2">

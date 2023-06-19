@@ -1,11 +1,13 @@
 import { useEffect, useMemo } from 'react';
 import { BigNumber } from 'ethers';
+
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
+
 import { useBoundStore } from 'store';
 
-import SignerButton from 'components/common/SignerButton';
 import Typography from 'components/UI/Typography';
+import SignerButton from 'components/common/SignerButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -72,7 +74,9 @@ export default function Balances() {
 
                 <Box className="bg-umbra p-1 px-3.5 ml-auto mr-2 rounded-md text-center">
                   <Typography variant="h6">
-                    <span className="text-stieglitz">{asset}</span>
+                    <span className="text-stieglitz">
+                      {asset === 'USDC' ? 'USDC.e' : asset}
+                    </span>
                   </Typography>
                 </Box>
               </Box>

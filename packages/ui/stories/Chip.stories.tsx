@@ -1,9 +1,9 @@
 import React from 'react';
 
+import { ArrowLeftIcon } from '@heroicons/react/20/solid';
 import { Meta } from '@storybook/react';
 
 import Chip from '../src/Chip';
-import ArrowLeftIcon from '../src/icons/ArrowLeftIcon';
 
 const meta: Meta<typeof Chip> = {
   title: 'Chip',
@@ -108,7 +108,7 @@ const AdornmentTemplate = (args) => {
       {args.array.map((item) => {
         return (
           <Chip
-            icon={<ArrowLeftIcon className="" />}
+            icon={<ArrowLeftIcon className="text-white w-4" />}
             {...{ [args.propName]: item }}
           >
             Icon

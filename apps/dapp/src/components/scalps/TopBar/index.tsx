@@ -49,7 +49,7 @@ const TopBar = () => {
           />
           <img
             className="w-9 h-9 z-0"
-            src={`/images/tokens/${optionScalpData?.quoteSymbol!.toLowerCase()}.svg`}
+            src={`/images/tokens/usdc.svg`}
             alt={optionScalpData?.quoteSymbol!}
           />
         </div>
@@ -78,14 +78,14 @@ const TopBar = () => {
               key={'ETH'}
               className="text-white text-[0.5rem] sm:text-[0.8rem] py-1 m-0"
             >
-              ETH/USDC
+              ETH/USDC.e
             </MenuItem>
             <MenuItem
               value={'ARB'}
               key={'ARB'}
               className="text-white text-[0.5rem] sm:text-[0.8rem] py-1 m-0"
             >
-              ARB/USDC
+              ARB/USDC.e
             </MenuItem>
           </Select>
         </div>
