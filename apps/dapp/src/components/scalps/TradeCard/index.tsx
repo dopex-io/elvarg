@@ -459,7 +459,11 @@ const TradeCard = () => {
     (async () => {
       if (!accountAddress || !signer || !optionScalpData?.optionScalpContract)
         return;
-      if (positionDetails.marginInQuote === 0) return;
+
+      if (positionDetails.marginInQuote === 0) {
+        setApproved(true);
+        return;
+      }
 
       const finalAmount: BigNumber = utils.parseUnits(
         positionDetails.marginInQuote.toFixed(5),
