@@ -137,8 +137,6 @@ const ClosedPositionsTable = () => {
     });
   }
 
-  console.log('records: ', records);
-
   return (
     <Box>
       <TableContainer className="rounded-xl">
