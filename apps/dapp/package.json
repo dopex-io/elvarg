@@ -17,7 +17,7 @@
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.11.16",
-    "@mui/material": "^5.13.4",
+    "@mui/material": "^5.13.5",
     "@sentry/nextjs": "^7.55.2",
     "@tanstack/react-query": "^4.29.12",
     "axios": "^1.4.0",
