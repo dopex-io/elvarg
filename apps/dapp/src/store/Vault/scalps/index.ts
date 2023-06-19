@@ -1,8 +1,10 @@
 import { BigNumber } from 'ethers';
+
 import {
+  OptionScalps__factory,
+  OptionScalpsLimitOrderManager__factory,
   OptionScalpsLp,
   OptionScalpsLp__factory,
-  OptionScalps__factory,
 } from '@dopex-io/sdk';
 import graphSdk from 'graphql/graphSdk';
 import queryClient from 'queryClient';
@@ -13,6 +15,7 @@ import { WalletSlice } from 'store/Wallet';
 
 export interface optionScalpData {
   optionScalpContract: any | undefined;
+  limitOrdersContract: any | undefined;
   quoteLpContract: OptionScalpsLp;
   baseLpContract: OptionScalpsLp;
   minimumMargin: BigNumber;
@@ -55,8 +58,24 @@ export interface ScalpPosition {
   timeframe: BigNumber;
   liquidationPrice: BigNumber;
 }
+
+export interface ScalpOrder {
+  transactionHash: string;
+  id: number;
+  isOpen: boolean;
+  isShort: boolean;
+  size: BigNumber;
+  timeframe: BigNumber;
+  collateral: BigNumber;
+  price: BigNumber;
+  expiry: BigNumber | null;
+  filled: boolean;
+  type: string;
+}
+
 export interface optionScalpUserData {
   scalpPositions?: ScalpPosition[];
+  scalpOrders?: ScalpOrder[];
   coolingPeriod: {
     quote: number;
     base: number;
@@ -67,9 +86,14 @@ export interface OptionScalpSlice {
   optionScalpData?: optionScalpData | undefined;
   optionScalpUserData?: optionScalpUserData;
   updateOptionScalpUserData: Function;
+  getScalpPositions: Function;
+  getScalpOrders: Function;
+  getScalpOpenOrder: Function;
+  getScalpCloseOrder: Function;
   updateOptionScalp: Function;
   getUserPositionData: Function;
   setSelectedPoolName?: Function;
+  getLimitOrdersContract: Function;
   getOptionScalpContract: Function;
   getOptionScalpsBaseLpContract: Function;
   getOptionScalpsQuoteLpContract: Function;
@@ -106,14 +130,30 @@ export const createOptionScalpSlice: StateCreator<
     const { selectedPoolName, provider, contractAddresses } = get();
 
     if (!selectedPoolName || !provider) return;
-    return OptionScalps__factory.connect(
-      contractAddresses['OPTION-SCALPS'][selectedPoolName],
+
+    const optionScalpsAddress =
+      contractAddresses['OPTION-SCALPS'][selectedPoolName];
+
+    return OptionScalps__factory.connect(optionScalpsAddress, provider);
+  },
+  getLimitOrdersContract: () => {
+    const { selectedPoolName, provider, contractAddresses } = get();
+
+    if (!selectedPoolName || !provider) return;
+
+    const optionScalpsAddress =
+      contractAddresses['OPTION-SCALPS']['LIMIT'][selectedPoolName];
+
+    return OptionScalpsLimitOrderManager__factory.connect(
+      optionScalpsAddress,
       provider
     );
   },
   getOptionScalpsQuoteLpContract: () => {
     const { selectedPoolName, provider, contractAddresses } = get();
+
     if (!selectedPoolName || !provider) return;
+
     return OptionScalpsLp__factory.connect(
       contractAddresses['OPTION-SCALPS']['LP'][selectedPoolName]['QUOTE'],
       provider
@@ -164,7 +204,7 @@ export const createOptionScalpSlice: StateCreator<
 
     return price;
   },
-  updateOptionScalpUserData: async () => {
+  getScalpPositions: async () => {
     const {
       accountAddress,
       provider,
@@ -172,11 +212,11 @@ export const createOptionScalpSlice: StateCreator<
       getScalpPosition,
       calcPnl,
       calcLiqPrice,
-      getOptionScalpsBaseLpContract,
-      getOptionScalpsQuoteLpContract,
     } = get();
 
     const optionScalpContract = await getOptionScalpContract();
+
+    if (!optionScalpContract) return;
 
     let scalpPositionsIndexes: any = [];
     let positionsOfOwner: any = [];
@@ -236,9 +276,205 @@ export const createOptionScalpSlice: StateCreator<
 
     scalpPositions.reverse();
 
+    return scalpPositions;
+  },
+  // @ts-ignore TODO: FIX
+  getScalpOpenOrder: async (id: BigNumber, hash: string) => {
+    const { getLimitOrdersContract, getOptionScalpContract, optionScalpData } =
+      get();
+
+    if (!optionScalpData) return;
+
+    const limitOrdersContract = await getLimitOrdersContract();
+    const optionScalpContract = await getOptionScalpContract();
+
+    try {
+      const openOrder = await limitOrdersContract.callStatic.openOrders(id);
+
+      const ticks = await limitOrdersContract.callStatic.getNFTPositionTicks(
+        openOrder['nftPositionId']
+      );
+
+      const tick = (ticks[0] + ticks[1]) / 2;
+
+      const price = BigNumber.from(Math.round(1.0001 ** tick * 10 ** 18));
+
+      const maxFundingTime = await limitOrdersContract.maxFundingTime();
+
+      const expiry = openOrder['timestamp'].add(maxFundingTime);
+      const timeframe = await optionScalpContract.timeframes(
+        openOrder['timeframeIndex']
+      );
+
+      const positions = openOrder['size']
+        .mul(BigNumber.from(10 ** optionScalpData?.quoteDecimals.toNumber()))
+        .div(price);
+
+      if (openOrder['cancelled'] === false)
+        return {
+          transactionHash: hash,
+          id: id,
+          isOpen: true,
+          isShort: openOrder['isShort'],
+          size: openOrder['size'],
+          timeframe: timeframe,
+          collateral: openOrder['collateral'],
+          price: price,
+          expiry: expiry,
+          filled: openOrder['filled'],
+          positions: positions,
+          type: 'open',
+        };
+
+      return;
+    } catch (e) {
+      console.log(e);
+      return;
+    }
+  },
+  // @ts-ignore TODO: FIX
+  getScalpCloseOrder: async (id: BigNumber, hash: string) => {
+    const { getLimitOrdersContract, getOptionScalpContract, optionScalpData } =
+      get();
+
+    if (!optionScalpData) return;
+
+    const limitOrdersContract = await getLimitOrdersContract();
+    const optionScalpContract = await getOptionScalpContract();
+
+    try {
+      const scalpPosition = await optionScalpContract.scalpPositions(id);
+      const closeOrder = await limitOrdersContract.closeOrders(id);
+
+      const ticks = await limitOrdersContract.callStatic.getNFTPositionTicks(
+        closeOrder['nftPositionId']
+      );
+
+      const tick = (ticks[0] + ticks[1]) / 2;
+
+      const price = BigNumber.from(Math.round(1.0001 ** tick * 10 ** 18));
+
+      const positions = scalpPosition['size']
+        .mul(BigNumber.from(10 ** optionScalpData.quoteDecimals.toNumber()))
+        .div(price);
+
+      if (scalpPosition['size'].gt(0))
+        return {
+          transactionHash: hash,
+          id: id,
+          isOpen: false,
+          isShort: scalpPosition['isShort'],
+          size: scalpPosition['size'],
+          timeframe: scalpPosition['timeframe'],
+          collateral: scalpPosition['collateral'],
+          price: price,
+          expiry: null,
+          positions: positions,
+          type: 'close',
+        };
+    } catch (e) {
+      console.log(e);
+      return;
+    }
+  },
+  getScalpOrders: async () => {
+    const {
+      accountAddress,
+      provider,
+      getScalpOpenOrder,
+      getScalpCloseOrder,
+      getLimitOrdersContract,
+    } = get();
+
+    if (!accountAddress) return;
+
+    const limitOrdersContract = await getLimitOrdersContract();
+
+    const openOrdersIndexes: any = [];
+    const openOrdersPromises: any[] = [];
+    const closeOrdersIndexes: any = [];
+    const closeOrdersPromises: any[] = [];
+
+    const blockNumber = await provider.getBlockNumber();
+
+    const openOrdersEvents = await limitOrdersContract?.queryFilter(
+      limitOrdersContract.filters.CreateOpenOrder(null, accountAddress),
+      72264883,
+      blockNumber
+    );
+
+    const closeOrdersEvents = await limitOrdersContract?.queryFilter(
+      limitOrdersContract.filters.CreateCloseOrder(null, accountAddress),
+      72264883,
+      blockNumber
+    );
+
+    const openOrdersTransactionsHashes: string[] = [];
+    const closeOrdersTransactionsHashes: string[] = [];
+
+    for (let i in openOrdersEvents) {
+      if (!openOrdersIndexes.includes(Number(openOrdersEvents[i]['args'][0]))) {
+        openOrdersIndexes.push(openOrdersEvents[i]['args'][0]);
+        openOrdersTransactionsHashes.push(
+          openOrdersEvents[i]['transactionHash']
+        );
+      }
+    }
+
+    for (let i in closeOrdersEvents) {
+      if (
+        !closeOrdersIndexes.includes(Number(closeOrdersEvents[i]['args'][0]))
+      ) {
+        closeOrdersIndexes.push(closeOrdersEvents[i]['args'][0]);
+        closeOrdersTransactionsHashes.push(
+          closeOrdersEvents[i]['transactionHash']
+        );
+      }
+    }
+
+    for (let i in openOrdersIndexes) {
+      openOrdersPromises.push(
+        // @ts-ignore TODO: FIX
+        getScalpOpenOrder(openOrdersIndexes[i], openOrdersTransactionsHashes[i])
+      );
+    }
+
+    for (let i in closeOrdersIndexes) {
+      closeOrdersPromises.push(
+        // @ts-ignore TODO: FIX
+        getScalpCloseOrder(
+          closeOrdersIndexes[i],
+          // @ts-ignore TODO: FIX
+          closeOrdersTransactionsHashes[i]
+        )
+      );
+    }
+
+    const openOrders: ScalpOrder[] = await Promise.all(openOrdersPromises);
+
+    const closeOrders: ScalpOrder[] = await Promise.all(closeOrdersPromises);
+
+    return openOrders.concat(closeOrders).filter((_) => _); // filter out null
+  },
+  updateOptionScalpUserData: async () => {
+    const {
+      accountAddress,
+      getOptionScalpsBaseLpContract,
+      getOptionScalpsQuoteLpContract,
+      getScalpPositions,
+      getScalpOrders,
+    } = get();
+
+    const scalpPositions = await getScalpPositions();
+    const scalpOrders = await getScalpOrders();
+    const quoteLpContract = await getOptionScalpsQuoteLpContract();
+    const baseLpContract = await getOptionScalpsBaseLpContract();
+
+    if (!quoteLpContract) return;
+
     const [quoteCoolingPeriod, baseCoolingPeriod] = await Promise.all([
-      getOptionScalpsQuoteLpContract().lockedUsers(accountAddress),
-      getOptionScalpsBaseLpContract().lockedUsers(accountAddress),
+      quoteLpContract.lockedUsers(accountAddress),
+      baseLpContract.lockedUsers(accountAddress),
     ]);
 
     set((prevState) => ({
@@ -246,6 +482,7 @@ export const createOptionScalpSlice: StateCreator<
       optionScalpUserData: {
         ...prevState.optionScalpUserData,
         scalpPositions: scalpPositions,
+        scalpOrders: scalpOrders,
         coolingPeriod: {
           quote: Number(quoteCoolingPeriod),
           base: Number(baseCoolingPeriod),
@@ -265,16 +502,19 @@ export const createOptionScalpSlice: StateCreator<
   updateOptionScalp: async () => {
     const {
       getOptionScalpContract,
+      getLimitOrdersContract,
       getOptionScalpsQuoteLpContract,
       getOptionScalpsBaseLpContract,
       selectedPoolName,
     } = get();
 
     const optionScalpContract = getOptionScalpContract();
-    const quoteLpContract = getOptionScalpsQuoteLpContract();
-    const baseLpContract = getOptionScalpsBaseLpContract();
 
     if (!optionScalpContract) return;
+
+    const limitOrdersContract = getLimitOrdersContract();
+    const quoteLpContract = getOptionScalpsQuoteLpContract();
+    const baseLpContract = getOptionScalpsBaseLpContract();
 
     const [
       minimumMargin,
@@ -287,8 +527,6 @@ export const createOptionScalpSlice: StateCreator<
       markPrice,
       totalQuoteDeposits,
       totalBaseDeposits,
-      totalQuoteAvailable,
-      totalBaseAvailable,
       quoteSupply,
       baseSupply,
     ] = await Promise.all([
@@ -302,11 +540,20 @@ export const createOptionScalpSlice: StateCreator<
       optionScalpContract!['getMarkPrice'](),
       quoteLpContract!['totalAssets'](),
       baseLpContract!['totalAssets'](),
-      quoteLpContract!['totalAvailableAssets'](),
-      baseLpContract!['totalAvailableAssets'](),
       quoteLpContract!['totalSupply'](),
       baseLpContract!['totalSupply'](),
     ]);
+
+    let totalQuoteAvailable = BigNumber.from('0');
+    let totalBaseAvailable = BigNumber.from('0');
+
+    try {
+      totalQuoteAvailable = await quoteLpContract!['totalAvailableAssets']();
+    } catch (e) {}
+
+    try {
+      totalBaseAvailable = await baseLpContract!['totalAvailableAssets']();
+    } catch (e) {}
 
     const quoteDecimals: BigNumber =
       selectedPoolName === 'ETH' || selectedPoolName === 'ARB'
@@ -353,24 +600,29 @@ export const createOptionScalpSlice: StateCreator<
       )
     );
 
-    const baseLpAPR = totalBaseDeposits
-      .sub(baseSupply)
-      .mul(365)
-      .div(daysSinceComp)
-      .mul(100)
-      .div(totalBaseDeposits);
+    const baseLpAPR = totalBaseDeposits.gt(0)
+      ? totalBaseDeposits
+          .sub(baseSupply)
+          .mul(365)
+          .div(daysSinceComp)
+          .mul(100)
+          .div(totalBaseDeposits)
+      : BigNumber.from(0);
 
-    const quoteLpAPR = totalQuoteDeposits
-      .sub(quoteSupply)
-      .mul(365)
-      .div(daysSinceComp)
-      .mul(100)
-      .div(totalQuoteDeposits);
+    const quoteLpAPR = totalQuoteDeposits.gt(0)
+      ? totalQuoteDeposits
+          .sub(quoteSupply)
+          .mul(365)
+          .div(daysSinceComp)
+          .mul(100)
+          .div(totalQuoteDeposits)
+      : BigNumber.from(0);
 
     set((prevState) => ({
       ...prevState,
       optionScalpData: {
         optionScalpContract: optionScalpContract,
+        limitOrdersContract: limitOrdersContract,
         quoteLpContract: quoteLpContract,
         baseLpContract: baseLpContract,
         minimumMargin: minimumMargin,
@@ -392,7 +644,7 @@ export const createOptionScalpSlice: StateCreator<
         baseLpAPR: baseLpAPR,
         quoteDecimals: quoteDecimals,
         baseDecimals: baseDecimals,
-        quoteSymbol: 'USDC.e',
+        quoteSymbol: 'USDC',
         baseSymbol: baseSymbol,
         inverted: selectedPoolName === 'BTC',
       },

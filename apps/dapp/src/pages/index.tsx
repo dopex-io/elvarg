@@ -1,7 +1,7 @@
+import { useEffect, useState } from 'react';
+
 import Head from 'next/head';
 import Link from 'next/link';
-
-import { useEffect, useState } from 'react';
 
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import AgricultureIcon from '@mui/icons-material/Agriculture';

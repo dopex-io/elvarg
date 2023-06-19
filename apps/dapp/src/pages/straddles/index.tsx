@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import Head from 'next/head';
+
 import Box from '@mui/material/Box';
 import axios from 'axios';
 import { NextSeo } from 'next-seo';

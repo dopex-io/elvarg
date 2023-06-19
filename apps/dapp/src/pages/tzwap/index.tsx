@@ -1,5 +1,7 @@
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 
+import Head from 'next/head';
+
 import { BigNumber } from 'ethers';
 
 import {
