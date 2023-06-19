@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { BigNumber } from 'ethers';
-
 import { ERC20__factory } from '@dopex-io/sdk';
 import AccessibleForwardIcon from '@mui/icons-material/AccessibleForward';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -136,7 +134,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
   ]);
 
   useEffect(() => {
-    setErr(usdcBalance.lt(depositPerNft) ? 'Insufficient USDC Balance' : '');
+    setErr(usdcBalance.lt(depositPerNft) ? 'Insufficient USDC.e Balance' : '');
   }, [depositPerNft, usdcBalance]);
 
   useEffect(() => {
@@ -172,7 +170,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
       let value = e.target.value;
       setErr('');
       setAmount(value);
-      if (usdcBalance.lt(depositPerNft)) setErr('Insufficient USDC Balance');
+      if (usdcBalance.lt(depositPerNft)) setErr('Insufficient USDC.e Balance');
       else if (isNaN(Number(value))) {
         setErr('Please only enter numbers');
       } else if (value > usableNfts.length) {
@@ -281,7 +279,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
           onChange={handleChange}
         />
         <Typography variant="caption" color="wave-blue" className="mt-2">
-          USDC Required: {amount * getUserReadableAmount(depositPerNft, 6)}
+          USDC.e Required: {amount * getUserReadableAmount(depositPerNft, 6)}
         </Typography>
         {err && (
           <Box className="bg-down-bad rounded-xl mt-3 p-2 text-center">
@@ -317,11 +315,11 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
         <Box className="border rounded-b-xl border-umbra p-3 pt-6">
           <BondsInfo
             title="Bonding Price"
-            value={`${getUserReadableAmount(bondPrice, 6)} USDC`}
+            value={`${getUserReadableAmount(bondPrice, 6)} USDC.e`}
           />
           <BondsInfo
             title="Oracle Price"
-            value={`${dpxOraclePrice.toFixed(2)} USDC`}
+            value={`${dpxOraclePrice.toFixed(2)} USDC.e`}
           />
           <BondsInfo title="Vesting Term" value="1 Week" />
         </Box>
