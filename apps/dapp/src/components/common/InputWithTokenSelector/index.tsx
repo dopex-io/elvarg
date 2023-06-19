@@ -6,12 +6,9 @@ import {
   useState,
 } from 'react';
 import { BigNumber } from 'ethers';
-
-import Box from '@mui/material/Box';
-
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-
+import Box from '@mui/material/Box';
 import { useBoundStore } from 'store';
 
 import Input from 'components/UI/Input';
