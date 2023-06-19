@@ -23,7 +23,6 @@ import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import parseOptionSymbol from 'utils/options/parseOptionSymbol';
 
 import { DOPEX_API_BASE_URL } from 'constants/env';
 import {
@@ -303,24 +302,15 @@ export const createSsovV3Slice: StateCreator<
         let stakingRewards: StakingRewards[] = [];
         for (const rewardInfo of strikeRewardInfo) {
           const rewardTokenAddress = rewardInfo.rewardToken;
+          const symbol = await ERC20__factory.connect(
+            rewardTokenAddress,
+            provider
+          ).symbol();
 
-          let tokenData = TOKEN_ADDRESS_TO_DATA[
-            rewardTokenAddress.toLowerCase()
-          ] || {
-            symbol: 'UNKNOWN',
+          let tokenData = {
+            symbol: symbol,
             imgSrc: '',
           };
-
-          if (epochStrikeTokens.includes(rewardTokenAddress)) {
-            tokenData.symbol = (
-              await ERC20__factory.connect(
-                rewardTokenAddress,
-                provider
-              ).symbol()
-            ).replace(/-/g, ' ');
-
-            tokenData.symbol = parseOptionSymbol(tokenData.symbol);
-          }
 
           stakingRewards.push({
             reward: tokenData,
@@ -441,18 +431,15 @@ export const createSsovV3Slice: StateCreator<
         let _rewardsTokenData = [];
 
         for (const rewardToken of earning?.rewardTokens!) {
-          let tokenData = TOKEN_ADDRESS_TO_DATA[rewardToken.toLowerCase()] || {
-            symbol: 'UNKNOWN',
+          const symbol = await ERC20__factory.connect(
+            rewardToken,
+            provider
+          ).symbol();
+
+          let tokenData = {
+            symbol: symbol,
             imgSrc: '',
           };
-
-          if (ssovEpochData?.epochStrikeTokens.includes(rewardToken)) {
-            tokenData.symbol = (
-              await ERC20__factory.connect(rewardToken, provider).symbol()
-            ).replace(/-/g, ' ');
-
-            tokenData.symbol = parseOptionSymbol(tokenData.symbol);
-          }
 
           _rewardsTokenData.push(tokenData);
         }
