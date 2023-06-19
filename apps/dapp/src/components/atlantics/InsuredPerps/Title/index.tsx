@@ -1,9 +1,6 @@
 import { useMemo } from 'react';
-
 import Link from 'next/link';
-
 import { BigNumber } from 'ethers';
-
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import KeyboardArrowUpRoundedIcon from '@mui/icons-material/KeyboardArrowUpRounded';
 import Box from '@mui/material/Box';
@@ -56,7 +53,7 @@ const Title = (props: TitleProps) => {
               className="border rounded-full border-umbra w-10 h-10 z-10"
             />
             <img
-              src={`/images/tokens/${deposit?.toLowerCase() || 'usdc'}.svg`}
+              src={`/images/tokens/usdc.svg`}
               alt={deposit}
               className="border rounded-full border-umbra w-10 h-10"
             />
