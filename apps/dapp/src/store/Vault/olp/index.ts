@@ -248,7 +248,7 @@ export const createOlpSlice: StateCreator<
             );
             const underlyingPremium: BigNumber =
               await olpContract?.getPremiumInUnderlying(olpData?.ssov, premium);
-            const underlyingUsedinUsd = pos.underlyingLiquidity
+            const underlyingUsedInUsd = pos.underlyingLiquidityUsed
               .mul(currentPrice)
               .mul(oneEBigNumber(DECIMALS_USD))
               .div(oneEBigNumber(DECIMALS_STRIKE))
@@ -257,9 +257,9 @@ export const createOlpSlice: StateCreator<
               pos.strike.toString()
             ]
               ? strikeToUtilization[pos.strike.toString()]!.add(
-                  pos.usdLiquidityUsed.add(underlyingUsedinUsd)
+                  pos.usdLiquidityUsed.add(underlyingUsedInUsd)
                 )
-              : pos.usdLiquidityUsed.add(underlyingUsedinUsd);
+              : pos.usdLiquidityUsed.add(underlyingUsedInUsd);
             return {
               ...pos,
               idx: idx,
