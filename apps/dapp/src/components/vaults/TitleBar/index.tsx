@@ -65,7 +65,7 @@ const TitleBar = (props: Props) => {
     <div className="flex space-x-4 mb-4">
       <img
         src={`/images/tokens/${selectedToken.toLowerCase()}.svg`}
-        className="w-[38px] h-[38px] my-auto border rounded-full border-carbon"
+        className="w-[32px] h-[32px] my-auto border rounded-full border-carbon"
         alt={selectedToken}
       />
       <Menu

@@ -83,7 +83,7 @@ const Positions = () => {
               }`}
             >
               <p className="inline-block">
-                {activeIndex === 0 ? 'Withdraw' : 'Settle'}
+                {activeIndex === 0 ? 'Settle' : 'Withdraw'}
               </p>
             </Button>
           ),

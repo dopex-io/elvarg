@@ -183,7 +183,7 @@ const AsidePanel = () => {
     []
   );
 
-  const errorMsg = useMemo(() => {
+  const infoPopover = useMemo(() => {
     const buttonContent = activeIndex === 0 ? 'Purchase' : 'Deposit';
     if (!selectedVault || !data) return { ...alerts[1], buttonContent };
 
@@ -194,14 +194,18 @@ const AsidePanel = () => {
     )
       return { ...alerts[5] };
     else if (
-      data[1].lt(ethers.utils.parseUnits(amountDebounced, DECIMALS_TOKEN))
+      (data[1] as any).lt(
+        ethers.utils.parseUnits(amountDebounced, DECIMALS_TOKEN)
+      )
     )
       return {
         ...alerts[1],
         buttonContent,
       };
     else if (
-      data[0].lt(ethers.utils.parseUnits(amountDebounced, DECIMALS_TOKEN))
+      (data[0] as any).lt(
+        ethers.utils.parseUnits(amountDebounced, DECIMALS_TOKEN)
+      )
     ) {
       return {
         ...alerts[3],
@@ -223,12 +227,12 @@ const AsidePanel = () => {
   ]);
 
   const transact = useCallback(() => {
-    if (errorMsg.textContent?.includes('allowance')) {
+    if (infoPopover.textContent?.includes('allowance')) {
       approve?.();
     } else {
       write?.();
     }
-  }, [approve, errorMsg.textContent, write]);
+  }, [approve, infoPopover.textContent, write]);
 
   const renderCondition = useMemo(() => {
     return (
@@ -260,6 +264,13 @@ const AsidePanel = () => {
         }
         placeholder="0.0"
       />
+      {infoPopover.status !== 'normal' ? (
+        <div
+          className={`${infoPopover.alertBg} p-3 rounded-md animate-pulse text-center text-cod-gray`}
+        >
+          {infoPopover.textContent}
+        </div>
+      ) : null}
       <div className="flex flex-col divide-y divide-carbon border border-carbon rounded-md">
         <div className="flex divide-x divide-carbon text-xs">
           <span className="space-y-2 w-1/2 p-3">
@@ -295,13 +306,6 @@ const AsidePanel = () => {
           </div>
         ) : null}
       </div>
-      {errorMsg.status !== 'normal' ? (
-        <div
-          className={`${errorMsg.alertBg} p-3 rounded-md animate-pulse text-center text-cod-gray`}
-        >
-          {errorMsg.textContent}
-        </div>
-      ) : null}
       {activeIndex === 0 ? (
         <div className="flex flex-col bg-umbra rounded-md p-3 space-y-3">
           <RowItem
@@ -406,11 +410,11 @@ const AsidePanel = () => {
         variant="contained"
         color="primary"
         className={`${
-          errorMsg.disabled ? 'cursor-not-allowed' : 'cursor-default'
+          infoPopover.disabled ? 'cursor-not-allowed' : 'cursor-default'
         }`}
-        disabled={errorMsg.disabled}
+        disabled={infoPopover.disabled}
       >
-        {errorMsg.buttonContent}
+        {infoPopover.buttonContent}
       </Button>
     </div>
   );

@@ -77,6 +77,7 @@ const useVaultQuery = (props: Props) => {
     const filteredData = data[chainId].filter((item: RawVaultQueryData) =>
       String(item.symbol).includes(vaultSymbol)
     );
+    console.log(filteredData);
     if (filteredData.length === 0) return;
 
     const _vaults: VaultData[] = [];

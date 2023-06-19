@@ -16,6 +16,7 @@ import GlobalDialogs from 'components/common/GlobalDialogs';
 import seo from 'constants/seo';
 
 import theme from '../style/muiTheme';
+
 import 'tailwindcss/tailwind.css';
 import '../style/index.css';
 
@@ -74,6 +75,10 @@ function App({ Component, pageProps }: AppProps) {
           gtag('config', 'G-QLYLX4HN05');
         `}
       </Script>
+      <Script
+        async
+        src="public/charting_library/charting_library.standalone.js"
+      />
     </>
   );
 }

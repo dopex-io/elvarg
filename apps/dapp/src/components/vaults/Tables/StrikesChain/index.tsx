@@ -41,7 +41,7 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
       !strikes.epochStrikeData ||
       !strikes.data ||
       !strikes.data[0] ||
-      !strikes.data[0].expiry ||
+      !(strikes.data[0] as any).expiry ||
       !vaults
     )
       return [];
@@ -86,7 +86,7 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
         expiry: (
           <p className="inline-block">
             {format(
-              new Date(strikes.data![0].expiry.toNumber() * 1000),
+              new Date((strikes.data as any)[0].expiry.toNumber() * 1000),
               'dd LLL yyy'
             )}
           </p>

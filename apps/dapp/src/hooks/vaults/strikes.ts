@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { BigNumber } from 'ethers';
 
 import { SsovV3__factory } from '@dopex-io/sdk';
@@ -79,7 +78,7 @@ const useFetchStrikes = (props: Props) => {
   const updateIvs = useCallback(async () => {
     if (!contractAddress || !data || !data[0]) return;
     const ivs = [];
-    for (let i = 0; i < data[0].strikes.length; i++) {
+    for (let i = 0; i < (data[0] as any).strikes.length; i++) {
       const iv = (
         await readContracts({
           contracts: [
@@ -87,7 +86,7 @@ const useFetchStrikes = (props: Props) => {
               address: contractAddress as any,
               abi: SsovV3__factory.abi,
               functionName: 'getVolatility',
-              args: [data[0].strikes[i]],
+              args: [(data[0] as any).strikes[i]],
             },
           ],
         })
@@ -101,18 +100,19 @@ const useFetchStrikes = (props: Props) => {
     if (
       !data ||
       !data[0] ||
-      data[0].expiry === null ||
+      (data[0] as any).expiry === null ||
       !contractAddress ||
       !ivs
     )
       return [];
 
     try {
-      return data[0].strikes.map((strike, index) => {
+      return (data[0] as any).strikes.map((strike: any, index: number) => {
         const _strike = getUserReadableAmount(strike, DECIMALS_STRIKE);
         const expiryInYears =
-          data[0].expiry.sub(data[0].startTime).toNumber() / 31556926;
-        const spot = getUserReadableAmount(data[1], DECIMALS_STRIKE);
+          (data[0] as any).expiry.sub((data[0] as any).startTime).toNumber() /
+          31556926;
+        const spot = getUserReadableAmount(data[1] as any, DECIMALS_STRIKE);
         const isPut = data[2];
         const iv = ivs[index].toNumber();
 
@@ -146,11 +146,11 @@ const useFetchStrikes = (props: Props) => {
       greeks.length === 0 ||
       !greeks ||
       !data ||
-      !data[0].expiry
+      !(data[0] as any).expiry
     )
       return;
 
-    const strikes = data[0].strikes;
+    const strikes = (data[0] as any).strikes;
     const config = {
       address: contractAddress as any,
       abi: SsovV3__factory.abi,
@@ -170,7 +170,7 @@ const useFetchStrikes = (props: Props) => {
             args: [
               strikes[i],
               getContractReadableAmount(1, 18),
-              data[0].expiry,
+              (data[0] as any).expiry,
             ],
           },
         ],
@@ -185,11 +185,13 @@ const useFetchStrikes = (props: Props) => {
       const totalAvailable = getUserReadableAmount(
         strikeData.totalCollateral
           .sub(strikeData.activeCollateral)
-          .div(data[0].collateralExchangeRate ?? '1'),
+          .div((data[0] as any).collateralExchangeRate ?? '1'),
         10
       );
       const totalPurchased = getUserReadableAmount(
-        strikeData.activeCollateral.div(data[0].collateralExchangeRate ?? '1'),
+        strikeData.activeCollateral.div(
+          (data[0] as any).collateralExchangeRate ?? '1'
+        ),
         10
       );
       _epochStrikeData.push({
