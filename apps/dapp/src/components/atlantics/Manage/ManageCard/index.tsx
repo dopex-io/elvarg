@@ -62,7 +62,7 @@ const ManageCard = (props: ManageCardProps) => {
       if (poolType == 'CALLS') {
         return 'WETH';
       } else {
-        return 'USDC';
+        return 'USDC.e';
       }
     }
     const deposit = atlanticPool.tokens.depositToken;
@@ -244,7 +244,7 @@ const ManageCard = (props: ManageCardProps) => {
           leftElement={
             <Box className="flex h-full my-auto">
               <Box
-                className="flex w-[6.2rem] mr-3 bg-cod-gray rounded-full space-x-1 p-1 pr-3"
+                className="flex w-[7rem] mr-3 bg-cod-gray rounded-full space-x-1 p-1 pr-3"
                 role="button"
               >
                 <img
@@ -253,7 +253,7 @@ const ManageCard = (props: ManageCardProps) => {
                   className="w-[2.2rem]"
                 />
                 <Typography variant="h5" className="my-auto">
-                  {depositToken}
+                  USDC.e
                 </Typography>
               </Box>
               <Box
@@ -281,7 +281,7 @@ const ManageCard = (props: ManageCardProps) => {
               3,
               true
             )}{' '}
-            {depositToken}
+            USDC.e
           </Typography>
         </Box>
       </Box>

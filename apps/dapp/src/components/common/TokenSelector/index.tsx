@@ -1,11 +1,14 @@
 import { Dispatch, SetStateAction, useCallback, useState } from 'react';
 import { BigNumber } from 'ethers';
-import { Addresses } from '@dopex-io/sdk';
-import SearchIcon from '@mui/icons-material/Search';
+
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Input from '@mui/material/Input';
 import Slide from '@mui/material/Slide';
+
+import SearchIcon from '@mui/icons-material/Search';
+
+import { Addresses } from '@dopex-io/sdk';
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
@@ -125,7 +128,7 @@ const TokenSelector = ({
                         variant="h6"
                         className="text-white font-medium"
                       >
-                        {symbol}
+                        {symbol === 'USDC' ? 'USDC.e' : symbol}
                       </Typography>
                       <Typography variant="caption" className="text-gray-400">
                         {TOKEN_DATA[symbol]?.name}
