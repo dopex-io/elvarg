@@ -36,7 +36,7 @@ const RdpxAirdropButton = ({ account }: { account: string }) => {
       switchNetwork?.(1);
     }
 
-    const txData = query.data.data;
+    const txData = query?.data?.data;
 
     await contract?.claim(
       txData.index,
@@ -46,7 +46,7 @@ const RdpxAirdropButton = ({ account }: { account: string }) => {
     );
   }, [contract, network.chain?.id, query.data, signer, switchNetwork]);
 
-  if (!query.isLoading && query.data?.valid) {
+  if (!query.isLoading && query?.data?.valid) {
     return (
       <Button
         color="carbon"

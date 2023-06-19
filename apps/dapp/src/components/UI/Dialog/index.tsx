@@ -1,8 +1,9 @@
 import MaterialDialog, {
   DialogProps as MaterialDialogProps,
 } from '@mui/material/Dialog';
-import { styled } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
+import { styled } from '@mui/material/styles';
+
 import CloseIcon from '@mui/icons-material/Close';
 
 const PREFIX = 'Dialog';
@@ -26,6 +27,9 @@ interface Props extends Omit<MaterialDialogProps, 'onClose'> {
   handleClose: (e: Event, reason: string) => void;
 }
 
+/**
+ * @deprecated
+ */
 const Dialog = ({
   classes,
   children,
