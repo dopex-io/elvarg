@@ -1,7 +1,5 @@
 import { MouseEventHandler } from 'react';
-
 import { BigNumber } from 'ethers';
-
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
@@ -232,13 +230,13 @@ export default function FillPositionDialog(props: Props) {
         <Box className="flex flex-row">
           <Typography variant="h6" className="mt-2">
             <span className="text-stieglitz">
-              {`Receive ${outUsd ? 'USDC' : underlyingSymbol}`}
+              {`Receive ${outUsd ? 'USDC.e' : underlyingSymbol}`}
             </span>
           </Typography>
           <Tooltip
             placement="top"
             className="h-4 text-stieglitz"
-            title={`If toggled to USDC, the contract will swap the underlying liquidity to USDC before transferring to you`}
+            title={`If toggled to USDC.e, the contract will swap the underlying liquidity to USDC.e before transferring to you`}
             arrow={true}
           >
             <InfoOutlinedIcon className="mt-2" />

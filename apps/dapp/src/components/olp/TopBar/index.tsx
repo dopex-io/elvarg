@@ -1,5 +1,4 @@
 import { useCallback, useMemo, useState } from 'react';
-
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import {
@@ -82,7 +81,7 @@ const TopBar = () => {
             <img
               className="w-8 h-8 z-0"
               src="/images/tokens/usdc.svg"
-              alt="USDC"
+              alt="USDC.e"
             />
           </Box>
           <Box className="ml-1">
