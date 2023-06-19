@@ -1,8 +1,7 @@
 import { Fragment, ReactNode } from 'react';
 
 import { Dialog as HeadlessDialog, Transition } from '@headlessui/react';
-
-import CloseIcon from './icons/CloseIcon';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 
 export interface DialogProps {
   isOpen: boolean;
@@ -44,9 +43,9 @@ const Dialog = (props: DialogProps) => {
                 <HeadlessDialog.Title className="text-lg font-medium flex justify-between">
                   <span className="text-white">{title}</span>
                   {showCloseIcon ? (
-                    <CloseIcon
+                    <XMarkIcon
                       onClick={handleClose}
-                      className="text-white cursor-pointer"
+                      className="text-white cursor-pointer w-6"
                     />
                   ) : null}
                 </HeadlessDialog.Title>
