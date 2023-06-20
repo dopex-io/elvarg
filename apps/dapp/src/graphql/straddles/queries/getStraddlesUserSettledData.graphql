@@ -7,6 +7,9 @@ query getStraddlesUserSettleData($user: String, $vault: String) {
   ) {
     pnl
     id
+    transaction {
+      id
+    }
   }
   straddles_straddlePurchases(
     where: {

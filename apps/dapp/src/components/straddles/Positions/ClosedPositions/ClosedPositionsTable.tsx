@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react';
 import { BigNumber, utils } from 'ethers';
 
 import {
-  TablePagination,
   Box,
   IconButton,
   Table,
@@ -10,6 +9,7 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
 } from '@mui/material';
 
@@ -22,8 +22,8 @@ import { reverse } from 'lodash';
 import queryClient from 'queryClient';
 import { useBoundStore } from 'store';
 
-import { TablePaginationActions } from 'components/UI';
 import { TableHeader } from 'components/straddles/Deposits/DepositsTable';
+import { TablePaginationActions } from 'components/UI';
 
 import formatAmount from 'utils/general/formatAmount';
 import getPercentageDifference from 'utils/math/getPercentageDifference';
@@ -32,6 +32,7 @@ const ROWS_PER_PAGE = 5;
 
 interface ClosedPositionProps {
   pnl: string;
+  txId: string;
   amount?: string;
   strikePrice?: string;
   epoch?: string;
@@ -50,11 +51,17 @@ const ClosedPositionsTable = () => {
     [setPage]
   );
 
-  const { straddlesData, accountAddress, tokenPrices } = useBoundStore();
+  const { straddlesData, accountAddress, tokenPrices, getStraddlesContract } =
+    useBoundStore();
 
   const handleShare = useCallback(
     async (position: ClosedPositionProps) => {
-      const contractName = await straddlesData?.straddlesContract?.name();
+      const straddlesContract = getStraddlesContract();
+
+      const [contractName, epochData] = await Promise.all([
+        straddlesData?.straddlesContract?.name(),
+        straddlesContract?.getEpochData(position.epoch),
+      ]);
       const tokenName = contractName?.split(' ')[0];
       const tokenPrice =
         tokenPrices.find((token) => token.name === tokenName)?.price || 0;
@@ -75,10 +82,20 @@ const ClosedPositionsTable = () => {
             name: 'Strike Price',
             value: `$${formatAmount(Number(position.strikePrice), 2)}`,
           },
-          { name: 'Mark Price', value: `$${formatAmount(tokenPrice, 2)}` },
+          {
+            name: 'Expiry Mark Price',
+            value: `$${formatAmount(
+              utils.formatUnits(epochData.settlementPrice, 8),
+              2
+            )}`,
+          },
           {
             name: 'Epoch',
             value: position.epoch!,
+          },
+          {
+            name: 'Settlement Transaction Hash',
+            value: position.txId!,
           },
         ],
       });
@@ -107,8 +124,10 @@ const ClosedPositionsTable = () => {
   if (settled) {
     settled.forEach((item) => {
       const nftId = item.id.split('#')[2];
+      const txId = item.transaction.id;
       records[nftId] = {
         pnl: Number(utils.formatUnits(BigNumber.from(item.pnl), 6)).toFixed(2),
+        txId: txId,
       };
     });
   }
