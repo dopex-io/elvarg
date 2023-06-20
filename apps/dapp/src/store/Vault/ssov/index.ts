@@ -285,7 +285,6 @@ export const createSsovV3Slice: StateCreator<
       getUserReadableAmount(volume, DECIMALS_TOKEN) *
       getUserReadableAmount(underlyingPrice, DECIMALS_STRIKE);
 
-    let _apy = apyPayload.data.apy;
     let _stakingRewards: StakingRewards[][] = [];
     // @TODO remove check when all ssovs support staking rewards
     if (SSOV_SUPPORTS_STAKING_REWARDS.includes(ssovAddress)) {
@@ -320,11 +319,6 @@ export const createSsovV3Slice: StateCreator<
         }
         _stakingRewards.push(stakingRewards);
       }
-
-      if (_apy !== '0' && _apy && _apy.length > 0) {
-        console.log(_apy);
-        _apy = Math.max(..._apy.map((apy: string) => Number(apy)));
-      }
     }
 
     const _ssovEpochData = {
@@ -344,7 +338,7 @@ export const createSsovV3Slice: StateCreator<
           }
         );
       }),
-      APY: _apy,
+      APY: apyPayload.data.apy,
       epochStrikeTokens,
       TVL: totalEpochDepositsInUSD,
       rewards: rewardsPayLoad.data.rewards,
