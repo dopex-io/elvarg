@@ -285,6 +285,7 @@ export const createSsovV3Slice: StateCreator<
       getUserReadableAmount(volume, DECIMALS_TOKEN) *
       getUserReadableAmount(underlyingPrice, DECIMALS_STRIKE);
 
+    let _apy = apyPayload.data.apy;
     let _stakingRewards: StakingRewards[][] = [];
     // @TODO remove check when all ssovs support staking rewards
     if (SSOV_SUPPORTS_STAKING_REWARDS.includes(ssovAddress)) {
@@ -319,6 +320,11 @@ export const createSsovV3Slice: StateCreator<
         }
         _stakingRewards.push(stakingRewards);
       }
+
+      if (_apy !== '0' && _apy && _apy.length > 0) {
+        console.log(_apy);
+        _apy = Math.max(..._apy.map((apy: string) => Number(apy)));
+      }
     }
 
     const _ssovEpochData = {
@@ -338,7 +344,7 @@ export const createSsovV3Slice: StateCreator<
           }
         );
       }),
-      APY: apyPayload.data.apy,
+      APY: _apy,
       epochStrikeTokens,
       TVL: totalEpochDepositsInUSD,
       rewards: rewardsPayLoad.data.rewards,
@@ -359,7 +365,6 @@ export const createSsovV3Slice: StateCreator<
       selectedEpoch,
       selectedPoolName,
       getSsovViewerAddress,
-      ssovEpochData,
       ssovSigner: { ssovStakingRewardsWithSigner },
     } = get();
 
@@ -463,10 +468,8 @@ export const createSsovV3Slice: StateCreator<
         accruedRewards: moreData[i]?.rewardTokenWithdrawAmounts || [],
         accruedPremiums: moreData[i]?.accruedPremium || BigNumber.from(0),
         utilization: utilization!,
-        stakeRewardAmounts:
-          _rewardAmounts[i].length === 0 ? [] : _rewardAmounts[i],
-        stakeRewardTokens:
-          _rewardTokens[i].length === 0 ? [] : _rewardTokens[i],
+        stakeRewardAmounts: _rewardAmounts[i] ? _rewardAmounts[i] : [],
+        stakeRewardTokens: _rewardTokens[i] ? _rewardTokens[i] : [],
       };
     });
 
