@@ -83,7 +83,7 @@ const OrdersTable = () => {
           : null;
       }
 
-      if (key === 'size' || key === 'price') {
+      if (key === 'size' || key === 'price' || key === 'target') {
         data = order[key]
           ? formatAmount(
               Number(
