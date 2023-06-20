@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import Head from 'next/head';
+
 import { BigNumber } from 'ethers';
 
 import Box from '@mui/material/Box';

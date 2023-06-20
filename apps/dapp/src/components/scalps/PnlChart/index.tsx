@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import Box from '@mui/material/Box';
 import {
   Line,
   LineChart,
@@ -12,9 +11,8 @@ import {
 } from 'recharts';
 import { CategoricalChartFunc } from 'recharts/types/chart/generateCategoricalChart';
 
-import Skeleton from 'components/UI/Skeleton';
-import Typography from 'components/UI/Typography';
 import PnlInfoBox from 'components/common/PnlInfoBox';
+import Skeleton from 'components/UI/Skeleton';
 
 import formatAmount from 'utils/general/formatAmount';
 import getValueColorClass from 'utils/general/getValueColorClass';
@@ -97,12 +95,10 @@ const PnlChart = (props: PnlChartProps) => {
   );
 
   return (
-    <Box className="h-[24rem]">
-      <Box className="flex">
-        <Typography variant="h6" className="text-stieglitz font-small mb-2">
-          Calculator
-        </Typography>
-      </Box>
+    <div className="h-[24rem]">
+      <div className="flex">
+        <h6 className="text-stieglitz font-small mb-2">Calculator</h6>
+      </div>
       {lowerBreakeven ? (
         <ResponsiveContainer width="100%" height="60%" className="mb-4">
           <LineChart
@@ -160,7 +156,7 @@ const PnlChart = (props: PnlChartProps) => {
         value={`$${formatAmount(upperBreakeven, 3)}`}
         color={'stieglitz'}
       />
-    </Box>
+    </div>
   );
 };
 

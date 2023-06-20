@@ -27,10 +27,10 @@ import { useDebounce } from 'use-debounce';
 
 import { IAtlanticPoolEpochStrikeData } from 'store/Vault/atlantics';
 
-import StrategyDetails from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/StrategyDetails';
-import TokenSelector from 'components/atlantics/TokenSelector';
 import Input from 'components/UI/Input';
 import Typography from 'components/UI/Typography';
+import StrategyDetails from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/StrategyDetails';
+import TokenSelector from 'components/atlantics/TokenSelector';
 
 import { getBlockTime } from 'utils/contracts';
 import {
@@ -875,7 +875,11 @@ const ManagePosition = () => {
                   alt={selectedToken}
                   className="w-10"
                 />
-                <h6>{selectedToken}</h6>
+                <h6>
+                  {selectedToken.toUpperCase() === 'USDC'
+                    ? 'USDC.e'
+                    : selectedToken}
+                </h6>
                 {openTokenSelector ? (
                   <KeyboardArrowUpRoundedIcon className="fill-current text-white my-auto" />
                 ) : (
@@ -903,7 +907,7 @@ const ManagePosition = () => {
               3,
               true
             )}{' '}
-            {selectedToken}
+            {selectedToken.toUpperCase() === 'USDC' ? 'USDC.e' : selectedToken}
           </Typography>
         </div>
         <TokenSelector

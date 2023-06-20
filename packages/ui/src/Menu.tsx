@@ -1,10 +1,11 @@
 import React, { ReactEventHandler } from 'react';
 
 import { Menu as HeadlessMenu, Transition } from '@headlessui/react';
+import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
 import Button from '../src/Button';
 import MenuItems, { dropdownVariants, ItemType } from '../src/MenuItems';
-import DropdownArrowIcon from './icons/DropdownArrowIcon';
+import cx from './utils/cx';
 
 type colors =
   | 'primary'
@@ -48,8 +49,8 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
           {({ open }: { open: boolean }) => (
             <div className="flex justify-between">
               {selection}
-              <DropdownArrowIcon
-                className={open ? `transform rotate-180` : ''}
+              <ChevronDownIcon
+                className={cx('ml-2 w-4', open ? `transform rotate-180` : '')}
               />
             </div>
           )}

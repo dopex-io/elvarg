@@ -1,6 +1,9 @@
 export { default as Button } from './Button';
 export type { ButtonProps } from './Button';
 
+export { default as Chip } from './Chip';
+export type { ChipProps } from './Chip';
+
 export { default as Dialog } from './Dialog';
 export type { DialogProps } from './Dialog';
 

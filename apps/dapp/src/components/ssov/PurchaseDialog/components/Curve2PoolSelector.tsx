@@ -1,7 +1,7 @@
-import cx from 'classnames';
 import Box from '@mui/material/Box';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import cx from 'classnames';
 
 // @ts-ignore TODO: FIX
 const Curve2PoolSelector = ({ token, setToken, className }) => {
@@ -33,7 +33,7 @@ const Curve2PoolSelector = ({ token, setToken, className }) => {
           className="text-white"
           color="primary"
         >
-          USDC
+          USDC.e
         </ToggleButton>
         <ToggleButton
           value="USDT"

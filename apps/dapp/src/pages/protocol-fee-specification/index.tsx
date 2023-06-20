@@ -1,6 +1,6 @@
-import Head from 'next/head';
-
 import { useEffect, useState } from 'react';
+
+import Head from 'next/head';
 
 import { BigNumber, ethers } from 'ethers';
 
