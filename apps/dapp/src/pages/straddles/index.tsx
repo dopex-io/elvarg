@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
+import Head from 'next/head';
 
 import Box from '@mui/material/Box';
+
 import axios from 'axios';
 import { NextSeo } from 'next-seo';
 
-import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import Filter from 'components/common/Filter';
 import VaultCard from 'components/straddles/VaultCard';
+import Typography from 'components/UI/Typography';
 
 import { CHAINS } from 'constants/chains';
 import { DOPEX_API_BASE_URL } from 'constants/env';

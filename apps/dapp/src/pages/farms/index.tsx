@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-
+import Head from 'next/head';
 import { BigNumber } from 'ethers';
 
 import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
+
 import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
 import { Farm, FarmData, UserData } from 'types/farms';
 
-import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import FarmingMigrationBanner from 'components/common/Banners/FarmingMigrationBanner';
 import SushiMigrationBanner from 'components/common/Banners/SushiMigrationBanner';
@@ -18,6 +18,7 @@ import ManageDialog, {
   BasicManageDialogProps,
 } from 'components/farms/ManageDialog';
 import QuickLinks from 'components/farms/QuickLinks';
+import Typography from 'components/UI/Typography';
 
 import { FARMS } from 'constants/farms';
 import seo from 'constants/seo';

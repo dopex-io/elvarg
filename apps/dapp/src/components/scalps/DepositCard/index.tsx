@@ -1,22 +1,17 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { BigNumber, utils } from 'ethers';
 
-import { BigNumber } from 'ethers';
+import { CircularProgress } from '@mui/material';
 
 import { ERC20__factory } from '@dopex-io/sdk';
-import { CircularProgress } from '@mui/material';
-import Box from '@mui/material/Box';
-import Input from '@mui/material/Input';
+import { Button, Input } from '@dopex-io/ui';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
-import CustomButton from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import Wrapper from 'components/ssov/Wrapper';
 
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 const DepositCard = () => {
@@ -69,11 +64,13 @@ const DepositCard = () => {
   }, [rawAmount]);
 
   const readableUserTokenBalance = useMemo(() => {
-    return getUserReadableAmount(
-      userTokenBalance,
-      isQuote
-        ? optionScalpData?.quoteDecimals!.toNumber()!
-        : optionScalpData?.baseDecimals!.toNumber()!
+    return Number(
+      utils.formatUnits(
+        userTokenBalance,
+        isQuote
+          ? optionScalpData?.quoteDecimals!.toNumber()!
+          : optionScalpData?.baseDecimals!.toNumber()!
+      )
     );
   }, [optionScalpData, userTokenBalance, isQuote]);
 
@@ -126,7 +123,7 @@ const DepositCard = () => {
       ),
     ]);
 
-    const depositAmount = getContractReadableAmount(
+    const depositAmount = utils.parseUnits(
       rawAmount,
       isQuote
         ? optionScalpData?.quoteDecimals!.toNumber()
@@ -171,7 +168,7 @@ const DepositCard = () => {
     try {
       await sendTx(isQuote ? quote : base, 'approve', [
         optionScalpData?.optionScalpContract?.address,
-        getContractReadableAmount(
+        utils.parseUnits(
           rawAmount,
           isQuote
             ? optionScalpData?.quoteDecimals!.toNumber()
@@ -212,8 +209,8 @@ const DepositCard = () => {
         [
           accountAddress,
           isQuote,
-          getContractReadableAmount(
-            amount,
+          utils.parseUnits(
+            String(amount),
             isQuote
               ? optionScalpData?.quoteDecimals!.toNumber()!
               : optionScalpData?.baseDecimals!.toNumber()!
@@ -244,8 +241,8 @@ const DepositCard = () => {
         .connect(signer)
         .callStatic.deposit(
           isQuote,
-          getContractReadableAmount(
-            amount,
+          utils.parseUnits(
+            String(amount),
             isQuote
               ? optionScalpData?.quoteDecimals!.toNumber()!
               : optionScalpData?.baseDecimals!.toNumber()!
@@ -274,25 +271,24 @@ const DepositCard = () => {
   };
 
   return (
-    <Box className="h-full flex flex-col pt-2">
+    <div className="h-full flex flex-col pt-2">
       {selectedPoolName === 'ETH' && !isQuote && (
         <Wrapper open={wrapEthOpen} handleClose={() => setWrapEthOpen(false)} />
       )}
-      <Box className="bg-umbra rounded-xl flex flex-col mb-1 mx-2 p-3 pr-2">
+      <div className="bg-umbra rounded-xl flex flex-col mb-1 mx-2 p-3 pr-2">
         {selectedPoolName === 'ETH' && !isQuote && (
-          <Box
+          <div
             role="button"
             className="ml-auto mt-1 text-xs pr-3"
             onClick={() => setWrapEthOpen(true)}
           >
             <span className="text-stieglitz underline">Wrap ETH</span>
-          </Box>
+          </div>
         )}
-        <Box className="flex flex-row justify-between">
-          <Box className="bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center border border-cod-gray">
-            <Box className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
-              <Typography
-                variant="h6"
+        <div className="flex flex-row justify-between">
+          <div className="bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center border border-cod-gray">
+            <div className="flex flex-row h-10 w-auto p-1 pl-3 pr-2">
+              <h6
                 className={cx(
                   'font-medium mt-1 cursor-pointer text-[0.8rem]',
                   !isQuote && 'opacity-50'
@@ -300,11 +296,10 @@ const DepositCard = () => {
                 onClick={() => setisQuote(true)}
               >
                 {optionScalpData?.quoteSymbol!}
-              </Typography>
-            </Box>
-            <Box className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
-              <Typography
-                variant="h6"
+              </h6>
+            </div>
+            <div className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
+              <h6
                 className={cx(
                   'font-medium mt-1 cursor-pointer text-[0.8rem]',
                   isQuote && 'opacity-50'
@@ -312,33 +307,30 @@ const DepositCard = () => {
                 onClick={() => setisQuote(false)}
               >
                 {optionScalpData?.baseSymbol!}
-              </Typography>
-            </Box>
-          </Box>
+              </h6>
+            </div>
+          </div>
           <Input
-            disableUnderline
+            color="cod-gray"
+            variant="small"
             id="notionalSize"
             name="notionalSize"
             placeholder="0"
             type="number"
-            className="h-12 text-md text-white font-mono mr-2"
             value={rawAmount}
-            onChange={(e) => setRawAmount(e.target.value)}
-            classes={{ input: 'text-right' }}
+            handleChange={(e: {
+              target: { value: React.SetStateAction<string | number> };
+            }) => setRawAmount(String(e.target.value))}
           />
-        </Box>
-        <Box className="flex flex-row justify-between mt-2">
-          <Box>
-            <Typography
-              variant="h6"
-              className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]"
-            >
+        </div>
+        <div className="flex flex-row justify-between mt-2">
+          <div>
+            <h6 className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]">
               Token to deposit
-            </Typography>
-          </Box>
-          <Box className="ml-auto mr-0">
-            <Typography
-              variant="h6"
+            </h6>
+          </div>
+          <div className="ml-auto mr-0">
+            <h6
               role="button"
               className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem] underline"
               onClick={handleSetMax}
@@ -347,31 +339,27 @@ const DepositCard = () => {
               {isQuote
                 ? optionScalpData?.quoteSymbol!
                 : _resolveSymbol(optionScalpData?.baseSymbol!)}
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
+            </h6>
+          </div>
+        </div>
+      </div>
       {estimatedLpTokens.gt(0) ? (
-        <Box className="bg-umbra rounded-2xl">
-          <Box className="flex flex-col mb-4 p-4 w-full">
-            <Box className={'flex mb-0.5'}>
-              <Typography
-                variant="h6"
-                className="text-stieglitz ml-0 mr-auto text-[0.8rem]"
-              >
+        <div className="bg-umbra rounded-2xl">
+          <div className="flex flex-col mb-4 p-4 w-full">
+            <div className={'flex mb-0.5'}>
+              <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
                 Estimated LP tokens
-              </Typography>
-              <Box className={'text-right'}>
-                <Typography
-                  variant="h6"
-                  className="text-white mr-auto ml-0 text-[0.8rem]"
-                >
+              </h6>
+              <div className={'text-right'}>
+                <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
                   {formatAmount(
-                    getUserReadableAmount(
-                      estimatedLpTokens,
-                      isQuote
-                        ? optionScalpData?.quoteDecimals!.toNumber()!
-                        : optionScalpData?.baseDecimals!.toNumber()!
+                    Number(
+                      utils.formatUnits(
+                        estimatedLpTokens,
+                        isQuote
+                          ? optionScalpData?.quoteDecimals!.toNumber()!
+                          : optionScalpData?.baseDecimals!.toNumber()!
+                      )
                     ),
                     2
                   )}{' '}
@@ -379,13 +367,13 @@ const DepositCard = () => {
                     ? optionScalpData?.quoteSymbol!
                     : optionScalpData?.baseSymbol!}{' '}
                   LP
-                </Typography>
-              </Box>
-            </Box>
-          </Box>
-        </Box>
+                </h6>
+              </div>
+            </div>
+          </div>
+        </div>
       ) : null}
-      <Box>
+      <div>
         <p className="text-justify h-full p-2 px-3 m-1 text-sm font-light mb-1.5">
           After depositing you will receive ERC4626 tokens representing your
           share in this pool. On withdrawal of deposited funds the same ERC4626
@@ -396,13 +384,13 @@ const DepositCard = () => {
           Deposits are locked for an hour from the time of deposit after which
           they can be withdrawn.
         </p>
-      </Box>
-      <Box className="rounded-lg bg-neutral-800 mx-2">
-        <Box className="p-3">
-          <Box className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
+      </div>
+      <div className="rounded-lg bg-neutral-800 mx-2">
+        <div className="p-3">
+          <div className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
             <EstimatedGasCostButton gas={500000} chainId={chainId} />
-          </Box>
-          <CustomButton
+          </div>
+          <Button
             size="small"
             className="w-full"
             color={
@@ -420,10 +408,10 @@ const DepositCard = () => {
                 depositButtonMessage
               )}
             </p>
-          </CustomButton>
-        </Box>
-      </Box>
-    </Box>
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -398,16 +398,20 @@ const Addresses: { [key: number]: any } = {
       },
     },
     'OPTION-SCALPS': {
-      ETH: '0x49f517Cfed2679Fb8B31Df102150b81b25Ee552b',
-      ARB: '0xDaF4FfB05bfCb2C328c19135E3e74e1182C88283',
+      ETH: '0x96FAEeE355195b3D4ad106127d448B4dF21af759',
+      ARB: '0xcACa6e86786a49cFcB736b642e77d74752499FdB',
+      LIMIT: {
+        ETH: '0x3001d21C8e13147cA6cc6eE214c25A2487ead2D5',
+        ARB: '0x62BFf322550D3556472e8C8649Bb91CE78061f14',
+      },
       LP: {
         ETH: {
-          QUOTE: '0x2c123b7f3028bfec69a6ab1237c212dfa10e8866',
-          BASE: '0x28ac2aa81be11a8822880d91c19643fe5e343999',
+          QUOTE: '0x92867742D14af5e74ABF98941472F8162Cd607dF',
+          BASE: '0x64817Fb2358Ae2e1E10C743942aFCcc4Faad053d',
         },
         ARB: {
-          QUOTE: '0xeebeb3b7a846b7567e2c581ecabcf3bec2fb46c5',
-          BASE: '0x7e9f05a02893d5c09c66b128866b86f66d12fe1f',
+          QUOTE: '0x921aF3D6f93300022146258f58110f174eA4c6CA',
+          BASE: '0x85F0B5b7c06Cb94dca03B657EB90b66A2Aed0f04',
         },
       },
     },
