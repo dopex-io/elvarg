@@ -60,7 +60,7 @@ const ClosedPositionsTable = () => {
 
       const [contractName, epochData] = await Promise.all([
         straddlesData?.straddlesContract?.name(),
-        straddlesContract?.getEpochData(position.epoch),
+        straddlesContract?.epochData(position.epoch),
       ]);
       const tokenName = contractName?.split(' ')[0];
       const tokenPrice =
@@ -68,9 +68,16 @@ const ClosedPositionsTable = () => {
 
       share({
         title: (
-          <h4 className="text-white font-bold shadow-2xl">
-            {tokenName} Straddle
-          </h4>
+          <div>
+            <h4 className="text-white font-bold shadow-2xl">
+              {tokenName} Straddle
+            </h4>
+            <span className="text-sm inline-block break-all overflow-visible">
+              <a href={`https://arbiscan.io/tx/${position.txId}`}>
+                {position.txId}
+              </a>
+            </span>
+          </div>
         ),
         percentage: getPercentageDifference(
           tokenPrice,
@@ -92,10 +99,6 @@ const ClosedPositionsTable = () => {
           {
             name: 'Epoch',
             value: position.epoch!,
-          },
-          {
-            name: 'Settlement Transaction Hash',
-            value: position.txId!,
           },
         ],
       });
