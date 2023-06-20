@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-
 import Head from 'next/head';
 import Link from 'next/link';
+
+import Box from '@mui/material/Box';
 
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import AgricultureIcon from '@mui/icons-material/Agriculture';
@@ -10,11 +11,11 @@ import GraphicEqIcon from '@mui/icons-material/GraphicEq';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import SsidChartIcon from '@mui/icons-material/SsidChart';
-import Box from '@mui/material/Box';
+
 import axios from 'axios';
 
-import { Typography } from 'components/UI';
 import AppBar from 'components/common/AppBar';
+import { Typography } from 'components/UI';
 
 import { formatAmount } from 'utils/general';
 

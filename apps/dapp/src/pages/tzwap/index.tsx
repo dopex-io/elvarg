@@ -1,15 +1,7 @@
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
-
 import Head from 'next/head';
-
 import { BigNumber } from 'ethers';
 
-import {
-  Addresses,
-  ERC20__factory,
-  Tzwap1inchRouter__factory,
-} from '@dopex-io/sdk';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
@@ -17,6 +9,14 @@ import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
+
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+
+import {
+  Addresses,
+  ERC20__factory,
+  Tzwap1inchRouter__factory,
+} from '@dopex-io/sdk';
 import useSendTx from 'hooks/useSendTx';
 import { NextSeo } from 'next-seo';
 import Countdown from 'react-countdown';
@@ -24,13 +24,13 @@ import { LoaderIcon } from 'react-hot-toast';
 import { useBoundStore } from 'store';
 import RedTriangleIcon from 'svgs/icons/RedTriangleIcon';
 
-import CustomButton from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import TokenSelector from 'components/common/TokenSelector';
 import Kill from 'components/tzwap/Dialogs/Kill';
 import Orders from 'components/tzwap/Orders';
+import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
