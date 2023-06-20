@@ -11,14 +11,15 @@
     "generate": "graphclient build"
   },
   "dependencies": {
-    "@0xsequence/multicall": "^0.43.31",
+    "@0xsequence/multicall": "^0.43.33",
     "@dopex-io/sdk": "workspace:*",
     "@dopex-io/ui": "workspace:*",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@heroicons/react": "^2.0.18",
     "@mui/icons-material": "^5.11.16",
-    "@mui/material": "^5.13.4",
-    "@sentry/nextjs": "^7.54.0",
+    "@mui/material": "^5.13.5",
+    "@sentry/nextjs": "^7.55.2",
     "@tanstack/react-query": "^4.29.12",
     "@types/react-table": "^7.7.14",
     "axios": "^1.4.0",

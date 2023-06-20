@@ -1,24 +1,24 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
-import { format } from 'date-fns';
-import { ERC20__factory } from '@dopex-io/sdk';
+
 import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Input from '@mui/material/Input';
 import Switch from '@mui/material/Switch';
 
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+
+import { ERC20__factory } from '@dopex-io/sdk';
+import { format } from 'date-fns';
 import useSendTx from 'hooks/useSendTx';
-
-import CustomButton from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-
 import { useBoundStore } from 'store';
 
-import formatAmount from 'utils/general/formatAmount';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE } from 'constants/index';
 
@@ -212,7 +212,7 @@ const DepositCard = () => {
                 variant="h6"
                 className="text-stieglitz text-md font-medium pl-1 pt-1.5 ml-1.5"
               >
-                <span className="text-white">USDC</span>
+                <span className="text-white">USDC.e</span>
               </Typography>
             </Box>
           </Box>
@@ -239,7 +239,8 @@ const DepositCard = () => {
               variant="h6"
               className="text-stieglitz text-sm pl-1 pt-2 pr-3"
             >
-              {formatAmount(getUserReadableAmount(userTokenBalance, 6), 2)} USDC
+              {formatAmount(getUserReadableAmount(userTokenBalance, 6), 2)}{' '}
+              USDC.e
             </Typography>
           </Box>
         </Box>

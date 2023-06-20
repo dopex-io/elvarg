@@ -1,13 +1,14 @@
 import React, { useCallback } from 'react';
+
 import Box from '@mui/material/Box';
 import Slide from '@mui/material/Slide';
 
-import Typography from 'components/UI/Typography';
-
 import { useBoundStore } from 'store';
 
-import formatAmount from 'utils/general/formatAmount';
+import Typography from 'components/UI/Typography';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 
 import { TOKEN_DATA } from 'constants/tokens';
@@ -70,7 +71,9 @@ const TokenSelector = (props: TokenSelectorProps) => {
                 />
                 <Box className="flex flex-col space-y-1">
                   <Typography variant="h5" className="my-auto font-normal">
-                    {token.symbol}
+                    {token.symbol.toUpperCase() === 'USDC'
+                      ? 'USDC.e'
+                      : token.symbol}
                   </Typography>
                   <Typography
                     variant="h6"

@@ -2,7 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { ethers } from 'ethers';
 
-import { Button } from '@dopex-io/ui';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+
 import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
 
@@ -10,6 +12,8 @@ import DexScreenerChart from 'components/common/DexScreenerChart';
 import PageLayout from 'components/common/PageLayout';
 import QuickLink from 'components/common/QuickLink';
 import Manage from 'components/scalps/Manage';
+import MigrationStepper from 'components/scalps/MigrationStepper';
+import Orders from 'components/scalps/Orders';
 import Positions from 'components/scalps/Positions';
 import TopBar from 'components/scalps/TopBar';
 import TradeCard from 'components/scalps/TradeCard';
@@ -22,7 +26,7 @@ const ManageComponent = () => {
 
   return (
     <div className="w-full !mt-4 h-fit-content">
-      <div className="flex w-full justify-between bg-cod-gray border border-umbra rounded-top-lg mb-2">
+      <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-top-lg mb-2">
         {['LP', 'Trade'].map((label, index) => (
           <Button
             key={index}
@@ -31,14 +35,13 @@ const ManageComponent = () => {
                 ? 'text-white bg-carbon hover:bg-carbon'
                 : 'text-stieglitz bg-transparent hover:bg-transparent'
             } hover:text-white`}
-            color="carbon"
-            size="small"
+            disableRipple
             onClick={() => setManageSection(label)}
           >
-            <span className="text-white text-xs pb-1">{label}</span>
+            <h6 className="text-xs pb-1">{label}</h6>
           </Button>
         ))}
-      </div>
+      </ButtonGroup>
       <div className="bg-cod-gray rounded-b-xl min-w-[23rem]">
         {manageSection === 'Trade' ? <TradeCard /> : <Manage />}
       </div>
@@ -125,48 +128,89 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
 
   return (
     <>
-      <PageLayout>
-        <TopBar />
-        <div className="h-full flex flex-col space-y-2 xl:flex-row xl:space-x-5 justify-center">
-          <div className="flex flex-col w-full space-y-4 h-full">
-            <div className="flex-1 mt-4">{Chart}</div>
-            <Positions />
+      <div className="bg-black flex w-screen items-center justify-center">
+        <PageLayout>
+          <div className="mt-8 sm:mt-14 md:mt-20 lg:mr-full">
+            <TopBar />
           </div>
-          <div>
-            <ManageComponent />
-            <div className="mt-6 w-auto">
-              <div className="flex flex-col space-y-2">
-                <QuickLink
-                  text="Option Scalps Guide"
-                  href="https://blog.dopex.io/articles/product-launches-updates/introducing-option-scalps"
-                />
-                <QuickLink
-                  text="Trading Competition Explainer"
-                  href="https://blog.dopex.io/articles/marketing-campaigns/option-scalps-trading-competition"
-                />
-                <QuickLink
-                  text="Leaderboard"
-                  href="https://app.dopex.io/scalps/leaderboard"
-                />
+          <div className="w-full h-full flex flex-col space-y-2 xl:flex-row xl:space-x-5">
+            <div className="flex flex-col w-full space-y-4 h-full">
+              <div className="flex-1 mt-4">{Chart}</div>
+              <Orders />
+              <Positions />
+            </div>
+            <div>
+              {selectedPoolName === 'ETH' ? (
+                <>
+                  <MigrationStepper
+                    deprecatedAddress={{
+                      asset: 'ETH',
+                      address: '0x49f517Cfed2679Fb8B31Df102150b81b25Ee552b',
+                    }}
+                    isQuote={false}
+                  />
+                  <MigrationStepper
+                    deprecatedAddress={{
+                      asset: 'USDC',
+                      address: '0x49f517Cfed2679Fb8B31Df102150b81b25Ee552b',
+                    }}
+                    isQuote={true}
+                  />
+                </>
+              ) : (
+                <>
+                  <MigrationStepper
+                    deprecatedAddress={{
+                      asset: 'ARB',
+                      address: '0xdaf4ffb05bfcb2c328c19135e3e74e1182c88283',
+                    }}
+                    isQuote={false}
+                  />
+                  <MigrationStepper
+                    deprecatedAddress={{
+                      asset: 'USDC',
+                      address: '0xdaf4ffb05bfcb2c328c19135e3e74e1182c88283',
+                    }}
+                    isQuote={true}
+                  />
+                </>
+              )}
+
+              <ManageComponent />
+              <div className="mt-6 w-auto">
+                <div className="flex flex-col space-y-2">
+                  <QuickLink
+                    text="Option Scalps Guide"
+                    href="https://blog.dopex.io/articles/product-launches-updates/introducing-option-scalps"
+                  />
+                  <QuickLink
+                    text="Trading Competition Explainer"
+                    href="https://blog.dopex.io/articles/marketing-campaigns/option-scalps-trading-competition"
+                  />
+                  <QuickLink
+                    text="Leaderboard"
+                    href="https://app.dopex.io/scalps/leaderboard"
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div className="flex justify-center w-full mt-10">
-          <div className="text-silver">Contract Address:</div>
-          <p className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text">
-            <a
-              href={`${CHAINS[chainId]?.explorer}/address/${
-                optionScalpData?.optionScalpContract?.address ?? ''
-              }`}
-              rel="noopener noreferrer"
-              target={'_blank'}
-            >
-              {optionScalpData?.optionScalpContract?.address}
-            </a>
-          </p>
-        </div>
-      </PageLayout>
+          <div className="flex justify-center w-full mt-10">
+            <h5 className="text-silver">Contract Address:</h5>
+            <p className="bg-gradient-to-r from-wave-blue to-primary text-transparent bg-clip-text ml-1">
+              <a
+                href={`${CHAINS[chainId]?.explorer}/address/${
+                  optionScalpData?.optionScalpContract?.address ?? ''
+                }`}
+                rel="noopener noreferrer"
+                target={'_blank'}
+              >
+                {optionScalpData?.optionScalpContract?.address}
+              </a>
+            </p>
+          </div>
+        </PageLayout>
+      </div>
     </>
   );
 };
@@ -174,6 +218,7 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
 const ManagePage = () => {
   const router = useRouter();
   const poolName = router.query['poolName'] as string;
+
   return (
     <>
       <NextSeo

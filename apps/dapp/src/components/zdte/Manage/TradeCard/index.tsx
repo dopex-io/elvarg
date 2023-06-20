@@ -1,9 +1,9 @@
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-
 import { BigNumber } from 'ethers';
 
-import { ERC20__factory } from '@dopex-io/sdk';
 import { Input as MuiInput } from '@mui/material';
+
+import { ERC20__factory } from '@dopex-io/sdk';
 import useSendTx from 'hooks/useSendTx';
 import Countdown from 'react-countdown';
 import { useBoundStore } from 'store';
@@ -496,7 +496,11 @@ const TradeCard = () => {
                 DECIMALS_USD
               ),
               2
-            )} ${staticZdteData?.quoteTokenSymbol.toUpperCase()}`}
+            )} ${
+              staticZdteData?.quoteTokenSymbol.toUpperCase() === 'USDC'
+                ? 'USDC.e'
+                : staticZdteData?.quoteTokenSymbol.toUpperCase()
+            }`}
           </span>
         </div>
       </div>
@@ -530,7 +534,7 @@ const TradeCard = () => {
           title="Liquidity Required"
           content={
             selectedSpreadPair?.longStrike! > selectedSpreadPair?.shortStrike!
-              ? `${margin} ${staticZdteData?.quoteTokenSymbol.toUpperCase()}`
+              ? `${margin} USDC.e`
               : `${margin} ${staticZdteData?.baseTokenSymbol.toUpperCase()}`
           }
         />

@@ -1,11 +1,10 @@
 import { ReactNode } from 'react';
-
 import { BigNumber } from 'ethers';
 
 import Box from '@mui/material/Box';
+import { styled } from '@mui/material/styles';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
-import { styled } from '@mui/material/styles';
 
 import { LpPosition } from 'store/Vault/olp';
 
@@ -182,7 +181,7 @@ export const LiquidityDialogRow = ({
         value={`${formatAmount(
           getUserReadableAmount(lpPositionSelected?.usdLiquidity, DECIMALS_USD),
           2
-        )} USDC`}
+        )} USDC.e`}
       />
     );
   }
@@ -215,7 +214,7 @@ export const NumberLiquidityDialogRow = ({
 }) => {
   if (isUsd) {
     return (
-      <DialogRow data={data} value={`${formatAmount(usdValue, 2)} USDC`} />
+      <DialogRow data={data} value={`${formatAmount(usdValue, 2)} USDC.e`} />
     );
   }
   return (

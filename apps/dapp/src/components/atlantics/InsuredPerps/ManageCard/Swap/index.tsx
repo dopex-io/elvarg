@@ -10,11 +10,11 @@ import { ERC20__factory, GmxRouter__factory } from '@dopex-io/sdk';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
+import SwapInfo from 'components/atlantics/InsuredPerps/ManageCard/Swap/SwapInfo';
+import Wrapper from 'components/ssov/Wrapper';
 import Button from 'components/UI/Button';
 import Input from 'components/UI/Input';
 import Typography from 'components/UI/Typography';
-import SwapInfo from 'components/atlantics/InsuredPerps/ManageCard/Swap/SwapInfo';
-import Wrapper from 'components/ssov/Wrapper';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -250,7 +250,7 @@ const Swap = (props: SwapProps) => {
                     className="w-8"
                   />
                   <Typography variant="h6" className="my-auto">
-                    {inverted ? stable : underlying}
+                    {inverted ? 'USDC.e' : underlying}
                   </Typography>
                 </Box>
                 <Box
@@ -306,7 +306,7 @@ const Swap = (props: SwapProps) => {
                     className="w-8"
                   />
                   <Typography variant="h6" className="my-auto">
-                    {inverted ? underlying : stable}
+                    {inverted ? underlying : 'USDC.e'}
                   </Typography>
                 </Box>
               </Box>
@@ -326,7 +326,7 @@ const Swap = (props: SwapProps) => {
           value={`$${formatAmount(prices?.[!inverted ? 0 : 1] ?? 0, 3)}`}
         />
         <SwapInfo
-          description="USDC Price"
+          description="USDC.e Price"
           value={`$${formatAmount(prices?.[!inverted ? 1 : 0] ?? 0, 3)}`}
         />
       </Box>

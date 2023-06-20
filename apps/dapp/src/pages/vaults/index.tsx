@@ -51,8 +51,9 @@ const Vaults = () => {
   const [selectedToken, setSelectedToken] = useState<string>('ETH');
   const [widget, _] = useState<Partial<ChartingLibraryWidgetOptions>>({
     ...defaultWidgetProps,
-    symbol: vault.base,
-    datafeed,
+    // symbol: vault.base,
+    symbol: 'AAPL',
+    // datafeed,
   });
 
   const handleSelectToken = useCallback(

@@ -20,7 +20,8 @@
   },
   "peerDependencies": {
     "react": ">=17",
-    "react-dom": ">=17"
+    "react-dom": ">=17",
+    "@heroicons/react": "^2.0.18"
   },
   "peerDependenciesMeta": {
     "react-dom": {
@@ -31,6 +32,7 @@
     "@babel/preset-env": "^7.22.5",
     "@babel/preset-react": "^7.22.5",
     "@babel/preset-typescript": "^7.22.5",
+    "@heroicons/react": "^2.0.18",
     "@storybook/addon-actions": "^7.0.20",
     "@storybook/addon-essentials": "^7.0.20",
     "@storybook/addon-interactions": "^7.0.20",

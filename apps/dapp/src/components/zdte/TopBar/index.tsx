@@ -1,9 +1,9 @@
-import { useRouter } from 'next/router';
-
 import { useCallback } from 'react';
+import { useRouter } from 'next/router';
 
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+
 import cx from 'classnames';
 import { useBoundStore } from 'store';
 
@@ -136,10 +136,10 @@ const TopBar = () => {
             onChange={handleSelectChange}
           >
             <MenuItem value={'ETH'} key={'ETH'} className="text-white py-1 m-0">
-              ETH/USDC
+              ETH/USDC.e
             </MenuItem>
             <MenuItem value={'ARB'} key={'ARB'} className="text-white py-1 m-0">
-              ARB/USDC
+              ARB/USDC.e
             </MenuItem>
           </Select>
         </div>

@@ -1,12 +1,13 @@
-import Box from '@mui/material/Box';
 import { BigNumber } from 'ethers';
+
+import Box from '@mui/material/Box';
 
 import { Typography } from 'components/UI';
 
 import { getUserReadableAmount } from 'utils/contracts';
 import { formatAmount } from 'utils/general';
 
-import { DECIMALS_USD, DECIMALS_TOKEN } from 'constants/index';
+import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
 interface Props {
   assetIdx: number;
@@ -35,7 +36,7 @@ const BalanceBox = ({
               getUserReadableAmount(usdBalance, DECIMALS_USD),
               2
             )}`}
-            <span className="text-stieglitz ml-1">USDC</span>
+            <span className="text-stieglitz ml-1">USDC.e</span>
           </Typography>
         ) : (
           <Typography variant="h6" className="text-sm pl-1 pt-2">

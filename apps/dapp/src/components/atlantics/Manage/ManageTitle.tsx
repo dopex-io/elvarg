@@ -20,7 +20,7 @@ interface ManageCardTitleProps {
 
 const ManageTitle = (props: ManageCardTitleProps) => {
   const {
-    depositToken = 'USDC',
+    depositToken = 'USDC.e',
     underlying,
     poolType,
     strategy,
@@ -35,7 +35,7 @@ const ManageTitle = (props: ManageCardTitleProps) => {
     const { underlying, depositToken } = atlanticPool.tokens;
     if (!underlying || !depositToken) return;
 
-    return `${underlying}-${depositToken}-${'PUTS'}-${atlanticPool.durationType.substring(
+    return `${underlying}-USDC.e-${'PUTS'}-${atlanticPool.durationType.substring(
       0,
       1
     )}`;

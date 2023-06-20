@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-
 import { BigNumber, utils } from 'ethers';
 
 import { ERC20__factory } from '@dopex-io/sdk';
@@ -176,6 +175,11 @@ const Deposit = () => {
     checkApproved();
   }, [checkApproved]);
 
+  const usdSymbol =
+    staticZdteData?.quoteTokenSymbol.toUpperCase() === 'USDC'
+      ? 'USDC.e'
+      : staticZdteData?.quoteTokenSymbol;
+
   if (isLoading || !staticZdteData) {
     return <Loading />;
   }
@@ -196,7 +200,7 @@ const Deposit = () => {
                   setisQuote(true);
                 }}
               >
-                <span>{staticZdteData?.quoteTokenSymbol}</span>
+                <span>{usdSymbol}</span>
               </h6>
             </div>
             <div className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
@@ -224,18 +228,14 @@ const Deposit = () => {
         </div>
       </div>
       <BalanceBox
-        tokenSymbol={
-          isQuote
-            ? staticZdteData.quoteTokenSymbol
-            : staticZdteData.baseTokenSymbol
-        }
+        tokenSymbol={isQuote ? usdSymbol! : staticZdteData.baseTokenSymbol}
         tokenBalance={assetBalance}
         handleMax={handleMax}
       />
       <div className="p-1 ml-1">
         <span className="text-sm text-white">
           {isQuote
-            ? `Deposit ${staticZdteData.quoteTokenSymbol} to provide liquidity for put options`
+            ? `Deposit ${usdSymbol} to provide liquidity for put options`
             : `Deposit ${staticZdteData.baseTokenSymbol} to provide liquidity for call options`}
         </span>
       </div>

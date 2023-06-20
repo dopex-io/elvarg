@@ -1,15 +1,14 @@
-import Head from 'next/head';
-
 import { useEffect, useState } from 'react';
-
+import Head from 'next/head';
 import { BigNumber, ethers } from 'ethers';
+
+import Skeleton from '@mui/material/Skeleton';
 
 import { providers } from '@0xsequence/multicall';
 import {
-  AtlanticStraddleV2__factory,
   AtlanticStraddle__factory,
+  AtlanticStraddleV2__factory,
 } from '@dopex-io/sdk';
-import Skeleton from '@mui/material/Skeleton';
 import axios from 'axios';
 
 import AppBar from 'components/common/AppBar';

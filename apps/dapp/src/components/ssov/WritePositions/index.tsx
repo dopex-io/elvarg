@@ -1,25 +1,29 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
-import cx from 'classnames';
-import isEmpty from 'lodash/isEmpty';
+
 import Box from '@mui/material/Box';
-import TableHead from '@mui/material/TableHead';
-import TableContainer from '@mui/material/TableContainer';
-import TableRow from '@mui/material/TableRow';
+import { styled } from '@mui/material/styles';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
-import { styled } from '@mui/material/styles';
+import TableRow from '@mui/material/TableRow';
 
-import Typography from 'components/UI/Typography';
-import TablePaginationActions from 'components/UI/TablePaginationActions';
-import WritePositionTableData from './WritePositionData';
-import TransferDialog from './Dialogs/TransferDialog';
-import WithdrawDialog from './Dialogs/WithdrawDialog';
+import cx from 'classnames';
+import isEmpty from 'lodash/isEmpty';
+import { useBoundStore } from 'store';
 
 import { SsovV3Data, WritePositionInterface } from 'store/Vault/ssov';
-import { useBoundStore } from 'store';
+
+import TablePaginationActions from 'components/UI/TablePaginationActions';
+import Typography from 'components/UI/Typography';
+
+import ClaimDialog from './Dialogs/ClaimDialog';
+import TransferDialog from './Dialogs/TransferDialog';
+import WithdrawDialog from './Dialogs/WithdrawDialog';
+import WritePositionTableData from './WritePositionData';
 
 const StyledContainer = styled(TableContainer)`
   td {
@@ -95,14 +99,16 @@ const WritePositions = (props: { className?: string }) => {
   const filteredWritePositions = useMemo(() => {
     return (
       ssovUserData?.writePositions.filter(
-        (position) => !position.collateralAmount.isZero()
+        (position) =>
+          !position.collateralAmount.isZero() &&
+          selectedEpoch === position.epoch
       ) || []
     );
-  }, [ssovUserData]);
+  }, [ssovUserData, selectedEpoch]);
 
   const [dialog, setDialog] = useState<null | {
     open: boolean;
-    type: 'WITHDRAW' | 'TRANSFER';
+    type: 'WITHDRAW' | 'TRANSFER' | 'CLAIM';
     data: WritePositionInterface;
   }>({
     open: false,
@@ -115,6 +121,8 @@ const WritePositions = (props: { className?: string }) => {
       epoch: 0,
       tokenId: BigNumber.from(0),
       utilization: BigNumber.from(0),
+      stakeRewardAmounts: [],
+      stakeRewardTokens: [],
     },
   });
 
@@ -131,13 +139,16 @@ const WritePositions = (props: { className?: string }) => {
 
   return Number(selectedEpoch) > 0 ? (
     <Box className={cx('bg-cod-gray w-full p-4 rounded-xl', className)}>
-      {dialog ? (
-        dialog.type === 'WITHDRAW' ? (
-          <WithdrawDialog {...dialog} handleClose={handleClose} />
-        ) : (
-          <TransferDialog {...dialog} handleClose={handleClose} />
-        )
-      ) : null}
+      {dialog && dialog.type === 'WITHDRAW' && (
+        <WithdrawDialog {...dialog} handleClose={handleClose} />
+      )}
+      {dialog && dialog.type === 'TRANSFER' && (
+        <TransferDialog {...dialog} handleClose={handleClose} />
+      )}
+      {dialog && dialog.type === 'CLAIM' && (
+        <ClaimDialog {...dialog} handleClose={handleClose} />
+      )}
+
       <Box className="flex flex-row justify-between mb-1">
         <Typography variant="h5" className="text-stieglitz">
           Write Positions
@@ -176,14 +187,20 @@ const WritePositions = (props: { className?: string }) => {
                       setDialog({ open: true, type: 'WITHDRAW', data: o });
                     };
 
+                    const openClaim = () => {
+                      setDialog({ open: true, type: 'CLAIM', data: o });
+                    };
+
                     // only display positions for selected epoch
                     return o.epoch === selectedEpoch ? (
                       <WritePositionTableData
                         key={i}
                         {...o}
+                        ssovAddress={ssovData?.ssovContract?.address}
                         collateralSymbol={collateralSymbol || ''}
                         openTransfer={openTransfer}
                         openWithdraw={openWithdraw}
+                        openClaim={openClaim}
                         rewardTokens={ssovEpochData?.rewardTokens || []}
                         epochExpired={ssovEpochData?.isEpochExpired || false}
                       />

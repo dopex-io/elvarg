@@ -1,24 +1,23 @@
-import Head from 'next/head';
-
 import { useCallback, useState } from 'react';
+import Head from 'next/head';
+import { BigNumber, ethers, Signer } from 'ethers';
 
-import { BigNumber, Signer, ethers } from 'ethers';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import {
   Addresses,
   ERC20__factory,
   SsovV3Viewer__factory,
 } from '@dopex-io/sdk';
-import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
 import axios from 'axios';
 import { useBoundStore } from 'store';
 
-import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import SignerButton from 'components/common/SignerButton';
 import SsovDepositCard from 'components/retired-ssovs/SsovDepositCard';
 import SsovOption from 'components/retired-ssovs/SsovOption';
+import Typography from 'components/UI/Typography';
 
 import { DOPEX_API_BASE_URL } from 'constants/env';
 import retiredStrikeTokens from 'constants/json/retiredStrikeTokens.json';

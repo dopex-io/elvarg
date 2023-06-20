@@ -1,14 +1,12 @@
+import { useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-
-import { useEffect, useMemo, useState } from 'react';
-
 import { BigNumber } from 'ethers';
 
 import Box from '@mui/material/Box';
+
 import { useBoundStore } from 'store';
 
-import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import PepeActionsDialog from 'components/nfts/components/PepeActionsDialog';
 import {
@@ -19,6 +17,7 @@ import {
 import { PepeButton } from 'components/nfts/components/PepeButton';
 import PepeLink from 'components/nfts/components/PepeLink';
 import PepeText from 'components/nfts/components/PepeText';
+import Typography from 'components/UI/Typography';
 
 const DiamondPepesNfts = () => {
   const {

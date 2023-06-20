@@ -154,8 +154,8 @@ export const Main = (props: TickerProps) => {
           <title>... | ... | Insured Perps | Dopex</title>
         ) : (
           <title>
-            ${marketData.latest} | {underlying.concat('/', depositToken)} |
-            Insured Perps | Dopex
+            ${marketData.latest} | {underlying.concat('/', 'USDC.e')} | Insured
+            Perps | Dopex
           </title>
         )}
       </Head>
@@ -166,7 +166,7 @@ export const Main = (props: TickerProps) => {
             <Box className="flex flex-col space-y-2 w-full sm:w-full lg:w-3/4 h-full">
               <Title
                 underlying={underlying}
-                deposit={depositToken}
+                deposit="USDC.e"
                 stats={marketData}
               />
               <Box className="h-[546px] w-full space-y-4 flex flex-col bg-cod-gray rounded-xl text-center">

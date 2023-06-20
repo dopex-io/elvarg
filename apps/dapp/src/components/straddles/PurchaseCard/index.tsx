@@ -18,9 +18,9 @@ import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 import { useDebounce } from 'use-debounce';
 
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CustomButton from 'components/UI/Button';
 import NumberDisplay from 'components/UI/NumberDisplay';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import { get1inchParams, get1inchSwap } from 'utils/1inch';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -60,7 +60,7 @@ function InfoBox({
   return (
     <div className="flex justify-between mb-2">
       <p className="text-sm text-stieglitz">{info}</p>
-      <p className="text-sm">~{`${formatAmount(value, precision)} USDC`}</p>
+      <p className="text-sm">~{`${formatAmount(value, precision)} USDC.e`}</p>
     </div>
   );
 }
@@ -471,7 +471,7 @@ const PurchaseCard = () => {
           <>
             <span className="text-stieglitz text-sm">You will spend </span>
             <span className="text-sm">
-              {ethersUtils.formatUnits(finalCost, 6)} USDC
+              {ethersUtils.formatUnits(finalCost, 6)} USDC.e
             </span>
           </>
         )}

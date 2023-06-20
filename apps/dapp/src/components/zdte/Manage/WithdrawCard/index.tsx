@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { BigNumber } from 'ethers';
 
 import { ZdteLP__factory } from '@dopex-io/sdk';
@@ -69,9 +68,7 @@ class QuoteOrBaseAsset {
   }
 
   get getAssetSymbol() {
-    return this.isQuote
-      ? this.staticZdteData?.quoteLpSymbol
-      : this.staticZdteData?.baseLpSymbol;
+    return this.isQuote ? 'USDC.e-LP' : this.staticZdteData?.baseLpSymbol;
   }
 
   get getAssetAddress() {
@@ -286,7 +283,7 @@ const Withdraw = () => {
                 )}
                 onClick={() => setisQuote(true)}
               >
-                <span>{staticZdteData.quoteLpSymbol}</span>
+                <span>{`USDC.e-LP`}</span>
               </h6>
             </div>
             <div className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
@@ -320,7 +317,7 @@ const Withdraw = () => {
         />
         <ContentRow
           title={`1 ${asset?.getAssetSymbol}`}
-          content={`${asset.getLpValue} ${asset.getAssetSymbol.split('-')[0]}`}
+          content={`${asset.getLpValue} USDC.e-LP`}
         />
         <ContentRow
           title="Available Liquidity"

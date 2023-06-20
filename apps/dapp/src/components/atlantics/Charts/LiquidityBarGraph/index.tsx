@@ -1,23 +1,25 @@
 import { useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
+
 import Box from '@mui/material/Box';
-import {
-  BarChart,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Bar,
-  ResponsiveContainer,
-  Cell,
-} from 'recharts';
+
 import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
 
-import Typography from 'components/UI/Typography';
-import CustomTooltipContent from 'components/atlantics/Charts/LiquidityBarGraph/CustomTooltipContent';
+import {
+  Bar,
+  BarChart,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import { useBoundStore } from 'store';
 import CallsIcon from 'svgs/icons/CallsIcon';
 import PutsIcon from 'svgs/icons/PutsIcon';
 
-import { useBoundStore } from 'store';
+import CustomTooltipContent from 'components/atlantics/Charts/LiquidityBarGraph/CustomTooltipContent';
+import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
@@ -110,7 +112,8 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
             <PutsIcon className="my-auto" />
           )}
           <Typography variant="h6" className="align-center" color="stieglitz">
-            Collateral Distribution ({header['collateral']})
+            Collateral Distribution (
+            {header['collateral'] === 'USDC' ? 'USDC.e' : header['collateral']})
           </Typography>
         </Box>
         <Box className="flex my-auto">

@@ -1,16 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
-import Box from '@mui/material/Box';
-import formatDistance from 'date-fns/formatDistance';
 import { BigNumber } from 'ethers';
 
-import Typography from 'components/UI/Typography';
-import EpochSelector from 'components/atlantics/EpochSelector';
-import ExplorerLink from 'components/atlantics/Manage/ContractData/ExplorerLink';
-import PoolStrategies from 'components/atlantics/Manage/ContractData/PoolStrategies';
-import ContractDataItem from 'components/atlantics/Manage/ContractData/ContractDataItem';
+import Box from '@mui/material/Box';
+
+import formatDistance from 'date-fns/formatDistance';
+import { useBoundStore } from 'store';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
 
-import { useBoundStore } from 'store';
+import EpochSelector from 'components/atlantics/EpochSelector';
+import ContractDataItem from 'components/atlantics/Manage/ContractData/ContractDataItem';
+import ExplorerLink from 'components/atlantics/Manage/ContractData/ExplorerLink';
+import PoolStrategies from 'components/atlantics/Manage/ContractData/PoolStrategies';
+import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -39,6 +40,11 @@ const ContractData = () => {
     else return 'Expired';
   }, [atlanticPoolEpochData]);
 
+  const depositSymbol =
+    atlanticPool?.tokens.depositToken === 'USDC'
+      ? 'USDC.e'
+      : atlanticPool?.tokens.depositToken;
+
   const renderValues = useMemo(() => {
     if (!atlanticPool || !atlanticPoolEpochData)
       return {
@@ -59,7 +65,7 @@ const ContractData = () => {
       fundingAccrued: `${formatAmount(
         atlanticPoolEpochData.fundingAccrued,
         3
-      )} ${atlanticPool?.tokens.depositToken}`,
+      )} ${depositSymbol}`,
       apr: `~${formatAmount(atlanticPoolEpochData?.apr, 3)}%`,
       utilization: `${formatAmount(
         atlanticPoolEpochData?.utilizationRate,
@@ -69,12 +75,12 @@ const ContractData = () => {
         getUserReadableAmount(atlanticPoolEpochData.premiaAccrued, 6),
         3,
         true
-      )} ${atlanticPool?.tokens.depositToken}`,
+      )} ${depositSymbol}`,
       durationType: `${atlanticPool.durationType[0]}${atlanticPool?.durationType
         .substring(1)
         .toLowerCase()}`,
     };
-  }, [atlanticPool, atlanticPoolEpochData, epochDuration]);
+  }, [atlanticPool, atlanticPoolEpochData, depositSymbol, epochDuration]);
 
   useEffect(() => {
     if (currentEpoch === 0) return;
@@ -148,10 +154,7 @@ const ContractData = () => {
           description="Strategy"
           value={
             <PoolStrategies
-              pair={[
-                atlanticPool?.tokens.underlying,
-                atlanticPool?.tokens.depositToken,
-              ]}
+              pair={[atlanticPool?.tokens.underlying, depositSymbol]}
             />
           }
           variant="col"

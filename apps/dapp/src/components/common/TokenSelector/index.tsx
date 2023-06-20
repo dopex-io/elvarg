@@ -128,7 +128,7 @@ const TokenSelector = ({
                         variant="h6"
                         className="text-white font-medium"
                       >
-                        {symbol}
+                        {symbol === 'USDC' ? 'USDC.e' : symbol}
                       </Typography>
                       <Typography variant="caption" className="text-gray-400">
                         {TOKEN_DATA[symbol]?.name}
