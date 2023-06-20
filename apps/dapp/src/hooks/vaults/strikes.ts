@@ -1,13 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 
 import { SsovV3__factory } from '@dopex-io/sdk';
 import { readContracts, useContractReads } from 'wagmi';
 
-import {
-  getContractReadableAmount,
-  getUserReadableAmount,
-} from 'utils/contracts';
 import {
   getDelta,
   getGamma,
@@ -44,6 +40,7 @@ export interface Greeks {
   theta: number;
   vega: number;
   strike: number;
+  spot: number;
 }
 
 const useFetchStrikes = (props: Props) => {
@@ -108,11 +105,15 @@ const useFetchStrikes = (props: Props) => {
 
     try {
       return (data[0] as any).strikes.map((strike: any, index: number) => {
-        const _strike = getUserReadableAmount(strike, DECIMALS_STRIKE);
+        const _strike = Number(
+          ethers.utils.formatUnits(strike, DECIMALS_STRIKE)
+        );
         const expiryInYears =
           (data[0] as any).expiry.sub((data[0] as any).startTime).toNumber() /
           31556926;
-        const spot = getUserReadableAmount(data[1] as any, DECIMALS_STRIKE);
+        const spot = Number(
+          ethers.utils.formatUnits(data[1] as any, DECIMALS_STRIKE)
+        );
         const isPut = data[2];
         const iv = ivs[index].toNumber();
 
@@ -130,6 +131,7 @@ const useFetchStrikes = (props: Props) => {
           rho,
           iv,
           strike: _strike,
+          spot,
         };
       });
     } catch (e) {
@@ -169,7 +171,7 @@ const useFetchStrikes = (props: Props) => {
             functionName: 'calculatePremium',
             args: [
               strikes[i],
-              getContractReadableAmount(1, 18),
+              ethers.utils.parseUnits('1', 18),
               (data[0] as any).expiry,
             ],
           },
@@ -178,21 +180,34 @@ const useFetchStrikes = (props: Props) => {
       if (!strikeData) return;
 
       const availableCollateralPercentage =
-        ((getUserReadableAmount(strikeData.totalCollateral, DECIMALS_TOKEN) -
-          getUserReadableAmount(strikeData.activeCollateral, DECIMALS_TOKEN)) /
-          getUserReadableAmount(strikeData.totalCollateral, DECIMALS_TOKEN)) *
+        ((Number(
+          ethers.utils.formatUnits(strikeData.totalCollateral, DECIMALS_TOKEN)
+        ) -
+          Number(
+            ethers.utils.formatUnits(
+              strikeData.activeCollateral,
+              DECIMALS_TOKEN
+            )
+          )) /
+          Number(
+            ethers.utils.formatUnits(strikeData.totalCollateral, DECIMALS_TOKEN)
+          )) *
           100 || 0;
-      const totalAvailable = getUserReadableAmount(
-        strikeData.totalCollateral
-          .sub(strikeData.activeCollateral)
-          .div((data[0] as any).collateralExchangeRate ?? '1'),
-        10
+      const totalAvailable = Number(
+        ethers.utils.formatUnits(
+          strikeData.totalCollateral
+            .sub(strikeData.activeCollateral)
+            .div((data[0] as any).collateralExchangeRate ?? '1'),
+          10
+        )
       );
-      const totalPurchased = getUserReadableAmount(
-        strikeData.activeCollateral.div(
-          (data[0] as any).collateralExchangeRate ?? '1'
-        ),
-        10
+      const totalPurchased = Number(
+        ethers.utils.formatUnits(
+          strikeData.activeCollateral.div(
+            (data[0] as any).collateralExchangeRate ?? '1'
+          ),
+          10
+        )
       );
       _epochStrikeData.push({
         totalCollateral: strikeData.totalCollateral,

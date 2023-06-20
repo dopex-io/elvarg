@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import { ethers } from 'ethers';
 
 import { Button } from '@dopex-io/ui';
 import { format } from 'date-fns';
@@ -47,25 +48,36 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
       return [];
 
     return strikes.epochStrikeData.map((strikeData, index) => {
+      const premiumFormatted = Number(
+        ethers.utils.formatUnits(
+          strikeData.premiumPerOption || '0',
+          DECIMALS_TOKEN
+        )
+      );
+
+      const _symbol = vault.isPut ? '$' : vault.base;
+
       return {
-        asset: (
-          <span className="space-x-2 text-left">
-            <img
-              src={`images/tokens/${vault.base.toLowerCase()}.svg`}
-              alt={vault.base.toLowerCase()}
-              className="w-6 h-6"
-            />
-          </span>
-        ),
         strike: (
-          <span className="space-x-2 text-left">
+          <span className="space-x-1 text-left">
             <p className="text-stieglitz inline-block">$</p>
             <p className="inline-block">{strikeData.strike}</p>
           </span>
         ),
+        breakeven: (
+          <span className="text-left flex">
+            <p className="text-stieglitz pr-1">$</p>
+            <p className="pr-1">
+              {(vault.isPut
+                ? strikeData.strike - premiumFormatted
+                : strikeData.strike + premiumFormatted * strikeData.spot
+              ).toFixed(3)}
+            </p>
+          </span>
+        ),
         availableCollateral: (
           <span className="space-y-1 text-xs">
-            <span className="space-x-2">
+            <span className={`flex space-x-2`}>
               <p className="inline-block">
                 {formatAmount(strikeData.totalAvailableCollateral, 3)}
               </p>
@@ -73,13 +85,6 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
             </span>
             <p className="text-stieglitz text-xs">
               {formatAmount(strikeData.availableCollateralPercentage, 3)}%
-            </p>
-          </span>
-        ),
-        premiumsAccrued: (
-          <span className="space-x-2">
-            <p className="inline-block">
-              {formatAmount(strikeData.totalPurchased, 3)}
             </p>
           </span>
         ),
@@ -103,13 +108,11 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
                 : null
             }`}
           >
-            <p className="text-stieglitz my-auto inline-block">
-              {vault.isPut ? '$' : vault.base}
-            </p>
+            <p className="text-stieglitz my-auto inline-block">{_symbol}</p>
             <p className="inline-block">
               {formatAmount(
-                getUserReadableAmount(
-                  strikeData.premiumPerOption,
+                ethers.utils.formatUnits(
+                  strikeData.premiumPerOption || '0',
                   DECIMALS_TOKEN
                 ),
                 3
@@ -136,21 +139,21 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
   const columns: Array<Column> = useMemo(() => {
     return [
       {
-        Header: 'Asset',
-        accessor: 'asset',
-      },
-      {
         Header: 'Strike Price',
         accessor: 'strike',
+      },
+      {
+        Header: 'Breakeven',
+        accessor: 'breakeven',
       },
       {
         Header: 'Total Available',
         accessor: 'availableCollateral',
       },
-      {
-        Header: 'Purchased',
-        accessor: 'premiumsAccrued',
-      },
+      // {
+      //   Header: 'Purchased',
+      //   accessor: 'premiumsAccrued',
+      // },
       {
         Header: 'Expiry',
         accessor: 'expiry',

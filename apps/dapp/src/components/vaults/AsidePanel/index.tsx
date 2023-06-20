@@ -177,7 +177,6 @@ const AsidePanel = () => {
 
   const handleChange = useCallback(
     (e: { target: { value: SetStateAction<any> } }) => {
-      console.log(e.target.value);
       setAmount(e.target.value);
     },
     []

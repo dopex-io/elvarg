@@ -24,8 +24,6 @@ const Positions = () => {
     vaultSymbol: vault.base,
   });
 
-  console.log(vaults);
-
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
   const handleClick = (index: number) => {

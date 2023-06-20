@@ -6,7 +6,8 @@ const PageLayout = ({ children }: { children: ReactNode }) => {
   return (
     <div className="bg-black flex w-screen items-center justify-center">
       <AppBar />
-      <div className="my-24 w-[85vw]">{children}</div>
+      <div className="my-20 w-[58vw]">{children}</div>
+      {/* note: clarify with polymmo the layout sizing for a normal viewport */}
     </div>
   );
 };

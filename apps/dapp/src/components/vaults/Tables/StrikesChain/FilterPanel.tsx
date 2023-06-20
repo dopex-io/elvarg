@@ -3,9 +3,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { SsovV3__factory } from '@dopex-io/sdk';
 import useVaultQuery from 'hooks/vaults/query';
 import useVaultState, {
+  durations,
   DurationType,
   Side,
-  durations,
   sides,
 } from 'hooks/vaults/state';
 
@@ -28,8 +28,6 @@ const FilterPanel = ({
 
   const [side, setSide] = useState<Side>(isPut ? 'PUT' : 'CALL');
   const [_durationType, setDurationType] = useState<DurationType>(durationType);
-
-  console.log(side, _durationType);
 
   const handleSelectSide = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
