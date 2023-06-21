@@ -12,6 +12,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 
 import cx from 'classnames';
+import useSendTx from 'hooks/useSendTx';
 import isEmpty from 'lodash/isEmpty';
 import { useBoundStore } from 'store';
 
@@ -89,11 +90,14 @@ const WritePositions = (props: { className?: string }) => {
     ssovV3UserData: ssovUserData,
     ssovData,
     ssovEpochData,
+    ssovSigner,
   } = useBoundStore();
 
   const { collateralSymbol } = ssovData as SsovV3Data;
 
   const [page, setPage] = useState(0);
+
+  const sendTx = useSendTx();
 
   // Filtered out positions with zero collateral
   const filteredWritePositions = useMemo(() => {
@@ -135,6 +139,29 @@ const WritePositions = (props: { className?: string }) => {
       setPage(newPage);
     },
     [setPage]
+  );
+
+  const handleStake = useCallback(
+    async (tokenId: BigNumber) => {
+      if (
+        ssovSigner?.ssovStakingRewardsWithSigner &&
+        ssovSigner?.ssovContractWithSigner
+      ) {
+        await sendTx(ssovSigner?.ssovStakingRewardsWithSigner, 'stake', [
+          ssovSigner?.ssovContractWithSigner.address,
+          tokenId,
+        ]);
+        try {
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    },
+    [
+      ssovSigner?.ssovStakingRewardsWithSigner,
+      sendTx,
+      ssovSigner?.ssovContractWithSigner,
+    ]
   );
 
   return Number(selectedEpoch) > 0 ? (
@@ -183,12 +210,17 @@ const WritePositions = (props: { className?: string }) => {
                     const openTransfer = () => {
                       setDialog({ open: true, type: 'TRANSFER', data: o });
                     };
+
                     const openWithdraw = () => {
                       setDialog({ open: true, type: 'WITHDRAW', data: o });
                     };
 
                     const openClaim = () => {
                       setDialog({ open: true, type: 'CLAIM', data: o });
+                    };
+
+                    const _handleStake = () => {
+                      handleStake(o.tokenId);
                     };
 
                     // only display positions for selected epoch
@@ -200,7 +232,11 @@ const WritePositions = (props: { className?: string }) => {
                         collateralSymbol={collateralSymbol || ''}
                         openTransfer={openTransfer}
                         openWithdraw={openWithdraw}
-                        openClaim={openClaim}
+                        handleStakedPosition={
+                          o.stakingRewardsPosition?.staked
+                            ? openClaim
+                            : _handleStake
+                        }
                         rewardTokens={ssovEpochData?.rewardTokens || []}
                         epochExpired={ssovEpochData?.isEpochExpired || false}
                       />
