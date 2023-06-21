@@ -75,7 +75,7 @@ const Description = ({
 
   const apy = useMemo(() => {
     if (typeof APY !== 'string') {
-      return `≤${Math.max(
+      return `upto ${Math.max(
         ...(APY as string[]).map((apy: string) => Number(apy))
       )}`;
     }
