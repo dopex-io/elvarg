@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react';
 import { BigNumber, utils } from 'ethers';
 
 import {
-  Box,
   IconButton,
   Table,
   TableBody,
@@ -160,7 +159,7 @@ const ClosedPositionsTable = () => {
   }
 
   return (
-    <Box>
+    <div>
       <TableContainer className="rounded-xl">
         <Table className="rounded-xl">
           <TableHead className="rounded-xl">
@@ -182,15 +181,15 @@ const ClosedPositionsTable = () => {
                 .map((position, i) => (
                   <TableRow key={i}>
                     <TableCell className="pt-2 border-0">
-                      <Box>
-                        <Box
+                      <div>
+                        <div
                           className={`rounded-md flex items-center px-2 py-2 w-fit`}
                         >
                           <h6 className="text-white pr-7 pt-[2px]">
                             {records[position].amount}
                           </h6>
-                        </Box>
-                      </Box>
+                        </div>
+                      </div>
                     </TableCell>
                     <TableCell className="pt-1 border-0">
                       <h6 className="text-white">
@@ -208,7 +207,7 @@ const ClosedPositionsTable = () => {
                       </h6>
                     </TableCell>
                     <TableCell className="flex justify-end border-0">
-                      <Box className="flex justify-end">
+                      <div className="flex justify-end">
                         <IconButton
                           aria-label="share"
                           aria-haspopup="true"
@@ -218,16 +217,16 @@ const ClosedPositionsTable = () => {
                         >
                           <IosShare className="fill-current text-white opacity-90 hover:opacity-100 text-lg" />
                         </IconButton>
-                      </Box>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
           </TableBody>
         </Table>
       </TableContainer>
-      <Box className="flex">
+      <div className="flex">
         {Object.keys(records).length === 0 || accountAddress == undefined ? (
-          <Box className="text-center mt-3 mb-3 ml-auto w-full">-</Box>
+          <div className="text-center mt-3 mb-3 ml-auto w-full">-</div>
         ) : null}
         {Object.keys(records).length! > ROWS_PER_PAGE ? (
           <TablePagination
@@ -242,8 +241,8 @@ const ClosedPositionsTable = () => {
             ActionsComponent={TablePaginationActions}
           />
         ) : null}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 
