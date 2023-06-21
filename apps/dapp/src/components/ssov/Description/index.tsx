@@ -73,10 +73,22 @@ const Description = ({
     );
   };
 
+  const apy = useMemo(() => {
+    if (typeof APY !== 'string') {
+      return `≤${Math.max(
+        ...(APY as string[]).map((apy: string) => Number(apy))
+      )}`;
+    }
+
+    return Number(APY) > 0 && APY !== 'Infinity'
+      ? formatAmount(APY, 0, true).toString() + '%'
+      : '...';
+  }, [APY]);
+
   const info = [
     {
       heading: 'APY*',
-      value: `${!APY ? '...' : APY.toString() + '%'}`,
+      value: `${!apy ? '...' : apy.toString() + '%'}`,
       Icon: Action,
     },
     {

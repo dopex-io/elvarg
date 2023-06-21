@@ -33,6 +33,7 @@ interface StatsTableDataProps {
   collateralSymbol: string;
   isPut: boolean;
   stakingRewards: StakingRewards[] | null;
+  apy: string;
 }
 
 const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
@@ -46,6 +47,7 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
     collateralSymbol,
     isPut,
     stakingRewards,
+    apy,
   } = props;
 
   return (
@@ -116,6 +118,10 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
           ) : (
             <span className="text-white text-sm">-</span>
           )}
+
+          {Number(apy) != 0 && (
+            <span className="text-xs text-stieglitz">APY: {apy}%</span>
+          )}
         </TableCell>
       )}
     </TableRow>
@@ -162,6 +168,7 @@ const Stats = (props: { className?: string }) => {
           totalPurchased,
           totalPremiums,
           stakingRewards: ssovEpochData?.stakingRewards[strikeIndex] ?? [],
+          apy: ssovEpochData?.APY[strikeIndex] ?? 0,
         };
       }) ?? [],
     [ssovEpochData]
@@ -250,6 +257,7 @@ const Stats = (props: { className?: string }) => {
                     totalPurchased,
                     totalPremiums,
                     stakingRewards,
+                    apy,
                   }) => {
                     return (
                       <StatsTableData
@@ -263,6 +271,7 @@ const Stats = (props: { className?: string }) => {
                         underlyingSymbol={ssovData?.underlyingSymbol || ''}
                         collateralSymbol={ssovData?.collateralSymbol || ''}
                         isPut={ssovData?.isPut || false}
+                        apy={apy}
                         stakingRewards={
                           ssovEpochData &&
                           ssovEpochData.stakingRewards.length > 0
