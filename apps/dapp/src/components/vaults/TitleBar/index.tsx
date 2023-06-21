@@ -8,7 +8,7 @@ import TitleItem from 'components/vaults/TitleBar/TitleItem';
 
 import { formatAmount } from 'utils/general';
 
-import { VAULTS_V2_DROPDOWN_LIST } from 'constants/tokens';
+import { VAULTS_MENU } from 'constants/vaults/dropdowns';
 
 interface Props {
   selectedToken?: string;
@@ -16,7 +16,7 @@ interface Props {
 }
 
 const TitleBar = (props: Props) => {
-  const { selectedToken = 'stETH', handleSelectToken } = props;
+  const { selectedToken = 'wstETH', handleSelectToken } = props;
   const update = useVaultState((state) => state.update);
   const vault = useVaultState((state) => state.vault);
   const { selectedVault, vaults, updateSelectedVault } = useVaultQuery({
@@ -34,7 +34,7 @@ const TitleBar = (props: Props) => {
   });
 
   // set default as index 0 of queried vaults
-  // todo: bugged
+  // todo: bugged -- does not update on asset change
   // todo: accumulate by base asset
   // todo: replace apy with open interest
   useEffect(() => {
@@ -74,8 +74,9 @@ const TitleBar = (props: Props) => {
         color="mineshaft"
         dropdownVariant="icon"
         handleSelection={handleSelectToken}
-        selection={selectedToken?.toUpperCase()}
-        data={VAULTS_V2_DROPDOWN_LIST}
+        selection={selectedToken}
+        data={VAULTS_MENU}
+        showArrow
       />
       <div className="flex space-x-8">
         <TitleItem

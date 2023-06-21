@@ -47,12 +47,11 @@ const Vaults = () => {
   const vault = useVaultState((vault) => vault.vault);
   // const datafeed = useDatafeed({ symbol: vault.base });
 
-  const [isScriptReady, setIsScriptReady] = useState<boolean>(false);
   const [selectedToken, setSelectedToken] = useState<string>('stETH');
   const [widget, _] = useState<Partial<ChartingLibraryWidgetOptions>>({
     ...defaultWidgetProps,
     // symbol: vault.base,
-    symbol: 'AAPL',
+    symbol: 'AAPL', // todo: connect widget tp cg datafeed
     // datafeed,
   });
 
@@ -101,12 +100,9 @@ const Vaults = () => {
                   <Script
                     src="/static/datafeeds/udf/dist/bundle.js"
                     strategy="lazyOnload"
-                    onReady={() => {
-                      setIsScriptReady(true);
-                    }}
                   />
                 }
-                {isScriptReady && <TVChartContainer {...widget} />}
+                {<TVChartContainer {...widget} />}
               </div>
             </div>
             <div className="space-y-4">

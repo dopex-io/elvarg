@@ -79,47 +79,4 @@ export const TOKEN_DATA: {
   METIS: { cgId: 'metis', name: 'Metis DAO' },
 };
 
-export const VAULTS_V2_DROPDOWN_LIST = [
-  {
-    textContent: 'ETH',
-    disabled: false,
-  },
-  {
-    textContent: 'ARB',
-    disabled: false,
-  },
-  {
-    textContent: 'DPX',
-    disabled: false,
-  },
-  {
-    textContent: 'rDPX',
-    disabled: false,
-  },
-  {
-    textContent: 'stETH',
-    disabled: false,
-  },
-  {
-    textContent: 'CVX',
-    disabled: false,
-  },
-  {
-    textContent: 'CRV',
-    disabled: false,
-  },
-  {
-    textContent: 'gOHM',
-    disabled: false,
-  },
-  {
-    textContent: 'BTC',
-    disabled: false,
-  },
-  {
-    textContent: 'GMX',
-    disabled: false,
-  },
-];
-
 export const TOKENS = Object.keys(TOKEN_DATA);

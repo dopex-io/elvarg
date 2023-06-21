@@ -10,9 +10,9 @@ import { BigNumber, ethers } from 'ethers';
 import { Button, Input } from '@dopex-io/ui';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { format } from 'date-fns';
+import useContractData from 'hooks/vaults/contractData';
 import useVaultQuery from 'hooks/vaults/query';
 import useVaultState from 'hooks/vaults/state';
-import useFetchStrikes from 'hooks/vaults/strikes';
 import { useDebounce } from 'use-debounce';
 import {
   erc20ABI,
@@ -28,7 +28,6 @@ import RowItem from 'components/vaults/AsidePanel/RowItem';
 import formatAmount from 'utils/general/formatAmount';
 
 import { DECIMALS_TOKEN } from 'constants/index';
-import { TOKEN_SYMBOL_TO_ADDRESS } from 'constants/tokens';
 
 import alerts from './alerts';
 
@@ -69,45 +68,45 @@ const AsidePanel = () => {
   const { selectedVault, updateSelectedVault } = useVaultQuery({
     vaultSymbol: vault.base,
   });
-  const strikes = useFetchStrikes({
+  const { epochStrikeData, contractData } = useContractData({
     contractAddress: selectedVault?.contractAddress,
     epoch: selectedVault?.currentEpoch,
   });
   const { address } = useAccount();
-  const { data } = useContractReads({
+  const collateralTokenReads = useContractReads({
     contracts: [
       {
         abi: erc20ABI,
-        address: TOKEN_SYMBOL_TO_ADDRESS[vault.base] as `0x${string}`,
+        address: contractData?.collateral as `0x${string}`,
         functionName: 'allowance',
         args: [address as `0x${string}`, vault.address as `0x${string}`],
         chainId: client.lastUsedChainId,
       },
       {
         abi: erc20ABI,
-        address: TOKEN_SYMBOL_TO_ADDRESS[vault.base] as `0x${string}`,
+        address: contractData?.collateral as `0x${string}`,
         functionName: 'balanceOf',
-        args: [address!],
+        args: [address],
         chainId: client.lastUsedChainId,
       },
       {
-        abi: vault.abi as any,
-        address: vault.address as `0x${string}`,
-        functionName: '',
-        args: [address!],
+        abi: erc20ABI,
+        address: contractData?.collateral as `0x${string}`,
+        functionName: 'symbol',
         chainId: client.lastUsedChainId,
       },
     ],
   });
-  const { config: approveConfig } = usePrepareContractWrite({
-    abi: erc20ABI,
-    address: TOKEN_SYMBOL_TO_ADDRESS[vault.base] as `0x${string}`,
-    functionName: 'approve',
-    args: [
-      vault.address as `0x${string}`,
-      ethers.utils.parseUnits(amountDebounced || '0', DECIMALS_TOKEN),
-    ],
-  });
+  const { config: approveConfig, isSuccess: isSuccessApprove } =
+    usePrepareContractWrite({
+      abi: erc20ABI,
+      address: contractData?.collateral! as `0x${string}`,
+      functionName: 'approve',
+      args: [
+        vault.address as `0x${string}`,
+        ethers.utils.parseUnits(amountDebounced || '0', DECIMALS_TOKEN),
+      ],
+    });
   const { config } = usePrepareContractWrite({
     abi: vault.abi as any,
     address: vault.address as `0x${string}`,
@@ -128,7 +127,7 @@ const AsidePanel = () => {
   }, [updateSelectedVault, vault]);
 
   const selectedStrike = useMemo(() => {
-    if (strikes.epochStrikeData.length === 0 || !selectedVault)
+    if (epochStrikeData.length === 0 || !selectedVault)
       return {
         strike: 0,
         delta: 0,
@@ -149,7 +148,7 @@ const AsidePanel = () => {
         activeCollateral: BigNumber.from(0),
       };
 
-    const strikeData = strikes.epochStrikeData[activeStrikeIndex];
+    const strikeData = epochStrikeData[activeStrikeIndex];
     const premiumInUSD =
       (selectedVault.isPut ? 1 : Number(selectedVault.currentPrice)) *
       Number(
@@ -172,12 +171,7 @@ const AsidePanel = () => {
     const totalPremium = premiumInUSD * Number(amountDebounced);
 
     return { ...strikeData, breakeven, availableCollateral, totalPremium };
-  }, [
-    activeStrikeIndex,
-    amountDebounced,
-    selectedVault,
-    strikes.epochStrikeData,
-  ]);
+  }, [activeStrikeIndex, amountDebounced, selectedVault, epochStrikeData]);
 
   const handleClick = (index: number) => {
     setActiveIndex(index);
@@ -192,7 +186,7 @@ const AsidePanel = () => {
 
   const infoPopover = useMemo(() => {
     const buttonContent = activeIndex === 0 ? 'Purchase' : 'Deposit';
-    if (!selectedVault || !data)
+    if (!selectedVault || !collateralTokenReads.data || !isSuccessApprove)
       return {
         ...alerts.error.fallback,
         buttonContent,
@@ -201,6 +195,7 @@ const AsidePanel = () => {
     if (!Number(amountDebounced)) {
       return {
         ...alerts.info.emptyInput,
+        buttonContent,
       };
     } else if (
       !address ||
@@ -211,7 +206,7 @@ const AsidePanel = () => {
         ...alerts.info.insufficientLiquidity,
       };
     else if (
-      (data[1] as any).lt(
+      (collateralTokenReads.data[1] as any).lt(
         ethers.utils.parseUnits(amountDebounced || '0', DECIMALS_TOKEN)
       )
     )
@@ -220,7 +215,7 @@ const AsidePanel = () => {
         buttonContent,
       };
     else if (
-      (data[0] as any).lt(
+      (collateralTokenReads.data[0] as any).lt(
         ethers.utils.parseUnits(amountDebounced, DECIMALS_TOKEN)
       )
     ) {
@@ -241,10 +236,10 @@ const AsidePanel = () => {
     activeIndex,
     address,
     amountDebounced,
-    data,
-    selectedStrike.availableCollateral,
-    selectedStrike.iv,
+    collateralTokenReads.data,
+    selectedStrike,
     selectedVault,
+    isSuccessApprove,
   ]);
 
   const transact = useCallback(() => {
@@ -257,12 +252,9 @@ const AsidePanel = () => {
 
   const renderCondition = useMemo(() => {
     return (
-      !selectedStrike ||
-      !selectedStrike ||
-      !selectedVault ||
-      vault.base === 'UNKNOWN'
+      !selectedStrike || !selectedStrike || !selectedVault || !contractData
     );
-  }, [selectedStrike, selectedVault, vault.base]);
+  }, [contractData, selectedStrike, selectedVault]);
 
   return renderCondition ? null : (
     <div className="flex flex-col bg-cod-gray rounded-lg p-3 space-y-3">
@@ -278,8 +270,10 @@ const AsidePanel = () => {
         onChange={handleChange}
         leftElement={
           <img
-            src={`/images/tokens/${selectedVault?.underlyingSymbol}.svg`}
-            alt={selectedVault?.underlyingSymbol}
+            src={`/images/tokens/${String(
+              collateralTokenReads.data?.[2]
+            )?.toLowerCase()}.svg`}
+            alt={String(collateralTokenReads.data?.[2])?.toLowerCase()}
             className="w-[30px] h-[30px] border border-mineshaft rounded-full ring-4 ring-cod-gray"
           />
         }
@@ -348,7 +342,8 @@ const AsidePanel = () => {
             label="Available"
             content={
               <p>
-                {selectedStrike.availableCollateral} {vault.base}
+                {selectedStrike.availableCollateral}{' '}
+                {String(collateralTokenReads.data?.[2])}
               </p>
             }
           />
@@ -399,7 +394,9 @@ const AsidePanel = () => {
                   )}
                 </p>
                 <p className="text-stieglitz">
-                  {selectedVault?.isPut ? '$' : selectedVault?.underlyingSymbol}
+                  {selectedVault?.isPut
+                    ? '$'
+                    : String(collateralTokenReads.data?.[2])}
                 </p>
               </span>
             }

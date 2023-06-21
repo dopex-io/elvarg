@@ -1,11 +1,12 @@
-import { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { ethers } from 'ethers';
 
-import { Button } from '@dopex-io/ui';
+import { Button, Menu } from '@dopex-io/ui';
+import { EllipsisVerticalIcon } from '@heroicons/react/24/solid';
 import { format } from 'date-fns';
+import useContractData from 'hooks/vaults/contractData';
 import useVaultQuery from 'hooks/vaults/query';
 import useVaultState, { DurationType } from 'hooks/vaults/state';
-import useFetchStrikes from 'hooks/vaults/strikes';
 import { Column, useTable } from 'react-table';
 import PlusIcon from 'svgs/icons/PlusIcon';
 
@@ -15,6 +16,7 @@ import FilterPanel from 'components/vaults/Tables/StrikesChain/FilterPanel';
 import formatAmount from 'utils/general/formatAmount';
 
 import { DECIMALS_TOKEN } from 'constants/index';
+import { STRIKES_MENU } from 'constants/vaults/dropdowns';
 
 export type MenuDataType = { textContent: DurationType }[];
 
@@ -27,10 +29,19 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
   const { selectedVault, vaults, updateSelectedVault } = useVaultQuery({
     vaultSymbol: selectedToken,
   });
-  const strikes = useFetchStrikes({
+  const strikes = useContractData({
     contractAddress: selectedVault?.contractAddress,
     epoch: selectedVault?.currentEpoch,
   });
+
+  const handleClickMenu = useCallback(
+    (e: React.MouseEvent<HTMLElement>, index: number) => {
+      if (e.currentTarget.textContent === 'Orderbook') {
+        console.log(index);
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     updateSelectedVault(vault.durationType, vault.isPut as boolean);
@@ -96,43 +107,58 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
           </p>
         ),
         button: (
-          <Button
-            id={`strike-chain-button-${index}`}
-            key={index}
-            color="mineshaft"
-            onClick={() => setActiveStrikeIndex(index)}
-            className={`w-fit space-x-2 text-xs hover:cursor-pointer ${
-              index === activeStrikeIndex
-                ? 'ring-1 ring-frost animate-pulse'
-                : null
-            }`}
-          >
-            <p className="text-stieglitz my-auto inline-block">{_symbol}</p>
-            <p className="inline-block">
-              {formatAmount(
-                ethers.utils.formatUnits(
-                  strikeData.premiumPerOption || '0',
-                  DECIMALS_TOKEN
-                ),
-                3
-              )}
-            </p>
-            <PlusIcon
-              className="w-[10px] h-[10px] inline-block"
-              color="#8E8E8E"
+          <div className="flex space-x-2 justify-end">
+            <Button
+              id={`strike-chain-button-${index}`}
+              key={index}
+              color="mineshaft"
+              onClick={() => setActiveStrikeIndex(index)}
+              className={`w-fit space-x-2 text-xs hover:cursor-pointer ${
+                index === activeStrikeIndex
+                  ? 'ring-1 ring-frost animate-pulse'
+                  : null
+              }`}
+            >
+              <p className="text-stieglitz my-auto inline-block">{_symbol}</p>
+              <p className="inline-block">
+                {formatAmount(
+                  ethers.utils.formatUnits(
+                    strikeData.premiumPerOption || '0',
+                    DECIMALS_TOKEN
+                  ),
+                  3
+                )}
+              </p>
+              <PlusIcon
+                className="w-[10px] h-[10px] inline-block"
+                color="#8E8E8E"
+              />
+            </Button>
+            <Menu
+              color="mineshaft"
+              selection={
+                <EllipsisVerticalIcon className="w-4 h-4 fill-current text-white" />
+              }
+              handleSelection={(e: React.MouseEvent<HTMLElement>) => {
+                handleClickMenu(e, index);
+              }}
+              data={STRIKES_MENU}
+              className="w-fit"
             />
-          </Button>
+            {/* todo: OLP dialog
+            Pass selected strike, ssov address, side into dialog
+            */}
+          </div>
         ),
       };
     });
   }, [
-    strikes.epochStrikeData,
-    strikes.data,
+    strikes,
     vaults,
-    vault.base,
-    vault.isPut,
+    vault,
     activeStrikeIndex,
     setActiveStrikeIndex,
+    handleClickMenu,
   ]);
 
   const columns: Array<Column> = useMemo(() => {
@@ -149,10 +175,6 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
         Header: 'Total Available',
         accessor: 'availableCollateral',
       },
-      // {
-      //   Header: 'Purchased',
-      //   accessor: 'premiumsAccrued',
-      // },
       {
         Header: 'Expiry',
         accessor: 'expiry',

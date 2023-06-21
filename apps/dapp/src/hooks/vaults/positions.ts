@@ -5,7 +5,10 @@ import graphSdk from 'graphql/graphSdk';
 import queryClient from 'queryClient';
 import { useAccount } from 'wagmi';
 
-import { DECIMALS_TOKEN } from 'constants/index';
+import { DECIMALS_STRIKE, DECIMALS_USD } from 'constants/index';
+
+// import useVaultQuery from './query';
+// todo: get epoch times for each write position to display on the table
 
 interface Props {
   vaultAddress: string;
@@ -13,12 +16,40 @@ interface Props {
   isPut: boolean;
 }
 
+interface WritePosition {
+  strike: number;
+  balance: number;
+  side: string;
+  epoch: number;
+}
+
+interface BuyPosition {
+  strike: number;
+  premium: number;
+  balance: number;
+  epoch: number;
+  side: string;
+}
+
 const useFetchPositions = (props: Props) => {
   const { vaultAddress, tokenSymbol, isPut } = props;
+  // const { selectedVault } = useVaultQuery({
+  //   vaultSymbol: tokenSymbol,
+  // });
   const { address } = useAccount();
+  // const contractReads = useContractReads({
+  //   contracts: [
+  //     {
+  //       abi: SsovV3__factory.abi,
+  //       address: vaultAddress as `0x${string}`,
+  //       functionName: 'getEpochTimes',
+  //       args: [selectedVault?.currentEpoch], todo: retrieve epochTimes for each position's corresponding epoch
+  //     },
+  //   ],
+  // });
 
-  const [positions, setPositions] = useState<any>();
-  const [optionBalances, setOptionBalances] = useState<any>();
+  const [writePositions, setWritePositions] = useState<WritePosition[]>([]);
+  const [buyPositions, setBuyPositions] = useState<BuyPosition[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   const updateSsovPositions = useCallback(async () => {
@@ -33,11 +64,12 @@ const useFetchPositions = (props: Props) => {
         position.id.toLowerCase().includes(vaultAddress.toLowerCase())
       )
       .map((vault) => ({
-        ...vault,
-        tokenSymbol,
+        strike: Number(ethers.utils.formatUnits(vault.strike, DECIMALS_STRIKE)),
+        balance: Number(ethers.utils.formatUnits(vault.amount, 'ether')),
+        epoch: Number(vault.epoch),
         side: isPut ? 'Put' : 'Call',
       }));
-    setPositions(filteredWritePositions);
+    setWritePositions(filteredWritePositions);
 
     const filteredBuyPositions =
       ssovQueryResult.ssov_users[0].userSSOVOptionBalance
@@ -45,30 +77,35 @@ const useFetchPositions = (props: Props) => {
           position.id.toLowerCase().includes(vaultAddress.toLowerCase())
         )
         .map((vault) => ({
-          ...vault,
-          tokenSymbol,
           side: isPut ? 'Put' : 'Call',
-          amount: ethers.utils.parseUnits(vault.amount, DECIMALS_TOKEN),
+          strike: Number(
+            ethers.utils.formatUnits(vault.strike, DECIMALS_STRIKE)
+          ),
+          premium: Number(
+            ethers.utils.formatUnits(vault.premium, DECIMALS_USD)
+          ),
+          epoch: Number(vault.epoch),
+          balance: Number(ethers.utils.formatUnits(vault.amount, 'ether')),
         }));
 
-    setOptionBalances(filteredBuyPositions);
-  }, [address, isPut, tokenSymbol, vaultAddress]);
+    setBuyPositions(filteredBuyPositions);
+  }, [address, isPut, vaultAddress]);
 
   useEffect(() => {
     updateSsovPositions();
   }, [updateSsovPositions]);
 
   useEffect(() => {
-    if (optionBalances !== undefined && positions !== undefined)
+    if (buyPositions !== undefined && writePositions !== undefined)
       setLoading(false);
     else {
       setLoading(true);
     }
-  }, [optionBalances, positions]);
+  }, [buyPositions, writePositions]);
 
   return {
-    positions,
-    optionBalances,
+    writePositions,
+    buyPositions,
     isLoading: loading,
   };
 };

@@ -1,5 +1,4 @@
 import { useCallback, useMemo, useState } from 'react';
-import { ethers } from 'ethers';
 
 import { Button } from '@dopex-io/ui';
 import useFetchPositions from 'hooks/vaults/positions';
@@ -7,14 +6,14 @@ import useVaultQuery from 'hooks/vaults/query';
 import useVaultState from 'hooks/vaults/state';
 import { Column, useTable } from 'react-table';
 
+// import { usePrepareContractWrite } from 'wagmi';
+
 import { ButtonGroup } from 'components/vaults/AsidePanel';
 import Placeholder from 'components/vaults/Tables/Placeholder';
 
-import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
-
 const Positions = () => {
   const vault = useVaultState((vault) => vault.vault);
-  const { positions, optionBalances, isLoading } = useFetchPositions({
+  const { writePositions, buyPositions, isLoading } = useFetchPositions({
     vaultAddress: vault.address,
     tokenSymbol: vault.base,
     isPut: vault.isPut,
@@ -25,6 +24,15 @@ const Positions = () => {
 
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
+  // const { config } = usePrepareContractWrite({
+  //   abi: vault.abi as any,
+  //   address: vault.address as `0x${string}`,
+  //   ...(activeIndex === 0 // 0: purchase, 1: deposit
+  //     ? { functionName: 'settle' }
+  //     : { functionName: 'withdraw' }),
+  //   args: [tokenId], // todo: pass token ID based on row index of 'withdraw' button clicked
+  // });
+
   const handleClick = (index: number) => {
     setActiveIndex(index);
   };
@@ -33,41 +41,22 @@ const Positions = () => {
     return new Promise((r) => r);
   }, []);
 
-  const writePositions = useMemo(() => {
-    if (!positions) return [];
+  const _writePositions = useMemo(() => {
+    if (!writePositions) return [];
 
-    return (activeIndex === 0 ? optionBalances : positions).map(
+    return (activeIndex === 0 ? buyPositions : writePositions).map(
       (position: any, index: number) => {
         return {
-          asset: (
-            <span className="space-x-2 text-left">
-              <img
-                src={`images/tokens/${vault.base.toLowerCase()}.svg`}
-                alt={vault.base.toLowerCase()}
-                className="w-6 h-6"
-              />
-            </span>
-          ),
           side: <p className="text-stieglitz">{position.side}</p>,
           strike: (
             <span className="space-x-2 text-left">
               <p className="text-stieglitz inline-block">$</p>
-              <p className="inline-block">
-                {ethers.utils.formatUnits(
-                  position.strike || '0',
-                  DECIMALS_STRIKE
-                )}
-              </p>
+              <p className="inline-block">{position.strike || '0'}</p>
             </span>
           ),
           amount: (
             <span className="space-x-2">
-              <p className="inline-block">
-                {ethers.utils.formatUnits(
-                  position.amount || '0',
-                  DECIMALS_TOKEN
-                )}
-              </p>
+              <p className="inline-block">{position.balance || '0'}</p>
             </span>
           ),
           epoch: <p className="inline-block">{position.epoch}</p>,
@@ -96,29 +85,24 @@ const Positions = () => {
   }, [
     activeIndex,
     handleWithdraw,
-    optionBalances,
-    positions,
-    vault.base,
+    buyPositions,
+    writePositions,
     vault.currentEpoch,
   ]);
 
   const columns: Array<Column> = useMemo(() => {
     return [
       {
-        Header: 'Asset',
-        accessor: 'asset',
-      },
-      {
         Header: 'Strike Price',
         accessor: 'strike',
       },
       {
-        Header: 'Side',
-        accessor: 'side',
-      },
-      {
         Header: 'Amount',
         accessor: 'amount',
+      },
+      {
+        Header: 'Side',
+        accessor: 'side',
       },
       {
         Header: 'Epoch',
@@ -132,22 +116,22 @@ const Positions = () => {
   }, []);
 
   const buttonLabels = useMemo(() => {
-    if (!optionBalances || !positions) return [null, null];
+    if (!buyPositions || !writePositions) return [null, null];
     return [
       <div className="flex space-x-2 my-auto" key="buy-positions">
         <p className="flex">Buy Positions</p>
-        <p className="px-[5px] rounded-full bg-carbon">
-          {optionBalances.length}
-        </p>
+        <p className="px-[5px] rounded-full bg-carbon">{buyPositions.length}</p>
       </div>,
       <div className="flex space-x-2" key="buy-positions">
         <p className="flex">Sell Positions</p>
-        <p className="px-[5px] rounded-full bg-carbon">{positions.length}</p>
+        <p className="px-[5px] rounded-full bg-carbon">
+          {writePositions.length}
+        </p>
       </div>,
     ];
-  }, [optionBalances, positions]);
+  }, [buyPositions, writePositions]);
 
-  const tableInstance = useTable({ columns, data: writePositions });
+  const tableInstance = useTable({ columns, data: _writePositions });
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     tableInstance;
@@ -159,7 +143,7 @@ const Positions = () => {
         labels={buttonLabels}
         handleClick={handleClick}
       />
-      {writePositions.length > 0 ? (
+      {_writePositions.length > 0 ? (
         <div className="space-y-2 bg-cod-gray rounded-lg py-3">
           <div className="overflow-x-auto">
             <table

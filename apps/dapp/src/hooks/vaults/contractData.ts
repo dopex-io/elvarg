@@ -43,7 +43,11 @@ export interface Greeks {
   spot: number;
 }
 
-const useFetchStrikes = (props: Props) => {
+export interface ContractData {
+  collateral: string;
+}
+
+const useContractData = (props: Props) => {
   const { contractAddress, epoch } = props;
   const { data, isLoading, error } = useContractReads({
     contracts: [
@@ -63,6 +67,11 @@ const useFetchStrikes = (props: Props) => {
         address: contractAddress as `0x${string}`,
         functionName: 'isPut',
       },
+      {
+        abi: SsovV3__factory.abi,
+        address: contractAddress as `0x${string}`,
+        functionName: 'collateralToken',
+      },
     ],
   });
 
@@ -70,6 +79,7 @@ const useFetchStrikes = (props: Props) => {
   const [epochStrikeData, setEpochStrikeData] = useState<
     (EpochStrikeData & Greeks)[]
   >([]);
+  const [contractData, setContractData] = useState<ContractData>();
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
   const updateIvs = useCallback(async () => {
@@ -227,6 +237,14 @@ const useFetchStrikes = (props: Props) => {
     setActiveIndex(0);
   }, [contractAddress, data, epoch, greeks, ivs, setActiveIndex]);
 
+  const updateContractData = useCallback(() => {
+    // todo: load any additional contract state via this handler
+    if (!data || !data[3] || !contractAddress) return;
+    setContractData({
+      collateral: data[3] as string,
+    });
+  }, [data, contractAddress]);
+
   useEffect(() => {
     updateIvs();
   }, [updateIvs]);
@@ -234,6 +252,10 @@ const useFetchStrikes = (props: Props) => {
   useEffect(() => {
     constructEpochStrikeChain();
   }, [constructEpochStrikeChain]);
+
+  useEffect(() => {
+    updateContractData();
+  }, [updateContractData]);
 
   return {
     data,
@@ -243,7 +265,8 @@ const useFetchStrikes = (props: Props) => {
     constructEpochStrikeChain,
     activeIndex,
     setActiveIndex,
+    contractData,
   };
 };
 
-export default useFetchStrikes;
+export default useContractData;
