@@ -28,7 +28,8 @@ const OrdersTable = () => {
   const tableHeadings = [
     'Positions',
     'Type',
-    'Price',
+    'Target price',
+    'Estimated Entry',
     'Collateral',
     'Expiry',
     'View on Etherscan',
@@ -37,6 +38,7 @@ const OrdersTable = () => {
   const ordersKeys = [
     'positions',
     'isOpen',
+    'target',
     'price',
     'collateral',
     'expiry',
@@ -81,7 +83,7 @@ const OrdersTable = () => {
           : null;
       }
 
-      if (key === 'size' || key === 'price') {
+      if (key === 'size' || key === 'price' || key === 'target') {
         data = order[key]
           ? formatAmount(
               Number(
@@ -106,8 +108,11 @@ const OrdersTable = () => {
               ),
               4
             ) +
-            ' ' +
-            optionScalpData.quoteSymbol
+              ' ' +
+              optionScalpData.quoteSymbol ===
+            'USDC'
+            ? 'USDC.e'
+            : 'USDC'
           : '-';
       }
 
