@@ -13,11 +13,13 @@ import {
   SsovV3Viewer__factory,
 } from '@dopex-io/sdk';
 import axios from 'axios';
-import graphSdk from 'graphql/graphSdk';
+import request from 'graphql-request';
 import { getVolume } from 'pages/ssov';
 import queryClient from 'queryClient';
 import { TokenData } from 'types';
 import { StateCreator } from 'zustand';
+
+import { getSsovPurchasesFromTimestampDocument } from 'graphql/ssovs';
 
 import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';
@@ -26,6 +28,7 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { DOPEX_API_BASE_URL } from 'constants/env';
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
+import { DOPEX_SSOV_SUBGRAPH_API_URL } from 'constants/subgraphs';
 import { TOKEN_ADDRESS_TO_DATA } from 'constants/tokens';
 
 export interface SsovV3Signer {
@@ -261,10 +264,14 @@ export const createSsovV3Slice: StateCreator<
 
     const tradesData = await queryClient.fetchQuery({
       queryKey: ['getSsovPurchasesFromTimestamp'],
-      queryFn: () =>
-        graphSdk.getSsovPurchasesFromTimestamp({
-          fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
-        }),
+      queryFn: async () =>
+        request(
+          DOPEX_SSOV_SUBGRAPH_API_URL,
+          getSsovPurchasesFromTimestampDocument,
+          {
+            fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
+          }
+        ),
     });
 
     const volume = await getVolume(tradesData, ssovAddress);

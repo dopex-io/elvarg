@@ -6,10 +6,12 @@ import {
   ZdteLP__factory,
   ZdtePositionMinter__factory,
 } from '@dopex-io/sdk';
-import graphSdk from 'graphql/graphSdk';
+import request from 'graphql-request';
 import { reverse } from 'lodash';
 import queryClient from 'queryClient';
 import { StateCreator } from 'zustand';
+
+import { getZdteSpreadTradesFromTimestampDocument } from 'graphql/zdte';
 
 import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';
@@ -24,6 +26,7 @@ import { getDelta } from 'utils/math/blackScholes/greeks';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
+import { DOPEX_STRADDLES_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
 export const ZDTE: string = '0x0a9efaddab01c0a00edfaf24377460fafba9411d';
 export const ZDTE_ARB: string = '0xebf0ac8896fddeec5b8592f4c9eb5b8ea3d4dc82';
@@ -712,10 +715,14 @@ export const createZdteSlice: StateCreator<
     try {
       const payload = await queryClient.fetchQuery({
         queryKey: ['getZdteSpreadTradesFromTimestamp'],
-        queryFn: () =>
-          graphSdk.getZdteSpreadTradesFromTimestamp({
-            fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
-          }),
+        queryFn: async () =>
+          request(
+            DOPEX_STRADDLES_SUBGRAPH_API_URL,
+            getZdteSpreadTradesFromTimestampDocument,
+            {
+              fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
+            }
+          ),
       });
 
       const _twentyFourHourVolume: { [key: string]: BigNumber } =

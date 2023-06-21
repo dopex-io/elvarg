@@ -1,15 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
+
 import Box from '@mui/material/Box';
+
 import formatDistance from 'date-fns/formatDistance';
 import { useBoundStore } from 'store';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
 
-import Typography from 'components/UI/Typography';
 import EpochSelector from 'components/atlantics/EpochSelector';
 import ContractDataItem from 'components/atlantics/Manage/ContractData/ContractDataItem';
 import ExplorerLink from 'components/atlantics/Manage/ContractData/ExplorerLink';
 import PoolStrategies from 'components/atlantics/Manage/ContractData/PoolStrategies';
+import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -78,7 +80,7 @@ const ContractData = () => {
         .substring(1)
         .toLowerCase()}`,
     };
-  }, [atlanticPool, atlanticPoolEpochData, epochDuration]);
+  }, [atlanticPool, atlanticPoolEpochData, epochDuration, depositSymbol]);
 
   useEffect(() => {
     if (currentEpoch === 0) return;

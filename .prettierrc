@@ -12,6 +12,8 @@
     "",
     "<THIRD_PARTY_MODULES>",
     "",
+    "^graphql/(.*)$",
+    "",
     "^store/(.*)$",
     "",
     "^components/(.*)$",
