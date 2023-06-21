@@ -620,11 +620,14 @@ const TradeCard = () => {
         {orderType === 'Limit' ? (
           <div className="mt-3">
             <p
-              className="text-xs text-stieglitz cursor-pointer"
+              className="text-xs text-stieglitz cursor-pointer mb-1"
               onClick={setMaximumTick}
             >
-              Limit price - {!isShort ? 'Min. $' : 'Max. $'}
-              {maximumTick}
+              Limit price -{' '}
+              <u>
+                {!isShort ? 'Min. $' : 'Max. $'}
+                {maximumTick}
+              </u>
             </p>
             <Input
               color="cod-gray"
@@ -646,11 +649,6 @@ const TradeCard = () => {
             <p className="text-xs text-stieglitz mt-2.5">
               Your price will be rounded to {roundedLimitPrice}
             </p>
-            {limitError ? (
-              <div className="mr-2">
-                <p className="text-xs text-red-400 mt-2.5">{limitError}</p>
-              </div>
-            ) : null}
           </div>
         ) : null}
       </div>
