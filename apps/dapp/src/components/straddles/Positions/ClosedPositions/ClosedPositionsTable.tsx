@@ -24,6 +24,7 @@ import { useBoundStore } from 'store';
 import { TableHeader } from 'components/straddles/Deposits/DepositsTable';
 import { TablePaginationActions } from 'components/UI';
 
+import { smartTrim } from 'utils/general';
 import formatAmount from 'utils/general/formatAmount';
 import getPercentageDifference from 'utils/math/getPercentageDifference';
 
@@ -71,11 +72,6 @@ const ClosedPositionsTable = () => {
             <h4 className="text-white font-bold shadow-2xl">
               {tokenName} Straddle
             </h4>
-            <span className="text-sm inline-block break-all overflow-visible">
-              <a href={`https://arbiscan.io/tx/${position.txId}`}>
-                {position.txId}
-              </a>
-            </span>
           </div>
         ),
         percentage: getPercentageDifference(
@@ -98,6 +94,10 @@ const ClosedPositionsTable = () => {
           {
             name: 'Epoch',
             value: position.epoch!,
+          },
+          {
+            name: 'Tx Hash',
+            value: smartTrim(position.txId, 6),
           },
         ],
       });
