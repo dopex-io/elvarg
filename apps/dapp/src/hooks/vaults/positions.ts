@@ -16,37 +16,26 @@ interface Props {
   isPut: boolean;
 }
 
-interface WritePosition {
+export interface WritePosition {
   strike: number;
   balance: number;
   side: string;
   epoch: number;
+  tokenId: number;
+  address: string;
 }
 
-interface BuyPosition {
+export interface BuyPosition {
   strike: number;
   premium: number;
-  balance: number;
+  balance: string;
   epoch: number;
   side: string;
 }
 
 const useFetchPositions = (props: Props) => {
-  const { vaultAddress, tokenSymbol, isPut } = props;
-  // const { selectedVault } = useVaultQuery({
-  //   vaultSymbol: tokenSymbol,
-  // });
+  const { vaultAddress, isPut } = props;
   const { address } = useAccount();
-  // const contractReads = useContractReads({
-  //   contracts: [
-  //     {
-  //       abi: SsovV3__factory.abi,
-  //       address: vaultAddress as `0x${string}`,
-  //       functionName: 'getEpochTimes',
-  //       args: [selectedVault?.currentEpoch], todo: retrieve epochTimes for each position's corresponding epoch
-  //     },
-  //   ],
-  // });
 
   const [writePositions, setWritePositions] = useState<WritePosition[]>([]);
   const [buyPositions, setBuyPositions] = useState<BuyPosition[]>([]);
@@ -59,15 +48,19 @@ const useFetchPositions = (props: Props) => {
       queryFn: () => graphSdk.getSsovUserData({ user: address.toLowerCase() }),
     });
 
-    const filteredWritePositions = ssovQueryResult.ssov_users[0].userPositions
-      .filter((position) =>
-        position.id.toLowerCase().includes(vaultAddress.toLowerCase())
+    const filteredWritePositions = ssovQueryResult.ssov_users[0].userSSOVDeposit
+      .filter(
+        (position) =>
+          position.ssov.id.toLowerCase() === vaultAddress.toLowerCase()
       )
       .map((vault) => ({
+        ...vault,
         strike: Number(ethers.utils.formatUnits(vault.strike, DECIMALS_STRIKE)),
         balance: Number(ethers.utils.formatUnits(vault.amount, 'ether')),
         epoch: Number(vault.epoch),
         side: isPut ? 'Put' : 'Call',
+        tokenId: Number(vault.id.split('#')[1]),
+        address: vault.ssov.id.toLowerCase(),
       }));
     setWritePositions(filteredWritePositions);
 
@@ -77,6 +70,7 @@ const useFetchPositions = (props: Props) => {
           position.id.toLowerCase().includes(vaultAddress.toLowerCase())
         )
         .map((vault) => ({
+          ...vault,
           side: isPut ? 'Put' : 'Call',
           strike: Number(
             ethers.utils.formatUnits(vault.strike, DECIMALS_STRIKE)
@@ -85,9 +79,8 @@ const useFetchPositions = (props: Props) => {
             ethers.utils.formatUnits(vault.premium, DECIMALS_USD)
           ),
           epoch: Number(vault.epoch),
-          balance: Number(ethers.utils.formatUnits(vault.amount, 'ether')),
+          balance: vault.amount,
         }));
-
     setBuyPositions(filteredBuyPositions);
   }, [address, isPut, vaultAddress]);
 
