@@ -84,7 +84,9 @@ const PositionsTable = ({ tab }: { tab: string }) => {
             {' | '}
             <span>{formatAmount(leverage, 1)}x</span>
             {' | '}
-            <span>{`${baseSymbol}${quoteSymbol}`}</span>
+            <span>{`${baseSymbol}${
+              quoteSymbol === 'USDC' ? 'USDC.e' : quoteSymbol
+            }`}</span>
           </h5>
         ),
         percentage:
@@ -323,7 +325,8 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           ),
           4
         );
-        rightContent = optionScalpData.quoteSymbol;
+        rightContent =
+          optionScalpData.quoteSymbol === 'USDC' ? 'USDC.e' : 'USDC';
         rightContentStyle += ' text-xs hidden md:inline-block';
       }
 
@@ -332,10 +335,10 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         data = (
           <Countdown
             date={new Date((position.openedAt + position.timeframe) * 1000)}
-            renderer={({ minutes, seconds }) => {
+            renderer={({ hours, minutes, seconds }) => {
               return (
                 <span className="text-xs md:text-sm text-white pt-1">
-                  {minutes}m {seconds}s
+                  {hours}h {minutes}m {seconds}s
                 </span>
               );
             }}
