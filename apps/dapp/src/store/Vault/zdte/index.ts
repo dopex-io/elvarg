@@ -333,10 +333,9 @@ export const createZdteSlice: StateCreator<
             .mul(oneEBigNumber(DECIMALS_TOKEN))
             .div(pos.positions || BigNumber.from(1))
             .mul(100);
-          const breakeven =
-            pos.longStrike > pos.shortStrike
-              ? pos.longStrike.sub(finalCost)
-              : pos.longStrike.add(finalCost);
+          const breakeven = pos.longStrike.gt(pos.shortStrike)
+            ? pos.longStrike.sub(finalCost)
+            : pos.longStrike.add(finalCost);
           return {
             ...pos,
             livePnl: livePnl,
