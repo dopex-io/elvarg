@@ -12,7 +12,7 @@ const TitleItem = (props: Props) => {
     <div className="flex flex-col">
       <span
         className={`text-sm text-white flex ${
-          !symbolPrefixed ? 'flex-row-reverse' : null
+          !symbolPrefixed ? 'flex-row-reverse justify-end' : null
         }`}
       >
         <p className="text-stieglitz inline text-sm">{symbol}</p>

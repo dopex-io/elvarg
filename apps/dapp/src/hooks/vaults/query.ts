@@ -26,6 +26,7 @@ interface RawVaultQueryData {
   }[];
   symbol: string;
   totalEpochDeposits: string;
+  totalEpochPurchases: string;
   tvl: string;
   type: string;
   underlyingPrice: string;
@@ -46,6 +47,7 @@ interface VaultData {
   symbol: string;
   olp: string;
   totalEpochDeposits: string;
+  totalEpochPurchases: string;
   tvl: string;
   apy: string;
   currentPrice: string;
@@ -54,6 +56,13 @@ interface VaultData {
     startTime: string;
     expiry: string;
   };
+}
+
+interface AggregatedStats {
+  oi: number;
+  apy: number;
+  currentPrice: number;
+  volume: number;
 }
 
 export const fetchSsovs = async (keys: string[], cacheTime: number) => {
@@ -70,15 +79,18 @@ const useVaultQuery = (props: Props) => {
 
   const [vaults, setVaults] = useState<VaultData[]>([]);
   const [selectedVault, setSelectedVault] = useState<VaultData>();
+  const [aggregatedStats, setAggregatedStats] = useState<AggregatedStats>();
 
   const updateVaults = useCallback(async () => {
     const data = await fetchSsovs([vaultSymbol], 3600);
     if (!vaultSymbol || !chainId || !data || !data[chainId]) return [];
-    const filteredData = data[chainId].filter(
+    const filteredData: RawVaultQueryData[] = data[chainId].filter(
       (item: RawVaultQueryData) =>
-        String(item.underlyingSymbol).includes(vaultSymbol) && !item.retired
+        String(item.underlyingSymbol) === vaultSymbol && !item.retired
     );
     if (filteredData.length === 0) return;
+
+    console.log(filteredData);
 
     const _vaults: VaultData[] = [];
     for (let i = 0; i < filteredData.length; i++) {
@@ -91,6 +103,7 @@ const useVaultQuery = (props: Props) => {
         olp,
         rewards,
         totalEpochDeposits,
+        totalEpochPurchases,
         tvl,
         underlyingPrice,
         apy,
@@ -105,6 +118,7 @@ const useVaultQuery = (props: Props) => {
         filteredData[i].olp,
         filteredData[i].rewards,
         filteredData[i].totalEpochDeposits,
+        filteredData[i].totalEpochPurchases,
         filteredData[i].tvl,
         filteredData[i].underlyingPrice,
         filteredData[i].apy,
@@ -121,6 +135,7 @@ const useVaultQuery = (props: Props) => {
         olp,
         rewards,
         totalEpochDeposits,
+        totalEpochPurchases,
         tvl,
         currentPrice: underlyingPrice,
         apy,
@@ -130,6 +145,29 @@ const useVaultQuery = (props: Props) => {
     }
     setVaults(_vaults);
   }, [chainId, vaultSymbol]);
+
+  const updateAggregatedStats = useCallback(() => {
+    if (vaults.length === 0) return;
+    const avgApy = vaults.reduce(
+      (prev, curr) =>
+        prev + (typeof curr.apy === 'string' ? Number(curr.apy) : 0),
+      0
+    );
+    const totalPurchases = vaults.reduce(
+      (prev, curr) => prev + Number(curr.totalEpochPurchases),
+      0
+    );
+    const totalDeposits = vaults.reduce(
+      (prev, curr) => prev + Number(curr.totalEpochDeposits),
+      0
+    );
+    setAggregatedStats({
+      currentPrice: Number(vaults[0].currentPrice),
+      apy: avgApy,
+      oi: (totalPurchases / totalDeposits) * 100,
+      volume: totalPurchases * Number(vaults[0].currentPrice),
+    });
+  }, [vaults]);
 
   const updateSelectedVault = useCallback(
     (duration: DurationType, isPut: boolean) => {
@@ -147,9 +185,14 @@ const useVaultQuery = (props: Props) => {
     updateVaults();
   }, [updateVaults]);
 
+  useEffect(() => {
+    updateAggregatedStats();
+  }, [updateAggregatedStats]);
+
   return {
     vaults,
     updateVaults,
+    aggregatedStats,
     selectedVault,
     updateSelectedVault,
   };

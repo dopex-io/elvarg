@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 import { Menu } from '@dopex-io/ui';
 import useVaultQuery from 'hooks/vaults/query';
@@ -19,33 +19,10 @@ const TitleBar = (props: Props) => {
   const { selectedToken = 'wstETH', handleSelectToken } = props;
   const update = useVaultState((state) => state.update);
   const vault = useVaultState((state) => state.vault);
-  const { selectedVault, vaults, updateSelectedVault } = useVaultQuery({
-    vaultSymbol: selectedToken,
-  });
-
-  const [vaultStats, setVaultStats] = useState<{
-    tvl: string;
-    apy: string;
-    currentPrice: string;
-  }>({
-    tvl: '0',
-    apy: '0',
-    currentPrice: '0',
-  });
-
-  // set default as index 0 of queried vaults
-  // todo: bugged -- does not update on asset change
-  // todo: accumulate by base asset
-  // todo: replace apy with open interest
-  useEffect(() => {
-    if (!selectedVault) return;
-
-    setVaultStats({
-      tvl: selectedVault.tvl,
-      apy: selectedVault.apy,
-      currentPrice: selectedVault.currentPrice,
+  const { selectedVault, vaults, updateSelectedVault, aggregatedStats } =
+    useVaultQuery({
+      vaultSymbol: selectedToken,
     });
-  }, [selectedToken, selectedVault, vaults]);
 
   useEffect(() => {
     if (!vault || !vaults[0] || selectedVault) return;
@@ -78,19 +55,28 @@ const TitleBar = (props: Props) => {
         data={VAULTS_MENU}
         showArrow
       />
-      <div className="flex space-x-8">
+      <div className="flex space-x-6">
         <TitleItem
           symbol="$"
           symbolPrefixed
-          label="TVL"
-          value={formatAmount(vaultStats.tvl, 3, true)}
+          label="Mark Price"
+          value={formatAmount(aggregatedStats?.currentPrice, 3)}
         />
-        <TitleItem symbol="%" label="APY" value={vaultStats.apy} />
+        <TitleItem
+          symbol="%"
+          label="Open Interest"
+          value={formatAmount(aggregatedStats?.oi, 3, true)}
+        />
+        <TitleItem
+          symbol="%"
+          label="APY"
+          value={(aggregatedStats?.apy || 0).toString()}
+        />
         <TitleItem
           symbol="$"
           symbolPrefixed
-          label="Price"
-          value={formatAmount(vaultStats.currentPrice, 3)}
+          label="Total Volume"
+          value={formatAmount(aggregatedStats?.volume || 0, 3, true)}
         />
       </div>
     </div>
