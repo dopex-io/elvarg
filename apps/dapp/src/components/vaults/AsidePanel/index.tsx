@@ -8,6 +8,7 @@ import {
 import { BigNumber, ethers } from 'ethers';
 
 import { Button, Input } from '@dopex-io/ui';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { format } from 'date-fns';
 import useVaultQuery from 'hooks/vaults/query';
 import useVaultState from 'hooks/vaults/state';
@@ -86,6 +87,13 @@ const AsidePanel = () => {
         abi: erc20ABI,
         address: TOKEN_SYMBOL_TO_ADDRESS[vault.base] as `0x${string}`,
         functionName: 'balanceOf',
+        args: [address!],
+        chainId: client.lastUsedChainId,
+      },
+      {
+        abi: vault.abi as any,
+        address: vault.address as `0x${string}`,
+        functionName: '',
         args: [address!],
         chainId: client.lastUsedChainId,
       },
@@ -184,21 +192,31 @@ const AsidePanel = () => {
 
   const infoPopover = useMemo(() => {
     const buttonContent = activeIndex === 0 ? 'Purchase' : 'Deposit';
-    if (!selectedVault || !data) return { ...alerts[1], buttonContent };
+    if (!selectedVault || !data)
+      return {
+        ...alerts.error.fallback,
+        buttonContent,
+      };
 
-    if (
+    if (!Number(amountDebounced)) {
+      return {
+        ...alerts.info.emptyInput,
+      };
+    } else if (
       !address ||
       (Number(selectedStrike.availableCollateral) < Number(amountDebounced) &&
         activeIndex === 0)
     )
-      return { ...alerts[5] };
+      return {
+        ...alerts.info.insufficientLiquidity,
+      };
     else if (
       (data[1] as any).lt(
-        ethers.utils.parseUnits(amountDebounced, DECIMALS_TOKEN)
+        ethers.utils.parseUnits(amountDebounced || '0', DECIMALS_TOKEN)
       )
     )
       return {
-        ...alerts[1],
+        ...alerts.error.insufficientBalance,
         buttonContent,
       };
     else if (
@@ -207,14 +225,18 @@ const AsidePanel = () => {
       )
     ) {
       return {
-        ...alerts[3],
+        ...alerts.error.insufficientAllowance,
       };
     } else if (selectedStrike.iv > 100)
       return {
-        ...alerts[4],
+        ...alerts.warning.highIv,
         buttonContent,
       };
-    else return { ...alerts[0], buttonContent };
+    else
+      return {
+        ...alerts.info.enabled,
+        buttonContent,
+      };
   }, [
     activeIndex,
     address,
@@ -258,15 +280,16 @@ const AsidePanel = () => {
           <img
             src={`/images/tokens/${selectedVault?.underlyingSymbol}.svg`}
             alt={selectedVault?.underlyingSymbol}
-            className="w-8 h-8 border border-mineshaft rounded-full ring-4 ring-cod-gray"
+            className="w-[30px] h-[30px] border border-mineshaft rounded-full ring-4 ring-cod-gray"
           />
         }
         placeholder="0.0"
       />
-      {infoPopover.status !== 'normal' ? (
+      {infoPopover.textContent !== '' ? (
         <div
-          className={`${infoPopover.alertBg} p-3 rounded-md animate-pulse text-center text-cod-gray`}
+          className={`${infoPopover.alertBg} p-3 rounded-md animate-pulse text-center flex justify-center`}
         >
+          <ExclamationTriangleIcon className={'h-6 w-6 fill-current mr-2'} />
           {infoPopover.textContent}
         </div>
       ) : null}
@@ -408,7 +431,7 @@ const AsidePanel = () => {
         onClick={transact}
         variant="contained"
         color="primary"
-        className={`${
+        className={`hover:cursor-pointer ${
           infoPopover.disabled ? 'cursor-not-allowed' : 'cursor-default'
         }`}
         disabled={infoPopover.disabled}

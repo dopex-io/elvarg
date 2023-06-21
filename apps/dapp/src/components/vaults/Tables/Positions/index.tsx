@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { ethers } from 'ethers';
 
 import { Button } from '@dopex-io/ui';
 import useFetchPositions from 'hooks/vaults/positions';
@@ -8,8 +9,6 @@ import { Column, useTable } from 'react-table';
 
 import { ButtonGroup } from 'components/vaults/AsidePanel';
 import Placeholder from 'components/vaults/Tables/Placeholder';
-
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 
@@ -54,14 +53,20 @@ const Positions = () => {
             <span className="space-x-2 text-left">
               <p className="text-stieglitz inline-block">$</p>
               <p className="inline-block">
-                {getUserReadableAmount(position.strike, DECIMALS_STRIKE)}
+                {ethers.utils.formatUnits(
+                  position.strike || '0',
+                  DECIMALS_STRIKE
+                )}
               </p>
             </span>
           ),
           amount: (
             <span className="space-x-2">
               <p className="inline-block">
-                {getUserReadableAmount(position.amount, DECIMALS_TOKEN)}
+                {ethers.utils.formatUnits(
+                  position.amount || '0',
+                  DECIMALS_TOKEN
+                )}
               </p>
             </span>
           ),

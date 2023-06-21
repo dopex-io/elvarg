@@ -1,8 +1,9 @@
 import { useCallback, useState } from 'react';
 import dynamic from 'next/dynamic';
+import Script from 'next/script';
 
 import { defaultChartProps } from 'config/tradingview';
-import useDatafeed from 'hooks/useDatafeed';
+// import useDatafeed from 'hooks/useDatafeed';
 import useVaultState, { Vault } from 'hooks/vaults/state';
 import { NextSeo } from 'next-seo';
 import {
@@ -26,10 +27,7 @@ const defaultWidgetProps: Partial<ChartingLibraryWidgetOptions> = {
   library_path: defaultChartProps.library_path,
   charts_storage_api_version: defaultChartProps.charts_storage_api_version,
   user_id: defaultChartProps.user_id,
-  overrides: {
-    'paneProperties.backgroundGradientStartColor': '#020024',
-    'paneProperties.backgroundGradientEndColor': '#4f485e',
-  },
+  overrides: defaultChartProps.overrides,
   charts_storage_url: defaultChartProps.charts_storage_url,
   custom_css_url: defaultChartProps.custom_css_url,
   enabled_features: defaultChartProps.enabled_features,
@@ -47,8 +45,10 @@ const TVChartContainer = dynamic(
 const Vaults = () => {
   const update = useVaultState((vault) => vault.update);
   const vault = useVaultState((vault) => vault.vault);
-  const datafeed = useDatafeed({ symbol: vault.base });
-  const [selectedToken, setSelectedToken] = useState<string>('ETH');
+  // const datafeed = useDatafeed({ symbol: vault.base });
+
+  const [isScriptReady, setIsScriptReady] = useState<boolean>(false);
+  const [selectedToken, setSelectedToken] = useState<string>('stETH');
   const [widget, _] = useState<Partial<ChartingLibraryWidgetOptions>>({
     ...defaultWidgetProps,
     // symbol: vault.base,
@@ -97,7 +97,16 @@ const Vaults = () => {
           <div className="flex flex-col space-y-3 sm:w-full lg:w-3/4 h-full">
             <div className="space-y-4 flex flex-col">
               <div className="h-[420px] bg-carbon rounded-lg text-center flex flex-col justify-center text-stieglitz">
-                <TVChartContainer {...widget} />
+                {
+                  <Script
+                    src="/static/datafeeds/udf/dist/bundle.js"
+                    strategy="lazyOnload"
+                    onReady={() => {
+                      setIsScriptReady(true);
+                    }}
+                  />
+                }
+                {isScriptReady && <TVChartContainer {...widget} />}
               </div>
             </div>
             <div className="space-y-4">

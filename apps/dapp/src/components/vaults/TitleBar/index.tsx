@@ -16,7 +16,7 @@ interface Props {
 }
 
 const TitleBar = (props: Props) => {
-  const { selectedToken = 'ETH', handleSelectToken } = props;
+  const { selectedToken = 'stETH', handleSelectToken } = props;
   const update = useVaultState((state) => state.update);
   const vault = useVaultState((state) => state.vault);
   const { selectedVault, vaults, updateSelectedVault } = useVaultQuery({
@@ -34,7 +34,9 @@ const TitleBar = (props: Props) => {
   });
 
   // set default as index 0 of queried vaults
-  // note: bugged
+  // todo: bugged
+  // todo: accumulate by base asset
+  // todo: replace apy with open interest
   useEffect(() => {
     if (!selectedVault) return;
 

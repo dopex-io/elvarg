@@ -12,7 +12,6 @@ import PlusIcon from 'svgs/icons/PlusIcon';
 import Placeholder from 'components/vaults/Tables/Placeholder';
 import FilterPanel from 'components/vaults/Tables/StrikesChain/FilterPanel';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import { DECIMALS_TOKEN } from 'constants/index';
@@ -102,7 +101,7 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
             key={index}
             color="mineshaft"
             onClick={() => setActiveStrikeIndex(index)}
-            className={`w-fit space-x-2 text-xs ${
+            className={`w-fit space-x-2 text-xs hover:cursor-pointer ${
               index === activeStrikeIndex
                 ? 'ring-1 ring-frost animate-pulse'
                 : null

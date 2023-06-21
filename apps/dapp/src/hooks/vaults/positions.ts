@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
+import { ethers } from 'ethers';
 
 import graphSdk from 'graphql/graphSdk';
 import queryClient from 'queryClient';
 import { useAccount } from 'wagmi';
-
-import { getUserReadableAmount } from 'utils/contracts';
 
 import { DECIMALS_TOKEN } from 'constants/index';
 
@@ -22,14 +21,14 @@ const useFetchPositions = (props: Props) => {
   const [optionBalances, setOptionBalances] = useState<any>();
   const [loading, setLoading] = useState<boolean>(true);
 
-  const updateSsovDepositPositions = useCallback(async () => {
+  const updateSsovPositions = useCallback(async () => {
     if (!address) return;
     const ssovQueryResult = await queryClient.fetchQuery({
       queryKey: ['ssovUserData'],
       queryFn: () => graphSdk.getSsovUserData({ user: address.toLowerCase() }),
     });
 
-    const filteredPositions = ssovQueryResult.ssov_users[0].userPositions
+    const filteredWritePositions = ssovQueryResult.ssov_users[0].userPositions
       .filter((position) =>
         position.id.toLowerCase().includes(vaultAddress.toLowerCase())
       )
@@ -38,17 +37,9 @@ const useFetchPositions = (props: Props) => {
         tokenSymbol,
         side: isPut ? 'Put' : 'Call',
       }));
-    setPositions(filteredPositions);
-  }, [address, isPut, tokenSymbol, vaultAddress]);
+    setPositions(filteredWritePositions);
 
-  const updateSsovPurchasePositions = useCallback(async () => {
-    if (!address) return;
-    const ssovQueryResult = await queryClient.fetchQuery({
-      queryKey: ['ssovUserData'],
-      queryFn: () => graphSdk.getSsovUserData({ user: address.toLowerCase() }),
-    });
-
-    const filteredPositions =
+    const filteredBuyPositions =
       ssovQueryResult.ssov_users[0].userSSOVOptionBalance
         .filter((position) =>
           position.id.toLowerCase().includes(vaultAddress.toLowerCase())
@@ -57,19 +48,15 @@ const useFetchPositions = (props: Props) => {
           ...vault,
           tokenSymbol,
           side: isPut ? 'Put' : 'Call',
-          amount: getUserReadableAmount(vault.amount, DECIMALS_TOKEN),
+          amount: ethers.utils.parseUnits(vault.amount, DECIMALS_TOKEN),
         }));
 
-    setOptionBalances(filteredPositions);
+    setOptionBalances(filteredBuyPositions);
   }, [address, isPut, tokenSymbol, vaultAddress]);
 
   useEffect(() => {
-    updateSsovDepositPositions();
-  }, [updateSsovDepositPositions]);
-
-  useEffect(() => {
-    updateSsovPurchasePositions();
-  }, [updateSsovPurchasePositions]);
+    updateSsovPositions();
+  }, [updateSsovPositions]);
 
   useEffect(() => {
     if (optionBalances !== undefined && positions !== undefined)
