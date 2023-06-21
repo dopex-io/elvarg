@@ -87,11 +87,17 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
         ),
         availableCollateral: (
           <span className="space-y-1 text-xs">
-            <span className={`flex space-x-2`}>
+            <span
+              className={`flex ${
+                vault.isPut ? 'flex-row-reverse justify-end' : 'space-x-1'
+              }`}
+            >
               <p className="inline-block">
                 {formatAmount(strikeData.totalAvailableCollateral, 3)}
               </p>
-              <p className="text-stieglitz inline-block">{vault.base}</p>
+              <p className="text-stieglitz inline-block">
+                {vault.isPut ? '$' : vault.base}
+              </p>
             </span>
             <p className="text-stieglitz text-xs">
               {formatAmount(strikeData.availableCollateralPercentage, 3)}%

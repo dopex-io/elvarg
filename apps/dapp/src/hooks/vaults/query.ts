@@ -90,8 +90,6 @@ const useVaultQuery = (props: Props) => {
     );
     if (filteredData.length === 0) return;
 
-    console.log(filteredData);
-
     const _vaults: VaultData[] = [];
     for (let i = 0; i < filteredData.length; i++) {
       const [
