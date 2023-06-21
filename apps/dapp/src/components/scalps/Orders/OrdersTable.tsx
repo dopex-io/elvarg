@@ -108,8 +108,11 @@ const OrdersTable = () => {
               ),
               4
             ) +
-            ' ' +
-            optionScalpData.quoteSymbol
+              ' ' +
+              optionScalpData.quoteSymbol ===
+            'USDC'
+            ? 'USDC.e'
+            : 'USDC'
           : '-';
       }
 
