@@ -11,23 +11,23 @@ import useVaultState, {
 
 import Pill from 'components/vaults/Tables/Pill';
 
-const FilterPanel = ({
-  selectedToken,
-  durationType,
-  isPut,
-}: {
+interface Props {
   selectedToken: string;
-  durationType: DurationType;
-  isPut: boolean;
-}) => {
+  durationType: DurationType | undefined;
+  isPut: boolean | undefined;
+}
+
+const FilterPanel = (props: Props) => {
+  const { selectedToken, durationType, isPut } = props;
+
   const vault = useVaultState((state) => state.vault);
   const update = useVaultState((state) => state.update);
   const { updateSelectedVault, vaults, selectedVault } = useVaultQuery({
     vaultSymbol: selectedToken,
   });
 
-  const [side, setSide] = useState<Side>(isPut ? 'PUT' : 'CALL');
-  const [_durationType, setDurationType] = useState<DurationType>(durationType);
+  const [side, setSide] = useState<Side>();
+  const [_durationType, setDurationType] = useState<DurationType>();
 
   const handleSelectSide = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,6 +69,14 @@ const FilterPanel = ({
     return [...new Set(filtered)];
   }, [side, vaults]);
 
+  // updates default selection of duration/side if the base asset has been changed
+  useEffect(() => {
+    if (!vaults[0] || selectedVault?.symbol === vault.base) return;
+    setDurationType(vaults[0].durationType as DurationType);
+    setSide(vaults[0].isPut ? 'PUT' : 'CALL');
+  }, [selectedVault, vault.base, vaults]);
+
+  // updates selected vault for the same base asset
   useEffect(() => {
     updateSelectedVault(_durationType as DurationType, side === 'PUT');
   }, [_durationType, side, update, updateSelectedVault, vault]);
