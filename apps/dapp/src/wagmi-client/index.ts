@@ -13,7 +13,7 @@ import { BitKeepConnector } from './BitKeepConnector';
 import { RabbyConnector } from './RabbyConnector';
 
 const { chains, provider, webSocketProvider } = configureChains(
-  [mainnet, arbitrum, polygon],
+  [arbitrum, polygon, mainnet],
   [infuraProvider({ apiKey: INFURA_PROJECT_ID || '' })]
 );
 
