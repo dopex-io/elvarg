@@ -1,18 +1,18 @@
 import { useMemo } from 'react';
-
 import Link from 'next/link';
 
 import Box from '@mui/material/Box';
-import Tooltip from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
+import Tooltip from '@mui/material/Tooltip';
+
 import cx from 'classnames';
 import format from 'date-fns/format';
 import Action from 'svgs/icons/Action';
 import Coin from 'svgs/icons/Coin';
 
+import InfoBox from 'components/ssov/InfoBox';
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import InfoBox from 'components/ssov/InfoBox';
 
 import formatAmount from 'utils/general/formatAmount';
 
@@ -56,14 +56,19 @@ function SsovCard(props: any) {
   const name = underlyingSymbol as string;
 
   const info = useMemo(() => {
+    let _apy =
+      apy > 0 && apy !== 'Infinity'
+        ? formatAmount(apy, 0, true).toString() + '%'
+        : '...';
+
+    if (typeof apy !== 'string') {
+      _apy = `upto ${Math.max(...apy.map((apy: string) => Number(apy)))}`;
+    }
+
     return [
       {
         heading: 'APY',
-        value: `${
-          apy > 0 && apy !== 'Infinity'
-            ? formatAmount(apy, 0, true).toString() + '%'
-            : '...'
-        }`,
+        value: _apy,
         Icon: Action,
       },
       {
