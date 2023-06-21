@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { BigNumber, utils } from 'ethers';
 
 import {
@@ -14,7 +14,6 @@ import {
 
 import { IosShare } from '@mui/icons-material';
 
-import { useQuery } from '@tanstack/react-query';
 import graphSdk from 'graphql/graphSdk';
 import useShare from 'hooks/useShare';
 import { reverse } from 'lodash';
@@ -24,9 +23,10 @@ import { useBoundStore } from 'store';
 import { TableHeader } from 'components/straddles/Deposits/DepositsTable';
 import { TablePaginationActions } from 'components/UI';
 
-import { smartTrim } from 'utils/general';
-import formatAmount from 'utils/general/formatAmount';
+import { formatAmount, smartTrim } from 'utils/general';
 import getPercentageDifference from 'utils/math/getPercentageDifference';
+
+const POLYGON_CHAIN_ID = 137;
 
 const ROWS_PER_PAGE = 5;
 
@@ -43,6 +43,8 @@ const ClosedPositionsTable = () => {
   const share = useShare((state) => state.open);
 
   const [page, setPage] = useState<number>(0);
+  const [settled, setSettled] = useState<any>([]);
+  const [purchases, setPurchases] = useState<any>([]);
 
   const handleChangePage = useCallback(
     (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
@@ -51,8 +53,13 @@ const ClosedPositionsTable = () => {
     [setPage]
   );
 
-  const { straddlesData, accountAddress, tokenPrices, getStraddlesContract } =
-    useBoundStore();
+  const {
+    straddlesData,
+    accountAddress,
+    tokenPrices,
+    getStraddlesContract,
+    chainId,
+  } = useBoundStore();
 
   const handleShare = useCallback(
     async (position: ClosedPositionProps) => {
@@ -70,8 +77,13 @@ const ClosedPositionsTable = () => {
         title: (
           <div>
             <h4 className="text-white font-bold shadow-2xl">
-              {tokenName} Straddle
+              <span>{tokenName} Straddle</span>
             </h4>
+            <span className="text-sm">
+              <a href={`https://arbiscan.io/tx/${position.txId}`}>
+                {smartTrim(position.txId, 12)}
+              </a>
+            </span>
           </div>
         ),
         percentage: getPercentageDifference(
@@ -95,67 +107,87 @@ const ClosedPositionsTable = () => {
             name: 'Epoch',
             value: position.epoch!,
           },
-          {
-            name: 'Tx Hash',
-            value: smartTrim(position.txId, 6),
-          },
         ],
       });
     },
     [share, tokenPrices, straddlesData?.straddlesContract]
   );
 
-  const payload = useQuery({
-    queryKey: ['getStraddlesUserSettleData'],
-    queryFn: () =>
-      queryClient.fetchQuery({
-        queryKey: ['getStraddlesUserSettleData'],
-        queryFn: () =>
-          graphSdk.getStraddlesUserSettleData({
-            user: accountAddress,
-            vault: straddlesData?.straddlesContract?.address,
-          }),
-      }),
-  });
-
-  const settled = payload.data?.straddles_settles;
-  const purchases = payload.data?.straddles_straddlePurchases;
+  useEffect(() => {
+    async function getRecords() {
+      if (chainId === POLYGON_CHAIN_ID) {
+        const payloadPolygon = await queryClient.fetchQuery({
+          queryKey: ['settled-data-polygon'],
+          queryFn: () =>
+            graphSdk.getStraddlesUserSettleDataPolygon({
+              user: accountAddress,
+            }),
+        });
+        setSettled(payloadPolygon?.straddles_polygonsettles);
+        setPurchases(payloadPolygon?.straddles_polygonstraddlePurchases);
+      } else {
+        const payloadArb = await queryClient.fetchQuery({
+          queryKey: ['settled-data-arb'],
+          queryFn: () =>
+            graphSdk.getStraddlesUserSettleData({
+              user: accountAddress,
+              vault: straddlesData?.straddlesContract?.address,
+            }),
+        });
+        setSettled(payloadArb?.straddles_settles);
+        setPurchases(payloadArb?.straddles_straddlePurchases);
+      }
+    }
+    getRecords();
+  }, []);
 
   const records: Record<string, ClosedPositionProps> = {};
 
   if (settled) {
-    settled.forEach((item) => {
-      const nftId = item.id.split('#')[2];
-      const txId = item.transaction.id;
-      records[nftId] = {
-        pnl: Number(utils.formatUnits(BigNumber.from(item.pnl), 6)).toFixed(2),
-        txId: txId,
-      };
-    });
+    settled.forEach(
+      (item: { id: string; pnl: string; transaction: { id: string } }) => {
+        const nftId = item.id.split('#')[2];
+        const txId = item.transaction.id;
+        records[nftId] = {
+          pnl: Number(utils.formatUnits(BigNumber.from(item.pnl), 6)).toFixed(
+            2
+          ),
+          txId: txId,
+        };
+      }
+    );
   }
 
   if (purchases) {
-    purchases.forEach((item) => {
-      const nftId = item.id.split('#')[2];
-      if (records[nftId])
-        records[nftId] = {
-          ...records[nftId],
-          amount: formatAmount(
-            Number(
-              utils.formatUnits(
-                BigNumber.from(item.amount).div(BigNumber.from(2)),
-                18
-              )
+    purchases.forEach(
+      (item: {
+        id: string;
+        amount: string;
+        strikePrice: string;
+        cost: string;
+        epoch: string;
+      }) => {
+        const nftId = item.id.split('#')[2];
+        if (records[nftId])
+          records[nftId] = {
+            ...records[nftId],
+            amount: formatAmount(
+              Number(
+                utils.formatUnits(
+                  BigNumber.from(item.amount).div(BigNumber.from(2)),
+                  18
+                )
+              ),
+              8
             ),
-            8
-          ),
-          strikePrice: Number(
-            utils.formatUnits(BigNumber.from(item.strikePrice), 8)
-          ).toFixed(2),
-          cost: Number(utils.formatUnits(item.cost, 18)).toFixed(2),
-          epoch: item.epoch,
-        };
-    });
+            strikePrice: Number(
+              utils.formatUnits(BigNumber.from(item.strikePrice), 8)
+            ).toFixed(2),
+            cost: Number(utils.formatUnits(item.cost, 18)).toFixed(2),
+            epoch: item.epoch,
+          };
+      }
+    );
   }
 
   return (

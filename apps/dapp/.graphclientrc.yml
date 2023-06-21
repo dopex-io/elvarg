@@ -15,6 +15,14 @@ sources:
       - prefix:
           value: straddles_
           includeRootOperations: true
+  - name: straddles_polygon
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/psytama/dopex-straddles-polygon
+    transforms:
+      - prefix:
+          value: straddles_polygon
+          includeRootOperations: true
   - name: optionScalps
     handler:
       graphql:

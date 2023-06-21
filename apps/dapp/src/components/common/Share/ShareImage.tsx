@@ -1,4 +1,4 @@
-import { forwardRef, ReactNode } from 'react';
+import { ReactNode, forwardRef } from 'react';
 
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -31,7 +31,7 @@ const ShareImage = (
 ) => {
   return (
     <div
-      className="bg-[url('/images/misc/share-bg.png')] h-[350px] bg-contain bg-no-repeat pt-20 px-9"
+      className="bg-[url('/images/misc/share-bg.png')] h-[309px] bg-contain bg-no-repeat pt-20 px-9"
       ref={ref}
     >
       <div className="flex w-full justify-between">
