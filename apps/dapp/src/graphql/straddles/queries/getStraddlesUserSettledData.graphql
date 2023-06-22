@@ -1,0 +1,26 @@
+query getStraddlesUserSettleData($user: String, $vault: String) {
+  straddles_settles(
+    where: {
+      user_contains_nocase: $user
+      straddleVault_contains_nocase: $vault
+    }
+  ) {
+    pnl
+    id
+    transaction {
+      id
+    }
+  }
+  straddles_straddlePurchases(
+    where: {
+      user_contains_nocase: $user
+      straddleVault_contains_nocase: $vault
+    }
+  ) {
+    cost
+    strikePrice
+    epoch
+    amount
+    id
+  }
+}
