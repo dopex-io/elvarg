@@ -23,7 +23,7 @@ import { useBoundStore } from 'store';
 import { TableHeader } from 'components/straddles/Deposits/DepositsTable';
 import { TablePaginationActions } from 'components/UI';
 
-import { formatAmount, smartTrim } from 'utils/general';
+import { formatAmount, getExplorerTxURL, smartTrim } from 'utils/general';
 import getPercentageDifference from 'utils/math/getPercentageDifference';
 
 const POLYGON_CHAIN_ID = 137;
@@ -75,16 +75,9 @@ const ClosedPositionsTable = () => {
 
       share({
         title: (
-          <div>
-            <h4 className="text-white font-bold shadow-2xl">
-              <span>{tokenName} Straddle</span>
-            </h4>
-            <span className="text-sm">
-              <a href={`https://arbiscan.io/tx/${position.txId}`}>
-                {smartTrim(position.txId, 12)}
-              </a>
-            </span>
-          </div>
+          <h4 className="text-white font-bold shadow-2xl">
+            <span>{tokenName} Straddle</span>
+          </h4>
         ),
         percentage: getPercentageDifference(
           tokenPrice,
@@ -110,7 +103,7 @@ const ClosedPositionsTable = () => {
         ],
       });
     },
-    [share, tokenPrices, straddlesData?.straddlesContract]
+    [getStraddlesContract, straddlesData, tokenPrices, share]
   );
 
   useEffect(() => {
@@ -139,7 +132,7 @@ const ClosedPositionsTable = () => {
       }
     }
     getRecords();
-  }, []);
+  }, [accountAddress, chainId, straddlesData]);
 
   const records: Record<string, ClosedPositionProps> = {};
 
@@ -198,8 +191,9 @@ const ClosedPositionsTable = () => {
             <TableRow>
               <TableHeader label="Amount" showArrowIcon />
               <TableHeader label="AP Strike" />
-              <TableHeader label="PnL" />
+              <TableHeader label="Returns" />
               <TableHeader label="Epoch" />
+              <TableHeader label="Tx" />
               <TableHeader label="Action" variant="text-end" />
             </TableRow>
           </TableHead>
@@ -236,6 +230,18 @@ const ClosedPositionsTable = () => {
                     <TableCell className="pt-1 border-0">
                       <h6 className="text-white text-left">
                         <span>{records[position].epoch}</span>
+                      </h6>
+                    </TableCell>
+                    <TableCell className="pt-1 border-0">
+                      <h6 className="text-white text-left">
+                        <a
+                          href={getExplorerTxURL(
+                            chainId,
+                            records[position].txId
+                          )}
+                        >
+                          {smartTrim(records[position].txId, 12)}
+                        </a>
                       </h6>
                     </TableCell>
                     <TableCell className="flex justify-end border-0">
