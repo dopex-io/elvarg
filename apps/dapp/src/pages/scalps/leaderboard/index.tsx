@@ -176,7 +176,7 @@ const LeaderBoard = () => {
                             sort === SORT_OPTIONS[0]
                               ? position.totalPnL
                               : position.totalVolume,
-                            sort === SORT_OPTIONS[0] ? 6 : 18
+                            6
                           ),
                           2
                         )}
