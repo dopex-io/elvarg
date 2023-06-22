@@ -14,8 +14,8 @@ import TableRow from '@mui/material/TableRow';
 import cx from 'classnames';
 import useSendTx from 'hooks/useSendTx';
 import isEmpty from 'lodash/isEmpty';
-import { useBoundStore } from 'store';
 
+import { useBoundStore } from 'store';
 import { SsovV3Data, WritePositionInterface } from 'store/Vault/ssov';
 
 import TablePaginationActions from 'components/UI/TablePaginationActions';
@@ -211,12 +211,19 @@ const WritePositions = (props: { className?: string }) => {
                       setDialog({ open: true, type: 'TRANSFER', data: o });
                     };
 
-                    const openWithdraw = () => {
-                      setDialog({ open: true, type: 'WITHDRAW', data: o });
-                    };
-
                     const openClaim = () => {
                       setDialog({ open: true, type: 'CLAIM', data: o });
+                    };
+
+                    const openWithdraw = () => {
+                      if (
+                        o.stakingRewardsPosition?.staked &&
+                        ssovEpochData?.isEpochExpired
+                      ) {
+                        openClaim();
+                      } else {
+                        setDialog({ open: true, type: 'WITHDRAW', data: o });
+                      }
                     };
 
                     const _handleStake = () => {
