@@ -132,7 +132,9 @@ const TradeCard = () => {
     }
   }, [posSize, optionScalpData, selectedTimeWindow]);
 
-  const setMaximumTick = useCallback(() => {
+  const maximumTick = useMemo(() => {
+    if (!optionScalpData?.markPrice!) return '0';
+
     const _markPrice = Number(
       utils.formatUnits(
         optionScalpData?.markPrice!,
@@ -144,8 +146,12 @@ const TradeCard = () => {
 
     tick += isShort ? 10 : -10;
 
-    setRawLimitPrice((1.0001 ** tick).toFixed(4));
-  }, [optionScalpData, setRawLimitPrice, isShort]);
+    return (1.0001 ** tick).toFixed(4);
+  }, [optionScalpData, isShort]);
+
+  const setMaximumTick = useCallback(() => {
+    setRawLimitPrice(maximumTick);
+  }, [maximumTick, setRawLimitPrice]);
 
   const roundedLimitPrice = useMemo(() => {
     if (isNaN(Number(rawLimitPrice)) || !optionScalpData) return;
@@ -613,7 +619,16 @@ const TradeCard = () => {
         </div>
         {orderType === 'Limit' ? (
           <div className="mt-3">
-            <p className="text-xs text-stieglitz">Limit price</p>
+            <p
+              className="text-xs text-stieglitz cursor-pointer mb-1"
+              onClick={setMaximumTick}
+            >
+              Limit price -{' '}
+              <u>
+                {!isShort ? 'Min. $' : 'Max. $'}
+                {maximumTick}
+              </u>
+            </p>
             <Input
               color="cod-gray"
               placeholder={String(
@@ -634,17 +649,6 @@ const TradeCard = () => {
             <p className="text-xs text-stieglitz mt-2.5">
               Your price will be rounded to {roundedLimitPrice}
             </p>
-            {limitError ? (
-              <div className="mr-2">
-                <p className="text-xs text-red-400 mt-2.5">{limitError}</p>
-                <p
-                  className="text-xs text-white mt-2.5 mr-2 cursor-pointer"
-                  onClick={setMaximumTick}
-                >
-                  {'-> Click here to choose closest tick to spot <-'}
-                </p>
-              </div>
-            ) : null}
           </div>
         ) : null}
       </div>
@@ -719,7 +723,30 @@ const TradeCard = () => {
                 )}{' '}
                 {isShort
                   ? optionScalpData?.baseSymbol!
+                  : optionScalpData?.quoteSymbol === 'USDC'
+                  ? 'USDC.e'
                   : optionScalpData?.quoteSymbol!}
+              </h6>
+            </div>
+          </div>
+          <div className={'flex mb-2'}>
+            <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
+              Wallet Balance
+            </h6>
+            <div className={'text-right'}>
+              <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
+                {formatAmount(
+                  Number(
+                    utils.formatUnits(
+                      userTokenBalance,
+                      optionScalpData?.quoteDecimals!.toNumber()!
+                    )
+                  ),
+                  3
+                )}{' '}
+                {optionScalpData?.quoteSymbol === 'USDC'
+                  ? 'USDC.e'
+                  : optionScalpData?.quoteSymbol}
               </h6>
             </div>
           </div>
@@ -730,7 +757,9 @@ const TradeCard = () => {
             <div className={'text-right'}>
               <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
                 {formatAmount(positionDetails.marginInQuote, 3)}{' '}
-                {optionScalpData?.quoteSymbol}
+                {optionScalpData?.quoteSymbol === 'USDC'
+                  ? 'USDC.e'
+                  : optionScalpData?.quoteSymbol}
               </h6>
             </div>
           </div>
@@ -749,7 +778,9 @@ const TradeCard = () => {
                   ),
                   2
                 )}{' '}
-                {optionScalpData?.quoteSymbol}
+                {optionScalpData?.quoteSymbol === 'USDC'
+                  ? 'USDC.e'
+                  : optionScalpData?.quoteSymbol}
               </h6>
             </div>
           </div>
@@ -757,24 +788,30 @@ const TradeCard = () => {
             <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">Fees</h6>
             <div className={'text-right'}>
               <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
-                {optionScalpData?.feeOpenPosition
-                  ? formatAmount(
-                      Number(
-                        utils.formatUnits(
-                          posSize,
-                          optionScalpData?.quoteDecimals!.toNumber()!
-                        )
-                      ) *
+                <span className={orderType === 'Limit' ? 'text-green-500' : ''}>
+                  {orderType === 'Limit'
+                    ? 0
+                    : optionScalpData?.feeOpenPosition
+                    ? formatAmount(
                         Number(
                           utils.formatUnits(
-                            optionScalpData?.feeOpenPosition!,
-                            10
+                            posSize,
+                            optionScalpData?.quoteDecimals!.toNumber()!
                           )
-                        ),
-                      2
-                    )
-                  : 0}{' '}
-                {optionScalpData?.quoteSymbol}
+                        ) *
+                          Number(
+                            utils.formatUnits(
+                              optionScalpData?.feeOpenPosition!,
+                              10
+                            )
+                          ),
+                        2
+                      )
+                    : 0}{' '}
+                  {optionScalpData?.quoteSymbol === 'USDC'
+                    ? 'USDC.e'
+                    : optionScalpData?.quoteSymbol}
+                </span>
               </h6>
             </div>
           </div>

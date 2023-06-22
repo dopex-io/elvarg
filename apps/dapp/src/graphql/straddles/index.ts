@@ -20,3 +20,51 @@ export const getStraddlesUserDataDocument = graphql(`
     }
   }
 `);
+
+export const getStraddlesUserSettleDataDocument = graphql(`
+  query getStraddlesUserSettleData($user: String, $vault: String) {
+    settles(
+      where: {
+        user_contains_nocase: $user
+        straddleVault_contains_nocase: $vault
+      }
+    ) {
+      pnl
+      id
+      transaction {
+        id
+      }
+    }
+    straddlePurchases(
+      where: {
+        user_contains_nocase: $user
+        straddleVault_contains_nocase: $vault
+      }
+    ) {
+      cost
+      strikePrice
+      epoch
+      amount
+      id
+    }
+  }
+`);
+
+// export const getStraddlesUserSettleDataPolygonDocument = graphql(`
+//   query getStraddlesUserSettleDataPolygon($user: String) {
+//     settles(where: { user_contains_nocase: $user }) {
+//       pnl
+//       id
+//       transaction {
+//         id
+//       }
+//     }
+//     straddlePurchases(where: { user_contains_nocase: $user }) {
+//       cost
+//       strikePrice
+//       epoch
+//       amount
+//       id
+//     }
+//   }
+// `);

@@ -1,4 +1,4 @@
-import { BigNumber, BigNumberish, ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 
 import {
   ERC20__factory,
@@ -27,7 +27,11 @@ import { WalletSlice } from 'store/Wallet';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { DOPEX_API_BASE_URL } from 'constants/env';
-import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
+import {
+  DECIMALS_STRIKE,
+  DECIMALS_TOKEN,
+  SSOV_SUPPORTS_STAKING_REWARDS,
+} from 'constants/index';
 import { DOPEX_SSOV_SUBGRAPH_API_URL } from 'constants/subgraphs';
 import { TOKEN_ADDRESS_TO_DATA } from 'constants/tokens';
 
@@ -75,8 +79,13 @@ export interface SsovV3EpochData {
   strikeToIdx: Map<string, number>;
   volumeInUSD: number;
   totalEpochPurchasesInUSD: BigNumber;
+  stakingRewards: StakingRewards[][];
 }
 
+export interface StakingRewards {
+  reward: TokenData;
+  amount: BigNumber;
+}
 export interface WritePositionInterface {
   collateralAmount: BigNumber;
   strike: BigNumber;
@@ -87,6 +96,7 @@ export interface WritePositionInterface {
   utilization: BigNumber;
   epoch: number;
   tokenId: BigNumber;
+  stakingRewardsPosition?: SsovV3StakingRewards.StakedPositionStructOutput;
 }
 export interface SsovV3UserData {
   writePositions: WritePositionInterface[];
@@ -187,6 +197,10 @@ export const createSsovV3Slice: StateCreator<
     if (!ssovAddress) return;
 
     const ssovContract = SsovV3__factory.connect(ssovAddress, provider);
+    const stakingRewardsContract = SsovV3StakingRewards__factory.connect(
+      contractAddresses['SSOV-V3']['STAKING-REWARDS'],
+      provider
+    );
 
     const ssovViewerContract = SsovV3Viewer__factory.connect(
       ssovViewerAddress,
@@ -279,6 +293,42 @@ export const createSsovV3Slice: StateCreator<
       getUserReadableAmount(volume, DECIMALS_TOKEN) *
       getUserReadableAmount(underlyingPrice, DECIMALS_STRIKE);
 
+    let _stakingRewards: StakingRewards[][] = [];
+    // @TODO remove check when all ssovs support staking rewards
+    if (SSOV_SUPPORTS_STAKING_REWARDS.includes(ssovAddress)) {
+      const epochStrikeStakingRewardsCalls = epochStrikes.map((strike) => {
+        return stakingRewardsContract[
+          'getSsovEpochStrikeRewardsInfo(address,uint256,uint256)'
+        ](ssovAddress, strike, selectedEpoch);
+      });
+
+      const epochStrikeStakingRewardsResult = await Promise.all(
+        epochStrikeStakingRewardsCalls
+      );
+
+      for (const strikeRewardInfo of epochStrikeStakingRewardsResult) {
+        let stakingRewards: StakingRewards[] = [];
+        for (const rewardInfo of strikeRewardInfo) {
+          const rewardTokenAddress = rewardInfo.rewardToken;
+          const symbol = await ERC20__factory.connect(
+            rewardTokenAddress,
+            provider
+          ).symbol();
+
+          let tokenData = {
+            symbol: symbol,
+            imgSrc: '',
+          };
+
+          stakingRewards.push({
+            reward: tokenData,
+            amount: rewardInfo.rewardAmount,
+          });
+        }
+        _stakingRewards.push(stakingRewards);
+      }
+    }
+
     const _ssovEpochData = {
       isEpochExpired: epochData.expired,
       settlementPrice: epochData.settlementPrice,
@@ -304,6 +354,7 @@ export const createSsovV3Slice: StateCreator<
       strikeToIdx: strikeToIdx,
       volumeInUSD: volumeInUSD,
       totalEpochPurchasesInUSD: totalEpochPurchasesInUSD,
+      stakingRewards: _stakingRewards,
     };
 
     set((prevState) => ({ ...prevState, ssovEpochData: _ssovEpochData }));
@@ -316,7 +367,6 @@ export const createSsovV3Slice: StateCreator<
       selectedEpoch,
       selectedPoolName,
       getSsovViewerAddress,
-      ssovEpochData,
       ssovSigner: { ssovStakingRewardsWithSigner },
     } = get();
 
@@ -367,42 +417,60 @@ export const createSsovV3Slice: StateCreator<
       })
     );
 
-    // Staking rewards
-    const earnedCalls = writePositions.map((writePositionId) => {
-      if (ssovStakingRewardsWithSigner) {
-        return ssovStakingRewardsWithSigner['earned(address,uint256)'](
-          ssov.address,
-          writePositionId
-        );
-      }
-    });
-
-    let earnings = await Promise.all(earnedCalls);
-
     let _rewardTokens: TokenData[][] = [];
     let _rewardAmounts: BigNumber[][] = [];
+    let stakedPositions: SsovV3StakingRewards.StakedPositionStructOutput[] = [];
 
-    for (const earning of earnings) {
-      _rewardAmounts.push(earning?.rewardAmounts!);
-      let _rewardsTokenData = [];
+    if (SSOV_SUPPORTS_STAKING_REWARDS.includes(ssov.address)) {
+      // Staking rewards
+      const earnedCalls = writePositions.map((writePositionId) => {
+        if (ssovStakingRewardsWithSigner) {
+          return ssovStakingRewardsWithSigner['earned(address,uint256)'](
+            ssov.address,
+            writePositionId
+          );
+        }
+      });
 
-      for (const rewardToken of earning?.rewardTokens!) {
-        let tokenData = TOKEN_ADDRESS_TO_DATA[rewardToken.toLowerCase()] || {
-          symbol: 'UNKNOWN',
-          imgSrc: '',
-        };
+      const stakedPositionCalls = writePositions.map((writePositionId) => {
+        if (ssovStakingRewardsWithSigner) {
+          return ssovStakingRewardsWithSigner?.getId(
+            ssovAddress,
+            writePositionId,
+            selectedEpoch
+          );
+        }
+      });
 
-        if (ssovEpochData?.epochStrikeTokens.includes(rewardToken)) {
-          tokenData.symbol = await ERC20__factory.connect(
+      const earnings = await Promise.all(earnedCalls);
+      let stakePositionIds = await Promise.all(stakedPositionCalls);
+
+      let stakedPositionsCalls = stakePositionIds.map((id) => {
+        return ssovStakingRewardsWithSigner!.getUserStakedPosition(id!);
+      });
+
+      stakedPositions = await Promise.all(stakedPositionsCalls);
+
+      for (const earning of earnings) {
+        _rewardAmounts.push(earning?.rewardAmounts!);
+        let _rewardsTokenData = [];
+
+        for (const rewardToken of earning?.rewardTokens!) {
+          const symbol = await ERC20__factory.connect(
             rewardToken,
             provider
           ).symbol();
+
+          let tokenData = {
+            symbol: symbol,
+            imgSrc: '',
+          };
+
+          _rewardsTokenData.push(tokenData);
         }
 
-        _rewardsTokenData.push(tokenData);
+        _rewardTokens.push(_rewardsTokenData);
       }
-
-      _rewardTokens.push(_rewardsTokenData);
     }
 
     const _writePositions = data.map((o, i) => {
@@ -420,10 +488,9 @@ export const createSsovV3Slice: StateCreator<
         accruedRewards: moreData[i]?.rewardTokenWithdrawAmounts || [],
         accruedPremiums: moreData[i]?.accruedPremium || BigNumber.from(0),
         utilization: utilization!,
-        stakeRewardAmounts:
-          _rewardAmounts[i].length === 0 ? [] : _rewardAmounts[i],
-        stakeRewardTokens:
-          _rewardTokens[i].length === 0 ? [] : _rewardTokens[i],
+        stakeRewardAmounts: _rewardAmounts[i],
+        stakeRewardTokens: _rewardTokens[i],
+        stakingRewardsPosition: stakedPositions[i],
       };
     });
 

@@ -32,7 +32,6 @@ import SignerButton from 'components/common/SignerButton';
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import { MIN_EXECUTION_FEE } from 'constants/gmx';
@@ -219,7 +218,7 @@ const Positions = ({
 
     setUserPositionData(() => position);
     setTriggerMarker(() =>
-      getUserReadableAmount(BigNumber.from(position.putStrike), 8).toString()
+      ethers.utils.formatUnits(BigNumber.from(position.putStrike), 8).toString()
     );
     setIsPositionReleased(() => strategyPosition.state === 1);
   }, [
@@ -627,10 +626,8 @@ const Positions = ({
                             <ContentRow
                               title="Initial Collateral:"
                               content={`$${formatAmount(
-                                getUserReadableAmount(
-                                  BigNumber.from(
-                                    userPositionData.initialCollateral
-                                  ),
+                                ethers.utils.formatUnits(
+                                  userPositionData.initialCollateral,
                                   30
                                 ),
                                 2
@@ -640,14 +637,10 @@ const Positions = ({
                             <ContentRow
                               title="Put Strike:"
                               content={`$${formatAmount(
-                                ethers.utils
-                                  .parseUnits(
-                                    BigNumber.from(
-                                      userPositionData.putStrike
-                                    ).toString(),
-                                    '8'
-                                  )
-                                  .toString(),
+                                ethers.utils.formatUnits(
+                                  userPositionData.putStrike,
+                                  8
+                                ),
                                 3
                               )}`}
                               textSize="caption"
@@ -655,14 +648,10 @@ const Positions = ({
                             <ContentRow
                               title="PnL:"
                               content={`${formatAmount(
-                                ethers.utils
-                                  .parseUnits(
-                                    BigNumber.from(
-                                      userPositionData.delta
-                                    ).toString(),
-                                    '30'
-                                  )
-                                  .toString(),
+                                ethers.utils.formatUnits(
+                                  userPositionData.delta,
+                                  '30'
+                                ),
                                 2
                               )}`}
                               textSize="caption"
@@ -671,14 +660,10 @@ const Positions = ({
                             <ContentRow
                               title="Collateral:"
                               content={`$${formatAmount(
-                                ethers.utils
-                                  .parseUnits(
-                                    BigNumber.from(
-                                      userPositionData.collateral
-                                    ).toString(),
-                                    '30'
-                                  )
-                                  .toString(),
+                                ethers.utils.formatUnits(
+                                  userPositionData.collateral,
+                                  '30'
+                                ),
                                 2
                               )}`}
                               textSize="caption"
@@ -699,7 +684,7 @@ const Positions = ({
                           >
                             $
                             {formatAmount(
-                              getUserReadableAmount(
+                              ethers.utils.formatUnits(
                                 BigNumber.from(userPositionData.collateral),
                                 30
                               ),
@@ -715,7 +700,7 @@ const Positions = ({
                             variant="caption"
                           >
                             {`${formatAmount(
-                              getUserReadableAmount(
+                              ethers.utils.formatUnits(
                                 BigNumber.from(userPositionData.delta),
                                 30
                               ),
@@ -729,7 +714,7 @@ const Positions = ({
                       <Typography variant="h6">
                         $
                         {formatAmount(
-                          getUserReadableAmount(
+                          ethers.utils.formatUnits(
                             BigNumber.from(userPositionData.size),
                             30
                           ),
@@ -741,7 +726,7 @@ const Positions = ({
                       <Typography variant="h6">
                         $
                         {formatAmount(
-                          getUserReadableAmount(
+                          ethers.utils.formatUnits(
                             BigNumber.from(userPositionData.collateral),
                             30
                           ),
@@ -753,7 +738,7 @@ const Positions = ({
                       <Typography variant="h6">
                         $
                         {formatAmount(
-                          getUserReadableAmount(
+                          ethers.utils.formatUnits(
                             BigNumber.from(userPositionData.markPrice),
                             8
                           ),
@@ -765,7 +750,7 @@ const Positions = ({
                       <Typography variant="h6">
                         $
                         {formatAmount(
-                          getUserReadableAmount(
+                          ethers.utils.formatUnits(
                             BigNumber.from(userPositionData.entryPrice),
                             30
                           ),
@@ -777,7 +762,7 @@ const Positions = ({
                       <Typography variant="h6">
                         $
                         {formatAmount(
-                          getUserReadableAmount(
+                          ethers.utils.formatUnits(
                             BigNumber.from(userPositionData.liquidationPrice),
                             30
                           ),

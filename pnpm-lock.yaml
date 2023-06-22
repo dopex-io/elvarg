@@ -83,8 +83,8 @@ importers:
         specifier: ^1.11.11
         version: 1.11.11
       lightweight-charts:
-        specifier: ^3.8.0
-        version: 3.8.0
+        specifier: ^4.0.1
+        version: 4.0.1
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -10746,8 +10746,8 @@ packages:
     engines: {node: '> 0.1.90'}
     dev: false
 
-  /fancy-canvas@0.2.2:
-    resolution: {integrity: sha512-50qi8xA0QkHbjmb8h7XQ6k2fvD7y/yMfiUw9YTarJ7rWrq6o5/3CCXPouYk+XSLASvvxtjyiQLRBFt3qkE3oyA==}
+  /fancy-canvas@2.1.0:
+    resolution: {integrity: sha512-nifxXJ95JNLFR2NgRV4/MxVP45G9909wJTEKz5fg/TZS20JJZA6hfgRVh/bC9bwl2zBtBNcYPjiBE4njQHVBwQ==}
     dev: false
 
   /fast-decode-uri-component@1.0.1:
@@ -12525,10 +12525,10 @@ packages:
       immediate: 3.0.6
     dev: false
 
-  /lightweight-charts@3.8.0:
-    resolution: {integrity: sha512-7yFGnYuE1RjRJG9RwUTBz5wvF1QtjBOSW4FFlikr8Dh+/TDNt4ci+HsWSYmStgQUpawpvkCJ3j5/W25GppGj9Q==}
+  /lightweight-charts@4.0.1:
+    resolution: {integrity: sha512-p+j6w41PVzf9Vn7IrmpmCJacunpN0kKsl0IZoxMOySSkDcSagZ7Is9pb6pclIfN/usHdta0aYm9FktkYpAQe0g==}
     dependencies:
-      fancy-canvas: 0.2.2
+      fancy-canvas: 2.1.0
     dev: false
 
   /lilconfig@2.1.0:

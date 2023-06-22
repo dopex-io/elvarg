@@ -1,8 +1,6 @@
 import { SetStateAction, useCallback, useState } from 'react';
-
 import { BigNumber } from 'ethers';
 
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
@@ -13,15 +11,18 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+
 import useSendTx from 'hooks/useSendTx';
 import useShare from 'hooks/useShare';
 import { useBoundStore } from 'store';
 
 import { StraddlePosition } from 'store/Vault/straddles';
 
+import { TableHeader } from 'components/straddles/Deposits/DepositsTable';
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import { TableHeader } from 'components/straddles/Deposits/DepositsTable';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -29,7 +30,7 @@ import getPercentageDifference from 'utils/math/getPercentageDifference';
 
 import { DECIMALS_STRIKE } from 'constants/index';
 
-const PositionsTable = () => {
+const OpenPositionsTable = () => {
   const sendTx = useSendTx();
   const share = useShare((state) => state.open);
 
@@ -225,4 +226,4 @@ const PositionsTable = () => {
   );
 };
 
-export default PositionsTable;
+export default OpenPositionsTable;
