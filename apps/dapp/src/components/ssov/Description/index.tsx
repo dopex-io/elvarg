@@ -4,10 +4,10 @@ import { BigNumber, ethers } from 'ethers';
 import cx from 'classnames';
 import format from 'date-fns/format';
 import noop from 'lodash/noop';
-import { useBoundStore } from 'store';
 import Action from 'svgs/icons/Action';
 import Coin from 'svgs/icons/Coin';
 
+import { useBoundStore } from 'store';
 import { Reward, SsovV3Data, SsovV3EpochData } from 'store/Vault/ssov';
 
 import SignerButton from 'components/common/SignerButton';
@@ -77,7 +77,7 @@ const Description = ({
     if (typeof APY !== 'string') {
       return `upto ${Math.max(
         ...(APY as string[]).map((apy: string) => Number(apy))
-      )}`;
+      )}%`;
     }
 
     return Number(APY) > 0 && APY !== 'Infinity'
