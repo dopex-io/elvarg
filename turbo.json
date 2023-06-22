@@ -10,7 +10,7 @@
     "lint": {},
     "generate": {
       "inputs": ["src/graphql/**"],
-      "outputs": [".graphclient/**"]
+      "outputs": ["src/gql/**"]
     },
     "build": {
       "outputs": [".next/**", "!.next/cache/**", "dist/**"],

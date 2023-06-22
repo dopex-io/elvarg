@@ -20,9 +20,9 @@ import { useBoundStore } from 'store';
 
 import { StraddlePosition } from 'store/Vault/straddles';
 
+import { TableHeader } from 'components/straddles/Deposits/DepositsTable';
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import { TableHeader } from 'components/straddles/Deposits/DepositsTable';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';

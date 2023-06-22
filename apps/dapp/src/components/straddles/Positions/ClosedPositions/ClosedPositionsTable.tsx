@@ -14,17 +14,24 @@ import {
 
 import { IosShare } from '@mui/icons-material';
 
-import graphSdk from 'graphql/graphSdk';
+import request from 'graphql-request';
 import useShare from 'hooks/useShare';
 import { reverse } from 'lodash';
 import queryClient from 'queryClient';
 import { useBoundStore } from 'store';
+
+import { getStraddlesUserSettleDataDocument } from 'graphql/straddles';
 
 import { TableHeader } from 'components/straddles/Deposits/DepositsTable';
 import { TablePaginationActions } from 'components/UI';
 
 import { formatAmount, getExplorerTxURL, smartTrim } from 'utils/general';
 import getPercentageDifference from 'utils/math/getPercentageDifference';
+
+import {
+  DOPEX_POLYGON_STRADDLE_SUBGRAPH_API_URL,
+  DOPEX_STRADDLES_SUBGRAPH_API_URL,
+} from 'constants/subgraphs';
 
 const POLYGON_CHAIN_ID = 137;
 
@@ -108,28 +115,22 @@ const ClosedPositionsTable = () => {
 
   useEffect(() => {
     async function getRecords() {
-      if (chainId === POLYGON_CHAIN_ID) {
-        const payloadPolygon = await queryClient.fetchQuery({
-          queryKey: ['settled-data-polygon'],
-          queryFn: () =>
-            graphSdk.getStraddlesUserSettleDataPolygon({
-              user: accountAddress,
-            }),
-        });
-        setSettled(payloadPolygon?.straddles_polygonsettles);
-        setPurchases(payloadPolygon?.straddles_polygonstraddlePurchases);
-      } else {
-        const payloadArb = await queryClient.fetchQuery({
-          queryKey: ['settled-data-arb'],
-          queryFn: () =>
-            graphSdk.getStraddlesUserSettleData({
+      const payloadArb = await queryClient.fetchQuery({
+        queryKey: ['getStraddlesUserSettleData'],
+        queryFn: async () =>
+          request(
+            chainId === POLYGON_CHAIN_ID
+              ? DOPEX_POLYGON_STRADDLE_SUBGRAPH_API_URL
+              : DOPEX_STRADDLES_SUBGRAPH_API_URL,
+            getStraddlesUserSettleDataDocument,
+            {
               user: accountAddress,
               vault: straddlesData?.straddlesContract?.address,
-            }),
-        });
-        setSettled(payloadArb?.straddles_settles);
-        setPurchases(payloadArb?.straddles_straddlePurchases);
-      }
+            }
+          ),
+      });
+      setSettled(payloadArb?.settles);
+      setPurchases(payloadArb?.straddlePurchases);
     }
     getRecords();
   }, [accountAddress, chainId, straddlesData]);

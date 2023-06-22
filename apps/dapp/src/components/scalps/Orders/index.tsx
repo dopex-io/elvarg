@@ -1,6 +1,6 @@
-import displayAddress from 'utils/general/displayAddress';
-
 import { useBoundStore } from 'store';
+
+import displayAddress from 'utils/general/displayAddress';
 
 import OrdersTable from './OrdersTable';
 

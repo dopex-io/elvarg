@@ -4,15 +4,24 @@ import {
   SsovV3__factory,
 } from '@dopex-io/sdk';
 import format from 'date-fns/format';
-import graphSdk from 'graphql/graphSdk';
-import queryClient from 'queryClient';
+import request from 'graphql-request';
 import { StateCreator } from 'zustand';
+
+import queryClient from 'queryClient';
+
+import { getSsovUserDataDocument } from 'graphql/ssovs';
+import { getStraddlesUserDataDocument } from 'graphql/straddles';
 
 import { AssetsSlice } from 'store/Assets';
 import { WalletSlice } from 'store/Wallet';
 
 import getLinkFromVaultName from 'utils/contracts/getLinkFromVaultName';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+
+import {
+  DOPEX_SSOV_SUBGRAPH_API_URL,
+  DOPEX_STRADDLES_SUBGRAPH_API_URL,
+} from 'constants/subgraphs';
 
 export interface UserSSOVPosition {
   amount: string;
@@ -291,12 +300,14 @@ export const createPortfolioSlice: StateCreator<
     };
 
     const ssovQueryResult = await queryClient.fetchQuery({
-      queryKey: ['ssovUserData'],
-      queryFn: () =>
-        graphSdk.getSsovUserData({ user: accountAddress.toLowerCase() }),
+      queryKey: ['getSsovUserData'],
+      queryFn: async () =>
+        request(DOPEX_SSOV_SUBGRAPH_API_URL, getSsovUserDataDocument, {
+          user: accountAddress.toLowerCase(),
+        }),
     });
 
-    const data = ssovQueryResult['ssov_users'][0];
+    const data = ssovQueryResult['users'][0];
 
     const ssovDepositsPromises = [];
     const ssovDeposits: UserSSOVDeposit[] = [];
@@ -330,14 +341,19 @@ export const createPortfolioSlice: StateCreator<
     }
 
     // Straddles
-
     const straddlesQueryResult = await queryClient.fetchQuery({
-      queryKey: ['straddlesUserData'],
-      queryFn: () =>
-        graphSdk.getStraddlesUserData({ user: accountAddress.toLowerCase() }),
+      queryKey: ['getStraddlesUserData'],
+      queryFn: async () =>
+        request(
+          DOPEX_STRADDLES_SUBGRAPH_API_URL,
+          getStraddlesUserDataDocument,
+          {
+            user: accountAddress.toLowerCase(),
+          }
+        ),
     });
 
-    const straddlesData = straddlesQueryResult['straddles_users'][0];
+    const straddlesData = straddlesQueryResult['users'][0];
 
     const straddlesDepositsPromises = [];
     const straddlesPositionsPromises = [];

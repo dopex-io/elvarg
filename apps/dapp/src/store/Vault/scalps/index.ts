@@ -6,12 +6,16 @@ import {
   OptionScalpsLp,
   OptionScalpsLp__factory,
 } from '@dopex-io/sdk';
-import graphSdk from 'graphql/graphSdk';
+import request from 'graphql-request';
 import queryClient from 'queryClient';
 import { StateCreator } from 'zustand';
 
+import { getTradeStatsDocument } from 'graphql/optionScalps';
+
 import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';
+
+import { DOPEX_OPTION_SCALPS_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
 export interface optionScalpData {
   optionScalpContract: any | undefined;
@@ -512,7 +516,8 @@ export const createOptionScalpSlice: StateCreator<
   getUserPositionData: async () => {
     const userPositionData = await queryClient.fetchQuery({
       queryKey: ['getTraderStats'],
-      queryFn: () => graphSdk.getTraderStats(),
+      queryFn: async () =>
+        request(DOPEX_OPTION_SCALPS_SUBGRAPH_API_URL, getTradeStatsDocument),
     });
 
     if (!userPositionData) return;
