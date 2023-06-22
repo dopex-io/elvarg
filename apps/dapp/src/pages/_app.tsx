@@ -1,13 +1,16 @@
 import { useEffect } from 'react';
 import type { AppProps } from 'next/app';
 import Script from 'next/script';
+
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
+
 import { QueryClientProvider } from '@tanstack/react-query';
 import { DefaultSeo } from 'next-seo';
-import queryClient from 'queryClient';
 import { Toaster } from 'react-hot-toast';
 import { WagmiConfig } from 'wagmi';
-import wagmiClient from 'wagmi-client';
+import wagmiConfig from 'wagmi-config';
+
+import queryClient from 'queryClient';
 
 import GlobalDialogs from 'components/common/GlobalDialogs';
 
@@ -20,7 +23,7 @@ import '../style/index.css';
 
 function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
-    wagmiClient.autoConnect();
+    wagmiConfig.autoConnect();
   }, []);
 
   return (
@@ -52,7 +55,7 @@ function App({ Component, pageProps }: AppProps) {
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
           <QueryClientProvider client={queryClient}>
-            <WagmiConfig client={wagmiClient}>
+            <WagmiConfig config={wagmiConfig}>
               <Toaster position="bottom-right" reverseOrder={true} />
               <GlobalDialogs />
               <Component {...pageProps} />
