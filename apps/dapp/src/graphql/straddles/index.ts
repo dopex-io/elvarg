@@ -49,22 +49,3 @@ export const getStraddlesUserSettleDataDocument = graphql(`
     }
   }
 `);
-
-// export const getStraddlesUserSettleDataPolygonDocument = graphql(`
-//   query getStraddlesUserSettleDataPolygon($user: String) {
-//     settles(where: { user_contains_nocase: $user }) {
-//       pnl
-//       id
-//       transaction {
-//         id
-//       }
-//     }
-//     straddlePurchases(where: { user_contains_nocase: $user }) {
-//       cost
-//       strikePrice
-//       epoch
-//       amount
-//       id
-//     }
-//   }
-// `);

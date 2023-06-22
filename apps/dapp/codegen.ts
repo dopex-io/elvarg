@@ -3,9 +3,6 @@ import { CodegenConfig } from '@graphql-codegen/cli';
 const DOPEX_STRADDLES_SUBGRAPH_API_URL =
   'https://api.thegraph.com/subgraphs/name/psytama/dopex-straddles';
 
-const DOPEX_POLYGON_STRADDLE_SUBGRAPH_API_URL =
-  'https://api.thegraph.com/subgraphs/name/psytama/dopex-straddles-polygon';
-
 const DOPEX_SSOV_SUBGRAPH_API_URL =
   'https://api.thegraph.com/subgraphs/name/psytama/dopex-ssov';
 
@@ -20,11 +17,6 @@ const config: CodegenConfig = {
     './src/gql/straddles/': {
       schema: DOPEX_STRADDLES_SUBGRAPH_API_URL,
       documents: ['src/graphql/straddles/*.ts'],
-      preset: 'client',
-    },
-    './src/gql/polygon-straddles/': {
-      schema: DOPEX_ZDTE_SUBGRAPH_API_URL,
-      documents: ['src/graphql/zdte/*.ts'],
       preset: 'client',
     },
     './src/gql/ssovs/': {
@@ -46,34 +38,3 @@ const config: CodegenConfig = {
 };
 
 export default config;
-// generates:
-//   ./src/graphql/generated/portfolio.ts:
-//     schema: https://api.thegraph.com/subgraphs/name/psytama/dopex-ssov
-//     plugins:
-//       - typescript
-//       - typescript-operations
-//       - typescript-react-apollo
-//     config:
-//       withHooks: true
-//       defaultScalarType: string
-//     documents: 'src/graphql/portfolio/**/*.graphql'
-//   ./src/graphql/generated/portfolioStraddles.ts:
-//     schema: https://api.thegraph.com/subgraphs/name/psytama/dopex-straddles
-//     plugins:
-//       - typescript
-//       - typescript-operations
-//       - typescript-react-apollo
-//     config:
-//       withHooks: true
-//       defaultScalarType: string
-//     documents: 'src/graphql/portfolioStraddles/**/*.graphql'
-//   ./src/graphql/generated/optionScalps.ts:
-//     schema: https://api.thegraph.com/subgraphs/name/aercwarden/dopex-option-scalps
-//     plugins:
-//       - typescript
-//       - typescript-operations
-//       - typescript-react-apollo
-//     config:
-//       withHooks: true
-//       defaultScalarType: string
-//     documents: 'src/graphql/optionScalps/*.graphql'
