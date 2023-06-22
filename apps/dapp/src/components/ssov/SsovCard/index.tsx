@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { ReactNode, useMemo } from 'react';
 import Link from 'next/link';
 
 import Box from '@mui/material/Box';
@@ -56,13 +56,18 @@ function SsovCard(props: any) {
   const name = underlyingSymbol as string;
 
   const info = useMemo(() => {
-    let _apy =
+    let _apy: ReactNode =
       apy > 0 && apy !== 'Infinity'
         ? formatAmount(apy, 0, true).toString() + '%'
         : '...';
 
     if (typeof apy !== 'string') {
-      _apy = `upto ${Math.max(...apy.map((apy: string) => Number(apy)))}%`;
+      _apy = (
+        <div className="flex flex-col">
+          <span className="text-xs">upto</span>
+          {formatAmount(Math.max(...apy.map((apy: string) => Number(apy))))}%
+        </div>
+      );
     }
 
     return [
