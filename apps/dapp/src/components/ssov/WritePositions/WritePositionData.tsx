@@ -1,4 +1,4 @@
-import React, { ReactNode, useMemo } from 'react';
+import React, { ReactNode, useCallback, useMemo } from 'react';
 import { BigNumber } from 'ethers';
 
 import TableCell from '@mui/material/TableCell';
@@ -23,7 +23,7 @@ interface Props extends WritePositionInterface {
   rewardTokens: TokenData[];
   openTransfer: () => void;
   openWithdraw: () => void;
-  openClaim: () => void;
+  handleStakedPosition: () => void;
   epochExpired: boolean;
   ssovAddress: string | undefined;
 }
@@ -38,7 +38,7 @@ const WritePositionTableData = (props: Props) => {
     collateralSymbol,
     openTransfer,
     openWithdraw,
-    openClaim,
+    handleStakedPosition,
     rewardTokens,
     utilization,
     // estimatedPnl,
@@ -46,6 +46,7 @@ const WritePositionTableData = (props: Props) => {
     stakeRewardAmounts,
     stakeRewardTokens,
     ssovAddress,
+    stakingRewardsPosition,
   } = props;
 
   const { ssovSigner } = useBoundStore();
@@ -111,13 +112,17 @@ const WritePositionTableData = (props: Props) => {
       ssovSigner.ssovContractWithSigner &&
       SSOV_SUPPORTS_STAKING_REWARDS.includes(
         ssovSigner.ssovContractWithSigner.address
-      ) &&
-      stakeRewardAmounts.length > 0
+      )
     ) {
-      _options.push('Claim');
+      if (stakingRewardsPosition?.staked) {
+        _options.push('Claim');
+      } else {
+        _options.push('Stake');
+      }
     }
+
     return _options;
-  }, [ssovSigner.ssovContractWithSigner, stakeRewardAmounts.length]);
+  }, [ssovSigner.ssovContractWithSigner, stakingRewardsPosition]);
 
   return (
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
@@ -159,7 +164,7 @@ const WritePositionTableData = (props: Props) => {
           handleClick={(index: number) => {
             if (index === 0) openTransfer();
             if (index === 1) openWithdraw();
-            if (index === 2) openClaim();
+            if (index === 2) handleStakedPosition();
           }}
           disableButtons={[false, !epochExpired]}
         />
