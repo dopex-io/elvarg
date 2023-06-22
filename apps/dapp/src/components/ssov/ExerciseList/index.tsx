@@ -14,6 +14,7 @@ import TableRow from '@mui/material/TableRow';
 import { ERC20__factory } from '@dopex-io/sdk';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
+
 import { useBoundStore } from 'store';
 
 import SignerButton from 'components/common/SignerButton';
@@ -184,12 +185,6 @@ const ExerciseList = () => {
             <Table className="border-separate border-spacing-y-2">
               <TableHead className="bg-umbra">
                 <TableRow className="bg-umbra">
-                  <TableCell
-                    align="left"
-                    className="text-stieglitz bg-cod-gray border-0 pb-0"
-                  >
-                    <Typography variant="h6">Option</Typography>
-                  </TableCell>
                   <TableCell
                     align="left"
                     className="text-stieglitz bg-cod-gray border-0 pb-0"

@@ -13,8 +13,8 @@ import TableRow from '@mui/material/TableRow';
 import cx from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
-import { useBoundStore } from 'store';
 
+import { useBoundStore } from 'store';
 import { StakingRewards } from 'store/Vault/ssov';
 
 import { NumberDisplay } from 'components/UI';
@@ -51,20 +51,7 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
   } = props;
 
   return (
-    <TableRow className="text-white bg-umbra mb-2 rounded-lg">
-      <TableCell className="border-0 py-1" align="left">
-        <Box className="h-12 flex flex-row items-center">
-          <Box className="flex flex-row h-8 w-8 mr-2">
-            <img
-              src={`/images/tokens/${underlyingSymbol.toLowerCase()}.svg`}
-              alt={underlyingSymbol}
-            />
-          </Box>
-          <Typography variant="h5" className="text-white">
-            {underlyingSymbol}
-          </Typography>
-        </Box>
-      </TableCell>
+    <TableRow className="text-white bg-umbra mb-2 rounded-lg h-[69px]">
       <TableCell align="left" className="border-0 py-1">
         <Typography variant="h6">${formatAmount(strikePrice, 5)}</Typography>
       </TableCell>
@@ -202,12 +189,6 @@ const Stats = (props: { className?: string }) => {
             <Table className="border-separate border-spacing-y-2">
               <TableHead className="bg-umbra">
                 <TableRow className="bg-umbra">
-                  <TableCell
-                    align="left"
-                    className="text-stieglitz bg-cod-gray border-0 pb-0"
-                  >
-                    <Typography variant="h6">Option</Typography>
-                  </TableCell>
                   <TableCell
                     align="left"
                     className="text-stieglitz bg-cod-gray border-0 pb-0"
