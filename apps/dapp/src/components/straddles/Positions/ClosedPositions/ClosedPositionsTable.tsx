@@ -233,16 +233,12 @@ const ClosedPositionsTable = () => {
                       </h6>
                     </TableCell>
                     <TableCell className="pt-1 border-0">
-                      <h6 className="text-white text-left">
-                        <a
-                          href={getExplorerTxURL(
-                            chainId,
-                            records[position].txId
-                          )}
-                        >
-                          {smartTrim(records[position].txId, 12)}
-                        </a>
-                      </h6>
+                      <a
+                        className="text-white text-left underline"
+                        href={getExplorerTxURL(chainId, records[position].txId)}
+                      >
+                        {smartTrim(records[position].txId, 12)}
+                      </a>
                     </TableCell>
                     <TableCell className="flex justify-end border-0">
                       <div className="flex justify-end">
