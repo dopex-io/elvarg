@@ -299,7 +299,7 @@ export const createPortfolioSlice: StateCreator<
     };
 
     const ssovQueryResult = await queryClient.fetchQuery({
-      queryKey: ['ssovUserData'],
+      queryKey: ['getSsovUserData'],
       queryFn: async () =>
         request(DOPEX_SSOV_SUBGRAPH_API_URL, getSsovUserDataDocument, {
           user: accountAddress.toLowerCase(),
@@ -341,7 +341,7 @@ export const createPortfolioSlice: StateCreator<
 
     // Straddles
     const straddlesQueryResult = await queryClient.fetchQuery({
-      queryKey: ['straddlesUserData'],
+      queryKey: ['getStraddlesUserData'],
       queryFn: async () =>
         request(
           DOPEX_STRADDLES_SUBGRAPH_API_URL,
