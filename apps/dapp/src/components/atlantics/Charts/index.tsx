@@ -1,13 +1,11 @@
-import dynamic from 'next/dynamic';
-
 import { useMemo } from 'react';
-
+import dynamic from 'next/dynamic';
 import { BigNumber } from 'ethers';
 
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
-import { useBoundStore } from 'store';
 
+import { useBoundStore } from 'store';
 import { IAtlanticPoolEpochStrikeData } from 'store/Vault/atlantics';
 
 const ClientRenderedLineChart = dynamic(() => import('./LiquidityLineChart'), {

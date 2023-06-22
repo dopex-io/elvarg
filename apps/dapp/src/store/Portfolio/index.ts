@@ -5,8 +5,9 @@ import {
 } from '@dopex-io/sdk';
 import format from 'date-fns/format';
 import request from 'graphql-request';
-import queryClient from 'queryClient';
 import { StateCreator } from 'zustand';
+
+import queryClient from 'queryClient';
 
 import { getSsovUserDataDocument } from 'graphql/ssovs';
 import { getStraddlesUserDataDocument } from 'graphql/straddles';
