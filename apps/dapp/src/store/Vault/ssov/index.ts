@@ -93,6 +93,7 @@ export interface WritePositionInterface {
   utilization: BigNumber;
   epoch: number;
   tokenId: BigNumber;
+  stakingRewardsPosition?: SsovV3StakingRewards.StakedPositionStructOutput;
 }
 export interface SsovV3UserData {
   writePositions: WritePositionInterface[];
@@ -409,22 +410,40 @@ export const createSsovV3Slice: StateCreator<
       })
     );
 
-    // Staking rewards
-    const earnedCalls = writePositions.map((writePositionId) => {
-      if (ssovStakingRewardsWithSigner) {
-        return ssovStakingRewardsWithSigner['earned(address,uint256)'](
-          ssov.address,
-          writePositionId
-        );
-      }
-    });
-
-    let earnings = await Promise.all(earnedCalls);
-
     let _rewardTokens: TokenData[][] = [];
     let _rewardAmounts: BigNumber[][] = [];
+    let stakedPositions: SsovV3StakingRewards.StakedPositionStructOutput[] = [];
 
     if (SSOV_SUPPORTS_STAKING_REWARDS.includes(ssov.address)) {
+      // Staking rewards
+      const earnedCalls = writePositions.map((writePositionId) => {
+        if (ssovStakingRewardsWithSigner) {
+          return ssovStakingRewardsWithSigner['earned(address,uint256)'](
+            ssov.address,
+            writePositionId
+          );
+        }
+      });
+
+      const stakedPositionCalls = writePositions.map((writePositionId) => {
+        if (ssovStakingRewardsWithSigner) {
+          return ssovStakingRewardsWithSigner?.getId(
+            ssovAddress,
+            writePositionId,
+            selectedEpoch
+          );
+        }
+      });
+
+      const earnings = await Promise.all(earnedCalls);
+      let stakePositionIds = await Promise.all(stakedPositionCalls);
+
+      let stakedPositionsCalls = stakePositionIds.map((id) => {
+        return ssovStakingRewardsWithSigner!.getUserStakedPosition(id!);
+      });
+
+      stakedPositions = await Promise.all(stakedPositionsCalls);
+
       for (const earning of earnings) {
         _rewardAmounts.push(earning?.rewardAmounts!);
         let _rewardsTokenData = [];
@@ -462,8 +481,9 @@ export const createSsovV3Slice: StateCreator<
         accruedRewards: moreData[i]?.rewardTokenWithdrawAmounts || [],
         accruedPremiums: moreData[i]?.accruedPremium || BigNumber.from(0),
         utilization: utilization!,
-        stakeRewardAmounts: _rewardAmounts[i] ? _rewardAmounts[i] : [],
-        stakeRewardTokens: _rewardTokens[i] ? _rewardTokens[i] : [],
+        stakeRewardAmounts: _rewardAmounts[i],
+        stakeRewardTokens: _rewardTokens[i],
+        stakingRewardsPosition: stakedPositions[i],
       };
     });
 
