@@ -62,7 +62,7 @@ function SsovCard(props: any) {
         : '...';
 
     if (typeof apy !== 'string') {
-      _apy = `upto ${Math.max(...apy.map((apy: string) => Number(apy)))}`;
+      _apy = `upto ${Math.max(...apy.map((apy: string) => Number(apy)))}%`;
     }
 
     return [

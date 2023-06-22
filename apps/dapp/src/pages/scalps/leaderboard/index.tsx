@@ -1,17 +1,18 @@
-import Head from 'next/head';
-
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import Head from 'next/head';
+import { ethers } from 'ethers';
 
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import EqualizerIcon from '@mui/icons-material/Equalizer';
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUp from '@mui/icons-material/KeyboardArrowUp';
+
 import cx from 'classnames';
+
 import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
 
-import { getUserReadableAmount } from 'utils/contracts';
 import { formatAmount, smartTrim } from 'utils/general';
 
 const TOKENS = ['ARB', 'ETH'];
@@ -171,7 +172,7 @@ const LeaderBoard = () => {
                       >
                         $
                         {formatAmount(
-                          getUserReadableAmount(
+                          ethers.utils.formatUnits(
                             sort === SORT_OPTIONS[0]
                               ? position.totalPnL
                               : position.totalVolume,
