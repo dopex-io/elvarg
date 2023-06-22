@@ -235,6 +235,8 @@ const ClosedPositionsTable = () => {
                     <TableCell className="pt-1 border-0">
                       <a
                         className="text-white text-left underline"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         href={getExplorerTxURL(chainId, records[position].txId)}
                       >
                         {smartTrim(records[position].txId, 12)}
