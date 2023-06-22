@@ -23,8 +23,8 @@ export function ConnectButton() {
 
   const { address } = useAccount();
   const { chain } = useNetwork();
-  const provider = useEthersProvider();
-  const signer = useEthersSigner();
+  const provider = useEthersProvider({ chainId: chain?.id });
+  const signer = useEthersSigner({ chainId: chain?.id });
   const { data: ensName } = useEnsName(address ? { address, chainId: 1 } : {});
   const { data } = useEnsAvatar({ name: ensName, chainId: 1 });
 
