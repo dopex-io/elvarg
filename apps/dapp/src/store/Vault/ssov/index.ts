@@ -15,9 +15,10 @@ import {
 import axios from 'axios';
 import request from 'graphql-request';
 import { getVolume } from 'pages/ssov';
-import queryClient from 'queryClient';
 import { TokenData } from 'types';
 import { StateCreator } from 'zustand';
+
+import queryClient from 'queryClient';
 
 import { getSsovPurchasesFromTimestampDocument } from 'graphql/ssovs';
 
@@ -155,10 +156,13 @@ export const createSsovV3Slice: StateCreator<
       signer
     );
 
-    const ssovStakingRewardsWithSigner = SsovV3StakingRewards__factory.connect(
-      contractAddresses['SSOV-V3']['STAKING-REWARDS'],
-      signer
-    );
+    let ssovStakingRewardsWithSigner;
+    if (chainId !== 137) {
+      ssovStakingRewardsWithSigner = SsovV3StakingRewards__factory.connect(
+        contractAddresses['SSOV-V3']['STAKING-REWARDS'],
+        signer
+      );
+    }
 
     _ssovSigner = {
       ssovContractWithSigner: _ssovContractWithSigner,
@@ -178,6 +182,7 @@ export const createSsovV3Slice: StateCreator<
       selectedPoolName,
       provider,
       getSsovViewerAddress,
+      chainId,
     } = get();
     const ssovViewerAddress = getSsovViewerAddress();
 
@@ -197,10 +202,14 @@ export const createSsovV3Slice: StateCreator<
     if (!ssovAddress) return;
 
     const ssovContract = SsovV3__factory.connect(ssovAddress, provider);
-    const stakingRewardsContract = SsovV3StakingRewards__factory.connect(
-      contractAddresses['SSOV-V3']['STAKING-REWARDS'],
-      provider
-    );
+
+    let stakingRewardsContract: SsovV3StakingRewards;
+    if (chainId !== 137) {
+      stakingRewardsContract = SsovV3StakingRewards__factory.connect(
+        contractAddresses['SSOV-V3']['STAKING-REWARDS'],
+        provider
+      );
+    }
 
     const ssovViewerContract = SsovV3Viewer__factory.connect(
       ssovViewerAddress,
