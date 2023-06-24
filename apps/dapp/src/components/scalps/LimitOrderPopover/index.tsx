@@ -7,15 +7,17 @@ import Tooltip from '@mui/material/Tooltip';
 
 import { Button, Input } from '@dopex-io/ui';
 import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
 import CrossIcon from 'svgs/icons/CrossIcon';
+
+import { useBoundStore } from 'store';
 
 interface LimitOrderPopoverProps {
   id: BigNumber;
+  isShort: boolean;
 }
 
 const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
-  const { id } = props;
+  const { id, isShort } = props;
   const {
     signer,
     selectedPoolName,
@@ -145,9 +147,14 @@ const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
             variant="contained"
             color={'primary'}
             onClick={handleCreate}
+            disabled={isShort}
           >
             <span className="text-xs md:sm">Create limit order</span>
           </Button>
+
+          <p className="text-red-400 text-xs mt-2">
+            Close limit orders for short positions are currently disabled
+          </p>
         </div>
       </Popover>
     </div>

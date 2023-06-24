@@ -12,6 +12,7 @@ import { formatDistance } from 'date-fns';
 import useSendTx from 'hooks/useSendTx';
 import useShare from 'hooks/useShare';
 import Countdown from 'react-countdown';
+
 import { useBoundStore } from 'store';
 
 import LimitOrderPopover from 'components/scalps/LimitOrderPopover';
@@ -399,7 +400,10 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                   )}
                   {position.isOpen && (
                     <div className="mx-2">
-                      <LimitOrderPopover id={position.id} />
+                      <LimitOrderPopover
+                        id={position.id}
+                        isShort={position.isShort}
+                      />
                     </div>
                   )}
                   <IconButton
