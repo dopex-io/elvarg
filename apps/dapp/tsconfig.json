@@ -16,5 +16,5 @@
     "sentry.edge.config.ts",
     "sentry.client.config.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "public/static"]
 }

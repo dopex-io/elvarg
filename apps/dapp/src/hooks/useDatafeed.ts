@@ -6,7 +6,6 @@ import {
   getPriceFeed,
   // isValidTicker,
 } from 'config/tradingview';
-import graphSdk from 'graphql/graphSdk';
 import {
   ErrorCallback,
   HistoryCallback,
