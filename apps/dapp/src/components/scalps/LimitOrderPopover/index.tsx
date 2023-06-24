@@ -7,8 +7,9 @@ import Tooltip from '@mui/material/Tooltip';
 
 import { Button, Input } from '@dopex-io/ui';
 import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
 import CrossIcon from 'svgs/icons/CrossIcon';
+
+import { useBoundStore } from 'store';
 
 interface LimitOrderPopoverProps {
   id: BigNumber;
@@ -88,12 +89,12 @@ const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
         placement="top"
       >
         <Button
-          className="cursor-pointer text-white w-[5.7rem]"
+          className="cursor-pointer text-white w-[2.7rem]"
           color={'primary'}
           variant={'contained'}
           onClick={handleOpenLimitOrderPopover}
         >
-          <span className="text-xs md:sm">Limit Close</span>
+          <span className="text-xs md:sm">Limit</span>
         </Button>
       </Tooltip>
       <Popover

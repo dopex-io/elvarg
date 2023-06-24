@@ -12,6 +12,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 import { format } from 'date-fns';
 import useShare from 'hooks/useShare';
+
 import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
@@ -145,27 +146,12 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   const Dialog = DIALOGS[dialogState.type];
 
   return (
-    <TableRow className="text-white bg-umbra mb-2 rounded-lg">
+    <TableRow className="text-white bg-umbra mb-2 rounded-lg h-[69px]">
       <Dialog
         open={dialogState.open}
         handleClose={handleClose}
         strikeIndex={strikeIndex}
       />
-      <TableCell align="left" className="border-0 py-1">
-        <Box className="h-12 flex flex-row items-center">
-          <Box className="flex flex-row h-8 w-8 mr-2">
-            <img
-              src={`/images/tokens/${
-                ssovData?.underlyingSymbol?.toLowerCase() || 'unknown'
-              }.svg`}
-              alt={ssovData?.underlyingSymbol || 'token'}
-            />
-          </Box>
-          <Typography variant="h5" className="text-white">
-            {ssovData?.underlyingSymbol}
-          </Typography>
-        </Box>
-      </TableCell>
       <TableCell align="left" className="border-0 py-1">
         <Typography variant="h6">${formatAmount(strikePrice, 5)}</Typography>
       </TableCell>

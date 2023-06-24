@@ -1,11 +1,17 @@
 import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 import { BigNumber, utils } from 'ethers';
 
-import graphSdk from 'graphql/graphSdk';
+import request from 'graphql-request';
+
 import queryClient from 'queryClient';
+
+import { getTradesFromTimestampDocument } from 'graphql/optionScalps';
+
 import { useBoundStore } from 'store';
 
 import formatAmount from 'utils/general/formatAmount';
+
+import { DOPEX_OPTION_SCALPS_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
 const Stat = ({ name, value }: { name: ReactNode; value: ReactNode }) => (
   <div className="flex flex-col">
@@ -30,9 +36,13 @@ const Stats = () => {
       const payload = await queryClient.fetchQuery({
         queryKey: ['getTradesFromTimestamp'],
         queryFn: () =>
-          graphSdk.getTradesFromTimestamp({
-            fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
-          }),
+          request(
+            DOPEX_OPTION_SCALPS_SUBGRAPH_API_URL,
+            getTradesFromTimestampDocument,
+            {
+              fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
+            }
+          ),
       });
 
       const _twentyFourHourVolume = payload.trades.reduce(

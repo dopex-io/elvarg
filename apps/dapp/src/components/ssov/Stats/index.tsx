@@ -13,8 +13,11 @@ import TableRow from '@mui/material/TableRow';
 import cx from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
-import { useBoundStore } from 'store';
 
+import { useBoundStore } from 'store';
+import { StakingRewards } from 'store/Vault/ssov';
+
+import { NumberDisplay } from 'components/UI';
 import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -29,6 +32,8 @@ interface StatsTableDataProps {
   underlyingSymbol: string;
   collateralSymbol: string;
   isPut: boolean;
+  stakingRewards: StakingRewards[] | null;
+  apy: string;
 }
 
 const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
@@ -41,23 +46,12 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
     underlyingSymbol,
     collateralSymbol,
     isPut,
+    stakingRewards,
+    apy,
   } = props;
 
   return (
-    <TableRow className="text-white bg-umbra mb-2 rounded-lg">
-      <TableCell className="border-0 py-1" align="left">
-        <Box className="h-12 flex flex-row items-center">
-          <Box className="flex flex-row h-8 w-8 mr-2">
-            <img
-              src={`/images/tokens/${underlyingSymbol.toLowerCase()}.svg`}
-              alt={underlyingSymbol}
-            />
-          </Box>
-          <Typography variant="h5" className="text-white">
-            {underlyingSymbol}
-          </Typography>
-        </Box>
-      </TableCell>
+    <TableRow className="text-white bg-umbra mb-2 rounded-lg h-[69px]">
       <TableCell align="left" className="border-0 py-1">
         <Typography variant="h6">${formatAmount(strikePrice, 5)}</Typography>
       </TableCell>
@@ -96,6 +90,27 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
           {formatAmount(isPut ? totalPremiums : totalPremiums * price, 2)}
         </Box>
       </TableCell>
+      {/* @TODO Remove when all ssovs support staking rewards */}
+      {stakingRewards && (
+        <TableCell align="left" className="border-0 py-1">
+          {stakingRewards.length > 0 ? (
+            stakingRewards.map(({ reward, amount }, index) => {
+              return (
+                <div key={index} className="w-full h-full">
+                  <NumberDisplay n={amount} decimals={18} />{' '}
+                  <span className="text-white text-sm">{reward.symbol}</span>
+                </div>
+              );
+            })
+          ) : (
+            <span className="text-white text-sm">-</span>
+          )}
+
+          {Number(apy) != 0 && (
+            <span className="text-xs text-stieglitz">APY: {apy}%</span>
+          )}
+        </TableCell>
+      )}
     </TableRow>
   );
 };
@@ -139,6 +154,8 @@ const Stats = (props: { className?: string }) => {
           totalAvailable,
           totalPurchased,
           totalPremiums,
+          stakingRewards: ssovEpochData?.stakingRewards[strikeIndex] ?? [],
+          apy: ssovEpochData?.APY[strikeIndex] ?? 0,
         };
       }) ?? [],
     [ssovEpochData]
@@ -176,12 +193,6 @@ const Stats = (props: { className?: string }) => {
                     align="left"
                     className="text-stieglitz bg-cod-gray border-0 pb-0"
                   >
-                    <Typography variant="h6">Option</Typography>
-                  </TableCell>
-                  <TableCell
-                    align="left"
-                    className="text-stieglitz bg-cod-gray border-0 pb-0"
-                  >
                     <Typography variant="h6" className="text-stieglitz">
                       Strike Price
                     </Typography>
@@ -210,6 +221,12 @@ const Stats = (props: { className?: string }) => {
                       Total Premiums
                     </Typography>
                   </TableCell>
+                  {/* @TODO Remove when all ssovs support staking rewards */}
+                  {ssovEpochData && ssovEpochData.stakingRewards.length > 0 && (
+                    <TableCell className="text-stieglitz bg-cod-gray border-0 pb-0">
+                      <span className="text-white">Rewards</span>
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody className="rounded-lg">
@@ -220,6 +237,8 @@ const Stats = (props: { className?: string }) => {
                     totalAvailable,
                     totalPurchased,
                     totalPremiums,
+                    stakingRewards,
+                    apy,
                   }) => {
                     return (
                       <StatsTableData
@@ -233,6 +252,13 @@ const Stats = (props: { className?: string }) => {
                         underlyingSymbol={ssovData?.underlyingSymbol || ''}
                         collateralSymbol={ssovData?.collateralSymbol || ''}
                         isPut={ssovData?.isPut || false}
+                        apy={apy}
+                        stakingRewards={
+                          ssovEpochData &&
+                          ssovEpochData.stakingRewards.length > 0
+                            ? stakingRewards
+                            : null
+                        }
                       />
                     );
                   }

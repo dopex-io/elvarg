@@ -7,19 +7,18 @@ import Box from '@mui/material/Box';
 
 import axios from 'axios';
 import { NextSeo } from 'next-seo';
-import { useBoundStore } from 'store';
 import { GmxCandleStick } from 'types';
+
+import { useBoundStore } from 'store';
 
 import ManageCard from 'components/atlantics/InsuredPerps/ManageCard';
 import Tables from 'components/atlantics/InsuredPerps/Tables';
 import Title from 'components/atlantics/InsuredPerps/Title';
+import { Period } from 'components/atlantics/InsuredPerps/TVChart';
 import AppBar from 'components/common/AppBar';
 import SignerButton from 'components/common/SignerButton';
 
 import seo from 'constants/seo';
-
-export const periods = ['1D', '4H', '1H', '15M', '5M'] as const;
-export type Period = (typeof periods)[number];
 
 const TVChart = dynamic(
   () => import('components/atlantics/InsuredPerps/TVChart'),

@@ -1,6 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
+import React, { ReactNode, useCallback, useMemo, useState } from 'react';
 
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import {
   Box,
   Paper,
@@ -13,17 +12,20 @@ import {
   TableRow,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
+
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+
 import isEmpty from 'lodash/isEmpty';
 import sortBy from 'lodash/sortBy';
 import { IOlpApi } from 'pages/olp';
 
-import { TablePaginationActions, Typography } from 'components/UI';
 import {
   StyleLeftTableCell,
   StyleRightTableCell,
   StyleTableCell,
 } from 'components/common/LpCommon/Table';
 import SsovFilter from 'components/ssov/SsovFilter';
+import { TablePaginationActions, Typography } from 'components/UI';
 
 import { getReadableTime } from 'utils/contracts';
 
@@ -50,7 +52,7 @@ const StyleSecondHeaderTable = styled(TableContainer)`
 `;
 
 interface HeaderCellInterface {
-  children: string;
+  children: ReactNode;
 }
 
 const StyleTableCellHeader = (props: HeaderCellInterface) => {
@@ -77,6 +79,7 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
   const [selectedOlpExpiries, setSelectedOlpExpiries] = useState<string[]>([]);
   const [selectedOlpNetworks, setSelectedOlpNetworks] = useState<string[]>([]);
   const [page, setPage] = useState<number>(0);
+  const [sortByTvl, setSortByTvl] = useState<boolean>(false);
 
   const olpMarkets = useMemo(() => {
     if (!olps) return [];
@@ -128,8 +131,16 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
       );
     }
 
-    return filtered;
-  }, [olps, selectedOlpMarkets, selectedOlpExpiries, selectedOlpNetworks]);
+    return sortByTvl
+      ? filtered.sort((a: IOlpApi, b: IOlpApi) => (a.tvl < b.tvl ? 1 : -1))
+      : filtered.sort((a: IOlpApi, b: IOlpApi) => (a.tvl > b.tvl ? 1 : -1));
+  }, [
+    olps,
+    selectedOlpMarkets,
+    selectedOlpExpiries,
+    selectedOlpNetworks,
+    sortByTvl,
+  ]);
 
   const handleChangePage = useCallback(
     (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
@@ -207,7 +218,9 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
                   Market
                 </Typography>
               </StyleLeftTableCell>
-              <StyleTableCellHeader>TVL</StyleTableCellHeader>
+              <StyleTableCellHeader>
+                <button onClick={() => setSortByTvl(!sortByTvl)}>TVL</button>
+              </StyleTableCellHeader>
               <StyleTableCellHeader>Utilization</StyleTableCellHeader>
               <StyleTableCellHeader>Network</StyleTableCellHeader>
               <StyleRightTableCell align="right">

@@ -6,16 +6,19 @@ import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import { useQuery } from '@tanstack/react-query';
-import graphSdk from 'graphql/graphSdk';
+import request from 'graphql-request';
 import isEmpty from 'lodash/isEmpty';
 import { NextSeo } from 'next-seo';
+
 import queryClient from 'queryClient';
 
-import Typography from 'components/UI/Typography';
+import { getSsovPurchasesFromTimestampDocument } from 'graphql/ssovs';
+
 import AppBar from 'components/common/AppBar';
 import SsovCard from 'components/ssov/SsovCard';
 import SsovFilter from 'components/ssov/SsovFilter';
 import SsovStat from 'components/ssov/Stats/SsovStat';
+import Typography from 'components/UI/Typography';
 
 import { getUserReadableAmount } from 'utils/contracts';
 import formatAmount from 'utils/general/formatAmount';
@@ -24,6 +27,7 @@ import { CHAINS } from 'constants/chains';
 import { DOPEX_API_BASE_URL } from 'constants/env';
 import { DECIMALS_TOKEN } from 'constants/index';
 import seo from 'constants/seo';
+import { DOPEX_SSOV_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
 const ssovStrategies: string[] = ['CALL', 'PUT'];
 const sortOptions: string[] = ['TVL', 'APY'];
@@ -66,10 +70,14 @@ const SsovData = () => {
     async () =>
       queryClient.fetchQuery({
         queryKey: ['getSsovPurchasesFromTimestamp'],
-        queryFn: () =>
-          graphSdk.getSsovPurchasesFromTimestamp({
-            fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
-          }),
+        queryFn: async () =>
+          request(
+            DOPEX_SSOV_SUBGRAPH_API_URL,
+            getSsovPurchasesFromTimestampDocument,
+            {
+              fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
+            }
+          ),
       })
   );
 

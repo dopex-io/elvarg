@@ -4,8 +4,9 @@ import { BigNumber } from 'ethers';
 import Box from '@mui/material/Box';
 
 import formatDistance from 'date-fns/formatDistance';
-import { useBoundStore } from 'store';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
+
+import { useBoundStore } from 'store';
 
 import EpochSelector from 'components/atlantics/EpochSelector';
 import ContractDataItem from 'components/atlantics/Manage/ContractData/ContractDataItem';

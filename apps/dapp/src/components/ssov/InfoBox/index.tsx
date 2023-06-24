@@ -1,6 +1,10 @@
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { ReactNode } from 'react';
+
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
+
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
 import cx from 'classnames';
 
 import Typography from 'components/UI/Typography';
@@ -9,7 +13,7 @@ interface InfoBoxProps {
   Icon?: React.FC;
   imgSrc?: string;
   heading: string;
-  value: string;
+  value: ReactNode;
   className?: string;
   tooltip?: string;
 }

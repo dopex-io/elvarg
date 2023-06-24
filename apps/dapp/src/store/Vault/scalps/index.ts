@@ -6,12 +6,17 @@ import {
   OptionScalpsLp,
   OptionScalpsLp__factory,
 } from '@dopex-io/sdk';
-import graphSdk from 'graphql/graphSdk';
-import queryClient from 'queryClient';
+import request from 'graphql-request';
 import { StateCreator } from 'zustand';
+
+import queryClient from 'queryClient';
+
+import { getTradeStatsDocument } from 'graphql/optionScalps';
 
 import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';
+
+import { DOPEX_OPTION_SCALPS_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
 export interface optionScalpData {
   optionScalpContract: any | undefined;
@@ -68,6 +73,7 @@ export interface ScalpOrder {
   timeframe: BigNumber;
   collateral: BigNumber;
   price: BigNumber;
+  target: BigNumber;
   expiry: BigNumber | null;
   filled: boolean;
   type: string;
@@ -299,6 +305,14 @@ export const createOptionScalpSlice: StateCreator<
 
       const price = BigNumber.from(Math.round(1.0001 ** tick * 10 ** 18));
 
+      let target;
+
+      if (openOrder['isShort']) {
+        target = BigNumber.from(Math.round(1.0001 ** ticks[1] * 10 ** 18));
+      } else {
+        target = BigNumber.from(Math.round(1.0001 ** ticks[0] * 10 ** 18));
+      }
+
       const maxFundingTime = await limitOrdersContract.maxFundingTime();
 
       const expiry = openOrder['timestamp'].add(maxFundingTime);
@@ -320,6 +334,7 @@ export const createOptionScalpSlice: StateCreator<
           timeframe: timeframe,
           collateral: openOrder['collateral'],
           price: price,
+          target: target,
           expiry: expiry,
           filled: openOrder['filled'],
           positions: positions,
@@ -354,6 +369,14 @@ export const createOptionScalpSlice: StateCreator<
 
       const price = BigNumber.from(Math.round(1.0001 ** tick * 10 ** 18));
 
+      let target;
+
+      if (scalpPosition['isShort']) {
+        target = BigNumber.from(Math.round(1.0001 ** ticks[0] * 10 ** 18));
+      } else {
+        target = BigNumber.from(Math.round(1.0001 ** ticks[1] * 10 ** 18));
+      }
+
       const positions = scalpPosition['size']
         .mul(BigNumber.from(10 ** optionScalpData.quoteDecimals.toNumber()))
         .div(price);
@@ -368,6 +391,7 @@ export const createOptionScalpSlice: StateCreator<
           timeframe: scalpPosition['timeframe'],
           collateral: scalpPosition['collateral'],
           price: price,
+          target: target,
           expiry: null,
           positions: positions,
           type: 'close',
@@ -493,7 +517,8 @@ export const createOptionScalpSlice: StateCreator<
   getUserPositionData: async () => {
     const userPositionData = await queryClient.fetchQuery({
       queryKey: ['getTraderStats'],
-      queryFn: () => graphSdk.getTraderStats(),
+      queryFn: async () =>
+        request(DOPEX_OPTION_SCALPS_SUBGRAPH_API_URL, getTradeStatsDocument),
     });
 
     if (!userPositionData) return;
