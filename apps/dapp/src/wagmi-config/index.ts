@@ -1,4 +1,4 @@
-import { configureChains, createClient } from 'wagmi';
+import { configureChains, createConfig } from 'wagmi';
 import { arbitrum, mainnet, polygon } from 'wagmi/chains';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { InjectedConnector } from 'wagmi/connectors/injected';
@@ -12,15 +12,15 @@ import { INFURA_PROJECT_ID, WALLETCONNECT_PROJECT_ID } from 'constants/env';
 import { BitKeepConnector } from './BitKeepConnector';
 import { RabbyConnector } from './RabbyConnector';
 
-const { chains, provider, webSocketProvider } = configureChains(
+const { chains, publicClient, webSocketPublicClient } = configureChains(
   [arbitrum, polygon, mainnet],
   [infuraProvider({ apiKey: INFURA_PROJECT_ID || '' })]
 );
 
-const wagmiClient = createClient({
+const wagmiConfig = createConfig({
   autoConnect: false,
-  provider,
-  webSocketProvider,
+  publicClient,
+  webSocketPublicClient,
   connectors: [
     new MetaMaskConnector({ chains }),
     new BitKeepConnector({ chains }),
@@ -37,7 +37,10 @@ const wagmiClient = createClient({
         projectId: WALLETCONNECT_PROJECT_ID || '',
       },
     }),
-    new LedgerConnector({ chains }),
+    new LedgerConnector({
+      chains,
+      options: { projectId: WALLETCONNECT_PROJECT_ID || '' },
+    }),
     new InjectedConnector({
       chains,
       options: {
@@ -48,4 +51,4 @@ const wagmiClient = createClient({
   ],
 });
 
-export default wagmiClient;
+export default wagmiConfig;
