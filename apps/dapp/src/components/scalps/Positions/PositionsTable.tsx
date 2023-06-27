@@ -345,9 +345,6 @@ const PositionsTable = ({ tab }: { tab: string }) => {
             }}
           />
         );
-
-        rightContent = `(${position.timeframe / 60}m)`;
-        rightContentStyle += ' text-xs mt-1';
       }
 
       if (key === 'closePrice') {
@@ -400,7 +397,10 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                   )}
                   {position.isOpen && (
                     <div className="mx-2">
-                      <LimitOrderPopover id={position.id} />
+                      <LimitOrderPopover
+                        id={position.id}
+                        isShort={position.isShort}
+                      />
                     </div>
                   )}
                   <IconButton

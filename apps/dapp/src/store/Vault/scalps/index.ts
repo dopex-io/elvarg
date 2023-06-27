@@ -274,9 +274,7 @@ export const createOptionScalpSlice: StateCreator<
     scalpPositions = scalpPositions.map((position, index) => ({
       ...position,
       id: scalpPositionsIndexes[index],
-      pnl: position.isOpen
-        ? pnls[index]!.sub(position.premium).sub(position.fees)
-        : position.pnl,
+      pnl: position.isOpen ? pnls[index]! : position.pnl,
       liquidationPrice: calcLiqPrice(position),
     }));
 

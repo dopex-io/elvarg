@@ -130,7 +130,7 @@ function SsovCard(props: any) {
               return <InfoBox key={item.heading} {...item} />;
             })}
           </Box>
-          <Link href={`/ssov/${symbol}`}>
+          <Link href={`/ssov/${symbol}`} passHref>
             <CustomButton size="medium" className="my-4" fullWidth>
               Manage
             </CustomButton>
