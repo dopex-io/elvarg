@@ -37,7 +37,10 @@ const wagmiConfig = createConfig({
         projectId: WALLETCONNECT_PROJECT_ID || '',
       },
     }),
-    new LedgerConnector({ chains }),
+    new LedgerConnector({
+      chains,
+      options: { projectId: WALLETCONNECT_PROJECT_ID || '' },
+    }),
     new InjectedConnector({
       chains,
       options: {
