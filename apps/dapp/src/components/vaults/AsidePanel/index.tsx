@@ -14,6 +14,7 @@ import useContractData from 'hooks/vaults/contractData';
 import useVaultQuery from 'hooks/vaults/query';
 import useVaultState from 'hooks/vaults/state';
 import { useDebounce } from 'use-debounce';
+import { parseUnits } from 'viem';
 import {
   erc20ABI,
   useAccount,
@@ -21,7 +22,7 @@ import {
   useContractWrite,
   usePrepareContractWrite,
 } from 'wagmi';
-import client from 'wagmi-client';
+import wagmiConfig from 'wagmi-config';
 
 import RowItem from 'components/vaults/AsidePanel/RowItem';
 
@@ -80,20 +81,20 @@ const AsidePanel = () => {
         address: contractData?.collateral as `0x${string}`,
         functionName: 'allowance',
         args: [address as `0x${string}`, vault.address as `0x${string}`],
-        chainId: client.lastUsedChainId,
+        chainId: wagmiConfig.lastUsedChainId,
       },
       {
         abi: erc20ABI,
         address: contractData?.collateral as `0x${string}`,
         functionName: 'balanceOf',
-        args: [address],
-        chainId: client.lastUsedChainId,
+        args: [address!],
+        chainId: wagmiConfig.lastUsedChainId,
       },
       {
         abi: erc20ABI,
         address: contractData?.collateral as `0x${string}`,
         functionName: 'symbol',
-        chainId: client.lastUsedChainId,
+        chainId: wagmiConfig.lastUsedChainId,
       },
     ],
   });
@@ -104,7 +105,7 @@ const AsidePanel = () => {
       functionName: 'approve',
       args: [
         vault.address as `0x${string}`,
-        ethers.utils.parseUnits(amountDebounced || '0', DECIMALS_TOKEN),
+        parseUnits(amountDebounced || '0', DECIMALS_TOKEN),
       ],
     });
   const { config } = usePrepareContractWrite({

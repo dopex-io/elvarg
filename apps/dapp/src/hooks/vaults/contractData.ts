@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { BigNumber, ethers } from 'ethers';
 
 import { SsovV3__factory } from '@dopex-io/sdk';
+import { formatUnits, parseUnits } from 'viem';
 import { readContracts, useContractReads } from 'wagmi';
 
 import {
@@ -17,16 +17,16 @@ import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 interface Props {
   contractAddress?: string;
   epoch?: number;
-  args?: (string | BigNumber | number)[];
+  args?: (string | bigint | number)[];
 }
 
 export interface EpochStrikeData {
   strike: number;
-  totalCollateral: BigNumber;
-  availableCollateral: BigNumber;
-  activeCollateral: BigNumber;
-  premiumsAccrued: BigNumber;
-  premiumPerOption: BigNumber;
+  totalCollateral: bigint;
+  availableCollateral: bigint;
+  activeCollateral: bigint;
+  premiumsAccrued: bigint;
+  premiumPerOption: bigint;
   availableCollateralPercentage: number;
   totalAvailableCollateral: number;
   totalPurchased: number;
@@ -55,7 +55,7 @@ const useContractData = (props: Props) => {
         abi: SsovV3__factory.abi,
         address: contractAddress as `0x${string}`,
         functionName: 'getEpochData',
-        args: [BigNumber.from(epoch || 1)],
+        args: [BigInt(epoch || 1)],
       },
       {
         abi: SsovV3__factory.abi,
@@ -75,7 +75,7 @@ const useContractData = (props: Props) => {
     ],
   });
 
-  const [ivs, setIvs] = useState<BigNumber[]>([]);
+  const [ivs, setIvs] = useState<bigint[]>([]);
   const [epochStrikeData, setEpochStrikeData] = useState<
     (EpochStrikeData & Greeks)[]
   >([]);
@@ -98,7 +98,7 @@ const useContractData = (props: Props) => {
           ],
         })
       )[0];
-      ivs.push(iv);
+      iv.result && ivs.push(iv.result);
     }
     setIvs(ivs);
   }, [contractAddress, data]);
@@ -115,17 +115,13 @@ const useContractData = (props: Props) => {
 
     try {
       return (data[0] as any).strikes.map((strike: any, index: number) => {
-        const _strike = Number(
-          ethers.utils.formatUnits(strike, DECIMALS_STRIKE)
-        );
+        const _strike = Number(formatUnits(strike, DECIMALS_STRIKE));
         const expiryInYears =
           (data[0] as any).expiry.sub((data[0] as any).startTime).toNumber() /
           31556926;
-        const spot = Number(
-          ethers.utils.formatUnits(data[1] as any, DECIMALS_STRIKE)
-        );
+        const spot = Number(formatUnits(data[1] as any, DECIMALS_STRIKE));
         const isPut = data[2];
-        const iv = ivs[index].toNumber();
+        const iv = Number(ivs[index]);
 
         const delta = getDelta(spot, _strike, expiryInYears, iv, 0, isPut);
         const gamma = getGamma(spot, _strike, expiryInYears, iv, 0);
@@ -174,59 +170,51 @@ const useContractData = (props: Props) => {
           {
             ...config,
             functionName: 'getEpochStrikeData',
-            args: [BigNumber.from(epoch), strikes[i]],
+            args: [BigInt(epoch), strikes[i]],
           },
           {
             ...config,
             functionName: 'calculatePremium',
-            args: [
-              strikes[i],
-              ethers.utils.parseUnits('1', 18),
-              (data[0] as any).expiry,
-            ],
+            args: [strikes[i], parseUnits('1', 18), (data[0] as any).expiry],
           },
         ],
       });
-      if (!strikeData) return;
+      if (!strikeData.result || !data[0].result) return;
 
       const availableCollateralPercentage =
         ((Number(
-          ethers.utils.formatUnits(strikeData.totalCollateral, DECIMALS_TOKEN)
+          formatUnits(strikeData.result.totalCollateral, DECIMALS_TOKEN)
         ) -
           Number(
-            ethers.utils.formatUnits(
-              strikeData.activeCollateral,
-              DECIMALS_TOKEN
-            )
+            formatUnits(strikeData.result.activeCollateral, DECIMALS_TOKEN)
           )) /
           Number(
-            ethers.utils.formatUnits(strikeData.totalCollateral, DECIMALS_TOKEN)
+            formatUnits(strikeData.result.totalCollateral, DECIMALS_TOKEN)
           )) *
           100 || 0;
       const totalAvailable = Number(
-        ethers.utils.formatUnits(
-          strikeData.totalCollateral
-            .sub(strikeData.activeCollateral)
-            .div((data[0] as any).collateralExchangeRate ?? '1'),
+        formatUnits(
+          (strikeData.result.totalCollateral -
+            strikeData.result.activeCollateral) /
+            (data[0].result.collateralExchangeRate ?? '1'),
           10
         )
       );
       const totalPurchased = Number(
-        ethers.utils.formatUnits(
-          strikeData.activeCollateral.div(
-            (data[0] as any).collateralExchangeRate ?? '1'
-          ),
+        formatUnits(
+          strikeData.result.activeCollateral /
+            (data[0].result.collateralExchangeRate ?? 1n),
           10
         )
       );
       _epochStrikeData.push({
-        totalCollateral: strikeData.totalCollateral,
-        availableCollateral: strikeData.totalCollateral.sub(
-          strikeData.activeCollateral
-        ),
-        activeCollateral: strikeData.activeCollateral,
-        premiumsAccrued: strikeData.totalPremiums,
-        premiumPerOption,
+        totalCollateral: strikeData.result.totalCollateral,
+        availableCollateral:
+          strikeData.result.totalCollateral -
+          strikeData.result.activeCollateral,
+        activeCollateral: strikeData.result.activeCollateral,
+        premiumsAccrued: strikeData.result.totalPremiums,
+        premiumPerOption: premiumPerOption.result!,
         availableCollateralPercentage,
         totalAvailableCollateral: totalAvailable,
         totalPurchased: totalPurchased,
@@ -241,7 +229,7 @@ const useContractData = (props: Props) => {
     // todo: load any additional contract state via this handler
     if (!data || !data[3] || !contractAddress) return;
     setContractData({
-      collateral: data[3] as string,
+      collateral: data[3].result as string,
     });
   }, [data, contractAddress]);
 
