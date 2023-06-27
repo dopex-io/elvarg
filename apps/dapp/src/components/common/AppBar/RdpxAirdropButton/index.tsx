@@ -4,22 +4,17 @@ import { utils as ethersUtils } from 'ethers';
 import { Addresses, MerkleDistributor__factory } from '@dopex-io/sdk';
 import { Button } from '@dopex-io/ui';
 import { useQuery } from '@tanstack/react-query';
-import { useContract, useNetwork, useSigner, useSwitchNetwork } from 'wagmi';
+import { useNetwork, useSwitchNetwork, useWalletClient } from 'wagmi';
+import { getContract } from 'wagmi/actions';
 
 import { formatAmount } from 'utils/general';
 
 import { DOPEX_API_BASE_URL } from 'constants/env';
 
 const RdpxAirdropButton = ({ account }: { account: string }) => {
-  const { data: signer } = useSigner();
+  const walletClient = useWalletClient();
   const network = useNetwork();
   const { switchNetwork } = useSwitchNetwork();
-
-  const contract = useContract({
-    address: Addresses[1]['MerkleDistributor'],
-    abi: MerkleDistributor__factory.abi,
-    signerOrProvider: signer,
-  });
 
   const query = useQuery({
     queryKey: ['rdpxAirdrop', account],
@@ -30,21 +25,27 @@ const RdpxAirdropButton = ({ account }: { account: string }) => {
   });
 
   const handleClick = useCallback(async () => {
-    if (!signer) return;
+    if (!walletClient.data) return;
 
     if (network.chain?.id !== 1) {
       switchNetwork?.(1);
     }
 
+    const contract = getContract({
+      address: Addresses[1]['MerkleDistributor'],
+      abi: MerkleDistributor__factory.abi,
+      ...(walletClient.data ? { walletClient: walletClient.data } : {}),
+    });
+
     const txData = query?.data?.data;
 
-    await contract?.claim(
+    await contract?.write.claim([
       txData.index,
       txData.address,
       txData.amount,
-      txData.proof
-    );
-  }, [contract, network.chain?.id, query.data, signer, switchNetwork]);
+      txData.proof,
+    ]);
+  }, [network, query, switchNetwork, walletClient]);
 
   if (!query.isLoading && query?.data?.valid) {
     return (

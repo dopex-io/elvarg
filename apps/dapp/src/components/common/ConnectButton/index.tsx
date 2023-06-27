@@ -1,14 +1,11 @@
 import { useEffect, useState } from 'react';
 
 import { Button } from '@dopex-io/ui';
+import { useEthersProvider } from 'hooks/useEthersProvider';
+import { useEthersSigner } from 'hooks/useEthersSigners';
+import { useAccount, useEnsAvatar, useEnsName, useNetwork } from 'wagmi';
+
 import { useBoundStore } from 'store';
-import {
-  useAccount,
-  useEnsAvatar,
-  useNetwork,
-  useProvider,
-  useSigner,
-} from 'wagmi';
 
 import { smartTrim } from 'utils/general';
 
@@ -26,9 +23,10 @@ export function ConnectButton() {
 
   const { address } = useAccount();
   const { chain } = useNetwork();
-  const provider = useProvider();
-  const { data: signer } = useSigner();
-  const { data } = useEnsAvatar(address ? { address, chainId: 1 } : {});
+  const provider = useEthersProvider({ chainId: chain?.id });
+  const signer = useEthersSigner({ chainId: chain?.id });
+  const { data: ensName } = useEnsName(address ? { address, chainId: 1 } : {});
+  const { data } = useEnsAvatar({ name: ensName, chainId: 1 });
 
   useEffect(() => {
     updateState({
