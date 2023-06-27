@@ -7,8 +7,9 @@ import {
   OptionScalpsLp__factory,
 } from '@dopex-io/sdk';
 import request from 'graphql-request';
-import queryClient from 'queryClient';
 import { StateCreator } from 'zustand';
+
+import queryClient from 'queryClient';
 
 import { getTradeStatsDocument } from 'graphql/optionScalps';
 
@@ -273,9 +274,7 @@ export const createOptionScalpSlice: StateCreator<
     scalpPositions = scalpPositions.map((position, index) => ({
       ...position,
       id: scalpPositionsIndexes[index],
-      pnl: position.isOpen
-        ? pnls[index]!.sub(position.premium).sub(position.fees)
-        : position.pnl,
+      pnl: position.isOpen ? pnls[index]! : position.pnl,
       liquidationPrice: calcLiqPrice(position),
     }));
 
