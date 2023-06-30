@@ -5,6 +5,7 @@ import {
 } from '@dopex-io/sdk';
 import format from 'date-fns/format';
 import request from 'graphql-request';
+import { polygon } from 'viem/chains';
 import { StateCreator } from 'zustand';
 
 import queryClient from 'queryClient';
@@ -19,6 +20,8 @@ import getLinkFromVaultName from 'utils/contracts/getLinkFromVaultName';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import {
+  DOPEX_POLYGON_SSOV_SUBGRAPH_API_URL,
+  DOPEX_POLYGON_STRADDLE_SUBGRAPH_API_URL,
   DOPEX_SSOV_SUBGRAPH_API_URL,
   DOPEX_STRADDLES_SUBGRAPH_API_URL,
 } from 'constants/subgraphs';
@@ -105,7 +108,7 @@ export const createPortfolioSlice: StateCreator<
 > = (set, get) => ({
   portfolioData: initialPortfolioData,
   updatePortfolioData: async () => {
-    const { accountAddress, provider, contractAddresses } = get();
+    const { accountAddress, provider, contractAddresses, chainId } = get();
 
     if (!accountAddress || !provider) return;
 
@@ -302,9 +305,15 @@ export const createPortfolioSlice: StateCreator<
     const ssovQueryResult = await queryClient.fetchQuery({
       queryKey: ['getSsovUserData'],
       queryFn: async () =>
-        request(DOPEX_SSOV_SUBGRAPH_API_URL, getSsovUserDataDocument, {
-          user: accountAddress.toLowerCase(),
-        }),
+        request(
+          chainId === polygon.id
+            ? DOPEX_POLYGON_SSOV_SUBGRAPH_API_URL
+            : DOPEX_SSOV_SUBGRAPH_API_URL,
+          getSsovUserDataDocument,
+          {
+            user: accountAddress.toLowerCase(),
+          }
+        ),
     });
 
     const data = ssovQueryResult['users'][0];
@@ -345,7 +354,9 @@ export const createPortfolioSlice: StateCreator<
       queryKey: ['getStraddlesUserData'],
       queryFn: async () =>
         request(
-          DOPEX_STRADDLES_SUBGRAPH_API_URL,
+          chainId === polygon.id
+            ? DOPEX_POLYGON_STRADDLE_SUBGRAPH_API_URL
+            : DOPEX_STRADDLES_SUBGRAPH_API_URL,
           getStraddlesUserDataDocument,
           {
             user: accountAddress.toLowerCase(),
