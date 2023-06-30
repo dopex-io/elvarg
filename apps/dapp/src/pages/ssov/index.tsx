@@ -5,10 +5,11 @@ import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import request from 'graphql-request';
 import isEmpty from 'lodash/isEmpty';
 import { NextSeo } from 'next-seo';
+
 import queryClient from 'queryClient';
 
 import { getSsovPurchasesFromTimestampDocument } from 'graphql/ssovs';
@@ -60,9 +61,31 @@ export async function getVolume(payload: any, wantContract: string) {
 }
 
 const SsovData = () => {
-  const { isLoading, error, data } = useQuery(['ssovData'], () =>
-    fetch(`${DOPEX_API_BASE_URL}/v2/ssov`).then((res) => res.json())
-  );
+  const queries = useQueries({
+    queries: [
+      {
+        queryKey: ['ssovData'],
+        queryFn: () =>
+          fetch(`${DOPEX_API_BASE_URL}/v2/ssov`).then((res) => res.json()),
+      },
+      {
+        queryKey: ['twentyFourHVol'],
+        queryFn: () =>
+          fetch(`${DOPEX_API_BASE_URL}/v2/24h-volume`).then((res) =>
+            res.json()
+          ),
+      },
+      {
+        queryKey: ['openInterest'],
+        queryFn: () =>
+          fetch(`${DOPEX_API_BASE_URL}/v2/open-interest`).then((res) =>
+            res.json()
+          ),
+      },
+    ],
+  });
+
+  const [data, twentyFourHVol, openInterest] = queries;
 
   const { data: tradesData } = useQuery(
     ['getSsovPurchasesFromTimestamp'],
@@ -81,13 +104,12 @@ const SsovData = () => {
   );
 
   let ssovs: any;
-  if (!isLoading || !error) {
-    ssovs = data;
+  if (!data.isLoading || !data.error) {
+    ssovs = data.data;
   }
 
   const [selectedSsovTokens, setSelectedSsovTokens] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-  const [total24hVol, setTotal24hVol] = useState<number>(0);
   const [sortBy, setSortBy] = useState<string>('TVL');
   const [ssovsWithVol, setSsovsWithVol] = useState<any>({});
 
@@ -101,29 +123,6 @@ const SsovData = () => {
         ssovs[key]?.reduce(
           (_acc: number, ssov: { tvl: string }) =>
             (_acc += parseFloat(ssov.tvl)),
-          0
-        )
-      );
-    }, 0);
-
-    return total;
-  }, [ssovs]);
-
-  const openInterest = useMemo(() => {
-    let total = 0;
-    if (isEmpty(ssovs)) return total;
-
-    total = Object.keys(ssovs).reduce((acc, key) => {
-      return (
-        acc +
-        ssovs[key]?.reduce(
-          (
-            _acc: number,
-            ssov: { totalEpochPurchases: string; underlyingPrice: string }
-          ) =>
-            (_acc +=
-              parseFloat(ssov.totalEpochPurchases) *
-              parseFloat(ssov.underlyingPrice)),
           0
         )
       );
@@ -156,7 +155,6 @@ const SsovData = () => {
         }
       }
       setSsovsWithVol(ssovsVol);
-      setTotal24hVol(totalVol);
     }
     getVolumes();
   }, [ssovs, tradesData]);
@@ -177,13 +175,13 @@ const SsovData = () => {
     return tokens.sort((a, b) => (a > b ? 1 : -1));
   }, [ssovs]);
 
-  if (isLoading) {
+  if (data.isLoading) {
     return (
       <Box className="absolute left-[49%] top-[49%]">
         <CircularProgress />
       </Box>
     );
-  } else if (error === undefined || error)
+  } else if (data.error === undefined || data.error)
     return (
       <Box className="mt-4">
         <Alert severity="error">Error. Refresh and try again.</Alert>
@@ -209,11 +207,11 @@ const SsovData = () => {
             />
             <SsovStat
               title="24h Volume"
-              value={'$' + formatAmount(total24hVol, 0, true)}
+              value={'$' + formatAmount(twentyFourHVol?.data?.total ?? 0, 0)}
             />
             <SsovStat
               title="Open Interest"
-              value={'$' + formatAmount(openInterest, 0, true)}
+              value={'$' + formatAmount(openInterest?.data?.total ?? 0, 0)}
             />
           </Box>
           <Typography variant="h5" className="text-stieglitz">
