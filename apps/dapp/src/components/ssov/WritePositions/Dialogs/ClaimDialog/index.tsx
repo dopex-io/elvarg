@@ -8,8 +8,8 @@ import Input from '@mui/material/Input';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
 
+import { useBoundStore } from 'store';
 import { WritePositionInterface } from 'store/Vault/ssov';
 
 import CustomButton from 'components/UI/Button';
@@ -24,7 +24,7 @@ export interface Props {
   data: WritePositionInterface;
 }
 
-const WithdrawDialog = ({ open, handleClose, data }: Props) => {
+const ClaimDialog = ({ open, handleClose, data }: Props) => {
   const { accountAddress, ssovData, ssovSigner, updateSsovV3UserData } =
     useBoundStore();
 
@@ -38,13 +38,18 @@ const WithdrawDialog = ({ open, handleClose, data }: Props) => {
       !ssovData.ssovContract
     )
       return;
-    await sendTx(ssovSigner.ssovStakingRewardsWithSigner, 'claim', [
-      ssovData.ssovContract.address,
-      data.tokenId,
-      accountAddress,
-    ]).then(async () => {
-      await updateSsovV3UserData();
-    });
+
+    try {
+      await sendTx(ssovSigner.ssovStakingRewardsWithSigner, 'claim', [
+        ssovData.ssovContract.address,
+        data.tokenId,
+        accountAddress,
+      ]).then(async () => {
+        await updateSsovV3UserData();
+      });
+    } catch (err) {
+      console.log(err);
+    }
   }, [
     accountAddress,
     data,
@@ -103,4 +108,4 @@ const WithdrawDialog = ({ open, handleClose, data }: Props) => {
   );
 };
 
-export default WithdrawDialog;
+export default ClaimDialog;
