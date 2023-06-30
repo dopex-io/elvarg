@@ -82,12 +82,9 @@ const Filter = (props: Props) => {
                   className="w-6 ml-3 mt-[0.4px]"
                 />
               ) : null}
-              <Typography
-                variant="h5"
-                className="text-white text-left w-full relative ml-2"
-              >
+              <h5 className="text-white text-left w-full relative ml-2">
                 {option}
-              </Typography>
+              </h5>
             </Box>
           </MenuItem>
         ))}
