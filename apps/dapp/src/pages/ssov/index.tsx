@@ -103,15 +103,16 @@ const SsovData = () => {
       })
   );
 
-  let ssovs: any;
-  if (!data.isLoading || !data.error) {
-    ssovs = data.data;
-  }
-
   const [selectedSsovTokens, setSelectedSsovTokens] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>('TVL');
   const [ssovsWithVol, setSsovsWithVol] = useState<any>({});
+
+  const ssovs = useMemo(() => {
+    if (!data.isLoading || !data.error) {
+      return data.data;
+    }
+  }, [data.data, data.error, data.isLoading]);
 
   const tvl = useMemo(() => {
     let total = 0;
