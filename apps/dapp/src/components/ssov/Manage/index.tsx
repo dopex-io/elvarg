@@ -42,7 +42,7 @@ const Manage = (props: { ssov: string }) => {
   useEffect(() => {
     if (!ssovData) return;
     updateSsovV3EpochData();
-  }, [ssovData, updateSsovV3EpochData, chainId, updateSsovV3Signer]);
+  }, [ssovData, updateSsovV3EpochData, chainId]);
 
   useEffect(() => {
     updateSsovV3UserData();
