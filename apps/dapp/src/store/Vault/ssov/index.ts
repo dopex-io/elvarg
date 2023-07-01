@@ -201,7 +201,6 @@ export const createSsovV3Slice: StateCreator<
     );
 
     let ssovStakingRewardsWithSigner = getStakingRewardsContract();
-    console.log(ssovStakingRewardsWithSigner?.address);
 
     _ssovSigner = {
       ssovContractWithSigner: _ssovContractWithSigner,
