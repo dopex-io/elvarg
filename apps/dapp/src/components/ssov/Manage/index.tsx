@@ -1,15 +1,16 @@
 import { useEffect } from 'react';
 
 import Box from '@mui/material/Box';
+
 import { useBoundStore } from 'store';
 
-import Typography from 'components/UI/Typography';
 import PageLoader from 'components/common/PageLoader';
 import DepositPanel from 'components/ssov/DepositPanel';
 import Description from 'components/ssov/Description';
 import ExerciseList from 'components/ssov/ExerciseList';
 import Stats from 'components/ssov/Stats';
 import WritePositions from 'components/ssov/WritePositions';
+import Typography from 'components/UI/Typography';
 
 import { CHAINS } from 'constants/chains';
 
@@ -30,8 +31,9 @@ const Manage = (props: { ssov: string }) => {
   } = useBoundStore();
 
   useEffect(() => {
+    if (!ssovEpochData) return;
     updateSsovV3Signer();
-  }, [signer, updateSsovV3Signer, selectedPoolName, chainId]);
+  }, [signer, updateSsovV3Signer, selectedPoolName, chainId, ssovEpochData]);
 
   useEffect(() => {
     updateSsovV3();
@@ -43,7 +45,6 @@ const Manage = (props: { ssov: string }) => {
   }, [ssovData, updateSsovV3EpochData, chainId]);
 
   useEffect(() => {
-    if (!ssovEpochData) return;
     updateSsovV3UserData();
   }, [ssovEpochData, updateSsovV3UserData, chainId]);
 

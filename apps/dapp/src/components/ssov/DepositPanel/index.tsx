@@ -10,10 +10,10 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { ERC20__factory, SsovV3Viewer__factory } from '@dopex-io/sdk';
 import format from 'date-fns/format';
 import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
 import LockerIcon from 'svgs/icons/LockerIcon';
 import { useDebounce } from 'use-debounce';
 
+import { useBoundStore } from 'store';
 import { SsovV3EpochData } from 'store/Vault/ssov';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
@@ -27,8 +27,6 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import { getTokenDecimals } from 'utils/general';
 import formatAmount from 'utils/general/formatAmount';
 import isNativeToken from 'utils/general/isNativeToken';
-
-import { SSOV_SUPPORTS_STAKING_REWARDS } from 'constants/index';
 
 const SelectMenuProps = {
   PaperProps: {
@@ -149,11 +147,14 @@ const DepositPanel = () => {
       getSsovViewerAddress(),
       signer
     ).walletOfOwner(accountAddress, ssovContractWithSigner.address);
-
-    await sendTx(ssovStakingRewardsWithSigner, 'stake', [
-      ssovContractWithSigner.address,
-      positions[positions.length - 1],
-    ]);
+    try {
+      await sendTx(ssovStakingRewardsWithSigner, 'stake', [
+        ssovContractWithSigner.address,
+        positions[positions.length - 1],
+      ]);
+    } catch (err) {
+      console.log(err);
+    }
   }, [ssovSigner, signer, getSsovViewerAddress, accountAddress, sendTx]);
 
   const updateUserTokenBalance = useCallback(async () => {
@@ -286,15 +287,7 @@ const DepositPanel = () => {
 
     try {
       await sendTx(contractWithSigner, method, params)
-        .then(async () => {
-          if (
-            SSOV_SUPPORTS_STAKING_REWARDS.includes(
-              ssovContractWithSigner.address
-            )
-          ) {
-            await handleStake();
-          }
-        })
+        .then(async () => await handleStake())
         .then(() => {
           setStrikeDepositAmount('0');
           updateUserTokenBalance();

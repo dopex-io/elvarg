@@ -4,9 +4,9 @@ import { BigNumber } from 'ethers';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 
-import { useBoundStore } from 'store';
 import { TokenData } from 'types';
 
+import { useBoundStore } from 'store';
 import { WritePositionInterface } from 'store/Vault/ssov';
 
 import NumberDisplay from 'components/UI/NumberDisplay';
@@ -15,8 +15,6 @@ import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-
-import { SSOV_SUPPORTS_STAKING_REWARDS } from 'constants/index';
 
 interface Props extends WritePositionInterface {
   collateralSymbol: string;
@@ -45,24 +43,19 @@ const WritePositionTableData = (props: Props) => {
     epochExpired,
     stakeRewardAmounts,
     stakeRewardTokens,
-    ssovAddress,
     stakingRewardsPosition,
   } = props;
 
   const { ssovSigner } = useBoundStore();
 
   const rewardsInformation = useMemo(() => {
-    const supportsStakingRewards = SSOV_SUPPORTS_STAKING_REWARDS.includes(
-      ssovAddress!
-    );
-
     const nilRewardsComponent = <span className="text-white">-</span>;
     let component: ReactNode = nilRewardsComponent;
 
     let totalRewards = BigNumber.from(0);
 
     // If supports staking rewards, show rewards from staking rewards contract
-    if (supportsStakingRewards) {
+    if (ssovSigner.ssovStakingRewardsWithSigner) {
       component = stakeRewardAmounts.map((rewardAmount, index) => {
         totalRewards = totalRewards.add(rewardAmount);
 
@@ -100,20 +93,15 @@ const WritePositionTableData = (props: Props) => {
     accruedRewards,
     collateralSymbol,
     rewardTokens,
-    ssovAddress,
     stakeRewardAmounts,
     stakeRewardTokens,
+    ssovSigner.ssovStakingRewardsWithSigner,
   ]);
 
   const options = useMemo(() => {
     let _options = ['Transfer', 'Withdraw'];
 
-    if (
-      ssovSigner.ssovContractWithSigner &&
-      SSOV_SUPPORTS_STAKING_REWARDS.includes(
-        ssovSigner.ssovContractWithSigner.address
-      )
-    ) {
+    if (ssovSigner.ssovContractWithSigner) {
       if (stakingRewardsPosition?.staked) {
         _options.push('Claim');
       } else {
