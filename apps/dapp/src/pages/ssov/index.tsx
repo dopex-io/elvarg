@@ -109,7 +109,10 @@ const SsovData = () => {
   const [ssovsWithVol, setSsovsWithVol] = useState<any>({});
 
   const ssovs = useMemo(() => {
-    if (!data.isLoading || !data.error) {
+    if (data.error) {
+      console.log('[Error fetching ssovs]', data.error);
+    }
+    if (!data.isLoading) {
       return data.data;
     }
   }, [data.data, data.error, data.isLoading]);
