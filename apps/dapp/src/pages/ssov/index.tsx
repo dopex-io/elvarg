@@ -46,17 +46,19 @@ const NetworkHeader = ({ chainId }: { chainId: number }) => {
 };
 
 export async function getVolume(payload: any, wantContract: string) {
-  if (!payload.ssov_ssovoptionPurchases) return BigNumber.from(0);
+  if (!payload.ssovoptionPurchases) return BigNumber.from(0);
 
-  const _twentyFourHourVolume: BigNumber =
-    payload.ssov_ssovoptionPurchases.reduce((acc: BigNumber, trade: any) => {
+  const _twentyFourHourVolume: BigNumber = payload.ssovoptionPurchases.reduce(
+    (acc: BigNumber, trade: any) => {
       const address = trade.ssov;
       if (address.id.toLowerCase() === wantContract.toLowerCase()) {
         return acc.add(BigNumber.from(trade.amount));
       } else {
         return acc;
       }
-    }, BigNumber.from(0));
+    },
+    BigNumber.from(0)
+  );
   return _twentyFourHourVolume;
 }
 
