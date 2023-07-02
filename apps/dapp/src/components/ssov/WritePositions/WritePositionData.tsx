@@ -105,12 +105,14 @@ const WritePositionTableData = (props: Props) => {
       if (stakingRewardsPosition?.staked) {
         _options.push('Claim');
       } else {
-        _options.push('Stake');
+        if (!epochExpired) {
+          _options.push('Stake');
+        }
       }
     }
 
     return _options;
-  }, [ssovSigner.ssovContractWithSigner, stakingRewardsPosition]);
+  }, [ssovSigner.ssovContractWithSigner, stakingRewardsPosition, epochExpired]);
 
   return (
     <TableRow className="text-white bg-umbra mb-2 rounded-lg">
