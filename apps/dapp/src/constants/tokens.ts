@@ -34,6 +34,10 @@ export const TOKEN_ADDRESS_TO_DATA: { [key: string]: TokenData } = {
     symbol: 'ARB',
     imgSrc: '/images/tokens/arb.svg',
   },
+  '0xb952a807345991bd529fdded05009f5e80fe8f45': {
+    symbol: 'CVX',
+    imgSrc: '/images/tokens/cvx.svg',
+  },
 };
 
 // note: bugged, use a better way to get token address in vaults ui
