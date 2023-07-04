@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+
 import Box from '@mui/material/Box';
 
 import Typography from 'components/UI/Typography';
@@ -23,7 +24,7 @@ const CandleStickData = (props: CandleStickDataProps) => {
   }, [data]);
 
   return (
-    <Box className="flex space-x-2 p-2 absolute z-10">
+    <Box className="flex space-x-2 p-2 absolute">
       {Object.keys(data).map((key: string, index) => (
         <Box key={index} className="flex">
           <Typography variant="h6">{key[0]?.toUpperCase()}: </Typography>

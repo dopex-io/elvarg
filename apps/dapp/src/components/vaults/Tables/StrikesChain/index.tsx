@@ -1,15 +1,15 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { ethers } from 'ethers';
+import { formatUnits } from 'viem';
 
 import { Button, Menu } from '@dopex-io/ui';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/solid';
 import { format } from 'date-fns';
+import { Column, useTable } from 'react-table';
+import PlusIcon from 'svgs/icons/PlusIcon';
+
 import useContractData from 'hooks/vaults/contractData';
 import useVaultQuery from 'hooks/vaults/query';
 import useVaultState, { DurationType } from 'hooks/vaults/state';
-import { Column, useTable } from 'react-table';
-import PlusIcon from 'svgs/icons/PlusIcon';
-import { formatUnits } from 'viem';
 
 import Placeholder from 'components/vaults/Tables/Placeholder';
 import FilterPanel from 'components/vaults/Tables/StrikesChain/FilterPanel';
@@ -126,8 +126,8 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
               <p className="text-stieglitz my-auto inline-block">{_symbol}</p>
               <p className="inline-block">
                 {formatAmount(
-                  ethers.utils.formatUnits(
-                    strikeData.premiumPerOption || '0',
+                  formatUnits(
+                    strikeData.premiumPerOption || 0n,
                     DECIMALS_TOKEN
                   ),
                   3

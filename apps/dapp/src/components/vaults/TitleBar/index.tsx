@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
 import { Menu } from '@dopex-io/ui';
+
 import useVaultQuery from 'hooks/vaults/query';
 import useVaultState, { DurationType } from 'hooks/vaults/state';
 
@@ -53,6 +54,7 @@ const TitleBar = (props: Props) => {
         handleSelection={handleSelectToken}
         selection={selectedToken}
         data={VAULTS_MENU}
+        className="z-20"
         showArrow
       />
       <div className="flex space-x-6">

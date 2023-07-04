@@ -5,6 +5,7 @@
     "^(react/(.*)$)|^(react$)",
     "^(next/(.*)$)|^(next$)",
     "^(ethers/(.*)$)|^(ethers$)",
+    "^(viem/(.*)$)|^(viem$)",
     "",
     "^(@mui/material/(.*)$)|^(@mui/material$)",
     "",

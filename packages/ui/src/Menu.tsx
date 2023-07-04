@@ -40,11 +40,12 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
     topElement = null,
     color = 'carbon',
     showArrow = false,
+    className,
     ...rest
   } = props;
 
   return (
-    <HeadlessMenu as="div" className="inline-block text-left">
+    <HeadlessMenu as="div" className={cx('inline-block text-left', className)}>
       <div>
         <HeadlessMenu.Button
           as={Button}

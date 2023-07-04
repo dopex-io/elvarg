@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 
 import { NextSeo } from 'next-seo';
 import { GmxCandleStick } from 'types';
@@ -15,6 +16,8 @@ import TitleBar from 'components/vaults/TitleBar';
 import seo from 'constants/seo';
 
 const Vaults = () => {
+  const router = useRouter();
+
   const update = useVaultState((vault) => vault.update);
   const vault = useVaultState((vault) => vault.vault);
 
@@ -22,13 +25,14 @@ const Vaults = () => {
 
   const handleSelectToken = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
+      router.push(`/vaults/${e.target.innerText}`);
       setSelectedToken(e.target.innerText);
       update({
         ...vault,
         base: e.target.innerText,
       } as Vault);
     },
-    [update, vault]
+    [router, update, vault]
   );
 
   const [gmxChartData, setGmxChartData] = useState<GmxCandleStick[]>([]);
@@ -112,7 +116,7 @@ const Vaults = () => {
         />
         <div className="flex space-x-0 lg:space-x-6 flex-col sm:flex-col md:flex-col lg:flex-row space-y-3 md:space-y-0 justify-center">
           <div className="flex flex-col space-y-3 sm:w-full lg:w-3/4 h-full">
-            <div className="h-[420px] rounded-lg text-center flex flex-col justify-center text-stieglitz">
+            <div className="h-[420px] bg-carbon rounded-lg text-center flex flex-col justify-center text-stieglitz">
               <TVChart
                 data={gmxChartData}
                 triggerMarker={'0'}

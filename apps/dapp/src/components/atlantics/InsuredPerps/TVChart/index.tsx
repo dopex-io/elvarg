@@ -154,7 +154,7 @@ const TVChart = (props: Props) => {
       ) : (
         <>
           <CandleStickData data={candleStickData} />
-          <div className="absolute right-[5rem] z-10 border border-mineshaft m-3 grid grid-cols-5">
+          <div className="absolute right-[5rem] border border-mineshaft m-3 grid grid-cols-5">
             {periods.map((_period, index) => {
               return (
                 <div
