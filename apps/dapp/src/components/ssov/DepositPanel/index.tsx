@@ -28,8 +28,6 @@ import { getTokenDecimals } from 'utils/general';
 import formatAmount from 'utils/general/formatAmount';
 import isNativeToken from 'utils/general/isNativeToken';
 
-import { SSOV_SUPPORTS_STAKING_REWARDS } from 'constants/index';
-
 const SelectMenuProps = {
   PaperProps: {
     style: {
@@ -149,11 +147,14 @@ const DepositPanel = () => {
       getSsovViewerAddress(),
       signer
     ).walletOfOwner(accountAddress, ssovContractWithSigner.address);
-
-    await sendTx(ssovStakingRewardsWithSigner, 'stake', [
-      ssovContractWithSigner.address,
-      positions[positions.length - 1],
-    ]);
+    try {
+      await sendTx(ssovStakingRewardsWithSigner, 'stake', [
+        ssovContractWithSigner.address,
+        positions[positions.length - 1],
+      ]);
+    } catch (err) {
+      console.log(err);
+    }
   }, [ssovSigner, signer, getSsovViewerAddress, accountAddress, sendTx]);
 
   const updateUserTokenBalance = useCallback(async () => {
@@ -286,15 +287,7 @@ const DepositPanel = () => {
 
     try {
       await sendTx(contractWithSigner, method, params)
-        .then(async () => {
-          if (
-            SSOV_SUPPORTS_STAKING_REWARDS.includes(
-              ssovContractWithSigner.address
-            )
-          ) {
-            await handleStake();
-          }
-        })
+        .then(async () => await handleStake())
         .then(() => {
           setStrikeDepositAmount('0');
           updateUserTokenBalance();

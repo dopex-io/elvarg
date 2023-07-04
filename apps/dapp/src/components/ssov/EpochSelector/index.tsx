@@ -1,8 +1,10 @@
 import { useCallback, useMemo } from 'react';
+
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+
 import cx from 'classnames';
 
 import { useBoundStore } from 'store';
@@ -14,6 +16,7 @@ export default function EpochSelector({ className }: { className?: string }) {
     setSelectedEpoch,
     updateSsovV3UserData,
     updateSsovV3EpochData,
+    updateSsovV3Signer,
   } = useBoundStore();
 
   const currentEpoch = ssovData?.currentEpoch ?? 1;
@@ -23,8 +26,14 @@ export default function EpochSelector({ className }: { className?: string }) {
       setSelectedEpoch(Number(e.target.value));
       updateSsovV3UserData();
       updateSsovV3EpochData();
+      updateSsovV3Signer();
     },
-    [setSelectedEpoch, updateSsovV3UserData, updateSsovV3EpochData]
+    [
+      setSelectedEpoch,
+      updateSsovV3UserData,
+      updateSsovV3EpochData,
+      updateSsovV3Signer,
+    ]
   );
 
   const epochs = useMemo(() => {
