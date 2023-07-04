@@ -122,6 +122,7 @@ const useContractData = (props: Props) => {
               (data[0] as any).result.expiry - (data[0] as any).result.startTime
             ) / 31556926;
           const spot = Number(
+            // @ts-ignore
             formatUnits(data[1]?.result ?? 0n, DECIMALS_STRIKE)
           );
           const isPut = data[2].result ?? false;

@@ -10,9 +10,6 @@ import { BigNumber, ethers } from 'ethers';
 import { Button, Input } from '@dopex-io/ui';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { format } from 'date-fns';
-import useContractData from 'hooks/vaults/contractData';
-import useVaultQuery from 'hooks/vaults/query';
-import useVaultState from 'hooks/vaults/state';
 import { useDebounce } from 'use-debounce';
 import { parseUnits } from 'viem';
 import {
@@ -23,6 +20,10 @@ import {
   usePrepareContractWrite,
 } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
+
+import useContractData from 'hooks/vaults/contractData';
+import useVaultQuery from 'hooks/vaults/query';
+import useVaultState from 'hooks/vaults/state';
 
 import RowItem from 'components/vaults/AsidePanel/RowItem';
 
@@ -207,6 +208,7 @@ const AsidePanel = () => {
         ...alerts.info.insufficientLiquidity,
       };
     else if (
+      // @ts-ignore
       (collateralTokenReads.data[1].result ?? 0n) <
       parseUnits(amountDebounced || '0', DECIMALS_TOKEN)
     )
@@ -215,6 +217,7 @@ const AsidePanel = () => {
         buttonContent,
       };
     else if (
+      // @ts-ignore
       ((collateralTokenReads.data[0] as any).result ?? 0n) <
       parseUnits(amountDebounced, DECIMALS_TOKEN)
     ) {
