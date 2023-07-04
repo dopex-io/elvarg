@@ -28,4 +28,12 @@ export type { InputProps } from './Input';
 export { default as Skeleton } from './Skeleton';
 export type { SkeletonProps } from './Skeleton';
 
+// Direct exports from headless UI
+export { Disclosure } from '@headlessui/react';
+export type {
+  DisclosureProps,
+  DisclosureButtonProps,
+  DisclosurePanelProps,
+} from '@headlessui/react';
+
 export * from './icons';
