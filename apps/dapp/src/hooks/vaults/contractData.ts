@@ -196,13 +196,15 @@ const useContractData = (props: Props) => {
         formatUnits(
           (strikeData.result.totalCollateral -
             strikeData.result.activeCollateral) /
-            (data[0].result.collateralExchangeRate ?? '1'),
+            // @ts-ignore
+            (data[0].result.collateralExchangeRate ?? 1n),
           10
         )
       );
       const totalPurchased = Number(
         formatUnits(
           strikeData.result.activeCollateral /
+            // @ts-ignore
             (data[0].result.collateralExchangeRate ?? 1n),
           10
         )
