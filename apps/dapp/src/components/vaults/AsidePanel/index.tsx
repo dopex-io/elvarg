@@ -207,18 +207,16 @@ const AsidePanel = () => {
         ...alerts.info.insufficientLiquidity,
       };
     else if (
-      (collateralTokenReads.data[1] as any).lt(
-        ethers.utils.parseUnits(amountDebounced || '0', DECIMALS_TOKEN)
-      )
+      (collateralTokenReads.data[1].result ?? 0n) <
+      parseUnits(amountDebounced || '0', DECIMALS_TOKEN)
     )
       return {
         ...alerts.error.insufficientBalance,
         buttonContent,
       };
     else if (
-      (collateralTokenReads.data[0] as any).lt(
-        ethers.utils.parseUnits(amountDebounced, DECIMALS_TOKEN)
-      )
+      ((collateralTokenReads.data[0] as any).result ?? 0n) <
+      parseUnits(amountDebounced, DECIMALS_TOKEN)
     ) {
       return {
         ...alerts.error.insufficientAllowance,
@@ -272,9 +270,9 @@ const AsidePanel = () => {
         leftElement={
           <img
             src={`/images/tokens/${String(
-              collateralTokenReads.data?.[2]
+              collateralTokenReads.data?.[2].result
             )?.toLowerCase()}.svg`}
-            alt={String(collateralTokenReads.data?.[2])?.toLowerCase()}
+            alt={String(collateralTokenReads.data?.[2].result)?.toLowerCase()}
             className="w-[30px] h-[30px] border border-mineshaft rounded-full ring-4 ring-cod-gray"
           />
         }
@@ -344,7 +342,7 @@ const AsidePanel = () => {
             content={
               <p>
                 {selectedStrike.availableCollateral}{' '}
-                {String(collateralTokenReads.data?.[2])}
+                {String(collateralTokenReads.data?.[2].result)}
               </p>
             }
           />
@@ -397,7 +395,7 @@ const AsidePanel = () => {
                 <p className="text-stieglitz">
                   {selectedVault?.isPut
                     ? '$'
-                    : String(collateralTokenReads.data?.[2])}
+                    : String(collateralTokenReads.data?.[2].result)}
                 </p>
               </span>
             }

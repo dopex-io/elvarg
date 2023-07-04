@@ -9,6 +9,7 @@ import useVaultQuery from 'hooks/vaults/query';
 import useVaultState, { DurationType } from 'hooks/vaults/state';
 import { Column, useTable } from 'react-table';
 import PlusIcon from 'svgs/icons/PlusIcon';
+import { formatUnits } from 'viem';
 
 import Placeholder from 'components/vaults/Tables/Placeholder';
 import FilterPanel from 'components/vaults/Tables/StrikesChain/FilterPanel';
@@ -29,7 +30,7 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
   const { selectedVault, vaults, updateSelectedVault } = useVaultQuery({
     vaultSymbol: selectedToken,
   });
-  const strikes = useContractData({
+  const { ...strikes } = useContractData({
     contractAddress: selectedVault?.contractAddress,
     epoch: selectedVault?.currentEpoch,
   });
@@ -52,17 +53,14 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
       !strikes.epochStrikeData ||
       !strikes.data ||
       !strikes.data[0] ||
-      !(strikes.data[0] as any).expiry ||
+      !(strikes.data[0] as any).result.expiry ||
       !vaults
     )
       return [];
 
     return strikes.epochStrikeData.map((strikeData, index) => {
       const premiumFormatted = Number(
-        ethers.utils.formatUnits(
-          strikeData.premiumPerOption || '0',
-          DECIMALS_TOKEN
-        )
+        formatUnits(strikeData.premiumPerOption || 0n, DECIMALS_TOKEN)
       );
 
       const _symbol = vault.isPut ? '$' : vault.base;
@@ -107,7 +105,7 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
         expiry: (
           <p className="inline-block">
             {format(
-              new Date((strikes.data as any)[0].expiry.toNumber() * 1000),
+              new Date(Number((strikes.data as any)[0].result.expiry) * 1000),
               'dd LLL yyy'
             )}
           </p>

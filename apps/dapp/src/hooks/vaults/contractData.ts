@@ -85,7 +85,7 @@ const useContractData = (props: Props) => {
   const updateIvs = useCallback(async () => {
     if (!contractAddress || !data || !data[0]) return;
     const ivs = [];
-    for (let i = 0; i < (data[0] as any).strikes.length; i++) {
+    for (let i = 0; i < (data[0] as any).result.strikes.length; i++) {
       const iv = (
         await readContracts({
           contracts: [
@@ -93,7 +93,7 @@ const useContractData = (props: Props) => {
               address: contractAddress as any,
               abi: SsovV3__factory.abi,
               functionName: 'getVolatility',
-              args: [(data[0] as any).strikes[i]],
+              args: [(data[0] as any).result.strikes[i]],
             },
           ],
         })
@@ -107,39 +107,52 @@ const useContractData = (props: Props) => {
     if (
       !data ||
       !data[0] ||
-      (data[0] as any).expiry === null ||
+      (data[0] as any).result.expiry === null ||
       !contractAddress ||
       !ivs
     )
       return [];
 
     try {
-      return (data[0] as any).strikes.map((strike: any, index: number) => {
-        const _strike = Number(formatUnits(strike, DECIMALS_STRIKE));
-        const expiryInYears =
-          (data[0] as any).expiry.sub((data[0] as any).startTime).toNumber() /
-          31556926;
-        const spot = Number(formatUnits(data[1] as any, DECIMALS_STRIKE));
-        const isPut = data[2];
-        const iv = Number(ivs[index]);
+      return (data[0] as any).result.strikes.map(
+        (strike: any, index: number) => {
+          const _strike = Number(formatUnits(strike, DECIMALS_STRIKE));
+          const expiryInYears =
+            Number(
+              (data[0] as any).result.expiry - (data[0] as any).result.startTime
+            ) / 31556926;
+          const spot = Number(
+            formatUnits(data[1]?.result ?? 0n, DECIMALS_STRIKE)
+          );
+          const isPut = data[2].result ?? false;
+          const iv = Number(ivs[index]);
 
-        const delta = getDelta(spot, _strike, expiryInYears, iv, 0, isPut);
-        const gamma = getGamma(spot, _strike, expiryInYears, iv, 0);
-        const vega = getVega(spot, _strike, expiryInYears, iv, 0);
-        const theta = getTheta(spot, _strike, expiryInYears, iv, 0, isPut, 365);
-        const rho = getRho(spot, _strike, expiryInYears, iv, 0, isPut, 100);
+          const delta = getDelta(spot, _strike, expiryInYears, iv, 0, isPut);
+          const gamma = getGamma(spot, _strike, expiryInYears, iv, 0);
+          const vega = getVega(spot, _strike, expiryInYears, iv, 0);
+          const theta = getTheta(
+            spot,
+            _strike,
+            expiryInYears,
+            iv,
+            0,
+            isPut,
+            365
+          );
+          const rho = getRho(spot, _strike, expiryInYears, iv, 0, isPut, 100);
 
-        return {
-          delta,
-          gamma,
-          theta,
-          vega,
-          rho,
-          iv,
-          strike: _strike,
-          spot,
-        };
-      });
+          return {
+            delta,
+            gamma,
+            theta,
+            vega,
+            rho,
+            iv,
+            strike: _strike,
+            spot,
+          };
+        }
+      );
     } catch (e) {
       console.log('Something went wrong fetching strikes', e);
       return;
@@ -154,11 +167,11 @@ const useContractData = (props: Props) => {
       greeks.length === 0 ||
       !greeks ||
       !data ||
-      !(data[0] as any).expiry
+      !(data[0] as any).result.expiry
     )
       return;
 
-    const strikes = (data[0] as any).strikes;
+    const strikes = (data[0] as any).result.strikes;
     const config = {
       address: contractAddress as any,
       abi: SsovV3__factory.abi,
@@ -175,7 +188,11 @@ const useContractData = (props: Props) => {
           {
             ...config,
             functionName: 'calculatePremium',
-            args: [strikes[i], parseUnits('1', 18), (data[0] as any).expiry],
+            args: [
+              strikes[i],
+              parseUnits('1', 18),
+              (data[0] as any).result.expiry,
+            ],
           },
         ],
       });
