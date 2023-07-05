@@ -7,8 +7,10 @@ import Slider from '@mui/material/Slider';
 import { ERC20__factory } from '@dopex-io/sdk';
 import { Button, Input } from '@dopex-io/ui';
 import cx from 'classnames';
-import useSendTx from 'hooks/useSendTx';
+
 import { useBoundStore } from 'store';
+
+import useSendTx from 'hooks/useSendTx';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
@@ -230,6 +232,13 @@ const TradeCard = () => {
     const minMargin = MINIMUM_MARGIN[selectedPoolName];
     if (!minMargin) return _props;
 
+    const _maxSize = Number(
+      utils.formatUnits(
+        optionScalpData?.maxSize!,
+        optionScalpData?.quoteDecimals!.toNumber()!
+      )
+    );
+
     if (!approved) _props.text = 'Approve';
     else if (positionDetails.marginInQuote === 0) {
       _props.disabled = true;
@@ -238,6 +247,13 @@ const TradeCard = () => {
       _props.disabled = true;
       _props.text =
         'Minium Margin ' + minMargin + ' ' + optionScalpData?.quoteSymbol;
+    } else if (positionDetails.sizeInQuote >= _maxSize) {
+      _props.disabled = true;
+      _props.text =
+        'Max. position size is ' +
+        formatAmount(_maxSize, 0) +
+        ' ' +
+        optionScalpData?.baseSymbol;
     } else if (
       positionDetails.marginInQuote >
       Number(
