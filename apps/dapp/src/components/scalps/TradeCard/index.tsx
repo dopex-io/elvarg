@@ -232,6 +232,11 @@ const TradeCard = () => {
     const minMargin = MINIMUM_MARGIN[selectedPoolName];
     if (!minMargin) return _props;
 
+    const _quoteSymbol =
+      optionScalpData?.quoteSymbol === 'USDC'
+        ? 'USDC.e'
+        : optionScalpData?.quoteSymbol;
+
     const _maxSize = Number(
       utils.formatUnits(
         optionScalpData?.maxSize!,
@@ -245,15 +250,14 @@ const TradeCard = () => {
       _props.text = 'Insert an Amount';
     } else if (positionDetails.marginInQuote < minMargin) {
       _props.disabled = true;
-      _props.text =
-        'Minium Margin ' + minMargin + ' ' + optionScalpData?.quoteSymbol;
+      _props.text = 'Minimum Margin ' + minMargin + ' ' + _quoteSymbol;
     } else if (positionDetails.sizeInQuote >= _maxSize) {
       _props.disabled = true;
       _props.text =
         'Max. position size is ' +
         formatAmount(_maxSize, 0) +
         ' ' +
-        optionScalpData?.baseSymbol;
+        _quoteSymbol;
     } else if (
       positionDetails.marginInQuote >
       Number(
