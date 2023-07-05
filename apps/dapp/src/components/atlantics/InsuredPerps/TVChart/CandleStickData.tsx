@@ -24,7 +24,7 @@ const CandleStickData = (props: CandleStickDataProps) => {
   }, [data]);
 
   return (
-    <Box className="flex space-x-2 p-2 absolute">
+    <Box className="flex space-x-2 p-2 absolute z-10">
       {Object.keys(data).map((key: string, index) => (
         <Box key={index} className="flex">
           <Typography variant="h6">{key[0]?.toUpperCase()}: </Typography>

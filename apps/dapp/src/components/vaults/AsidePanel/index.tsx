@@ -6,12 +6,12 @@ import {
   useState,
 } from 'react';
 import { BigNumber, ethers } from 'ethers';
+import { parseUnits } from 'viem';
 
 import { Button, Input } from '@dopex-io/ui';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { format } from 'date-fns';
 import { useDebounce } from 'use-debounce';
-import { parseUnits } from 'viem';
 import {
   erc20ABI,
   useAccount,
@@ -21,9 +21,9 @@ import {
 } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
 
-import useContractData from 'hooks/vaults/contractData';
 import useVaultQuery from 'hooks/vaults/query';
 import useVaultState from 'hooks/vaults/state';
+import useContractData from 'hooks/vaults/useContractData';
 
 import RowItem from 'components/vaults/AsidePanel/RowItem';
 

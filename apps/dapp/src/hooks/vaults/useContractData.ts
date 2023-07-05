@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { formatUnits, parseUnits } from 'viem';
 
 import { SsovV3__factory } from '@dopex-io/sdk';
-import { formatUnits, parseUnits } from 'viem';
 import { readContracts, useContractReads } from 'wagmi';
 
 import {
@@ -121,26 +121,43 @@ const useContractData = (props: Props) => {
             Number(
               (data[0] as any).result.expiry - (data[0] as any).result.startTime
             ) / 31556926;
+
           const spot = Number(
             // @ts-ignore
             formatUnits(data[1]?.result ?? 0n, DECIMALS_STRIKE)
           );
+
           const isPut = data[2].result ?? false;
           const iv = Number(ivs[index]);
 
-          const delta = getDelta(spot, _strike, expiryInYears, iv, 0, isPut);
-          const gamma = getGamma(spot, _strike, expiryInYears, iv, 0);
-          const vega = getVega(spot, _strike, expiryInYears, iv, 0);
+          const delta = getDelta(
+            spot,
+            _strike,
+            expiryInYears,
+            iv / 100,
+            0,
+            isPut
+          );
+          const gamma = getGamma(spot, _strike, expiryInYears, iv / 100, 0);
+          const vega = getVega(spot, _strike, expiryInYears, iv / 100, 0);
           const theta = getTheta(
             spot,
             _strike,
             expiryInYears,
-            iv,
+            iv / 100,
             0,
             isPut,
             365
           );
-          const rho = getRho(spot, _strike, expiryInYears, iv, 0, isPut, 100);
+          const rho = getRho(
+            spot,
+            _strike,
+            expiryInYears,
+            iv / 100,
+            0,
+            isPut,
+            100
+          );
 
           return {
             delta,

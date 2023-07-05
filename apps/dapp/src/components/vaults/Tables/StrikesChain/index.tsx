@@ -1,15 +1,18 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { Fragment, useCallback, useEffect, useMemo } from 'react';
 import { formatUnits } from 'viem';
 
-import { Button, Menu } from '@dopex-io/ui';
-import { EllipsisVerticalIcon } from '@heroicons/react/24/solid';
+import { Button, Disclosure, Menu } from '@dopex-io/ui';
+import {
+  ChevronDownIcon,
+  EllipsisVerticalIcon,
+} from '@heroicons/react/24/solid';
 import { format } from 'date-fns';
 import { Column, useTable } from 'react-table';
 import PlusIcon from 'svgs/icons/PlusIcon';
 
-import useContractData from 'hooks/vaults/contractData';
 import useVaultQuery from 'hooks/vaults/query';
 import useVaultState, { DurationType } from 'hooks/vaults/state';
+import useContractData from 'hooks/vaults/useContractData';
 
 import Placeholder from 'components/vaults/Tables/Placeholder';
 import FilterPanel from 'components/vaults/Tables/StrikesChain/FilterPanel';
@@ -20,6 +23,13 @@ import { DECIMALS_TOKEN } from 'constants/index';
 import { STRIKES_MENU } from 'constants/vaults/dropdowns';
 
 export type MenuDataType = { textContent: DurationType }[];
+
+const StatItem = ({ name, value }: { name: string; value: string }) => (
+  <div className="flex flex-col">
+    <span className="text-sm font-medium">{value}</span>
+    <span className="text-stieglitz text-xs">{name}</span>
+  </div>
+);
 
 const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
   const vault = useVaultState((vault) => vault.vault);
@@ -117,7 +127,7 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
               key={index}
               color="mineshaft"
               onClick={() => setActiveStrikeIndex(index)}
-              className={`w-fit space-x-2 text-xs hover:cursor-pointer ${
+              className={`w-full space-x-2 text-xs hover:cursor-pointer ${
                 index === activeStrikeIndex
                   ? 'ring-1 ring-frost animate-pulse'
                   : null
@@ -154,6 +164,38 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
             */}
           </div>
         ),
+        chevron: (
+          <Disclosure.Button as="td" className="w-6">
+            <ChevronDownIcon
+              className={`text-stieglitz text-2xl cursor-pointer`}
+            />
+          </Disclosure.Button>
+        ),
+        disclosure: (
+          <Disclosure.Panel as="tr" className="bg-umbra">
+            <td colSpan={6}>
+              <div className="grid grid-cols-6 gap-6 p-3">
+                <StatItem name="IV" value={String(strikeData.iv)} />
+                <StatItem
+                  name="Delta"
+                  value={formatAmount(strikeData.delta, 5)}
+                />
+                <StatItem
+                  name="Vega"
+                  value={formatAmount(strikeData.vega, 5)}
+                />
+                <StatItem
+                  name="Gamma"
+                  value={formatAmount(strikeData.gamma, 5)}
+                />
+                <StatItem
+                  name="Theta"
+                  value={formatAmount(strikeData.theta, 5)}
+                />
+              </div>
+            </td>
+          </Disclosure.Panel>
+        ),
       };
     });
   }, [
@@ -186,6 +228,10 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
       {
         Header: '',
         accessor: 'button',
+      },
+      {
+        Header: '',
+        accessor: 'chevron',
       },
     ];
   }, []);
@@ -225,7 +271,7 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
                       <th
                         {...column.getHeaderProps()}
                         key={index}
-                        className={`m-3 py-1 px-4 ${textAlignment} w-1/${columns.length}`}
+                        className={`m-3 py-1 px-4 ${textAlignment}`}
                       >
                         <span className="text-sm text-stieglitz font-normal">
                           {column.render('Header')}
@@ -243,31 +289,43 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
               {rows.map((row, index) => {
                 prepareRow(row);
                 return (
-                  <tr
-                    {...row.getRowProps()}
-                    key={index}
-                    className={`hover:bg-umbra border-b border-umbra`}
-                  >
-                    {row.cells.map((cell, index) => {
-                      let textAlignment;
-                      if (index === 0) {
-                        textAlignment = 'text-left';
-                      } else if (index === columns.length - 1) {
-                        textAlignment = 'text-right';
-                      } else {
-                        textAlignment = 'text-left';
-                      }
+                  <Disclosure key={index}>
+                    {({ open }: { open: boolean }) => {
                       return (
-                        <td
-                          {...cell.getCellProps()}
-                          key={index}
-                          className={`m-3 py-2 px-3 ${textAlignment}`}
-                        >
-                          <span className="text-sm">{cell.render('Cell')}</span>
-                        </td>
+                        <>
+                          <tr
+                            {...row.getRowProps()}
+                            className={`border-t border-umbra ${
+                              open ? 'bg-umbra' : ''
+                            }`}
+                          >
+                            {row.cells.map((cell, index) => {
+                              let textAlignment;
+                              if (index === 0) {
+                                textAlignment = 'text-left';
+                              } else if (index === columns.length - 1) {
+                                textAlignment = 'text-right';
+                              } else {
+                                textAlignment = 'text-left';
+                              }
+                              return (
+                                <td
+                                  {...cell.getCellProps()}
+                                  key={index}
+                                  className={`m-3 py-4 px-3 ${textAlignment}`}
+                                >
+                                  <span className="text-sm">
+                                    {cell.render('Cell', { open })}
+                                  </span>
+                                </td>
+                              );
+                            })}
+                          </tr>
+                          {strikeData[index].disclosure}
+                        </>
                       );
-                    })}
-                  </tr>
+                    }}
+                  </Disclosure>
                 );
               })}
             </tbody>
