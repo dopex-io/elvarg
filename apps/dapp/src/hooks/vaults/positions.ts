@@ -27,6 +27,7 @@ export interface WritePosition {
   epoch: number;
   tokenId: number;
   address: string;
+  id: string;
 }
 
 export interface BuyPosition {
@@ -35,6 +36,7 @@ export interface BuyPosition {
   balance: string;
   epoch: number;
   side: string;
+  id: string;
 }
 
 const useFetchPositions = (props: Props) => {

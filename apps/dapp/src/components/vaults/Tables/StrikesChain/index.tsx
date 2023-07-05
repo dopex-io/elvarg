@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { formatUnits } from 'viem';
 
 import { Button, Disclosure, Menu } from '@dopex-io/ui';
@@ -6,8 +6,12 @@ import {
   ChevronDownIcon,
   EllipsisVerticalIcon,
 } from '@heroicons/react/24/solid';
-import { format } from 'date-fns';
-import { Column, useTable } from 'react-table';
+import {
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
 import PlusIcon from 'svgs/icons/PlusIcon';
 
 import useVaultQuery from 'hooks/vaults/query';
@@ -24,6 +28,33 @@ import { STRIKES_MENU } from 'constants/vaults/dropdowns';
 
 export type MenuDataType = { textContent: DurationType }[];
 
+interface DisclosureStrikeItem {
+  iv: number;
+  delta: number;
+  theta: number;
+  vega: number;
+  gamma: number;
+}
+
+interface StrikeItem {
+  strike: number;
+  breakeven: string;
+  availableCollateral: {
+    base: string;
+    isPut: boolean;
+    totalAvailableCollateral: number;
+    availableCollateralPercentage: number;
+  };
+  button: {
+    index: number;
+    base: string;
+    isPut: boolean;
+    premiumPerOption: bigint;
+  };
+  chevron: null;
+  disclosure: DisclosureStrikeItem;
+}
+
 const StatItem = ({ name, value }: { name: string; value: string }) => (
   <div className="flex flex-col">
     <span className="text-sm font-medium">{value}</span>
@@ -31,15 +62,34 @@ const StatItem = ({ name, value }: { name: string; value: string }) => (
   </div>
 );
 
+const TableDisclosure = (props: DisclosureStrikeItem) => {
+  return (
+    <Disclosure.Panel as="tr" className="bg-umbra">
+      <td colSpan={5}>
+        <div className="grid grid-cols-6 gap-6 p-3">
+          <StatItem name="IV" value={String(props.iv)} />
+          <StatItem name="Delta" value={formatAmount(props.delta, 5)} />
+          <StatItem name="Vega" value={formatAmount(props.vega, 5)} />
+          <StatItem name="Gamma" value={formatAmount(props.gamma, 5)} />
+          <StatItem name="Theta" value={formatAmount(props.theta, 5)} />
+        </div>
+      </td>
+    </Disclosure.Panel>
+  );
+};
+
+const columnHelper = createColumnHelper<StrikeItem>();
+
 const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
   const vault = useVaultState((vault) => vault.vault);
   const setActiveStrikeIndex = useVaultState(
     (vault) => vault.setActiveStrikeIndex
   );
-  const activeStrikeIndex = useVaultState((vault) => vault.activeStrikeIndex);
+
   const { selectedVault, vaults, updateSelectedVault } = useVaultQuery({
     vaultSymbol: selectedToken,
   });
+
   const { ...strikes } = useContractData({
     contractAddress: selectedVault?.contractAddress,
     epoch: selectedVault?.currentEpoch,
@@ -73,173 +123,150 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
         formatUnits(strikeData.premiumPerOption || 0n, DECIMALS_TOKEN)
       );
 
-      const _symbol = vault.isPut ? '$' : vault.base;
-
       return {
-        strike: (
-          <span className="space-x-1 text-left">
-            <p className="text-stieglitz inline-block">$</p>
-            <p className="inline-block">{strikeData.strike}</p>
-          </span>
-        ),
-        breakeven: (
-          <span className="text-left flex">
-            <p className="text-stieglitz pr-1">$</p>
-            <p className="pr-1">
-              {(vault.isPut
-                ? strikeData.strike - premiumFormatted
-                : strikeData.strike + premiumFormatted * strikeData.spot
-              ).toFixed(3)}
-            </p>
-          </span>
-        ),
-        availableCollateral: (
-          <span className="space-y-1 text-xs">
-            <span
-              className={`flex ${
-                vault.isPut ? 'flex-row-reverse justify-end' : 'space-x-1'
-              }`}
-            >
-              <p className="inline-block">
-                {formatAmount(strikeData.totalAvailableCollateral, 3)}
-              </p>
-              <p className="text-stieglitz inline-block">
-                {vault.isPut ? '$' : vault.base}
-              </p>
-            </span>
-            <p className="text-stieglitz text-xs">
-              {formatAmount(strikeData.availableCollateralPercentage, 3)}%
-            </p>
-          </span>
-        ),
-        expiry: (
-          <p className="inline-block">
-            {format(
-              new Date(Number((strikes.data as any)[0].result.expiry) * 1000),
-              'dd LLL yyy'
-            )}
-          </p>
-        ),
-        button: (
-          <div className="flex space-x-2 justify-end">
-            <Button
-              id={`strike-chain-button-${index}`}
-              key={index}
-              color="mineshaft"
-              onClick={() => setActiveStrikeIndex(index)}
-              className={`w-full space-x-2 text-xs hover:cursor-pointer ${
-                index === activeStrikeIndex
-                  ? 'ring-1 ring-frost animate-pulse'
-                  : null
-              }`}
-            >
-              <p className="text-stieglitz my-auto inline-block">{_symbol}</p>
-              <p className="inline-block">
-                {formatAmount(
-                  formatUnits(
-                    strikeData.premiumPerOption || 0n,
-                    DECIMALS_TOKEN
-                  ),
-                  3
-                )}
-              </p>
-              <PlusIcon
-                className="w-[10px] h-[10px] inline-block"
-                color="#8E8E8E"
-              />
-            </Button>
-            <Menu
-              color="mineshaft"
-              selection={
-                <EllipsisVerticalIcon className="w-4 h-4 fill-current text-white" />
-              }
-              handleSelection={(e: React.MouseEvent<HTMLElement>) => {
-                handleClickMenu(e, index);
-              }}
-              data={STRIKES_MENU}
-              className="w-fit"
-            />
-            {/* todo: OLP dialog
-            Pass selected strike, ssov address, side into dialog
-            */}
-          </div>
-        ),
-        chevron: (
-          <Disclosure.Button as="td" className="w-6">
-            <ChevronDownIcon
-              className={`text-stieglitz text-2xl cursor-pointer`}
-            />
-          </Disclosure.Button>
-        ),
-        disclosure: (
-          <Disclosure.Panel as="tr" className="bg-umbra">
-            <td colSpan={6}>
-              <div className="grid grid-cols-6 gap-6 p-3">
-                <StatItem name="IV" value={String(strikeData.iv)} />
-                <StatItem
-                  name="Delta"
-                  value={formatAmount(strikeData.delta, 5)}
-                />
-                <StatItem
-                  name="Vega"
-                  value={formatAmount(strikeData.vega, 5)}
-                />
-                <StatItem
-                  name="Gamma"
-                  value={formatAmount(strikeData.gamma, 5)}
-                />
-                <StatItem
-                  name="Theta"
-                  value={formatAmount(strikeData.theta, 5)}
-                />
-              </div>
-            </td>
-          </Disclosure.Panel>
-        ),
+        strike: strikeData.strike,
+        breakeven: (vault.isPut
+          ? strikeData.strike - premiumFormatted
+          : strikeData.strike + premiumFormatted * strikeData.spot
+        ).toFixed(3),
+        availableCollateral: {
+          base: vault.base,
+          isPut: vault.isPut,
+          totalAvailableCollateral: strikeData.totalAvailableCollateral,
+          availableCollateralPercentage:
+            strikeData.availableCollateralPercentage,
+        },
+        button: {
+          index,
+          base: vault.base,
+          isPut: vault.isPut,
+          premiumPerOption: strikeData.premiumPerOption,
+        },
+        chevron: null,
+        disclosure: {
+          iv: strikeData.iv,
+          delta: strikeData.delta,
+          theta: strikeData.theta,
+          gamma: strikeData.gamma,
+          vega: strikeData.vega,
+        },
       };
     });
-  }, [
-    strikes,
-    vaults,
-    vault,
-    activeStrikeIndex,
-    setActiveStrikeIndex,
-    handleClickMenu,
-  ]);
+  }, [strikes, vaults, vault]);
 
-  const columns: Array<Column> = useMemo(() => {
+  const columns = useMemo(() => {
     return [
-      {
-        Header: 'Strike Price',
-        accessor: 'strike',
-      },
-      {
-        Header: 'Breakeven',
-        accessor: 'breakeven',
-      },
-      {
-        Header: 'Total Available',
-        accessor: 'availableCollateral',
-      },
-      {
-        Header: 'Expiry',
-        accessor: 'expiry',
-      },
-      {
-        Header: '',
-        accessor: 'button',
-      },
-      {
-        Header: '',
-        accessor: 'chevron',
-      },
+      columnHelper.accessor('strike', {
+        header: 'Strike',
+        cell: (info) => (
+          <span className="space-x-1 text-left">
+            <p className="text-stieglitz inline-block">$</p>
+            <p className="inline-block">{info.getValue()}</p>
+          </span>
+        ),
+      }),
+      columnHelper.accessor('breakeven', {
+        header: 'Breakeven',
+        cell: (info) => (
+          <span className="text-left flex">
+            <p className="text-stieglitz pr-1">$</p>
+            <p className="pr-1">{info.getValue()}</p>
+          </span>
+        ),
+      }),
+      columnHelper.accessor('availableCollateral', {
+        header: 'Total Available',
+        cell: (info) => {
+          const value = info.getValue();
+
+          return (
+            <span className="space-y-1 text-xs">
+              <span
+                className={`flex ${
+                  value.isPut ? 'flex-row-reverse justify-end' : 'space-x-1'
+                }`}
+              >
+                <p className="inline-block">
+                  {formatAmount(value.totalAvailableCollateral, 3)}
+                </p>
+                <p className="text-stieglitz inline-block">
+                  {value.isPut ? '$' : value.base}
+                </p>
+              </span>
+              <p className="text-stieglitz text-xs">
+                {formatAmount(value.availableCollateralPercentage, 3)}%
+              </p>
+            </span>
+          );
+        },
+      }),
+      columnHelper.accessor('button', {
+        header: () => null,
+        cell: (info) => {
+          const value = info.getValue();
+
+          const _symbol = value.isPut ? '$' : value.base;
+
+          return (
+            <div className="flex space-x-2 justify-end">
+              <Button
+                id={`strike-chain-button-${value.index}`}
+                color="mineshaft"
+                onClick={() => setActiveStrikeIndex(value.index)}
+                className="space-x-2 text-xs hover:cursor-pointer"
+              >
+                <p className="my-auto inline-block">{_symbol}</p>
+                <p className="inline-block">
+                  {formatAmount(
+                    formatUnits(value.premiumPerOption || 0n, DECIMALS_TOKEN),
+                    3
+                  )}
+                </p>
+                <PlusIcon
+                  className="w-[10px] h-[10px] inline-block"
+                  color="#8E8E8E"
+                />
+              </Button>
+              <Menu
+                color="mineshaft"
+                selection={
+                  <EllipsisVerticalIcon className="w-4 h-4 fill-current text-white" />
+                }
+                handleSelection={(e: React.MouseEvent<HTMLElement>) => {
+                  handleClickMenu(e, value.index);
+                }}
+                data={STRIKES_MENU}
+                className="w-fit"
+              />
+              {/* todo: OLP dialog
+          Pass selected strike, ssov address, side into dialog
+          */}
+            </div>
+          );
+        },
+      }),
+      columnHelper.accessor('chevron', {
+        header: () => null,
+        cell: () => {
+          return (
+            <Disclosure.Button as="td" className="w-6">
+              <ChevronDownIcon
+                className={`text-stieglitz text-2xl cursor-pointer`}
+              />
+            </Disclosure.Button>
+          );
+        },
+      }),
     ];
-  }, []);
+  }, [handleClickMenu, setActiveStrikeIndex]);
 
-  const tableInstance = useTable({ columns, data: strikeData });
+  const table = useReactTable({
+    columns,
+    data: strikeData,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    tableInstance;
+  const { getHeaderGroups, getRowModel } = table;
 
   return (
     <div className="space-y-2 bg-cod-gray rounded-lg py-3">
@@ -254,11 +281,11 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
       </div>
       <div className="overflow-x-auto">
         {strikeData.length > 0 && !strikes.isLoading ? (
-          <table {...getTableProps()} className="bg-cod-gray rounded-lg w-full">
+          <table className="bg-cod-gray rounded-lg w-full">
             <thead className="border-b border-umbra sticky">
-              {headerGroups.map((headerGroup: any, index: number) => (
-                <tr {...headerGroup.getHeaderGroupProps()} key={index}>
-                  {headerGroup.headers.map((column: any, index: number) => {
+              {getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header, index) => {
                     let textAlignment;
                     if (index === 0) {
                       textAlignment = 'text-left';
@@ -269,12 +296,16 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
                     }
                     return (
                       <th
-                        {...column.getHeaderProps()}
-                        key={index}
+                        key={header.id}
                         className={`m-3 py-1 px-4 ${textAlignment}`}
                       >
                         <span className="text-sm text-stieglitz font-normal">
-                          {column.render('Header')}
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
                         </span>
                       </th>
                     );
@@ -282,24 +313,19 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
                 </tr>
               ))}
             </thead>
-            <tbody
-              {...getTableBodyProps()}
-              className="max-h-32 overflow-y-auto"
-            >
-              {rows.map((row, index) => {
-                prepareRow(row);
+            <tbody className="max-h-32 overflow-y-auto">
+              {getRowModel().rows.map((row, index) => {
                 return (
-                  <Disclosure key={index}>
+                  <Disclosure key={row.id}>
                     {({ open }: { open: boolean }) => {
                       return (
                         <>
                           <tr
-                            {...row.getRowProps()}
                             className={`border-t border-umbra ${
                               open ? 'bg-umbra' : ''
                             }`}
                           >
-                            {row.cells.map((cell, index) => {
+                            {row.getVisibleCells().map((cell, index) => {
                               let textAlignment;
                               if (index === 0) {
                                 textAlignment = 'text-left';
@@ -310,18 +336,20 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
                               }
                               return (
                                 <td
-                                  {...cell.getCellProps()}
-                                  key={index}
+                                  key={cell.id}
                                   className={`m-3 py-4 px-3 ${textAlignment}`}
                                 >
                                   <span className="text-sm">
-                                    {cell.render('Cell', { open })}
+                                    {flexRender(
+                                      cell.column.columnDef.cell,
+                                      cell.getContext()
+                                    )}
                                   </span>
                                 </td>
                               );
                             })}
                           </tr>
-                          {strikeData[index].disclosure}
+                          <TableDisclosure {...strikeData[index].disclosure} />
                         </>
                       );
                     }}
