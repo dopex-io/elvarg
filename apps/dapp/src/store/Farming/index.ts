@@ -1,4 +1,5 @@
 import { BigNumber, utils as ethersUtils } from 'ethers';
+
 import {
   ERC20__factory,
   StakingRewardsV3__factory,
@@ -7,8 +8,10 @@ import {
 import axios from 'axios';
 import { Farm, LpData, UserData } from 'types/farms';
 import { StateCreator } from 'zustand';
+
 import { AssetsSlice } from 'store/Assets';
 import { WalletSlice } from 'store/Wallet';
+
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 const initialLpData = {
@@ -114,16 +117,19 @@ export const createFarmingSlice: StateCreator<
       dpxWethPair.totalSupply(),
       rdpxWethPair.totalSupply(),
     ]);
-
     let dpxPrice: number = Number(
       ethersUtils.formatEther(
-        dpxWethReserve[1].mul(1e18).div(dpxWethReserve[0])
+        dpxWethReserve[1]
+          .mul(ethersUtils.parseEther('1'))
+          .div(dpxWethReserve[0])
       )
     );
 
     let rdpxPrice: number = Number(
       ethersUtils.formatEther(
-        rdpxWethReserve[1].mul(1e18).div(rdpxWethReserve[0])
+        rdpxWethReserve[1]
+          .mul(ethersUtils.parseEther('1'))
+          .div(rdpxWethReserve[0])
       )
     );
     let ethReserveOfRdpxWethPool: number;
