@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
 // All currently active SSOVs
-// 'ETH-MONTHLY-CALLS-SSOV-V3-3': '0xC59836FEC63Cfb2E48b0aa00515056436D74Dc03',
 export const SSOV_VAULTS: { [key: string]: string } = {
   'ETH-WEEKLY-PUTS-SSOV-V3-3': '0x32449DF9c617C59f576dfC461D03f261F617aD5a',
   'stETH-MONTHLY-CALLS-SSOV-V3': '0x475a5a712b741b9ab992e6af0b9e5adee3d1851b',
@@ -39,6 +38,7 @@ export interface Vault {
 interface Props {
   vault: Vault;
   update: (vault: Vault) => void;
+  updateBase: (base: string) => void;
   activeStrikeIndex: number;
   setActiveStrikeIndex: (index: number) => void;
 }
@@ -54,6 +54,8 @@ const useVaultState = create<Props>()(
         currentEpoch: 0,
       },
       update: (vault: Vault) => set((prevState) => ({ ...prevState, vault })),
+      updateBase: (base: string) =>
+        set((prevState) => ({ ...prevState, base })),
       activeStrikeIndex: 0,
       setActiveStrikeIndex: (index: number) =>
         set((prevState) => ({ ...prevState, activeStrikeIndex: index })),

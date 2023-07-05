@@ -269,7 +269,7 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
   const { getHeaderGroups, getRowModel } = table;
 
   return (
-    <div className="space-y-2 bg-cod-gray rounded-lg py-3">
+    <div className="space-y-2 bg-cod-gray rounded-lg pt-3">
       <div className="relative h-12 mx-3">
         {vaults[0] && (
           <FilterPanel
