@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { SsovV3__factory } from '@dopex-io/sdk';
+
 import useVaultQuery from 'hooks/vaults/query';
 import useVaultState, {
   durations,
@@ -22,7 +23,7 @@ const FilterPanel = (props: Props) => {
 
   const vault = useVaultState((state) => state.vault);
   const update = useVaultState((state) => state.update);
-  const { updateSelectedVault, vaults, selectedVault } = useVaultQuery({
+  const { vaults } = useVaultQuery({
     vaultSymbol: selectedToken,
   });
 
@@ -69,17 +70,22 @@ const FilterPanel = (props: Props) => {
     return [...new Set(filtered)];
   }, [side, vaults]);
 
+  const selectedVault = useMemo(() => {
+    const selected = vaults.find(
+      (_vault) =>
+        vault.durationType === _vault.durationType &&
+        vault.isPut === _vault.isPut
+    );
+
+    return selected;
+  }, [vaults, vault]);
+
   // updates default selection of duration/side if the base asset has been changed
   useEffect(() => {
     if (!vaults[0] || selectedVault?.symbol === vault.base) return;
     setDurationType(vaults[0].durationType as DurationType);
     setSide(vaults[0].isPut ? 'PUT' : 'CALL');
   }, [selectedVault, vault.base, vaults]);
-
-  // updates selected vault for the same base asset
-  useEffect(() => {
-    updateSelectedVault(_durationType as DurationType, side === 'PUT');
-  }, [_durationType, side, update, updateSelectedVault, vault]);
 
   useEffect(() => {
     if (!selectedVault) return;

@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { DurationType } from 'hooks/vaults/state';
 import queryClient from 'queryClient';
+
 import { useBoundStore } from 'store';
+
+import { DurationType } from 'hooks/vaults/state';
 
 import { DOPEX_API_BASE_URL } from 'constants/env';
 
@@ -78,7 +80,6 @@ const useVaultQuery = (props: Props) => {
   const { chainId } = useBoundStore();
 
   const [vaults, setVaults] = useState<VaultData[]>([]);
-  const [selectedVault, setSelectedVault] = useState<VaultData>();
   const [aggregatedStats, setAggregatedStats] = useState<AggregatedStats>();
 
   const updateVaults = useCallback(async () => {
@@ -167,18 +168,6 @@ const useVaultQuery = (props: Props) => {
     });
   }, [vaults]);
 
-  const updateSelectedVault = useCallback(
-    (duration: DurationType, isPut: boolean) => {
-      const selected = vaults.find(
-        (vault) => duration === vault.durationType && isPut === vault.isPut
-      );
-      if (!selected) return;
-
-      setSelectedVault(selected);
-    },
-    [vaults]
-  );
-
   useEffect(() => {
     updateVaults();
   }, [updateVaults]);
@@ -191,8 +180,6 @@ const useVaultQuery = (props: Props) => {
     vaults,
     updateVaults,
     aggregatedStats,
-    selectedVault,
-    updateSelectedVault,
   };
 };
 

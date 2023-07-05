@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { Menu } from '@dopex-io/ui';
 
@@ -20,15 +20,19 @@ const TitleBar = (props: Props) => {
   const { selectedToken = 'wstETH', handleSelectToken } = props;
   const update = useVaultState((state) => state.update);
   const vault = useVaultState((state) => state.vault);
-  const { selectedVault, vaults, updateSelectedVault, aggregatedStats } =
-    useVaultQuery({
-      vaultSymbol: selectedToken,
-    });
+  const { vaults, aggregatedStats } = useVaultQuery({
+    vaultSymbol: selectedToken,
+  });
 
-  useEffect(() => {
-    if (!vault || !vaults[0] || selectedVault) return;
-    updateSelectedVault(vaults[0].durationType, vaults[0].isPut);
-  }, [vaults, selectedVault, updateSelectedVault, vault]);
+  const selectedVault = useMemo(() => {
+    const selected = vaults.find(
+      (_vault) =>
+        vault.durationType === _vault.durationType &&
+        vault.isPut === _vault.isPut
+    );
+
+    return selected;
+  }, [vaults, vault]);
 
   useEffect(() => {
     if (!selectedVault) return;

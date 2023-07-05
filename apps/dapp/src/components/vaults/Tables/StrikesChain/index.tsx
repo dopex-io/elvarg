@@ -50,6 +50,8 @@ interface StrikeItem {
     base: string;
     isPut: boolean;
     premiumPerOption: bigint;
+    setActiveStrikeIndex: () => void;
+    handleSelection: React.ReactEventHandler;
   };
   chevron: null;
   disclosure: DisclosureStrikeItem;
@@ -80,41 +82,148 @@ const TableDisclosure = (props: DisclosureStrikeItem) => {
 
 const columnHelper = createColumnHelper<StrikeItem>();
 
+const columns = [
+  columnHelper.accessor('strike', {
+    header: 'Strike',
+    cell: (info) => (
+      <span className="space-x-1 text-left">
+        <p className="text-stieglitz inline-block">$</p>
+        <p className="inline-block">{info.getValue()}</p>
+      </span>
+    ),
+  }),
+  columnHelper.accessor('breakeven', {
+    header: 'Breakeven',
+    cell: (info) => (
+      <span className="text-left flex">
+        <p className="text-stieglitz pr-1">$</p>
+        <p className="pr-1">{info.getValue()}</p>
+      </span>
+    ),
+  }),
+  columnHelper.accessor('availableCollateral', {
+    header: 'Total Available',
+    cell: (info) => {
+      const value = info.getValue();
+
+      return (
+        <span className="space-y-1 text-xs">
+          <span
+            className={`flex ${
+              value.isPut ? 'flex-row-reverse justify-end' : 'space-x-1'
+            }`}
+          >
+            <p className="inline-block">
+              {formatAmount(value.totalAvailableCollateral, 3)}
+            </p>
+            <p className="text-stieglitz inline-block">
+              {value.isPut ? '$' : value.base}
+            </p>
+          </span>
+          <p className="text-stieglitz text-xs">
+            {formatAmount(value.availableCollateralPercentage, 3)}%
+          </p>
+        </span>
+      );
+    },
+  }),
+  columnHelper.accessor('button', {
+    header: () => null,
+    cell: (info) => {
+      const value = info.getValue();
+
+      const _symbol = value.isPut ? '$' : value.base;
+
+      return (
+        <div className="flex space-x-2 justify-end">
+          <Button
+            id={`strike-chain-button-${value.index}`}
+            color="mineshaft"
+            onClick={value.setActiveStrikeIndex}
+            className="space-x-2 text-xs hover:cursor-pointer"
+          >
+            <p className="my-auto inline-block">{_symbol}</p>
+            <p className="inline-block">
+              {formatAmount(
+                formatUnits(value.premiumPerOption || 0n, DECIMALS_TOKEN),
+                3
+              )}
+            </p>
+            <PlusIcon
+              className="w-[10px] h-[10px] inline-block"
+              color="#8E8E8E"
+            />
+          </Button>
+          <Menu
+            color="mineshaft"
+            selection={
+              <EllipsisVerticalIcon className="w-4 h-4 fill-current text-white" />
+            }
+            handleSelection={value.handleSelection}
+            data={STRIKES_MENU}
+            className="w-fit"
+          />
+          {/* todo: OLP dialog
+        Pass selected strike, ssov address, side into dialog
+        */}
+        </div>
+      );
+    },
+  }),
+  columnHelper.accessor('chevron', {
+    header: () => null,
+    cell: (info) => {
+      return (
+        <Disclosure.Button as="td" className="w-6">
+          <ChevronDownIcon
+            className={`text-stieglitz text-2xl cursor-pointer ${
+              // @ts-ignore TODO: find the right way to pass a custom prop to a cell
+              info.open ? 'rotate-180 transform' : ''
+            }`}
+          />
+        </Disclosure.Button>
+      );
+    },
+  }),
+];
+
 const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
   const vault = useVaultState((vault) => vault.vault);
   const setActiveStrikeIndex = useVaultState(
     (vault) => vault.setActiveStrikeIndex
   );
 
-  const { selectedVault, vaults, updateSelectedVault } = useVaultQuery({
+  const { vaults } = useVaultQuery({
     vaultSymbol: selectedToken,
   });
 
-  const { ...strikes } = useContractData({
+  const selectedVault = useMemo(() => {
+    const selected = vaults.find(
+      (_vault) =>
+        vault.durationType === _vault.durationType &&
+        vault.isPut === _vault.isPut
+    );
+
+    return selected;
+  }, [vaults, vault]);
+
+  const strikes = useContractData({
     contractAddress: selectedVault?.contractAddress,
     epoch: selectedVault?.currentEpoch,
   });
 
-  const handleClickMenu = useCallback(
-    (e: React.MouseEvent<HTMLElement>, index: number) => {
-      if (e.currentTarget.textContent === 'Orderbook') {
-        console.log(index);
-      }
-    },
-    []
-  );
-
-  useEffect(() => {
-    updateSelectedVault(vault.durationType, vault.isPut as boolean);
-  }, [updateSelectedVault, vault]);
+  const handleClickMenu = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    if (e.currentTarget.textContent === 'Orderbook') {
+      console.log('try');
+    }
+  }, []);
 
   const strikeData = useMemo(() => {
     if (
       !strikes.epochStrikeData ||
       !strikes.data ||
       !strikes.data[0] ||
-      !(strikes.data[0] as any).result.expiry ||
-      !vaults
+      !(strikes.data[0] as any).result.expiry
     )
       return [];
 
@@ -141,6 +250,10 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
           base: vault.base,
           isPut: vault.isPut,
           premiumPerOption: strikeData.premiumPerOption,
+          setActiveStrikeIndex: () => setActiveStrikeIndex(index),
+          handleSelection: (e: React.MouseEvent<HTMLElement>) => {
+            handleClickMenu(e);
+          },
         },
         chevron: null,
         disclosure: {
@@ -152,113 +265,7 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
         },
       };
     });
-  }, [strikes, vaults, vault]);
-
-  const columns = useMemo(() => {
-    return [
-      columnHelper.accessor('strike', {
-        header: 'Strike',
-        cell: (info) => (
-          <span className="space-x-1 text-left">
-            <p className="text-stieglitz inline-block">$</p>
-            <p className="inline-block">{info.getValue()}</p>
-          </span>
-        ),
-      }),
-      columnHelper.accessor('breakeven', {
-        header: 'Breakeven',
-        cell: (info) => (
-          <span className="text-left flex">
-            <p className="text-stieglitz pr-1">$</p>
-            <p className="pr-1">{info.getValue()}</p>
-          </span>
-        ),
-      }),
-      columnHelper.accessor('availableCollateral', {
-        header: 'Total Available',
-        cell: (info) => {
-          const value = info.getValue();
-
-          return (
-            <span className="space-y-1 text-xs">
-              <span
-                className={`flex ${
-                  value.isPut ? 'flex-row-reverse justify-end' : 'space-x-1'
-                }`}
-              >
-                <p className="inline-block">
-                  {formatAmount(value.totalAvailableCollateral, 3)}
-                </p>
-                <p className="text-stieglitz inline-block">
-                  {value.isPut ? '$' : value.base}
-                </p>
-              </span>
-              <p className="text-stieglitz text-xs">
-                {formatAmount(value.availableCollateralPercentage, 3)}%
-              </p>
-            </span>
-          );
-        },
-      }),
-      columnHelper.accessor('button', {
-        header: () => null,
-        cell: (info) => {
-          const value = info.getValue();
-
-          const _symbol = value.isPut ? '$' : value.base;
-
-          return (
-            <div className="flex space-x-2 justify-end">
-              <Button
-                id={`strike-chain-button-${value.index}`}
-                color="mineshaft"
-                onClick={() => setActiveStrikeIndex(value.index)}
-                className="space-x-2 text-xs hover:cursor-pointer"
-              >
-                <p className="my-auto inline-block">{_symbol}</p>
-                <p className="inline-block">
-                  {formatAmount(
-                    formatUnits(value.premiumPerOption || 0n, DECIMALS_TOKEN),
-                    3
-                  )}
-                </p>
-                <PlusIcon
-                  className="w-[10px] h-[10px] inline-block"
-                  color="#8E8E8E"
-                />
-              </Button>
-              <Menu
-                color="mineshaft"
-                selection={
-                  <EllipsisVerticalIcon className="w-4 h-4 fill-current text-white" />
-                }
-                handleSelection={(e: React.MouseEvent<HTMLElement>) => {
-                  handleClickMenu(e, value.index);
-                }}
-                data={STRIKES_MENU}
-                className="w-fit"
-              />
-              {/* todo: OLP dialog
-          Pass selected strike, ssov address, side into dialog
-          */}
-            </div>
-          );
-        },
-      }),
-      columnHelper.accessor('chevron', {
-        header: () => null,
-        cell: () => {
-          return (
-            <Disclosure.Button as="td" className="w-6">
-              <ChevronDownIcon
-                className={`text-stieglitz text-2xl cursor-pointer`}
-              />
-            </Disclosure.Button>
-          );
-        },
-      }),
-    ];
-  }, [handleClickMenu, setActiveStrikeIndex]);
+  }, [strikes, vault, setActiveStrikeIndex, handleClickMenu]);
 
   const table = useReactTable({
     columns,
@@ -271,13 +278,13 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
   return (
     <div className="space-y-2 bg-cod-gray rounded-lg pt-3">
       <div className="relative h-12 mx-3">
-        {vaults[0] && (
+        {/* {vaults[0] && (
           <FilterPanel
             selectedToken={selectedToken}
             isPut={vault.isPut}
             durationType={vault.durationType}
           />
-        )}
+        )} */}
       </div>
       <div className="overflow-x-auto">
         {strikeData.length > 0 && !strikes.isLoading ? (
@@ -334,16 +341,17 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
                               } else {
                                 textAlignment = 'text-left';
                               }
+
                               return (
                                 <td
                                   key={cell.id}
                                   className={`m-3 py-4 px-3 ${textAlignment}`}
                                 >
                                   <span className="text-sm">
-                                    {flexRender(
-                                      cell.column.columnDef.cell,
-                                      cell.getContext()
-                                    )}
+                                    {flexRender(cell.column.columnDef.cell, {
+                                      ...cell.getContext(),
+                                      open,
+                                    })}
                                   </span>
                                 </td>
                               );

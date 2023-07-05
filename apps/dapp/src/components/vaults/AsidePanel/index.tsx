@@ -67,9 +67,20 @@ const AsidePanel = () => {
   const vault = useVaultState((vault) => vault.vault);
   const activeStrikeIndex = useVaultState((vault) => vault.activeStrikeIndex);
   const [amountDebounced] = useDebounce(amount, 1000);
-  const { selectedVault, updateSelectedVault } = useVaultQuery({
+  const { vaults } = useVaultQuery({
     vaultSymbol: vault.base,
   });
+
+  const selectedVault = useMemo(() => {
+    const selected = vaults.find(
+      (_vault) =>
+        vault.durationType === _vault.durationType &&
+        vault.isPut === _vault.isPut
+    );
+
+    return selected;
+  }, [vaults, vault]);
+
   const { epochStrikeData, contractData } = useContractData({
     contractAddress: selectedVault?.contractAddress,
     epoch: selectedVault?.currentEpoch,
@@ -124,10 +135,6 @@ const AsidePanel = () => {
   const { write } = useContractWrite(config);
   const { write: approve } = useContractWrite(approveConfig);
 
-  useEffect(() => {
-    updateSelectedVault(vault.durationType, vault.isPut as boolean);
-  }, [updateSelectedVault, vault]);
-
   const selectedStrike = useMemo(() => {
     if (epochStrikeData.length === 0 || !selectedVault)
       return {
@@ -176,7 +183,7 @@ const AsidePanel = () => {
   }, [activeStrikeIndex, amountDebounced, selectedVault, epochStrikeData]);
 
   const handleClick = (index: number) => {
-    setActiveIndex(index);
+    // setActiveIndex(index);
   };
 
   const handleChange = useCallback(

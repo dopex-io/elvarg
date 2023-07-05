@@ -83,9 +83,9 @@ const useContractData = (props: Props) => {
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
   const updateIvs = useCallback(async () => {
-    if (!contractAddress || !data || !data[0]) return;
+    if (!contractAddress || !data || !data[0] || !data[0].result) return;
     const ivs = [];
-    for (let i = 0; i < (data[0] as any).result.strikes.length; i++) {
+    for (let i = 0; i < data[0].result.strikes.length; i++) {
       const iv = (
         await readContracts({
           contracts: [
@@ -93,7 +93,7 @@ const useContractData = (props: Props) => {
               address: contractAddress as any,
               abi: SsovV3__factory.abi,
               functionName: 'getVolatility',
-              args: [(data[0] as any).result.strikes[i]],
+              args: [data[0].result.strikes[i]],
             },
           ],
         })
@@ -107,70 +107,65 @@ const useContractData = (props: Props) => {
     if (
       !data ||
       !data[0] ||
-      (data[0] as any).result.expiry === null ||
+      !data[0].result ||
+      !data[1] ||
+      !data[1].result ||
       !contractAddress ||
       !ivs
     )
       return [];
 
     try {
-      return (data[0] as any).result.strikes.map(
-        (strike: any, index: number) => {
-          const _strike = Number(formatUnits(strike, DECIMALS_STRIKE));
-          const expiryInYears =
-            Number(
-              (data[0] as any).result.expiry - (data[0] as any).result.startTime
-            ) / 31556926;
+      return data[0].result.strikes.map((strike: any, index: number) => {
+        const _strike = Number(formatUnits(strike, DECIMALS_STRIKE));
+        const expiryInYears =
+          Number(data[0].result!.expiry - data[0].result!.startTime) / 31556926;
 
-          const spot = Number(
-            // @ts-ignore
-            formatUnits(data[1]?.result ?? 0n, DECIMALS_STRIKE)
-          );
+        const spot = Number(formatUnits(data[1].result!, DECIMALS_STRIKE));
 
-          const isPut = data[2].result ?? false;
-          const iv = Number(ivs[index]);
+        const isPut = data[2].result ?? false;
+        const iv = Number(ivs[index]);
 
-          const delta = getDelta(
-            spot,
-            _strike,
-            expiryInYears,
-            iv / 100,
-            0,
-            isPut
-          );
-          const gamma = getGamma(spot, _strike, expiryInYears, iv / 100, 0);
-          const vega = getVega(spot, _strike, expiryInYears, iv / 100, 0);
-          const theta = getTheta(
-            spot,
-            _strike,
-            expiryInYears,
-            iv / 100,
-            0,
-            isPut,
-            365
-          );
-          const rho = getRho(
-            spot,
-            _strike,
-            expiryInYears,
-            iv / 100,
-            0,
-            isPut,
-            100
-          );
+        const delta = getDelta(
+          spot,
+          _strike,
+          expiryInYears,
+          iv / 100,
+          0,
+          isPut
+        );
+        const gamma = getGamma(spot, _strike, expiryInYears, iv / 100, 0);
+        const vega = getVega(spot, _strike, expiryInYears, iv / 100, 0);
+        const theta = getTheta(
+          spot,
+          _strike,
+          expiryInYears,
+          iv / 100,
+          0,
+          isPut,
+          365
+        );
+        const rho = getRho(
+          spot,
+          _strike,
+          expiryInYears,
+          iv / 100,
+          0,
+          isPut,
+          100
+        );
 
-          return {
-            delta,
-            gamma,
-            theta,
-            vega,
-            rho,
-            iv,
-            strike: _strike,
-            spot,
-          };
-        }
-      );
+        return {
+          delta,
+          gamma,
+          theta,
+          vega,
+          rho,
+          iv,
+          strike: _strike,
+          spot,
+        };
+      });
     } catch (e) {
       console.log('Something went wrong fetching strikes', e);
       return;
@@ -185,11 +180,11 @@ const useContractData = (props: Props) => {
       greeks.length === 0 ||
       !greeks ||
       !data ||
-      !(data[0] as any).result.expiry
+      !data[0].result
     )
       return;
 
-    const strikes = (data[0] as any).result.strikes;
+    const strikes = data[0].result.strikes;
     const config = {
       address: contractAddress as any,
       abi: SsovV3__factory.abi,
@@ -206,11 +201,7 @@ const useContractData = (props: Props) => {
           {
             ...config,
             functionName: 'calculatePremium',
-            args: [
-              strikes[i],
-              parseUnits('1', 18),
-              (data[0] as any).result.expiry,
-            ],
+            args: [strikes[i], parseUnits('1', 18), data[0].result.expiry],
           },
         ],
       });
@@ -231,7 +222,7 @@ const useContractData = (props: Props) => {
         formatUnits(
           (strikeData.result.totalCollateral -
             strikeData.result.activeCollateral) /
-            // @ts-ignore
+            // @ts-ignore NEXT BUILD ISSUE
             (data[0].result.collateralExchangeRate ?? 1n),
           10
         )
@@ -239,7 +230,7 @@ const useContractData = (props: Props) => {
       const totalPurchased = Number(
         formatUnits(
           strikeData.result.activeCollateral /
-            // @ts-ignore
+            // @ts-ignore NEXT BUILD ISSUE
             (data[0].result.collateralExchangeRate ?? 1n),
           10
         )
@@ -260,7 +251,7 @@ const useContractData = (props: Props) => {
     }
     setEpochStrikeData(_epochStrikeData);
     setActiveIndex(0);
-  }, [contractAddress, data, epoch, greeks, ivs, setActiveIndex]);
+  }, [contractAddress, data, epoch, greeks, ivs]);
 
   const updateContractData = useCallback(() => {
     // todo: load any additional contract state via this handler
