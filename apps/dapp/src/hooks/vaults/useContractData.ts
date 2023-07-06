@@ -85,7 +85,6 @@ const useContractData = (props: Props) => {
   const updateIvs = useCallback(async () => {
     if (!contractAddress || !data || !data[0] || !data[0].result) return;
     const ivs = [];
-    // @ts-ignore NEXT BUILD ISSUES
     for (let i = 0; i < data[0].result.strikes.length; i++) {
       const iv = (
         await readContracts({
@@ -219,7 +218,6 @@ const useContractData = (props: Props) => {
         formatUnits(
           (strikeData.result.totalCollateral -
             strikeData.result.activeCollateral) /
-            // @ts-ignore NEXT BUILD ISSUE
             (data[0].result.collateralExchangeRate ?? 1n),
           10
         )
@@ -227,7 +225,6 @@ const useContractData = (props: Props) => {
       const totalPurchased = Number(
         formatUnits(
           strikeData.result.activeCollateral /
-            // @ts-ignore NEXT BUILD ISSUE
             (data[0].result.collateralExchangeRate ?? 1n),
           10
         )
