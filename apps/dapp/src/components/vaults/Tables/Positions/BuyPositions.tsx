@@ -8,7 +8,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { format } from 'date-fns';
+import format from 'date-fns/format';
 
 // import { useAccount } from 'wagmi';
 
@@ -84,7 +84,7 @@ const columns = [
     header: 'PnL',
     cell: (info) => (
       <span className="space-x-2">
-        <p className="inline-block">{info.getValue()}</p>
+        <p className="inline-block">$ {info.getValue()}</p>
       </span>
     ),
   }),

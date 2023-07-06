@@ -173,7 +173,7 @@ const columns = [
     header: () => null,
     cell: (info) => {
       return (
-        <Disclosure.Button as="td" className="w-6">
+        <Disclosure.Button className="w-6">
           <ChevronDownIcon
             className={`text-stieglitz text-2xl cursor-pointer ${
               // @ts-ignore TODO: find the right way to pass a custom prop to a cell

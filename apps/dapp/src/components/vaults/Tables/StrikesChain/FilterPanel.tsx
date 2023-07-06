@@ -23,7 +23,7 @@ const FilterPanel = (props: Props) => {
 
   const vault = useVaultState((state) => state.vault);
   const update = useVaultState((state) => state.update);
-  const { vaults } = useVaultQuery({
+  const { vaults, aggregatedStats } = useVaultQuery({
     vaultSymbol: selectedToken,
   });
 
@@ -96,8 +96,9 @@ const FilterPanel = (props: Props) => {
       abi: SsovV3__factory.abi,
       base: selectedVault.underlyingSymbol,
       currentEpoch: selectedVault.currentEpoch,
+      underlyingPrice: aggregatedStats?.currentPrice || 0,
     });
-  }, [selectedVault, update]);
+  }, [selectedVault, update, aggregatedStats]);
 
   return (
     <div className="flex space-x-2 z-10">

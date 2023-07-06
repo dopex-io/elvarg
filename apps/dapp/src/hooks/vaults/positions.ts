@@ -30,6 +30,7 @@ export interface WritePosition {
   tokenId: number;
   address: string;
   id: string;
+  expiry: number;
 }
 
 export interface BuyPosition {
@@ -60,12 +61,23 @@ const useFetchPositions = (props: Props) => {
         }),
     });
 
-    const filteredWritePositions = ssovQueryResult.users[0].userSSOVDeposit
-      .filter(
+    const filteredWritePositions =
+      ssovQueryResult.users[0].userSSOVDeposit.filter(
         (position) =>
           position.ssov.id.toLowerCase() === vaultAddress.toLowerCase()
-      )
-      .map((vault) => ({
+      );
+
+    const _writePositions = [];
+
+    for (let i = 0; i < filteredWritePositions.length; i++) {
+      const vault = filteredWritePositions[i];
+
+      const epochTimes = await getSsovEpochTimes({
+        epoch: Number(vault.epoch),
+        ssovAddress: vaultAddress as Address,
+      });
+
+      _writePositions[i] = {
         ...vault,
         strike: Number(ethers.utils.formatUnits(vault.strike, DECIMALS_STRIKE)),
         balance: Number(ethers.utils.formatUnits(vault.amount, 'ether')),
@@ -73,8 +85,11 @@ const useFetchPositions = (props: Props) => {
         side: isPut ? 'Put' : 'Call',
         tokenId: Number(vault.id.split('#')[1]),
         address: vault.ssov.id.toLowerCase(),
-      }));
-    setWritePositions(filteredWritePositions);
+        expiry: Number(epochTimes[1]),
+      };
+    }
+
+    setWritePositions(_writePositions);
 
     const filteredBuyPositions =
       ssovQueryResult.users[0].userSSOVOptionBalance.filter((position) =>

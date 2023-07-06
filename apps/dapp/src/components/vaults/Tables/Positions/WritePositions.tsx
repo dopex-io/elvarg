@@ -7,6 +7,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table';
+import format from 'date-fns/format';
 import { useAccount, useContractWrite, usePrepareContractWrite } from 'wagmi';
 
 import { WritePosition } from 'hooks/vaults/positions';
@@ -23,7 +24,9 @@ interface WritePositionData {
   strike: string;
   amount: string;
   side: string;
-  epoch: number;
+  expiry: number;
+  premium: number;
+  rewards: number;
   button: {
     tokenId: number;
     epoch: number;
@@ -44,6 +47,18 @@ const columns = [
       </span>
     ),
   }),
+  columnHelper.accessor('side', {
+    header: 'Side',
+    cell: (info) => <p className="text-stieglitz">{info.getValue()}</p>,
+  }),
+  columnHelper.accessor('expiry', {
+    header: 'Expiry',
+    cell: (info) => (
+      <p className="inline-block">
+        {format(info.getValue() * 1000, 'dd MMM yyyy')}
+      </p>
+    ),
+  }),
   columnHelper.accessor('amount', {
     header: 'Amount',
     cell: (info) => (
@@ -52,13 +67,21 @@ const columns = [
       </span>
     ),
   }),
-  columnHelper.accessor('side', {
-    header: 'Side',
-    cell: (info) => <p className="text-stieglitz">{info.getValue()}</p>,
+  columnHelper.accessor('premium', {
+    header: 'Premiums',
+    cell: (info) => (
+      <span className="space-x-2">
+        <p className="inline-block">{info.getValue()}</p>
+      </span>
+    ),
   }),
-  columnHelper.accessor('epoch', {
-    header: 'Epoch',
-    cell: (info) => <p className="inline-block">{info.getValue()}</p>,
+  columnHelper.accessor('rewards', {
+    header: 'Rewards',
+    cell: (info) => (
+      <span className="space-x-2">
+        <p className="inline-block">{info.getValue()}</p>
+      </span>
+    ),
   }),
   columnHelper.accessor('button', {
     header: '',
@@ -115,7 +138,9 @@ const WritePositions = (props: Props) => {
         side: position.side,
         strike: String(position.strike) || '0',
         amount: position.balance.toFixed(3) || '0',
-        epoch: position.epoch,
+        expiry: position.expiry,
+        rewards: 0,
+        premium: 0,
         button: {
           tokenId: position.tokenId,
           epoch: position.epoch,
