@@ -27,7 +27,7 @@ export interface EpochStrikeData {
   activeCollateral: bigint;
   premiumsAccrued: bigint;
   premiumPerOption: bigint;
-  availableCollateralPercentage: number;
+  utilization: number;
   totalAvailableCollateral: number;
   totalPurchased: number;
 }
@@ -207,17 +207,13 @@ const useContractData = (props: Props) => {
       });
       if (!strikeData.result || !data[0].result) return;
 
-      const availableCollateralPercentage =
-        ((Number(
-          formatUnits(strikeData.result.totalCollateral, DECIMALS_TOKEN)
-        ) -
-          Number(
-            formatUnits(strikeData.result.activeCollateral, DECIMALS_TOKEN)
-          )) /
-          Number(
-            formatUnits(strikeData.result.totalCollateral, DECIMALS_TOKEN)
-          )) *
-          100 || 0;
+      const utilization = Number(
+        ((strikeData.result.totalCollateral -
+          strikeData.result.activeCollateral) *
+          100n) /
+          strikeData.result.totalCollateral
+      );
+
       const totalAvailable = Number(
         formatUnits(
           (strikeData.result.totalCollateral -
@@ -235,6 +231,7 @@ const useContractData = (props: Props) => {
           10
         )
       );
+
       _epochStrikeData.push({
         totalCollateral: strikeData.result.totalCollateral,
         availableCollateral:
@@ -243,7 +240,7 @@ const useContractData = (props: Props) => {
         activeCollateral: strikeData.result.activeCollateral,
         premiumsAccrued: strikeData.result.totalPremiums,
         premiumPerOption: premiumPerOption.result!,
-        availableCollateralPercentage,
+        utilization,
         totalAvailableCollateral: totalAvailable,
         totalPurchased: totalPurchased,
         ...greeks[i],

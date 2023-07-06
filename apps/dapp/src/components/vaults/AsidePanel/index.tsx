@@ -183,7 +183,7 @@ const AsidePanel = () => {
   }, [activeStrikeIndex, amountDebounced, selectedVault, epochStrikeData]);
 
   const handleClick = (index: number) => {
-    // setActiveIndex(index);
+    setActiveIndex(index);
   };
 
   const handleChange = useCallback(
@@ -290,9 +290,9 @@ const AsidePanel = () => {
       />
       {infoPopover.textContent !== '' ? (
         <div
-          className={`${infoPopover.alertBg} p-3 rounded-md animate-pulse text-center flex justify-center`}
+          className={`${infoPopover.alertBg} p-3 rounded-md text-center flex justify-center`}
         >
-          <ExclamationTriangleIcon className={'h-6 w-6 fill-current mr-2'} />
+          <ExclamationTriangleIcon className="h-6 w-6 fill-current mr-2" />
           {infoPopover.textContent}
         </div>
       ) : null}

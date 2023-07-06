@@ -34,16 +34,18 @@ interface DisclosureStrikeItem {
   theta: number;
   vega: number;
   gamma: number;
+  utilization: number;
+  tvl: number;
+  apy: number;
 }
 
 interface StrikeItem {
   strike: number;
   breakeven: string;
   availableCollateral: {
-    base: string;
+    strike: number;
     isPut: boolean;
     totalAvailableCollateral: number;
-    availableCollateralPercentage: number;
   };
   button: {
     index: number;
@@ -68,12 +70,21 @@ const TableDisclosure = (props: DisclosureStrikeItem) => {
   return (
     <Disclosure.Panel as="tr" className="bg-umbra">
       <td colSpan={5}>
-        <div className="grid grid-cols-6 gap-6 p-3">
+        <div className="grid grid-cols-5 gap-6 p-3">
           <StatItem name="IV" value={String(props.iv)} />
           <StatItem name="Delta" value={formatAmount(props.delta, 5)} />
           <StatItem name="Vega" value={formatAmount(props.vega, 5)} />
           <StatItem name="Gamma" value={formatAmount(props.gamma, 5)} />
           <StatItem name="Theta" value={formatAmount(props.theta, 5)} />
+          <StatItem
+            name="Utilization"
+            value={`${formatAmount(props.utilization, 5)}%`}
+          />
+          <StatItem name="TVL" value={`$${formatAmount(props.tvl, 2, true)}`} />
+          <StatItem
+            name="Reward APY"
+            value={`${formatAmount(props.apy, 2, true)}%`}
+          />
         </div>
       </td>
     </Disclosure.Panel>
@@ -107,22 +118,13 @@ const columns = [
       const value = info.getValue();
 
       return (
-        <span className="space-y-1 text-xs">
-          <span
-            className={`flex ${
-              value.isPut ? 'flex-row-reverse justify-end' : 'space-x-1'
-            }`}
-          >
-            <p className="inline-block">
-              {formatAmount(value.totalAvailableCollateral, 3)}
-            </p>
-            <p className="text-stieglitz inline-block">
-              {value.isPut ? '$' : value.base}
-            </p>
-          </span>
-          <p className="text-stieglitz text-xs">
-            {formatAmount(value.availableCollateralPercentage, 3)}%
-          </p>
+        <span className="text-sm">
+          {formatAmount(
+            value.isPut
+              ? value.totalAvailableCollateral / value.strike
+              : value.totalAvailableCollateral,
+            3
+          )}
         </span>
       );
     },
@@ -132,27 +134,24 @@ const columns = [
     cell: (info) => {
       const value = info.getValue();
 
-      const _symbol = value.isPut ? '$' : value.base;
-
       return (
         <div className="flex space-x-2 justify-end">
           <Button
             id={`strike-chain-button-${value.index}`}
             color="mineshaft"
             onClick={value.setActiveStrikeIndex}
-            className="space-x-2 text-xs hover:cursor-pointer"
+            className="space-x-2 text-xs"
           >
-            <p className="my-auto inline-block">{_symbol}</p>
-            <p className="inline-block">
-              {formatAmount(
-                formatUnits(value.premiumPerOption || 0n, DECIMALS_TOKEN),
-                3
-              )}
-            </p>
-            <PlusIcon
-              className="w-[10px] h-[10px] inline-block"
-              color="#8E8E8E"
-            />
+            <span className="flex items-center space-x-2">
+              <span>
+                {formatAmount(
+                  formatUnits(value.premiumPerOption || 0n, DECIMALS_TOKEN),
+                  3
+                )}{' '}
+                {value.isPut ? '2CRV' : value.base}
+              </span>
+              <PlusIcon className="w-[10px] h-[10px]" color="#8E8E8E" />
+            </span>
           </Button>
           <Menu
             color="mineshaft"
@@ -232,6 +231,10 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
         formatUnits(strikeData.premiumPerOption || 0n, DECIMALS_TOKEN)
       );
 
+      const tvl =
+        Number(formatUnits(strikeData.totalCollateral, DECIMALS_TOKEN)) *
+        Number(selectedVault?.currentPrice);
+
       return {
         strike: strikeData.strike,
         breakeven: (vault.isPut
@@ -239,11 +242,9 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
           : strikeData.strike + premiumFormatted * strikeData.spot
         ).toFixed(3),
         availableCollateral: {
-          base: vault.base,
+          strike: strikeData.strike,
           isPut: vault.isPut,
           totalAvailableCollateral: strikeData.totalAvailableCollateral,
-          availableCollateralPercentage:
-            strikeData.availableCollateralPercentage,
         },
         button: {
           index,
@@ -262,10 +263,13 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
           theta: strikeData.theta,
           gamma: strikeData.gamma,
           vega: strikeData.vega,
+          utilization: strikeData.utilization,
+          tvl,
+          apy: Number(selectedVault?.apy[index]),
         },
       };
     });
-  }, [strikes, vault, setActiveStrikeIndex, handleClickMenu]);
+  }, [strikes, vault, setActiveStrikeIndex, handleClickMenu, selectedVault]);
 
   const table = useReactTable({
     columns,
@@ -278,13 +282,13 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
   return (
     <div className="space-y-2 bg-cod-gray rounded-lg pt-3">
       <div className="relative h-12 mx-3">
-        {/* {vaults[0] && (
+        {vaults[0] && (
           <FilterPanel
             selectedToken={selectedToken}
             isPut={vault.isPut}
             durationType={vault.durationType}
           />
-        )} */}
+        )}
       </div>
       <div className="overflow-x-auto">
         {strikeData.length > 0 && !strikes.isLoading ? (
@@ -304,7 +308,7 @@ const StrikesChain = ({ selectedToken }: { selectedToken: string }) => {
                     return (
                       <th
                         key={header.id}
-                        className={`m-3 py-1 px-4 ${textAlignment}`}
+                        className={`m-3 py-1 px-3 ${textAlignment}`}
                       >
                         <span className="text-sm text-stieglitz font-normal">
                           {header.isPlaceholder

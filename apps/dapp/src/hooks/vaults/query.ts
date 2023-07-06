@@ -89,6 +89,7 @@ const useVaultQuery = (props: Props) => {
       (item: RawVaultQueryData) =>
         String(item.underlyingSymbol) === vaultSymbol && !item.retired
     );
+
     if (filteredData.length === 0) return;
 
     const _vaults: VaultData[] = [];
