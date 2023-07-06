@@ -77,11 +77,11 @@ const Description = ({
     if (typeof APY !== 'string') {
       return `upto ${Math.max(
         ...(APY as string[]).map((apy: string) => Number(apy))
-      )}%`;
+      )}`;
     }
 
     return Number(APY) > 0 && APY !== 'Infinity'
-      ? formatAmount(APY, 0, true).toString() + '%'
+      ? formatAmount(APY, 0, true).toString()
       : '...';
   }, [APY]);
 
