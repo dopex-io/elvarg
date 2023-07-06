@@ -42,8 +42,9 @@ const TitleBar = (props: Props) => {
       durationType: selectedVault.durationType as DurationType,
       currentEpoch: selectedVault.currentEpoch,
       address: selectedVault.contractAddress,
+      underlyingPrice: aggregatedStats?.currentPrice || 0,
     });
-  }, [selectedVault, update]);
+  }, [selectedVault, update, aggregatedStats]);
 
   return (
     <div className="flex space-x-4 mb-4">

@@ -33,6 +33,7 @@ export interface Vault {
   durationType: DurationType;
   currentEpoch: number;
   abi?: Object;
+  underlyingPrice: number;
 }
 
 interface Props {
@@ -52,7 +53,10 @@ const useVaultState = create<Props>()(
         base: 'UNKNOWN',
         durationType: 'WEEKLY',
         currentEpoch: 0,
+        underlyingPrice: 0,
       },
+      updateUnderlyingPrice: (underlyingPrice: number) =>
+        set((prevState) => ({ ...prevState, underlyingPrice })),
       update: (vault: Vault) => set((prevState) => ({ ...prevState, vault })),
       updateBase: (base: string) =>
         set((prevState) => ({ ...prevState, base })),

@@ -23,14 +23,16 @@ const Positions = () => {
     if (!buyPositions || !writePositions) return [null, null];
     return [
       <div className="flex space-x-2 my-auto" key="buy-positions">
-        <p className="flex">Buy Positions</p>
-        <p className="px-[5px] rounded-full bg-carbon">{buyPositions.length}</p>
+        <span>Buy Positions</span>
+        <div className="rounded-full bg-carbon w-5 h-auto flex items-center justify-center">
+          <span>{buyPositions.length}</span>
+        </div>
       </div>,
-      <div className="flex space-x-2" key="buy-positions">
-        <p className="flex">Sell Positions</p>
-        <p className="px-[5px] rounded-full bg-carbon">
-          {writePositions.length}
-        </p>
+      <div className="flex space-x-2 my-auto" key="buy-positions">
+        <span>Sell Positions</span>
+        <div className="rounded-full bg-carbon w-5 h-auto flex items-center justify-center">
+          <span>{writePositions.length}</span>
+        </div>
       </div>,
     ];
   }, [buyPositions, writePositions]);
@@ -39,7 +41,7 @@ const Positions = () => {
     setActiveIndex(index);
   };
 
-  // todo: make these tables reusable
+  // TODO: make these tables reusable
   return (
     <div className="space-y-2">
       <ButtonGroup

@@ -8,6 +8,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table';
+import { format } from 'date-fns';
 
 // import { useAccount } from 'wagmi';
 
@@ -16,6 +17,9 @@ import useVaultState from 'hooks/vaults/state';
 
 import Placeholder from 'components/vaults/Tables/Placeholder';
 
+import { formatAmount } from 'utils/general';
+import computeOptionPnl from 'utils/math/computeOptionPnl';
+
 interface Props {
   positions: BuyPosition[];
   isLoading?: boolean;
@@ -23,9 +27,11 @@ interface Props {
 
 interface BuyPositionData {
   strike: number;
-  amount: string;
+  size: string;
   side: string;
-  epoch: number;
+  expiry: number;
+  breakeven: string;
+  pnl: string;
   button: {
     handleSettle: () => void;
     id: string;
@@ -46,21 +52,41 @@ const columns = [
       </span>
     ),
   }),
-  columnHelper.accessor('amount', {
-    header: 'Amount',
+  columnHelper.accessor('side', {
+    header: 'Side',
+    cell: (info) => <p className="text-stieglitz">{info.getValue()}</p>,
+  }),
+  columnHelper.accessor('expiry', {
+    header: 'Expiry',
+    cell: (info) => (
+      <p className="inline-block">
+        {format(info.getValue() * 1000, 'dd MMM yyyy')}
+      </p>
+    ),
+  }),
+  columnHelper.accessor('size', {
+    header: 'Size',
     cell: (info) => (
       <span className="space-x-2">
         <p className="inline-block">{info.getValue()}</p>
       </span>
     ),
   }),
-  columnHelper.accessor('side', {
-    header: 'Side',
-    cell: (info) => <p className="text-stieglitz">{info.getValue()}</p>,
+  columnHelper.accessor('breakeven', {
+    header: 'Breakeven',
+    cell: (info) => (
+      <span className="space-x-2">
+        <p className="inline-block">$ {info.getValue()}</p>
+      </span>
+    ),
   }),
-  columnHelper.accessor('epoch', {
-    header: 'Epoch',
-    cell: (info) => <p className="inline-block">{info.getValue()}</p>,
+  columnHelper.accessor('pnl', {
+    header: 'PnL',
+    cell: (info) => (
+      <span className="space-x-2">
+        <p className="inline-block">{info.getValue()}</p>
+      </span>
+    ),
   }),
   columnHelper.accessor('button', {
     header: '',
@@ -92,6 +118,7 @@ const BuyPositions = (props: Props) => {
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
   const vault = useVaultState((state) => state.vault);
+
   // const { address } = useAccount();
   // const { config } = usePrepareContractWrite({
   //   abi: vault.abi as any,
@@ -120,12 +147,32 @@ const BuyPositions = (props: Props) => {
   const positions = useMemo(() => {
     if (!_positions) return [];
     return _positions.map((position, index: number) => {
+      const size = Number(formatUnits(BigInt(position.balance), 18));
+
+      let premium = position.premium;
+      if (position.side === 'Call') {
+        premium = position.premium * vault.underlyingPrice;
+      }
+
+      const breakeven = formatAmount(premium / size + position.strike, 5);
+      const pnl = formatAmount(
+        computeOptionPnl({
+          strike: position.strike,
+          price: vault.underlyingPrice,
+          size,
+          side: position.side.toLowerCase() as 'call' | 'put',
+        }) - premium,
+        5
+      );
+
       return {
         side: position.side,
         strike: position.strike || 0,
-        amount:
+        size:
           Number(formatUnits(BigInt(position.balance), 18)).toFixed(3) || '0',
-        epoch: position.epoch,
+        expiry: position.expiry,
+        breakeven,
+        pnl,
         button: {
           id: position.id,
           handleSettle: () => handleSettle(index),

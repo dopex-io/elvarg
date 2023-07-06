@@ -2,13 +2,15 @@ import { useCallback, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 
 import request from 'graphql-request';
-import { useAccount } from 'wagmi';
+import { Address, useAccount } from 'wagmi';
 
 import queryClient from 'queryClient';
 
 import { getSsovUserDataDocument } from 'graphql/ssovs';
 
-import { DECIMALS_STRIKE, DECIMALS_USD } from 'constants/index';
+import getSsovEpochTimes from 'utils/contracts/ssov/getSsovEpochTimes';
+
+import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 import { DOPEX_SSOV_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
 // import useVaultQuery from './query';
@@ -35,6 +37,7 @@ export interface BuyPosition {
   premium: number;
   balance: string;
   epoch: number;
+  expiry: number;
   side: string;
   id: string;
 }
@@ -73,19 +76,35 @@ const useFetchPositions = (props: Props) => {
       }));
     setWritePositions(filteredWritePositions);
 
-    const filteredBuyPositions = ssovQueryResult.users[0].userSSOVOptionBalance
-      .filter((position) =>
+    const filteredBuyPositions =
+      ssovQueryResult.users[0].userSSOVOptionBalance.filter((position) =>
         position.id.toLowerCase().includes(vaultAddress.toLowerCase())
-      )
-      .map((vault) => ({
+      );
+
+    const _buyPositions = [];
+
+    for (let i = 0; i < filteredBuyPositions.length; i++) {
+      const vault = filteredBuyPositions[i];
+
+      const epochTimes = await getSsovEpochTimes({
+        epoch: Number(vault.epoch),
+        ssovAddress: vaultAddress as Address,
+      });
+
+      _buyPositions[i] = {
         ...vault,
         side: isPut ? 'Put' : 'Call',
         strike: Number(ethers.utils.formatUnits(vault.strike, DECIMALS_STRIKE)),
-        premium: Number(ethers.utils.formatUnits(vault.premium, DECIMALS_USD)),
+        premium: Number(
+          ethers.utils.formatUnits(vault.premium, DECIMALS_TOKEN)
+        ),
         epoch: Number(vault.epoch),
+        expiry: Number(epochTimes[1]),
         balance: vault.amount,
-      }));
-    setBuyPositions(filteredBuyPositions);
+      };
+    }
+
+    setBuyPositions(_buyPositions);
   }, [address, isPut, vaultAddress]);
 
   useEffect(() => {
