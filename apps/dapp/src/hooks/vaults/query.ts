@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { SsovDuration } from 'types/ssov';
+
 import queryClient from 'queryClient';
 
 import { useBoundStore } from 'store';
-
-import { DurationType } from 'hooks/vaults/state';
 
 import { DOPEX_API_BASE_URL } from 'constants/env';
 
@@ -38,7 +38,7 @@ interface RawVaultQueryData {
 
 interface VaultData {
   isPut: boolean;
-  durationType: DurationType;
+  duration: SsovDuration;
   contractAddress: string;
   underlyingSymbol: string;
   collateralPrecision: number;
@@ -130,7 +130,7 @@ const useVaultQuery = (props: Props) => {
         isPut,
         underlyingSymbol,
         collateralPrecision,
-        durationType: duration.toUpperCase() as DurationType,
+        duration: duration.toUpperCase() as SsovDuration,
         contractAddress,
         olp,
         rewards,

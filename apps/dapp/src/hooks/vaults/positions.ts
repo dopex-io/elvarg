@@ -8,7 +8,7 @@ import queryClient from 'queryClient';
 
 import { getSsovUserDataDocument } from 'graphql/ssovs';
 
-import getSsovEpochTimes from 'utils/contracts/ssov/getSsovEpochTimes';
+import getSsovEpochTimes from 'utils/ssov/getSsovEpochTimes';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 import { DOPEX_SSOV_SUBGRAPH_API_URL } from 'constants/subgraphs';

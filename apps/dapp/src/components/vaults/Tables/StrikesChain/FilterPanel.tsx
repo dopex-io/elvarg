@@ -1,120 +1,112 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { SsovV3__factory } from '@dopex-io/sdk';
+import { SsovDuration } from 'types/ssov';
 
 import useVaultQuery from 'hooks/vaults/query';
-import useVaultState, {
-  durations,
-  DurationType,
-  Side,
-  sides,
-} from 'hooks/vaults/state';
+import useVaultStore from 'hooks/vaults/useVaultStore';
 
 import Pill from 'components/vaults/Tables/Pill';
 
+import findDefaultSsov from 'utils/ssov/findDefaultSsov';
+import findSsov from 'utils/ssov/findSsov';
+import getMarketDurations from 'utils/ssov/getMarketDurations';
+import getMarketSides from 'utils/ssov/getMarketSides';
+
 interface Props {
-  selectedToken: string;
-  durationType: DurationType | undefined;
-  isPut: boolean | undefined;
+  market: string;
 }
 
 const FilterPanel = (props: Props) => {
-  const { selectedToken, durationType, isPut } = props;
+  const { market } = props;
 
-  const vault = useVaultState((state) => state.vault);
-  const update = useVaultState((state) => state.update);
-  const { vaults, aggregatedStats } = useVaultQuery({
-    vaultSymbol: selectedToken,
+  const update = useVaultStore((state) => state.update);
+
+  const { vaults } = useVaultQuery({
+    vaultSymbol: market,
   });
 
-  const [side, setSide] = useState<Side>();
-  const [_durationType, setDurationType] = useState<DurationType>();
+  const [isPut, setIsPut] = useState(false);
+  const [duration, setDuration] = useState<SsovDuration>('WEEKLY');
 
   const handleSelectSide = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSide(e.currentTarget.textContent?.toUpperCase() as Side);
-      update({
-        ...vault,
-        isPut: (e.currentTarget.textContent?.toUpperCase() as Side) === 'PUT',
-      });
+      if (!duration) return;
+      const _isPut = e.currentTarget.textContent?.toUpperCase() === 'PUT';
+
+      setIsPut(_isPut);
+      const vault = findSsov(market, _isPut, duration);
+
+      if (vault) {
+        update({
+          address: vault.address,
+          duration: vault.duration,
+          abi: SsovV3__factory.abi,
+          base: vault.underlyingSymbol,
+          isPut: _isPut,
+          currentEpoch: 0,
+          underlyingPrice: 0,
+        });
+      }
     },
-    [update, vault]
+    [update, duration, market]
   );
 
-  const handleSelectDuration = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDurationType(e.target.textContent?.toUpperCase() as DurationType);
-    update({
-      ...vault,
-      durationType: e.target.textContent?.toUpperCase() as DurationType,
-    });
-  };
+  const handleSelectDuration = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const _duration =
+        e.currentTarget.textContent?.toUpperCase() as SsovDuration;
 
-  const validSidesFromSelectedDuration = useMemo(() => {
-    const filtered = vaults
-      .filter((vault) => vault.durationType === _durationType)
-      .map((vault) =>
-        sides.filter((side) => side === (vault.isPut ? 'PUT' : 'CALL'))
-      )
-      .flat();
+      setDuration(_duration);
 
-    return [...new Set(filtered)];
-  }, [_durationType, vaults]);
+      const vault = findSsov(market, isPut, _duration);
 
-  const validDurationFromSelectedSide = useMemo(() => {
-    const filtered = vaults
-      .filter((vault) => side === (vault.isPut ? 'PUT' : 'CALL'))
-      .map((vault) =>
-        durations.filter((duration) => duration === vault.durationType)
-      )
-      .flat();
-    return [...new Set(filtered)];
-  }, [side, vaults]);
+      if (vault) {
+        update({
+          address: vault.address,
+          duration: _duration,
+          abi: SsovV3__factory.abi,
+          base: vault.underlyingSymbol,
+          isPut,
+          currentEpoch: 0,
+          underlyingPrice: 0,
+        });
+      }
+    },
+    [isPut, market, update]
+  );
 
   const selectedVault = useMemo(() => {
-    const selected = vaults.find(
-      (_vault) =>
-        vault.durationType === _vault.durationType &&
-        vault.isPut === _vault.isPut
-    );
+    const selected = vaults.find((_vault) => duration === _vault.duration);
 
     return selected;
-  }, [vaults, vault]);
+  }, [vaults, duration]);
 
-  // updates default selection of duration/side if the base asset has been changed
+  // updates default selection of duration/side if the market has been changed
   useEffect(() => {
-    if (!vaults[0] || selectedVault?.symbol === vault.base) return;
-    setDurationType(vaults[0].durationType as DurationType);
-    setSide(vaults[0].isPut ? 'PUT' : 'CALL');
-  }, [selectedVault, vault.base, vaults]);
+    const vault = findDefaultSsov(market);
 
-  useEffect(() => {
-    if (!selectedVault) return;
-    update({
-      address: selectedVault.contractAddress,
-      isPut: selectedVault.isPut,
-      durationType: selectedVault.durationType,
-      abi: SsovV3__factory.abi,
-      base: selectedVault.underlyingSymbol,
-      currentEpoch: selectedVault.currentEpoch,
-      underlyingPrice: aggregatedStats?.currentPrice || 0,
-    });
-  }, [selectedVault, update, aggregatedStats]);
+    if (vault) {
+      setIsPut(vault?.isPut);
+      setDuration(vault?.duration);
+    }
+  }, [market]);
 
   return (
     <div className="flex space-x-2 z-10">
       <Pill
-        buttons={validSidesFromSelectedDuration.map((side) => ({
+        buttons={getMarketSides(market).map((side) => ({
           textContent: side,
           handleClick: handleSelectSide,
         }))}
-        active={side || 'PUT'}
+        active={isPut ? 'PUT' : 'CALL'}
       />
       <Pill
-        buttons={validDurationFromSelectedSide.map((duration) => ({
+        buttons={getMarketDurations(market).map((duration) => ({
           textContent: duration,
           handleClick: handleSelectDuration,
         }))}
-        active={_durationType || 'WEEKLY'}
+        active={duration || 'WEEKLY'}
       />
     </div>
   );

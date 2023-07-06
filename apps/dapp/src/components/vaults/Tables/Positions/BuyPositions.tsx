@@ -13,7 +13,7 @@ import format from 'date-fns/format';
 // import { useAccount } from 'wagmi';
 
 import { BuyPosition } from 'hooks/vaults/positions';
-import useVaultState from 'hooks/vaults/state';
+import useVaultStore from 'hooks/vaults/useVaultStore';
 
 import Placeholder from 'components/vaults/Tables/Placeholder';
 
@@ -117,7 +117,7 @@ const BuyPositions = (props: Props) => {
 
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
-  const vault = useVaultState((state) => state.vault);
+  const vault = useVaultStore((state) => state.vault);
 
   // const { address } = useAccount();
   // const { config } = usePrepareContractWrite({

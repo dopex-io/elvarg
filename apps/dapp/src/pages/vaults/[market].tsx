@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
+import { SsovV3__factory } from '@dopex-io/sdk';
 import { NextSeo } from 'next-seo';
 
-import useVaultState from 'hooks/vaults/state';
+import useVaultStore from 'hooks/vaults/useVaultStore';
 
 import PageLayout from 'components/common/PageLayout';
 import AsidePanel from 'components/vaults/AsidePanel';
@@ -11,16 +12,18 @@ import Positions from 'components/vaults/Tables/Positions';
 import StrikesChain from 'components/vaults/Tables/StrikesChain';
 import TitleBar from 'components/vaults/TitleBar';
 
+import findDefaultSsov from 'utils/ssov/findDefaultSsov';
+
 import seo from 'constants/seo';
 
 const Vaults = () => {
   const router = useRouter();
 
-  const updateBase = useVaultState((state) => state.updateBase);
+  const update = useVaultStore((state) => state.update);
 
-  const [selectedToken, setSelectedToken] = useState<string>('stETH');
+  const [selectedMarket, setSelectedMarket] = useState<string>('ARB');
 
-  const handleSelectToken = useCallback(
+  const handleSelectMarket = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       router.push(`/vaults/${e.target.innerText}`);
     },
@@ -30,9 +33,22 @@ const Vaults = () => {
   useEffect(() => {
     const market = router.query['market'] as string;
 
-    setSelectedToken(market);
-    updateBase(market);
-  }, [router, updateBase]);
+    setSelectedMarket(market);
+
+    const vault = findDefaultSsov(market);
+
+    if (vault) {
+      update({
+        address: vault.address,
+        isPut: vault.isPut,
+        base: vault.underlyingSymbol,
+        duration: vault.duration,
+        abi: SsovV3__factory.abi,
+        currentEpoch: 0,
+        underlyingPrice: 0,
+      });
+    }
+  }, [router, update]);
 
   return (
     <>
@@ -57,14 +73,14 @@ const Vaults = () => {
       />
       <PageLayout>
         <TitleBar
-          selectedToken={selectedToken}
-          handleSelectToken={handleSelectToken}
+          market={selectedMarket}
+          handleSelectMarket={handleSelectMarket}
         />
         <div className="flex space-x-0 lg:space-x-6 flex-col sm:flex-col md:flex-col lg:flex-row space-y-3 md:space-y-0 justify-center">
           <div className="flex flex-col space-y-3 sm:w-full lg:w-3/4 h-full">
             <div className="h-[520px] bg-carbon rounded-lg text-center flex flex-col justify-center text-stieglitz"></div>
             <div className="space-y-4">
-              <StrikesChain selectedToken={selectedToken} />
+              <StrikesChain market={selectedMarket} />
               <Positions />
             </div>
           </div>

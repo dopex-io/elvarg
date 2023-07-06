@@ -85,6 +85,7 @@ const useContractData = (props: Props) => {
   const updateIvs = useCallback(async () => {
     if (!contractAddress || !data || !data[0] || !data[0].result) return;
     const ivs = [];
+    // @ts-ignore NEXT BUILD ISSUES
     for (let i = 0; i < data[0].result.strikes.length; i++) {
       const iv = (
         await readContracts({

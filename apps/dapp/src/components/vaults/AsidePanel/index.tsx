@@ -22,8 +22,8 @@ import {
 import wagmiConfig from 'wagmi-config';
 
 import useVaultQuery from 'hooks/vaults/query';
-import useVaultState from 'hooks/vaults/state';
 import useContractData from 'hooks/vaults/useContractData';
+import useVaultStore from 'hooks/vaults/useVaultStore';
 
 import RowItem from 'components/vaults/AsidePanel/RowItem';
 
@@ -64,8 +64,8 @@ const AsidePanel = () => {
   const [amount, setAmount] = useState<string>('0');
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
-  const vault = useVaultState((vault) => vault.vault);
-  const activeStrikeIndex = useVaultState((vault) => vault.activeStrikeIndex);
+  const vault = useVaultStore((vault) => vault.vault);
+  const activeStrikeIndex = useVaultStore((vault) => vault.activeStrikeIndex);
   const [amountDebounced] = useDebounce(amount, 1000);
   const { vaults } = useVaultQuery({
     vaultSymbol: vault.base,
@@ -74,8 +74,7 @@ const AsidePanel = () => {
   const selectedVault = useMemo(() => {
     const selected = vaults.find(
       (_vault) =>
-        vault.durationType === _vault.durationType &&
-        vault.isPut === _vault.isPut
+        vault.duration === _vault.duration && vault.isPut === _vault.isPut
     );
 
     return selected;

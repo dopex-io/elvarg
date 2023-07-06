@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import useFetchPositions from 'hooks/vaults/positions';
-import useVaultState from 'hooks/vaults/state';
+import useVaultStore from 'hooks/vaults/useVaultStore';
 
 import { ButtonGroup } from 'components/vaults/AsidePanel';
 
@@ -9,7 +9,7 @@ import BuyPositions from './BuyPositions';
 import WritePositions from './WritePositions';
 
 const Positions = () => {
-  const vault = useVaultState((vault) => vault.vault);
+  const vault = useVaultStore((vault) => vault.vault);
 
   const { writePositions, buyPositions, isLoading } = useFetchPositions({
     vaultAddress: vault.address,

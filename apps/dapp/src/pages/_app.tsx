@@ -20,6 +20,7 @@ import theme from '../style/muiTheme';
 
 import 'tailwindcss/tailwind.css';
 import '../style/index.css';
+import '../wdyr';
 
 function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
