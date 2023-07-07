@@ -44,7 +44,7 @@ const TopBar = () => {
         <div className="hidden md:flex -space-x-4">
           <img
             className="w-9 h-9 z-10 border border-gray-500 rounded-full"
-            src={`/images/tokens/${optionScalpData?.baseSymbol!.toLowerCase()}.svg`}
+            src={`/images/tokens/${optionScalpData?.baseSymbol?.toLowerCase()}.svg`}
             alt={optionScalpData?.baseSymbol!}
           />
           <img
