@@ -6,8 +6,10 @@ import { CircularProgress } from '@mui/material';
 import { ERC20__factory } from '@dopex-io/sdk';
 import { Button, Input } from '@dopex-io/ui';
 import cx from 'classnames';
-import useSendTx from 'hooks/useSendTx';
+
 import { useBoundStore } from 'store';
+
+import useSendTx from 'hooks/useSendTx';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import Wrapper from 'components/ssov/Wrapper';
@@ -68,7 +70,7 @@ const DepositCard = () => {
       utils.formatUnits(
         userTokenBalance,
         isQuote
-          ? optionScalpData?.quoteDecimals!.toNumber()!
+          ? optionScalpData?.quoteDecimals?.toNumber()!
           : optionScalpData?.baseDecimals!.toNumber()!
       )
     );
@@ -126,7 +128,7 @@ const DepositCard = () => {
     const depositAmount = utils.parseUnits(
       rawAmount,
       isQuote
-        ? optionScalpData?.quoteDecimals!.toNumber()
+        ? optionScalpData?.quoteDecimals?.toNumber()
         : optionScalpData?.baseDecimals!.toNumber()
     );
 
@@ -171,7 +173,7 @@ const DepositCard = () => {
         utils.parseUnits(
           rawAmount,
           isQuote
-            ? optionScalpData?.quoteDecimals!.toNumber()
+            ? optionScalpData?.quoteDecimals?.toNumber()
             : optionScalpData?.baseDecimals!.toNumber()
         ),
       ])
@@ -212,7 +214,7 @@ const DepositCard = () => {
           utils.parseUnits(
             String(amount),
             isQuote
-              ? optionScalpData?.quoteDecimals!.toNumber()!
+              ? optionScalpData?.quoteDecimals?.toNumber()!
               : optionScalpData?.baseDecimals!.toNumber()!
           ),
         ]
@@ -244,7 +246,7 @@ const DepositCard = () => {
           utils.parseUnits(
             String(amount),
             isQuote
-              ? optionScalpData?.quoteDecimals!.toNumber()!
+              ? optionScalpData?.quoteDecimals?.toNumber()!
               : optionScalpData?.baseDecimals!.toNumber()!
           )
         );
@@ -357,7 +359,7 @@ const DepositCard = () => {
                       utils.formatUnits(
                         estimatedLpTokens,
                         isQuote
-                          ? optionScalpData?.quoteDecimals!.toNumber()!
+                          ? optionScalpData?.quoteDecimals?.toNumber()!
                           : optionScalpData?.baseDecimals!.toNumber()!
                       )
                     ),
