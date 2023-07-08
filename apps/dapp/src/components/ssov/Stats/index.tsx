@@ -90,7 +90,6 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
           {formatAmount(isPut ? totalPremiums : totalPremiums * price, 2)}
         </Box>
       </TableCell>
-      {/* @TODO Remove when all ssovs support staking rewards */}
       {stakingRewards && (
         <TableCell align="left" className="border-0 py-1">
           {stakingRewards.length > 0 ? (
