@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { BigNumber } from 'ethers';
 
-import { ERC20__factory } from '@dopex-io/sdk';
+import { CircularProgress } from '@mui/material';
 import Box from '@mui/material/Box';
 import { SelectChangeEvent } from '@mui/material/Select';
-import useSendTx from 'hooks/useSendTx';
+
+import { ERC20__factory } from '@dopex-io/sdk';
+
 import { useBoundStore } from 'store';
 
-import Typography from 'components/UI/Typography';
+import useSendTx from 'hooks/useSendTx';
+
 import ApproveDepositButton from 'components/common/ApproveDepositButton';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButtonV2';
 import DiscountBox from 'components/common/LpCommon/DiscountBox';
@@ -18,6 +20,7 @@ import {
   PutBox,
   StrikeBox,
 } from 'components/olp/ProvideLp/DepositPanel';
+import Typography from 'components/UI/Typography';
 
 import allowanceApproval from 'utils/contracts/allowanceApproval';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -222,6 +225,14 @@ const ProvideLp = () => {
     discountAmount,
     rawDiscountAmount
   );
+
+  if (!olpData) {
+    return (
+      <div className="bg-cod-gray p-3 rounded-xl w-full md:w-[350px] flex justify-around">
+        <CircularProgress className="justify-around" />
+      </div>
+    );
+  }
 
   return (
     <Box className="bg-cod-gray p-3 rounded-xl w-full md:w-[350px]">
