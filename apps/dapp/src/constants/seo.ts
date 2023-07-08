@@ -102,6 +102,14 @@ const seo = {
     title: 'Dopex Bonds',
     description: 'Commit $USDC.e to receive $DPX at a discount',
   },
+  inu: {
+    url: `${HOST_URL}/inu`,
+    banner:
+      'https://res.cloudinary.com/dxitdndu3/image/upload/v1684326253/dopex_images/preview_images/dpx-bonds_ihgulw.png',
+    alt: 'Dopex Inu',
+    title: 'Dopex Inu',
+    description: 'Inu is cool',
+  },
   default: {
     url: HOST_URL,
     title: 'Dopex',
