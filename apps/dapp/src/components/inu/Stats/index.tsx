@@ -26,15 +26,15 @@ import formatAmount from 'utils/general/formatAmount';
 const contracts = [
   {
     name: 'Option vault',
-    value: '0x............................23',
+    value: '0x96FAEeE355195b3D4ad106127d448B4dF21af759',
   },
   {
     name: 'Option vault LP',
-    value: '0x............................23',
+    value: '0x96FAEeE355195b3D4ad106127d448B4dF21af759',
   },
   {
     name: 'Inu 20',
-    value: '0x............................23',
+    value: '0x96FAEeE355195b3D4ad106127d448B4dF21af759',
   },
 ];
 
@@ -98,14 +98,14 @@ const Stats = (props: { className?: string }) => {
             </Typography>
           </Box>
           <Box className="balances-table text-white pb-4">
-            <TableContainer className="bg-cod-gray">
+            <TableContainer className="bg-cod-gray w-[64rem]">
               <Table className="border-separate border-spacing-y-2">
                 <TableHead className="bg-umbra">
                   {section.fields.map((field) => (
                     <TableRow className="bg-umbra">
                       <TableCell
                         align="left"
-                        className="text-stieglitz bg-cod-gray border-0 p-2 w-[24rem]"
+                        className="bg-cod-gray border-0 p-2"
                       >
                         <Typography variant="h6" className="!text-stieglitz">
                           {field.name}
@@ -113,9 +113,12 @@ const Stats = (props: { className?: string }) => {
                       </TableCell>
                       <TableCell
                         align="left"
-                        className="text-stieglitz bg-cod-gray border-0 pb-0"
+                        className="bg-cod-gray border-0 pb-0 w-[36rem]"
                       >
-                        <Typography variant="h6" className="text-stieglitz">
+                        <Typography
+                          variant="h6"
+                          className="text-stieglitz text-left"
+                        >
                           {field.value}
                         </Typography>
                       </TableCell>
