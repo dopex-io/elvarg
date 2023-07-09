@@ -1,12 +1,16 @@
-import { BigNumber } from 'ethers';
+import { ethers } from 'ethers';
 
+import { providers } from '@0xsequence/multicall';
 import {
+  Addresses,
   AtlanticStraddle__factory,
+  AtlanticStraddleV2__factory,
   ERC20__factory,
   SsovV3__factory,
 } from '@dopex-io/sdk';
 import format from 'date-fns/format';
 import request from 'graphql-request';
+import { polygon } from 'wagmi/chains';
 import { StateCreator } from 'zustand';
 
 import queryClient from 'queryClient';
@@ -20,6 +24,8 @@ import { WalletSlice } from 'store/Wallet';
 import getLinkFromVaultName from 'utils/contracts/getLinkFromVaultName';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
+import { CHAINS } from 'constants/chains';
+import { DEFAULT_CHAIN_ID } from 'constants/env';
 import {
   DOPEX_POLYGON_SSOV_SUBGRAPH_API_URL,
   DOPEX_POLYGON_STRADDLE_SUBGRAPH_API_URL,
@@ -101,6 +107,27 @@ const initialPortfolioData = {
   isLoading: true,
 };
 
+const POLYGON_STRADDLES_ADDR: string =
+  Addresses[polygon.id]['STRADDLES']['Vault']['MATIC'].toLowerCase();
+const POLYGON_SSOV_ADDR: string =
+  Addresses[polygon.id]['SSOV-V3']['VAULTS'][
+    'MATIC-WEEKLY-CALLS-SSOV-V3'
+  ].toLowerCase();
+
+function getChainProvider(address: string) {
+  if (
+    address.toLowerCase() === POLYGON_SSOV_ADDR ||
+    address.toLowerCase() === POLYGON_STRADDLES_ADDR
+  ) {
+    return new providers.MulticallProvider(
+      new ethers.providers.StaticJsonRpcProvider(CHAINS[polygon.id]?.rpc)
+    );
+  }
+  return new providers.MulticallProvider(
+    new ethers.providers.StaticJsonRpcProvider(CHAINS[DEFAULT_CHAIN_ID]?.rpc)
+  );
+}
+
 export const createPortfolioSlice: StateCreator<
   PortfolioSlice & AssetsSlice & WalletSlice,
   [['zustand/devtools', never]],
@@ -109,9 +136,9 @@ export const createPortfolioSlice: StateCreator<
 > = (set, get) => ({
   portfolioData: initialPortfolioData,
   updatePortfolioData: async () => {
-    const { accountAddress, provider, contractAddresses } = get();
+    const { accountAddress, contractAddresses } = get();
 
-    if (!accountAddress || !provider) return;
+    if (!accountAddress) return;
 
     const getSsovNameFromAddress = (address: string) => {
       for (let ssovName in contractAddresses['SSOV-V3']['VAULTS']) {
@@ -126,6 +153,7 @@ export const createPortfolioSlice: StateCreator<
     };
 
     const getUserSSOVDeposit = async (userDeposit: any) => {
+      const provider = getChainProvider(userDeposit.ssov.id);
       const ssov = SsovV3__factory.connect(userDeposit.ssov.id, provider);
       const ssovName = getSsovNameFromAddress(userDeposit.ssov.id)!;
       const isPut = await ssov.isPut();
@@ -158,6 +186,7 @@ export const createPortfolioSlice: StateCreator<
       const ssovAddress = userPosition.ssov.id;
 
       try {
+        const provider = getChainProvider(ssovAddress);
         const ssov = SsovV3__factory.connect(ssovAddress, provider);
         const ssovName = getSsovNameFromAddress(userPosition.ssov.id)!;
 
@@ -229,15 +258,34 @@ export const createPortfolioSlice: StateCreator<
     const getUserStraddlesPosition = async (userPosition: any) => {
       const id = userPosition.id;
       const vaultAddress = id.split('#')[0];
+      // const tokenId = id.split('#')[1];
+      const provider = getChainProvider(vaultAddress);
 
-      const vault = AtlanticStraddle__factory.connect(vaultAddress, provider);
-      const epoch = userPosition.epoch;
+      let responses: any;
+      let epoch: string;
 
-      const responses = await Promise.all([
-        vault.symbol(),
-        vault.isEpochExpired(epoch),
-        vault.paused(),
-      ]);
+      if (vaultAddress.toLowerCase() === POLYGON_STRADDLES_ADDR) {
+        const vault = AtlanticStraddleV2__factory.connect(
+          vaultAddress,
+          provider
+        );
+        epoch = userPosition.epoch;
+
+        responses = await Promise.all([
+          vault.symbol(),
+          vault.epochStatus(epoch),
+          vault.paused,
+        ]);
+      } else {
+        const vault = AtlanticStraddle__factory.connect(vaultAddress, provider);
+        epoch = userPosition.epoch;
+
+        responses = await Promise.all([
+          vault.symbol(),
+          vault.isEpochExpired(epoch),
+          vault.paused(),
+        ]);
+      }
 
       const vaultName = responses[0];
       const isEpochExpired = responses[1];
@@ -271,6 +319,7 @@ export const createPortfolioSlice: StateCreator<
       const vaultAddress = id.split('#')[0];
       // const tokenId = id.split('#')[1];
 
+      const provider = getChainProvider(vaultAddress);
       const vault = AtlanticStraddle__factory.connect(vaultAddress, provider);
 
       const responses = await Promise.all([vault.symbol(), vault.paused()]);
