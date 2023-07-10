@@ -79,7 +79,7 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
   const [selectedOlpExpiries, setSelectedOlpExpiries] = useState<string[]>([]);
   const [selectedOlpNetworks, setSelectedOlpNetworks] = useState<string[]>([]);
   const [page, setPage] = useState<number>(0);
-  const [sortByTvl, setSortByTvl] = useState<boolean>(false);
+  const [sortByTvl, setSortByTvl] = useState<boolean>(true);
 
   const olpMarkets = useMemo(() => {
     if (!olps) return [];

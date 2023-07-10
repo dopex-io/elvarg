@@ -99,7 +99,7 @@ const Stats = () => {
         Number(
           utils.formatUnits(
             selectedPoolName === 'ETH' ? uniWethPrice : uniArbPrice,
-            optionScalpData?.quoteDecimals!.toNumber()
+            optionScalpData?.quoteDecimals?.toNumber()
           )
         ),
         4
@@ -185,7 +185,7 @@ const Stats = () => {
                   Number(
                     utils.formatUnits(
                       optionScalpData?.totalQuoteDeposits!,
-                      optionScalpData?.quoteDecimals!.toNumber()
+                      optionScalpData?.quoteDecimals?.toNumber()
                     )
                   ),
                   0,

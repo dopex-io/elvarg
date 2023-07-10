@@ -11,20 +11,21 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 
 import { ERC20__factory } from '@dopex-io/sdk';
 import format from 'date-fns/format';
-import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 import CircleIcon from 'svgs/icons/CircleIcon';
 import { useDebounce } from 'use-debounce';
 
+import { useBoundStore } from 'store';
 import { SsovV3Data, SsovV3EpochData } from 'store/Vault/ssov';
 
+import useSendTx from 'hooks/useSendTx';
+
+import InputWithTokenSelector from 'components/common/InputWithTokenSelector';
+import PnlChart from 'components/common/PnlChart';
 import { Skeleton } from 'components/UI';
 import CustomButton from 'components/UI/Button';
 import Dialog from 'components/UI/Dialog';
-import InputWithTokenSelector from 'components/common/InputWithTokenSelector';
-import PnlChart from 'components/common/PnlChart';
 
 import { get1inchQuote, get1inchSwap } from 'utils/1inch';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -544,14 +545,19 @@ const PurchaseDialog = ({
   const purchaseButtonProps = useMemo(() => {
     const totalCost = routerMode ? quote.amountOut : state.totalCost;
 
+    const availableCollateralForStrike = (
+      availableCollateralForStrikes[strikeIndex] ?? BigNumber.from(0)
+    ).div(ssovEpochData.collateralExchangeRate);
+
     const disabled = Boolean(
       optionsAmount <= 0 ||
         isPurchaseStatsLoading ||
         (isPut
-          ? availableCollateralForStrikes[strikeIndex]!.mul(oneEBigNumber(8))
+          ? availableCollateralForStrike
+              .mul(oneEBigNumber(8))
               .div(getContractReadableAmount(strikes[strikeIndex]!, 8))
               .lt(getContractReadableAmount(optionsAmount, 18))
-          : availableCollateralForStrikes[strikeIndex]!.lt(
+          : availableCollateralForStrike.lt(
               getContractReadableAmount(optionsAmount, 18)
             )) ||
         (isPut
@@ -613,6 +619,7 @@ const PurchaseDialog = ({
       onClick,
     };
   }, [
+    ssovEpochData.collateralExchangeRate,
     quoteDataLoading,
     quote,
     routerMode,
@@ -785,12 +792,16 @@ const PurchaseDialog = ({
                         {formatAmount(
                           isPut
                             ? getUserReadableAmount(
-                                availableCollateralForStrikes[strikeIndex]!,
-                                18
+                                availableCollateralForStrikes[strikeIndex]!.div(
+                                  ssovEpochData.collateralExchangeRate
+                                ),
+                                10
                               ) / Number(strikes[strikeIndex])
                             : getUserReadableAmount(
-                                availableCollateralForStrikes[strikeIndex]!,
-                                18
+                                availableCollateralForStrikes[strikeIndex]!.div(
+                                  ssovEpochData.collateralExchangeRate
+                                ),
+                                10
                               ),
                           5
                         )}

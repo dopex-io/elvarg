@@ -6,10 +6,11 @@ import Popover from '@mui/material/Popover';
 import Tooltip from '@mui/material/Tooltip';
 
 import { Button, Input } from '@dopex-io/ui';
-import useSendTx from 'hooks/useSendTx';
 import CrossIcon from 'svgs/icons/CrossIcon';
 
 import { useBoundStore } from 'store';
+
+import useSendTx from 'hooks/useSendTx';
 
 interface LimitOrderPopoverProps {
   id: BigNumber;
@@ -60,7 +61,7 @@ const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
     const limitPrice =
       Number(rawLimitPrice) *
       10 **
-        (optionScalpData?.quoteDecimals!.toNumber() -
+        (optionScalpData?.quoteDecimals?.toNumber() -
           optionScalpData?.baseDecimals!.toNumber());
 
     const spacing = 10;

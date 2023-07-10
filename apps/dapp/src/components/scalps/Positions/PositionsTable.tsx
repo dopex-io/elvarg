@@ -9,11 +9,12 @@ import IosShare from '@mui/icons-material/IosShare';
 import { Button } from '@dopex-io/ui';
 import cx from 'classnames';
 import { formatDistance } from 'date-fns';
-import useSendTx from 'hooks/useSendTx';
-import useShare from 'hooks/useShare';
 import Countdown from 'react-countdown';
 
 import { useBoundStore } from 'store';
+
+import useSendTx from 'hooks/useSendTx';
+import useShare from 'hooks/useShare';
 
 import LimitOrderPopover from 'components/scalps/LimitOrderPopover';
 
@@ -201,7 +202,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
             position.isShort
               ? position.entry.sub(variation)
               : position.entry.add(variation),
-            optionScalpData?.quoteDecimals!.toNumber()!
+            optionScalpData?.quoteDecimals?.toNumber()!
           )
         );
 

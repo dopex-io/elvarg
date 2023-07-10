@@ -4,9 +4,11 @@ import { BigNumber, utils } from 'ethers';
 import { ERC20__factory } from '@dopex-io/sdk';
 import { Button, Input } from '@dopex-io/ui';
 import cx from 'classnames';
-import useSendTx from 'hooks/useSendTx';
 import Countdown from 'react-countdown';
+
 import { useBoundStore } from 'store';
+
+import useSendTx from 'hooks/useSendTx';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
@@ -60,7 +62,7 @@ const WithdrawCard = () => {
       utils.formatUnits(
         userTokenBalance,
         isQuote
-          ? optionScalpData?.quoteDecimals!.toNumber()!
+          ? optionScalpData?.quoteDecimals?.toNumber()!
           : optionScalpData?.baseDecimals!.toNumber()!
       )
     );
@@ -155,7 +157,7 @@ const WithdrawCard = () => {
           utils.parseUnits(
             String(amount),
             isQuote
-              ? optionScalpData?.quoteDecimals!.toNumber()!
+              ? optionScalpData?.quoteDecimals?.toNumber()!
               : optionScalpData?.baseDecimals!.toNumber()!
           ),
         ]
@@ -186,7 +188,7 @@ const WithdrawCard = () => {
           utils.parseUnits(
             String(amount),
             isQuote
-              ? optionScalpData?.quoteDecimals!.toNumber()!
+              ? optionScalpData?.quoteDecimals?.toNumber()!
               : optionScalpData?.baseDecimals!.toNumber()!
           )
         );
@@ -317,7 +319,7 @@ const WithdrawCard = () => {
                         ? optionScalpData?.totalQuoteAvailable!
                         : optionScalpData?.totalBaseAvailable!,
                       isQuote
-                        ? optionScalpData?.quoteDecimals!.toNumber()!
+                        ? optionScalpData?.quoteDecimals?.toNumber()!
                         : optionScalpData?.baseDecimals!.toNumber()!
                     )
                   ),
@@ -348,7 +350,7 @@ const WithdrawCard = () => {
                         ? optionScalpData?.quoteLpValue!
                         : optionScalpData?.baseLpValue!,
                       isQuote
-                        ? optionScalpData?.quoteDecimals!.toNumber()!
+                        ? optionScalpData?.quoteDecimals?.toNumber()!
                         : optionScalpData?.baseDecimals!.toNumber()!
                     )
                   ),
@@ -376,7 +378,7 @@ const WithdrawCard = () => {
                       utils.formatUnits(
                         estimatedOut,
                         isQuote
-                          ? optionScalpData?.quoteDecimals!.toNumber()!
+                          ? optionScalpData?.quoteDecimals?.toNumber()!
                           : optionScalpData?.baseDecimals!.toNumber()!
                       )
                     ),
