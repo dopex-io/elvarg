@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { SsovV3__factory } from '@dopex-io/sdk';
 import { SsovDuration } from 'types/ssov';
 
-import useVaultQuery from 'hooks/vaults/query';
 import useVaultStore from 'hooks/vaults/useVaultStore';
 
 import Pill from 'components/vaults/Tables/Pill';
@@ -22,10 +21,6 @@ const FilterPanel = (props: Props) => {
 
   const update = useVaultStore((state) => state.update);
 
-  const { vaults } = useVaultQuery({
-    vaultSymbol: market,
-  });
-
   const [isPut, setIsPut] = useState(false);
   const [duration, setDuration] = useState<SsovDuration>('WEEKLY');
 
@@ -33,9 +28,17 @@ const FilterPanel = (props: Props) => {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (!duration) return;
       const _isPut = e.currentTarget.textContent?.toUpperCase() === 'PUT';
+      let _duration = duration;
 
       setIsPut(_isPut);
-      const vault = findSsov(market, _isPut, duration);
+
+      let vault = findSsov(market, _isPut, _duration);
+
+      if (!vault) {
+        _duration = duration === 'WEEKLY' ? 'MONTHLY' : 'WEEKLY';
+        setDuration(_duration);
+        vault = findSsov(market, _isPut, _duration);
+      }
 
       if (vault) {
         update({
@@ -59,7 +62,7 @@ const FilterPanel = (props: Props) => {
 
       setDuration(_duration);
 
-      const vault = findSsov(market, isPut, _duration);
+      let vault = findSsov(market, isPut, _duration);
 
       if (vault) {
         update({
@@ -75,12 +78,6 @@ const FilterPanel = (props: Props) => {
     },
     [isPut, market, update]
   );
-
-  const selectedVault = useMemo(() => {
-    const selected = vaults.find((_vault) => duration === _vault.duration);
-
-    return selected;
-  }, [vaults, duration]);
 
   // updates default selection of duration/side if the market has been changed
   useEffect(() => {
@@ -102,7 +99,7 @@ const FilterPanel = (props: Props) => {
         active={isPut ? 'PUT' : 'CALL'}
       />
       <Pill
-        buttons={getMarketDurations(market).map((duration) => ({
+        buttons={getMarketDurations(market, isPut).map((duration) => ({
           textContent: duration,
           handleClick: handleSelectDuration,
         }))}
