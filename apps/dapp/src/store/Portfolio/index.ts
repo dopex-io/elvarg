@@ -274,7 +274,7 @@ export const createPortfolioSlice: StateCreator<
         responses = await Promise.all([
           vault.symbol(),
           vault.epochStatus(epoch),
-          vault.paused,
+          vault.paused(),
         ]);
       } else {
         const vault = AtlanticStraddle__factory.connect(vaultAddress, provider);
