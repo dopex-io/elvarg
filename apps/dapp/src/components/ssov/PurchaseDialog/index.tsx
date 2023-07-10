@@ -547,7 +547,9 @@ const PurchaseDialog = ({
 
     const availableCollateralForStrike = (
       availableCollateralForStrikes[strikeIndex] ?? BigNumber.from(0)
-    ).div(ssovEpochData.collateralExchangeRate);
+    )
+      .mul(1e8)
+      .div(ssovEpochData.collateralExchangeRate);
 
     const disabled = Boolean(
       optionsAmount <= 0 ||
