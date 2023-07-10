@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 
-import useFetchPositions from 'hooks/vaults/positions';
-import useVaultStore from 'hooks/vaults/useVaultStore';
+import useFetchPositions from 'hooks/ssov/positions';
+import useVaultStore from 'hooks/ssov/useVaultStore';
 
-import { ButtonGroup } from 'components/vaults/AsidePanel';
+import { ButtonGroup } from 'components/ssov-new/AsidePanel';
 
 import BuyPositions from './BuyPositions';
 import WritePositions from './WritePositions';

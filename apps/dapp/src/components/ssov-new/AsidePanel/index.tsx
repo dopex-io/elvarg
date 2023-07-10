@@ -21,11 +21,11 @@ import {
 } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
 
-import useVaultQuery from 'hooks/vaults/query';
-import useContractData from 'hooks/vaults/useContractData';
-import useVaultStore from 'hooks/vaults/useVaultStore';
+import useVaultQuery from 'hooks/ssov/query';
+import useContractData from 'hooks/ssov/useContractData';
+import useVaultStore from 'hooks/ssov/useVaultStore';
 
-import RowItem from 'components/vaults/AsidePanel/RowItem';
+import RowItem from 'components/ssov-new/AsidePanel/RowItem';
 
 import formatAmount from 'utils/general/formatAmount';
 

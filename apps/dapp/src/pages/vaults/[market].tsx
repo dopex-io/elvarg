@@ -4,13 +4,13 @@ import { useRouter } from 'next/router';
 import { SsovV3__factory } from '@dopex-io/sdk';
 import { NextSeo } from 'next-seo';
 
-import useVaultStore from 'hooks/vaults/useVaultStore';
+import useVaultStore from 'hooks/ssov/useVaultStore';
 
 import PageLayout from 'components/common/PageLayout';
-import AsidePanel from 'components/vaults/AsidePanel';
-import Positions from 'components/vaults/Tables/Positions';
-import StrikesChain from 'components/vaults/Tables/StrikesChain';
-import TitleBar from 'components/vaults/TitleBar';
+import AsidePanel from 'components/ssov-new/AsidePanel';
+import Positions from 'components/ssov-new/Tables/Positions';
+import StrikesChain from 'components/ssov-new/Tables/StrikesChain';
+import TitleBar from 'components/ssov-new/TitleBar';
 
 import findDefaultSsov from 'utils/ssov/findDefaultSsov';
 

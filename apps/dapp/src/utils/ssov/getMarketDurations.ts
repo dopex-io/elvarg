@@ -1,4 +1,4 @@
-import MARKETS from 'constants/vaults/markets';
+import { MARKETS } from 'constants/ssov/markets';
 
 const getMarketDurations = (marketName: string, isPut: boolean) => {
   const market = MARKETS[marketName];

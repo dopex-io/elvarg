@@ -1,6 +1,6 @@
 import { SsovDuration } from 'types/ssov';
 
-import MARKETS from 'constants/vaults/markets';
+import { MARKETS } from 'constants/ssov/markets';
 
 const findSsov = (
   marketName: string,

@@ -3,9 +3,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { SsovV3__factory } from '@dopex-io/sdk';
 import { SsovDuration } from 'types/ssov';
 
-import useVaultStore from 'hooks/vaults/useVaultStore';
+import useVaultStore from 'hooks/ssov/useVaultStore';
 
-import Pill from 'components/vaults/Tables/Pill';
+import Pill from 'components/ssov-new/Tables/Pill';
 
 import findDefaultSsov from 'utils/ssov/findDefaultSsov';
 import findSsov from 'utils/ssov/findSsov';

@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { formatUnits } from 'viem';
 
 import { Button } from '@dopex-io/ui';
 import {
@@ -8,34 +9,38 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import format from 'date-fns/format';
-import { useAccount, useContractWrite, usePrepareContractWrite } from 'wagmi';
 
-import { WritePosition } from 'hooks/vaults/positions';
-import useVaultStore from 'hooks/vaults/useVaultStore';
+// import { useAccount } from 'wagmi';
 
-import Placeholder from 'components/vaults/Tables/Placeholder';
+import { BuyPosition } from 'hooks/ssov/positions';
+import useVaultStore from 'hooks/ssov/useVaultStore';
+
+import Placeholder from 'components/ssov-new/Tables/Placeholder';
+
+import { formatAmount } from 'utils/general';
+import computeOptionPnl from 'utils/math/computeOptionPnl';
 
 interface Props {
-  positions: WritePosition[];
+  positions: BuyPosition[];
   isLoading?: boolean;
 }
 
-interface WritePositionData {
-  strike: string;
-  amount: string;
+interface BuyPositionData {
+  strike: number;
+  size: string;
   side: string;
   expiry: number;
-  premium: number;
-  rewards: number;
+  breakeven: string;
+  pnl: string;
   button: {
-    tokenId: number;
+    handleSettle: () => void;
+    id: string;
     epoch: number;
     currentEpoch: number;
-    handleWithdraw: () => void;
   };
 }
 
-const columnHelper = createColumnHelper<WritePositionData>();
+const columnHelper = createColumnHelper<BuyPositionData>();
 
 const columns = [
   columnHelper.accessor('strike', {
@@ -59,27 +64,27 @@ const columns = [
       </p>
     ),
   }),
-  columnHelper.accessor('amount', {
-    header: 'Amount',
+  columnHelper.accessor('size', {
+    header: 'Size',
     cell: (info) => (
       <span className="space-x-2">
         <p className="inline-block">{info.getValue()}</p>
       </span>
     ),
   }),
-  columnHelper.accessor('premium', {
-    header: 'Premiums',
+  columnHelper.accessor('breakeven', {
+    header: 'Breakeven',
     cell: (info) => (
       <span className="space-x-2">
-        <p className="inline-block">{info.getValue()}</p>
+        <p className="inline-block">$ {info.getValue()}</p>
       </span>
     ),
   }),
-  columnHelper.accessor('rewards', {
-    header: 'Rewards',
+  columnHelper.accessor('pnl', {
+    header: 'PnL',
     cell: (info) => (
       <span className="space-x-2">
-        <p className="inline-block">{info.getValue()}</p>
+        <p className="inline-block">$ {info.getValue()}</p>
       </span>
     ),
   }),
@@ -90,9 +95,9 @@ const columns = [
 
       return (
         <Button
-          key={value.tokenId}
+          key={value.id}
           color={value.epoch > value.currentEpoch ? 'mineshaft' : 'primary'}
-          onClick={value.handleWithdraw}
+          onClick={value.handleSettle}
           disabled={Number(value.epoch) >= value.currentEpoch}
           className={`w-fit space-x-2 ${
             value.epoch > value.currentEpoch
@@ -100,56 +105,83 @@ const columns = [
               : 'cursor-default'
           }`}
         >
-          <p className="inline-block">Withdraw</p>
+          <p className="inline-block">Settle</p>
         </Button>
       );
     },
   }),
 ];
 
-const WritePositions = (props: Props) => {
+const BuyPositions = (props: Props) => {
   const { positions: _positions, isLoading = true } = props;
 
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
-  const vault = useVaultStore((vault) => vault.vault);
-  const { address } = useAccount();
-  const { config } = usePrepareContractWrite({
-    abi: vault.abi as any,
-    address: vault.address as `0x${string}`,
-    functionName: 'withdraw',
-    args: [_positions[activeIndex]?.tokenId, address],
-  });
-  const writeInstance = useContractWrite(config);
+  const vault = useVaultStore((state) => state.vault);
 
-  const handleWithdraw = useCallback(
-    (index: number) => {
-      setActiveIndex(index);
-      writeInstance.write?.();
-    },
-    [writeInstance]
-  );
+  // const { address } = useAccount();
+  // const { config } = usePrepareContractWrite({
+  //   abi: vault.abi as any,
+  //   address: vault.address as `0x${string}`,
+  //   functionName: 'settle',
+  //   args: [
+  //     0, // placeholder for strike index
+  //     ethers.utils
+  //       .parseUnits(_positions[activeIndex]?.balance || '0', 18)
+  //       .toString(),
+  //     18,
+  //     _positions[activeIndex]?.epoch,
+  //     address,
+  //   ],
+  //   // todo: pass strike index properly
+  //   // todo: handle OTM expiries
+  // });
+
+  // const writeInstance = useContractWrite(config);
+
+  const handleSettle = useCallback((index: number) => {
+    setActiveIndex(index);
+    // writeInstance.write?.();
+  }, []);
 
   const positions = useMemo(() => {
     if (!_positions) return [];
+    return _positions.map((position, index: number) => {
+      const size = Number(formatUnits(BigInt(position.balance), 18));
 
-    return _positions.map((position: WritePosition, index: number) => {
+      let premium = position.premium;
+      if (position.side === 'Call') {
+        premium = position.premium * vault.underlyingPrice;
+      }
+
+      const breakeven = formatAmount(premium / size + position.strike, 5);
+      const pnl = formatAmount(
+        computeOptionPnl({
+          strike: position.strike,
+          price: vault.underlyingPrice,
+          size,
+          side: position.side.toLowerCase() as 'call' | 'put',
+        }) - premium,
+        5
+      );
+
       return {
         side: position.side,
-        strike: String(position.strike) || '0',
-        amount: position.balance.toFixed(3) || '0',
+        strike: position.strike || 0,
+        size:
+          Number(formatUnits(BigInt(position.balance), 18)).toFixed(3) || '0',
         expiry: position.expiry,
-        rewards: 0,
-        premium: 0,
+        breakeven,
+        pnl,
         button: {
-          tokenId: position.tokenId,
+          id: position.id,
+          handleSettle: () => handleSettle(index),
           epoch: position.epoch,
           currentEpoch: vault.currentEpoch,
-          handleWithdraw: () => handleWithdraw(index),
         },
       };
     });
-  }, [_positions, vault, handleWithdraw]);
+  }, [_positions, handleSettle, vault]);
 
   const table = useReactTable({
     columns,
@@ -188,7 +220,7 @@ const WritePositions = (props: Props) => {
                               : flexRender(
                                   header.column.columnDef.header,
                                   header.getContext()
-                                )}{' '}
+                                )}
                           </span>
                         </th>
                       );
@@ -221,7 +253,7 @@ const WritePositions = (props: Props) => {
                               {flexRender(
                                 cell.column.columnDef.cell,
                                 cell.getContext()
-                              )}{' '}
+                              )}
                             </span>
                           </td>
                         );
@@ -240,4 +272,4 @@ const WritePositions = (props: Props) => {
   );
 };
 
-export default WritePositions;
+export default BuyPositions;

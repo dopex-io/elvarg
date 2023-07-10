@@ -15,16 +15,16 @@ import {
 import PlusIcon from 'svgs/icons/PlusIcon';
 import { SsovDuration } from 'types/ssov';
 
-import useVaultQuery from 'hooks/vaults/query';
-import useContractData from 'hooks/vaults/useContractData';
-import useVaultStore from 'hooks/vaults/useVaultStore';
+import useVaultQuery from 'hooks/ssov/query';
+import useContractData from 'hooks/ssov/useContractData';
+import useVaultStore from 'hooks/ssov/useVaultStore';
 
-import Placeholder from 'components/vaults/Tables/Placeholder';
+import Placeholder from 'components/ssov-new/Tables/Placeholder';
 
 import formatAmount from 'utils/general/formatAmount';
 
 import { DECIMALS_TOKEN } from 'constants/index';
-import { STRIKES_MENU } from 'constants/vaults/dropdowns';
+import { STRIKES_MENU } from 'constants/ssov';
 
 export type MenuDataType = { textContent: SsovDuration }[];
 

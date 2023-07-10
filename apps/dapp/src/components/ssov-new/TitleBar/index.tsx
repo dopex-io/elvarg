@@ -2,14 +2,14 @@ import { useEffect, useMemo } from 'react';
 
 import { Menu } from '@dopex-io/ui';
 
-import useVaultQuery from 'hooks/vaults/query';
-import useVaultStore from 'hooks/vaults/useVaultStore';
+import useVaultQuery from 'hooks/ssov/query';
+import useVaultStore from 'hooks/ssov/useVaultStore';
 
-import TitleItem from 'components/vaults/TitleBar/TitleItem';
+import TitleItem from 'components/ssov-new/TitleBar/TitleItem';
 
 import { formatAmount } from 'utils/general';
 
-import { MARKETS_MENU } from 'constants/vaults/markets';
+import { MARKETS_MENU } from 'constants/ssov/markets';
 
 interface Props {
   market?: string;
