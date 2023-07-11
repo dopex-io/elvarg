@@ -1,10 +1,18 @@
+import { ethers } from 'ethers';
+
+import { providers } from '@0xsequence/multicall';
 import { Addresses, ERC20__factory } from '@dopex-io/sdk';
 import axios from 'axios';
-import queryClient from 'queryClient';
+import { arbitrum, polygon } from 'wagmi/chains';
 import { StateCreator } from 'zustand';
+
+import queryClient from 'queryClient';
+
 import { FarmingSlice } from 'store/Farming';
 import { vedpxAddress } from 'store/VeDPX';
 import { WalletSlice } from 'store/Wallet';
+
+import { CHAINS } from 'constants/chains';
 import { TOKEN_DATA, TOKENS } from 'constants/tokens';
 
 const initKeysToVal = (arr: Array<string>, val: any) => {
@@ -129,6 +137,26 @@ export const createAssetsSlice: StateCreator<
       assets.push('veDEPX');
       assetAddresses.push(vedpxAddress);
     }
+
+    const usdcArbBalance = (
+      await ERC20__factory.connect(
+        '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+        new providers.MulticallProvider(
+          new ethers.providers.StaticJsonRpcProvider(CHAINS[arbitrum.id]?.rpc)
+        )
+      ).balanceOf(accountAddress ?? '')
+    ).toString();
+    userAssetBalances['USDC-arb'] = usdcArbBalance;
+
+    const usdcMaticBalance = (
+      await ERC20__factory.connect(
+        '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+        new providers.MulticallProvider(
+          new ethers.providers.StaticJsonRpcProvider(CHAINS[polygon.id]?.rpc)
+        )
+      ).balanceOf(accountAddress ?? '')
+    ).toString();
+    userAssetBalances['USDC-matic'] = usdcMaticBalance;
 
     const balanceCalls = assetAddresses.map((assetAddress) =>
       ERC20__factory.connect(assetAddress, provider).balanceOf(
