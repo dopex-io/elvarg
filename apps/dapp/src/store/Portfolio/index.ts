@@ -320,9 +320,18 @@ export const createPortfolioSlice: StateCreator<
       // const tokenId = id.split('#')[1];
 
       const provider = getChainProvider(vaultAddress);
-      const vault = AtlanticStraddle__factory.connect(vaultAddress, provider);
 
-      const responses = await Promise.all([vault.symbol(), vault.paused()]);
+      let responses: any;
+      if (vaultAddress.toLowerCase() === POLYGON_STRADDLES_ADDR) {
+        const vault = AtlanticStraddleV2__factory.connect(
+          vaultAddress,
+          provider
+        );
+        responses = await Promise.all([vault.symbol(), vault.paused()]);
+      } else {
+        const vault = AtlanticStraddle__factory.connect(vaultAddress, provider);
+        responses = await Promise.all([vault.symbol(), vault.paused()]);
+      }
 
       const vaultName = responses[0];
       const paused = responses[1];
