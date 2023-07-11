@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
-import { SsovV3__factory } from '@dopex-io/sdk';
 import { NextSeo } from 'next-seo';
 
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
 import PageLayout from 'components/common/PageLayout';
 import AsidePanel from 'components/ssov-new/AsidePanel';
+import PriceChart from 'components/ssov-new/PriceChart';
 import Positions from 'components/ssov-new/Tables/Positions';
 import StrikesChain from 'components/ssov-new/Tables/StrikesChain';
 import TitleBar from 'components/ssov-new/TitleBar';
@@ -47,7 +47,6 @@ const Vaults = () => {
         isPut: vault.isPut,
         base: vault.underlyingSymbol,
         duration: vault.duration,
-        abi: SsovV3__factory.abi,
         currentEpoch: 0,
         underlyingPrice: 0,
       });
@@ -82,7 +81,9 @@ const Vaults = () => {
         />
         <div className="flex space-x-0 lg:space-x-6 flex-col sm:flex-col md:flex-col lg:flex-row space-y-3 md:space-y-0 justify-center">
           <div className="flex flex-col space-y-3 sm:w-full lg:w-3/4 h-full">
-            <div className="h-[520px] bg-carbon rounded-lg text-center flex flex-col justify-center text-stieglitz"></div>
+            <div className="h-[520px] rounded-lg text-center flex flex-col justify-center text-stieglitz">
+              <PriceChart market={selectedMarket} />
+            </div>
             <div className="space-y-4">
               <StrikesChain market={selectedMarket} />
               <Positions />
