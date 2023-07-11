@@ -1,13 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
-import { ERC20__factory } from '@dopex-io/sdk';
-import { Switch } from '@dopex-io/ui';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
-import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
+
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
+import { ERC20__factory } from '@dopex-io/sdk';
+import { Switch } from '@dopex-io/ui';
 import LockerIcon from 'svgs/icons/LockerIcon';
+
+import { useBoundStore } from 'store';
+
+import useSendTx from 'hooks/useSendTx';
 
 import MaxStrikeInput from 'components/atlantics/Manage/ManageCard/MaxStrikeInput';
 import PoolStats from 'components/atlantics/Manage/ManageCard/PoolStats';
@@ -248,8 +253,8 @@ const ManageCard = (props: ManageCardProps) => {
                 role="button"
               >
                 <img
-                  src={`/images/tokens/${depositToken?.toLowerCase()}.svg`}
-                  alt={(depositToken || underlying).toLowerCase()}
+                  src={`/images/tokens/usdc.svg`}
+                  alt="usdc"
                   className="w-[2.2rem]"
                 />
                 <Typography variant="h5" className="my-auto">
