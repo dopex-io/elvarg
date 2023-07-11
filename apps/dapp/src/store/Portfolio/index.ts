@@ -10,7 +10,7 @@ import {
 } from '@dopex-io/sdk';
 import format from 'date-fns/format';
 import request from 'graphql-request';
-import { polygon } from 'wagmi/chains';
+import { arbitrum, polygon } from 'wagmi/chains';
 import { StateCreator } from 'zustand';
 
 import queryClient from 'queryClient';
@@ -136,7 +136,15 @@ export const createPortfolioSlice: StateCreator<
 > = (set, get) => ({
   portfolioData: initialPortfolioData,
   updatePortfolioData: async () => {
-    const { accountAddress, contractAddresses } = get();
+    const { accountAddress } = get();
+
+    const polygonContractAddresses = Addresses[polygon.id]['SSOV-V3']['VAULTS'];
+    const arbContractAddresses = Addresses[arbitrum.id]['SSOV-V3']['VAULTS'];
+
+    const contractAddresses = {
+      ...polygonContractAddresses,
+      ...arbContractAddresses,
+    };
 
     if (!accountAddress) return;
 
@@ -144,11 +152,8 @@ export const createPortfolioSlice: StateCreator<
       if (address.toLowerCase() === POLYGON_SSOV_ADDR) {
         return 'MATIC-WEEKLY-CALLS-SSOV-V3';
       }
-      for (let ssovName in contractAddresses['SSOV-V3']['VAULTS']) {
-        if (
-          contractAddresses['SSOV-V3']['VAULTS'][ssovName].toLowerCase() ===
-          address
-        )
+      for (let ssovName in contractAddresses) {
+        if (contractAddresses[ssovName].toLowerCase() === address.toLowerCase())
           return ssovName;
       }
 

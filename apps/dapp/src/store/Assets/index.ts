@@ -99,44 +99,85 @@ export const createAssetsSlice: StateCreator<
     }));
   },
   updateAssetBalances: async () => {
-    const {
-      accountAddress,
-      provider,
-      chainId,
-      userAssetBalances,
-      contractAddresses,
-    } = get();
+    const { accountAddress, userAssetBalances, contractAddresses, chainId } =
+      get();
 
-    if (!provider || !accountAddress || !contractAddresses) return;
+    if (!accountAddress || !contractAddresses) return;
 
-    let assets = Object.keys(userAssetBalances)
-      .map((asset) => {
-        return Addresses[chainId][asset] ? asset : '';
-      })
-      .filter((asset) => asset !== '');
+    const chainIds = [chainId];
 
-    let assetAddresses = Object.keys(userAssetBalances)
-      .map((asset) => {
-        return Addresses[chainId][asset] ?? '';
-      })
-      .filter((asset) => asset !== '');
-
-    // Include NFTs
-    const NFTs = Addresses[chainId]['NFTS'];
-    if (NFTs) {
-      Object.keys(NFTs).map((key: string) => {
-        assets.push(key);
-      });
-      Object.values(NFTs).map((address) => {
-        assetAddresses.push(address);
-      });
-    }
-
-    // Include veDPX
     if (chainId === 42161) {
-      assets.push('veDEPX');
-      assetAddresses.push(vedpxAddress);
+      chainIds.push(137);
+    } else if (chainId === 137) {
+      chainIds.push(42161);
     }
+
+    chainIds.map(async (chainId) => {
+      const provider = new providers.MulticallProvider(
+        new ethers.providers.StaticJsonRpcProvider(CHAINS[chainId]?.rpc)
+      );
+      let assets = Object.keys(userAssetBalances)
+        .map((asset) => {
+          return Addresses[chainId][asset] ? asset : '';
+        })
+        .filter((asset) => asset !== '');
+
+      let assetAddresses = Object.keys(userAssetBalances)
+        .map((asset) => {
+          return Addresses[chainId][asset] ?? '';
+        })
+        .filter((asset) => asset !== '');
+
+      // Include NFTs
+      const NFTs = Addresses[chainId]['NFTS'];
+      if (NFTs) {
+        Object.keys(NFTs).map((key: string) => {
+          assets.push(key);
+        });
+        Object.values(NFTs).map((address) => {
+          assetAddresses.push(address);
+        });
+      }
+
+      // Include veDPX
+      if (chainId === 42161) {
+        assets.push('veDEPX');
+        assetAddresses.push(vedpxAddress);
+      }
+
+      const balanceCalls = assetAddresses.map((assetAddress) =>
+        ERC20__factory.connect(assetAddress, provider).balanceOf(
+          accountAddress ?? ''
+        )
+      );
+
+      const balances = await Promise.all(balanceCalls);
+
+      for (let i = 0; i < assetAddresses.length; i++) {
+        const _asset = assets[i];
+        const _balance = balances[i];
+
+        if (_asset && _balance) userAssetBalances[_asset] = _balance.toString();
+      }
+
+      if (chainId === 56) {
+        userAssetBalances['BNB'] = (
+          await provider.getBalance(accountAddress ?? '')
+        ).toString();
+      } else if (chainId === 43114) {
+        userAssetBalances['AVAX'] = (
+          await provider.getBalance(accountAddress ?? '')
+        ).toString();
+      } else if (chainId === 137) {
+        userAssetBalances['MATIC'] = (
+          await provider.getBalance(accountAddress ?? '')
+        ).toString();
+      } else {
+        userAssetBalances['ETH'] = (
+          await provider.getBalance(accountAddress ?? '')
+        ).toString();
+      }
+    });
 
     const usdcArbBalance = (
       await ERC20__factory.connect(
@@ -157,39 +198,6 @@ export const createAssetsSlice: StateCreator<
       ).balanceOf(accountAddress ?? '')
     ).toString();
     userAssetBalances['USDC-matic'] = usdcMaticBalance;
-
-    const balanceCalls = assetAddresses.map((assetAddress) =>
-      ERC20__factory.connect(assetAddress, provider).balanceOf(
-        accountAddress ?? ''
-      )
-    );
-
-    const balances = await Promise.all(balanceCalls);
-
-    for (let i = 0; i < assetAddresses.length; i++) {
-      const _asset = assets[i];
-      const _balance = balances[i];
-
-      if (_asset && _balance) userAssetBalances[_asset] = _balance.toString();
-    }
-
-    if (chainId === 56) {
-      userAssetBalances['BNB'] = (
-        await provider.getBalance(accountAddress ?? '')
-      ).toString();
-    } else if (chainId === 43114) {
-      userAssetBalances['AVAX'] = (
-        await provider.getBalance(accountAddress ?? '')
-      ).toString();
-    } else if (chainId === 137) {
-      userAssetBalances['MATIC'] = (
-        await provider.getBalance(accountAddress ?? '')
-      ).toString();
-    } else {
-      userAssetBalances['ETH'] = (
-        await provider.getBalance(accountAddress ?? '')
-      ).toString();
-    }
 
     set((prevState) => ({
       ...prevState,
