@@ -8,6 +8,7 @@ import queryClient from 'queryClient';
 
 import { getSsovUserDataDocument } from 'graphql/ssovs';
 
+import getSsovCheckpointData from 'utils/ssov/getSsovCheckpointData';
 import getSsovEpochTimes from 'utils/ssov/getSsovEpochTimes';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
@@ -28,6 +29,7 @@ export interface WritePosition {
   address: string;
   id: string;
   expiry: number;
+  accruedPremium: number;
 }
 
 export interface BuyPosition {
@@ -74,6 +76,25 @@ const useFetchPositions = (props: Props) => {
         ssovAddress: vaultAddress as Address,
       });
 
+      console.log(vault.id);
+
+      const checkpointData = await getSsovCheckpointData({
+        positionId: Number(vault.id.split('#')[1]),
+        ssovAddress: vaultAddress as Address,
+      });
+
+      const activeCollateralShare =
+        (checkpointData.totalCollateral * checkpointData.activeCollateral) /
+        checkpointData.totalCollateral;
+
+      const accruedPremium =
+        checkpointData.activeCollateral === 0n
+          ? 0n
+          : (activeCollateralShare * checkpointData.accruedPremium) /
+            checkpointData.activeCollateral;
+
+      console.log(accruedPremium);
+
       _writePositions[i] = {
         ...vault,
         strike: Number(formatUnits(vault.strike, DECIMALS_STRIKE)),
@@ -83,6 +104,7 @@ const useFetchPositions = (props: Props) => {
         tokenId: Number(vault.id.split('#')[1]),
         address: vault.ssov.id.toLowerCase(),
         expiry: Number(epochTimes[1]),
+        accruedPremium: Number(formatUnits(accruedPremium, DECIMALS_TOKEN)),
       };
     }
 

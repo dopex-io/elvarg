@@ -9,8 +9,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import format from 'date-fns/format';
-
-// import { useAccount } from 'wagmi';
+import Countdown from 'react-countdown';
 
 import { BuyPosition } from 'hooks/ssov/positions';
 import useVaultStore from 'hooks/ssov/useVaultStore';
@@ -37,6 +36,7 @@ interface BuyPositionData {
     id: string;
     epoch: number;
     currentEpoch: number;
+    expiry: number;
   };
 }
 
@@ -93,19 +93,29 @@ const columns = [
     cell: (info) => {
       const value = info.getValue();
 
+      const canItBeSettled = value.expiry < new Date().getTime() / 1000;
+
       return (
         <Button
           key={value.id}
-          color={value.epoch > value.currentEpoch ? 'mineshaft' : 'primary'}
+          color={canItBeSettled ? 'primary' : 'mineshaft'}
           onClick={value.handleSettle}
-          disabled={Number(value.epoch) >= value.currentEpoch}
-          className={`w-fit space-x-2 ${
-            value.epoch > value.currentEpoch
-              ? 'cursor-not-allowed'
-              : 'cursor-default'
-          }`}
+          disabled={!canItBeSettled}
         >
-          <p className="inline-block">Settle</p>
+          {canItBeSettled ? (
+            'Settle'
+          ) : (
+            <Countdown
+              date={new Date(value.expiry * 1000)}
+              renderer={({ days, hours, minutes }) => {
+                return (
+                  <span className="text-xs md:text-sm text-white pt-1">
+                    {days}d {hours}h {minutes}m
+                  </span>
+                );
+              }}
+            />
+          )}
         </Button>
       );
     },
@@ -117,27 +127,7 @@ const BuyPositions = (props: Props) => {
 
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
-  const vault = useVaultStore((state) => state.vault);
-
-  // const { address } = useAccount();
-  // const { config } = usePrepareContractWrite({
-  //   abi: vault.abi as any,
-  //   address: vault.address as `0x${string}`,
-  //   functionName: 'settle',
-  //   args: [
-  //     0, // placeholder for strike index
-  //     ethers.utils
-  //       .parseUnits(_positions[activeIndex]?.balance || '0', 18)
-  //       .toString(),
-  //     18,
-  //     _positions[activeIndex]?.epoch,
-  //     address,
-  //   ],
-  //   // todo: pass strike index properly
-  //   // todo: handle OTM expiries
-  // });
-
-  // const writeInstance = useContractWrite(config);
+  const vault = useVaultStore((store) => store.vault);
 
   const handleSettle = useCallback((index: number) => {
     setActiveIndex(index);
@@ -165,6 +155,8 @@ const BuyPositions = (props: Props) => {
         5
       );
 
+      console.log(position.expiry);
+
       return {
         side: position.side,
         strike: position.strike || 0,
@@ -178,6 +170,7 @@ const BuyPositions = (props: Props) => {
           handleSettle: () => handleSettle(index),
           epoch: position.epoch,
           currentEpoch: vault.currentEpoch,
+          expiry: position.expiry,
         },
       };
     });
