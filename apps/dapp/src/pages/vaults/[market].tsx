@@ -31,7 +31,11 @@ const Vaults = () => {
   );
 
   useEffect(() => {
-    const market = router.query['market'] as string;
+    let market = router.query['market'] as string;
+
+    if (!market) return;
+
+    market = market.toUpperCase();
 
     setSelectedMarket(market);
 

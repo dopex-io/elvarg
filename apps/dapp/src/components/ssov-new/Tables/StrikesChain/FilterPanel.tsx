@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { SsovV3__factory } from '@dopex-io/sdk';
+import format from 'date-fns/format';
 import { SsovDuration } from 'types/ssov';
 
 import useVaultStore from 'hooks/ssov/useVaultStore';
@@ -9,6 +10,7 @@ import Pill from 'components/ssov-new/Tables/Pill';
 
 import findDefaultSsov from 'utils/ssov/findDefaultSsov';
 import findSsov from 'utils/ssov/findSsov';
+import getExpiry from 'utils/ssov/getExpiry';
 import getMarketDurations from 'utils/ssov/getMarketDurations';
 import getMarketSides from 'utils/ssov/getMarketSides';
 
@@ -27,7 +29,8 @@ const FilterPanel = (props: Props) => {
   const handleSelectSide = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (!duration) return;
-      const _isPut = e.currentTarget.textContent?.toUpperCase() === 'PUT';
+      console.log(e.currentTarget.value);
+      const _isPut = e.currentTarget.value === 'PUT';
       let _duration = duration;
 
       setIsPut(_isPut);
@@ -57,8 +60,9 @@ const FilterPanel = (props: Props) => {
 
   const handleSelectDuration = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const _duration =
-        e.currentTarget.textContent?.toUpperCase() as SsovDuration;
+      console.log(e.currentTarget.value);
+
+      const _duration = e.currentTarget.value as SsovDuration;
 
       setDuration(_duration);
 
@@ -94,13 +98,15 @@ const FilterPanel = (props: Props) => {
       <Pill
         buttons={getMarketSides(market).map((side) => ({
           textContent: side,
+          value: side,
           handleClick: handleSelectSide,
         }))}
         active={isPut ? 'PUT' : 'CALL'}
       />
       <Pill
         buttons={getMarketDurations(market, isPut).map((duration) => ({
-          textContent: duration,
+          textContent: format(getExpiry(duration), 'dd MMM yyyy'),
+          value: duration,
           handleClick: handleSelectDuration,
         }))}
         active={duration || 'WEEKLY'}

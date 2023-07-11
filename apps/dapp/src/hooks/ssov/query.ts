@@ -84,10 +84,12 @@ const useVaultQuery = (props: Props) => {
 
   const updateVaults = useCallback(async () => {
     const data = await fetchSsovs([vaultSymbol], 3600);
+
     if (!vaultSymbol || !chainId || !data || !data[chainId]) return [];
     const filteredData: RawVaultQueryData[] = data[chainId].filter(
       (item: RawVaultQueryData) =>
-        String(item.underlyingSymbol) === vaultSymbol && !item.retired
+        String(item.underlyingSymbol).toLowerCase() ===
+          vaultSymbol.toLowerCase() && !item.retired
     );
 
     if (filteredData.length === 0) return;

@@ -3,6 +3,7 @@ interface Props {
     handleClick: (e: any) => void;
     textContent: string;
     disabled?: boolean;
+    value: any;
   }[];
   active: string;
 }
@@ -14,7 +15,7 @@ const Pill = ({ buttons, active }: Props) => {
         <div className="relative w-fit rounded-sm p-1" key={i}>
           <div
             className={`rounded-[4px] top-0 absolute transform h-full w-full ${
-              active.toLowerCase() === button.textContent.toLowerCase()
+              active === button.value
                 ? 'translate-x-0 bg-black left-0 bg-opacity-30'
                 : 'translate-x-full right-0 bg-opacity-0'
             } duration-500`}
@@ -25,10 +26,9 @@ const Pill = ({ buttons, active }: Props) => {
               button.disabled ? 'text-stieglitz cursor-not-allowed' : null
             }`}
             disabled={button.disabled}
+            value={button.value}
           >
-            {button.textContent[0].concat(
-              button.textContent.slice(1).toLowerCase()
-            )}
+            {button.textContent}
           </button>
         </div>
       ))}

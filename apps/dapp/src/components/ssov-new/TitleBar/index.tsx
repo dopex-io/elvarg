@@ -12,12 +12,12 @@ import { formatAmount } from 'utils/general';
 import { MARKETS_MENU } from 'constants/ssov/markets';
 
 interface Props {
-  market?: string;
+  market: string;
   handleSelectMarket: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const TitleBar = (props: Props) => {
-  const { market = 'ARB', handleSelectMarket } = props;
+  const { market, handleSelectMarket } = props;
 
   const update = useVaultStore((state) => state.update);
   const vault = useVaultStore((state) => state.vault);
@@ -74,11 +74,6 @@ const TitleBar = (props: Props) => {
           symbol="%"
           label="Open Interest"
           value={formatAmount(aggregatedStats?.oi, 3, true)}
-        />
-        <TitleItem
-          symbol="%"
-          label="APY"
-          value={(aggregatedStats?.apy || 0).toString()}
         />
         <TitleItem
           symbol="$"

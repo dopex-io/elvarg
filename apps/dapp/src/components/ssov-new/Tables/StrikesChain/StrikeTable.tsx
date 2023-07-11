@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo } from 'react';
 import { formatUnits } from 'viem';
 
 import { Button, Disclosure, Menu } from '@dopex-io/ui';
+import { MinusCircleIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
 import {
   ChevronDownIcon,
   EllipsisVerticalIcon,
@@ -12,7 +13,6 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import PlusIcon from 'svgs/icons/PlusIcon';
 import { SsovDuration } from 'types/ssov';
 
 import useVaultQuery from 'hooks/ssov/query';
@@ -37,6 +37,7 @@ interface DisclosureStrikeItem {
   utilization: number;
   tvl: number;
   apy: number;
+  premiumApy: number;
 }
 
 interface StrikeItem {
@@ -52,6 +53,7 @@ interface StrikeItem {
     base: string;
     isPut: boolean;
     premiumPerOption: bigint;
+    activeStrikeIndex: number;
     setActiveStrikeIndex: () => void;
     handleSelection: React.ReactEventHandler;
   };
@@ -84,6 +86,10 @@ const TableDisclosure = (props: DisclosureStrikeItem) => {
           <StatItem
             name="Reward APY"
             value={`${formatAmount(props.apy, 2, true)}%`}
+          />
+          <StatItem
+            name="Premium APY"
+            value={`${formatAmount(props.premiumApy, 2, true)}%`}
           />
         </div>
       </td>
@@ -138,11 +144,13 @@ const columns = [
         <div className="flex space-x-2 justify-end">
           <Button
             id={`strike-chain-button-${value.index}`}
-            color="mineshaft"
+            color={
+              value.activeStrikeIndex === value.index ? 'primary' : 'mineshaft'
+            }
             onClick={value.setActiveStrikeIndex}
             className="space-x-2 text-xs"
           >
-            <span className="flex items-center space-x-2">
+            <span className="flex items-center space-x-1">
               <span>
                 {formatAmount(
                   formatUnits(value.premiumPerOption || 0n, DECIMALS_TOKEN),
@@ -150,7 +158,11 @@ const columns = [
                 )}{' '}
                 {value.isPut ? '2CRV' : value.base}
               </span>
-              <PlusIcon className="w-[10px] h-[10px]" color="#8E8E8E" />
+              {value.activeStrikeIndex === value.index ? (
+                <MinusCircleIcon className="w-[14px]" />
+              ) : (
+                <PlusCircleIcon className="w-[14px]" />
+              )}
             </span>
           </Button>
           <Menu
@@ -285,6 +297,7 @@ const Table = ({ strikeData }: { strikeData: any }) => {
 
 const StrikesTable = ({ market }: { market: string }) => {
   const vault = useVaultStore((store) => store.vault);
+  const activeStrikeIndex = useVaultStore((store) => store.activeStrikeIndex);
 
   const setActiveStrikeIndex = useVaultStore(
     (vault) => vault.setActiveStrikeIndex
@@ -332,6 +345,18 @@ const StrikesTable = ({ market }: { market: string }) => {
         Number(formatUnits(strikeData.totalCollateral, DECIMALS_TOKEN)) *
         Number(selectedVault?.currentPrice);
 
+      let premiumApy =
+        100 *
+        (Number(formatUnits(strikeData.premiumsAccrued, DECIMALS_TOKEN)) /
+          Number(
+            formatUnits(
+              strikeData.premiumsAccrued + strikeData.totalCollateral,
+              DECIMALS_TOKEN
+            )
+          ));
+
+      premiumApy = premiumApy * (365 / (vault.duration === 'WEEKLY' ? 7 : 30));
+
       return {
         strike: strikeData.strike,
         breakeven: (vault.isPut
@@ -348,6 +373,7 @@ const StrikesTable = ({ market }: { market: string }) => {
           base: vault.base,
           isPut: vault.isPut,
           premiumPerOption: strikeData.premiumPerOption,
+          activeStrikeIndex: activeStrikeIndex,
           setActiveStrikeIndex: () => setActiveStrikeIndex(index),
           handleSelection: (e: React.MouseEvent<HTMLElement>) => {
             handleClickMenu(e);
@@ -363,6 +389,7 @@ const StrikesTable = ({ market }: { market: string }) => {
           utilization: strikeData.utilization,
           tvl,
           apy: Number(selectedVault?.apy[index]),
+          premiumApy,
         },
       };
     });
@@ -371,8 +398,10 @@ const StrikesTable = ({ market }: { market: string }) => {
     strikes.data,
     selectedVault?.currentPrice,
     selectedVault?.apy,
+    vault.duration,
     vault.isPut,
     vault.base,
+    activeStrikeIndex,
     setActiveStrikeIndex,
     handleClickMenu,
   ]);

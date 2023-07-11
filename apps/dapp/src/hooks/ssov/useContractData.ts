@@ -207,12 +207,14 @@ const useContractData = (props: Props) => {
       });
       if (!strikeData.result || !data[0].result) return;
 
-      const utilization = Number(
-        ((strikeData.result.totalCollateral -
-          strikeData.result.activeCollateral) *
-          100n) /
-          strikeData.result.totalCollateral
-      );
+      const utilization =
+        100 -
+        Number(
+          ((strikeData.result.totalCollateral -
+            strikeData.result.activeCollateral) *
+            100n) /
+            strikeData.result.totalCollateral
+        );
 
       const totalAvailable = Number(
         formatUnits(

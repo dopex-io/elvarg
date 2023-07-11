@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ethers } from 'ethers';
+import { formatUnits } from 'viem';
 
 import request from 'graphql-request';
 import { Address, useAccount } from 'wagmi';
@@ -10,11 +10,8 @@ import { getSsovUserDataDocument } from 'graphql/ssovs';
 
 import getSsovEpochTimes from 'utils/ssov/getSsovEpochTimes';
 
-import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
+import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 import { DOPEX_SSOV_SUBGRAPH_API_URL } from 'constants/subgraphs';
-
-// import useVaultQuery from './query';
-// todo: get epoch times for each write position to display on the table
 
 interface Props {
   vaultAddress: string;
@@ -79,8 +76,8 @@ const useFetchPositions = (props: Props) => {
 
       _writePositions[i] = {
         ...vault,
-        strike: Number(ethers.utils.formatUnits(vault.strike, DECIMALS_STRIKE)),
-        balance: Number(ethers.utils.formatUnits(vault.amount, 'ether')),
+        strike: Number(formatUnits(vault.strike, DECIMALS_STRIKE)),
+        balance: Number(formatUnits(vault.amount, 18)),
         epoch: Number(vault.epoch),
         side: isPut ? 'Put' : 'Call',
         tokenId: Number(vault.id.split('#')[1]),
@@ -109,10 +106,8 @@ const useFetchPositions = (props: Props) => {
       _buyPositions[i] = {
         ...vault,
         side: isPut ? 'Put' : 'Call',
-        strike: Number(ethers.utils.formatUnits(vault.strike, DECIMALS_STRIKE)),
-        premium: Number(
-          ethers.utils.formatUnits(vault.premium, DECIMALS_TOKEN)
-        ),
+        strike: Number(formatUnits(vault.strike, DECIMALS_STRIKE)),
+        premium: Number(formatUnits(vault.premium, DECIMALS_TOKEN)),
         epoch: Number(vault.epoch),
         expiry: Number(epochTimes[1]),
         balance: vault.amount,

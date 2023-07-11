@@ -16,7 +16,7 @@ export const MARKETS: { [key: string]: SsovMarket } = {
       duration: 'MONTHLY',
     },
   },
-  stETH: {
+  STETH: {
     vaults: [
       {
         symbol: 'stETH-MONTHLY-CALLS-SSOV-V3',
@@ -35,7 +35,7 @@ export const MARKETS: { [key: string]: SsovMarket } = {
     ],
     default: {
       isPut: false,
-      duration: 'WEEKLY',
+      duration: 'MONTHLY',
     },
   },
   ETH: {
@@ -82,7 +82,7 @@ export const MARKETS: { [key: string]: SsovMarket } = {
       duration: 'WEEKLY',
     },
   },
-  rDPX: {
+  RDPX: {
     vaults: [
       {
         symbol: 'rDPX-WEEKLY-CALLS-SSOV-V3',
