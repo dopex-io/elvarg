@@ -141,6 +141,9 @@ export const createPortfolioSlice: StateCreator<
     if (!accountAddress) return;
 
     const getSsovNameFromAddress = (address: string) => {
+      if (address.toLowerCase() === POLYGON_SSOV_ADDR) {
+        return 'MATIC-WEEKLY-CALLS-SSOV-V3';
+      }
       for (let ssovName in contractAddresses['SSOV-V3']['VAULTS']) {
         if (
           contractAddresses['SSOV-V3']['VAULTS'][ssovName].toLowerCase() ===
@@ -369,7 +372,7 @@ export const createPortfolioSlice: StateCreator<
           }),
       }),
       queryClient.fetchQuery({
-        queryKey: ['getSsovUserData'],
+        queryKey: ['getSsovUserDataPolygon'],
         queryFn: async () =>
           request(
             DOPEX_POLYGON_SSOV_SUBGRAPH_API_URL,
