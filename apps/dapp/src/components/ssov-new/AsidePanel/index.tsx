@@ -6,8 +6,9 @@ import {
   useState,
 } from 'react';
 import { BigNumber, ethers } from 'ethers';
-import { parseUnits } from 'viem';
+import { Address, parseUnits } from 'viem';
 
+import { SsovV3__factory } from '@dopex-io/sdk';
 import { Button, Input } from '@dopex-io/ui';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { format } from 'date-fns';
@@ -22,7 +23,7 @@ import {
 import wagmiConfig from 'wagmi-config';
 
 import useVaultQuery from 'hooks/ssov/query';
-import useContractData from 'hooks/ssov/useContractData';
+import useContractData from 'hooks/ssov/useStrikesData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
 import RowItem from 'components/ssov-new/AsidePanel/RowItem';
@@ -80,8 +81,8 @@ const AsidePanel = () => {
     return selected;
   }, [vaults, vault]);
 
-  const { epochStrikeData, contractData } = useContractData({
-    contractAddress: selectedVault?.contractAddress,
+  const { strikesData } = useContractData({
+    ssovAddress: selectedVault?.contractAddress as Address,
     epoch: selectedVault?.currentEpoch,
   });
   const { address } = useAccount();
@@ -89,21 +90,21 @@ const AsidePanel = () => {
     contracts: [
       {
         abi: erc20ABI,
-        address: contractData?.collateral as `0x${string}`,
+        address: '0x912CE59144191C1204E64559FE8253a0e49E6548' as `0x${string}`,
         functionName: 'allowance',
         args: [address as `0x${string}`, vault.address as `0x${string}`],
         chainId: wagmiConfig.lastUsedChainId,
       },
       {
         abi: erc20ABI,
-        address: contractData?.collateral as `0x${string}`,
+        address: '0x912CE59144191C1204E64559FE8253a0e49E6548' as `0x${string}`,
         functionName: 'balanceOf',
         args: [address!],
         chainId: wagmiConfig.lastUsedChainId,
       },
       {
         abi: erc20ABI,
-        address: contractData?.collateral as `0x${string}`,
+        address: '0x912CE59144191C1204E64559FE8253a0e49E6548' as `0x${string}`,
         functionName: 'symbol',
         chainId: wagmiConfig.lastUsedChainId,
       },
@@ -112,7 +113,7 @@ const AsidePanel = () => {
   const { config: approveConfig, isSuccess: isSuccessApprove } =
     usePrepareContractWrite({
       abi: erc20ABI,
-      address: contractData?.collateral! as `0x${string}`,
+      address: '0x912CE59144191C1204E64559FE8253a0e49E6548' as `0x${string}`,
       functionName: 'approve',
       args: [
         vault.address as `0x${string}`,
@@ -120,7 +121,7 @@ const AsidePanel = () => {
       ],
     });
   const { config } = usePrepareContractWrite({
-    abi: vault.abi as any,
+    abi: SsovV3__factory.abi,
     address: vault.address as `0x${string}`,
     ...(activeIndex === 0 // 0: purchase, 1: deposit
       ? { functionName: 'purchase' }
@@ -135,7 +136,7 @@ const AsidePanel = () => {
   const { write: approve } = useContractWrite(approveConfig);
 
   const selectedStrike = useMemo(() => {
-    if (epochStrikeData.length === 0 || !selectedVault)
+    if (strikesData.length === 0 || !selectedVault)
       return {
         strike: 0,
         delta: 0,
@@ -156,7 +157,7 @@ const AsidePanel = () => {
         activeCollateral: BigNumber.from(0),
       };
 
-    const strikeData = epochStrikeData[activeStrikeIndex];
+    const strikeData = strikesData[activeStrikeIndex];
     const premiumInUSD =
       (selectedVault.isPut ? 1 : Number(selectedVault.currentPrice)) *
       Number(
@@ -179,7 +180,7 @@ const AsidePanel = () => {
     const totalPremium = premiumInUSD * Number(amountDebounced);
 
     return { ...strikeData, breakeven, availableCollateral, totalPremium };
-  }, [activeStrikeIndex, amountDebounced, selectedVault, epochStrikeData]);
+  }, [activeStrikeIndex, amountDebounced, selectedVault, strikesData]);
 
   const handleClick = (index: number) => {
     setActiveIndex(index);
@@ -259,10 +260,8 @@ const AsidePanel = () => {
   }, [approve, infoPopover.textContent, write]);
 
   const renderCondition = useMemo(() => {
-    return (
-      !selectedStrike || !selectedStrike || !selectedVault || !contractData
-    );
-  }, [contractData, selectedStrike, selectedVault]);
+    return !selectedStrike || !selectedStrike || !selectedVault;
+  }, [selectedStrike, selectedVault]);
 
   return renderCondition ? null : (
     <div className="flex flex-col bg-cod-gray rounded-lg p-3 space-y-3">

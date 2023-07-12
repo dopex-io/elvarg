@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { formatUnits } from 'viem';
+import { Address, formatUnits } from 'viem';
 
-import { Button, Disclosure, Menu } from '@dopex-io/ui';
+import { Button, Disclosure, Menu, Skeleton } from '@dopex-io/ui';
 import { MinusCircleIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
 import {
   ChevronDownIcon,
@@ -16,7 +16,8 @@ import {
 import { SsovDuration } from 'types/ssov';
 
 import useVaultQuery from 'hooks/ssov/query';
-import useContractData from 'hooks/ssov/useContractData';
+import useContractData from 'hooks/ssov/useStrikesData';
+import useStrikesData from 'hooks/ssov/useStrikesData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
 import Placeholder from 'components/ssov-new/Tables/Placeholder';
@@ -316,8 +317,8 @@ const StrikesTable = ({ market }: { market: string }) => {
     return selected;
   }, [vaults, vault]);
 
-  const strikes = useContractData({
-    contractAddress: selectedVault?.contractAddress,
+  const { strikesData, isLoading } = useStrikesData({
+    ssovAddress: selectedVault?.contractAddress as Address,
     epoch: selectedVault?.currentEpoch,
   });
 
@@ -328,15 +329,9 @@ const StrikesTable = ({ market }: { market: string }) => {
   }, []);
 
   const strikeData = useMemo(() => {
-    if (
-      !strikes.epochStrikeData ||
-      !strikes.data ||
-      !strikes.data[0] ||
-      !(strikes.data[0] as any).result.expiry
-    )
-      return [];
+    if (!strikesData) return [];
 
-    return strikes.epochStrikeData.map((strikeData, index) => {
+    return strikesData.map((strikeData, index) => {
       const premiumFormatted = Number(
         formatUnits(strikeData.premiumPerOption || 0n, DECIMALS_TOKEN)
       );
@@ -361,7 +356,7 @@ const StrikesTable = ({ market }: { market: string }) => {
         strike: strikeData.strike,
         breakeven: (vault.isPut
           ? strikeData.strike - premiumFormatted
-          : strikeData.strike + premiumFormatted * strikeData.spot
+          : strikeData.strike + premiumFormatted * vault.underlyingPrice
         ).toFixed(3),
         availableCollateral: {
           strike: strikeData.strike,
@@ -394,17 +389,34 @@ const StrikesTable = ({ market }: { market: string }) => {
       };
     });
   }, [
-    strikes.epochStrikeData,
-    strikes.data,
+    strikesData,
     selectedVault?.currentPrice,
     selectedVault?.apy,
     vault.duration,
     vault.isPut,
+    vault.underlyingPrice,
     vault.base,
     activeStrikeIndex,
     setActiveStrikeIndex,
     handleClickMenu,
   ]);
+
+  if (isLoading)
+    return (
+      <div className="grid grid-cols-1 gap-4 p-2">
+        {Array.from(Array(4)).map((_, index) => {
+          return (
+            <Skeleton
+              key={index}
+              // width="fitContent"
+              height={70}
+              color="carbon"
+              variant="rounded"
+            />
+          );
+        })}
+      </div>
+    );
 
   return <Table strikeData={strikeData} />;
 };
