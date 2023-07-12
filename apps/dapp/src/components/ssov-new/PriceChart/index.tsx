@@ -21,8 +21,11 @@ const PriceChart = ({ market }: { market: string }) => {
   useEffect(() => {
     if (!chartContainerRef.current || query.isFetching) return;
 
+    const handleResize = () => {
+      chart.applyOptions({ width: chartContainerRef.current?.clientWidth });
+    };
+
     const chart = createChart(chartContainerRef.current, {
-      width: 940,
       height: 500,
       layout: {
         background: {
@@ -43,6 +46,9 @@ const PriceChart = ({ market }: { market: string }) => {
         },
       },
     });
+
+    chart.timeScale().fitContent();
+
     const areaSeries = chart.addAreaSeries({
       topColor: 'rgba(33, 150, 243, 0.56)',
       bottomColor: 'rgba(33, 150, 243, 0.04)',
@@ -58,6 +64,14 @@ const PriceChart = ({ market }: { market: string }) => {
     });
 
     areaSeries.setData(data);
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+
+      chart.remove();
+    };
   }, [query]);
 
   if (query.isFetching) {
