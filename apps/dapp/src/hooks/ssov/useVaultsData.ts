@@ -10,7 +10,7 @@ import { DOPEX_API_BASE_URL } from 'constants/env';
 import { SsovDuration } from 'types/ssov';
 
 interface Props {
-  vaultSymbol: string;
+  market: string;
 }
 
 interface RawVaultQueryData {
@@ -76,21 +76,21 @@ export const fetchSsovs = async (keys: string[], cacheTime: number) => {
   });
 };
 
-const useVaultQuery = (props: Props) => {
-  const { vaultSymbol } = props;
+const useVaultsData = (props: Props) => {
+  const { market } = props;
   const { chainId } = useBoundStore();
 
   const [vaults, setVaults] = useState<VaultData[]>([]);
   const [aggregatedStats, setAggregatedStats] = useState<AggregatedStats>();
 
   const updateVaults = useCallback(async () => {
-    const data = await fetchSsovs([vaultSymbol, 'ssov-api'], 3600);
+    const data = await fetchSsovs([market, 'dopex-api-ssov'], 3600);
 
-    if (!vaultSymbol || !chainId || !data || !data[chainId]) return [];
+    if (!market || !chainId || !data || !data[chainId]) return [];
     const filteredData: RawVaultQueryData[] = data[chainId].filter(
       (item: RawVaultQueryData) =>
-        String(item.underlyingSymbol).toLowerCase() ===
-          vaultSymbol.toLowerCase() && !item.retired
+        String(item.underlyingSymbol).toLowerCase() === market.toLowerCase() &&
+        !item.retired
     );
 
     if (filteredData.length === 0) return;
@@ -129,7 +129,7 @@ const useVaultQuery = (props: Props) => {
         filteredData[i].epochTimes,
       ];
       _vaults.push({
-        symbol: vaultSymbol,
+        symbol: market,
         isPut,
         underlyingSymbol,
         collateralPrecision,
@@ -147,7 +147,7 @@ const useVaultQuery = (props: Props) => {
       });
     }
     setVaults(_vaults);
-  }, [chainId, vaultSymbol]);
+  }, [chainId, market]);
 
   const updateAggregatedStats = useCallback(() => {
     if (vaults.length === 0) return;
@@ -184,4 +184,4 @@ const useVaultQuery = (props: Props) => {
   };
 };
 
-export default useVaultQuery;
+export default useVaultsData;

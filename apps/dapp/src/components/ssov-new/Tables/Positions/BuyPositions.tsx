@@ -12,6 +12,7 @@ import format from 'date-fns/format';
 import Countdown from 'react-countdown';
 
 import { BuyPosition } from 'hooks/ssov/positions';
+import useVaultsData from 'hooks/ssov/useVaultsData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
 import Placeholder from 'components/ssov-new/Tables/Placeholder';
@@ -129,6 +130,17 @@ const BuyPositions = (props: Props) => {
 
   const vault = useVaultStore((store) => store.vault);
 
+  const { vaults } = useVaultsData({ market: vault.underlyingSymbol });
+
+  const selectedVault = useMemo(() => {
+    const selected = vaults.find(
+      (_vault) =>
+        vault.duration === _vault.duration && vault.isPut === _vault.isPut
+    );
+
+    return selected;
+  }, [vaults, vault]);
+
   const handleSettle = useCallback((index: number) => {
     setActiveIndex(index);
     // writeInstance.write?.();
@@ -141,14 +153,14 @@ const BuyPositions = (props: Props) => {
 
       let premium = position.premium;
       if (position.side === 'Call') {
-        premium = position.premium * vault.underlyingPrice;
+        premium = position.premium * Number(selectedVault?.currentPrice);
       }
 
       const breakeven = formatAmount(premium / size + position.strike, 5);
       const pnl = formatAmount(
         computeOptionPnl({
           strike: position.strike,
-          price: vault.underlyingPrice,
+          price: Number(selectedVault?.currentPrice),
           size,
           side: position.side.toLowerCase() as 'call' | 'put',
         }) - premium,
@@ -167,12 +179,17 @@ const BuyPositions = (props: Props) => {
           id: position.id,
           handleSettle: () => handleSettle(index),
           epoch: position.epoch,
-          currentEpoch: vault.currentEpoch,
+          currentEpoch: selectedVault?.currentEpoch || 0,
           expiry: position.expiry,
         },
       };
     });
-  }, [_positions, handleSettle, vault]);
+  }, [
+    _positions,
+    handleSettle,
+    selectedVault?.currentEpoch,
+    selectedVault?.currentPrice,
+  ]);
 
   const table = useReactTable({
     columns,

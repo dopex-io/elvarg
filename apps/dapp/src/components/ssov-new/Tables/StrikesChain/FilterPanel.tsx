@@ -49,8 +49,6 @@ const FilterPanel = (props: Props) => {
           underlyingSymbol: vault.underlyingSymbol,
           isPut: _isPut,
           collateralTokenAddress: vault.collateralTokenAddress,
-          currentEpoch: 0,
-          underlyingPrice: 0,
         });
       }
     },
@@ -72,8 +70,6 @@ const FilterPanel = (props: Props) => {
           collateralTokenAddress: vault.collateralTokenAddress,
           underlyingSymbol: vault.underlyingSymbol,
           isPut,
-          currentEpoch: 0,
-          underlyingPrice: 0,
         });
       }
     },

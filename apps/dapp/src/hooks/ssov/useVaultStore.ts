@@ -11,8 +11,6 @@ export interface VaultState {
   isPut: boolean;
   duration: SsovDuration;
   collateralTokenAddress: Address;
-  currentEpoch: number;
-  underlyingPrice: number;
 }
 
 interface Props {
@@ -30,8 +28,6 @@ const useVaultStore = create<Props>()(
       isPut: false,
       duration: 'WEEKLY',
       collateralTokenAddress: '0x',
-      currentEpoch: 0,
-      underlyingPrice: 0,
     },
     update: (vault: VaultState) => set({ vault }),
     activeStrikeIndex: 0,

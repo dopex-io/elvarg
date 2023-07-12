@@ -13,7 +13,7 @@ const Positions = () => {
 
   const { writePositions, buyPositions, isLoading } = useFetchPositions({
     vaultAddress: vault.address,
-    tokenSymbol: vault.base,
+    tokenSymbol: vault.underlyingSymbol,
     isPut: vault.isPut,
   });
 

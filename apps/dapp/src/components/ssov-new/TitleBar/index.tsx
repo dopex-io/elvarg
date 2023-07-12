@@ -1,7 +1,6 @@
 import { Menu } from '@dopex-io/ui';
 
-import useVaultQuery from 'hooks/ssov/query';
-import useVaultStore from 'hooks/ssov/useVaultStore';
+import useVaultsData from 'hooks/ssov/useVaultsData';
 
 import TitleItem from 'components/ssov-new/TitleBar/TitleItem';
 
@@ -17,11 +16,7 @@ interface Props {
 const TitleBar = (props: Props) => {
   const { market, handleSelectMarket } = props;
 
-  const vault = useVaultStore((state) => state.vault);
-
-  const { vaults, aggregatedStats } = useVaultQuery({
-    vaultSymbol: market,
-  });
+  const { aggregatedStats } = useVaultsData({ market });
 
   return (
     <div className="flex space-x-4 mb-4">

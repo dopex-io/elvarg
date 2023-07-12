@@ -14,8 +14,8 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 
-import useVaultQuery from 'hooks/ssov/query';
 import useStrikesData from 'hooks/ssov/useStrikesData';
+import useVaultsData from 'hooks/ssov/useVaultsData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
 import Placeholder from 'components/ssov-new/Tables/Placeholder';
@@ -305,9 +305,7 @@ const StrikesTable = ({ market }: { market: string }) => {
     (store) => store.setActiveStrikeIndex
   );
 
-  const { vaults } = useVaultQuery({
-    vaultSymbol: market,
-  });
+  const { vaults } = useVaultsData({ market });
 
   const selectedVault = useMemo(() => {
     const selected = vaults.find(
@@ -357,7 +355,8 @@ const StrikesTable = ({ market }: { market: string }) => {
         strike: strikeData.strike,
         breakeven: (vault.isPut
           ? strikeData.strike - premiumFormatted
-          : strikeData.strike + premiumFormatted * vault.underlyingPrice
+          : strikeData.strike +
+            premiumFormatted * Number(selectedVault?.currentPrice)
         ).toFixed(3),
         availableCollateral: {
           strike: strikeData.strike,
@@ -393,7 +392,9 @@ const StrikesTable = ({ market }: { market: string }) => {
     strikesData,
     selectedVault?.currentPrice,
     selectedVault?.apy,
-    vault,
+    vault.duration,
+    vault.isPut,
+    vault.underlyingSymbol,
     activeStrikeIndex,
     setActiveStrikeIndex,
     handleClickMenu,

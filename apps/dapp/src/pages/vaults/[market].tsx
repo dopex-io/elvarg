@@ -48,8 +48,6 @@ const Vaults = () => {
         underlyingSymbol: vault.underlyingSymbol,
         duration: vault.duration,
         collateralTokenAddress: vault.collateralTokenAddress,
-        currentEpoch: 0,
-        underlyingPrice: 0,
       });
     }
   }, [router, update]);
@@ -91,7 +89,7 @@ const Vaults = () => {
             </div>
           </div>
           <div className="flex flex-col w-full lg:w-1/4 h-full">
-            <AsidePanel />
+            <AsidePanel market={selectedMarket} />
           </div>
         </div>
       </PageLayout>

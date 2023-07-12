@@ -15,8 +15,8 @@ import {
 } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
 
-import useVaultQuery from 'hooks/ssov/query';
 import useStrikesData from 'hooks/ssov/useStrikesData';
+import useVaultsData from 'hooks/ssov/useVaultsData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
 import RowItem from 'components/ssov-new/AsidePanel/RowItem';
@@ -54,7 +54,7 @@ export const ButtonGroup = ({
   );
 };
 
-const AsidePanel = () => {
+const AsidePanel = ({ market }: { market: string }) => {
   const [amount, setAmount] = useState<string>('0');
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
@@ -63,9 +63,7 @@ const AsidePanel = () => {
   const vault = useVaultStore((vault) => vault.vault);
   const activeStrikeIndex = useVaultStore((vault) => vault.activeStrikeIndex);
 
-  const { vaults } = useVaultQuery({
-    vaultSymbol: vault.underlyingSymbol,
-  });
+  const { vaults } = useVaultsData({ market });
 
   const selectedVault = useMemo(() => {
     const selected = vaults.find(
@@ -110,12 +108,9 @@ const AsidePanel = () => {
   const { config: approveConfig, isSuccess: isSuccessApprove } =
     usePrepareContractWrite({
       abi: erc20ABI,
-      address: '0x912CE59144191C1204E64559FE8253a0e49E6548' as `0x${string}`,
+      address: vault.collateralTokenAddress,
       functionName: 'approve',
-      args: [
-        vault.address as `0x${string}`,
-        parseUnits(amountDebounced || '0', DECIMALS_TOKEN),
-      ],
+      args: [vault.address, parseUnits(amountDebounced || '0', DECIMALS_TOKEN)],
     });
 
   const { config } = usePrepareContractWrite({

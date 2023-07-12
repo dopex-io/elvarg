@@ -11,6 +11,7 @@ import format from 'date-fns/format';
 import Countdown from 'react-countdown';
 
 import { WritePosition } from 'hooks/ssov/positions';
+import useVaultsData from 'hooks/ssov/useVaultsData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
 import Placeholder from 'components/ssov-new/Tables/Placeholder';
@@ -141,6 +142,17 @@ const WritePositions = (props: Props) => {
 
   const vault = useVaultStore((vault) => vault.vault);
 
+  const { vaults } = useVaultsData({ market: vault.underlyingSymbol });
+
+  const selectedVault = useMemo(() => {
+    const selected = vaults.find(
+      (_vault) =>
+        vault.duration === _vault.duration && vault.isPut === _vault.isPut
+    );
+
+    return selected;
+  }, [vaults, vault]);
+
   const handleWithdraw = useCallback((index: number) => {
     setActiveIndex(index);
     // writeInstance.write?.();
@@ -155,26 +167,32 @@ const WritePositions = (props: Props) => {
         strike: String(position.strike) || '0',
         amount: {
           amount: position.balance,
-          symbol: vault.base,
+          symbol: vault.underlyingSymbol,
           isPut: vault.isPut,
         },
         expiry: position.expiry,
         rewards: 0,
         premium: {
           premium: position.accruedPremium,
-          symbol: vault.base,
+          symbol: vault.underlyingSymbol,
           isPut: vault.isPut,
         },
         button: {
           tokenId: position.tokenId,
           epoch: position.epoch,
-          currentEpoch: vault.currentEpoch,
+          currentEpoch: selectedVault?.currentEpoch || 0,
           handleWithdraw: () => handleWithdraw(index),
           expiry: position.expiry,
         },
       };
     });
-  }, [_positions, vault, handleWithdraw]);
+  }, [
+    _positions,
+    vault.underlyingSymbol,
+    vault.isPut,
+    selectedVault?.currentEpoch,
+    handleWithdraw,
+  ]);
 
   const table = useReactTable({
     columns,
@@ -226,7 +244,7 @@ const WritePositions = (props: Props) => {
                   return (
                     <tr
                       key={row.id}
-                      className={`hover:bg-umbra border-b border-umbra`}
+                      className="hover:bg-umbra border-b border-umbra"
                     >
                       {row.getVisibleCells().map((cell, index) => {
                         let textAlignment;
