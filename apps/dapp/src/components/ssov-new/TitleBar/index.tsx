@@ -1,5 +1,3 @@
-import { useEffect, useMemo } from 'react';
-
 import { Menu } from '@dopex-io/ui';
 
 import useVaultQuery from 'hooks/ssov/query';
@@ -19,33 +17,11 @@ interface Props {
 const TitleBar = (props: Props) => {
   const { market, handleSelectMarket } = props;
 
-  const update = useVaultStore((state) => state.update);
   const vault = useVaultStore((state) => state.vault);
 
   const { vaults, aggregatedStats } = useVaultQuery({
     vaultSymbol: market,
   });
-
-  const selectedVault = useMemo(() => {
-    const selected = vaults.find(
-      (_vault) =>
-        vault.duration === _vault.duration && vault.isPut === _vault.isPut
-    );
-
-    return selected;
-  }, [vaults, vault]);
-
-  useEffect(() => {
-    if (!selectedVault) return;
-    update({
-      base: selectedVault.underlyingSymbol,
-      duration: selectedVault.duration,
-      currentEpoch: selectedVault.currentEpoch,
-      address: selectedVault.contractAddress,
-      underlyingPrice: aggregatedStats?.currentPrice || 0,
-      isPut: selectedVault.isPut,
-    });
-  }, [selectedVault, update, aggregatedStats]);
 
   return (
     <div className="flex space-x-4 mb-4">
@@ -71,16 +47,17 @@ const TitleBar = (props: Props) => {
           value={formatAmount(aggregatedStats?.currentPrice, 3)}
         />
         <TitleItem
-          symbol="%"
+          symbol="$"
+          symbolPrefixed
           label="Open Interest"
           value={formatAmount(aggregatedStats?.oi, 3, true)}
         />
-        <TitleItem
+        {/* TODO: 24h Volume <TitleItem
           symbol="$"
           symbolPrefixed
-          label="Total Volume"
+          label="24h Volume"
           value={formatAmount(aggregatedStats?.volume || 0, 3, true)}
-        />
+        /> */}
       </div>
     </div>
   );

@@ -1,12 +1,5 @@
-import {
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
-import { BigNumber, ethers } from 'ethers';
-import { Address, parseUnits } from 'viem';
+import { SetStateAction, useCallback, useMemo, useState } from 'react';
+import { Address, formatUnits, parseUnits } from 'viem';
 
 import { SsovV3__factory } from '@dopex-io/sdk';
 import { Button, Input } from '@dopex-io/ui';
@@ -23,7 +16,7 @@ import {
 import wagmiConfig from 'wagmi-config';
 
 import useVaultQuery from 'hooks/ssov/query';
-import useContractData from 'hooks/ssov/useStrikesData';
+import useStrikesData from 'hooks/ssov/useStrikesData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
 import RowItem from 'components/ssov-new/AsidePanel/RowItem';
@@ -65,11 +58,13 @@ const AsidePanel = () => {
   const [amount, setAmount] = useState<string>('0');
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
+  const [amountDebounced] = useDebounce(amount, 1000);
+
   const vault = useVaultStore((vault) => vault.vault);
   const activeStrikeIndex = useVaultStore((vault) => vault.activeStrikeIndex);
-  const [amountDebounced] = useDebounce(amount, 1000);
+
   const { vaults } = useVaultQuery({
-    vaultSymbol: vault.base,
+    vaultSymbol: vault.underlyingSymbol,
   });
 
   const selectedVault = useMemo(() => {
@@ -81,30 +76,32 @@ const AsidePanel = () => {
     return selected;
   }, [vaults, vault]);
 
-  const { strikesData } = useContractData({
+  const { strikesData } = useStrikesData({
     ssovAddress: selectedVault?.contractAddress as Address,
     epoch: selectedVault?.currentEpoch,
   });
+
   const { address } = useAccount();
+
   const collateralTokenReads = useContractReads({
     contracts: [
       {
         abi: erc20ABI,
-        address: '0x912CE59144191C1204E64559FE8253a0e49E6548' as `0x${string}`,
+        address: vault.collateralTokenAddress,
         functionName: 'allowance',
         args: [address as `0x${string}`, vault.address as `0x${string}`],
         chainId: wagmiConfig.lastUsedChainId,
       },
       {
         abi: erc20ABI,
-        address: '0x912CE59144191C1204E64559FE8253a0e49E6548' as `0x${string}`,
+        address: vault.collateralTokenAddress,
         functionName: 'balanceOf',
         args: [address!],
         chainId: wagmiConfig.lastUsedChainId,
       },
       {
         abi: erc20ABI,
-        address: '0x912CE59144191C1204E64559FE8253a0e49E6548' as `0x${string}`,
+        address: vault.collateralTokenAddress,
         functionName: 'symbol',
         chainId: wagmiConfig.lastUsedChainId,
       },
@@ -120,6 +117,7 @@ const AsidePanel = () => {
         parseUnits(amountDebounced || '0', DECIMALS_TOKEN),
       ],
     });
+
   const { config } = usePrepareContractWrite({
     abi: SsovV3__factory.abi,
     address: vault.address as `0x${string}`,
@@ -127,11 +125,12 @@ const AsidePanel = () => {
       ? { functionName: 'purchase' }
       : { functionName: 'deposit' }),
     args: [
-      activeStrikeIndex,
-      ethers.utils.parseUnits(amountDebounced || '0', DECIMALS_TOKEN),
-      address,
+      BigInt(activeStrikeIndex),
+      parseUnits(amountDebounced || '0', DECIMALS_TOKEN),
+      address as Address,
     ],
   });
+
   const { write } = useContractWrite(config);
   const { write: approve } = useContractWrite(approveConfig);
 
@@ -151,30 +150,24 @@ const AsidePanel = () => {
         breakeven: 0,
         availableCollateral: 0,
         totalPremium: 0,
-        premiumPerOption: BigNumber.from(0),
-        premiumsAccrued: BigNumber.from(0),
-        totalCollateral: BigNumber.from(0),
-        activeCollateral: BigNumber.from(0),
+        premiumPerOption: BigInt(0),
+        premiumsAccrued: BigInt(0),
+        totalCollateral: BigInt(0),
+        activeCollateral: BigInt(0),
       };
 
     const strikeData = strikesData[activeStrikeIndex];
     const premiumInUSD =
       (selectedVault.isPut ? 1 : Number(selectedVault.currentPrice)) *
-      Number(
-        ethers.utils.formatUnits(
-          strikeData.premiumPerOption || '0',
-          DECIMALS_TOKEN
-        )
-      );
+      Number(formatUnits(strikeData.premiumPerOption || 0n, DECIMALS_TOKEN));
     const breakeven = selectedVault.isPut
       ? strikeData.strike - premiumInUSD
       : premiumInUSD + strikeData.strike;
     const availableCollateral = formatAmount(
       selectedVault.isPut
-        ? Number(
-            ethers.utils.formatUnits(strikeData.availableCollateral || '0', 18)
-          ) / Number(strikeData.strike)
-        : ethers.utils.formatUnits(strikeData.availableCollateral || '0', 18),
+        ? Number(formatUnits(strikeData.availableCollateral || 0n, 18)) /
+            Number(strikeData.strike)
+        : formatUnits(strikeData.availableCollateral || 0n, 18),
       5
     );
     const totalPremium = premiumInUSD * Number(amountDebounced);
@@ -315,14 +308,11 @@ const AsidePanel = () => {
               <p className="text-stieglitz">Premium</p>
               <p>
                 {formatAmount(
-                  ethers.utils.formatUnits(
-                    selectedStrike.premiumPerOption || '0',
-                    18
-                  ),
+                  formatUnits(selectedStrike.premiumPerOption || 0n, 18),
                   3
                 )}{' '}
                 <span className="text-stieglitz">
-                  {vault?.isPut ? '$' : vault?.base}
+                  {vault?.isPut ? '$' : vault?.underlyingSymbol}
                 </span>
               </p>
             </span>
@@ -393,8 +383,8 @@ const AsidePanel = () => {
               >
                 <p>
                   {formatAmount(
-                    ethers.utils.formatUnits(
-                      selectedStrike.premiumPerOption || '0',
+                    formatUnits(
+                      selectedStrike.premiumPerOption || 0n,
                       DECIMALS_TOKEN
                     ),
                     3
@@ -413,16 +403,10 @@ const AsidePanel = () => {
             content={
               formatAmount(
                 (Number(
-                  ethers.utils.formatUnits(
-                    selectedStrike?.premiumsAccrued,
-                    DECIMALS_TOKEN
-                  )
+                  formatUnits(selectedStrike?.premiumsAccrued, DECIMALS_TOKEN)
                 ) /
                   Number(
-                    ethers.utils.formatUnits(
-                      selectedStrike.activeCollateral,
-                      DECIMALS_TOKEN
-                    )
+                    formatUnits(selectedStrike.activeCollateral, DECIMALS_TOKEN)
                   )) *
                   100,
                 3

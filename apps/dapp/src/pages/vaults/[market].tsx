@@ -45,8 +45,9 @@ const Vaults = () => {
       update({
         address: vault.address,
         isPut: vault.isPut,
-        base: vault.underlyingSymbol,
+        underlyingSymbol: vault.underlyingSymbol,
         duration: vault.duration,
+        collateralTokenAddress: vault.collateralTokenAddress,
         currentEpoch: 0,
         underlyingPrice: 0,
       });

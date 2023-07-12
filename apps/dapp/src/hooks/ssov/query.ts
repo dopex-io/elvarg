@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
-
-import { SsovDuration } from 'types/ssov';
+import { Address } from 'viem';
 
 import queryClient from 'queryClient';
 
 import { useBoundStore } from 'store';
 
 import { DOPEX_API_BASE_URL } from 'constants/env';
+
+import { SsovDuration } from 'types/ssov';
 
 interface Props {
   vaultSymbol: string;
@@ -39,7 +40,7 @@ interface RawVaultQueryData {
 interface VaultData {
   isPut: boolean;
   duration: SsovDuration;
-  contractAddress: string;
+  contractAddress: Address;
   underlyingSymbol: string;
   collateralPrecision: number;
   rewards: {
@@ -83,7 +84,7 @@ const useVaultQuery = (props: Props) => {
   const [aggregatedStats, setAggregatedStats] = useState<AggregatedStats>();
 
   const updateVaults = useCallback(async () => {
-    const data = await fetchSsovs([vaultSymbol], 3600);
+    const data = await fetchSsovs([vaultSymbol, 'ssov-api'], 3600);
 
     if (!vaultSymbol || !chainId || !data || !data[chainId]) return [];
     const filteredData: RawVaultQueryData[] = data[chainId].filter(
@@ -133,7 +134,7 @@ const useVaultQuery = (props: Props) => {
         underlyingSymbol,
         collateralPrecision,
         duration: duration.toUpperCase() as SsovDuration,
-        contractAddress,
+        contractAddress: contractAddress as Address,
         olp,
         rewards,
         totalEpochDeposits,
@@ -159,15 +160,12 @@ const useVaultQuery = (props: Props) => {
       (prev, curr) => prev + Number(curr.totalEpochPurchases),
       0
     );
-    const totalDeposits = vaults.reduce(
-      (prev, curr) => prev + Number(curr.totalEpochDeposits),
-      0
-    );
+
     setAggregatedStats({
       currentPrice: Number(vaults[0].currentPrice),
       apy: avgApy,
-      oi: (totalPurchases / totalDeposits) * 100,
-      volume: totalPurchases * Number(vaults[0].currentPrice),
+      oi: totalPurchases * Number(vaults[0].currentPrice),
+      volume: 0,
     });
   }, [vaults]);
 

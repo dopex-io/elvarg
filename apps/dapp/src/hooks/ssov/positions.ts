@@ -76,8 +76,6 @@ const useFetchPositions = (props: Props) => {
         ssovAddress: vaultAddress as Address,
       });
 
-      console.log(vault.id);
-
       const checkpointData = await getSsovCheckpointData({
         positionId: Number(vault.id.split('#')[1]),
         ssovAddress: vaultAddress as Address,
@@ -92,8 +90,6 @@ const useFetchPositions = (props: Props) => {
           ? 0n
           : (activeCollateralShare * checkpointData.accruedPremium) /
             checkpointData.activeCollateral;
-
-      console.log(accruedPremium);
 
       _writePositions[i] = {
         ...vault,

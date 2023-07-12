@@ -1,21 +1,21 @@
-import { Abi } from 'viem';
+import { Address } from 'viem';
 
-import { SsovV3Router__factory } from '@dopex-io/sdk';
-import { SsovDuration } from 'types/ssov';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
+import { SsovDuration } from 'types/ssov';
+
 export interface VaultState {
-  address: string;
-  base: string;
+  address: Address;
+  underlyingSymbol: string;
   isPut: boolean;
   duration: SsovDuration;
+  collateralTokenAddress: Address;
   currentEpoch: number;
   underlyingPrice: number;
 }
 
 interface Props {
-  abi: Abi;
   vault: VaultState;
   update: (vault: VaultState) => void;
   activeStrikeIndex: number;
@@ -25,14 +25,14 @@ interface Props {
 const useVaultStore = create<Props>()(
   devtools((set) => ({
     vault: {
-      address: 'UNKNOWN',
+      address: '0x',
+      underlyingSymbol: 'UNKNOWN',
       isPut: false,
-      base: 'UNKNOWN',
       duration: 'WEEKLY',
+      collateralTokenAddress: '0x',
       currentEpoch: 0,
       underlyingPrice: 0,
     },
-    abi: SsovV3Router__factory.abi,
     update: (vault: VaultState) => set({ vault }),
     activeStrikeIndex: 0,
     setActiveStrikeIndex: (index: number) =>

@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { SsovV3__factory } from '@dopex-io/sdk';
 import format from 'date-fns/format';
-import { SsovDuration } from 'types/ssov';
 
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
@@ -13,6 +11,8 @@ import findSsov from 'utils/ssov/findSsov';
 import getExpiry from 'utils/ssov/getExpiry';
 import getMarketDurations from 'utils/ssov/getMarketDurations';
 import getMarketSides from 'utils/ssov/getMarketSides';
+
+import { SsovDuration } from 'types/ssov';
 
 interface Props {
   market: string;
@@ -29,7 +29,6 @@ const FilterPanel = (props: Props) => {
   const handleSelectSide = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (!duration) return;
-      console.log(e.currentTarget.value);
       const _isPut = e.currentTarget.value === 'PUT';
       let _duration = duration;
 
@@ -47,9 +46,9 @@ const FilterPanel = (props: Props) => {
         update({
           address: vault.address,
           duration: vault.duration,
-          abi: SsovV3__factory.abi,
-          base: vault.underlyingSymbol,
+          underlyingSymbol: vault.underlyingSymbol,
           isPut: _isPut,
+          collateralTokenAddress: vault.collateralTokenAddress,
           currentEpoch: 0,
           underlyingPrice: 0,
         });
@@ -60,8 +59,6 @@ const FilterPanel = (props: Props) => {
 
   const handleSelectDuration = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      console.log(e.currentTarget.value);
-
       const _duration = e.currentTarget.value as SsovDuration;
 
       setDuration(_duration);
@@ -72,8 +69,8 @@ const FilterPanel = (props: Props) => {
         update({
           address: vault.address,
           duration: _duration,
-          abi: SsovV3__factory.abi,
-          base: vault.underlyingSymbol,
+          collateralTokenAddress: vault.collateralTokenAddress,
+          underlyingSymbol: vault.underlyingSymbol,
           isPut,
           currentEpoch: 0,
           underlyingPrice: 0,

@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Address, formatUnits } from 'viem';
 
 import { Button, Disclosure, Menu, Skeleton } from '@dopex-io/ui';
 import { MinusCircleIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
 import {
   ChevronDownIcon,
-  EllipsisVerticalIcon,
+  // EllipsisVerticalIcon,
 } from '@heroicons/react/24/solid';
 import {
   createColumnHelper,
@@ -13,10 +13,8 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { SsovDuration } from 'types/ssov';
 
 import useVaultQuery from 'hooks/ssov/query';
-import useContractData from 'hooks/ssov/useStrikesData';
 import useStrikesData from 'hooks/ssov/useStrikesData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
@@ -25,7 +23,10 @@ import Placeholder from 'components/ssov-new/Tables/Placeholder';
 import formatAmount from 'utils/general/formatAmount';
 
 import { DECIMALS_TOKEN } from 'constants/index';
-import { STRIKES_MENU } from 'constants/ssov';
+
+import { SsovDuration } from 'types/ssov';
+
+// import { STRIKES_MENU } from 'constants/ssov';
 
 export type MenuDataType = { textContent: SsovDuration }[];
 
@@ -166,7 +167,10 @@ const columns = [
               )}
             </span>
           </Button>
-          <Menu
+          {/* TODO: OLP dialog
+        Pass selected strike, ssov address, side into dialog
+        */}
+          {/* <Menu
             color="mineshaft"
             selection={
               <EllipsisVerticalIcon className="w-4 h-4 fill-current text-white" />
@@ -174,10 +178,7 @@ const columns = [
             handleSelection={value.handleSelection}
             data={STRIKES_MENU}
             className="w-fit"
-          />
-          {/* todo: OLP dialog
-        Pass selected strike, ssov address, side into dialog
-        */}
+          /> */}
         </div>
       );
     },
@@ -301,7 +302,7 @@ const StrikesTable = ({ market }: { market: string }) => {
   const activeStrikeIndex = useVaultStore((store) => store.activeStrikeIndex);
 
   const setActiveStrikeIndex = useVaultStore(
-    (vault) => vault.setActiveStrikeIndex
+    (store) => store.setActiveStrikeIndex
   );
 
   const { vaults } = useVaultQuery({
@@ -365,7 +366,7 @@ const StrikesTable = ({ market }: { market: string }) => {
         },
         button: {
           index,
-          base: vault.base,
+          base: vault.underlyingSymbol,
           isPut: vault.isPut,
           premiumPerOption: strikeData.premiumPerOption,
           activeStrikeIndex: activeStrikeIndex,
@@ -392,10 +393,7 @@ const StrikesTable = ({ market }: { market: string }) => {
     strikesData,
     selectedVault?.currentPrice,
     selectedVault?.apy,
-    vault.duration,
-    vault.isPut,
-    vault.underlyingPrice,
-    vault.base,
+    vault,
     activeStrikeIndex,
     setActiveStrikeIndex,
     handleClickMenu,
@@ -408,7 +406,7 @@ const StrikesTable = ({ market }: { market: string }) => {
           return (
             <Skeleton
               key={index}
-              // width="fitContent"
+              width="fitContent"
               height={70}
               color="carbon"
               variant="rounded"

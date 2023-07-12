@@ -155,8 +155,6 @@ const BuyPositions = (props: Props) => {
         5
       );
 
-      console.log(position.expiry);
-
       return {
         side: position.side,
         strike: position.strike || 0,

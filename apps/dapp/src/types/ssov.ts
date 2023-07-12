@@ -10,6 +10,7 @@ interface Vault {
   duration: SsovDuration;
   underlyingSymbol: string;
   address: Address;
+  collateralTokenAddress: Address;
 }
 
 export interface SsovMarket {
