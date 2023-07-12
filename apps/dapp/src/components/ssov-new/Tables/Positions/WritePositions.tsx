@@ -10,7 +10,7 @@ import {
 import format from 'date-fns/format';
 import Countdown from 'react-countdown';
 
-import { WritePosition } from 'hooks/ssov/positions';
+import { WritePosition } from 'hooks/ssov/useSsovPositions';
 import useVaultsData from 'hooks/ssov/useVaultsData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 

@@ -14,12 +14,6 @@ import getSsovEpochTimes from 'utils/ssov/getSsovEpochTimes';
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 import { DOPEX_SSOV_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
-interface Props {
-  vaultAddress: string;
-  tokenSymbol: string;
-  isPut: boolean;
-}
-
 export interface WritePosition {
   strike: number;
   balance: number;
@@ -42,8 +36,13 @@ export interface BuyPosition {
   id: string;
 }
 
-const useFetchPositions = (props: Props) => {
-  const { vaultAddress, isPut } = props;
+interface Args {
+  ssovAddress: Address;
+  isPut: boolean;
+}
+
+const useSsovPositions = (args: Args) => {
+  const { ssovAddress, isPut } = args;
   const { address } = useAccount();
 
   const [writePositions, setWritePositions] = useState<WritePosition[]>([]);
@@ -63,7 +62,7 @@ const useFetchPositions = (props: Props) => {
     const filteredWritePositions =
       ssovQueryResult.users[0].userSSOVDeposit.filter(
         (position) =>
-          position.ssov.id.toLowerCase() === vaultAddress.toLowerCase()
+          position.ssov.id.toLowerCase() === ssovAddress.toLowerCase()
       );
 
     const _writePositions = [];
@@ -73,12 +72,12 @@ const useFetchPositions = (props: Props) => {
 
       const epochTimes = await getSsovEpochTimes({
         epoch: Number(vault.epoch),
-        ssovAddress: vaultAddress as Address,
+        ssovAddress: ssovAddress as Address,
       });
 
       const checkpointData = await getSsovCheckpointData({
         positionId: Number(vault.id.split('#')[1]),
-        ssovAddress: vaultAddress as Address,
+        ssovAddress: ssovAddress as Address,
       });
 
       const activeCollateralShare =
@@ -108,7 +107,7 @@ const useFetchPositions = (props: Props) => {
 
     const filteredBuyPositions =
       ssovQueryResult.users[0].userSSOVOptionBalance.filter((position) =>
-        position.id.toLowerCase().includes(vaultAddress.toLowerCase())
+        position.id.toLowerCase().includes(ssovAddress.toLowerCase())
       );
 
     const _buyPositions = [];
@@ -118,7 +117,7 @@ const useFetchPositions = (props: Props) => {
 
       const epochTimes = await getSsovEpochTimes({
         epoch: Number(vault.epoch),
-        ssovAddress: vaultAddress as Address,
+        ssovAddress,
       });
 
       _buyPositions[i] = {
@@ -133,7 +132,7 @@ const useFetchPositions = (props: Props) => {
     }
 
     setBuyPositions(_buyPositions);
-  }, [address, isPut, vaultAddress]);
+  }, [address, isPut, ssovAddress]);
 
   useEffect(() => {
     updateSsovPositions();
@@ -154,4 +153,4 @@ const useFetchPositions = (props: Props) => {
   };
 };
 
-export default useFetchPositions;
+export default useSsovPositions;

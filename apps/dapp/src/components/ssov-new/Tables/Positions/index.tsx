@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import useFetchPositions from 'hooks/ssov/positions';
+import useSsovPositions from 'hooks/ssov/useSsovPositions';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
 import { ButtonGroup } from 'components/ssov-new/AsidePanel';
@@ -11,9 +11,8 @@ import WritePositions from './WritePositions';
 const Positions = () => {
   const vault = useVaultStore((vault) => vault.vault);
 
-  const { writePositions, buyPositions, isLoading } = useFetchPositions({
-    vaultAddress: vault.address,
-    tokenSymbol: vault.underlyingSymbol,
+  const { writePositions, buyPositions, isLoading } = useSsovPositions({
+    ssovAddress: vault.address,
     isPut: vault.isPut,
   });
 
