@@ -1,8 +1,8 @@
 import cx from './utils/cx';
 
 export interface SkeletonProps {
-  height?: number;
-  width?: number;
+  height?: number | string;
+  width?: number | string;
   color?: string;
   variant?: 'rectangular' | 'rounded' | 'circular';
 }
