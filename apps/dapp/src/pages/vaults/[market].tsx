@@ -7,6 +7,7 @@ import useVaultStore from 'hooks/ssov/useVaultStore';
 
 import PageLayout from 'components/common/PageLayout';
 import AsidePanel from 'components/ssov-new/AsidePanel';
+import InfoBox from 'components/ssov-new/InfoBox';
 import PriceChart from 'components/ssov-new/PriceChart';
 import Positions from 'components/ssov-new/Tables/Positions';
 import StrikesChain from 'components/ssov-new/Tables/StrikesChain';
@@ -88,8 +89,9 @@ const Vaults = () => {
               <Positions />
             </div>
           </div>
-          <div className="flex flex-col w-full lg:w-1/4 h-full">
+          <div className="flex flex-col w-full lg:w-1/4 h-full space-y-4 sticky top-20">
             <AsidePanel market={selectedMarket} />
+            <InfoBox />
           </div>
         </div>
       </PageLayout>

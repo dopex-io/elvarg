@@ -1,5 +1,5 @@
 import { SetStateAction, useCallback, useMemo, useState } from 'react';
-import { Address, formatUnits, parseUnits, zeroAddress } from 'viem';
+import { Address, formatUnits, parseUnits } from 'viem';
 
 import { Button, Input } from '@dopex-io/ui';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
@@ -21,6 +21,7 @@ import useStrikesData from 'hooks/ssov/useStrikesData';
 import useVaultsData from 'hooks/ssov/useVaultsData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
+import PnlChart from 'components/common/PnlChart';
 import alerts from 'components/ssov-new/AsidePanel/alerts';
 import RowItem from 'components/ssov-new/AsidePanel/RowItem';
 import DepositStepper from 'components/ssov-new/Dialogs/DepositStepper';
@@ -250,186 +251,215 @@ const AsidePanel = ({ market }: { market: string }) => {
   }, [selectedStrike, selectedVault]);
 
   return renderCondition ? null : (
-    <div className="flex flex-col bg-cod-gray rounded-lg p-3 space-y-3">
-      <ButtonGroup
-        active={activeIndex}
-        labels={['Buy', 'Sell']}
-        handleClick={handleClick}
-      />
-      <Input
-        variant="xl"
-        type="number"
-        value={amount}
-        onChange={handleChange}
-        leftElement={
-          <img
-            src={`/images/tokens/${String(
-              collateralTokenReads.data?.[2].result
-            )?.toLowerCase()}.svg`}
-            alt={String(collateralTokenReads.data?.[2].result)?.toLowerCase()}
-            className="w-[30px] h-[30px] border border-mineshaft rounded-full ring-4 ring-cod-gray"
-          />
-        }
-        placeholder="0.0"
-      />
-      {infoPopover.textContent !== '' ? (
-        <div
-          className={`${infoPopover.alertBg} p-3 rounded-md text-center flex justify-center`}
-        >
-          <ExclamationTriangleIcon className="h-6 w-6 fill-current mr-2" />
-          {infoPopover.textContent}
-        </div>
-      ) : null}
-      <div className="flex flex-col divide-y divide-carbon border border-carbon rounded-md">
-        <div className="flex divide-x divide-carbon text-xs">
-          <span className="space-y-2 w-1/2 p-3">
-            <p>${selectedStrike.strike}</p>
-            <p className="text-stieglitz">Strike</p>
-          </span>
-          <span className="space-y-2 w-1/2 p-3">
-            <p>{selectedVault?.currentEpoch}</p>
-            <p className="text-xs text-stieglitz">Epoch</p>
-          </span>
-        </div>
-        {activeIndex === 0 ? (
-          <div className="flex flex-col space-y-2 p-3 text-xs">
-            <span className="flex justify-between">
-              <p className="text-stieglitz">Side</p>
-              <p>{vault?.isPut ? 'PUT' : 'CALL'}</p>
-            </span>
-            <span className="flex justify-between">
-              <p className="text-stieglitz">Premium</p>
-              <p>
-                {formatAmount(
-                  formatUnits(selectedStrike.premiumPerOption || 0n, 18),
-                  3
-                )}{' '}
-                <span className="text-stieglitz">
-                  {vault?.isPut ? '$' : vault?.underlyingSymbol}
-                </span>
-              </p>
-            </span>
+    <div className="flex flex-col space-y-4">
+      <div className="flex flex-col bg-cod-gray rounded-lg p-3 space-y-3">
+        <ButtonGroup
+          active={activeIndex}
+          labels={['Buy', 'Sell']}
+          handleClick={handleClick}
+        />
+        <Input
+          variant="xl"
+          type="number"
+          value={amount}
+          onChange={handleChange}
+          leftElement={
+            <img
+              src={`/images/tokens/${String(
+                collateralTokenReads.data?.[2].result
+              )?.toLowerCase()}.svg`}
+              alt={String(collateralTokenReads.data?.[2].result)?.toLowerCase()}
+              className="w-[30px] h-[30px] border border-mineshaft rounded-full ring-4 ring-cod-gray"
+            />
+          }
+          placeholder="0.0"
+        />
+        {infoPopover.textContent !== '' ? (
+          <div
+            className={`${infoPopover.alertBg} p-3 rounded-md text-center flex justify-center`}
+          >
+            <ExclamationTriangleIcon className="h-6 w-6 fill-current mr-2" />
+            {infoPopover.textContent}
           </div>
         ) : null}
-      </div>
-      {activeIndex === 0 ? (
-        <div className="flex flex-col bg-umbra rounded-md p-3 space-y-3">
-          <RowItem
-            label="Option Size"
-            content={<p>{formatAmount(amountDebounced, 3)}</p>}
-          />
-          <RowItem label="Fees" content={selectedStrike.strike} />
-          <RowItem label="IV" content={selectedStrike.iv} />
-          <RowItem
-            label="Breakeven"
-            content={'$' + formatAmount(selectedStrike.breakeven, 3)}
-          />
-          <RowItem
-            label="You will pay"
-            content={<p>${formatAmount(selectedStrike.totalPremium, 3)}</p>}
-          />
-          <RowItem
-            label="Available"
-            content={
-              <p>
-                {selectedStrike.availableCollateral}{' '}
-                {String(collateralTokenReads.data?.[2].result)}
-              </p>
-            }
-          />
-        </div>
-      ) : (
-        <div className="flex flex-col bg-umbra rounded-md p-3 space-y-3">
-          <RowItem
-            label="Side"
-            content={selectedVault?.isPut ? 'Put' : 'Call'}
-          />
-          <RowItem
-            label="Epoch"
-            content={
-              <p>
-                {format(
-                  new Date(Number(selectedVault?.epochTimes.startTime) * 1000),
-                  'dd LLL yyy'
-                )}
-              </p>
-            }
-          />
-          <RowItem
-            label="Withdrawable"
-            content={
-              <p>
-                {format(
-                  new Date(Number(selectedVault?.epochTimes.expiry) * 1000),
-                  'dd LLL yyy'
-                )}
-              </p>
-            }
-          />
-          <RowItem
-            label="Premium Per Option"
-            content={
-              <span
-                className={`flex space-x-1 ${
-                  selectedVault?.isPut ? 'flex-row-reverse' : null
-                }`}
-              >
+        <div className="flex flex-col divide-y divide-carbon border border-carbon rounded-md">
+          <div className="flex divide-x divide-carbon text-xs">
+            <span className="space-y-2 w-1/2 p-3">
+              <p>${selectedStrike.strike}</p>
+              <p className="text-stieglitz">Strike</p>
+            </span>
+            <span className="space-y-2 w-1/2 p-3">
+              <p>{selectedVault?.currentEpoch}</p>
+              <p className="text-xs text-stieglitz">Epoch</p>
+            </span>
+          </div>
+          {activeIndex === 0 ? (
+            <div className="flex flex-col space-y-2 p-3 text-xs">
+              <span className="flex justify-between">
+                <p className="text-stieglitz">Side</p>
+                <p>{vault?.isPut ? 'PUT' : 'CALL'}</p>
+              </span>
+              <span className="flex justify-between">
+                <p className="text-stieglitz">Premium</p>
                 <p>
                   {formatAmount(
-                    formatUnits(
-                      selectedStrike.premiumPerOption || 0n,
-                      DECIMALS_TOKEN
-                    ),
+                    formatUnits(selectedStrike.premiumPerOption || 0n, 18),
                     3
-                  )}
-                </p>
-                <p className="text-stieglitz">
-                  {selectedVault?.isPut
-                    ? '$'
-                    : String(collateralTokenReads.data?.[2].result)}
+                  )}{' '}
+                  <span className="text-stieglitz">
+                    {vault?.isPut ? '$' : vault?.underlyingSymbol}
+                  </span>
                 </p>
               </span>
-            }
-          />
-          <RowItem
-            label="Premium APR"
-            content={
-              formatAmount(
-                (Number(
-                  formatUnits(selectedStrike?.premiumsAccrued, DECIMALS_TOKEN)
-                ) /
-                  Number(
-                    formatUnits(selectedStrike.activeCollateral, DECIMALS_TOKEN)
-                  )) *
-                  100,
-                3
-              ) + '%'
-            }
-          />
+            </div>
+          ) : null}
         </div>
-      )}
-      <Button
-        onClick={transact}
-        variant="contained"
-        color="primary"
-        className={`hover:cursor-pointer ${
-          infoPopover.disabled ? 'cursor-not-allowed' : 'cursor-default'
-        }`}
-        disabled={infoPopover.disabled}
-      >
-        {infoPopover.buttonContent}
-      </Button>
-      <DepositStepper
-        isOpen={isOpen}
-        handleClose={handleClose}
-        data={{
-          token: vault.collateralTokenAddress,
-          vault: vault.address,
-          strikeIndex: BigInt(activeStrikeIndex),
-          amount: parseUnits(amountDebounced, DECIMALS_TOKEN),
-          to: address as Address,
-        }}
-      />
+        {activeIndex === 0 ? (
+          <div className="flex flex-col bg-umbra rounded-md p-3 space-y-3">
+            <RowItem
+              label="Option Size"
+              content={<p>{formatAmount(amountDebounced, 3)}</p>}
+            />
+            <RowItem label="Fees" content={selectedStrike.strike} />
+            <RowItem label="IV" content={selectedStrike.iv} />
+            <RowItem
+              label="Breakeven"
+              content={'$' + formatAmount(selectedStrike.breakeven, 3)}
+            />
+            <RowItem
+              label="You will pay"
+              content={<p>${formatAmount(selectedStrike.totalPremium, 3)}</p>}
+            />
+            <RowItem
+              label="Available"
+              content={
+                <p>
+                  {selectedStrike.availableCollateral}{' '}
+                  {String(collateralTokenReads.data?.[2].result)}
+                </p>
+              }
+            />
+          </div>
+        ) : (
+          <div className="flex flex-col bg-umbra rounded-md p-3 space-y-3">
+            <RowItem
+              label="Side"
+              content={selectedVault?.isPut ? 'Put' : 'Call'}
+            />
+            <RowItem
+              label="Epoch"
+              content={
+                <p>
+                  {format(
+                    new Date(
+                      Number(selectedVault?.epochTimes.startTime) * 1000
+                    ),
+                    'dd LLL yyy'
+                  )}
+                </p>
+              }
+            />
+            <RowItem
+              label="Withdrawable"
+              content={
+                <p>
+                  {format(
+                    new Date(Number(selectedVault?.epochTimes.expiry) * 1000),
+                    'dd LLL yyy'
+                  )}
+                </p>
+              }
+            />
+            <RowItem
+              label="Premium Per Option"
+              content={
+                <span
+                  className={`flex space-x-1 ${
+                    selectedVault?.isPut ? 'flex-row-reverse' : null
+                  }`}
+                >
+                  <p>
+                    {formatAmount(
+                      formatUnits(
+                        selectedStrike.premiumPerOption || 0n,
+                        DECIMALS_TOKEN
+                      ),
+                      3
+                    )}
+                  </p>
+                  <p className="text-stieglitz">
+                    {selectedVault?.isPut
+                      ? '$'
+                      : String(collateralTokenReads.data?.[2].result)}
+                  </p>
+                </span>
+              }
+            />
+            <RowItem
+              label="Premium APR"
+              content={
+                formatAmount(
+                  (Number(
+                    formatUnits(selectedStrike?.premiumsAccrued, DECIMALS_TOKEN)
+                  ) /
+                    Number(
+                      formatUnits(
+                        selectedStrike.activeCollateral,
+                        DECIMALS_TOKEN
+                      )
+                    )) *
+                    100,
+                  3
+                ) + '%'
+              }
+            />
+          </div>
+        )}
+        <Button
+          onClick={transact}
+          variant="contained"
+          color="primary"
+          className={`hover:cursor-pointer ${
+            infoPopover.disabled ? 'cursor-not-allowed' : 'cursor-default'
+          }`}
+          disabled={infoPopover.disabled}
+        >
+          {infoPopover.buttonContent}
+        </Button>
+        <DepositStepper
+          isOpen={isOpen}
+          handleClose={handleClose}
+          data={{
+            token: vault.collateralTokenAddress,
+            vault: vault.address,
+            strikeIndex: BigInt(activeStrikeIndex),
+            amount: parseUnits(amountDebounced, DECIMALS_TOKEN),
+            to: address as Address,
+          }}
+        />
+      </div>
+      <div className="bg-cod-gray p-3 rounded-lg">
+        <PnlChart
+          breakEven={
+            vault.isPut
+              ? Number(selectedStrike.strike) -
+                Number(
+                  formatUnits(selectedStrike.premiumPerOption, DECIMALS_TOKEN)
+                )
+              : Number(selectedStrike.strike) +
+                Number(
+                  formatUnits(selectedStrike.premiumPerOption, DECIMALS_TOKEN)
+                )
+          }
+          optionPrice={Number(
+            formatUnits(selectedStrike.premiumPerOption, DECIMALS_TOKEN)
+          )}
+          amount={Number(amountDebounced)}
+          isPut={vault.isPut}
+          price={Number(selectedVault?.currentPrice)}
+          symbol={vault.underlyingSymbol}
+        />
+      </div>
     </div>
   );
 };
