@@ -1,7 +1,6 @@
 import { SetStateAction, useCallback, useMemo, useState } from 'react';
-import { Address, formatUnits, parseUnits } from 'viem';
+import { Address, formatUnits, parseUnits, zeroAddress } from 'viem';
 
-import { SsovV3__factory } from '@dopex-io/sdk';
 import { Button, Input } from '@dopex-io/ui';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { format } from 'date-fns';
@@ -11,21 +10,24 @@ import {
   useAccount,
   useContractReads,
   useContractWrite,
-  usePrepareContractWrite,
 } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
 
+import {
+  usePrepareApprove,
+  usePreparePurchase,
+} from 'hooks/ssov/usePrepareWrites';
 import useStrikesData from 'hooks/ssov/useStrikesData';
 import useVaultsData from 'hooks/ssov/useVaultsData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
+import alerts from 'components/ssov-new/AsidePanel/alerts';
 import RowItem from 'components/ssov-new/AsidePanel/RowItem';
+import DepositWithStepper from 'components/ssov-new/Dialogs/DepositWithStepper';
 
 import formatAmount from 'utils/general/formatAmount';
 
 import { DECIMALS_TOKEN } from 'constants/index';
-
-import alerts from './alerts';
 
 export const ButtonGroup = ({
   active,
@@ -57,6 +59,7 @@ export const ButtonGroup = ({
 const AsidePanel = ({ market }: { market: string }) => {
   const [amount, setAmount] = useState<string>('0');
   const [activeIndex, setActiveIndex] = useState<number>(0);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const [amountDebounced] = useDebounce(amount, 1000);
 
@@ -105,29 +108,20 @@ const AsidePanel = ({ market }: { market: string }) => {
       },
     ],
   });
-  const { config: approveConfig, isSuccess: isSuccessApprove } =
-    usePrepareContractWrite({
-      abi: erc20ABI,
-      address: vault.collateralTokenAddress,
-      functionName: 'approve',
-      args: [vault.address, parseUnits(amountDebounced || '0', DECIMALS_TOKEN)],
-    });
-
-  const { config } = usePrepareContractWrite({
-    abi: SsovV3__factory.abi,
-    address: vault.address as `0x${string}`,
-    ...(activeIndex === 0 // 0: purchase, 1: deposit
-      ? { functionName: 'purchase' }
-      : { functionName: 'deposit' }),
-    args: [
-      BigInt(activeStrikeIndex),
-      parseUnits(amountDebounced || '0', DECIMALS_TOKEN),
-      address as Address,
-    ],
+  const approveConfig = usePrepareApprove({
+    spender: vault.collateralTokenAddress,
+    token: vault.collateralTokenAddress,
+    amount: parseUnits(amountDebounced || '0', DECIMALS_TOKEN),
+  });
+  const purchaseConfig = usePreparePurchase({
+    vault: vault.address,
+    strikeIndex: BigInt(activeStrikeIndex),
+    amount: parseUnits(amountDebounced || '0', DECIMALS_TOKEN),
+    to: address || zeroAddress,
   });
 
-  const { write } = useContractWrite(config);
   const { write: approve } = useContractWrite(approveConfig);
+  const { write: purchase } = useContractWrite(purchaseConfig);
 
   const selectedStrike = useMemo(() => {
     if (strikesData.length === 0 || !selectedVault)
@@ -181,9 +175,13 @@ const AsidePanel = ({ market }: { market: string }) => {
     []
   );
 
+  const handleClose = () => {
+    setIsOpen(false);
+  };
+
   const infoPopover = useMemo(() => {
     const buttonContent = activeIndex === 0 ? 'Purchase' : 'Deposit';
-    if (!selectedVault || !collateralTokenReads.data || !isSuccessApprove)
+    if (!selectedVault || !collateralTokenReads.data || !approveConfig.result)
       return {
         ...alerts.error.fallback,
         buttonContent,
@@ -236,16 +234,18 @@ const AsidePanel = ({ market }: { market: string }) => {
     collateralTokenReads.data,
     selectedStrike,
     selectedVault,
-    isSuccessApprove,
+    approveConfig,
   ]);
 
   const transact = useCallback(() => {
     if (infoPopover.textContent?.includes('allowance')) {
       approve?.();
+    } else if (activeIndex === 0) {
+      purchase?.();
     } else {
-      write?.();
+      setIsOpen((prevState) => !prevState);
     }
-  }, [approve, infoPopover.textContent, write]);
+  }, [activeIndex, approve, infoPopover.textContent, purchase]);
 
   const renderCondition = useMemo(() => {
     return !selectedStrike || !selectedStrike || !selectedVault;
@@ -421,6 +421,17 @@ const AsidePanel = ({ market }: { market: string }) => {
       >
         {infoPopover.buttonContent}
       </Button>
+      <DepositWithStepper
+        isOpen={isOpen}
+        handleClose={handleClose}
+        data={{
+          token: vault.collateralTokenAddress,
+          vault: vault.address,
+          strikeIndex: BigInt(activeStrikeIndex),
+          amount: parseUnits(amountDebounced, DECIMALS_TOKEN),
+          to: address as Address,
+        }}
+      />
     </div>
   );
 };
