@@ -153,7 +153,9 @@ const DepositStepper = ({ isOpen = false, handleClose, data }: Props) => {
 
   useEffect(() => {
     if (!txReceipt) return;
-    setTokenId(BigInt(Number(txReceipt.logs[4].data || 0)));
+    setTokenId(
+      BigInt(Number(txReceipt.logs[txReceipt.logs.length - 1].data || 0))
+    );
   }, [txReceipt, txReceipt?.logs]);
 
   return (

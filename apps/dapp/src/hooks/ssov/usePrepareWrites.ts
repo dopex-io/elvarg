@@ -3,7 +3,7 @@ import { Address } from 'viem';
 import { SsovV3__factory, SsovV3StakingRewards__factory } from '@dopex-io/sdk';
 import { erc20ABI, usePrepareContractWrite } from 'wagmi';
 
-interface SsovClaimProps {
+interface SsovStakeAndClaimProps {
   ssov: Address;
   tokenId: bigint;
   receiver: Address;
@@ -71,7 +71,7 @@ export const usePreparePurchase = ({
   return config;
 };
 
-export const usePrepareStake = ({ ssov, tokenId }: SsovClaimProps) => {
+export const usePrepareStake = ({ ssov, tokenId }: SsovStakeAndClaimProps) => {
   const { config } = usePrepareContractWrite({
     abi: SsovV3StakingRewards__factory.abi,
     address: '0x9d5FA385cd988d3F148F53a9A5C87B7C8540B62d' as Address,
@@ -86,7 +86,7 @@ export const usePrepareClaim = ({
   ssov,
   tokenId,
   receiver,
-}: SsovClaimProps) => {
+}: SsovStakeAndClaimProps) => {
   const { config } = usePrepareContractWrite({
     abi: SsovV3StakingRewards__factory.abi,
     address: '0x9d5FA385cd988d3F148F53a9A5C87B7C8540B62d' as Address,

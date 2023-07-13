@@ -90,14 +90,14 @@ const AsidePanel = ({ market }: { market: string }) => {
         abi: erc20ABI,
         address: vault.collateralTokenAddress,
         functionName: 'allowance',
-        args: [address as `0x${string}`, vault.address as `0x${string}`],
+        args: [address as Address, vault.address as Address],
         chainId: wagmiConfig.lastUsedChainId,
       },
       {
         abi: erc20ABI,
         address: vault.collateralTokenAddress,
         functionName: 'balanceOf',
-        args: [address!],
+        args: [address as Address],
         chainId: wagmiConfig.lastUsedChainId,
       },
       {
@@ -109,7 +109,7 @@ const AsidePanel = ({ market }: { market: string }) => {
     ],
   });
   const approveConfig = usePrepareApprove({
-    spender: vault.collateralTokenAddress,
+    spender: vault.address,
     token: vault.collateralTokenAddress,
     amount: parseUnits(amountDebounced || '0', DECIMALS_TOKEN),
   });
@@ -201,7 +201,6 @@ const AsidePanel = ({ market }: { market: string }) => {
         ...alerts.info.insufficientLiquidity,
       };
     else if (
-      // @ts-ignore
       (collateralTokenReads.data[1].result ?? 0n) <
       parseUnits(amountDebounced || '0', DECIMALS_TOKEN)
     )
@@ -210,8 +209,7 @@ const AsidePanel = ({ market }: { market: string }) => {
         buttonContent,
       };
     else if (
-      // @ts-ignore
-      ((collateralTokenReads.data[0] as any).result ?? 0n) <
+      (collateralTokenReads.data[0].result ?? 0n) <
       parseUnits(amountDebounced, DECIMALS_TOKEN)
     ) {
       return {

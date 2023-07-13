@@ -139,7 +139,7 @@ const columns = [
 ];
 
 const WritePositions = (props: Props) => {
-  const { positions: _positions, isLoading = true } = props;
+  const { positions: _positions, isLoading = false } = props;
 
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [open, setOpen] = useState<boolean>(false);
@@ -293,9 +293,9 @@ const WritePositions = (props: Props) => {
         handleClose={handleClose}
         data={{
           vault: vault.address,
-          tokenId: BigInt(_positions?.[activeIndex].tokenId || 0),
+          tokenId: BigInt(_positions?.[activeIndex]?.tokenId || 0),
           to: accountAddress as Address,
-          epoch: BigInt(_positions?.[activeIndex].epoch || 0),
+          epoch: BigInt(_positions?.[activeIndex]?.epoch || 0),
         }}
       />
     </div>

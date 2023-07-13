@@ -124,7 +124,7 @@ const columns = [
 ];
 
 const BuyPositions = (props: Props) => {
-  const { positions: _positions, isLoading = true } = props;
+  const { positions: _positions, isLoading = false } = props;
 
   const [activeIndex, setActiveIndex] = useState<number>(0);
 

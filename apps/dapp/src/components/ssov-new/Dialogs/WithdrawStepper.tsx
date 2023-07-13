@@ -92,7 +92,7 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
 
   const steps = [
     {
-      label: staked ? 'Claim' : 'Not Staked / No Rewards Set',
+      label: staked ? 'Claim' : 'Not Staked',
       description:
         'This transaction will claim accrued rewards for this deposit. Do not attempt to withdraw before claiming rewards to avoid losing them!',
       buttonLabel: 'Claim',
