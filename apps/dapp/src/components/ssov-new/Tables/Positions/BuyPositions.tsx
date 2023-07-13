@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { formatUnits } from 'viem';
+import { Address, formatUnits, parseUnits } from 'viem';
 
 import { Button } from '@dopex-io/ui';
 import {
@@ -10,13 +10,16 @@ import {
 } from '@tanstack/react-table';
 import format from 'date-fns/format';
 import Countdown from 'react-countdown';
+import { useAccount } from 'wagmi';
 
 import { BuyPosition } from 'hooks/ssov/useSsovPositions';
 import useVaultsData from 'hooks/ssov/useVaultsData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
+import SettleStepper from 'components/ssov-new/Dialogs/SettleStepper';
 import Placeholder from 'components/ssov-new/Tables/Placeholder';
 
+import { STRIKE_DECIMALS } from 'utils/contracts/atlantics/pool';
 import { formatAmount } from 'utils/general';
 import computeOptionPnl from 'utils/math/computeOptionPnl';
 
@@ -38,6 +41,7 @@ interface BuyPositionData {
     epoch: number;
     currentEpoch: number;
     expiry: number;
+    canItBeSettled: boolean;
   };
 }
 
@@ -94,24 +98,22 @@ const columns = [
     cell: (info) => {
       const value = info.getValue();
 
-      const canItBeSettled = value.expiry < new Date().getTime() / 1000;
-
       return (
         <Button
           key={value.id}
-          color={canItBeSettled ? 'primary' : 'mineshaft'}
+          color={value.canItBeSettled ? 'primary' : 'mineshaft'}
           onClick={value.handleSettle}
-          disabled={!canItBeSettled}
+          disabled={!value.canItBeSettled}
         >
-          {canItBeSettled ? (
+          {value.canItBeSettled ? (
             'Settle'
           ) : (
             <Countdown
               date={new Date(value.expiry * 1000)}
-              renderer={({ days, hours, minutes }) => {
+              renderer={({ days, hours, minutes, seconds }) => {
                 return (
                   <span className="text-xs md:text-sm text-white pt-1">
-                    {days}d {hours}h {minutes}m
+                    {seconds > 0 ? `${days}d ${hours}h ${minutes}m` : 'Expired'}
                   </span>
                 );
               }}
@@ -127,7 +129,9 @@ const BuyPositions = (props: Props) => {
   const { positions: _positions, isLoading = false } = props;
 
   const [activeIndex, setActiveIndex] = useState<number>(0);
+  const [open, setOpen] = useState<boolean>(false);
 
+  const { address } = useAccount();
   const vault = useVaultStore((store) => store.vault);
 
   const { vaults } = useVaultsData({ market: vault.underlyingSymbol });
@@ -143,8 +147,12 @@ const BuyPositions = (props: Props) => {
 
   const handleSettle = useCallback((index: number) => {
     setActiveIndex(index);
-    // writeInstance.write?.();
+    setOpen(true);
   }, []);
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const positions = useMemo(() => {
     if (!_positions) return [];
@@ -157,6 +165,7 @@ const BuyPositions = (props: Props) => {
       }
 
       const breakeven = formatAmount(premium / size + position.strike, 5);
+      const expiryElapsed = position.expiry < new Date().getTime() / 1000;
       const pnl = formatAmount(
         computeOptionPnl({
           strike: position.strike,
@@ -181,6 +190,7 @@ const BuyPositions = (props: Props) => {
           epoch: position.epoch,
           currentEpoch: selectedVault?.currentEpoch || 0,
           expiry: position.expiry,
+          canItBeSettled: expiryElapsed && Number(pnl) > 0,
         },
       };
     });
@@ -276,6 +286,21 @@ const BuyPositions = (props: Props) => {
       ) : (
         <Placeholder isLoading={isLoading} />
       )}
+      <SettleStepper
+        isOpen={open}
+        handleClose={handleClose}
+        data={{
+          token: vault.collateralTokenAddress,
+          vault: vault.address,
+          strike: parseUnits(
+            _positions?.[activeIndex]?.strike.toString() || '0',
+            STRIKE_DECIMALS
+          ),
+          amount: BigInt(_positions?.[activeIndex]?.balance || 0),
+          epoch: BigInt(_positions?.[activeIndex]?.epoch || 0),
+          to: address as Address,
+        }}
+      />
     </div>
   );
 };

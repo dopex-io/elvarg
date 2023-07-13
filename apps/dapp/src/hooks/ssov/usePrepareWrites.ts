@@ -28,6 +28,10 @@ interface WithdrawProps {
   to: Address;
 }
 
+interface SettleProps extends SsovDepositAndPurchaseProps {
+  epoch: bigint;
+}
+
 export const usePrepareApprove = ({ token, spender, amount }: ApproveProps) => {
   const { config } = usePrepareContractWrite({
     abi: erc20ABI,
@@ -103,6 +107,23 @@ export const usePrepareWithdraw = ({ vault, tokenId, to }: WithdrawProps) => {
     address: vault,
     functionName: 'withdraw',
     args: [tokenId, to],
+  });
+
+  return config;
+};
+
+export const usePrepareSettle = ({
+  vault,
+  strikeIndex,
+  amount,
+  epoch,
+  to,
+}: SettleProps) => {
+  const { config } = usePrepareContractWrite({
+    abi: SsovV3__factory.abi,
+    address: vault,
+    functionName: 'settle',
+    args: [strikeIndex, amount, epoch, to],
   });
 
   return config;
