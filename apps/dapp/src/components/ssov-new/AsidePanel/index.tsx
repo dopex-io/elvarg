@@ -117,7 +117,7 @@ const AsidePanel = ({ market }: { market: string }) => {
     vault: vault.address,
     strikeIndex: BigInt(activeStrikeIndex),
     amount: parseUnits(amountDebounced || '0', DECIMALS_TOKEN),
-    to: address || zeroAddress,
+    to: address as Address,
   });
 
   const { write: approve } = useContractWrite(approveConfig);
