@@ -22,6 +22,12 @@ interface SsovDepositAndPurchaseProps {
   to: Address;
 }
 
+interface WithdrawProps {
+  vault: Address;
+  tokenId: bigint;
+  to: Address;
+}
+
 export const usePrepareApprove = ({ token, spender, amount }: ApproveProps) => {
   const { config } = usePrepareContractWrite({
     abi: erc20ABI,
@@ -86,6 +92,17 @@ export const usePrepareClaim = ({
     address: '0x9d5FA385cd988d3F148F53a9A5C87B7C8540B62d' as Address,
     functionName: 'claim',
     args: [ssov, tokenId, receiver],
+  });
+
+  return config;
+};
+
+export const usePrepareWithdraw = ({ vault, tokenId, to }: WithdrawProps) => {
+  const { config } = usePrepareContractWrite({
+    abi: SsovV3__factory.abi,
+    address: vault,
+    functionName: 'withdraw',
+    args: [tokenId, to],
   });
 
   return config;

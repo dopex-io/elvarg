@@ -21,7 +21,7 @@ import { formatAmount } from 'utils/general';
 import computeOptionPnl from 'utils/math/computeOptionPnl';
 
 interface Props {
-  positions: BuyPosition[];
+  positions?: BuyPosition[];
   isLoading?: boolean;
 }
 

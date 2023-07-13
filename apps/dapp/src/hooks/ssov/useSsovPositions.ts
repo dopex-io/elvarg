@@ -45,8 +45,8 @@ const useSsovPositions = (args: Args) => {
   const { ssovAddress, isPut } = args;
   const { address } = useAccount();
 
-  const [writePositions, setWritePositions] = useState<WritePosition[]>([]);
-  const [buyPositions, setBuyPositions] = useState<BuyPosition[]>([]);
+  const [writePositions, setWritePositions] = useState<WritePosition[]>();
+  const [buyPositions, setBuyPositions] = useState<BuyPosition[]>();
   const [loading, setLoading] = useState<boolean>(true);
 
   const updateSsovPositions = useCallback(async () => {
@@ -139,11 +139,7 @@ const useSsovPositions = (args: Args) => {
   }, [updateSsovPositions]);
 
   useEffect(() => {
-    if (buyPositions !== undefined && writePositions !== undefined)
-      setLoading(false);
-    else {
-      setLoading(true);
-    }
+    setLoading(!buyPositions || !writePositions);
   }, [buyPositions, writePositions]);
 
   return {

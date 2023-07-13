@@ -23,7 +23,7 @@ import useVaultStore from 'hooks/ssov/useVaultStore';
 
 import alerts from 'components/ssov-new/AsidePanel/alerts';
 import RowItem from 'components/ssov-new/AsidePanel/RowItem';
-import DepositWithStepper from 'components/ssov-new/Dialogs/DepositWithStepper';
+import DepositStepper from 'components/ssov-new/Dialogs/DepositStepper';
 
 import formatAmount from 'utils/general/formatAmount';
 
@@ -421,7 +421,7 @@ const AsidePanel = ({ market }: { market: string }) => {
       >
         {infoPopover.buttonContent}
       </Button>
-      <DepositWithStepper
+      <DepositStepper
         isOpen={isOpen}
         handleClose={handleClose}
         data={{

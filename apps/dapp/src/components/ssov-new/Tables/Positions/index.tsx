@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 
+import { Skeleton } from '@dopex-io/ui';
+
 import useSsovPositions from 'hooks/ssov/useSsovPositions';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
@@ -40,6 +42,33 @@ const Positions = () => {
     setActiveIndex(index);
   };
 
+  const renderComponent = useMemo(() => {
+    if (isLoading)
+      return (
+        <div className="bg-cod-gray rounded-lg pt-3">
+          <div className="grid grid-cols-1 gap-4 p-2">
+            {Array.from(Array(4)).map((_, index) => {
+              return (
+                <Skeleton
+                  key={index}
+                  width="fitContent"
+                  height={70}
+                  color="carbon"
+                  variant="rounded"
+                />
+              );
+            })}
+          </div>
+        </div>
+      );
+    else {
+      if (activeIndex === 0) return <BuyPositions positions={buyPositions} />;
+      else {
+        return <WritePositions positions={writePositions} />;
+      }
+    }
+  }, [activeIndex, buyPositions, isLoading, writePositions]);
+
   // TODO: make these tables reusable
   return (
     <div className="space-y-2">
@@ -48,11 +77,7 @@ const Positions = () => {
         labels={buttonLabels}
         handleClick={handleClick}
       />
-      {activeIndex === 0 ? (
-        <BuyPositions positions={buyPositions} isLoading={isLoading} />
-      ) : (
-        <WritePositions positions={writePositions} isLoading={isLoading} />
-      )}
+      {renderComponent}
     </div>
   );
 };

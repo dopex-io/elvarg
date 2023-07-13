@@ -32,7 +32,7 @@ interface Props {
   };
 }
 
-const DepositWithStepper = ({ isOpen = false, handleClose, data }: Props) => {
+const DepositStepper = ({ isOpen = false, handleClose, data }: Props) => {
   const [step, setStep] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [tokenId, setTokenId] = useState<bigint>();
@@ -204,4 +204,4 @@ const DepositWithStepper = ({ isOpen = false, handleClose, data }: Props) => {
   );
 };
 
-export default DepositWithStepper;
+export default DepositStepper;

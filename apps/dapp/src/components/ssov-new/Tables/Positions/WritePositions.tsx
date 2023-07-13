@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { Address } from 'viem';
 
 import { Button } from '@dopex-io/ui';
 import {
@@ -9,17 +10,19 @@ import {
 } from '@tanstack/react-table';
 import format from 'date-fns/format';
 import Countdown from 'react-countdown';
+import { useAccount } from 'wagmi';
 
 import { WritePosition } from 'hooks/ssov/useSsovPositions';
 import useVaultsData from 'hooks/ssov/useVaultsData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
+import WithdrawStepper from 'components/ssov-new/Dialogs/WithdrawStepper';
 import Placeholder from 'components/ssov-new/Tables/Placeholder';
 
 import { formatAmount } from 'utils/general';
 
 interface Props {
-  positions: WritePosition[];
+  positions?: WritePosition[];
   isLoading?: boolean;
 }
 
@@ -116,7 +119,7 @@ const columns = [
           disabled={!canItBeWithdrawn}
         >
           {canItBeWithdrawn ? (
-            'Settle'
+            'Withdraw'
           ) : (
             <Countdown
               date={new Date(value.expiry * 1000)}
@@ -139,8 +142,11 @@ const WritePositions = (props: Props) => {
   const { positions: _positions, isLoading = true } = props;
 
   const [activeIndex, setActiveIndex] = useState<number>(0);
+  const [open, setOpen] = useState<boolean>(false);
 
   const vault = useVaultStore((vault) => vault.vault);
+
+  const { address: accountAddress } = useAccount();
 
   const { vaults } = useVaultsData({ market: vault.underlyingSymbol });
 
@@ -153,13 +159,17 @@ const WritePositions = (props: Props) => {
     return selected;
   }, [vaults, vault]);
 
-  const handleWithdraw = useCallback((index: number) => {
-    setActiveIndex(index);
-    // writeInstance.write?.();
+  const handleClose = useCallback(() => {
+    setOpen(false);
   }, []);
 
   const positions = useMemo(() => {
     if (!_positions) return [];
+
+    const handleWithdraw = (index: number) => {
+      setActiveIndex(index);
+      setOpen(true);
+    };
 
     return _positions.map((position: WritePosition, index: number) => {
       return {
@@ -191,7 +201,6 @@ const WritePositions = (props: Props) => {
     vault.underlyingSymbol,
     vault.isPut,
     selectedVault?.currentEpoch,
-    handleWithdraw,
   ]);
 
   const table = useReactTable({
@@ -279,6 +288,16 @@ const WritePositions = (props: Props) => {
       ) : (
         <Placeholder isLoading={isLoading} />
       )}
+      <WithdrawStepper
+        isOpen={open}
+        handleClose={handleClose}
+        data={{
+          vault: vault.address,
+          tokenId: BigInt(_positions?.[activeIndex].tokenId || 0),
+          to: accountAddress as Address,
+          epoch: BigInt(_positions?.[activeIndex].epoch || 0),
+        }}
+      />
     </div>
   );
 };
