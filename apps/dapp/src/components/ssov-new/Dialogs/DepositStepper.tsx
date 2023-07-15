@@ -11,7 +11,6 @@ import { Button, Dialog } from '@dopex-io/ui';
 import { useChainId, useContractWrite, useWaitForTransaction } from 'wagmi';
 
 import {
-  // usePrepareApprove,
   usePrepareDeposit,
   usePrepareStake,
 } from 'hooks/ssov/usePrepareWrites';
@@ -37,11 +36,6 @@ const DepositStepper = ({ isOpen = false, handleClose, data }: Props) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [tokenId, setTokenId] = useState<bigint>();
 
-  // const approveConfig = usePrepareApprove({
-  //   spender: data.token,
-  //   token: data.token,
-  //   amount: data.amount,
-  // });
   const depositConfig = usePrepareDeposit({
     vault: data.vault,
     strikeIndex: data.strikeIndex,
@@ -49,17 +43,11 @@ const DepositStepper = ({ isOpen = false, handleClose, data }: Props) => {
     to: data.to,
   });
   const stakeConfig = usePrepareStake({
-    tokenId: tokenId!,
+    tokenId: tokenId as bigint,
     ssov: data.vault,
     receiver: data.to,
   });
   const chainId = useChainId();
-  // const {
-  //   write: approve,
-  //   isError: approveError,
-  //   isLoading: approveLoading,
-  //   isSuccess: approveSuccess,
-  // } = useContractWrite(approveConfig);
   const {
     write: deposit,
     isError: depositError,
@@ -82,13 +70,6 @@ const DepositStepper = ({ isOpen = false, handleClose, data }: Props) => {
     setStep((prevStep) => prevStep + 1);
   };
 
-  // const handleApprove = useCallback(() => {
-  //   approve?.();
-  //   if (approveSuccess) {
-  //     handleNext();
-  //   }
-  // }, [approve, approveSuccess]);
-
   const handleDeposit = useCallback(() => {
     deposit?.();
     if (depositSuccess) {
@@ -98,18 +79,13 @@ const DepositStepper = ({ isOpen = false, handleClose, data }: Props) => {
   }, [deposit, depositSuccess, txReceipt]);
 
   const handleStake = useCallback(() => {
-    if (!txReceipt) return;
+    console.log(!stake ? 'stake() is undefined' : 'stake() is OK');
+    if (!txReceipt || !stake) return;
     stake?.();
     if (stakeSuccess) handleNext();
   }, [stake, stakeSuccess, txReceipt]);
 
   const steps = [
-    // {
-    //   label: 'Approve',
-    //   description: `This transaction will approve your token for transfer into the SSOV.`,
-    //   buttonLabel: 'Approve',
-    //   action: handleApprove,
-    // },
     {
       label: 'Deposit',
       description:
@@ -126,38 +102,32 @@ const DepositStepper = ({ isOpen = false, handleClose, data }: Props) => {
   ];
 
   useEffect(() => {
-    // if (approveError) {
-    //   setStep(0);
-    // } else
     if (depositError) {
       setStep(0);
     } else if (stakeError) {
       setStep(1);
     }
-  }, [/*approveError,*/ depositError, stakeError]);
+  }, [depositError, stakeError]);
 
   useEffect(() => {
-    // if (approveSuccess) {
-    //   setStep(1);
-    // }
     if (depositSuccess) {
       setStep(1);
     }
     if (stakeSuccess) {
       setStep(2);
     }
-  }, [/*approveSuccess, */ depositSuccess, stakeSuccess]);
+  }, [depositSuccess, stakeSuccess]);
 
   useEffect(() => {
-    setLoading(/*approveLoading || */ depositLoading || stakeLoading);
-  }, [/*approveLoading, */ depositLoading, stakeLoading]);
+    setLoading(depositLoading || stakeLoading);
+  }, [depositLoading, stakeLoading]);
 
   useEffect(() => {
     if (!txReceipt) return;
     setTokenId(
       BigInt(Number(txReceipt.logs[txReceipt.logs.length - 1].data || 0))
     );
-  }, [txReceipt, txReceipt?.logs]);
+  }, [txReceipt]);
 
   return (
     <Dialog

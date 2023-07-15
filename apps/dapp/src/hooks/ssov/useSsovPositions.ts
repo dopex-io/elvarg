@@ -8,11 +8,18 @@ import queryClient from 'queryClient';
 
 import { getSsovUserDataDocument } from 'graphql/ssovs';
 
+import { getTokenSymbol } from 'utils/contracts/getTokenSymbol';
 import getSsovCheckpointData from 'utils/ssov/getSsovCheckpointData';
 import getSsovEpochTimes from 'utils/ssov/getSsovEpochTimes';
+import { getEarned } from 'utils/ssov/getSsovStakingRewardsData';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 import { DOPEX_SSOV_SUBGRAPH_API_URL } from 'constants/subgraphs';
+
+export interface RewardInfo {
+  symbol: string;
+  amount: bigint;
+}
 
 export interface WritePosition {
   strike: number;
@@ -24,6 +31,7 @@ export interface WritePosition {
   id: string;
   expiry: number;
   accruedPremium: number;
+  rewards: RewardInfo[];
 }
 
 export interface BuyPosition {
@@ -90,6 +98,21 @@ const useSsovPositions = (args: Args) => {
           : (activeCollateralShare * checkpointData.accruedPremium) /
             checkpointData.activeCollateral;
 
+      const earned = (await getEarned(
+        ssovAddress,
+        BigInt(vault.id.split('#')[1])
+      )) as [Address[], bigint[]];
+
+      let rewards: RewardInfo[] = [];
+
+      for (let i = 0; i < earned[0].length; i++) {
+        const symbol = await getTokenSymbol(earned[0][i]);
+        rewards.push({
+          symbol,
+          amount: earned[1][i],
+        });
+      }
+
       _writePositions[i] = {
         ...vault,
         strike: Number(formatUnits(vault.strike, DECIMALS_STRIKE)),
@@ -100,6 +123,7 @@ const useSsovPositions = (args: Args) => {
         address: vault.ssov.id.toLowerCase(),
         expiry: Number(epochTimes[1]),
         accruedPremium: Number(formatUnits(accruedPremium, DECIMALS_TOKEN)),
+        rewards,
       };
     }
 

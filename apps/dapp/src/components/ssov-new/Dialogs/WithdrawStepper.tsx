@@ -15,7 +15,7 @@ import {
   usePrepareWithdraw,
 } from 'hooks/ssov/usePrepareWrites';
 
-import getSsovStakingRewardsPosition from 'utils/ssov/getSsovStakingRewardsPosition';
+import { getSsovStakingRewardsPosition } from 'utils/ssov/getSsovStakingRewardsData';
 
 interface Props {
   isOpen: boolean;
@@ -80,11 +80,11 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
 
   useEffect(() => {
     (async () => {
-      const userPosition = await getSsovStakingRewardsPosition({
-        ssov: data.vault,
-        tokenId: data.tokenId,
-        epoch: data.epoch,
-      });
+      const userPosition = await getSsovStakingRewardsPosition(
+        data.vault,
+        data.tokenId,
+        data.epoch
+      );
       setStaked(userPosition.staked);
       setStep(userPosition.staked ? 0 : 1);
     })();
@@ -110,10 +110,10 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
   useEffect(() => {
     if (claimError) {
       setStep(0);
-    } else if (withdrawError) {
+    } else if (withdrawError || !staked) {
       setStep(1);
     }
-  }, [claimError, withdrawError]);
+  }, [claimError, staked, withdrawError]);
 
   useEffect(() => {
     if (claimSuccess) {

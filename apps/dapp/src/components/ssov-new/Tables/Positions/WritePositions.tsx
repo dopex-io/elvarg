@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Address } from 'viem';
+import { Address, formatUnits } from 'viem';
 
 import { Button } from '@dopex-io/ui';
 import {
@@ -12,7 +12,7 @@ import format from 'date-fns/format';
 import Countdown from 'react-countdown';
 import { useAccount } from 'wagmi';
 
-import { WritePosition } from 'hooks/ssov/useSsovPositions';
+import { RewardInfo, WritePosition } from 'hooks/ssov/useSsovPositions';
 import useVaultsData from 'hooks/ssov/useVaultsData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
@@ -20,6 +20,8 @@ import WithdrawStepper from 'components/ssov-new/Dialogs/WithdrawStepper';
 import Placeholder from 'components/ssov-new/Tables/Placeholder';
 
 import { formatAmount } from 'utils/general';
+
+import { DECIMALS_TOKEN } from 'constants/index';
 
 interface Props {
   positions?: WritePosition[];
@@ -32,7 +34,7 @@ interface WritePositionData {
   side: string;
   expiry: number;
   premium: { premium: number; symbol: string; isPut: boolean };
-  rewards: number;
+  rewards: RewardInfo[];
   button: {
     tokenId: number;
     epoch: number;
@@ -98,11 +100,17 @@ const columns = [
   }),
   columnHelper.accessor('rewards', {
     header: 'Rewards',
-    cell: (info) => (
-      <span className="space-x-2">
-        <p className="inline-block">{info.getValue()}</p>
-      </span>
-    ),
+    cell: (info) =>
+      info.getValue().map((rewardInfo, index) => (
+        <span className="flex space-x-1 text-xs" key={`reward-id-${index}`}>
+          <p className="inline-block">
+            {formatAmount(formatUnits(rewardInfo.amount, DECIMALS_TOKEN), 3)}{' '}
+          </p>
+          <p className="inline-block text-stieglitz" key={`reward-id-${index}`}>
+            {rewardInfo.symbol}
+          </p>
+        </span>
+      )),
   }),
   columnHelper.accessor('button', {
     header: '',
@@ -181,7 +189,7 @@ const WritePositions = (props: Props) => {
           isPut: vault.isPut,
         },
         expiry: position.expiry,
-        rewards: 0,
+        rewards: position.rewards,
         premium: {
           premium: position.accruedPremium,
           symbol: vault.underlyingSymbol,
