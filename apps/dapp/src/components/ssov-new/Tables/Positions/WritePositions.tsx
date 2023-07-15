@@ -300,7 +300,7 @@ const WritePositions = (props: Props) => {
         isOpen={open}
         handleClose={handleClose}
         data={{
-          vault: vault.address,
+          vault: _positions?.[activeIndex].address as Address,
           tokenId: BigInt(_positions?.[activeIndex]?.tokenId || 0),
           to: accountAddress as Address,
           epoch: BigInt(_positions?.[activeIndex]?.epoch || 0),

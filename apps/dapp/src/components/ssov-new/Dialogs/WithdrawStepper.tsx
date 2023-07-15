@@ -110,19 +110,19 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
   useEffect(() => {
     if (claimError) {
       setStep(0);
-    } else if (withdrawError || !staked) {
+    } else if (withdrawError) {
       setStep(1);
     }
   }, [claimError, staked, withdrawError]);
 
   useEffect(() => {
-    if (claimSuccess) {
+    if (claimSuccess || !staked) {
       setStep(1);
     }
     if (withdrawSuccess) {
       setStep(2);
     }
-  }, [claimSuccess, withdrawSuccess]);
+  }, [claimSuccess, staked, withdrawSuccess]);
 
   useEffect(() => {
     setLoading(claimLoading || withdrawLoading);
