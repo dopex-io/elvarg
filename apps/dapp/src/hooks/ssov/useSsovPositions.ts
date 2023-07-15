@@ -58,6 +58,7 @@ const useSsovPositions = (args: Args) => {
   const [loading, setLoading] = useState<boolean>(true);
 
   const updateSsovPositions = useCallback(async () => {
+    setLoading(true);
     if (!address) return;
     const ssovQueryResult = await queryClient.fetchQuery({
       queryKey: ['getSsovUserData', address.toLowerCase()],
@@ -156,15 +157,12 @@ const useSsovPositions = (args: Args) => {
     }
 
     setBuyPositions(_buyPositions);
+    setLoading(false);
   }, [address, isPut, ssovAddress]);
 
   useEffect(() => {
     updateSsovPositions();
   }, [updateSsovPositions]);
-
-  useEffect(() => {
-    setLoading(!buyPositions || !writePositions);
-  }, [buyPositions, writePositions]);
 
   return {
     writePositions,

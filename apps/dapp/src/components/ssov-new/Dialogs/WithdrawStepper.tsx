@@ -46,13 +46,11 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
 
   const {
     write: claim,
-    isError: claimError,
     isLoading: claimLoading,
     isSuccess: claimSuccess,
   } = useContractWrite(claimConfig);
   const {
     write: withdraw,
-    isError: withdrawError,
     isLoading: withdrawLoading,
     isSuccess: withdrawSuccess,
   } = useContractWrite(withdrawConfig);
@@ -88,7 +86,7 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
       setStaked(userPosition.staked);
       setStep(userPosition.staked ? 0 : 1);
     })();
-  }, [claimError, data]);
+  }, [data]);
 
   const steps = [
     {
@@ -108,15 +106,7 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
   ];
 
   useEffect(() => {
-    if (claimError) {
-      setStep(0);
-    } else if (withdrawError) {
-      setStep(1);
-    }
-  }, [claimError, staked, withdrawError]);
-
-  useEffect(() => {
-    if (claimSuccess || !staked) {
+    if (claimSuccess || staked) {
       setStep(1);
     }
     if (withdrawSuccess) {
