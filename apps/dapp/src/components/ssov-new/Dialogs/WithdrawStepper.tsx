@@ -76,18 +76,6 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
     }
   }, [claim, claimSuccess, staked]);
 
-  useEffect(() => {
-    (async () => {
-      const userPosition = await getSsovStakingRewardsPosition(
-        data.vault,
-        data.tokenId,
-        data.epoch
-      );
-      setStaked(userPosition.staked);
-      setStep(userPosition.staked ? 0 : 1);
-    })();
-  }, [data]);
-
   const steps = [
     {
       label: staked ? 'Claim' : 'Not Staked',
@@ -106,13 +94,25 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
   ];
 
   useEffect(() => {
-    if (claimSuccess || staked) {
+    (async () => {
+      const userPosition = await getSsovStakingRewardsPosition(
+        data.vault,
+        data.tokenId,
+        data.epoch
+      );
+      setStaked(userPosition.staked);
+      setStep(userPosition.staked ? 0 : 1);
+    })();
+  }, [data]);
+
+  useEffect(() => {
+    if (claimSuccess) {
       setStep(1);
     }
     if (withdrawSuccess) {
       setStep(2);
     }
-  }, [claimSuccess, staked, withdrawSuccess]);
+  }, [claimSuccess, withdrawSuccess]);
 
   useEffect(() => {
     setLoading(claimLoading || withdrawLoading);

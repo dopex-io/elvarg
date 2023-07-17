@@ -74,7 +74,7 @@ const useSsovPositions = (args: Args) => {
 
   const updateSsovPositions = useCallback(async () => {
     setLoading(true);
-    if (!address) return;
+    if (!address || !ssovAddress) return;
     const ssovQueryResult = await queryClient.fetchQuery({
       queryKey: ['getSsovUserData', address.toLowerCase()],
       queryFn: async () =>
