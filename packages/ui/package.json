@@ -44,7 +44,7 @@
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
     "concurrently": "^8.2.0",
-    "esbuild": "^0.18.11",
+    "esbuild": "^0.18.13",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "rimraf": "^5.0.1",
