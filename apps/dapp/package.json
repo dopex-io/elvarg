@@ -48,7 +48,7 @@
   "devDependencies": {
     "@graphql-codegen/cli": "^4.0.1",
     "@graphql-codegen/client-preset": "^4.0.1",
-    "@next/eslint-plugin-next": "^13.4.9",
+    "@next/eslint-plugin-next": "^13.4.10",
     "@types/lodash": "^4.14.195",
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
