@@ -32,3 +32,20 @@ export const getEarned = async (ssov: Address, positionId: bigint) => {
   });
   return earned;
 };
+
+export const getRewardsInfo = async (
+  ssov: Address,
+  strike: bigint,
+  epoch: bigint
+) => {
+  const _id = keccak256(
+    encodePacked(['address', 'uint256', 'uint256'], [ssov, strike, epoch])
+  );
+  const rewardsInfo = await readContract({
+    abi: SsovV3StakingRewards__factory.abi,
+    address: STAKING_REWARDS_ADDRESS,
+    functionName: 'getSsovEpochStrikeRewardsInfo',
+    args: [_id],
+  });
+  return rewardsInfo;
+};

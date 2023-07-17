@@ -11,12 +11,26 @@ import { getSsovUserDataDocument } from 'graphql/ssovs';
 import { getTokenSymbol } from 'utils/contracts/getTokenSymbol';
 import getSsovCheckpointData from 'utils/ssov/getSsovCheckpointData';
 import getSsovEpochTimes from 'utils/ssov/getSsovEpochTimes';
-import { getEarned } from 'utils/ssov/getSsovStakingRewardsData';
+import {
+  getEarned,
+  getRewardsInfo,
+} from 'utils/ssov/getSsovStakingRewardsData';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 import { DOPEX_SSOV_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
-export interface RewardInfo {
+export interface RewardsInfo {
+  rewardAmount: bigint;
+  periodFinish: bigint;
+  rewardRate: bigint;
+  rewardRateStored: bigint;
+  lastUpdateTime: bigint;
+  totalSupply: bigint;
+  decimalsPrecision: bigint;
+  rewardToken: Address;
+}
+
+export interface RewardAccrued {
   symbol: string;
   amount: bigint;
 }
@@ -31,7 +45,8 @@ export interface WritePosition {
   id: string;
   expiry: number;
   accruedPremium: number;
-  rewards: RewardInfo[];
+  rewardsAccrued: RewardAccrued[];
+  rewardsInfo: RewardsInfo[];
 }
 
 export interface BuyPosition {
@@ -104,15 +119,26 @@ const useSsovPositions = (args: Args) => {
         BigInt(vault.id.split('#')[1])
       )) as [Address[], bigint[]];
 
-      let rewards: RewardInfo[] = [];
+      let rewardsAccrued: RewardAccrued[] = [];
 
       for (let i = 0; i < earned[0].length; i++) {
         const symbol = await getTokenSymbol(earned[0][i]);
-        rewards.push({
+        rewardsAccrued.push({
           symbol,
           amount: earned[1][i],
         });
       }
+
+      const rewardsInfo = (
+        await getRewardsInfo(
+          ssovAddress,
+          BigInt(vault.strike),
+          BigInt(vault.epoch)
+        )
+      ).map((rewardInfo) => ({
+        ...rewardInfo,
+        canStake: !rewardsAccrued.length,
+      }));
 
       _writePositions[i] = {
         ...vault,
@@ -124,7 +150,8 @@ const useSsovPositions = (args: Args) => {
         address: vault.ssov.id.toLowerCase(),
         expiry: Number(epochTimes[1]),
         accruedPremium: Number(formatUnits(accruedPremium, DECIMALS_TOKEN)),
-        rewards,
+        rewardsAccrued,
+        rewardsInfo,
       };
     }
 

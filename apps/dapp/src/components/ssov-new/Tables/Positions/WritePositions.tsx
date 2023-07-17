@@ -12,7 +12,7 @@ import format from 'date-fns/format';
 import Countdown from 'react-countdown';
 import { useAccount } from 'wagmi';
 
-import { RewardInfo, WritePosition } from 'hooks/ssov/useSsovPositions';
+import { RewardAccrued, WritePosition } from 'hooks/ssov/useSsovPositions';
 import useVaultsData from 'hooks/ssov/useVaultsData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
@@ -34,7 +34,7 @@ interface WritePositionData {
   side: string;
   expiry: number;
   premium: { premium: number; symbol: string; isPut: boolean };
-  rewards: RewardInfo[];
+  rewardsAccrued: RewardAccrued[];
   button: {
     tokenId: number;
     epoch: number;
@@ -98,16 +98,16 @@ const columns = [
       );
     },
   }),
-  columnHelper.accessor('rewards', {
+  columnHelper.accessor('rewardsAccrued', {
     header: 'Rewards',
     cell: (info) =>
-      info.getValue().map((rewardInfo, index) => (
+      info.getValue().map((rewardAccrued, index) => (
         <span className="flex space-x-1 text-xs" key={`reward-id-${index}`}>
           <p className="inline-block">
-            {formatAmount(formatUnits(rewardInfo.amount, DECIMALS_TOKEN), 3)}{' '}
+            {formatAmount(formatUnits(rewardAccrued.amount, DECIMALS_TOKEN), 3)}{' '}
           </p>
           <p className="inline-block text-stieglitz" key={`reward-id-${index}`}>
-            {rewardInfo.symbol}
+            {rewardAccrued.symbol}
           </p>
         </span>
       )),
@@ -189,7 +189,7 @@ const WritePositions = (props: Props) => {
           isPut: vault.isPut,
         },
         expiry: position.expiry,
-        rewards: position.rewards,
+        rewardsAccrued: position.rewardsAccrued,
         premium: {
           premium: position.accruedPremium,
           symbol: vault.underlyingSymbol,
