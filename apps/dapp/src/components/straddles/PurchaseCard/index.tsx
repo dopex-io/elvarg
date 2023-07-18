@@ -14,13 +14,15 @@ import {
 } from '@dopex-io/sdk';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
 import { useDebounce } from 'use-debounce';
 
+import { useBoundStore } from 'store';
+
+import useSendTx from 'hooks/useSendTx';
+
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CustomButton from 'components/UI/Button';
 import NumberDisplay from 'components/UI/NumberDisplay';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import { get1inchParams, get1inchSwap } from 'utils/1inch';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -166,19 +168,23 @@ const PurchaseCard = () => {
         accountAddress: straddlesContract.address,
       });
 
-      const { purchaseParams } = get1inchParams(swap['tx']['data']);
-      const results = await straddlesContract.callStatic.purchase(
-        getContractReadableAmount(amount * 2, 18),
-        0,
-        accountAddress,
-        //@ts-ignore
-        purchaseParams
-      );
+      try {
+        const { purchaseParams } = get1inchParams(swap['tx']['data']);
+        const results = await straddlesContract.callStatic.purchase(
+          getContractReadableAmount(amount * 2, 18),
+          0,
+          accountAddress,
+          //@ts-ignore
+          purchaseParams
+        );
 
-      const protocolFee = results[1];
-      const straddleCost = results[2];
+        const protocolFee = results[1];
+        const straddleCost = results[2];
 
-      setFinalCost(protocolFee.add(straddleCost));
+        setFinalCost(protocolFee.add(straddleCost));
+      } catch {
+        console.error('Error calculating final cost');
+      }
     }
 
     try {
