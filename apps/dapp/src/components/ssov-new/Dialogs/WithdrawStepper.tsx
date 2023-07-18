@@ -25,6 +25,7 @@ interface Props {
     tokenId: bigint;
     epoch: bigint;
     to: Address;
+    expiry: number;
   };
 }
 
@@ -78,16 +79,31 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
 
   const steps = [
     {
-      label: staked ? 'Claim' : 'Not Staked',
-      description:
-        'This transaction will claim accrued rewards for this deposit. Do not attempt to withdraw before claiming rewards to avoid losing them!',
+      ...(staked
+        ? {
+            label: 'Claim',
+            description:
+              'This transaction will claim accrued rewards for this deposit. Do not attempt to withdraw before claiming rewards to avoid losing them!',
+          }
+        : {
+            label: 'Not Staked',
+            description:
+              'You have not staked your SSOV deposit to accrue rewards.',
+          }),
       buttonLabel: 'Claim',
       action: handleClaim,
     },
     {
-      label: 'Withdraw',
-      description:
-        'This transaction will withdraw your deposits from the SSOV.',
+      ...(staked
+        ? {
+            label: 'Withdraw',
+            description:
+              'This transaction will withdraw your deposits from the SSOV.',
+          }
+        : {
+            label: 'Not Yet Withdrawable',
+            description: 'The epoch for this deposit has not expired yet.',
+          }),
       buttonLabel: 'Withdraw',
       action: handleWithdraw,
     },
@@ -126,22 +142,25 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
       showCloseIcon
     >
       <Stepper activeStep={step} orientation="vertical" className="mb-3">
-        {steps.map((step) => (
-          <Step key={step.label}>
+        {steps.map((_step) => (
+          <Step key={_step.label}>
             <StepLabel>
-              <span className="text-white">{step.label}</span>
+              <span className="text-white">{_step.label}</span>
             </StepLabel>
             <StepContent>
-              <p className="text-white mb-3">{step.description}</p>
+              <p className="texto-white mb-3">{_step.description}</p>
               <Button
                 variant="contained"
-                onClick={step.action}
-                disabled={loading}
+                onClick={_step.action}
+                disabled={
+                  loading ||
+                  (step == 1 && data.expiry > new Date().getTime() / 1000)
+                }
               >
                 {loading ? (
                   <CircularProgress className="text-white mr-1" size={16} />
                 ) : null}{' '}
-                {step.buttonLabel}
+                {_step.buttonLabel}
               </Button>
             </StepContent>
           </Step>

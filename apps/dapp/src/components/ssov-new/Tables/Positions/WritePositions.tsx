@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useReducer, useState } from 'react';
 import { Address, formatUnits } from 'viem';
 
 import { Button } from '@dopex-io/ui';
@@ -10,8 +10,9 @@ import {
 } from '@tanstack/react-table';
 import format from 'date-fns/format';
 import Countdown from 'react-countdown';
-import { useAccount } from 'wagmi';
+import { useAccount, useContractWrite } from 'wagmi';
 
+import { usePrepareStake } from 'hooks/ssov/usePrepareWrites';
 import { RewardAccrued, WritePosition } from 'hooks/ssov/useSsovPositions';
 import useVaultsData from 'hooks/ssov/useVaultsData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
@@ -39,8 +40,10 @@ interface WritePositionData {
     tokenId: number;
     epoch: number;
     currentEpoch: number;
-    handleWithdraw: () => void;
+    handler: () => void;
     expiry: number;
+    textContent: string;
+    disabled: boolean;
   };
 }
 
@@ -117,18 +120,15 @@ const columns = [
     cell: (info) => {
       const value = info.getValue();
 
-      const canItBeWithdrawn = value.expiry < new Date().getTime() / 1000;
-
       return (
         <Button
           key={value.tokenId}
-          color={canItBeWithdrawn ? 'primary' : 'mineshaft'}
-          onClick={value.handleWithdraw}
-          disabled={!canItBeWithdrawn}
+          color={value.disabled ? 'mineshaft' : 'primary'}
+          onClick={value.handler}
+          disabled={value.disabled}
+          className={value.disabled ? 'cursor-not-allowed' : ''}
         >
-          {canItBeWithdrawn ? (
-            'Withdraw'
-          ) : (
+          {value.disabled ? (
             <Countdown
               date={new Date(value.expiry * 1000)}
               renderer={({ days, hours, minutes }) => {
@@ -139,12 +139,33 @@ const columns = [
                 );
               }}
             />
+          ) : (
+            value.textContent
           )}
         </Button>
       );
     },
   }),
 ];
+
+const BUTTONS = {
+  claimAndWithdraw: {
+    textContent: 'Withdraw',
+    disabled: false,
+  },
+  claimOnly: {
+    textContent: 'Claim',
+    disabled: false,
+  },
+  stakeOnly: {
+    textContent: 'Stake',
+    disabled: false,
+  },
+  fallback: {
+    textContent: 'Withdraw',
+    disabled: true,
+  },
+};
 
 const WritePositions = (props: Props) => {
   const { positions: _positions, isLoading = false } = props;
@@ -167,6 +188,14 @@ const WritePositions = (props: Props) => {
     return selected;
   }, [vaults, vault]);
 
+  const stakeConfig = usePrepareStake({
+    ssov: selectedVault?.contractAddress as Address,
+    tokenId: BigInt(_positions?.[activeIndex].tokenId || 0) as bigint,
+    receiver: accountAddress as Address,
+  });
+
+  const { write: stake } = useContractWrite(stakeConfig);
+
   const handleClose = useCallback(() => {
     setOpen(false);
   }, []);
@@ -174,12 +203,37 @@ const WritePositions = (props: Props) => {
   const positions = useMemo(() => {
     if (!_positions) return [];
 
-    const handleWithdraw = (index: number) => {
+    const handleClick = (index: number) => {
       setActiveIndex(index);
       setOpen(true);
     };
 
     return _positions.map((position: WritePosition, index: number) => {
+      const canBeStaked =
+        !!position.rewardsInfo.length && !position.rewardsAccrued.length;
+      const canBeWithdrawn = position.expiry < new Date().getTime() / 1000;
+      const canBeClaimed = !!position.rewardsAccrued.length && !canBeWithdrawn;
+      let _button = BUTTONS.fallback;
+      let handler = handleClick;
+      // canBeStaked => ¬canBeClaimed & ¬canBeWithdrawn
+      if (canBeStaked) {
+        _button = BUTTONS.stakeOnly;
+        handler = (index: number) => {
+          setActiveIndex(index);
+          stake?.();
+        };
+      }
+      // canBeClaimed => ¬canBeStaked & canBeWithdrawn
+      else if (canBeClaimed) {
+        _button = BUTTONS.claimOnly;
+      }
+      // canBeWithdrawn => ¬canBeStaked & canBeClaimed
+      else if (canBeWithdrawn) {
+        _button = BUTTONS.claimAndWithdraw;
+      } else {
+        _button = BUTTONS.fallback;
+      }
+
       return {
         side: position.side,
         strike: String(position.strike) || '0',
@@ -199,8 +253,10 @@ const WritePositions = (props: Props) => {
           tokenId: position.tokenId,
           epoch: position.epoch,
           currentEpoch: selectedVault?.currentEpoch || 0,
-          handleWithdraw: () => handleWithdraw(index),
           expiry: position.expiry,
+          handler: () => handler(index),
+          textContent: _button.textContent,
+          disabled: _button.disabled,
         },
       };
     });
@@ -209,6 +265,7 @@ const WritePositions = (props: Props) => {
     vault.underlyingSymbol,
     vault.isPut,
     selectedVault?.currentEpoch,
+    stake,
   ]);
 
   const table = useReactTable({
@@ -304,6 +361,7 @@ const WritePositions = (props: Props) => {
           tokenId: BigInt(_positions?.[activeIndex]?.tokenId || 0),
           to: accountAddress as Address,
           epoch: BigInt(_positions?.[activeIndex]?.epoch || 0),
+          expiry: _positions?.[activeIndex].expiry || 0,
         }}
       />
     </div>
