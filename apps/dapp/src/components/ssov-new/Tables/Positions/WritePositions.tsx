@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useReducer, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Address, formatUnits } from 'viem';
 
 import { Button } from '@dopex-io/ui';
