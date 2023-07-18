@@ -209,10 +209,13 @@ const WritePositions = (props: Props) => {
     };
 
     return _positions.map((position: WritePosition, index: number) => {
-      const canBeStaked =
-        !!position.rewardsInfo.length && !position.rewardsAccrued.length;
       const canBeWithdrawn = position.expiry < new Date().getTime() / 1000;
-      const canBeClaimed = !!position.rewardsAccrued.length && !canBeWithdrawn;
+      const canBeStaked =
+        !!position.rewardsInfo.length &&
+        !position.rewardsAccrued.length &&
+        !canBeWithdrawn;
+      const canBeClaimedOnly =
+        !!position.rewardsAccrued.length && !canBeWithdrawn;
       let _button = BUTTONS.fallback;
       let handler = handleClick;
       // canBeStaked => ¬canBeClaimed & ¬canBeWithdrawn
@@ -224,7 +227,7 @@ const WritePositions = (props: Props) => {
         };
       }
       // canBeClaimed => ¬canBeStaked & canBeWithdrawn
-      else if (canBeClaimed) {
+      else if (canBeClaimedOnly) {
         _button = BUTTONS.claimOnly;
       }
       // canBeWithdrawn => ¬canBeStaked & canBeClaimed

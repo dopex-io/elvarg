@@ -94,7 +94,7 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
       action: handleClaim,
     },
     {
-      ...(staked
+      ...(staked || data.expiry < new Date().getTime() / 1000
         ? {
             label: 'Withdraw',
             description:
