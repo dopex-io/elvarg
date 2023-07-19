@@ -242,6 +242,11 @@ const WithdrawCard = () => {
     isQuote,
   ]);
 
+  const quoteSymbol =
+    optionScalpData?.quoteSymbol! === 'USDC'
+      ? 'USDC.e'
+      : optionScalpData?.quoteSymbol;
+
   return (
     <div className="pt-2">
       <div className="bg-umbra rounded-xl flex flex-col mb-4 p-3 pr-2 mx-2">
@@ -255,7 +260,7 @@ const WithdrawCard = () => {
                 )}
                 onClick={() => setisQuote(true)}
               >
-                {optionScalpData?.quoteSymbol!}
+                {quoteSymbol}
               </h6>
             </div>
             <div className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
@@ -296,10 +301,7 @@ const WithdrawCard = () => {
               onClick={handleSetMax}
             >
               {formatAmount(readableUserTokenBalance, 8)}{' '}
-              {isQuote
-                ? optionScalpData?.quoteSymbol!
-                : optionScalpData?.baseSymbol!}{' '}
-              LP
+              {isQuote ? quoteSymbol : optionScalpData?.baseSymbol!} LP
             </h6>
           </div>
         </div>
@@ -325,9 +327,7 @@ const WithdrawCard = () => {
                   ),
                   2
                 )}{' '}
-                {isQuote
-                  ? optionScalpData?.quoteSymbol!
-                  : optionScalpData?.baseSymbol!}
+                {isQuote ? quoteSymbol : optionScalpData?.baseSymbol!}
               </h6>
             </div>
           </div>
@@ -335,11 +335,7 @@ const WithdrawCard = () => {
         <div className="flex flex-col mb-4 p-4 w-full">
           <div className={'flex'}>
             <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
-              1{' '}
-              {isQuote
-                ? optionScalpData?.quoteSymbol!
-                : optionScalpData?.baseSymbol!}{' '}
-              LP
+              1 {isQuote ? quoteSymbol : optionScalpData?.baseSymbol!} LP
             </h6>
             <div className={'text-right'}>
               <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
@@ -356,9 +352,7 @@ const WithdrawCard = () => {
                   ),
                   9
                 )}{' '}
-                {isQuote
-                  ? optionScalpData?.quoteSymbol!
-                  : optionScalpData?.baseSymbol!}
+                {isQuote ? quoteSymbol : optionScalpData?.baseSymbol!}
               </h6>
             </div>
           </div>
@@ -384,9 +378,7 @@ const WithdrawCard = () => {
                     ),
                     2
                   )}{' '}
-                  {isQuote
-                    ? optionScalpData?.quoteSymbol!
-                    : optionScalpData?.baseSymbol!}
+                  {isQuote ? quoteSymbol : optionScalpData?.baseSymbol!}
                 </h6>
               </div>
             </div>

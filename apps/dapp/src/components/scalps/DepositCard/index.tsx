@@ -272,6 +272,11 @@ const DepositCard = () => {
     }
   };
 
+  const quoteSymbol =
+    optionScalpData?.quoteSymbol! === 'USDC'
+      ? 'USDC.e'
+      : optionScalpData?.quoteSymbol;
+
   return (
     <div className="h-full flex flex-col pt-2">
       {selectedPoolName === 'ETH' && !isQuote && (
@@ -297,7 +302,7 @@ const DepositCard = () => {
                 )}
                 onClick={() => setisQuote(true)}
               >
-                {optionScalpData?.quoteSymbol!}
+                {quoteSymbol}
               </h6>
             </div>
             <div className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
@@ -339,7 +344,7 @@ const DepositCard = () => {
             >
               {formatAmount(readableUserTokenBalance, 8)}{' '}
               {isQuote
-                ? optionScalpData?.quoteSymbol!
+                ? quoteSymbol
                 : _resolveSymbol(optionScalpData?.baseSymbol!)}
             </h6>
           </div>
@@ -365,10 +370,7 @@ const DepositCard = () => {
                     ),
                     2
                   )}{' '}
-                  {isQuote
-                    ? optionScalpData?.quoteSymbol!
-                    : optionScalpData?.baseSymbol!}{' '}
-                  LP
+                  {isQuote ? quoteSymbol : optionScalpData?.baseSymbol!} LP
                 </h6>
               </div>
             </div>
