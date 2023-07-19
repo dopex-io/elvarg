@@ -12,6 +12,7 @@ import { useContractWrite } from 'wagmi';
 
 import {
   usePrepareClaim,
+  usePrepareStake,
   usePrepareWithdraw,
 } from 'hooks/ssov/usePrepareWrites';
 
@@ -21,30 +22,41 @@ interface Props {
   isOpen: boolean;
   handleClose: () => void;
   data: {
-    vault: Address;
+    ssov: Address;
     tokenId: bigint;
     epoch: bigint;
     to: Address;
     expiry: number;
+    canStake: boolean;
   };
 }
 
 const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
-  const [step, setStep] = useState<number>(0);
+  const [step, setStep] = useState<number>(data.canStake ? 0 : 1);
   const [loading, setLoading] = useState<boolean>(false);
   const [staked, setStaked] = useState<boolean>(false);
 
-  const withdrawConfig = usePrepareWithdraw({
-    vault: data.vault,
-    tokenId: data.tokenId,
-    to: data.to,
-  });
-  const claimConfig = usePrepareClaim({
-    ssov: data.vault,
+  const stakeConfig = usePrepareStake({
+    ssov: data.ssov,
     tokenId: data.tokenId,
     receiver: data.to,
   });
+  const claimConfig = usePrepareClaim({
+    ssov: data.ssov,
+    tokenId: data.tokenId,
+    receiver: data.to,
+  });
+  const withdrawConfig = usePrepareWithdraw({
+    ssov: data.ssov,
+    tokenId: data.tokenId,
+    to: data.to,
+  });
 
+  const {
+    write: stake,
+    isLoading: stakeLoading,
+    isSuccess: stakeSuccess,
+  } = useContractWrite(stakeConfig);
   const {
     write: claim,
     isLoading: claimLoading,
@@ -77,7 +89,30 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
     }
   }, [claim, claimSuccess, staked]);
 
+  const handleStake = useCallback(async () => {
+    stake?.();
+    if (stakeSuccess) {
+      handleNext();
+    }
+  }, [stake, stakeSuccess]);
+
   const steps = [
+    {
+      ...(data.canStake
+        ? {
+            label: 'Stake',
+            description:
+              'This transaction will stake your deposit to accrue rewards from now.',
+            disabled: loading,
+          }
+        : {
+            label: 'Staked / Can not stake',
+            description: 'Can not stake your deposit at this time.',
+            disabled: true,
+          }),
+      buttonLabel: 'Stake',
+      action: handleStake,
+    },
     {
       ...(staked
         ? {
@@ -91,10 +126,11 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
               'You have not staked your SSOV deposit to accrue rewards.',
           }),
       buttonLabel: 'Claim',
+      disabled: !staked,
       action: handleClaim,
     },
     {
-      ...(staked || data.expiry < new Date().getTime() / 1000
+      ...(data.expiry < new Date().getTime() / 1000
         ? {
             label: 'Withdraw',
             description:
@@ -104,6 +140,7 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
             label: 'Not Yet Withdrawable',
             description: 'The epoch for this deposit has not expired yet.',
           }),
+      disabled: step == 2 && data.expiry > new Date().getTime() / 1000,
       buttonLabel: 'Withdraw',
       action: handleWithdraw,
     },
@@ -112,27 +149,43 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
   useEffect(() => {
     (async () => {
       const userPosition = await getSsovStakingRewardsPosition(
-        data.vault,
+        data.ssov,
         data.tokenId,
-        data.epoch
+        data.epoch,
       );
-      setStaked(userPosition.staked);
-      setStep(userPosition.staked ? 0 : 1);
+      setStaked(!data.canStake || userPosition.staked);
+      if (data.canStake && !userPosition.staked) {
+        setStep(0);
+      } else if (!!userPosition.stakeAmount) {
+        setStep(1);
+      } else {
+        setStep(2);
+      }
     })();
-  }, [data]);
+  }, [
+    data.ssov,
+    data.tokenId,
+    data.epoch,
+    stakeSuccess,
+    data.canStake,
+    staked,
+  ]);
 
   useEffect(() => {
-    if (claimSuccess) {
+    if (stakeSuccess) {
       setStep(1);
     }
-    if (withdrawSuccess) {
+    if (claimSuccess) {
       setStep(2);
     }
-  }, [claimSuccess, withdrawSuccess]);
+    if (withdrawSuccess) {
+      setStep(3);
+    }
+  }, [claimSuccess, stakeSuccess, staked, withdrawSuccess]);
 
   useEffect(() => {
-    setLoading(claimLoading || withdrawLoading);
-  }, [claimLoading, withdrawLoading]);
+    setLoading(claimLoading || withdrawLoading || stakeLoading);
+  }, [claimLoading, stakeLoading, withdrawLoading]);
 
   return (
     <Dialog
@@ -152,10 +205,7 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
               <Button
                 variant="contained"
                 onClick={_step.action}
-                disabled={
-                  loading ||
-                  (step == 1 && data.expiry > new Date().getTime() / 1000)
-                }
+                disabled={loading || _step.disabled}
               >
                 {loading ? (
                   <CircularProgress className="text-white mr-1" size={16} />
