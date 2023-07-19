@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Address, formatUnits } from 'viem';
+import { Address, formatUnits, zeroAddress } from 'viem';
 
 import { Button } from '@dopex-io/ui';
 import {
@@ -10,9 +10,8 @@ import {
 } from '@tanstack/react-table';
 import format from 'date-fns/format';
 import Countdown from 'react-countdown';
-import { useAccount, useContractWrite } from 'wagmi';
+import { useAccount } from 'wagmi';
 
-import { usePrepareStake } from 'hooks/ssov/usePrepareWrites';
 import { RewardAccrued, WritePosition } from 'hooks/ssov/useSsovPositions';
 import useVaultsData from 'hooks/ssov/useVaultsData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
@@ -44,6 +43,7 @@ interface WritePositionData {
     expiry: number;
     textContent: string;
     disabled: boolean;
+    canStake: boolean;
   };
 }
 
@@ -188,14 +188,6 @@ const WritePositions = (props: Props) => {
     return selected;
   }, [vaults, vault]);
 
-  const stakeConfig = usePrepareStake({
-    ssov: selectedVault?.contractAddress as Address,
-    tokenId: BigInt(_positions?.[activeIndex].tokenId || 0) as bigint,
-    receiver: accountAddress as Address,
-  });
-
-  const { write: stake } = useContractWrite(stakeConfig);
-
   const handleClose = useCallback(() => {
     setOpen(false);
   }, []);
@@ -221,10 +213,6 @@ const WritePositions = (props: Props) => {
       // canBeStaked => ¬canBeClaimed & ¬canBeWithdrawn
       if (canBeStaked) {
         _button = BUTTONS.stakeOnly;
-        handler = (index: number) => {
-          setActiveIndex(index);
-          stake?.();
-        };
       }
       // canBeClaimed => ¬canBeStaked & canBeWithdrawn
       else if (canBeClaimedOnly) {
@@ -260,6 +248,7 @@ const WritePositions = (props: Props) => {
           handler: () => handler(index),
           textContent: _button.textContent,
           disabled: _button.disabled,
+          canStake: canBeStaked,
         },
       };
     });
@@ -268,7 +257,6 @@ const WritePositions = (props: Props) => {
     vault.underlyingSymbol,
     vault.isPut,
     selectedVault?.currentEpoch,
-    stake,
   ]);
 
   const table = useReactTable({
@@ -360,11 +348,12 @@ const WritePositions = (props: Props) => {
         isOpen={open}
         handleClose={handleClose}
         data={{
-          vault: _positions?.[activeIndex].address as Address,
+          ssov: (_positions?.[activeIndex]?.address ?? zeroAddress) as Address,
           tokenId: BigInt(_positions?.[activeIndex]?.tokenId || 0),
           to: accountAddress as Address,
           epoch: BigInt(_positions?.[activeIndex]?.epoch || 0),
-          expiry: _positions?.[activeIndex].expiry || 0,
+          expiry: _positions?.[activeIndex]?.expiry || 0,
+          canStake: positions?.[activeIndex]?.button.canStake,
         }}
       />
     </div>

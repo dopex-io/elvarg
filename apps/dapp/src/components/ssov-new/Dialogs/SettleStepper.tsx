@@ -41,7 +41,7 @@ const SettleStepper = ({ isOpen = false, handleClose, data }: Props) => {
     amount: data.amount,
   });
   const settleConfig = usePrepareSettle({
-    vault: data.vault,
+    ssov: data.vault,
     strikeIndex: strikeIndex,
     amount: data.amount,
     epoch: data.epoch,

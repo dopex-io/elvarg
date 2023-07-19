@@ -115,7 +115,7 @@ const AsidePanel = ({ market }: { market: string }) => {
     amount: parseUnits(amountDebounced || '0', DECIMALS_TOKEN),
   });
   const purchaseConfig = usePreparePurchase({
-    vault: vault.address,
+    ssov: vault.address,
     strikeIndex: BigInt(activeStrikeIndex),
     amount: parseUnits(amountDebounced || '0', DECIMALS_TOKEN),
     to: address as Address,

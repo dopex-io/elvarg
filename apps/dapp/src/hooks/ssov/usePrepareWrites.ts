@@ -16,14 +16,14 @@ interface ApproveProps {
 }
 
 interface SsovDepositAndPurchaseProps {
-  vault: Address;
+  ssov: Address;
   strikeIndex: bigint;
   amount: bigint;
   to: Address;
 }
 
 interface WithdrawProps {
-  vault: Address;
+  ssov: Address;
   tokenId: bigint;
   to: Address;
 }
@@ -44,14 +44,14 @@ export const usePrepareApprove = ({ token, spender, amount }: ApproveProps) => {
 };
 
 export const usePrepareDeposit = ({
-  vault,
+  ssov,
   strikeIndex,
   amount,
   to,
 }: SsovDepositAndPurchaseProps) => {
   const { config } = usePrepareContractWrite({
     abi: SsovV3__factory.abi,
-    address: vault,
+    address: ssov,
     functionName: 'deposit',
     args: [strikeIndex, amount, to],
   });
@@ -60,14 +60,14 @@ export const usePrepareDeposit = ({
 };
 
 export const usePreparePurchase = ({
-  vault,
+  ssov,
   strikeIndex,
   amount,
   to,
 }: SsovDepositAndPurchaseProps) => {
   const { config } = usePrepareContractWrite({
     abi: SsovV3__factory.abi,
-    address: vault,
+    address: ssov,
     functionName: 'purchase',
     args: [strikeIndex, amount, to],
   });
@@ -101,10 +101,10 @@ export const usePrepareClaim = ({
   return config;
 };
 
-export const usePrepareWithdraw = ({ vault, tokenId, to }: WithdrawProps) => {
+export const usePrepareWithdraw = ({ ssov, tokenId, to }: WithdrawProps) => {
   const { config } = usePrepareContractWrite({
     abi: SsovV3__factory.abi,
-    address: vault,
+    address: ssov,
     functionName: 'withdraw',
     args: [tokenId, to],
   });
@@ -113,7 +113,7 @@ export const usePrepareWithdraw = ({ vault, tokenId, to }: WithdrawProps) => {
 };
 
 export const usePrepareSettle = ({
-  vault,
+  ssov,
   strikeIndex,
   amount,
   epoch,
@@ -121,7 +121,7 @@ export const usePrepareSettle = ({
 }: SettleProps) => {
   const { config } = usePrepareContractWrite({
     abi: SsovV3__factory.abi,
-    address: vault,
+    address: ssov,
     functionName: 'settle',
     args: [strikeIndex, amount, epoch, to],
   });

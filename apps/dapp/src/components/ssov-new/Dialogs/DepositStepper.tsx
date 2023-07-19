@@ -37,14 +37,14 @@ const DepositStepper = ({ isOpen = false, handleClose, data }: Props) => {
   const [tokenId, setTokenId] = useState<bigint>();
 
   const depositConfig = usePrepareDeposit({
-    vault: data.vault,
+    ssov: data.vault,
     strikeIndex: data.strikeIndex,
     amount: data.amount,
     to: data.to,
   });
   const stakeConfig = usePrepareStake({
-    tokenId: tokenId as bigint,
     ssov: data.vault,
+    tokenId: tokenId as bigint,
     receiver: data.to,
   });
   const chainId = useChainId();
@@ -79,7 +79,6 @@ const DepositStepper = ({ isOpen = false, handleClose, data }: Props) => {
   }, [deposit, depositSuccess, txReceipt]);
 
   const handleStake = useCallback(() => {
-    console.log(!stake ? 'stake() is undefined' : 'stake() is OK');
     if (!txReceipt || !stake) return;
     stake?.();
     if (stakeSuccess) handleNext();
