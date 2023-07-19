@@ -1,9 +1,10 @@
 import { Dispatch, SetStateAction } from 'react';
+
 import Box from '@mui/material/Box';
 
+import CustomButton from 'components/UI/Button';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
 
 export interface Props {
   openOrder: number | null;
@@ -36,13 +37,12 @@ const Kill = ({ openOrder, setOpenOrder, handleKill }: Props) => {
           />
         </Box>
         <Box className="text-justify pl-5 pr-5">
-          <Typography variant="h5" component="p" className={'text-stieglitz'}>
+          <p className="text-stieglitz">
             Killing a Tzwap means that your order will stop being filled by bots
-            and that you’ll get your initial collateral back minus what has
+            and that you will get your initial collateral back minus what has
             already been filled by bots.
-          </Typography>
+          </p>
         </Box>
-
         <Box className={'pl-6 pr-6 mb-4 mt-3'}>
           <CustomButton
             size="medium"
