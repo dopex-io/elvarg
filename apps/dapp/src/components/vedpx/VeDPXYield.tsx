@@ -1,16 +1,15 @@
 import { useCallback } from 'react';
 
 import { VeDPXYieldDistributor__factory } from '@dopex-io/sdk';
-import Box from '@mui/material/Box';
-import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
 
+import { useBoundStore } from 'store';
 import { vedpxYieldDistributorAddress } from 'store/VeDPX';
 
+import useSendTx from 'hooks/useSendTx';
+
+import SignerButton from 'components/common/SignerButton';
 import InfoTooltip from 'components/UI/InfoTooltip';
 import NumberDisplay from 'components/UI/NumberDisplay';
-import Typography from 'components/UI/Typography';
-import SignerButton from 'components/common/SignerButton';
 
 import formatAmount from 'utils/general/formatAmount';
 
@@ -30,7 +29,7 @@ const VeDPXYield = () => {
     if (!signer || !accountAddress) return;
     const vedpxYieldDistributor = VeDPXYieldDistributor__factory.connect(
       vedpxYieldDistributorAddress,
-      signer
+      signer,
     );
 
     await sendTx(vedpxYieldDistributor, 'checkpoint', []);
@@ -44,7 +43,7 @@ const VeDPXYield = () => {
     try {
       const vedpxYieldDistributor = VeDPXYieldDistributor__factory.connect(
         vedpxYieldDistributorAddress,
-        signer
+        signer,
       );
 
       await sendTx(vedpxYieldDistributor, 'getYield', []);
@@ -55,29 +54,25 @@ const VeDPXYield = () => {
   }, [accountAddress, sendTx, signer, updateUserData]);
 
   return (
-    <Box>
-      <Box className="mb-4">
-        <Typography variant="h4" component="h2" className="mb-1">
-          veDPX Yield
-        </Typography>
-        <Typography variant="h6" component="p" color="stieglitz">
+    <div>
+      <div className="mb-4">
+        <h2 className="text-xl text-white mb-1">veDPX Yield</h2>
+        <p className="text-stieglitz text-sm">
           veDPX earns a yield from incentivized DPX rewards and protocol fees
           altogether
-        </Typography>
-      </Box>
-      <Box className="bg-cod-gray rounded-2xl p-3 w-96">
-        <Box className="flex space-x-2 w-full items-center mb-3">
+        </p>
+      </div>
+      <div className="bg-cod-gray rounded-2xl p-3 w-96">
+        <div className="flex space-x-2 w-full items-center mb-3">
           <img
             className="w-10 h-10 border border-mineshaft rounded-full"
             src="/images/tokens/dpx.svg"
             alt="DPX"
           />
-          <Box className="flex-grow font-">
-            <Typography variant="h5">veDPX</Typography>
-            <Typography variant="h6" color="stieglitz">
-              Earn DPX
-            </Typography>
-          </Box>
+          <div className="flex-grow font-">
+            <div>veDPX</div>
+            <div className="text-stieglitz text-sm">Earn DPX</div>
+          </div>
           {!userData.vedpxBalance.isZero() && !userData.userIsInitialized ? (
             <SignerButton
               className="justify-self-end"
@@ -86,21 +81,17 @@ const VeDPXYield = () => {
               Checkpoint
             </SignerButton>
           ) : null}
-        </Box>
-        <Box className="flex justify-between items-center p-3 bg-umbra rounded-xl w-full mb-3">
-          <Box>
-            <Typography
-              variant="h6"
-              color="stieglitz"
-              className="mb-1.5 font-medium"
-            >
+        </div>
+        <div className="flex justify-between items-center p-3 bg-umbra rounded-xl w-full mb-3">
+          <div>
+            <div className="mb-1.5 font-medium text-stieglitz text-sm">
               DPX Earned
-            </Typography>
-            <Typography variant="h5" className="font-medium">
+            </div>
+            <div className="font-medium text-white">
               <NumberDisplay n={userData.dpxEarned} decimals={18} /> DPX
-            </Typography>
-          </Box>
-          <Box>
+            </div>
+          </div>
+          <div>
             <SignerButton
               className="justify-self-end"
               onClick={handleClaim}
@@ -108,40 +99,35 @@ const VeDPXYield = () => {
             >
               Claim
             </SignerButton>
-          </Box>
-        </Box>
-        <Box className="flex space-x-4 rounded-xl">
-          <Box className="p-3 bg-umbra rounded-xl w-full">
-            <Typography
-              variant="h6"
+          </div>
+        </div>
+        <div className="flex space-x-4 rounded-xl">
+          <div className="p-3 bg-umbra rounded-xl w-full">
+            <div
               color="stieglitz"
-              className="mb-1.5 font-medium"
+              className="mb-1.5 font-medium text-stieglitz"
             >
               Yield Rate
-            </Typography>
-            <Typography variant="h5" className="font-medium">
+            </div>
+            <div className="font-medium">
               {formatAmount(data.dailyDpxEmission, 1, false, true)} DPX/day
-            </Typography>
-          </Box>
-          <Box className="p-3 bg-umbra rounded-xl w-full">
-            <Typography
-              variant="h6"
-              color="stieglitz"
-              className="mb-1.5 font-medium"
-            >
+            </div>
+          </div>
+          <div className="p-3 bg-umbra rounded-xl w-full">
+            <div className="mb-1.5 font-medium text-stieglitz text-sm">
               APY{' '}
               <InfoTooltip
                 title="This considers 1 veDPX = 1 DPX (1 DPX locked for 4 years)"
                 iconClassName="w-4 h-4"
               />
-            </Typography>
-            <Typography variant="h5" className="font-medium">
+            </div>
+            <div className="font-medium">
               {formatAmount(data.apy, 2, false, true)} %{' '}
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
-    </Box>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

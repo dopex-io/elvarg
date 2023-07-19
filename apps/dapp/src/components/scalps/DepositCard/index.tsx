@@ -32,11 +32,11 @@ const DepositCard = () => {
   const sendTx = useSendTx();
 
   const [userQuoteBalance, setUserQuoteBalance] = useState<BigNumber>(
-    BigNumber.from('0')
+    BigNumber.from('0'),
   );
 
   const [userBaseBalance, setUserBaseBalance] = useState<BigNumber>(
-    BigNumber.from('0')
+    BigNumber.from('0'),
   );
 
   const [wrapEthOpen, setWrapEthOpen] = useState(false);
@@ -58,7 +58,7 @@ const DepositCard = () => {
   const [rawAmount, setRawAmount] = useState<string>('1');
 
   const [estimatedLpTokens, setEstimatedLpTokens] = useState<BigNumber>(
-    BigNumber.from(0)
+    BigNumber.from(0),
   );
 
   const amount: number = useMemo(() => {
@@ -71,14 +71,14 @@ const DepositCard = () => {
         userTokenBalance,
         isQuote
           ? optionScalpData?.quoteDecimals?.toNumber()!
-          : optionScalpData?.baseDecimals!.toNumber()!
-      )
+          : optionScalpData?.baseDecimals!.toNumber()!,
+      ),
     );
   }, [optionScalpData, userTokenBalance, isQuote]);
 
   const handleSetMax = useCallback(() => {
     setRawAmount(
-      String(Math.floor(readableUserTokenBalance * 100000) / 100000)
+      String(Math.floor(readableUserTokenBalance * 100000) / 100000),
     ); // 5 decimals
   }, [readableUserTokenBalance]);
 
@@ -88,7 +88,7 @@ const DepositCard = () => {
       isQuote
         ? contractAddresses[optionScalpData!.quoteSymbol!]
         : contractAddresses[optionScalpData!.baseSymbol!],
-      provider
+      provider,
     ).balanceOf(accountAddress);
 
     if (isQuote) {
@@ -107,21 +107,21 @@ const DepositCard = () => {
 
     const quote = ERC20__factory.connect(
       contractAddresses[optionScalpData!.quoteSymbol!],
-      signer
+      signer,
     );
     const base = ERC20__factory.connect(
       contractAddresses[optionScalpData!.baseSymbol!],
-      signer
+      signer,
     );
 
     const [quoteAllowance, baseAllowance] = await Promise.all([
       quote.allowance(
         accountAddress,
-        optionScalpData?.optionScalpContract?.address
+        optionScalpData?.optionScalpContract?.address,
       ),
       base.allowance(
         accountAddress,
-        optionScalpData?.optionScalpContract?.address
+        optionScalpData?.optionScalpContract?.address,
       ),
     ]);
 
@@ -129,7 +129,7 @@ const DepositCard = () => {
       rawAmount,
       isQuote
         ? optionScalpData?.quoteDecimals?.toNumber()
-        : optionScalpData?.baseDecimals!.toNumber()
+        : optionScalpData?.baseDecimals!.toNumber(),
     );
 
     if (isQuote) {
@@ -160,11 +160,11 @@ const DepositCard = () => {
 
     const quote = ERC20__factory.connect(
       contractAddresses[optionScalpData!.quoteSymbol!],
-      signer
+      signer,
     );
     const base = ERC20__factory.connect(
       contractAddresses[optionScalpData!.baseSymbol!],
-      signer
+      signer,
     );
 
     try {
@@ -174,7 +174,7 @@ const DepositCard = () => {
           rawAmount,
           isQuote
             ? optionScalpData?.quoteDecimals?.toNumber()
-            : optionScalpData?.baseDecimals!.toNumber()
+            : optionScalpData?.baseDecimals!.toNumber(),
         ),
       ])
         .then(async () => await checkApproved())
@@ -215,9 +215,9 @@ const DepositCard = () => {
             String(amount),
             isQuote
               ? optionScalpData?.quoteDecimals?.toNumber()!
-              : optionScalpData?.baseDecimals!.toNumber()!
+              : optionScalpData?.baseDecimals!.toNumber()!,
           ),
-        ]
+        ],
       );
       await updateOptionScalp();
       await updateOptionScalpUserData();
@@ -247,8 +247,8 @@ const DepositCard = () => {
             String(amount),
             isQuote
               ? optionScalpData?.quoteDecimals?.toNumber()!
-              : optionScalpData?.baseDecimals!.toNumber()!
-          )
+              : optionScalpData?.baseDecimals!.toNumber()!,
+          ),
         );
       setEstimatedLpTokens(estimatedOutput);
     } catch (e) {}
@@ -272,6 +272,11 @@ const DepositCard = () => {
     }
   };
 
+  const quoteSymbol =
+    optionScalpData?.quoteSymbol! === 'USDC'
+      ? 'USDC.e'
+      : optionScalpData?.quoteSymbol;
+
   return (
     <div className="h-full flex flex-col pt-2">
       {selectedPoolName === 'ETH' && !isQuote && (
@@ -293,18 +298,18 @@ const DepositCard = () => {
               <h6
                 className={cx(
                   'font-medium mt-1 cursor-pointer text-[0.8rem]',
-                  !isQuote && 'opacity-50'
+                  !isQuote && 'opacity-50',
                 )}
                 onClick={() => setisQuote(true)}
               >
-                {optionScalpData?.quoteSymbol!}
+                {quoteSymbol}
               </h6>
             </div>
             <div className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
               <h6
                 className={cx(
                   'font-medium mt-1 cursor-pointer text-[0.8rem]',
-                  isQuote && 'opacity-50'
+                  isQuote && 'opacity-50',
                 )}
                 onClick={() => setisQuote(false)}
               >
@@ -339,7 +344,7 @@ const DepositCard = () => {
             >
               {formatAmount(readableUserTokenBalance, 8)}{' '}
               {isQuote
-                ? optionScalpData?.quoteSymbol!
+                ? quoteSymbol
                 : _resolveSymbol(optionScalpData?.baseSymbol!)}
             </h6>
           </div>
@@ -360,15 +365,12 @@ const DepositCard = () => {
                         estimatedLpTokens,
                         isQuote
                           ? optionScalpData?.quoteDecimals?.toNumber()!
-                          : optionScalpData?.baseDecimals!.toNumber()!
-                      )
+                          : optionScalpData?.baseDecimals!.toNumber()!,
+                      ),
                     ),
-                    2
+                    2,
                   )}{' '}
-                  {isQuote
-                    ? optionScalpData?.quoteSymbol!
-                    : optionScalpData?.baseSymbol!}{' '}
-                  LP
+                  {isQuote ? quoteSymbol : optionScalpData?.baseSymbol!} LP
                 </h6>
               </div>
             </div>

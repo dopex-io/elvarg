@@ -14,9 +14,11 @@ import {
 } from '@dopex-io/sdk';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
 import { useDebounce } from 'use-debounce';
+
+import { useBoundStore } from 'store';
+
+import useSendTx from 'hooks/useSendTx';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CustomButton from 'components/UI/Button';
@@ -83,13 +85,13 @@ const PurchaseCard = () => {
   const { isLoading, error, data } = useQuery(
     ['currentPrice'],
     () => straddlesData?.straddlesContract?.getUnderlyingPrice(),
-    { initialData: oneEBigNumber(8) }
+    { initialData: oneEBigNumber(8) },
   );
 
   const [finalCost, setFinalCost] = useState(BigNumber.from(0));
 
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
-    BigNumber.from('0')
+    BigNumber.from('0'),
   );
 
   const maxStraddlesCanBeBought = useMemo(() => {
@@ -97,8 +99,8 @@ const PurchaseCard = () => {
 
     const availableUsdDeposits = straddlesEpochData?.usdDeposits.sub(
       BigNumber.from(straddlesEpochData?.activeUsdDeposits).div(
-        '100000000000000000000'
-      )
+        '100000000000000000000',
+      ),
     );
 
     if (!availableUsdDeposits) return BigNumber.from(0);
@@ -132,7 +134,7 @@ const PurchaseCard = () => {
           getContractReadableAmount(2 * amount, 18),
           0,
           POOL_TO_SWAPPER_IDS[selectedPoolName]!,
-          accountAddress
+          accountAddress,
         );
 
       setFinalCost(data.protocolFee.add(data.straddleCost));
@@ -149,7 +151,7 @@ const PurchaseCard = () => {
 
       const straddlesContract = AtlanticStraddleV2__factory.connect(
         Addresses[137]['STRADDLES'].Vault['MATIC'],
-        signer
+        signer,
       );
 
       const currentPrice = await straddlesContract.getUnderlyingPrice();
@@ -166,19 +168,23 @@ const PurchaseCard = () => {
         accountAddress: straddlesContract.address,
       });
 
-      const { purchaseParams } = get1inchParams(swap['tx']['data']);
-      const results = await straddlesContract.callStatic.purchase(
-        getContractReadableAmount(amount * 2, 18),
-        0,
-        accountAddress,
-        //@ts-ignore
-        purchaseParams
-      );
+      try {
+        const { purchaseParams } = get1inchParams(swap['tx']['data']);
+        const results = await straddlesContract.callStatic.purchase(
+          getContractReadableAmount(amount * 2, 18),
+          0,
+          accountAddress,
+          //@ts-ignore
+          purchaseParams,
+        );
 
-      const protocolFee = results[1];
-      const straddleCost = results[2];
+        const protocolFee = results[1];
+        const straddleCost = results[2];
 
-      setFinalCost(protocolFee.add(straddleCost));
+        setFinalCost(protocolFee.add(straddleCost));
+      } catch {
+        console.error('Error calculating final cost');
+      }
     }
 
     try {
@@ -213,7 +219,7 @@ const PurchaseCard = () => {
       if (chainId === 137) {
         const straddlesContract = AtlanticStraddleV2__factory.connect(
           Addresses[137]['STRADDLES'].Vault['MATIC'],
-          signer
+          signer,
         );
 
         const currentPrice = await straddlesContract.getUnderlyingPrice();
@@ -233,21 +239,21 @@ const PurchaseCard = () => {
         const { purchaseParams } = get1inchParams(swap['tx']['data']);
 
         const { data } = await axios.get(
-          `https://gasstation-mainnet.matic.network/v2`
+          `https://gasstation-mainnet.matic.network/v2`,
         );
 
         const maxFeePerGas = ethers.utils.parseUnits(
           data['fast']['maxFee'].toFixed(9),
-          9
+          9,
         );
 
         const maxPriorityFeePerGas = ethers.utils.parseUnits(
           data['fast']['maxPriorityFee'].toFixed(9),
-          9
+          9,
         );
 
         const minAmount = BigNumber.from(swap['toTokenAmount']).sub(
-          BigNumber.from(swap['toTokenAmount']).div(100)
+          BigNumber.from(swap['toTokenAmount']).div(100),
         );
 
         await sendTx(straddlesContract, 'purchase', [
@@ -271,7 +277,7 @@ const PurchaseCard = () => {
             0,
             POOL_TO_SWAPPER_IDS[selectedPoolName]!,
             accountAddress,
-          ]
+          ],
         );
       }
       await updateStraddlesUserData();
@@ -299,7 +305,7 @@ const PurchaseCard = () => {
       await sendTx(
         ERC20__factory.connect(straddlesData.usd, signer),
         'approve',
-        [straddlesData.straddlesContract.address, MAX_VALUE]
+        [straddlesData.straddlesContract.address, MAX_VALUE],
       );
       setApproved(true);
     } catch (err) {
@@ -352,7 +358,7 @@ const PurchaseCard = () => {
       const token = ERC20__factory.connect(straddlesData.usd, signer);
       const allowance: BigNumber = await token.allowance(
         accountAddress,
-        straddlesData?.straddlesContract?.address
+        straddlesData?.straddlesContract?.address,
       );
       const balance: BigNumber = await token.balanceOf(accountAddress);
       setApproved(allowance.gte(finalAmount));

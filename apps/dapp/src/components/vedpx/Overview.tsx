@@ -1,17 +1,16 @@
 import { useEffect, useState } from 'react';
 import { utils as ethersUtils } from 'ethers';
-import axios from 'axios';
-import Box from '@mui/material/Box';
 
-import Typography from 'components/UI/Typography';
-import Stat from './Stat';
-import SupplyChart from './SupplyChart';
+import axios from 'axios';
 
 import { useBoundStore } from 'store';
 
 import formatAmount from 'utils/general/formatAmount';
 
 import { DOPEX_API_BASE_URL } from 'constants/env';
+
+import Stat from './Stat';
+import SupplyChart from './SupplyChart';
 
 const Overview = () => {
   const { vedpxData: data } = useBoundStore();
@@ -27,24 +26,22 @@ const Overview = () => {
   }, []);
 
   return (
-    <Box>
-      <Box className="mb-6">
-        <Typography variant="h4" component="h1" className="mb-1">
-          veDPX Overview
-        </Typography>
-        <Typography variant="h6" component="p" color="stieglitz">
+    <div>
+      <div className="mb-6">
+        <p className="text-xl text-white mb-1">veDPX Overview</p>
+        <p className="text-sm stieglitz">
           veDPX is escrowed (locked) DPX which can be used to earn yield,
           protocol fees and vote in the protocol.
-        </Typography>
-      </Box>
-      <Box className="bg-cod-gray max-w-md rounded-xl mb-6">
-        <Box className="grid grid-cols-3">
+        </p>
+      </div>
+      <div className="bg-cod-gray max-w-md rounded-xl mb-6">
+        <div className="grid grid-cols-3">
           <Stat
             name="veDPX Supply"
             value={formatAmount(
               ethersUtils.formatEther(data.vedpxTotalSupply),
               2,
-              true
+              true,
             )}
           />
           <Stat
@@ -52,7 +49,7 @@ const Overview = () => {
             value={formatAmount(
               ethersUtils.formatEther(data.dpxLocked),
               2,
-              true
+              true,
             )}
           />
           <Stat
@@ -75,12 +72,12 @@ const Overview = () => {
             name="DPX Circ. Supply"
             value={`${formatAmount(dpxCirculatingSupply, 2, true)} DPX`}
           />
-        </Box>
-        <Box className="w-full h-40 p-3">
+        </div>
+        <div className="w-full h-40 p-3">
           <SupplyChart />
-        </Box>
-      </Box>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 };
 

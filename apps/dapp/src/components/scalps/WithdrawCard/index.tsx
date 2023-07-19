@@ -34,11 +34,11 @@ const WithdrawCard = () => {
   const [approved, setApproved] = useState(false);
 
   const [userQuoteBalance, setUserQuoteBalance] = useState<BigNumber>(
-    BigNumber.from('0')
+    BigNumber.from('0'),
   );
 
   const [userBaseBalance, setUserBaseBalance] = useState<BigNumber>(
-    BigNumber.from('0')
+    BigNumber.from('0'),
   );
 
   const [isQuote, setisQuote] = useState(true);
@@ -50,7 +50,7 @@ const WithdrawCard = () => {
   const [rawAmount, setRawAmount] = useState<string>('0');
 
   const [estimatedOut, setEstimatedOut] = useState<BigNumber>(
-    BigNumber.from(0)
+    BigNumber.from(0),
   );
 
   const amount: number = useMemo(() => {
@@ -63,14 +63,14 @@ const WithdrawCard = () => {
         userTokenBalance,
         isQuote
           ? optionScalpData?.quoteDecimals?.toNumber()!
-          : optionScalpData?.baseDecimals!.toNumber()!
-      )
+          : optionScalpData?.baseDecimals!.toNumber()!,
+      ),
     );
   }, [optionScalpData, userTokenBalance, isQuote]);
 
   const handleSetMax = useCallback(() => {
     setRawAmount(
-      String(Math.floor(readableUserTokenBalance * 100000) / 100000)
+      String(Math.floor(readableUserTokenBalance * 100000) / 100000),
     ); // 5 decimals
   }, [readableUserTokenBalance]);
 
@@ -129,7 +129,7 @@ const WithdrawCard = () => {
           : optionScalpData?.baseLpContract
         ).connect(signer),
         'approve',
-        [optionScalpData?.optionScalpContract?.address, MAX_VALUE]
+        [optionScalpData?.optionScalpContract?.address, MAX_VALUE],
       );
       setApproved(true);
     } catch (err) {
@@ -158,9 +158,9 @@ const WithdrawCard = () => {
             String(amount),
             isQuote
               ? optionScalpData?.quoteDecimals?.toNumber()!
-              : optionScalpData?.baseDecimals!.toNumber()!
+              : optionScalpData?.baseDecimals!.toNumber()!,
           ),
-        ]
+        ],
       );
       await updateOptionScalp();
       await updateOptionScalpUserData();
@@ -189,8 +189,8 @@ const WithdrawCard = () => {
             String(amount),
             isQuote
               ? optionScalpData?.quoteDecimals?.toNumber()!
-              : optionScalpData?.baseDecimals!.toNumber()!
-          )
+              : optionScalpData?.baseDecimals!.toNumber()!,
+          ),
         );
       setEstimatedOut(estimatedOutput);
     } catch (e) {}
@@ -208,14 +208,14 @@ const WithdrawCard = () => {
 
       const quote = ERC20__factory.connect(
         optionScalpData!.quoteLpContract.address,
-        provider
+        provider,
       );
       const base = ERC20__factory.connect(
         optionScalpData!.baseLpContract.address,
-        provider
+        provider,
       );
       const balance: BigNumber = await (isQuote ? quote : base).balanceOf(
-        accountAddress
+        accountAddress,
       );
 
       if (isQuote) {
@@ -229,7 +229,7 @@ const WithdrawCard = () => {
         : optionScalpData?.baseLpContract
       ).allowance(
         accountAddress,
-        optionScalpData?.optionScalpContract?.address
+        optionScalpData?.optionScalpContract?.address,
       );
       setApproved(allowance.gte(balance));
     })();
@@ -242,6 +242,11 @@ const WithdrawCard = () => {
     isQuote,
   ]);
 
+  const quoteSymbol =
+    optionScalpData?.quoteSymbol! === 'USDC'
+      ? 'USDC.e'
+      : optionScalpData?.quoteSymbol;
+
   return (
     <div className="pt-2">
       <div className="bg-umbra rounded-xl flex flex-col mb-4 p-3 pr-2 mx-2">
@@ -251,18 +256,18 @@ const WithdrawCard = () => {
               <h6
                 className={cx(
                   'font-medium mt-1 cursor-pointer text-[0.8rem]',
-                  !isQuote && 'opacity-50'
+                  !isQuote && 'opacity-50',
                 )}
                 onClick={() => setisQuote(true)}
               >
-                {optionScalpData?.quoteSymbol!}
+                {quoteSymbol}
               </h6>
             </div>
             <div className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
               <h6
                 className={cx(
                   'font-medium mt-1 cursor-pointer text-[0.8rem]',
-                  isQuote && 'opacity-50'
+                  isQuote && 'opacity-50',
                 )}
                 onClick={() => setisQuote(false)}
               >
@@ -296,10 +301,7 @@ const WithdrawCard = () => {
               onClick={handleSetMax}
             >
               {formatAmount(readableUserTokenBalance, 8)}{' '}
-              {isQuote
-                ? optionScalpData?.quoteSymbol!
-                : optionScalpData?.baseSymbol!}{' '}
-              LP
+              {isQuote ? quoteSymbol : optionScalpData?.baseSymbol!} LP
             </h6>
           </div>
         </div>
@@ -320,14 +322,12 @@ const WithdrawCard = () => {
                         : optionScalpData?.totalBaseAvailable!,
                       isQuote
                         ? optionScalpData?.quoteDecimals?.toNumber()!
-                        : optionScalpData?.baseDecimals!.toNumber()!
-                    )
+                        : optionScalpData?.baseDecimals!.toNumber()!,
+                    ),
                   ),
-                  2
+                  2,
                 )}{' '}
-                {isQuote
-                  ? optionScalpData?.quoteSymbol!
-                  : optionScalpData?.baseSymbol!}
+                {isQuote ? quoteSymbol : optionScalpData?.baseSymbol!}
               </h6>
             </div>
           </div>
@@ -335,11 +335,7 @@ const WithdrawCard = () => {
         <div className="flex flex-col mb-4 p-4 w-full">
           <div className={'flex'}>
             <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
-              1{' '}
-              {isQuote
-                ? optionScalpData?.quoteSymbol!
-                : optionScalpData?.baseSymbol!}{' '}
-              LP
+              1 {isQuote ? quoteSymbol : optionScalpData?.baseSymbol!} LP
             </h6>
             <div className={'text-right'}>
               <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
@@ -351,14 +347,12 @@ const WithdrawCard = () => {
                         : optionScalpData?.baseLpValue!,
                       isQuote
                         ? optionScalpData?.quoteDecimals?.toNumber()!
-                        : optionScalpData?.baseDecimals!.toNumber()!
-                    )
+                        : optionScalpData?.baseDecimals!.toNumber()!,
+                    ),
                   ),
-                  9
+                  9,
                 )}{' '}
-                {isQuote
-                  ? optionScalpData?.quoteSymbol!
-                  : optionScalpData?.baseSymbol!}
+                {isQuote ? quoteSymbol : optionScalpData?.baseSymbol!}
               </h6>
             </div>
           </div>
@@ -379,14 +373,12 @@ const WithdrawCard = () => {
                         estimatedOut,
                         isQuote
                           ? optionScalpData?.quoteDecimals?.toNumber()!
-                          : optionScalpData?.baseDecimals!.toNumber()!
-                      )
+                          : optionScalpData?.baseDecimals!.toNumber()!,
+                      ),
                     ),
-                    2
+                    2,
                   )}{' '}
-                  {isQuote
-                    ? optionScalpData?.quoteSymbol!
-                    : optionScalpData?.baseSymbol!}
+                  {isQuote ? quoteSymbol : optionScalpData?.baseSymbol!}
                 </h6>
               </div>
             </div>
