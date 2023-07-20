@@ -417,9 +417,9 @@ export const createPortfolioSlice: StateCreator<
       const ssovPositionsPromises = [];
       const ssovPositions: UserSSOVPosition[] = [];
 
-      for (let i in data?.userSSOVOptionBalance) {
+      for (let i in data?.userSSOVOptionPurchases) {
         ssovPositionsPromises.push(
-          getUserSSOVPosition(data?.userSSOVOptionBalance[Number(i)])
+          getUserSSOVPosition(data?.userSSOVOptionPurchases[Number(i)])
         );
       }
 
