@@ -481,11 +481,9 @@ export const createPortfolioSlice: StateCreator<
       const straddlesPositionsPromises = [];
       const straddlesPositions: UserStraddlesPosition[] = [];
 
-      for (let i in straddlesData?.straddlesUserOpenDeposits) {
+      for (let i in straddlesData?.userOpenStraddles) {
         straddlesPositionsPromises.push(
-          getUserStraddlesPosition(
-            straddlesData?.straddlesUserOpenDeposits[Number(i)]
-          )
+          getUserStraddlesPosition(straddlesData?.userOpenStraddles[Number(i)])
         );
       }
 
