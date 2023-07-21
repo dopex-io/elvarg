@@ -16,6 +16,7 @@ import { StateCreator } from 'zustand';
 import queryClient from 'queryClient';
 
 import { getSsovUserDataDocument } from 'graphql/ssovs';
+import { getSsovUserDataDocument as getSsovPolygonUserDataDocument } from 'graphql/ssovs-polygon';
 import { getStraddlesUserDataDocument } from 'graphql/straddles';
 
 import { AssetsSlice } from 'store/Assets';
@@ -381,7 +382,7 @@ export const createPortfolioSlice: StateCreator<
         queryFn: async () =>
           request(
             DOPEX_POLYGON_SSOV_SUBGRAPH_API_URL,
-            getSsovUserDataDocument,
+            getSsovPolygonUserDataDocument,
             {
               user: accountAddress.toLowerCase(),
             }
@@ -417,6 +418,27 @@ export const createPortfolioSlice: StateCreator<
       const ssovPositionsPromises = [];
       const ssovPositions: UserSSOVPosition[] = [];
 
+      for (let i in data?.userSSOVOptionBalance) {
+        ssovPositionsPromises.push(
+          getUserSSOVPosition(data?.userSSOVOptionBalance[Number(i)])
+        );
+      }
+
+      const ssovPositionsResponses = await Promise.all(ssovPositionsPromises);
+
+      for (let i in ssovPositionsResponses) {
+        if (ssovPositionsResponses[i]) {
+          ssovPositions.push(ssovPositionsResponses[i]!);
+        }
+      }
+
+      return ssovPositions;
+    }
+
+    async function getSSOVPolygonPositions(data: any) {
+      const ssovPositionsPromises = [];
+      const ssovPositions: UserSSOVPosition[] = [];
+
       for (let i in data?.userSSOVOptionPurchases) {
         ssovPositionsPromises.push(
           getUserSSOVPosition(data?.userSSOVOptionPurchases[Number(i)])
@@ -441,7 +463,7 @@ export const createPortfolioSlice: StateCreator<
 
     const [ssovPositions, ssovPositionsPolygon] = await Promise.all([
       getSSOVPositions(data),
-      getSSOVPositions(dataPolygon),
+      getSSOVPolygonPositions(dataPolygon),
     ]);
 
     // Straddles
