@@ -455,6 +455,9 @@ const PurchaseDialog = ({
         premium: BigNumber.from(0),
         expiry: 0,
         totalCost: BigNumber.from(0),
+        greeks: {
+          delta: 0,
+        },
       });
       return;
     }
@@ -730,7 +733,7 @@ const PurchaseDialog = ({
                     <div className="bg-mineshaft hover:bg-neutral-700 rounded-md items-center w-1/6 h-fit clickable">
                       <IconButton
                         className="p-0"
-                        onClick={(e: Event) => setAnchorEl(e.currentTarget)}
+                        onClick={(e: any) => setAnchorEl(e.currentTarget)}
                         size="large"
                       >
                         {anchorEl ? (
