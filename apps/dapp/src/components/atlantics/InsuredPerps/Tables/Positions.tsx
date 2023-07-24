@@ -654,7 +654,7 @@ const Positions = ({
                             <ContentRow
                               title="PnL:"
                               content={`${formatAmount(
-                                userPositionData.delta,
+                                userPositionData.delta.toString(),
                                 2,
                               )}`}
                               textSize="caption"
@@ -696,14 +696,14 @@ const Positions = ({
                           </Typography>
                           <Typography
                             className={`${
-                              Number(userPositionData.delta) > 0
+                              Number(userPositionData.delta.toString()) > 0
                                 ? 'text-up-only'
                                 : 'text-down-bad'
                             }`}
                             variant="caption"
                           >
                             {`${formatAmount(
-                              userPositionData.delta,
+                              userPositionData.delta.toString(),
                               2,
                             )}(${pnlPercentage}%)`}
                           </Typography>
