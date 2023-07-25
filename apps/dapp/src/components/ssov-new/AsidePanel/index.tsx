@@ -72,7 +72,7 @@ const AsidePanel = ({ market }: { market: string }) => {
   const selectedVault = useMemo(() => {
     const selected = vaults.find(
       (_vault) =>
-        vault.duration === _vault.duration && vault.isPut === _vault.isPut,
+        vault.duration === _vault.duration && vault.isPut === _vault.isPut
     );
 
     return selected;
@@ -158,7 +158,7 @@ const AsidePanel = ({ market }: { market: string }) => {
         ? Number(formatUnits(strikeData.availableCollateral || 0n, 18)) /
             Number(strikeData.strike)
         : formatUnits(strikeData.availableCollateral || 0n, 18),
-      5,
+      5
     );
     const totalPremium = premiumInUSD * Number(amountDebounced);
 
@@ -173,7 +173,7 @@ const AsidePanel = ({ market }: { market: string }) => {
     (e: { target: { value: SetStateAction<any> } }) => {
       setAmount(e.target.value);
     },
-    [],
+    []
   );
 
   const handleClose = () => {
@@ -266,7 +266,7 @@ const AsidePanel = ({ market }: { market: string }) => {
           leftElement={
             <img
               src={`/images/tokens/${String(
-                collateralTokenReads.data?.[2].result,
+                collateralTokenReads.data?.[2].result
               )?.toLowerCase()}.svg`}
               alt={String(collateralTokenReads.data?.[2].result)?.toLowerCase()}
               className="w-[30px] h-[30px] border border-mineshaft rounded-full ring-4 ring-cod-gray"
@@ -304,7 +304,7 @@ const AsidePanel = ({ market }: { market: string }) => {
                 <p>
                   {formatAmount(
                     formatUnits(selectedStrike.premiumPerOption || 0n, 18),
-                    3,
+                    3
                   )}{' '}
                   <span className="text-stieglitz">
                     {vault?.isPut ? '$' : vault?.underlyingSymbol}
@@ -352,9 +352,9 @@ const AsidePanel = ({ market }: { market: string }) => {
                 <p>
                   {format(
                     new Date(
-                      Number(selectedVault?.epochTimes.startTime) * 1000,
+                      Number(selectedVault?.epochTimes.startTime) * 1000
                     ),
-                    'dd LLL yyy',
+                    'dd LLL yyy'
                   )}
                 </p>
               }
@@ -365,7 +365,7 @@ const AsidePanel = ({ market }: { market: string }) => {
                 <p>
                   {format(
                     new Date(Number(selectedVault?.epochTimes.expiry) * 1000),
-                    'dd LLL yyy',
+                    'dd LLL yyy'
                   )}
                 </p>
               }
@@ -382,9 +382,9 @@ const AsidePanel = ({ market }: { market: string }) => {
                     {formatAmount(
                       formatUnits(
                         selectedStrike.premiumPerOption || 0n,
-                        DECIMALS_TOKEN,
+                        DECIMALS_TOKEN
                       ),
-                      3,
+                      3
                     )}
                   </p>
                   <p className="text-stieglitz">
@@ -400,19 +400,16 @@ const AsidePanel = ({ market }: { market: string }) => {
               content={
                 formatAmount(
                   (Number(
-                    formatUnits(
-                      selectedStrike?.premiumsAccrued,
-                      DECIMALS_TOKEN,
-                    ),
+                    formatUnits(selectedStrike?.premiumsAccrued, DECIMALS_TOKEN)
                   ) /
                     Number(
                       formatUnits(
                         selectedStrike.activeCollateral,
-                        DECIMALS_TOKEN,
-                      ),
+                        DECIMALS_TOKEN
+                      )
                     )) *
                     100,
-                  3,
+                  3
                 ) + '%'
               }
             />
@@ -422,7 +419,7 @@ const AsidePanel = ({ market }: { market: string }) => {
           onClick={transact}
           variant="contained"
           color="primary"
-          className={`hover:cursor-pointer ${
+          className={`hover:${
             infoPopover.disabled ? 'cursor-not-allowed' : 'cursor-default'
           }`}
           disabled={infoPopover.disabled}
@@ -447,15 +444,15 @@ const AsidePanel = ({ market }: { market: string }) => {
             vault.isPut
               ? Number(selectedStrike.strike) -
                 Number(
-                  formatUnits(selectedStrike.premiumPerOption, DECIMALS_TOKEN),
+                  formatUnits(selectedStrike.premiumPerOption, DECIMALS_TOKEN)
                 )
               : Number(selectedStrike.strike) +
                 Number(
-                  formatUnits(selectedStrike.premiumPerOption, DECIMALS_TOKEN),
+                  formatUnits(selectedStrike.premiumPerOption, DECIMALS_TOKEN)
                 )
           }
           optionPrice={Number(
-            formatUnits(selectedStrike.premiumPerOption, DECIMALS_TOKEN),
+            formatUnits(selectedStrike.premiumPerOption, DECIMALS_TOKEN)
           )}
           amount={Number(amountDebounced)}
           isPut={vault.isPut}
