@@ -72,7 +72,7 @@ const AsidePanel = ({ market }: { market: string }) => {
   const selectedVault = useMemo(() => {
     const selected = vaults.find(
       (_vault) =>
-        vault.duration === _vault.duration && vault.isPut === _vault.isPut
+        vault.duration === _vault.duration && vault.isPut === _vault.isPut,
     );
 
     return selected;
@@ -158,7 +158,7 @@ const AsidePanel = ({ market }: { market: string }) => {
         ? Number(formatUnits(strikeData.availableCollateral || 0n, 18)) /
             Number(strikeData.strike)
         : formatUnits(strikeData.availableCollateral || 0n, 18),
-      5
+      5,
     );
     const totalPremium = premiumInUSD * Number(amountDebounced);
 
@@ -173,7 +173,7 @@ const AsidePanel = ({ market }: { market: string }) => {
     (e: { target: { value: SetStateAction<any> } }) => {
       setAmount(e.target.value);
     },
-    []
+    [],
   );
 
   const handleClose = () => {
@@ -236,6 +236,60 @@ const AsidePanel = ({ market }: { market: string }) => {
     approveConfig,
   ]);
 
+  const panelData = useMemo(() => {
+    if (!selectedStrike || !selectedVault)
+      return {
+        epoch: 0,
+        strike: 0,
+        optionSize: 0,
+        fees: 0,
+        iv: 0,
+        breakeven: 0,
+        totalCost: 0,
+        availableCollateral: 0,
+        side: '-',
+        epochStartTime: format(new Date(), 'dd LLL yyyy'),
+        withdrawableDate: format(new Date(), 'dd LLL yyyy'),
+        premiumPerOption: 0,
+        premiumApr: 0,
+      };
+
+    const activeCollateral =
+      selectedStrike.activeCollateral === 0n
+        ? 1
+        : Number(formatUnits(selectedStrike.activeCollateral, DECIMALS_TOKEN));
+
+    return {
+      epoch: selectedVault.currentEpoch,
+      strike: selectedStrike.strike,
+      optionSize: formatAmount(amountDebounced, 3),
+      fees: selectedStrike.strike,
+      iv: selectedStrike.iv,
+      breakeven: `$${formatAmount(selectedStrike.breakeven, 3)}`,
+      totalCost: formatAmount(selectedStrike.totalPremium, 3),
+      availableCollateral: selectedStrike.availableCollateral,
+      side: selectedVault.isPut ? 'Put' : 'Call',
+      epochStartTime: format(
+        new Date(Number(selectedVault.epochTimes.startTime) * 1000),
+        'dd LLL yyy',
+      ),
+      withdrawableDate: format(
+        new Date(Number(selectedVault.epochTimes.expiry) * 1000),
+        'dd LLL yyy',
+      ),
+      premiumPerOption: formatAmount(
+        formatUnits(selectedStrike.premiumPerOption || 0n, DECIMALS_TOKEN),
+        3,
+      ),
+      premiumApr: formatAmount(
+        (Number(formatUnits(selectedStrike.premiumsAccrued, DECIMALS_TOKEN)) /
+          activeCollateral) *
+          100,
+        3,
+      ),
+    };
+  }, [amountDebounced, selectedStrike, selectedVault]);
+
   const transact = useCallback(() => {
     if (infoPopover.textContent?.includes('allowance')) {
       approve?.();
@@ -266,7 +320,7 @@ const AsidePanel = ({ market }: { market: string }) => {
           leftElement={
             <img
               src={`/images/tokens/${String(
-                collateralTokenReads.data?.[2].result
+                collateralTokenReads.data?.[2].result,
               )?.toLowerCase()}.svg`}
               alt={String(collateralTokenReads.data?.[2].result)?.toLowerCase()}
               className="w-[30px] h-[30px] border border-mineshaft rounded-full ring-4 ring-cod-gray"
@@ -285,11 +339,11 @@ const AsidePanel = ({ market }: { market: string }) => {
         <div className="flex flex-col divide-y divide-carbon border border-carbon rounded-md">
           <div className="flex divide-x divide-carbon text-xs">
             <span className="space-y-2 w-1/2 p-3">
-              <p>${selectedStrike.strike}</p>
+              <p>${panelData.strike}</p>
               <p className="text-stieglitz">Strike</p>
             </span>
             <span className="space-y-2 w-1/2 p-3">
-              <p>{selectedVault?.currentEpoch}</p>
+              <p>{panelData.epoch}</p>
               <p className="text-xs text-stieglitz">Epoch</p>
             </span>
           </div>
@@ -297,19 +351,24 @@ const AsidePanel = ({ market }: { market: string }) => {
             <div className="flex flex-col space-y-2 p-3 text-xs">
               <span className="flex justify-between">
                 <p className="text-stieglitz">Side</p>
-                <p>{vault?.isPut ? 'PUT' : 'CALL'}</p>
+                <p>{panelData.side}</p>
               </span>
               <span className="flex justify-between">
                 <p className="text-stieglitz">Premium</p>
-                <p>
-                  {formatAmount(
-                    formatUnits(selectedStrike.premiumPerOption || 0n, 18),
-                    3
-                  )}{' '}
-                  <span className="text-stieglitz">
+                <span
+                  className={`flex ${
+                    selectedVault?.isPut ? 'flex-row-reverse' : null
+                  }`}
+                >
+                  {panelData.premiumPerOption}
+                  <p
+                    className={`text-stieglitz ${
+                      selectedVault?.isPut ? null : 'pl-1'
+                    }`}
+                  >
                     {vault?.isPut ? '$' : vault?.underlyingSymbol}
-                  </span>
-                </p>
+                  </p>
+                </span>
               </span>
             </div>
           ) : null}
@@ -318,23 +377,20 @@ const AsidePanel = ({ market }: { market: string }) => {
           <div className="flex flex-col bg-umbra rounded-md p-3 space-y-3">
             <RowItem
               label="Option Size"
-              content={<p>{formatAmount(amountDebounced, 3)}</p>}
+              content={<p>{panelData.optionSize}</p>}
             />
-            <RowItem label="Fees" content={selectedStrike.strike} />
-            <RowItem label="IV" content={selectedStrike.iv} />
-            <RowItem
-              label="Breakeven"
-              content={'$' + formatAmount(selectedStrike.breakeven, 3)}
-            />
+            <RowItem label="Fees" content={panelData.fees} />
+            <RowItem label="IV" content={panelData.iv} />
+            <RowItem label="Breakeven" content={panelData.breakeven} />
             <RowItem
               label="You will pay"
-              content={<p>${formatAmount(selectedStrike.totalPremium, 3)}</p>}
+              content={<p>${panelData.totalCost}</p>}
             />
             <RowItem
               label="Available"
               content={
                 <p>
-                  {selectedStrike.availableCollateral}{' '}
+                  {panelData.availableCollateral}{' '}
                   {String(collateralTokenReads.data?.[2].result)}
                 </p>
               }
@@ -342,33 +398,14 @@ const AsidePanel = ({ market }: { market: string }) => {
           </div>
         ) : (
           <div className="flex flex-col bg-umbra rounded-md p-3 space-y-3">
-            <RowItem
-              label="Side"
-              content={selectedVault?.isPut ? 'Put' : 'Call'}
-            />
+            <RowItem label="Side" content={panelData.side} />
             <RowItem
               label="Epoch"
-              content={
-                <p>
-                  {format(
-                    new Date(
-                      Number(selectedVault?.epochTimes.startTime) * 1000
-                    ),
-                    'dd LLL yyy'
-                  )}
-                </p>
-              }
+              content={<p>{panelData.epochStartTime}</p>}
             />
             <RowItem
               label="Withdrawable"
-              content={
-                <p>
-                  {format(
-                    new Date(Number(selectedVault?.epochTimes.expiry) * 1000),
-                    'dd LLL yyy'
-                  )}
-                </p>
-              }
+              content={<p>{panelData.withdrawableDate}</p>}
             />
             <RowItem
               label="Premium Per Option"
@@ -378,15 +415,7 @@ const AsidePanel = ({ market }: { market: string }) => {
                     selectedVault?.isPut ? 'flex-row-reverse' : null
                   }`}
                 >
-                  <p>
-                    {formatAmount(
-                      formatUnits(
-                        selectedStrike.premiumPerOption || 0n,
-                        DECIMALS_TOKEN
-                      ),
-                      3
-                    )}
-                  </p>
+                  <p>{panelData.premiumPerOption}</p>
                   <p className="text-stieglitz">
                     {selectedVault?.isPut
                       ? '$'
@@ -395,24 +424,7 @@ const AsidePanel = ({ market }: { market: string }) => {
                 </span>
               }
             />
-            <RowItem
-              label="Premium APR"
-              content={
-                formatAmount(
-                  (Number(
-                    formatUnits(selectedStrike?.premiumsAccrued, DECIMALS_TOKEN)
-                  ) /
-                    Number(
-                      formatUnits(
-                        selectedStrike.activeCollateral,
-                        DECIMALS_TOKEN
-                      )
-                    )) *
-                    100,
-                  3
-                ) + '%'
-              }
-            />
+            <RowItem label="Premium APR" content={panelData.premiumApr + '%'} />
           </div>
         )}
         <Button
@@ -444,15 +456,15 @@ const AsidePanel = ({ market }: { market: string }) => {
             vault.isPut
               ? Number(selectedStrike.strike) -
                 Number(
-                  formatUnits(selectedStrike.premiumPerOption, DECIMALS_TOKEN)
+                  formatUnits(selectedStrike.premiumPerOption, DECIMALS_TOKEN),
                 )
               : Number(selectedStrike.strike) +
                 Number(
-                  formatUnits(selectedStrike.premiumPerOption, DECIMALS_TOKEN)
+                  formatUnits(selectedStrike.premiumPerOption, DECIMALS_TOKEN),
                 )
           }
           optionPrice={Number(
-            formatUnits(selectedStrike.premiumPerOption, DECIMALS_TOKEN)
+            formatUnits(selectedStrike.premiumPerOption, DECIMALS_TOKEN),
           )}
           amount={Number(amountDebounced)}
           isPut={vault.isPut}
