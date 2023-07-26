@@ -131,7 +131,7 @@ const columns = [
             value.isPut
               ? value.totalAvailableCollateral / value.strike
               : value.totalAvailableCollateral,
-            3
+            3,
           )}
         </span>
       );
@@ -141,6 +141,11 @@ const columns = [
     header: () => null,
     cell: (info) => {
       const value = info.getValue();
+
+      const approximationSymbol =
+        Number(formatUnits(value.premiumPerOption || 0n, DECIMALS_TOKEN)) < 1
+          ? '~'
+          : null;
 
       return (
         <div className="flex space-x-2 justify-end">
@@ -154,9 +159,10 @@ const columns = [
           >
             <span className="flex items-center space-x-1">
               <span>
+                {approximationSymbol}
                 {formatAmount(
                   formatUnits(value.premiumPerOption || 0n, DECIMALS_TOKEN),
-                  3
+                  3,
                 )}{' '}
                 {value.isPut ? '2CRV' : value.base}
               </span>
@@ -234,7 +240,7 @@ const Table = ({ strikeData }: { strikeData: any }) => {
                             ? null
                             : flexRender(
                                 header.column.columnDef.header,
-                                header.getContext()
+                                header.getContext(),
                               )}
                         </span>
                       </th>
@@ -302,7 +308,7 @@ const StrikesTable = ({ market }: { market: string }) => {
   const activeStrikeIndex = useVaultStore((store) => store.activeStrikeIndex);
 
   const setActiveStrikeIndex = useVaultStore(
-    (store) => store.setActiveStrikeIndex
+    (store) => store.setActiveStrikeIndex,
   );
 
   const { vaults } = useVaultsData({ market });
@@ -310,7 +316,7 @@ const StrikesTable = ({ market }: { market: string }) => {
   const selectedVault = useMemo(() => {
     const selected = vaults.find(
       (_vault) =>
-        vault.duration === _vault.duration && vault.isPut === _vault.isPut
+        vault.duration === _vault.duration && vault.isPut === _vault.isPut,
     );
 
     return selected;
@@ -332,7 +338,7 @@ const StrikesTable = ({ market }: { market: string }) => {
 
     return strikesData.map((strikeData, index) => {
       const premiumFormatted = Number(
-        formatUnits(strikeData.premiumPerOption || 0n, DECIMALS_TOKEN)
+        formatUnits(strikeData.premiumPerOption || 0n, DECIMALS_TOKEN),
       );
 
       const tvl =
@@ -345,8 +351,8 @@ const StrikesTable = ({ market }: { market: string }) => {
           Number(
             formatUnits(
               strikeData.premiumsAccrued + strikeData.totalCollateral,
-              DECIMALS_TOKEN
-            )
+              DECIMALS_TOKEN,
+            ),
           ));
 
       premiumApy = premiumApy * (365 / (vault.duration === 'WEEKLY' ? 7 : 30));
