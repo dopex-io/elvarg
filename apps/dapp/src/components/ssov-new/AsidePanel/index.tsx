@@ -28,7 +28,7 @@ import DepositStepper from 'components/ssov-new/Dialogs/DepositStepper';
 
 import formatAmount from 'utils/general/formatAmount';
 
-import { DECIMALS_TOKEN } from 'constants/index';
+import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
 export const ButtonGroup = ({
   active,
@@ -140,10 +140,11 @@ const AsidePanel = ({ market }: { market: string }) => {
         breakeven: 0,
         availableCollateral: 0,
         totalPremium: 0,
-        premiumPerOption: BigInt(0),
-        premiumsAccrued: BigInt(0),
-        totalCollateral: BigInt(0),
-        activeCollateral: BigInt(0),
+        premiumPerOption: 0n,
+        purchaseFeePerOption: 0n,
+        premiumsAccrued: 0n,
+        totalCollateral: 0n,
+        activeCollateral: 0n,
       };
 
     const strikeData = strikesData[activeStrikeIndex];
@@ -259,14 +260,25 @@ const AsidePanel = ({ market }: { market: string }) => {
         ? 1
         : Number(formatUnits(selectedStrike.activeCollateral, DECIMALS_TOKEN));
 
+    const totalFees = Number(
+      formatUnits(
+        selectedVault.isPut
+          ? selectedStrike.purchaseFeePerOption * BigInt(amountDebounced)
+          : selectedStrike.purchaseFeePerOption *
+              BigInt(amountDebounced) *
+              parseUnits(selectedVault.currentPrice, DECIMALS_USD),
+        selectedVault.isPut ? DECIMALS_TOKEN : DECIMALS_TOKEN + DECIMALS_USD,
+      ),
+    );
+
     return {
       epoch: selectedVault.currentEpoch,
       strike: selectedStrike.strike,
       optionSize: formatAmount(amountDebounced, 3),
-      fees: selectedStrike.strike,
+      fees: `$${formatAmount(totalFees, 3)}`,
       iv: selectedStrike.iv,
       breakeven: `$${formatAmount(selectedStrike.breakeven, 3)}`,
-      totalCost: formatAmount(selectedStrike.totalPremium, 3),
+      totalCost: formatAmount(selectedStrike.totalPremium + totalFees, 3),
       availableCollateral: selectedStrike.availableCollateral,
       side: selectedVault.isPut ? 'Put' : 'Call',
       epochStartTime: format(
@@ -379,7 +391,7 @@ const AsidePanel = ({ market }: { market: string }) => {
               label="Option Size"
               content={<p>{panelData.optionSize}</p>}
             />
-            <RowItem label="Fees" content={panelData.fees} />
+            <RowItem label="Fees" content={<p>{panelData.fees}</p>} />
             <RowItem label="IV" content={panelData.iv} />
             <RowItem label="Breakeven" content={panelData.breakeven} />
             <RowItem

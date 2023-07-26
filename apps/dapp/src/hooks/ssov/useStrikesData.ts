@@ -6,8 +6,9 @@ import { readContracts, useContractReads } from 'wagmi';
 
 import getTimeToExpirationInYears from 'utils/date/getTimeToExpirationInYears';
 import computeOptionGreeks from 'utils/ssov/computeOptionGreeks';
+import getSsovPurchaseFees from 'utils/ssov/getSsovPurchaseFees';
 
-import { DECIMALS_STRIKE } from 'constants/index';
+import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 
 interface Props {
   ssovAddress: Address;
@@ -32,6 +33,7 @@ export interface StrikeData extends Greeks {
   activeCollateral: bigint;
   premiumsAccrued: bigint;
   premiumPerOption: bigint;
+  purchaseFeePerOption: bigint;
 }
 
 const useStrikesData = (props: Props) => {
@@ -120,7 +122,7 @@ const useStrikesData = (props: Props) => {
         spot: Number(formatUnits(data[1].result!, DECIMALS_STRIKE)),
         strike,
         expiryInYears: getTimeToExpirationInYears(
-          Number(data[0].result!.expiry)
+          Number(data[0].result!.expiry),
         ),
         ivInDecimals: iv / 100,
         isPut: data[2].result ?? false,
@@ -132,7 +134,7 @@ const useStrikesData = (props: Props) => {
           ((strikeData.result.totalCollateral -
             strikeData.result.activeCollateral) *
             100n) /
-            strikeData.result.totalCollateral
+            strikeData.result.totalCollateral,
         );
 
       const totalAvailable = Number(
@@ -140,16 +142,22 @@ const useStrikesData = (props: Props) => {
           (strikeData.result.totalCollateral -
             strikeData.result.activeCollateral) /
             (data[0].result.collateralExchangeRate ?? 1n),
-          10
-        )
+          10,
+        ),
       );
       const totalPurchased = Number(
         formatUnits(
           strikeData.result.activeCollateral /
             (data[0].result.collateralExchangeRate ?? 1n),
-          10
-        )
+          10,
+        ),
       );
+
+      const purchaseFeePerOption = await getSsovPurchaseFees({
+        ssov: ssovAddress,
+        strike: strikes[i],
+        amount: parseUnits('1', DECIMALS_TOKEN),
+      });
 
       _strikesData.push({
         totalCollateral: strikeData.result.totalCollateral,
@@ -159,6 +167,7 @@ const useStrikesData = (props: Props) => {
         activeCollateral: strikeData.result.activeCollateral,
         premiumsAccrued: strikeData.result.totalPremiums,
         premiumPerOption: premiumPerOption.result!,
+        purchaseFeePerOption,
         utilization,
         totalAvailableCollateral: totalAvailable,
         totalPurchased: totalPurchased,
