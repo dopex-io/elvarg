@@ -86,7 +86,7 @@ const useSsovPositions = (args: Args) => {
     const filteredWritePositions =
       ssovQueryResult.users[0].userSSOVDeposit.filter(
         (position) =>
-          position.ssov.id.toLowerCase() === ssovAddress.toLowerCase()
+          position.ssov.id.toLowerCase() === ssovAddress.toLowerCase(),
       );
 
     const _writePositions = [];
@@ -116,7 +116,7 @@ const useSsovPositions = (args: Args) => {
 
       const earned = (await getEarned(
         ssovAddress,
-        BigInt(vault.id.split('#')[1])
+        BigInt(vault.id.split('#')[1]),
       )) as [Address[], bigint[]];
 
       let rewardsAccrued: RewardAccrued[] = [];
@@ -133,7 +133,7 @@ const useSsovPositions = (args: Args) => {
         await getRewardsInfo(
           ssovAddress,
           BigInt(vault.strike),
-          BigInt(vault.epoch)
+          BigInt(vault.epoch),
         )
       ).map((rewardInfo) => ({
         ...rewardInfo,
@@ -155,11 +155,11 @@ const useSsovPositions = (args: Args) => {
       };
     }
 
-    setWritePositions(_writePositions);
+    setWritePositions(_writePositions.sort((a, b) => b.expiry - a.expiry));
 
     const filteredBuyPositions =
       ssovQueryResult.users[0].userSSOVOptionBalance.filter((position) =>
-        position.id.toLowerCase().includes(ssovAddress.toLowerCase())
+        position.id.toLowerCase().includes(ssovAddress.toLowerCase()),
       );
 
     const _buyPositions = [];
@@ -183,7 +183,7 @@ const useSsovPositions = (args: Args) => {
       };
     }
 
-    setBuyPositions(_buyPositions);
+    setBuyPositions(_buyPositions.sort((a, b) => b.expiry - a.expiry));
     setLoading(false);
   }, [address, isPut, ssovAddress]);
 

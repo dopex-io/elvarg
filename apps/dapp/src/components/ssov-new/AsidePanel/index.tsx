@@ -264,9 +264,10 @@ const AsidePanel = ({ market }: { market: string }) => {
       formatUnits(
         selectedVault.isPut
           ? selectedStrike.purchaseFeePerOption * BigInt(amountDebounced)
-          : selectedStrike.purchaseFeePerOption *
-              BigInt(amountDebounced) *
-              parseUnits(selectedVault.currentPrice, DECIMALS_USD),
+          : (selectedStrike.purchaseFeePerOption *
+              parseUnits(amountDebounced, DECIMALS_TOKEN) *
+              parseUnits(selectedVault.currentPrice, DECIMALS_USD)) /
+              parseUnits('1', DECIMALS_TOKEN),
         selectedVault.isPut ? DECIMALS_TOKEN : DECIMALS_TOKEN + DECIMALS_USD,
       ),
     );
