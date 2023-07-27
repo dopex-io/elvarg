@@ -21,11 +21,12 @@ import {
 } from '@dopex-io/sdk';
 import { Button } from '@dopex-io/ui';
 import axios from 'axios';
-import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
 import { useDebounce } from 'use-debounce';
 
+import { useBoundStore } from 'store';
 import { IAtlanticPoolEpochStrikeData } from 'store/Vault/atlantics';
+
+import useSendTx from 'hooks/useSendTx';
 
 import StrategyDetails from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/StrategyDetails';
 import TokenSelector from 'components/atlantics/TokenSelector';
@@ -125,6 +126,7 @@ const ManagePosition = () => {
     userAssetBalances,
     setSelectedEpoch,
   } = useBoundStore();
+
   const [leverage, setLeverage] = useState<BigNumber>(INITIAL_LEVERAGE);
   const [increaseOrderParams, setIncreaseOrderParams] =
     useState<IncreaseOrderParams>({
@@ -202,7 +204,7 @@ const ManagePosition = () => {
     const availableStrikesData = atlanticPoolEpochData.epochStrikeData.filter(
       (data: any) => {
         return data.strike.gte(putStrike);
-      }
+      },
     );
     let availableLiquidity = BigNumber.from(0);
     for (const i in availableStrikesData) {
@@ -212,7 +214,7 @@ const ManagePosition = () => {
           activeCollateral: BigNumber.from(0),
         };
       availableLiquidity = availableLiquidity.add(
-        totalEpochMaxStrikeLiquidity.sub(activeCollateral)
+        totalEpochMaxStrikeLiquidity.sub(activeCollateral),
       );
     }
 
@@ -224,7 +226,7 @@ const ManagePosition = () => {
         increaseOrderParams.collateralDelta
           .add(positionFee)
           .add(strategyFee)
-          .add(swapFees)
+          .add(swapFees),
       );
 
     const [highestStrikeData] = availableStrikesData;
@@ -247,7 +249,7 @@ const ManagePosition = () => {
     } else if (unavailableStrike) {
       errorMessage = `Put Strike exceeds highest strike. Highest strike available: ${ethers.utils.formatUnits(
         availableStrikesData[0]?.strike ?? 0,
-        8
+        8,
       )} `;
     } else if (Number(positionBalance) <= 0) {
       errorMessage = 'Invalid input amount';
@@ -328,7 +330,7 @@ const ManagePosition = () => {
           liquidityBalance: string;
         }) =>
           Number(strikeData.strike) >=
-          Number(strategyDetails.putStrike.div(1e8))
+          Number(strategyDetails.putStrike.div(1e8)),
       );
 
     let accumulatedOptionsPurchasable = filteredMaxStrikesData.reduce(
@@ -339,7 +341,7 @@ const ManagePosition = () => {
             Number(strategyDetails.putStrike.div(1e8))
         );
       },
-      0
+      0,
     );
 
     setStrategyDetails((prevState) => ({
@@ -376,7 +378,7 @@ const ManagePosition = () => {
         [
           'function maxGlobalLongSizes(address) external view returns (uint256)',
         ],
-        provider
+        provider,
       );
 
       const [
@@ -410,7 +412,7 @@ const ManagePosition = () => {
       const collateralTokenDecimals = getTokenDecimals(depositToken, chainId);
       const selectedTokenInputAmount = ethers.utils.parseUnits(
         inputAmount,
-        selectedTokenDecimals
+        selectedTokenDecimals,
       );
 
       if (selectedTokenInputAmount.eq(0)) {
@@ -424,14 +426,14 @@ const ManagePosition = () => {
           underlyingMaxPrice,
           selectedTokenInputAmount,
           selectedTokenDecimals,
-          getTokenDecimals(underlying, chainId)
+          getTokenDecimals(underlying, chainId),
         );
       }
 
       const collateralUsd = tokenToUsdMin(
         selectedTokenMinPrice,
         selectedTokenInputAmount,
-        selectedTokenDecimals
+        selectedTokenDecimals,
       );
 
       let sizeUsd = collateralUsd
@@ -451,7 +453,7 @@ const ManagePosition = () => {
       const liquidationUsd = underlyingMinPrice.sub(priceDelta);
 
       const liquidationPrice = liquidationUsd.div(
-        ethers.utils.parseUnits('1', 22)
+        ethers.utils.parseUnits('1', 22),
       );
 
       let putStrike = BigNumber.from(1);
@@ -459,7 +461,7 @@ const ManagePosition = () => {
       if (liquidationUsd.lt(underlyingMaxPrice)) {
         putStrike = getEligiblePutStrike(
           liquidationPrice,
-          atlanticPool.vaultConfig.tickSize
+          atlanticPool.vaultConfig.tickSize,
         );
       }
 
@@ -473,7 +475,7 @@ const ManagePosition = () => {
       const collateralAccessInCollateralToken = usdToTokenMin(
         collateralTokenMinPrice,
         sizeUsd.sub(collateralUsd),
-        collateralTokenDecimals
+        collateralTokenDecimals,
       );
 
       const optionsAmount = collateralAccessInCollateralToken
@@ -486,7 +488,7 @@ const ManagePosition = () => {
         putOptionsPremium =
           await atlanticPool.contracts.atlanticPool.calculatePremium(
             putStrike,
-            optionsAmount
+            optionsAmount,
           );
       }
 
@@ -494,19 +496,19 @@ const ManagePosition = () => {
         collateralTokenMinPrice.div(ethers.utils.parseUnits('1', 22)),
         putStrike,
         optionsAmount,
-        collateralTokenDecimals
+        collateralTokenDecimals,
       );
 
       const fundingFees = getFundingFees(
         collateralAccessInCollateralToken,
         currentTimestamp,
-        atlanticPoolEpochData.expiry
+        atlanticPoolEpochData.expiry,
       );
 
       const strategyFee = usdToTokenMin(
         selectedTokenMinPrice,
         getStrategyFee(sizeUsd),
-        selectedTokenDecimals
+        selectedTokenDecimals,
       );
 
       setStrategyDetails(() => ({
@@ -517,7 +519,7 @@ const ManagePosition = () => {
         positionFee: usdToTokenMin(
           selectedTokenMinPrice,
           positionFeeUsd,
-          selectedTokenDecimals
+          selectedTokenDecimals,
         ),
         optionsAmount,
         liquidationPrice,
@@ -533,8 +535,8 @@ const ManagePosition = () => {
             maxLongsLimit.sub(currentLongsUsd).gt(0)
               ? maxLongsLimit.sub(currentLongsUsd)
               : 0,
-            30
-          )
+            30,
+          ),
         ),
         optionsPurchasable: 0,
         feesWithoutDiscount: {
@@ -556,7 +558,7 @@ const ManagePosition = () => {
         collateralDelta: usdToTokenMin(
           selectedTokenMaxPrice,
           collateralUsd.add(positionFeeUsd),
-          selectedTokenDecimals
+          selectedTokenDecimals,
         ).add(swapFees),
         positionSizeDelta: sizeUsd,
         acceptablePrice,
@@ -592,13 +594,13 @@ const ManagePosition = () => {
 
     const gmxVault = GmxVault__factory.connect(
       contractAddresses['GMX-VAULT'],
-      signer
+      signer,
     );
 
     const positionRouter = new ethers.Contract(
       '0xb87a436B93fFE9D75c5cFA7bAcFff96430b09868',
       ['function maxGlobalLongSizes(address) external view returns (uint256)'],
-      provider
+      provider,
     );
 
     const underlyingTokenAddress =
@@ -610,7 +612,7 @@ const ManagePosition = () => {
         positionRouter['maxGlobalLongSizes'](underlyingTokenAddress),
         gmxVault.guaranteedUsd(underlyingTokenAddress),
         getBlockTime(provider),
-      ]
+      ],
     );
 
     if (
@@ -632,8 +634,8 @@ const ManagePosition = () => {
       availableLiquidityForLongs: Number(
         ethers.utils.formatUnits(
           maxLongs.sub(currentLongs).gt(0) ? maxLongs.sub(currentLongs) : 0,
-          30
-        )
+          30,
+        ),
       ),
     }));
   }, [
@@ -650,16 +652,16 @@ const ManagePosition = () => {
       setLeverage(
         ethers.utils.parseUnits(
           (typeof value == 'number' ? value : value.pop() ?? 0).toString(),
-          30
-        )
+          30,
+        ),
       );
       handleStrategyCalculations();
     },
-    [handleStrategyCalculations]
+    [handleStrategyCalculations],
   );
 
   const handlePositionBalanceChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { value } = event.target;
     setPositionBalance(value);
@@ -670,7 +672,7 @@ const ManagePosition = () => {
     if (!accountAddress || !selectedToken) return;
     const tokenContract = ERC20__factory.connect(
       contractAddresses[selectedToken],
-      provider
+      provider,
     );
     const balance = await tokenContract.balanceOf(accountAddress);
     const tokenDecimals = getTokenDecimals(selectedToken, chainId);
@@ -687,7 +689,7 @@ const ManagePosition = () => {
     if (!depositToken) return;
     const tokenContract = ERC20__factory.connect(
       contractAddresses[depositToken],
-      signer
+      signer,
     );
 
     try {
@@ -710,7 +712,7 @@ const ManagePosition = () => {
       if (!underlying) return;
       const tokenContract = ERC20__factory.connect(
         contractAddresses[underlying],
-        signer
+        signer,
       );
       await sendTx(tokenContract, 'approve', [
         strategyContractAddress,
@@ -729,11 +731,11 @@ const ManagePosition = () => {
     if (!atlanticPool || !accountAddress) return;
     const quoteToken = ERC20__factory.connect(
       contractAddresses[atlanticPool.tokens.depositToken],
-      provider
+      provider,
     );
     const baseToken = ERC20__factory.connect(
       contractAddresses[atlanticPool.tokens.underlying],
-      provider
+      provider,
     );
 
     const strategyAddress =
@@ -741,21 +743,21 @@ const ManagePosition = () => {
 
     const quoteTokenAllowance = await quoteToken.allowance(
       accountAddress,
-      strategyAddress
+      strategyAddress,
     );
     const baseTokenAllowance = await baseToken.allowance(
       accountAddress,
-      strategyAddress
+      strategyAddress,
     );
 
     setApproved(() => ({
       quote: quoteTokenAllowance.gte(
-        putOptionsPremium.add(putOptionsfees.add(fundingFees))
+        putOptionsPremium.add(putOptionsfees.add(fundingFees)),
       ),
       base:
         increaseOrderParams.path.length === 1
           ? baseTokenAllowance.gte(
-              increaseOrderParams.collateralDelta.add(strategyFee)
+              increaseOrderParams.collateralDelta.add(strategyFee),
             )
           : true,
     }));
@@ -794,7 +796,7 @@ const ManagePosition = () => {
       debouncedStrategyDetails[0].expiry.eq('0') ||
         positionBalance.length === 0 ||
         selectedToken === '' ||
-        !approved.quote
+        !approved.quote,
     );
   }, [debouncedStrategyDetails, approved, positionBalance, selectedToken]);
 
@@ -813,7 +815,7 @@ const ManagePosition = () => {
     }
     const strategyContract = InsuredLongsStrategy__factory.connect(
       contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'],
-      signer
+      signer,
     );
 
     const { depositToken } = atlanticPool.tokens;
@@ -902,10 +904,10 @@ const ManagePosition = () => {
             {formatAmount(
               ethers.utils.formatUnits(
                 BigNumber.from(userAssetBalances[selectedToken] ?? '0'),
-                CHAINS[chainId]?.tokenDecimals[selectedToken]
+                CHAINS[chainId]?.tokenDecimals[selectedToken],
               ),
               3,
-              true
+              true,
             )}{' '}
             {selectedToken.toUpperCase() === 'USDC' ? 'USDC.e' : selectedToken}
           </Typography>
@@ -949,7 +951,7 @@ const ManagePosition = () => {
           selectedToken={selectedToken}
           positionCollateral={ethers.utils.parseUnits(
             positionBalance,
-            getTokenDecimals(selectedToken, chainId)
+            getTokenDecimals(selectedToken, chainId),
           )}
           quoteToken={selectedPoolTokens.deposit}
           baseToken={selectedPoolTokens.underlying}

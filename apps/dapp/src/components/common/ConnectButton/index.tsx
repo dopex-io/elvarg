@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 
 import { Button } from '@dopex-io/ui';
-import { useEthersProvider } from 'hooks/useEthersProvider';
-import { useEthersSigner } from 'hooks/useEthersSigners';
+import cx from 'classnames';
 import { useAccount, useEnsAvatar, useEnsName, useNetwork } from 'wagmi';
 
 import { useBoundStore } from 'store';
+
+import { useEthersProvider } from 'hooks/useEthersProvider';
+import { useEthersSigner } from 'hooks/useEthersSigners';
 
 import { smartTrim } from 'utils/general';
 
@@ -14,7 +16,7 @@ import { DEFAULT_CHAIN_ID } from 'constants/env';
 import { useConnectDialog } from '../ConnectDialog';
 import WalletDialog from '../WalletDialog';
 
-export function ConnectButton() {
+export function ConnectButton({ className }: { className?: string }) {
   const [walletDialog, setWalletDialog] = useState(false);
 
   const { updateState, userAssetBalances } = useBoundStore();
@@ -54,7 +56,10 @@ export function ConnectButton() {
       />
       {address ? (
         <Button
-          className="text-white border-cod-gray flex items-center"
+          className={cx(
+            'text-white border-cod-gray flex items-center',
+            className,
+          )}
           color="carbon"
           onClick={handleClick}
         >
@@ -67,6 +72,7 @@ export function ConnectButton() {
           onClick={() => {
             open();
           }}
+          className={className}
         >
           Connect Wallet
         </Button>

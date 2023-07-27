@@ -11,6 +11,7 @@ import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
+import ConnectButton from 'components/common/ConnectButton';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import Wrapper from 'components/ssov/Wrapper';
 
@@ -394,25 +395,29 @@ const DepositCard = () => {
           <div className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
             <EstimatedGasCostButton gas={500000} chainId={chainId} />
           </div>
-          <Button
-            size="small"
-            className="w-full"
-            color={
-              !approved || (amount > 0 && amount <= readableUserTokenBalance)
-                ? 'primary'
-                : 'mineshaft'
-            }
-            disabled={amount <= 0}
-            onClick={approved ? handleDeposit : handleApprove}
-          >
-            <p className="text-[0.8rem]">
-              {loading ? (
-                <CircularProgress className="text-white" size="1rem" />
-              ) : (
-                depositButtonMessage
-              )}
-            </p>
-          </Button>
+          {accountAddress === undefined ? (
+            <ConnectButton className="w-full" />
+          ) : (
+            <Button
+              size="small"
+              className="w-full"
+              color={
+                !approved || (amount > 0 && amount <= readableUserTokenBalance)
+                  ? 'primary'
+                  : 'mineshaft'
+              }
+              disabled={amount <= 0}
+              onClick={approved ? handleDeposit : handleApprove}
+            >
+              <p className="text-[0.8rem]">
+                {loading ? (
+                  <CircularProgress className="text-white" size="1rem" />
+                ) : (
+                  depositButtonMessage
+                )}
+              </p>
+            </Button>
+          )}
         </div>
       </div>
     </div>

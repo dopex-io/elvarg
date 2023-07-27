@@ -1,19 +1,21 @@
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 
-import { useMemo, useState } from 'react';
-
-import SearchIcon from '@mui/icons-material/Search';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Input from '@mui/material/Input';
+
+import SearchIcon from '@mui/icons-material/Search';
+
 import cx from 'classnames';
+
 import { useBoundStore } from 'store';
 
-import CustomButton from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
 import Filter from 'components/common/Filter';
 import SignerButton from 'components/common/SignerButton';
+import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -98,7 +100,7 @@ export default function Deposits() {
         if (!selectedSides.includes(deposit?.isPut ? 'PUT' : 'CALL'))
           toAdd = false;
         if (toAdd) _deposits.push(deposit);
-      }
+      },
     );
     return _deposits;
   }, [portfolioData, searchText, selectedSides]);
@@ -121,7 +123,7 @@ export default function Deposits() {
         )
           toAdd = false;
         if (toAdd) _deposits.push(deposit);
-      }
+      },
     );
     return _deposits;
   }, [portfolioData, searchText]);
@@ -246,7 +248,7 @@ export default function Deposits() {
                       <span className="text-white">
                         {formatAmount(
                           getUserReadableAmount(deposit.amount, 18),
-                          2
+                          2,
                         )}
                       </span>
                     </Typography>
@@ -288,7 +290,7 @@ export default function Deposits() {
                     'grid grid-cols-12 px-4 py-2',
                     filteredSSOVDeposits.length > 0
                       ? 'border-t-[1.5px] pt-6 border-umbra'
-                      : ''
+                      : '',
                   )}
                   gap={0}
                 >
@@ -309,7 +311,7 @@ export default function Deposits() {
                   key={i}
                   className={cx(
                     'grid grid-cols-12 px-4 pt-2 pb-4',
-                    filteredSSOVDeposits.length > 0 ? 'mt-2' : ''
+                    filteredSSOVDeposits.length > 0 ? 'mt-2' : '',
                   )}
                   gap={0}
                 >
@@ -328,7 +330,9 @@ export default function Deposits() {
 
                   <Box className="col-span-2 text-left flex">
                     <Typography variant="h5" className="mt-1">
-                      <span className="text-white">Straddle</span>
+                      <span className="text-white">{`${
+                        deposit.vaultName.split('-')[0]
+                      } Straddle`}</span>
                     </Typography>
                   </Box>
 
@@ -337,7 +341,7 @@ export default function Deposits() {
                       <span className="text-white">
                         {formatAmount(
                           getUserReadableAmount(deposit.amount, 6),
-                          4
+                          4,
                         )}
                       </span>
                     </Typography>

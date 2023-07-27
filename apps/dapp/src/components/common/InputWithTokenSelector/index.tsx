@@ -31,7 +31,7 @@ interface IInputWithTokenSelectorProps {
   setSelectedToken: Dispatch<SetStateAction<string>>;
   handleMax: () => void;
   handleInputAmountChange: (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
   inputAmount: string | number;
   topLeftTag?: string;
@@ -106,12 +106,15 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
               <Typography variant="h6" className="my-auto">
                 {selectedTokenSymbol}
               </Typography>{' '}
-              {chainId !== 137 &&
+              {/**
+               * Disabling due 1inch API issues
+               */}
+              {/* {chainId !== 137 &&
                 (tokenSelectorOpen ? (
                   <KeyboardArrowUpIcon className="text-white" />
                 ) : (
                   <KeyboardArrowDownIcon className="text-white" />
-                ))}
+                ))} */}
             </Box>
           </Box>
         }
@@ -131,15 +134,18 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
               {formatAmount(
                 getUserReadableAmount(
                   BigNumber.from(userTokenBalance),
-                  getTokenDecimals(selectedTokenSymbol, chainId)
+                  getTokenDecimals(selectedTokenSymbol, chainId),
                 ),
-                3
+                3,
               )}
             </Typography>
           </Box>
         }
       />
-      {tokenSelectorOpen && (
+      {/**
+       * Disabling due 1inch API issues
+       */}
+      {false && (
         <TokenSelector
           open={tokenSelectorOpen}
           setOpen={handleTokenSelectorClick}

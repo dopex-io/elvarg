@@ -19,9 +19,10 @@ import {
   InsuredLongsStrategy__factory,
   InsuredLongsUtils__factory,
 } from '@dopex-io/sdk';
-import useSendTx from 'hooks/useSendTx';
 
 import { useBoundStore } from 'store';
+
+import useSendTx from 'hooks/useSendTx';
 
 import ManageModal from 'components/atlantics/InsuredPerps/Dialogs/ManageDialog';
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
@@ -126,12 +127,12 @@ const Positions = ({
     const underlyingAddress = contractAddresses[underlying];
     const strategyContract = InsuredLongsStrategy__factory.connect(
       strategyContractAddress,
-      signer
+      signer,
     );
     const gmxVault = GmxVault__factory.connect(gmxVaultAddress, signer);
     const strategyUtils = InsuredLongsUtils__factory.connect(
       strategyUtilsAddress,
-      signer
+      signer,
     );
 
     if (!gmxVault || !strategyContract || !strategyUtils) return;
@@ -141,14 +142,14 @@ const Positions = ({
       strategyContract.userPositionManagers(accountAddress),
     ]);
     const strategyPosition = await strategyContract.strategyPositions(
-      positionId
+      positionId,
     );
 
     const gmxPosition = await gmxVault.getPosition(
       positionManager,
       underlyingAddress,
       underlyingAddress,
-      true
+      true,
     );
 
     let atlanticsPosition: any,
@@ -176,17 +177,17 @@ const Positions = ({
       [atlanticsPosition, positionDelta, liquidationPrice, markPrice] =
         await Promise.all([
           atlanticPool.contracts.atlanticPool.getOptionsPurchase(
-            strategyPosition.atlanticsPurchaseId
+            strategyPosition.atlanticsPurchaseId,
           ),
           gmxVault.getPositionDelta(
             positionManager,
             underlyingAddress,
             underlyingAddress,
-            true
+            true,
           ),
           strategyUtils['getLiquidationPrice(address,address)'](
             positionManager,
-            underlyingAddress
+            underlyingAddress,
           ),
           strategyUtils.getPrice(underlyingAddress),
         ]);
@@ -194,7 +195,7 @@ const Positions = ({
       const positionSize = gmxPosition[0];
       const collateral = gmxPosition[1];
       const collateralAccess = atlanticsPosition.optionStrike.mul(
-        atlanticsPosition.optionsAmount.mul(10000)
+        atlanticsPosition.optionsAmount.mul(10000),
       );
       hasProfit = positionDelta[0];
 
@@ -204,7 +205,9 @@ const Positions = ({
         markPrice: markPrice,
         leverage: positionSize.div(collateral.sub(collateralAccess)),
         putStrike: atlanticsPosition.optionStrike,
-        delta: hasProfit ? positionDelta[1] : -positionDelta[1],
+        delta: hasProfit
+          ? ethers.utils.formatUnits(positionDelta[1], 30)
+          : -ethers.utils.formatUnits(positionDelta[1], 30),
         liquidationPrice: liquidationPrice,
         state: ActionState[String(strategyPosition.state)],
         collateral: gmxPosition[1],
@@ -219,7 +222,9 @@ const Positions = ({
 
     setUserPositionData(() => position);
     setTriggerMarker(() =>
-      ethers.utils.formatUnits(BigNumber.from(position.putStrike), 8).toString()
+      ethers.utils
+        .formatUnits(BigNumber.from(position.putStrike), 8)
+        .toString(),
     );
     setIsPositionReleased(() => strategyPosition.state === 1);
   }, [
@@ -276,7 +281,7 @@ const Positions = ({
 
     const strategyContract = InsuredLongsStrategy__factory.connect(
       strategyContractAddress,
-      signer
+      signer,
     );
 
     const [positionId] = await Promise.all([
@@ -287,7 +292,7 @@ const Positions = ({
     await sendTx(strategyContract, 'emergencyStrategyExit', [positionId]).then(
       () => {
         getUserPositions();
-      }
+      },
     );
   }, [
     accountAddress,
@@ -303,7 +308,7 @@ const Positions = ({
     (e: { target: { value: string | number } }) => {
       setAction(String(e.target.value));
     },
-    []
+    [],
   );
 
   const handleExitLongPosition = useCallback(async () => {
@@ -326,7 +331,7 @@ const Positions = ({
 
     const strategyContract = InsuredLongsStrategy__factory.connect(
       strategyContractAddress,
-      signer
+      signer,
     );
 
     const indexToken = await strategyContract.strategyIndexToken();
@@ -342,7 +347,7 @@ const Positions = ({
       userPositionManager,
       indexToken,
       indexToken,
-      true
+      true,
     );
 
     const increaseOrderParams = {
@@ -362,7 +367,7 @@ const Positions = ({
 
     const userPositionManagerContract = DopexPositionManager__factory.connect(
       userPositionManager,
-      signer
+      signer,
     );
 
     await sendTx(userPositionManagerContract, 'decreaseOrder', [
@@ -395,7 +400,7 @@ const Positions = ({
 
     const strategyContract = InsuredLongsStrategy__factory.connect(
       strategyContractAddress,
-      signer
+      signer,
     );
 
     const expiry = atlanticPoolEpochData.expiry;
@@ -436,7 +441,7 @@ const Positions = ({
 
     const strategyContract = InsuredLongsStrategy__factory.connect(
       strategyContractAddress,
-      signer
+      signer,
     );
 
     const [positionId] = await Promise.all([
@@ -464,7 +469,7 @@ const Positions = ({
     return formatAmount(
       (Number(userPositionData.delta) / Number(userPositionData.collateral)) *
         100,
-      2
+      2,
     );
   }, [userPositionData]);
 
@@ -629,9 +634,9 @@ const Positions = ({
                               content={`$${formatAmount(
                                 ethers.utils.formatUnits(
                                   userPositionData.initialCollateral,
-                                  30
+                                  30,
                                 ),
-                                2
+                                2,
                               )}`}
                               textSize="caption"
                             />
@@ -640,20 +645,17 @@ const Positions = ({
                               content={`$${formatAmount(
                                 ethers.utils.formatUnits(
                                   userPositionData.putStrike,
-                                  8
+                                  8,
                                 ),
-                                3
+                                3,
                               )}`}
                               textSize="caption"
                             />
                             <ContentRow
                               title="PnL:"
                               content={`${formatAmount(
-                                ethers.utils.formatUnits(
-                                  userPositionData.delta,
-                                  '30'
-                                ),
-                                2
+                                userPositionData.delta.toString(),
+                                2,
                               )}`}
                               textSize="caption"
                               highlightPnl
@@ -663,9 +665,9 @@ const Positions = ({
                               content={`$${formatAmount(
                                 ethers.utils.formatUnits(
                                   userPositionData.collateral,
-                                  '30'
+                                  '30',
                                 ),
-                                2
+                                2,
                               )}`}
                               textSize="caption"
                             />
@@ -687,25 +689,22 @@ const Positions = ({
                             {formatAmount(
                               ethers.utils.formatUnits(
                                 BigNumber.from(userPositionData.collateral),
-                                30
+                                30,
                               ),
-                              2
+                              2,
                             )}
                           </Typography>
                           <Typography
                             className={`${
-                              Number(userPositionData.delta) > 0
+                              Number(userPositionData.delta.toString()) > 0
                                 ? 'text-up-only'
                                 : 'text-down-bad'
                             }`}
                             variant="caption"
                           >
                             {`${formatAmount(
-                              ethers.utils.formatUnits(
-                                BigNumber.from(userPositionData.delta),
-                                30
-                              ),
-                              2
+                              userPositionData.delta.toString(),
+                              2,
                             )}(${pnlPercentage}%)`}
                           </Typography>
                         </span>
@@ -717,9 +716,9 @@ const Positions = ({
                         {formatAmount(
                           ethers.utils.formatUnits(
                             BigNumber.from(userPositionData.size),
-                            30
+                            30,
                           ),
-                          2
+                          2,
                         )}
                       </Typography>
                     </TableBodyCell>
@@ -729,9 +728,9 @@ const Positions = ({
                         {formatAmount(
                           ethers.utils.formatUnits(
                             BigNumber.from(userPositionData.collateral),
-                            30
+                            30,
                           ),
-                          2
+                          2,
                         )}
                       </Typography>
                     </TableBodyCell>
@@ -741,9 +740,9 @@ const Positions = ({
                         {formatAmount(
                           ethers.utils.formatUnits(
                             BigNumber.from(userPositionData.markPrice),
-                            8
+                            8,
                           ),
-                          2
+                          2,
                         )}
                       </Typography>
                     </TableBodyCell>
@@ -753,9 +752,9 @@ const Positions = ({
                         {formatAmount(
                           ethers.utils.formatUnits(
                             BigNumber.from(userPositionData.entryPrice),
-                            30
+                            30,
                           ),
-                          3
+                          3,
                         )}
                       </Typography>
                     </TableBodyCell>
@@ -765,9 +764,9 @@ const Positions = ({
                         {formatAmount(
                           ethers.utils.formatUnits(
                             BigNumber.from(userPositionData.liquidationPrice),
-                            30
+                            30,
                           ),
-                          2
+                          2,
                         )}
                       </Typography>
                     </TableBodyCell>
