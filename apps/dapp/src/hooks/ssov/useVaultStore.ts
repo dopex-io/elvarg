@@ -30,10 +30,10 @@ const useVaultStore = create<Props>()(
       collateralTokenAddress: '0x',
     },
     update: (vault: VaultState) => set({ vault }),
-    activeStrikeIndex: 0,
+    activeStrikeIndex: 2, // default to an OTM strike
     setActiveStrikeIndex: (index: number) =>
       set((prevState) => ({ ...prevState, activeStrikeIndex: index })),
-  }))
+  })),
 );
 
 export default useVaultStore;

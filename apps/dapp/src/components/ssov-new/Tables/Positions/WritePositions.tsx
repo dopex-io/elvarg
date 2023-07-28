@@ -354,6 +354,7 @@ const WritePositions = (props: Props) => {
           epoch: BigInt(_positions?.[activeIndex]?.epoch || 0),
           expiry: _positions?.[activeIndex]?.expiry || 0,
           canStake: positions?.[activeIndex]?.button.canStake,
+          rewardsAccrued: positions?.[activeIndex]?.rewardsAccrued,
         }}
       />
     </div>

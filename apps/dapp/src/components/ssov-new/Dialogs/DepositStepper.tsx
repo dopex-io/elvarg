@@ -94,7 +94,8 @@ const DepositStepper = ({ isOpen = false, handleClose, data }: Props) => {
     },
     {
       label: 'Stake',
-      description: `(Optional) This transaction will stake your SSOV position to accrue rewards till expiry.`,
+      description:
+        'This transaction will stake your SSOV position to accrue rewards till expiry.',
       buttonLabel: 'Stake',
       action: handleStake,
     },

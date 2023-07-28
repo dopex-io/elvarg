@@ -8,7 +8,7 @@ import queryClient from 'queryClient';
 
 import { getSsovUserDataV2Document } from 'graphql/ssovs';
 
-import { getTokenSymbol } from 'utils/contracts/getTokenSymbol';
+import { getERC20Info } from 'utils/contracts/getERC20Info';
 import getSsovCheckpointData from 'utils/ssov/getSsovCheckpointData';
 import getSsovEpochTimes from 'utils/ssov/getSsovEpochTimes';
 import {
@@ -32,7 +32,10 @@ export interface RewardsInfo {
 
 export interface RewardAccrued {
   symbol: string;
+  name: string;
   amount: bigint;
+  address: Address;
+  isOption: boolean;
 }
 
 export interface WritePosition {
@@ -238,10 +241,15 @@ const useSsovPositions = (args: Args) => {
       let rewardsAccrued: RewardAccrued[] = [];
 
       for (let i = 0; i < earned[0].length; i++) {
-        const symbol = await getTokenSymbol(earned[0][i]);
+        const erc20Info = await getERC20Info(earned[0][i]);
+        const symbol = erc20Info.symbol as string;
+        const _name = erc20Info.name as string;
         rewardsAccrued.push({
-          symbol,
+          symbol: symbol,
+          name: _name,
           amount: earned[1][i],
+          address: earned[0][i],
+          isOption: _name.includes('SSOV V3 Options'),
         });
       }
 
