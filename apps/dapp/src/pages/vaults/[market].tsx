@@ -16,6 +16,7 @@ import TitleBar from 'components/ssov-new/TitleBar';
 import findDefaultSsov from 'utils/ssov/findDefaultSsov';
 
 import seo from 'constants/seo';
+import { FALLBACK_SLUG, MARKETS } from 'constants/ssov/markets';
 
 const Vaults = () => {
   const router = useRouter();
@@ -52,6 +53,16 @@ const Vaults = () => {
       });
     }
   }, [router, update]);
+
+  // page-level route validation
+  useEffect(() => {
+    const currentMarket = router.asPath.split('/')[2];
+    const requireRedirect =
+      Object.keys(MARKETS).indexOf(currentMarket.toUpperCase()) === -1;
+    if (currentMarket === router.pathname.split('/')[2] || !requireRedirect)
+      return;
+    router.replace(router.asPath, FALLBACK_SLUG);
+  }, [router]);
 
   return (
     <>

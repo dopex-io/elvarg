@@ -125,7 +125,11 @@ const AsidePanel = ({ market }: { market: string }) => {
   const { write: purchase } = useContractWrite(purchaseConfig);
 
   const selectedStrike = useMemo(() => {
-    if (strikesData.length === 0 || !selectedVault)
+    if (
+      strikesData.length === 0 ||
+      !strikesData[activeStrikeIndex] ||
+      !selectedVault
+    )
       return {
         strike: 0,
         delta: 0,
@@ -469,15 +473,21 @@ const AsidePanel = ({ market }: { market: string }) => {
             vault.isPut
               ? Number(selectedStrike.strike) -
                 Number(
-                  formatUnits(selectedStrike.premiumPerOption, DECIMALS_TOKEN),
+                  formatUnits(
+                    selectedStrike.premiumPerOption || 0n,
+                    DECIMALS_TOKEN,
+                  ),
                 )
               : Number(selectedStrike.strike) +
                 Number(
-                  formatUnits(selectedStrike.premiumPerOption, DECIMALS_TOKEN),
+                  formatUnits(
+                    selectedStrike.premiumPerOption || 0n,
+                    DECIMALS_TOKEN,
+                  ),
                 )
           }
           optionPrice={Number(
-            formatUnits(selectedStrike.premiumPerOption, DECIMALS_TOKEN),
+            formatUnits(selectedStrike.premiumPerOption || 0n, DECIMALS_TOKEN),
           )}
           amount={Number(amountDebounced)}
           isPut={vault.isPut}

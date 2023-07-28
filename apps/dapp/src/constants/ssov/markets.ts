@@ -187,6 +187,8 @@ export const MARKETS: { [key: string]: SsovMarket } = {
   },
 };
 
+export const FALLBACK_SLUG = '/vaults/ARB';
+
 export const MARKETS_MENU = Object.keys(MARKETS).map((key) => ({
   textContent: key,
   isDisabled: false,
