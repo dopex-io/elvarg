@@ -9,10 +9,10 @@ const STAKING_REWARDS_ADDRESS: Address =
 export const getSsovStakingRewardsPosition = async (
   ssov: Address,
   tokenId: bigint,
-  epoch: bigint
+  epoch: bigint,
 ) => {
   const _id = keccak256(
-    encodePacked(['address', 'uint256', 'uint256'], [ssov, tokenId, epoch])
+    encodePacked(['address', 'uint256', 'uint256'], [ssov, tokenId, epoch]),
   );
   const userPosition = await readContract({
     abi: SsovV3StakingRewards__factory.abi,
@@ -36,10 +36,10 @@ export const getEarned = async (ssov: Address, positionId: bigint) => {
 export const getRewardsInfo = async (
   ssov: Address,
   strike: bigint,
-  epoch: bigint
+  epoch: bigint,
 ) => {
   const _id = keccak256(
-    encodePacked(['address', 'uint256', 'uint256'], [ssov, strike, epoch])
+    encodePacked(['address', 'uint256', 'uint256'], [ssov, strike, epoch]),
   );
   const rewardsInfo = await readContract({
     abi: SsovV3StakingRewards__factory.abi,

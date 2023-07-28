@@ -60,3 +60,37 @@ export const getSsovUserDataDocument = graphql(`
     }
   }
 `);
+
+export const getSsovUserDataV2Document = graphql(`
+  query getSsovUserDataV2($user: ID!) {
+    users(where: { id: $user }) {
+      userOpenDeposits {
+        id
+        epoch
+        strike
+        amount
+      }
+      userSSOVOptionBalance {
+        epoch
+        strike
+        amount
+        fee
+        premium
+        ssov {
+          id
+        }
+      }
+      userOptionBalances {
+        balance
+        optionToken {
+          id
+          epoch
+          strike
+          ssov {
+            id
+          }
+        }
+      }
+    }
+  }
+`);

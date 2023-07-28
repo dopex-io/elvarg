@@ -37,7 +37,7 @@ interface BuyPositionData {
   pnl: string;
   button: {
     handleSettle: () => void;
-    id: string;
+    id: number;
     epoch: number;
     currentEpoch: number;
     expiry: number;
@@ -139,7 +139,7 @@ const BuyPositions = (props: Props) => {
   const selectedVault = useMemo(() => {
     const selected = vaults.find(
       (_vault) =>
-        vault.duration === _vault.duration && vault.isPut === _vault.isPut
+        vault.duration === _vault.duration && vault.isPut === _vault.isPut,
     );
 
     return selected;
@@ -173,7 +173,7 @@ const BuyPositions = (props: Props) => {
           size,
           side: position.side.toLowerCase() as 'call' | 'put',
         }) - premium,
-        5
+        5,
       );
 
       return {
@@ -185,7 +185,7 @@ const BuyPositions = (props: Props) => {
         breakeven,
         pnl,
         button: {
-          id: position.id,
+          id: index,
           handleSettle: () => handleSettle(index),
           epoch: position.epoch,
           currentEpoch: selectedVault?.currentEpoch || 0,
@@ -237,7 +237,7 @@ const BuyPositions = (props: Props) => {
                               ? null
                               : flexRender(
                                   header.column.columnDef.header,
-                                  header.getContext()
+                                  header.getContext(),
                                 )}
                           </span>
                         </th>
@@ -270,7 +270,7 @@ const BuyPositions = (props: Props) => {
                             <span className="text-sm">
                               {flexRender(
                                 cell.column.columnDef.cell,
-                                cell.getContext()
+                                cell.getContext(),
                               )}
                             </span>
                           </td>
@@ -294,7 +294,7 @@ const BuyPositions = (props: Props) => {
           vault: vault.address,
           strike: parseUnits(
             _positions?.[activeIndex]?.strike.toString() || '0',
-            STRIKE_DECIMALS
+            STRIKE_DECIMALS,
           ),
           amount: BigInt(_positions?.[activeIndex]?.balance || 0),
           epoch: BigInt(_positions?.[activeIndex]?.epoch || 0),

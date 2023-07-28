@@ -28,7 +28,7 @@ const Vaults = () => {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       router.push(`/vaults/${e.target.innerText}`);
     },
-    [router]
+    [router],
   );
 
   useEffect(() => {
