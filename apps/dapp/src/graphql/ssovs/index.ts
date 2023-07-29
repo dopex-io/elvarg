@@ -17,13 +17,13 @@ export const getSsovUserDataDocument = graphql(`
   query getSsovUserData($user: ID!) {
     users(where: { id: $user }) {
       id
-      userPositions {
+      userPositions(first: 1000) {
         id
         epoch
         strike
         amount
       }
-      userSSOVDeposit {
+      userSSOVDeposit(first: 1000) {
         id
         transaction {
           id
@@ -39,7 +39,7 @@ export const getSsovUserDataDocument = graphql(`
           id
         }
       }
-      userSSOVOptionBalance {
+      userSSOVOptionBalance(first: 1000) {
         id
         transaction {
           id
