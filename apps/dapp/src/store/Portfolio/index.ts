@@ -1,3 +1,5 @@
+import { BigNumber } from 'ethers';
+
 import {
   AtlanticStraddle__factory,
   ERC20__factory,
@@ -130,7 +132,7 @@ export const createPortfolioSlice: StateCreator<
       const tokenId = userDeposit.id.split('#')[1];
 
       try {
-        // if not exists then it has been withdrawn
+        // if it does not exist then it has been withdrawn
         const owner = await ssov.ownerOf(tokenId);
 
         return {
@@ -159,7 +161,7 @@ export const createPortfolioSlice: StateCreator<
 
         const epochStrikeData = await ssov.getEpochStrikeData(
           userPosition.epoch,
-          userPosition.strike
+          userPosition.strike,
         );
 
         const token = ERC20__factory.connect(epochStrikeData[0], provider);
@@ -213,7 +215,7 @@ export const createPortfolioSlice: StateCreator<
           vaultType: 'SSOV',
           expiry: format(
             new Date(Number(epochData.expiry) * 1000),
-            'd LLL yyyy'
+            'd LLL yyyy',
           ).toLocaleUpperCase(),
           owner: accountAddress!,
         };
@@ -225,7 +227,6 @@ export const createPortfolioSlice: StateCreator<
     const getUserStraddlesPosition = async (userPosition: any) => {
       const id = userPosition.id;
       const vaultAddress = id.split('#')[0];
-      // const tokenId = id.split('#')[1];
 
       const vault = AtlanticStraddle__factory.connect(vaultAddress, provider);
       const epoch = userPosition.epoch;
@@ -249,7 +250,7 @@ export const createPortfolioSlice: StateCreator<
           return {
             assetName: assetName,
             vaultName: vaultName,
-            amount: String(userPosition.amount / 2),
+            amount: BigNumber.from(userPosition.amount).div(2).toString(),
             epoch: epoch,
             strikePrice: userPosition.strikePrice,
             underlyingPurchased: userPosition.underlyingPurchased,
@@ -316,7 +317,7 @@ export const createPortfolioSlice: StateCreator<
 
     for (let i in data?.userSSOVDeposit) {
       ssovDepositsPromises.push(
-        getUserSSOVDeposit(data?.userSSOVDeposit[Number(i)])
+        getUserSSOVDeposit(data?.userSSOVDeposit[Number(i)]),
       );
     }
 
@@ -329,7 +330,7 @@ export const createPortfolioSlice: StateCreator<
 
     for (let i in data?.userSSOVOptionBalance) {
       ssovPositionsPromises.push(
-        getUserSSOVPosition(data?.userSSOVOptionBalance[Number(i)])
+        getUserSSOVPosition(data?.userSSOVOptionBalance[Number(i)]),
       );
     }
 
@@ -349,7 +350,7 @@ export const createPortfolioSlice: StateCreator<
           getStraddlesUserDataDocument,
           {
             user: accountAddress.toLowerCase(),
-          }
+          },
         ),
     });
 
@@ -361,16 +362,14 @@ export const createPortfolioSlice: StateCreator<
     const straddlesDeposits: UserStraddlesDeposit[] = [];
     const straddlesPositions: UserStraddlesPosition[] = [];
 
-    for (let i in straddlesData?.straddlesUserOpenDeposits) {
+    for (let i in straddlesData?.userOpenStraddles) {
       straddlesPositionsPromises.push(
-        getUserStraddlesPosition(
-          straddlesData?.straddlesUserOpenDeposits[Number(i)]
-        )
+        getUserStraddlesPosition(straddlesData?.userOpenStraddles[Number(i)]),
       );
     }
 
     const straddlePositionsResponses = await Promise.all(
-      straddlesPositionsPromises
+      straddlesPositionsPromises,
     );
 
     for (let i in straddlePositionsResponses) {
@@ -381,13 +380,13 @@ export const createPortfolioSlice: StateCreator<
     for (let i in straddlesData?.straddlesUserOpenDeposits) {
       straddlesDepositsPromises.push(
         getUserStraddlesDeposit(
-          straddlesData?.straddlesUserOpenDeposits[Number(i)]
-        )
+          straddlesData?.straddlesUserOpenDeposits[Number(i)],
+        ),
       );
     }
 
     const straddleDepositsResponses = await Promise.all(
-      straddlesDepositsPromises
+      straddlesDepositsPromises,
     );
 
     for (let i in straddleDepositsResponses) {
