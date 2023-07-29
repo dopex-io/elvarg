@@ -20,7 +20,7 @@ import { RewardAccrued } from 'hooks/ssov/useSsovPositions';
 
 import getSsovOptionTokenInfo from 'utils/ssov/getSsovOptionTokenInfo';
 import { getSsovStakingRewardsPosition } from 'utils/ssov/getSsovStakingRewardsData';
-import getStrikeIndex from 'utils/ssov/getStrikeIndex';
+import getStrikeIndexFromEpochStrike from 'utils/ssov/getStrikeIndexFromEpochStrike';
 
 interface Props {
   isOpen: boolean;
@@ -132,7 +132,7 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
         address: token.address,
       });
       if (!optionTokenInfo) return;
-      const _strikeIndex = await getStrikeIndex({
+      const _strikeIndex = await getStrikeIndexFromEpochStrike({
         ssov: optionTokenInfo.ssov as Address,
         epoch: Number(data.epoch),
         strike: optionTokenInfo.strike as bigint,

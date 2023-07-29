@@ -2,7 +2,7 @@ import { Address } from 'viem';
 
 import getSsovEpochData from 'utils/ssov/getSsovEpochData';
 
-const getStrikeIndex = async ({
+const getStrikeIndexFromEpochStrike = async ({
   ssov,
   strike,
   epoch,
@@ -18,4 +18,4 @@ const getStrikeIndex = async ({
   return epochData.strikes.indexOf(strike);
 };
 
-export default getStrikeIndex;
+export default getStrikeIndexFromEpochStrike;
