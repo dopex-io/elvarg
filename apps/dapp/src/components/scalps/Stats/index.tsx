@@ -2,10 +2,12 @@ import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 import { BigNumber, utils } from 'ethers';
 
 import request from 'graphql-request';
+
 import queryClient from 'queryClient';
-import { useBoundStore } from 'store';
 
 import { getTradesFromTimestampDocument } from 'graphql/optionScalps';
+
+import { useBoundStore } from 'store';
 
 import formatAmount from 'utils/general/formatAmount';
 
@@ -97,7 +99,7 @@ const Stats = () => {
         Number(
           utils.formatUnits(
             selectedPoolName === 'ETH' ? uniWethPrice : uniArbPrice,
-            optionScalpData?.quoteDecimals!.toNumber()
+            optionScalpData?.quoteDecimals?.toNumber()
           )
         ),
         4
@@ -183,7 +185,7 @@ const Stats = () => {
                   Number(
                     utils.formatUnits(
                       optionScalpData?.totalQuoteDeposits!,
-                      optionScalpData?.quoteDecimals!.toNumber()
+                      optionScalpData?.quoteDecimals?.toNumber()
                     )
                   ),
                   0,

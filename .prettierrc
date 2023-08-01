@@ -19,6 +19,8 @@
     "store",
     "^store/(.*)$",
     "",
+    "^hooks/(.*)$",
+    "",
     "^components/(.*)$",
     "",
     "^utils/(.*)$",

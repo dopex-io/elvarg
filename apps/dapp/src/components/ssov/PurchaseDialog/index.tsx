@@ -11,14 +11,15 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 
 import { ERC20__factory } from '@dopex-io/sdk';
 import format from 'date-fns/format';
-import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 import CircleIcon from 'svgs/icons/CircleIcon';
 import { useDebounce } from 'use-debounce';
 
+import { useBoundStore } from 'store';
 import { SsovV3Data, SsovV3EpochData } from 'store/Vault/ssov';
+
+import useSendTx from 'hooks/useSendTx';
 
 import InputWithTokenSelector from 'components/common/InputWithTokenSelector';
 import PnlChart from 'components/common/PnlChart';
@@ -70,7 +71,7 @@ const PurchaseDialog = ({
 
   const [quoteDataLoading, setQuoteDataLoading] = useState(false);
   const [fromTokenSymbol, setFromTokenSymbol] = useState(
-    ssovData.collateralSymbol ?? ''
+    ssovData.collateralSymbol ?? '',
   );
   const [state, setState] = useState({
     volatility: 0,
@@ -86,7 +87,7 @@ const PurchaseDialog = ({
   const [strikeIndex, setStrikeIndex] = useState<number>(0);
   const [approved, setApproved] = useState<boolean>(false);
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
-    BigNumber.from('0')
+    BigNumber.from('0'),
   );
   const [quote, setQuote] = useState({
     amountOut: BigNumber.from(0),
@@ -111,9 +112,9 @@ const PurchaseDialog = ({
         fromTokenSymbol !== ssovData.collateralSymbol
           ? quote.amountOut
           : state.totalCost,
-        getTokenDecimals(fromTokenSymbol, chainId)
+        getTokenDecimals(fromTokenSymbol, chainId),
       ),
-      5
+      5,
     );
   }, [
     chainId,
@@ -142,7 +143,7 @@ const PurchaseDialog = ({
   const strikes = useMemo(
     () =>
       epochStrikes.map((strike) => getUserReadableAmount(strike, 8).toString()),
-    [epochStrikes]
+    [epochStrikes],
   );
 
   const optionsAmount: number = useMemo(() => {
@@ -157,7 +158,7 @@ const PurchaseDialog = ({
     const finalAmount = state.totalCost;
     const _token = ERC20__factory.connect(
       getContractAddress(fromTokenSymbol),
-      provider
+      provider,
     );
 
     const allowance = await _token.allowance(accountAddress, spender);
@@ -214,21 +215,20 @@ const PurchaseDialog = ({
     const {
       toTokenAmount,
       toToken: { decimals },
-    } = await get1inchQuote(
-      fromTokenAddress,
-      toTokenAddress,
-      getContractReadableAmount(
-        1,
-        getTokenDecimals(fromTokenSymbol, chainId)
-      ).toString(),
+    } = await get1inchQuote({
       chainId,
-      accountAddress,
-      '3'
-    );
+      src: fromTokenAddress,
+      dst: toTokenAddress,
+      amount: getContractReadableAmount(
+        1,
+        getTokenDecimals(fromTokenSymbol, chainId),
+      ).toString(),
+      from: accountAddress,
+    });
 
     const collateralTokenDecimals = getTokenDecimals(
       ssovData.collateralSymbol,
-      chainId
+      chainId,
     );
 
     const fromTokenDecimals = getTokenDecimals(fromTokenSymbol, chainId);
@@ -240,7 +240,7 @@ const PurchaseDialog = ({
       multiplier = getContractReadableAmount(1, fromTokenDecimals);
       divisor = getContractReadableAmount(
         1,
-        collateralTokenDecimals - decimals
+        collateralTokenDecimals - decimals,
       );
     } else {
       multiplier = getContractReadableAmount(1, fromTokenDecimals);
@@ -257,11 +257,11 @@ const PurchaseDialog = ({
     }
 
     await get1inchSwap({
-      fromTokenAddress,
-      toTokenAddress,
-      amount: fromTokenAmountRequired,
+      src: fromTokenAddress,
+      dst: toTokenAddress,
+      amount: fromTokenAmountRequired.toString(),
       chainId,
-      accountAddress: ssovSigner.ssovRouterWithSigner.address,
+      from: ssovSigner.ssovRouterWithSigner.address,
     })
       .then((res: any) => {
         setQuote({
@@ -289,7 +289,7 @@ const PurchaseDialog = ({
       setIsPurchaseStatsLoading(true);
       setRawOptionsAmount(e.target.value);
     },
-    []
+    [],
   );
 
   const updateUserTokenBalance = useCallback(async () => {
@@ -301,8 +301,8 @@ const PurchaseDialog = ({
 
     setUserTokenBalance(
       await ERC20__factory.connect(tokenAddress, signer).balanceOf(
-        accountAddress
-      )
+        accountAddress,
+      ),
     );
   }, [accountAddress, fromTokenSymbol, getContractAddress, signer]);
 
@@ -349,7 +349,7 @@ const PurchaseDialog = ({
       await sendTx(
         ERC20__factory.connect(getContractAddress(fromTokenSymbol)!, signer),
         'approve',
-        [spender, MAX_VALUE]
+        [spender, MAX_VALUE],
       );
       setApproved(true);
     } catch (err) {
@@ -368,7 +368,7 @@ const PurchaseDialog = ({
 
     const _amount = getContractReadableAmount(
       optionsAmount,
-      OPTION_TOKEN_DECIMALS
+      OPTION_TOKEN_DECIMALS,
     );
 
     const contractWithSigner = routerMode
@@ -465,11 +465,11 @@ const PurchaseDialog = ({
           ssovContract.calculatePremium(
             strike!,
             getContractReadableAmount(1, 18),
-            expiry
+            expiry,
           ),
           ssovContract.calculatePurchaseFees(
             strike!,
-            getContractReadableAmount(debouncedOptionsAmount, 18)
+            getContractReadableAmount(debouncedOptionsAmount, 18),
           ),
         ]);
 
@@ -501,7 +501,7 @@ const PurchaseDialog = ({
             timeToExpirationInYears,
             volatility / 100,
             0,
-            isPut ? 'put' : 'call'
+            isPut ? 'put' : 'call',
           ),
         };
 
@@ -544,15 +544,22 @@ const PurchaseDialog = ({
   const purchaseButtonProps = useMemo(() => {
     const totalCost = routerMode ? quote.amountOut : state.totalCost;
 
+    const availableCollateralForStrike = (
+      availableCollateralForStrikes[strikeIndex] ?? BigNumber.from(0)
+    )
+      .mul(1e8)
+      .div(ssovEpochData.collateralExchangeRate);
+
     const disabled = Boolean(
       optionsAmount <= 0 ||
         isPurchaseStatsLoading ||
         (isPut
-          ? availableCollateralForStrikes[strikeIndex]!.mul(oneEBigNumber(8))
+          ? availableCollateralForStrike
+              .mul(oneEBigNumber(8))
               .div(getContractReadableAmount(strikes[strikeIndex]!, 8))
               .lt(getContractReadableAmount(optionsAmount, 18))
-          : availableCollateralForStrikes[strikeIndex]!.lt(
-              getContractReadableAmount(optionsAmount, 18)
+          : availableCollateralForStrike.lt(
+              getContractReadableAmount(optionsAmount, 18),
             )) ||
         (isPut
           ? totalCost.gt(userTokenBalance)
@@ -560,7 +567,7 @@ const PurchaseDialog = ({
               .mul(1e8)
               .div(ssovData.collateralPrice!)
               .gt(userTokenBalance)) ||
-        quoteDataLoading
+        quoteDataLoading,
     );
 
     let onClick = () => {};
@@ -584,7 +591,7 @@ const PurchaseDialog = ({
               .div(getContractReadableAmount(strikes[strikeIndex]!, 8))
               .lt(getContractReadableAmount(optionsAmount, 18))
           : availableCollateralForStrikes[strikeIndex]!.lt(
-              getContractReadableAmount(optionsAmount, 18)
+              getContractReadableAmount(optionsAmount, 18),
             )
       ) {
         children = 'Collateral not available';
@@ -613,6 +620,7 @@ const PurchaseDialog = ({
       onClick,
     };
   }, [
+    ssovEpochData.collateralExchangeRate,
     quoteDataLoading,
     quote,
     routerMode,
@@ -766,12 +774,12 @@ const PurchaseDialog = ({
                           ? formatAmount(
                               Number(strikes[strikeIndex]) -
                                 getUserReadableAmount(state.optionPrice, 8),
-                              5
+                              5,
                             )
                           : formatAmount(
                               Number(strikes[strikeIndex]) +
                                 getUserReadableAmount(state.optionPrice, 8),
-                              5
+                              5,
                             )}
                       </div>
                     </div>
@@ -785,14 +793,18 @@ const PurchaseDialog = ({
                         {formatAmount(
                           isPut
                             ? getUserReadableAmount(
-                                availableCollateralForStrikes[strikeIndex]!,
-                                18
+                                availableCollateralForStrikes[strikeIndex]!.div(
+                                  ssovEpochData.collateralExchangeRate,
+                                ),
+                                10,
                               ) / Number(strikes[strikeIndex])
                             : getUserReadableAmount(
-                                availableCollateralForStrikes[strikeIndex]!,
-                                18
+                                availableCollateralForStrikes[strikeIndex]!.div(
+                                  ssovEpochData.collateralExchangeRate,
+                                ),
+                                10,
                               ),
-                          5
+                          5,
                         )}
                       </div>
                     </div>
@@ -886,13 +898,13 @@ const PurchaseDialog = ({
                       isPut
                         ? getUserReadableAmount(
                             state.fees.mul(ssovData.lpPrice!),
-                            36
+                            36,
                           )
                         : getUserReadableAmount(
                             state.fees.mul(ssovData.collateralPrice!),
-                            26
+                            26,
                           ),
-                      5
+                      5,
                     )}
                   </>
                 )}

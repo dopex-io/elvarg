@@ -1,19 +1,21 @@
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 
-import { useMemo, useState } from 'react';
-
-import SearchIcon from '@mui/icons-material/Search';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Input from '@mui/material/Input';
+
+import SearchIcon from '@mui/icons-material/Search';
+
 import cx from 'classnames';
+
 import { useBoundStore } from 'store';
 
-import CustomButton from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
 import Filter from 'components/common/Filter';
 import SignerButton from 'components/common/SignerButton';
+import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -328,7 +330,9 @@ export default function Deposits() {
 
                   <Box className="col-span-2 text-left flex">
                     <Typography variant="h5" className="mt-1">
-                      <span className="text-white">Straddle</span>
+                      <span className="text-white">{`${
+                        deposit.vaultName.split('-')[0]
+                      } Straddle`}</span>
                     </Typography>
                   </Box>
 

@@ -1,16 +1,15 @@
 import { useMemo, useState } from 'react';
 
 import { DPXVotingEscrow__factory } from '@dopex-io/sdk';
-import Box from '@mui/material/Box';
 import format from 'date-fns/format';
-import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
 
+import { useBoundStore } from 'store';
 import { vedpxAddress } from 'store/VeDPX';
 
-import NumberDisplay from 'components/UI/NumberDisplay';
-import Typography from 'components/UI/Typography';
+import useSendTx from 'hooks/useSendTx';
+
 import SignerButton from 'components/common/SignerButton';
+import NumberDisplay from 'components/UI/NumberDisplay';
 
 import LockDialog from './LockDialog';
 import Stat from './Stat';
@@ -49,18 +48,16 @@ const UserVeDPX = () => {
   }, [userData]);
 
   return (
-    <Box>
-      <Box className="mb-4">
-        <Typography variant="h4" component="h2" className="mb-1">
-          Your veDPX
-        </Typography>
-        <Typography variant="h6" component="p" color="stieglitz">
+    <div>
+      <div className="mb-4">
+        <h2 className="text-xl text-white mb-1">Your veDPX</h2>
+        <p className="text-stieglitz text-sm">
           DPX can be locked for upto four years. Locking 1 DPX for four years
           will get you one veDPX.
-        </Typography>
-      </Box>
-      <Box className="bg-cod-gray rounded-xl mb-6 max-w-md">
-        <Box className="grid grid-cols-3">
+        </p>
+      </div>
+      <div className="bg-cod-gray rounded-xl mb-6 max-w-md">
+        <div className="grid grid-cols-3">
           <Stat
             name="veDPX Balance"
             value={
@@ -86,21 +83,21 @@ const UserVeDPX = () => {
                 : `${format(userData.lockEnd.toNumber() * 1000, 'do MMM yyyy')}`
             }
           />
-          <Box className="p-3">
+          <div className="p-3">
             <SignerButton onClick={() => setDialog({ open: true })}>
               Lock
             </SignerButton>
-          </Box>
-          <Box />
+          </div>
+          <div />
           {isWithdrawable ? (
-            <Box className="p-3">
+            <div className="p-3">
               <SignerButton onClick={handleWithdraw}>Withdraw</SignerButton>
-            </Box>
+            </div>
           ) : null}
-        </Box>
-      </Box>
+        </div>
+      </div>
       <LockDialog {...dialog} handleClose={handleClose} />
-    </Box>
+    </div>
   );
 };
 

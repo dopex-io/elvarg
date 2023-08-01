@@ -7,8 +7,10 @@ import Slider from '@mui/material/Slider';
 import { ERC20__factory } from '@dopex-io/sdk';
 import { Button, Input } from '@dopex-io/ui';
 import cx from 'classnames';
-import useSendTx from 'hooks/useSendTx';
+
 import { useBoundStore } from 'store';
+
+import useSendTx from 'hooks/useSendTx';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
@@ -102,7 +104,7 @@ const TradeCard = () => {
       return BigNumber.from('0');
     return utils.parseUnits(
       (positionDetails.marginInQuote * leverage).toFixed(5),
-      optionScalpData?.quoteDecimals!.toNumber()!
+      optionScalpData?.quoteDecimals?.toNumber()!
     );
   }, [positionDetails.marginInQuote, leverage, optionScalpData]);
 
@@ -138,7 +140,7 @@ const TradeCard = () => {
     const _markPrice = Number(
       utils.formatUnits(
         optionScalpData?.markPrice!,
-        optionScalpData?.quoteDecimals!.toNumber()!
+        optionScalpData?.quoteDecimals?.toNumber()!
       )
     );
 
@@ -159,7 +161,7 @@ const TradeCard = () => {
     const limitPrice =
       Number(rawLimitPrice) *
       10 **
-        (optionScalpData?.quoteDecimals!.toNumber() -
+        (optionScalpData?.quoteDecimals?.toNumber() -
           optionScalpData?.baseDecimals!.toNumber());
 
     let tick0;
@@ -202,7 +204,7 @@ const TradeCard = () => {
     const _markPrice = Number(
       utils.formatUnits(
         optionScalpData?.markPrice!,
-        optionScalpData?.quoteDecimals!.toNumber()!
+        optionScalpData?.quoteDecimals?.toNumber()!
       )
     );
 
@@ -230,20 +232,38 @@ const TradeCard = () => {
     const minMargin = MINIMUM_MARGIN[selectedPoolName];
     if (!minMargin) return _props;
 
+    const _quoteSymbol =
+      optionScalpData?.quoteSymbol === 'USDC'
+        ? 'USDC.e'
+        : optionScalpData?.quoteSymbol;
+
+    const _maxSize = Number(
+      utils.formatUnits(
+        optionScalpData?.maxSize!,
+        optionScalpData?.quoteDecimals?.toNumber()!
+      )
+    );
+
     if (!approved) _props.text = 'Approve';
     else if (positionDetails.marginInQuote === 0) {
       _props.disabled = true;
       _props.text = 'Insert an Amount';
     } else if (positionDetails.marginInQuote < minMargin) {
       _props.disabled = true;
+      _props.text = 'Minimum Margin ' + minMargin + ' ' + _quoteSymbol;
+    } else if (positionDetails.sizeInQuote >= _maxSize) {
+      _props.disabled = true;
       _props.text =
-        'Minium Margin ' + minMargin + ' ' + optionScalpData?.quoteSymbol;
+        'Max. position size is ' +
+        formatAmount(_maxSize, 0) +
+        ' ' +
+        _quoteSymbol;
     } else if (
       positionDetails.marginInQuote >
       Number(
         utils.formatUnits(
           userTokenBalance,
-          optionScalpData?.quoteDecimals!.toNumber()!
+          optionScalpData?.quoteDecimals?.toNumber()!
         )
       )
     ) {
@@ -256,13 +276,13 @@ const TradeCard = () => {
       utils
         .parseUnits(
           String(positionDetails.sizeInQuote),
-          optionScalpData?.quoteDecimals!.toNumber()
+          optionScalpData?.quoteDecimals?.toNumber()
         )
         .gt(
           isShort
             ? optionScalpData
                 ?.totalBaseAvailable!.mul(markPrice)
-                .div(10 ** optionScalpData?.quoteDecimals!.toNumber())
+                .div(10 ** optionScalpData?.quoteDecimals?.toNumber())
             : optionScalpData?.totalQuoteAvailable!
         )
     ) {
@@ -289,11 +309,11 @@ const TradeCard = () => {
     const price = Number(
       utils.formatUnits(
         optionScalpData?.markPrice!,
-        optionScalpData?.quoteDecimals!.toNumber()!
+        optionScalpData?.quoteDecimals?.toNumber()!
       )
     );
     const size = Number(
-      utils.formatUnits(posSize!, optionScalpData?.quoteDecimals!.toNumber()!)
+      utils.formatUnits(posSize!, optionScalpData?.quoteDecimals?.toNumber()!)
     );
 
     const positions = size / price;
@@ -302,7 +322,7 @@ const TradeCard = () => {
       const minAbsThreshold = Number(
         utils.formatUnits(
           optionScalpData?.minimumAbsoluteLiquidationThreshold!,
-          optionScalpData?.quoteDecimals!.toNumber()!
+          optionScalpData?.quoteDecimals?.toNumber()!
         )
       );
 
@@ -390,7 +410,7 @@ const TradeCard = () => {
             timeframeIndex,
             utils.parseUnits(
               positionDetails.marginInQuote.toFixed(5),
-              optionScalpData?.quoteDecimals!.toNumber()
+              optionScalpData?.quoteDecimals?.toNumber()
             ),
             entryLimit,
           ]
@@ -405,7 +425,7 @@ const TradeCard = () => {
         const limitPrice =
           Number(rawLimitPrice) *
           10 **
-            (optionScalpData?.quoteDecimals!.toNumber() -
+            (optionScalpData?.quoteDecimals?.toNumber() -
               optionScalpData?.baseDecimals!.toNumber());
 
         const spacing = 10;
@@ -430,7 +450,7 @@ const TradeCard = () => {
             timeframeIndex,
             utils.parseUnits(
               positionDetails.marginInQuote.toFixed(5),
-              optionScalpData?.quoteDecimals!.toNumber()
+              optionScalpData?.quoteDecimals?.toNumber()
             ), // margin + fees + premium
             tick0,
             tick1,
@@ -473,7 +493,7 @@ const TradeCard = () => {
 
       const finalAmount: BigNumber = utils.parseUnits(
         positionDetails.marginInQuote.toFixed(5),
-        optionScalpData?.quoteDecimals!.toNumber()!
+        optionScalpData?.quoteDecimals?.toNumber()!
       );
       const token = ERC20__factory.connect(
         contractAddresses[optionScalpData.quoteSymbol!],
@@ -517,7 +537,7 @@ const TradeCard = () => {
         Number(
           utils.formatUnits(
             posSize,
-            optionScalpData?.quoteDecimals!.toNumber()!
+            optionScalpData?.quoteDecimals?.toNumber()!
           )
         ) * Number(utils.formatUnits(optionScalpData?.feeOpenPosition!, 10));
 
@@ -527,7 +547,7 @@ const TradeCard = () => {
           (_premium = Number(
             utils.formatUnits(
               premium,
-              optionScalpData?.quoteDecimals!.toNumber()!
+              optionScalpData?.quoteDecimals?.toNumber()!
             )
           ))
       );
@@ -535,7 +555,7 @@ const TradeCard = () => {
       const balance = Number(
         utils.formatUnits(
           userTokenBalance,
-          optionScalpData?.quoteDecimals!.toNumber()!
+          optionScalpData?.quoteDecimals?.toNumber()!
         )
       );
 
@@ -635,7 +655,7 @@ const TradeCard = () => {
                 Number(
                   utils.formatUnits(
                     markPrice,
-                    optionScalpData?.quoteDecimals!.toNumber()!
+                    optionScalpData?.quoteDecimals?.toNumber()!
                   )
                 )
               )}
@@ -715,8 +735,8 @@ const TradeCard = () => {
                               .mul(1e6)
                               .div(markPrice.isZero() ? 1 : markPrice),
                       isShort
-                        ? optionScalpData?.baseDecimals!.toNumber()!
-                        : optionScalpData?.quoteDecimals!.toNumber()!
+                        ? optionScalpData?.baseDecimals?.toNumber()!
+                        : optionScalpData?.quoteDecimals?.toNumber()!
                     )
                   ),
                   2
@@ -739,7 +759,7 @@ const TradeCard = () => {
                   Number(
                     utils.formatUnits(
                       userTokenBalance,
-                      optionScalpData?.quoteDecimals!.toNumber()!
+                      optionScalpData?.quoteDecimals?.toNumber()!
                     )
                   ),
                   3
@@ -773,7 +793,7 @@ const TradeCard = () => {
                   Number(
                     utils.formatUnits(
                       premium,
-                      optionScalpData?.quoteDecimals!.toNumber()!
+                      optionScalpData?.quoteDecimals?.toNumber()!
                     )
                   ),
                   2
@@ -796,7 +816,7 @@ const TradeCard = () => {
                         Number(
                           utils.formatUnits(
                             posSize,
-                            optionScalpData?.quoteDecimals!.toNumber()!
+                            optionScalpData?.quoteDecimals?.toNumber()!
                           )
                         ) *
                           Number(

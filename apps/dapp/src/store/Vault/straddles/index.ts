@@ -3,9 +3,9 @@ import { BigNumber } from 'ethers';
 import {
   Addresses,
   AtlanticStraddle,
+  AtlanticStraddle__factory,
   AtlanticStraddleV2,
   AtlanticStraddleV2__factory,
-  AtlanticStraddle__factory,
   SSOVOptionPricing__factory,
 } from '@dopex-io/sdk';
 import { StateCreator } from 'zustand';
@@ -310,6 +310,10 @@ export const createStraddlesSlice: StateCreator<
     const { setSelectedEpoch, getStraddlesContract, chainId } = get();
 
     const straddlesContract = getStraddlesContract();
+
+    if (!straddlesContract) {
+      return;
+    }
 
     try {
       let isEpochExpired: boolean;

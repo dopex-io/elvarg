@@ -6,9 +6,12 @@ import { CircularProgress } from '@mui/material';
 import { ERC20__factory } from '@dopex-io/sdk';
 import { Button, Input } from '@dopex-io/ui';
 import cx from 'classnames';
-import useSendTx from 'hooks/useSendTx';
+
 import { useBoundStore } from 'store';
 
+import useSendTx from 'hooks/useSendTx';
+
+import ConnectButton from 'components/common/ConnectButton';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import Wrapper from 'components/ssov/Wrapper';
 
@@ -68,7 +71,7 @@ const DepositCard = () => {
       utils.formatUnits(
         userTokenBalance,
         isQuote
-          ? optionScalpData?.quoteDecimals!.toNumber()!
+          ? optionScalpData?.quoteDecimals?.toNumber()!
           : optionScalpData?.baseDecimals!.toNumber()!
       )
     );
@@ -126,7 +129,7 @@ const DepositCard = () => {
     const depositAmount = utils.parseUnits(
       rawAmount,
       isQuote
-        ? optionScalpData?.quoteDecimals!.toNumber()
+        ? optionScalpData?.quoteDecimals?.toNumber()
         : optionScalpData?.baseDecimals!.toNumber()
     );
 
@@ -171,7 +174,7 @@ const DepositCard = () => {
         utils.parseUnits(
           rawAmount,
           isQuote
-            ? optionScalpData?.quoteDecimals!.toNumber()
+            ? optionScalpData?.quoteDecimals?.toNumber()
             : optionScalpData?.baseDecimals!.toNumber()
         ),
       ])
@@ -212,7 +215,7 @@ const DepositCard = () => {
           utils.parseUnits(
             String(amount),
             isQuote
-              ? optionScalpData?.quoteDecimals!.toNumber()!
+              ? optionScalpData?.quoteDecimals?.toNumber()!
               : optionScalpData?.baseDecimals!.toNumber()!
           ),
         ]
@@ -244,7 +247,7 @@ const DepositCard = () => {
           utils.parseUnits(
             String(amount),
             isQuote
-              ? optionScalpData?.quoteDecimals!.toNumber()!
+              ? optionScalpData?.quoteDecimals?.toNumber()!
               : optionScalpData?.baseDecimals!.toNumber()!
           )
         );
@@ -269,6 +272,11 @@ const DepositCard = () => {
       return token;
     }
   };
+
+  const quoteSymbol =
+    optionScalpData?.quoteSymbol! === 'USDC'
+      ? 'USDC.e'
+      : optionScalpData?.quoteSymbol;
 
   return (
     <div className="h-full flex flex-col pt-2">
@@ -295,7 +303,7 @@ const DepositCard = () => {
                 )}
                 onClick={() => setisQuote(true)}
               >
-                {optionScalpData?.quoteSymbol!}
+                {quoteSymbol}
               </h6>
             </div>
             <div className="flex flex-row h-10 w-auto p-1 pr-3 pl-2">
@@ -337,7 +345,7 @@ const DepositCard = () => {
             >
               {formatAmount(readableUserTokenBalance, 8)}{' '}
               {isQuote
-                ? optionScalpData?.quoteSymbol!
+                ? quoteSymbol
                 : _resolveSymbol(optionScalpData?.baseSymbol!)}
             </h6>
           </div>
@@ -357,16 +365,13 @@ const DepositCard = () => {
                       utils.formatUnits(
                         estimatedLpTokens,
                         isQuote
-                          ? optionScalpData?.quoteDecimals!.toNumber()!
+                          ? optionScalpData?.quoteDecimals?.toNumber()!
                           : optionScalpData?.baseDecimals!.toNumber()!
                       )
                     ),
                     2
                   )}{' '}
-                  {isQuote
-                    ? optionScalpData?.quoteSymbol!
-                    : optionScalpData?.baseSymbol!}{' '}
-                  LP
+                  {isQuote ? quoteSymbol : optionScalpData?.baseSymbol!} LP
                 </h6>
               </div>
             </div>
@@ -390,25 +395,29 @@ const DepositCard = () => {
           <div className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
             <EstimatedGasCostButton gas={500000} chainId={chainId} />
           </div>
-          <Button
-            size="small"
-            className="w-full"
-            color={
-              !approved || (amount > 0 && amount <= readableUserTokenBalance)
-                ? 'primary'
-                : 'mineshaft'
-            }
-            disabled={amount <= 0}
-            onClick={approved ? handleDeposit : handleApprove}
-          >
-            <p className="text-[0.8rem]">
-              {loading ? (
-                <CircularProgress className="text-white" size="1rem" />
-              ) : (
-                depositButtonMessage
-              )}
-            </p>
-          </Button>
+          {accountAddress === undefined ? (
+            <ConnectButton className="w-full" />
+          ) : (
+            <Button
+              size="small"
+              className="w-full"
+              color={
+                !approved || (amount > 0 && amount <= readableUserTokenBalance)
+                  ? 'primary'
+                  : 'mineshaft'
+              }
+              disabled={amount <= 0}
+              onClick={approved ? handleDeposit : handleApprove}
+            >
+              <p className="text-[0.8rem]">
+                {loading ? (
+                  <CircularProgress className="text-white" size="1rem" />
+                ) : (
+                  depositButtonMessage
+                )}
+              </p>
+            </Button>
+          )}
         </div>
       </div>
     </div>

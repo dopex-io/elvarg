@@ -201,7 +201,6 @@ export const createSsovV3Slice: StateCreator<
     );
 
     let ssovStakingRewardsWithSigner = getStakingRewardsContract();
-    console.log(ssovStakingRewardsWithSigner?.address);
 
     _ssovSigner = {
       ssovContractWithSigner: _ssovContractWithSigner,
@@ -446,22 +445,30 @@ export const createSsovV3Slice: StateCreator<
       ssovAddress
     );
 
-    const data = await Promise.all(
+    const writePositionsData = await Promise.all(
       writePositions.map((i) => {
         return ssov.writePosition(i);
       })
     );
 
     const checkpointData = await Promise.all(
-      data.map((pos) => {
+      writePositionsData.map((pos) => {
         return ssov.checkpoints(pos.epoch, pos.strike, pos.checkpointIndex);
       })
     );
 
-    const moreData = await Promise.all(
-      writePositions.map((i) => {
-        return ssovViewerContract.getWritePositionValue(i, ssovAddress);
-      })
+    const accruedPremiumsPerPosition = writePositionsData.map(
+      ({ collateralAmount }, index) => {
+        const { activeCollateral, totalCollateral, accruedPremium } =
+          checkpointData[index];
+        const activeCollateralShare = collateralAmount
+          .mul(activeCollateral)
+          .div(totalCollateral);
+        const accruedPremiumForCurrentPosition = activeCollateral.eq(0)
+          ? BigNumber.from(0)
+          : activeCollateralShare.mul(accruedPremium).div(activeCollateral);
+        return accruedPremiumForCurrentPosition;
+      }
     );
 
     let _rewardTokens: TokenData[][] = [];
@@ -522,7 +529,7 @@ export const createSsovV3Slice: StateCreator<
       }
     }
 
-    const _writePositions = data.map((o, i) => {
+    const _writePositions = writePositionsData.map((o, i) => {
       const utilization = checkpointData[i]?.activeCollateral.isZero()
         ? BigNumber.from(0)
         : checkpointData[i]?.activeCollateral
@@ -534,8 +541,8 @@ export const createSsovV3Slice: StateCreator<
         collateralAmount: o.collateralAmount,
         epoch: o.epoch.toNumber(),
         strike: o.strike,
-        accruedRewards: moreData[i]?.rewardTokenWithdrawAmounts || [],
-        accruedPremiums: moreData[i]?.accruedPremium || BigNumber.from(0),
+        accruedRewards: [],
+        accruedPremiums: accruedPremiumsPerPosition[i],
         utilization: utilization!,
         stakeRewardAmounts: _rewardAmounts[i],
         stakeRewardTokens: _rewardTokens[i],
