@@ -183,7 +183,9 @@ const PurchaseCard = () => {
 
         setFinalCost(protocolFee.add(straddleCost));
       } catch {
-        console.error('Error calculating final cost');
+        console.error(
+          'Error calculating final cost, defaults to simple estimation',
+        );
       }
     }
 
@@ -476,7 +478,17 @@ const PurchaseCard = () => {
           <>
             <span className="text-stieglitz text-sm">You will spend </span>
             <span className="text-sm">
-              {ethersUtils.formatUnits(finalCost, 6)} USDC.e
+              {ethersUtils.formatUnits(
+                finalCost.isZero()
+                  ? straddlesEpochData
+                      ?.straddlePremium!.add(
+                        straddlesEpochData?.straddleFunding!,
+                      )
+                      .add(straddlesEpochData?.purchaseFee!)!
+                  : finalCost,
+                6,
+              )}{' '}
+              USDC.e
             </span>
           </>
         )}
