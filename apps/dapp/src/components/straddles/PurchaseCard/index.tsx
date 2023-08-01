@@ -94,6 +94,14 @@ const PurchaseCard = () => {
     BigNumber.from('0'),
   );
 
+  const estimatedFinalCost = useMemo(() => {
+    if (!straddlesEpochData?.straddlePremium) return BigNumber.from('0');
+
+    return straddlesEpochData
+      ?.straddlePremium!.add(straddlesEpochData?.straddleFunding!)
+      .add(straddlesEpochData?.purchaseFee!)!;
+  }, [straddlesEpochData]);
+
   const maxStraddlesCanBeBought = useMemo(() => {
     if (isLoading || error || !data) return BigNumber.from(0);
 
@@ -469,12 +477,7 @@ const PurchaseCard = () => {
         <span className="text-sm">
           {formatAmount(
             finalCost.isZero()
-              ? ethersUtils.formatUnits(
-                  straddlesEpochData
-                    ?.straddlePremium!.add(straddlesEpochData?.straddleFunding!)
-                    .add(straddlesEpochData?.purchaseFee!)!,
-                  26,
-                )
+              ? ethersUtils.formatUnits(estimatedFinalCost, 26)
               : ethersUtils.formatUnits(finalCost, 6),
             2,
           )}{' '}
