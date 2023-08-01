@@ -467,14 +467,14 @@ const PurchaseCard = () => {
       <div className="mt-4 flex mb-4 p-2 w-full rounded border border-neutral-800 justify-between">
         <span className="text-stieglitz text-sm">You will spend </span>
         <span className="text-sm">
-          {ethersUtils.formatUnits(
-            finalCost.isZero()
-              ? straddlesEpochData
+          {finalCost.isZero()
+            ? ethersUtils.formatUnits(
+                straddlesEpochData
                   ?.straddlePremium!.add(straddlesEpochData?.straddleFunding!)
-                  .add(straddlesEpochData?.purchaseFee!)!
-              : finalCost,
-            6,
-          )}{' '}
+                  .add(straddlesEpochData?.purchaseFee!)!,
+                26,
+              )
+            : ethersUtils.formatUnits(finalCost, 6)}{' '}
           USDC.e
         </span>
       </div>
