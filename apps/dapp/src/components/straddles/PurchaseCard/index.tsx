@@ -460,38 +460,23 @@ const PurchaseCard = () => {
           precision={4}
         />
         <span className="text-down-bad text-sm">
-          Note that the above cost breakdown is an approximation.
+          Note that the above cost breakdown is an approximation.{' '}
+          {approved ? '' : 'You will see the actual amount after you approve.'}
         </span>
       </div>
       <div className="mt-4 flex mb-4 p-2 w-full rounded border border-neutral-800 justify-between">
-        {finalCost.isZero() ? (
-          approved ? (
-            <span className="text-down-bad text-sm">
-              Error calculating final cost
-            </span>
-          ) : (
-            <span className="text-wave-blue text-sm">
-              Please approve to see final cost
-            </span>
-          )
-        ) : (
-          <>
-            <span className="text-stieglitz text-sm">You will spend </span>
-            <span className="text-sm">
-              {ethersUtils.formatUnits(
-                finalCost.isZero()
-                  ? straddlesEpochData
-                      ?.straddlePremium!.add(
-                        straddlesEpochData?.straddleFunding!,
-                      )
-                      .add(straddlesEpochData?.purchaseFee!)!
-                  : finalCost,
-                6,
-              )}{' '}
-              USDC.e
-            </span>
-          </>
-        )}
+        <span className="text-stieglitz text-sm">You will spend </span>
+        <span className="text-sm">
+          {ethersUtils.formatUnits(
+            finalCost.isZero()
+              ? straddlesEpochData
+                  ?.straddlePremium!.add(straddlesEpochData?.straddleFunding!)
+                  .add(straddlesEpochData?.purchaseFee!)!
+              : finalCost,
+            6,
+          )}{' '}
+          USDC.e
+        </span>
       </div>
       <div className="mt-4 flex mb-4 p-2 w-full rounded border border-neutral-800 justify-between">
         <>
