@@ -1,25 +1,19 @@
-import { BigNumber } from 'ethers';
-
 import axios from 'axios';
 
+import { DOPEX_API_BASE_URL } from 'constants/env';
+
 interface Args {
-  fromTokenAddress: string;
-  toTokenAddress: string;
-  amount: BigNumber;
   chainId: number;
-  accountAddress: string;
+  src: string;
+  dst: string;
+  amount: string;
+  from: string;
 }
 
-const get1inchSwap = async ({
-  fromTokenAddress,
-  toTokenAddress,
-  amount,
-  chainId,
-  accountAddress,
-}: Args) => {
+const get1inchSwap = async ({ chainId, src, dst, amount, from }: Args) => {
   try {
     const { data } = await axios.get(
-      `https://api.1inch.exchange/v5.0/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount.toString()}&fromAddress=${accountAddress}&slippage=0&disableEstimate=true&compatibilityMode=true`
+      `${DOPEX_API_BASE_URL}/v2/1inch/swap?chainId=${chainId}&src=${src}&dst=${dst}&amount=${amount}&from=${from}`,
     );
     return data;
   } catch {

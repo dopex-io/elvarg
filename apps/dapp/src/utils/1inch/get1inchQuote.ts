@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+import { DOPEX_API_BASE_URL } from 'constants/env';
+
 export interface TokenData {
   address: string;
   decimals: number;
@@ -47,19 +49,25 @@ export const defaultQuoteData: I1inchQuote = {
   toTokenAmount: '0',
 };
 
-const get1inchQuote = async (
-  fromTokenAddress: string,
-  toTokenAddress: string,
-  amount: string,
-  chainId: number,
-  accountAddress: string,
-  slippage: string
-): Promise<I1inchQuote> => {
-  if (fromTokenAddress === toTokenAddress || amount === '' || amount === '0')
-    return defaultQuoteData;
+interface Args {
+  chainId: number;
+  src: string;
+  dst: string;
+  amount: string;
+  from: string;
+}
+
+const get1inchQuote = async ({
+  chainId,
+  src,
+  dst,
+  amount,
+  from,
+}: Args): Promise<I1inchQuote> => {
+  if (src === dst || amount === '' || amount === '0') return defaultQuoteData;
 
   const { data } = await axios.get(
-    `https://api.1inch.exchange/v5.0/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${accountAddress}&slippage=${slippage}&disableEstimate=true`
+    `${DOPEX_API_BASE_URL}/v2/1inch/quote?chainId=${chainId}&src=${src}&dst=${dst}&amount=${amount}&from=${from}`,
   );
 
   return data;

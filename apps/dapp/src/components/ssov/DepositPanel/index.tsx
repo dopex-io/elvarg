@@ -9,12 +9,13 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 import { ERC20__factory, SsovV3Viewer__factory } from '@dopex-io/sdk';
 import format from 'date-fns/format';
-import useSendTx from 'hooks/useSendTx';
 import LockerIcon from 'svgs/icons/LockerIcon';
 import { useDebounce } from 'use-debounce';
 
 import { useBoundStore } from 'store';
 import { SsovV3EpochData } from 'store/Vault/ssov';
+
+import useSendTx from 'hooks/useSendTx';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import InputWithTokenSelector from 'components/common/InputWithTokenSelector';
@@ -63,11 +64,11 @@ const DepositPanel = () => {
   const [debouncedQuote] = useDebounce(quote, 1000);
   const [strikeDepositAmount, setStrikeDepositAmount] = useState<string>('0');
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
-    BigNumber.from('0')
+    BigNumber.from('0'),
   );
   const [isTokenSelectorOpen, setTokenSelectorOpen] = useState(false);
   const [fromTokenSymbol, setFromTokenSymbol] = useState(
-    ssovData?.collateralSymbol ?? ''
+    ssovData?.collateralSymbol ?? '',
   );
 
   const { ssovContractWithSigner } = ssovSigner;
@@ -92,7 +93,7 @@ const DepositPanel = () => {
   ]);
 
   const strikes = epochStrikes.map((strike: BigNumber) =>
-    getUserReadableAmount(strike, 8).toString()
+    getUserReadableAmount(strike, 8).toString(),
   );
 
   const handleSelectStrike = useCallback((event: SelectChangeEvent<number>) => {
@@ -103,7 +104,7 @@ const DepositPanel = () => {
     (e: { target: { value: React.SetStateAction<string> } }) => {
       setStrikeDepositAmount(e.target.value);
     },
-    []
+    [],
   );
 
   const hasExpiryElapsed = useMemo(() => {
@@ -118,7 +119,7 @@ const DepositPanel = () => {
       await sendTx(
         ERC20__factory.connect(getContractAddress(fromTokenSymbol), signer),
         'approve',
-        [spender, ethersUtils.parseEther(strikeDepositAmount)]
+        [spender, ethersUtils.parseEther(strikeDepositAmount)],
       );
       setApproved(true);
     } catch (err) {
@@ -145,7 +146,7 @@ const DepositPanel = () => {
 
     const positions = await SsovV3Viewer__factory.connect(
       getSsovViewerAddress(),
-      signer
+      signer,
     ).walletOfOwner(accountAddress, ssovContractWithSigner.address);
     try {
       await sendTx(ssovStakingRewardsWithSigner, 'stake', [
@@ -166,8 +167,8 @@ const DepositPanel = () => {
 
     setUserTokenBalance(
       await ERC20__factory.connect(tokenAddress, signer).balanceOf(
-        accountAddress
-      )
+        accountAddress,
+      ),
     );
   }, [accountAddress, fromTokenSymbol, getContractAddress, signer]);
 
@@ -194,7 +195,7 @@ const DepositPanel = () => {
       Number(strikeDepositAmount) >
       getUserReadableAmount(
         userTokenBalance,
-        getTokenDecimals(fromTokenSymbol, chainId)
+        getTokenDecimals(fromTokenSymbol, chainId),
       )
     ) {
       disable = true;
@@ -249,11 +250,11 @@ const DepositPanel = () => {
 
     if (routerMode) {
       swapData = await get1inchSwap({
-        fromTokenAddress,
-        toTokenAddress,
-        amount: depositAmount,
         chainId,
-        accountAddress: ssovSigner.ssovRouterWithSigner?.address!,
+        src: fromTokenAddress,
+        dst: toTokenAddress,
+        amount: depositAmount.toString(),
+        from: ssovSigner.ssovRouterWithSigner?.address!,
       });
     }
 
@@ -335,7 +336,7 @@ const DepositPanel = () => {
 
       const allowance: BigNumber = await ERC20__factory.connect(
         tokenAddress,
-        signer
+        signer,
       ).allowance(accountAddress, spender);
 
       setApproved(allowance.gte(ethersUtils.parseEther(strikeDepositAmount)));
@@ -390,14 +391,13 @@ const DepositPanel = () => {
       return;
     setLoading(true);
 
-    await get1inchQuote(
-      fromTokenAddress,
-      toTokenAddress,
-      ethersUtils.parseEther(strikeDepositAmount).toString(),
+    await get1inchQuote({
       chainId,
-      accountAddress,
-      '3'
-    ).then((res) => {
+      src: fromTokenAddress,
+      dst: toTokenAddress,
+      amount: ethersUtils.parseEther(strikeDepositAmount).toString(),
+      from: accountAddress,
+    }).then((res) => {
       setQuote(res);
       setLoading(false);
       return res;
@@ -542,7 +542,7 @@ const DepositPanel = () => {
                     {epochTimes[1]
                       ? format(
                           new Date(epochTimes[1].toNumber() * 1000),
-                          'd LLL yyyy'
+                          'd LLL yyyy',
                         )
                       : '-'}
                   </Typography>
@@ -564,9 +564,9 @@ const DepositPanel = () => {
                       {formatAmount(
                         getUserReadableAmount(
                           BigNumber.from(debouncedQuote.toTokenAmount),
-                          debouncedQuote.toToken.decimals
+                          debouncedQuote.toToken.decimals,
                         ),
-                        3
+                        3,
                       )}{' '}
                       {ssovData?.collateralSymbol}~
                     </Typography>
@@ -591,7 +591,7 @@ const DepositPanel = () => {
                   {epochTimes[1]
                     ? format(
                         new Date(epochTimes[1].toNumber() * 1000),
-                        'd MMM yyyy HH:mm'
+                        'd MMM yyyy HH:mm',
                       )
                     : '-'}
                   )
