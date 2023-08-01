@@ -31,9 +31,9 @@ const ManageComponent = () => {
   const [manageSection, setManageSection] = useState<string>('Purchase');
   const [isInuSelected, setIsInuSelected] = useState<boolean>(false);
 
-  const toggleIsInuSelected = () => {
+  const toggleIsInuSelected = useCallback(() => {
     setIsInuSelected(!isInuSelected);
-  };
+  }, [setIsInuSelected]);
 
   return (
     <div className="w-full h-fit-content bg-cod-gray border border-umbra p-1 px-3 rounded-xl">
@@ -73,6 +73,7 @@ const Inu = ({ poolName }: { poolName: string }) => {
     if (poolName && setSelectedPoolName)
       setSelectedPoolName(poolName.toUpperCase());
   }, [poolName, setSelectedPoolName]);
+
   return (
     <>
       <div className="bg-black flex w-screen items-center justify-center">
