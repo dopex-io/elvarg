@@ -46,7 +46,7 @@
     "zustand": "^4.3.9"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^4.0.1",
+    "@graphql-codegen/cli": "^5.0.0",
     "@graphql-codegen/client-preset": "^4.1.0",
     "@next/eslint-plugin-next": "^13.4.12",
     "@types/lodash": "^4.14.196",
