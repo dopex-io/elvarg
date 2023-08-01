@@ -239,7 +239,7 @@ const PurchaseCard = () => {
         const { purchaseParams } = get1inchParams(swap['tx']['data']);
 
         const { data } = await axios.get(
-          `https://gasstation-mainnet.matic.network/v2`,
+          `https://gasstation.polygon.technology/v2`,
         );
 
         const maxFeePerGas = ethers.utils.parseUnits(
