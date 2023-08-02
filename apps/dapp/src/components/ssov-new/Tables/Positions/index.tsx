@@ -14,8 +14,6 @@ const Positions = () => {
   const vault = useVaultStore((vault) => vault.vault);
 
   const { writePositions, buyPositions, isLoading } = useSsovPositions({
-    ssovAddress: vault.address,
-    isPut: vault.isPut,
     market: vault.underlyingSymbol,
   });
 

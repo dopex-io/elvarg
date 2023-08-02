@@ -11,6 +11,7 @@ import { getSsovUserDataV2Document } from 'graphql/ssovs';
 import { getERC20Info } from 'utils/contracts/getERC20Info';
 import getSsovCheckpointData from 'utils/ssov/getSsovCheckpointData';
 import getSsovEpochTimes from 'utils/ssov/getSsovEpochTimes';
+import getSsovSide from 'utils/ssov/getSsovSide';
 import {
   getEarned,
   getRewardsInfo,
@@ -63,13 +64,11 @@ export interface BuyPosition {
 }
 
 interface Args {
-  ssovAddress: Address;
-  isPut: boolean;
   market: string;
 }
 
 const useSsovPositions = (args: Args) => {
-  const { ssovAddress, isPut, market = 'ARB' } = args;
+  const { market = 'ARB' } = args;
   const { address } = useAccount();
 
   const [writePositions, setWritePositions] = useState<WritePosition[]>();
@@ -78,7 +77,7 @@ const useSsovPositions = (args: Args) => {
 
   const updateSsovPositions = useCallback(async () => {
     setLoading(true);
-    if (!address || !ssovAddress) return;
+    if (!address) return;
     const ssovQueryResult = await queryClient.fetchQuery({
       queryKey: ['getSsovUserDataV2', address.toLowerCase()],
       queryFn: async () =>
@@ -176,7 +175,7 @@ const useSsovPositions = (args: Args) => {
 
       const epochTimes = await getSsovEpochTimes({
         epoch: Number(position.epoch),
-        ssovAddress,
+        ssovAddress: getAddress(position.ssovAddress),
       });
 
       // TODO: check if the option is not expired or if expired must be settleable
@@ -193,26 +192,24 @@ const useSsovPositions = (args: Args) => {
     setBuyPositions(_buyPositions.sort((a, b) => b.expiry - a.expiry));
 
     const filteredWritePositions =
-      ssovQueryResult.users[0].userOpenDeposits.filter((position) => {
-        const _ssovAddress = position.id.split('#')[0].toLowerCase();
-
-        return _ssovAddress === ssovAddress.toLowerCase();
-      });
+      ssovQueryResult.users[0].userOpenDeposits.filter((position) =>
+        ssovsFromMarket.includes(getAddress(position.id.split('#')[0])),
+      );
 
     const _writePositions = [];
 
     for (let i = 0; i < filteredWritePositions.length; i++) {
       const vault = filteredWritePositions[i];
-      const _ssovAddress = vault.id.split('#')[0].toLowerCase();
+      const _ssovAddress = getAddress(vault.id.split('#')[0]);
 
       const epochTimes = await getSsovEpochTimes({
         epoch: Number(vault.epoch),
-        ssovAddress: ssovAddress as Address,
+        ssovAddress: _ssovAddress,
       });
 
       const checkpointData = await getSsovCheckpointData({
         positionId: Number(vault.id.split('#')[1]),
-        ssovAddress: ssovAddress as Address,
+        ssovAddress: _ssovAddress,
       });
 
       const activeCollateralShare =
@@ -226,7 +223,7 @@ const useSsovPositions = (args: Args) => {
             checkpointData.activeCollateral;
 
       const earned = (await getEarned(
-        ssovAddress,
+        _ssovAddress,
         BigInt(vault.id.split('#')[1]),
       )) as [Address[], bigint[]];
 
@@ -247,7 +244,7 @@ const useSsovPositions = (args: Args) => {
 
       const rewardsInfo = (
         await getRewardsInfo(
-          ssovAddress,
+          _ssovAddress,
           BigInt(vault.strike),
           BigInt(vault.epoch),
         )
@@ -256,12 +253,15 @@ const useSsovPositions = (args: Args) => {
         canStake: !rewardsAccrued.length,
       }));
 
+      // todo: replace with subgraph fetched isPut once synced
+      const ssovSide = await getSsovSide(_ssovAddress);
+
       _writePositions[i] = {
         ...vault,
         strike: Number(formatUnits(vault.strike, DECIMALS_STRIKE)),
         balance: Number(formatUnits(vault.amount, 18)),
         epoch: Number(vault.epoch),
-        side: isPut ? 'Put' : 'Call',
+        side: ssovSide ? 'Put' : 'Call',
         tokenId: Number(vault.id.split('#')[1]),
         address: _ssovAddress,
         expiry: Number(epochTimes[1]),
@@ -274,7 +274,7 @@ const useSsovPositions = (args: Args) => {
     setWritePositions(_writePositions.sort((a, b) => b.expiry - a.expiry));
 
     setLoading(false);
-  }, [address, isPut, market, ssovAddress]);
+  }, [address, market]);
 
   useEffect(() => {
     updateSsovPositions();
