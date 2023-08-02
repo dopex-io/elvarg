@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { formatUnits } from 'viem';
+import { formatUnits, getAddress } from 'viem';
 
 import request from 'graphql-request';
 import { Address, useAccount } from 'wagmi';
@@ -17,6 +17,7 @@ import {
 } from 'utils/ssov/getSsovStakingRewardsData';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
+import { MARKETS } from 'constants/ssov/markets';
 import { DOPEX_SSOV_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
 export interface RewardsInfo {
@@ -64,10 +65,11 @@ export interface BuyPosition {
 interface Args {
   ssovAddress: Address;
   isPut: boolean;
+  market: string;
 }
 
 const useSsovPositions = (args: Args) => {
-  const { ssovAddress, isPut } = args;
+  const { ssovAddress, isPut, market = 'ARB' } = args;
   const { address } = useAccount();
 
   const [writePositions, setWritePositions] = useState<WritePosition[]>();
@@ -85,18 +87,15 @@ const useSsovPositions = (args: Args) => {
         }),
     });
 
+    const ssovsFromMarket = MARKETS[market].vaults.map(
+      (vault) => vault.address,
+    );
+
     // Filter option token balances for ssov and flatten data
     const optionTokenBalances = ssovQueryResult.users[0].userOptionBalances
-      .filter((item) => {
-        if (
-          item.optionToken.ssov.id.toLowerCase() ===
-            ssovAddress.toLowerCase() &&
-          item.balance !== '0'
-        ) {
-          return true;
-        }
-        return false;
-      })
+      .filter((item) =>
+        ssovsFromMarket.includes(getAddress(item.optionToken.ssov.id)),
+      )
       .map((item) => {
         return {
           balance: item.balance,
@@ -104,16 +103,15 @@ const useSsovPositions = (args: Args) => {
           strike: item.optionToken.strike,
           ssovAddress: item.optionToken.ssov.id,
           optionTokenAddress: item.optionToken.id,
-          side: isPut ? 'Put' : 'Call',
+          side: item.optionToken.ssov.isPut ? 'Put' : 'Call',
           premium: 0,
         };
       });
 
     // Filter buy positions for ssov and flatten data
     const filteredBuyPositions = ssovQueryResult.users[0].userSSOVOptionBalance
-      .filter(
-        (position) =>
-          position.ssov.id.toLowerCase() === ssovAddress.toLowerCase(),
+      .filter((position) =>
+        ssovsFromMarket.includes(getAddress(position.ssov.id)),
       )
       .map((item) => {
         return {
@@ -122,7 +120,7 @@ const useSsovPositions = (args: Args) => {
           strike: item.strike,
           ssovAddress: item.ssov.id,
           optionTokenAddress: '',
-          side: isPut ? 'Put' : 'Call',
+          side: item.ssov.isPut ? 'Put' : 'Call',
           premium: Number(formatUnits(item.premium, DECIMALS_TOKEN)),
         };
       });
@@ -139,23 +137,17 @@ const useSsovPositions = (args: Args) => {
     let activePositions = filteredBuyPositions.map((buyPosition) => {
       // Find the corresponding option token balance
       const correspondingOptionTokenBalance = optionTokenBalances.find(
-        (optionTokenBalance) => {
-          if (
-            optionTokenBalance.epoch === buyPosition.epoch &&
-            optionTokenBalance.strike === buyPosition.strike
-          )
-            return true;
-        },
+        (optionTokenBalance) =>
+          optionTokenBalance.epoch === buyPosition.epoch &&
+          optionTokenBalance.strike === buyPosition.strike,
       );
 
       const correspondingOptionTokenBalanceIndex =
-        optionTokenBalances.findIndex((optionTokenBalance) => {
-          if (
+        optionTokenBalances.findIndex(
+          (optionTokenBalance) =>
             optionTokenBalance.epoch === buyPosition.epoch &&
-            optionTokenBalance.strike === buyPosition.strike
-          )
-            return true;
-        });
+            optionTokenBalance.strike === buyPosition.strike,
+        );
 
       if (correspondingOptionTokenBalanceIndex !== -1)
         optionTokenBalancesToDelete.push(correspondingOptionTokenBalanceIndex);
@@ -191,7 +183,7 @@ const useSsovPositions = (args: Args) => {
 
       _buyPositions[i] = {
         ...position,
-        side: isPut ? 'Put' : 'Call',
+        side: position.side,
         strike: Number(formatUnits(position.strike, DECIMALS_STRIKE)),
         epoch: Number(position.epoch),
         expiry: Number(epochTimes[1]),
@@ -282,7 +274,7 @@ const useSsovPositions = (args: Args) => {
     setWritePositions(_writePositions.sort((a, b) => b.expiry - a.expiry));
 
     setLoading(false);
-  }, [address, isPut, ssovAddress]);
+  }, [address, isPut, market, ssovAddress]);
 
   useEffect(() => {
     updateSsovPositions();

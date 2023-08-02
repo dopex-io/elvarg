@@ -16,6 +16,7 @@ const Positions = () => {
   const { writePositions, buyPositions, isLoading } = useSsovPositions({
     ssovAddress: vault.address,
     isPut: vault.isPut,
+    market: vault.underlyingSymbol,
   });
 
   const [activeIndex, setActiveIndex] = useState<number>(0);

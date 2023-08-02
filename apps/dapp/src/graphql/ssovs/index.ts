@@ -78,6 +78,7 @@ export const getSsovUserDataV2Document = graphql(`
         premium
         ssov {
           id
+          isPut
         }
       }
       userOptionBalances {
@@ -88,6 +89,7 @@ export const getSsovUserDataV2Document = graphql(`
           strike
           ssov {
             id
+            isPut
           }
         }
       }
