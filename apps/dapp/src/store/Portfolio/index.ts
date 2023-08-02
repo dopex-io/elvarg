@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 
 import { providers } from '@0xsequence/multicall';
 import {
@@ -201,7 +201,7 @@ export const createPortfolioSlice: StateCreator<
 
         const epochStrikeData = await ssov.getEpochStrikeData(
           userPosition.epoch,
-          userPosition.strike,
+          userPosition.strike
         );
 
         const token = ERC20__factory.connect(epochStrikeData[0], provider);
@@ -255,7 +255,7 @@ export const createPortfolioSlice: StateCreator<
           vaultType: 'SSOV',
           expiry: format(
             new Date(Number(epochData.expiry) * 1000),
-            'd LLL yyyy',
+            'd LLL yyyy'
           ).toLocaleUpperCase(),
           owner: accountAddress!,
         };
