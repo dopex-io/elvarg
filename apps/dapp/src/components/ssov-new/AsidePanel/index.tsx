@@ -1,4 +1,10 @@
-import { SetStateAction, useCallback, useMemo, useState } from 'react';
+import {
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { Address, formatUnits, parseUnits } from 'viem';
 
 import { Button, Input } from '@dopex-io/ui';
@@ -26,6 +32,7 @@ import alerts from 'components/ssov-new/AsidePanel/alerts';
 import RowItem from 'components/ssov-new/AsidePanel/RowItem';
 import DepositStepper from 'components/ssov-new/Dialogs/DepositStepper';
 
+import { getUserBalance, isApproved } from 'utils/contracts/getERC20Info';
 import formatAmount from 'utils/general/formatAmount';
 
 import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
@@ -61,6 +68,8 @@ const AsidePanel = ({ market }: { market: string }) => {
   const [amount, setAmount] = useState<string>('0');
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [approved, setApproved] = useState<boolean>(false);
+  const [userBalance, setUserBalance] = useState<bigint>(0n);
 
   const [amountDebounced] = useDebounce(amount, 1000);
 
@@ -87,20 +96,6 @@ const AsidePanel = ({ market }: { market: string }) => {
 
   const collateralTokenReads = useContractReads({
     contracts: [
-      {
-        abi: erc20ABI,
-        address: vault.collateralTokenAddress,
-        functionName: 'allowance',
-        args: [address as Address, vault.address as Address],
-        chainId: wagmiConfig.lastUsedChainId,
-      },
-      {
-        abi: erc20ABI,
-        address: vault.collateralTokenAddress,
-        functionName: 'balanceOf',
-        args: [address as Address],
-        chainId: wagmiConfig.lastUsedChainId,
-      },
       {
         abi: erc20ABI,
         address: vault.collateralTokenAddress,
@@ -206,18 +201,12 @@ const AsidePanel = ({ market }: { market: string }) => {
       return {
         ...alerts.info.insufficientLiquidity,
       };
-    else if (
-      (collateralTokenReads.data[1].result ?? 0n) <
-      parseUnits(amountDebounced || '0', DECIMALS_TOKEN)
-    )
+    else if (userBalance < parseUnits(amountDebounced || '0', DECIMALS_TOKEN))
       return {
         ...alerts.error.insufficientBalance,
         buttonContent,
       };
-    else if (
-      (collateralTokenReads.data[0].result ?? 0n) <
-      parseUnits(amountDebounced, DECIMALS_TOKEN)
-    ) {
+    else if (approved) {
       return {
         ...alerts.error.insufficientAllowance,
       };
@@ -233,12 +222,15 @@ const AsidePanel = ({ market }: { market: string }) => {
       };
   }, [
     activeIndex,
-    address,
-    amountDebounced,
-    collateralTokenReads.data,
-    selectedStrike,
     selectedVault,
-    approveConfig,
+    collateralTokenReads.data,
+    approveConfig.result,
+    amountDebounced,
+    address,
+    selectedStrike.availableCollateral,
+    selectedStrike.iv,
+    userBalance,
+    approved,
   ]);
 
   const panelData = useMemo(() => {
@@ -321,6 +313,23 @@ const AsidePanel = ({ market }: { market: string }) => {
     return !selectedStrike || !selectedStrike || !selectedVault;
   }, [selectedStrike, selectedVault]);
 
+  useEffect(() => {
+    if (!address) return;
+    (async () => {
+      const _approved = await isApproved({
+        owner: address,
+        spender: vault.address,
+        tokenAddress: vault.collateralTokenAddress,
+      });
+      setApproved(_approved);
+      const _balance = await getUserBalance({
+        owner: address,
+        tokenAddress: vault.collateralTokenAddress,
+      });
+      setUserBalance(_balance || 0n);
+    })();
+  }, [address, vault.address, vault.collateralTokenAddress, amountDebounced]);
+
   return renderCondition ? null : (
     <div className="flex flex-col space-y-4">
       <div className="flex flex-col bg-cod-gray rounded-lg p-3 space-y-3">
@@ -337,9 +346,9 @@ const AsidePanel = ({ market }: { market: string }) => {
           leftElement={
             <img
               src={`/images/tokens/${String(
-                collateralTokenReads.data?.[2].result,
+                collateralTokenReads.data?.[0].result,
               )?.toLowerCase()}.svg`}
-              alt={String(collateralTokenReads.data?.[2].result)?.toLowerCase()}
+              alt={String(collateralTokenReads.data?.[0].result)?.toLowerCase()}
               className="w-[30px] h-[30px] border border-mineshaft rounded-full ring-4 ring-cod-gray"
             />
           }
@@ -408,7 +417,7 @@ const AsidePanel = ({ market }: { market: string }) => {
               content={
                 <p>
                   {panelData.availableCollateral}{' '}
-                  {String(collateralTokenReads.data?.[2].result)}
+                  {String(collateralTokenReads.data?.[0].result)}
                 </p>
               }
             />
@@ -436,7 +445,7 @@ const AsidePanel = ({ market }: { market: string }) => {
                   <p className="text-stieglitz">
                     {selectedVault?.isPut
                       ? '$'
-                      : String(collateralTokenReads.data?.[2].result)}
+                      : String(collateralTokenReads.data?.[0].result)}
                   </p>
                 </span>
               }

@@ -77,7 +77,7 @@ const useSsovPositions = (args: Args) => {
 
   const updateSsovPositions = useCallback(async () => {
     setLoading(true);
-    if (!address) return;
+    if (!address || !MARKETS[market]) return;
     const ssovQueryResult = await queryClient.fetchQuery({
       queryKey: ['getSsovUserDataV2', address.toLowerCase()],
       queryFn: async () =>
@@ -92,8 +92,10 @@ const useSsovPositions = (args: Args) => {
 
     // Filter option token balances for ssov and flatten data
     const optionTokenBalances = ssovQueryResult.users[0].userOptionBalances
-      .filter((item) =>
-        ssovsFromMarket.includes(getAddress(item.optionToken.ssov.id)),
+      .filter(
+        (item) =>
+          ssovsFromMarket.includes(getAddress(item.optionToken.ssov.id)) &&
+          BigInt(item.balance) > 0n,
       )
       .map((item) => {
         return {

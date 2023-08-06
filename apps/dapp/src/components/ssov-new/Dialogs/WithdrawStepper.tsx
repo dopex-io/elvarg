@@ -126,6 +126,7 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
   }, [canSettle, settle, settleSuccess]);
 
   const updateSsovFromRewardToken = useCallback(async () => {
+    if (!data.rewardsAccrued) return;
     const token = data.rewardsAccrued.find((r) => r.isOption);
     if (token) {
       const optionTokenInfo = await getSsovOptionTokenInfo({
