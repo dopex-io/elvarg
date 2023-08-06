@@ -15,6 +15,7 @@ import {
   usePrepareSettle,
 } from 'hooks/ssov/usePrepareWrites';
 
+import { isApproved } from 'utils/contracts/getERC20Info';
 import getSsovEpochData from 'utils/ssov/getSsovEpochData';
 
 interface Props {
@@ -34,9 +35,10 @@ const SettleStepper = ({ isOpen = false, handleClose, data }: Props) => {
   const [step, setStep] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [strikeIndex, setStrikeIndex] = useState<bigint>(0n);
+  const [approved, setApproved] = useState<boolean>(false);
 
   const approveConfig = usePrepareApprove({
-    spender: data.token,
+    spender: data.vault,
     token: data.token,
     amount: data.amount,
   });
@@ -104,13 +106,13 @@ const SettleStepper = ({ isOpen = false, handleClose, data }: Props) => {
   }, [approveError, settleError]);
 
   useEffect(() => {
-    if (approveSuccess) {
+    if (approveSuccess || approved) {
       setStep(1);
     }
     if (settleSuccess) {
       setStep(2);
     }
-  }, [approveSuccess, settleSuccess]);
+  }, [approveSuccess, approved, settleSuccess]);
 
   useEffect(() => {
     setLoading(approveLoading || settleLoading);
@@ -127,8 +129,15 @@ const SettleStepper = ({ isOpen = false, handleClose, data }: Props) => {
         ).strikes.indexOf(data.strike),
       );
       setStrikeIndex(_strikeIndex);
+      const _approved = await isApproved({
+        owner: data.to,
+        spender: data.vault,
+        tokenAddress: data.token,
+        amount: data.amount,
+      });
+      setApproved(_approved);
     })();
-  }, [data.epoch, data.strike, data.vault]);
+  }, [data]);
 
   return (
     <Dialog

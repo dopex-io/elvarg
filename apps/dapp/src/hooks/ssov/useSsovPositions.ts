@@ -61,6 +61,8 @@ export interface BuyPosition {
   epoch: number;
   expiry: number;
   side: string;
+  vault: Address;
+  optionToken: Address;
 }
 
 interface Args {
@@ -188,6 +190,8 @@ const useSsovPositions = (args: Args) => {
         strike: Number(formatUnits(position.strike, DECIMALS_STRIKE)),
         epoch: Number(position.epoch),
         expiry: Number(epochTimes[1]),
+        vault: getAddress(position.ssovAddress),
+        optionToken: getAddress(position.optionTokenAddress),
       };
     }
 

@@ -290,8 +290,8 @@ const BuyPositions = (props: Props) => {
         isOpen={open}
         handleClose={handleClose}
         data={{
-          token: vault.collateralTokenAddress,
-          vault: vault.address,
+          token: _positions?.[activeIndex].optionToken as Address,
+          vault: _positions?.[activeIndex]?.vault as Address,
           strike: parseUnits(
             _positions?.[activeIndex]?.strike.toString() || '0',
             STRIKE_DECIMALS,
