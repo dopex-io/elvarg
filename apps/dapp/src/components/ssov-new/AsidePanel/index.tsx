@@ -206,7 +206,7 @@ const AsidePanel = ({ market }: { market: string }) => {
         ...alerts.error.insufficientBalance,
         buttonContent,
       };
-    else if (approved) {
+    else if (!approved) {
       return {
         ...alerts.error.insufficientAllowance,
       };
@@ -320,6 +320,7 @@ const AsidePanel = ({ market }: { market: string }) => {
         owner: address,
         spender: vault.address,
         tokenAddress: vault.collateralTokenAddress,
+        amount: parseUnits(amountDebounced, DECIMALS_TOKEN),
       });
       setApproved(_approved);
       const _balance = await getUserBalance({

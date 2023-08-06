@@ -53,7 +53,7 @@ export const isApproved = async ({
     tokenAddress,
   });
 
-  return allowance > amount;
+  return allowance >= amount;
 };
 
 export const getUserBalance = async ({
