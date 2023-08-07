@@ -50,7 +50,7 @@
     "@graphql-codegen/client-preset": "^4.1.0",
     "@next/eslint-plugin-next": "^13.4.12",
     "@types/lodash": "^4.14.196",
-    "@types/react": "^18.2.17",
+    "@types/react": "^18.2.18",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.2.0",
     "@typescript-eslint/parser": "^6.2.1",
