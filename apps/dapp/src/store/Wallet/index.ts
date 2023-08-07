@@ -63,7 +63,7 @@ export const createWalletSlice: StateCreator<
     let router = Router;
 
     // @ts-ignore
-    window.hashmail.identify(accountAddress);
+    window.hashmail.identify('anonymous');
 
     if (
       PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath] &&
