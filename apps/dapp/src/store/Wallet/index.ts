@@ -1,6 +1,5 @@
 import Router from 'next/router';
-
-import { Signer, ethers } from 'ethers';
+import { ethers, Signer } from 'ethers';
 
 import { providers } from '@0xsequence/multicall';
 import { Addresses } from '@dopex-io/sdk';
@@ -63,6 +62,9 @@ export const createWalletSlice: StateCreator<
   }) => {
     let router = Router;
 
+    // @ts-ignore
+    window.hashmail.identify('anonymous');
+
     if (
       PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath] &&
       !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.includes(chainId) &&
@@ -89,7 +91,7 @@ export const createWalletSlice: StateCreator<
     }
 
     const multicallProvider = new providers.MulticallProvider(
-      new ethers.providers.StaticJsonRpcProvider(CHAINS[chainId]?.rpc)
+      new ethers.providers.StaticJsonRpcProvider(CHAINS[chainId]?.rpc),
     );
 
     let contractAddresses: any;
@@ -119,7 +121,7 @@ export const createWalletSlice: StateCreator<
   supportedChainIds: [DEFAULT_CHAIN_ID],
   contractAddresses: Addresses[Number(DEFAULT_CHAIN_ID)],
   provider: new providers.MulticallProvider(
-    new ethers.providers.StaticJsonRpcProvider(CHAINS[DEFAULT_CHAIN_ID]?.rpc)
+    new ethers.providers.StaticJsonRpcProvider(CHAINS[DEFAULT_CHAIN_ID]?.rpc),
   ),
   getContractAddress: (key: string) => {
     const { contractAddresses } = get();
