@@ -36,7 +36,7 @@
     "@storybook/addon-actions": "^7.1.1",
     "@storybook/addon-essentials": "^7.1.1",
     "@storybook/addon-interactions": "^7.1.1",
-    "@storybook/addon-links": "^7.1.1",
+    "@storybook/addon-links": "^7.2.1",
     "@storybook/react": "^7.1.1",
     "@storybook/react-webpack5": "^7.1.1",
     "@storybook/testing-library": "^0.2.0",
