@@ -14,7 +14,7 @@ const Positions = () => {
   const vault = useVaultStore((vault) => vault.vault);
 
   const { writePositions, buyPositions, isLoading } = useSsovPositions({
-    market: vault.underlyingSymbol,
+    market: vault.underlyingSymbol.toUpperCase(),
   });
 
   const [activeIndex, setActiveIndex] = useState<number>(0);
