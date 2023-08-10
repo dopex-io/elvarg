@@ -121,7 +121,7 @@ export const MARKETS: { [key: string]: SsovMarket } = {
       duration: 'WEEKLY',
     },
   },
-  BTC: {
+  WBTC: {
     vaults: [
       {
         symbol: 'BTC-WEEKLY-PUTS-SSOV-V3-3',

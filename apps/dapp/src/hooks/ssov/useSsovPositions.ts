@@ -10,6 +10,7 @@ import { getSsovUserDataV2Document } from 'graphql/ssovs';
 
 import { getERC20Info } from 'utils/contracts/getERC20Info';
 import getSsovCheckpointData from 'utils/ssov/getSsovCheckpointData';
+import getSsovEpochData from 'utils/ssov/getSsovEpochData';
 import getSsovEpochTimes from 'utils/ssov/getSsovEpochTimes';
 import getSsovSide from 'utils/ssov/getSsovSide';
 import {
@@ -59,6 +60,7 @@ export interface BuyPosition {
   premium: number;
   balance: string;
   epoch: number;
+  epochSettlementPrice: number;
   expiry: number;
   side: string;
   vault: Address;
@@ -70,7 +72,7 @@ interface Args {
 }
 
 const useSsovPositions = (args: Args) => {
-  const { market = 'ARB' } = args;
+  const { market } = args;
   const { address } = useAccount();
 
   const [writePositions, setWritePositions] = useState<WritePosition[]>();
@@ -79,7 +81,10 @@ const useSsovPositions = (args: Args) => {
 
   const updateSsovPositions = useCallback(async () => {
     setLoading(true);
-    if (!address || !MARKETS[market]) return;
+    if (!address || !MARKETS[market]) {
+      setLoading(false);
+      return;
+    }
     const ssovQueryResult = await queryClient.fetchQuery({
       queryKey: ['getSsovUserDataV2', address.toLowerCase()],
       queryFn: async () =>
@@ -182,12 +187,22 @@ const useSsovPositions = (args: Args) => {
         ssovAddress: getAddress(position.ssovAddress),
       });
 
+      const epochSettlementPrice = (
+        await getSsovEpochData({
+          epoch: Number(position.epoch),
+          ssovAddress: getAddress(position.ssovAddress),
+        })
+      ).settlementPrice;
+
       // TODO: check if the option is not expired or if expired must be settleable
 
       _buyPositions[i] = {
         ...position,
         side: position.side,
         strike: Number(formatUnits(position.strike, DECIMALS_STRIKE)),
+        epochSettlementPrice: Number(
+          formatUnits(epochSettlementPrice, DECIMALS_STRIKE),
+        ),
         epoch: Number(position.epoch),
         expiry: Number(epochTimes[1]),
         vault: getAddress(position.ssovAddress),

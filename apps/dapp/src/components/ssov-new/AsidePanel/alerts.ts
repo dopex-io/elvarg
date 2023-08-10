@@ -38,12 +38,12 @@ const alertsMapping: Record<PopoverType, Record<string, PopoverContent>> = {
   error: {
     insufficientBalance: {
       disabled: true,
-      textContent: 'Insufficient Balance',
+      textContent: 'Insufficient Balance.',
       alertBg: 'bg-down-bad text-cod-gray',
     },
     insufficientAllowance: {
       disabled: false,
-      textContent: 'Insufficient allowance',
+      textContent: 'Insufficient allowance. Please approve your token.',
       alertBg: 'bg-down-bad text-cod-gray',
       buttonContent: 'Approve',
     },

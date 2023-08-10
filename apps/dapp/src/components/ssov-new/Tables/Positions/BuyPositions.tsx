@@ -169,7 +169,7 @@ const BuyPositions = (props: Props) => {
       const pnl = formatAmount(
         computeOptionPnl({
           strike: position.strike,
-          price: Number(selectedVault?.currentPrice),
+          price: position.epochSettlementPrice,
           size,
           side: position.side.toLowerCase() as 'call' | 'put',
         }) - premium,
