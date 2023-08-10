@@ -1,14 +1,18 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ethers } from 'ethers';
-import MenuIcon from '@mui/icons-material/Menu';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+
+import MenuIcon from '@mui/icons-material/Menu';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+
 import axios from 'axios';
-import { useBoundStore } from 'store';
 import { useNetwork } from 'wagmi';
+
+import { useBoundStore } from 'store';
 
 import DisclaimerDialog from 'components/common/DisclaimerDialog';
 
@@ -104,6 +108,7 @@ const appLinks: {
     },
   ],
   137: [
+    { name: 'Portfolio', to: '/portfolio' },
     { name: 'SSOV', to: '/ssov' },
     { name: 'Straddles', to: '/straddles' },
   ],

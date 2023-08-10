@@ -1,29 +1,16 @@
-import { graphql } from 'gql/ssovs';
-
-export const getSsovPurchasesFromTimestampDocument = graphql(`
-  query getSsovPurchasesFromTimestamp($fromTimestamp: BigInt!) {
-    ssovoptionPurchases(
-      where: { transaction_: { timestamp_gt: $fromTimestamp } }
-    ) {
-      ssov {
-        id
-      }
-      amount
-    }
-  }
-`);
+import { graphql } from 'gql/ssovs-polygon';
 
 export const getSsovUserDataDocument = graphql(`
   query getSsovUserData($user: ID!) {
     users(where: { id: $user }) {
       id
-      userPositions(first: 1000) {
+      userPositions {
         id
         epoch
         strike
         amount
       }
-      userSSOVDeposit(first: 1000) {
+      userSSOVDeposit {
         id
         transaction {
           id
@@ -39,7 +26,7 @@ export const getSsovUserDataDocument = graphql(`
           id
         }
       }
-      userSSOVOptionBalance {
+      userSSOVOptionPurchases {
         id
         transaction {
           id
