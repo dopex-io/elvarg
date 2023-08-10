@@ -7,6 +7,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useBoundStore } from 'store';
 
 import SignerButton from 'components/common/SignerButton';
+import UsdcBalance from 'components/portfolio/Balances/UsdcBalance';
 import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -51,36 +52,44 @@ export default function Balances() {
         ) : (
           Object.keys(userAssetBalances)
             .filter(function (asset) {
-              return Number(userAssetBalances[asset]) > 0;
+              return Number(userAssetBalances[asset]) > 0 && asset !== 'USDC';
             })
-            .map((asset, i) => (
-              <Box key={i} className={`flex my-5`}>
-                <img
-                  alt={asset}
-                  src={getSrcFromAssetName(asset)}
-                  className="w-7 h-7 object-cover"
+            .map((asset, i) =>
+              asset === 'USDC-arb' || asset === 'USDC-matic' ? (
+                <UsdcBalance
+                  key={i}
+                  asset={asset}
+                  userBalance={userAssetBalances[asset]}
                 />
-                <Typography variant="h5" className="ml-3 mt-0.5">
-                  <span className="text-white">
-                    {formatAmount(
-                      getUserReadableAmount(
-                        BigNumber.from(userAssetBalances[asset]),
-                        getTokenDecimals(asset, chainId)
-                      ),
-                      6
-                    )}
-                  </span>
-                </Typography>
-
-                <Box className="bg-umbra p-1 px-3.5 ml-auto mr-2 rounded-md text-center">
-                  <Typography variant="h6">
-                    <span className="text-stieglitz">
-                      {asset === 'USDC' ? 'USDC.e' : asset}
+              ) : (
+                <Box key={i} className={`flex my-5`}>
+                  <img
+                    alt={asset}
+                    src={getSrcFromAssetName(asset)}
+                    className="w-7 h-7 object-cover"
+                  />
+                  <Typography variant="h5" className="ml-3 mt-0.5">
+                    <span className="text-white">
+                      {formatAmount(
+                        getUserReadableAmount(
+                          BigNumber.from(userAssetBalances[asset]),
+                          getTokenDecimals(asset, chainId),
+                        ),
+                        6,
+                      )}
                     </span>
                   </Typography>
+
+                  <Box className="bg-umbra p-1 px-3.5 ml-auto mr-2 rounded-md text-center">
+                    <Typography variant="h6">
+                      <span className="text-stieglitz">
+                        {asset === 'USDC' ? 'USDC.e' : asset}
+                      </span>
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-            ))
+              ),
+            )
         )}
       </Box>
     </Box>

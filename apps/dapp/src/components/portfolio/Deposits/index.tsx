@@ -323,7 +323,9 @@ export default function Deposits() {
                     />
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
-                        {deposit.assetName.toUpperCase()}
+                        {deposit.assetName.toUpperCase() === 'USDC'
+                          ? 'USDC.e'
+                          : deposit.assetName.toUpperCase()}
                       </span>
                     </Typography>
                   </Box>

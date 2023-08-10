@@ -39,7 +39,7 @@ export const getSsovUserDataDocument = graphql(`
           id
         }
       }
-      userSSOVOptionBalance(first: 1000) {
+      userSSOVOptionBalance {
         id
         transaction {
           id
