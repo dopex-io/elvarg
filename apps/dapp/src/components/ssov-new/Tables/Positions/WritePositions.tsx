@@ -231,14 +231,14 @@ const WritePositions = (props: Props) => {
         amount: {
           amount: position.balance,
           symbol: vault.underlyingSymbol,
-          isPut: vault.isPut,
+          isPut: position.side === 'Put',
         },
         expiry: position.expiry,
         rewardsAccrued: position.rewardsAccrued,
         premium: {
           premium: position.accruedPremium,
           symbol: vault.underlyingSymbol,
-          isPut: vault.isPut,
+          isPut: position.side === 'Put',
         },
         button: {
           tokenId: position.tokenId,
@@ -252,12 +252,7 @@ const WritePositions = (props: Props) => {
         },
       };
     });
-  }, [
-    _positions,
-    vault.underlyingSymbol,
-    vault.isPut,
-    selectedVault?.currentEpoch,
-  ]);
+  }, [_positions, vault.underlyingSymbol, selectedVault?.currentEpoch]);
 
   const table = useReactTable({
     columns,

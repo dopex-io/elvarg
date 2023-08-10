@@ -97,6 +97,10 @@ const useSsovPositions = (args: Args) => {
       (vault) => vault.address,
     );
 
+    if (!ssovQueryResult.users[0]) {
+      setLoading(false);
+    }
+
     // Filter option token balances for ssov and flatten data
     const optionTokenBalances = ssovQueryResult.users[0].userOptionBalances
       .filter(

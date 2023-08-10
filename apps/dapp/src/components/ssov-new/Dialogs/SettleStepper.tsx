@@ -120,6 +120,7 @@ const SettleStepper = ({ isOpen = false, handleClose, data }: Props) => {
 
   useEffect(() => {
     (async () => {
+      if (!data.vault) return;
       const _strikeIndex = BigInt(
         (
           await getSsovEpochData({
