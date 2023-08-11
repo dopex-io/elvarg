@@ -33,8 +33,8 @@ const nextConfig = {
         permanent: false,
       },
       {
-        source: '/vaults',
-        destination: '/vaults/ARB',
+        source: '/ssov-new',
+        destination: '/ssov-new/ARB',
         permanent: false,
       },
       {

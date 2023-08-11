@@ -27,7 +27,7 @@ const Vaults = () => {
 
   const handleSelectMarket = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      router.push(`/vaults/${e.target.innerText}`);
+      router.push(`/ssov-new/${e.target.innerText}`);
     },
     [router],
   );
@@ -67,19 +67,19 @@ const Vaults = () => {
   return (
     <>
       <NextSeo
-        title={seo.vaults.title}
-        description={seo.vaults.description}
-        canonical={seo.vaults.url}
+        title={seo.ssovNew.title}
+        description={seo.ssovNew.description}
+        canonical={seo.ssovNew.url}
         openGraph={{
-          url: seo.vaults.url,
-          title: seo.vaults.title,
-          description: seo.vaults.description,
+          url: seo.ssovNew.url,
+          title: seo.ssovNew.title,
+          description: seo.ssovNew.description,
           images: [
             {
-              url: seo.vaults.banner,
+              url: seo.ssovNew.banner,
               width: seo.default.width,
               height: seo.default.height,
-              alt: seo.vaults.alt,
+              alt: seo.ssovNew.alt,
               type: 'image/png',
             },
           ],

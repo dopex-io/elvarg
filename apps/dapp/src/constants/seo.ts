@@ -102,8 +102,8 @@ const seo = {
     title: 'Dopex Bonds',
     description: 'Commit $USDC.e to receive $DPX at a discount',
   },
-  vaults: {
-    url: `${HOST_URL}/vaults`,
+  ssovNew: {
+    url: `${HOST_URL}/ssov-new`,
     banner:
       'https://res.cloudinary.com/dxitdndu3/image/upload/v1684326255/dopex_images/preview_images/default_qfq5rc.png',
     alt: 'Vaults',
