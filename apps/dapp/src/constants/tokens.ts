@@ -40,13 +40,6 @@ export const TOKEN_ADDRESS_TO_DATA: { [key: string]: TokenData } = {
   },
 };
 
-// note: bugged, use a better way to get token address in vaults ui
-export const TOKEN_SYMBOL_TO_ADDRESS: Record<string, string> = {
-  DPX: '0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55',
-  rDPX: '0x32eb7902d4134bf98a28b963d26de779af92a212',
-  ARB: '0x912ce59144191c1204e64559fe8253a0e49e6548',
-};
-
 export const TOKEN_DATA: {
   [key: string]: {
     cgId?: string;
