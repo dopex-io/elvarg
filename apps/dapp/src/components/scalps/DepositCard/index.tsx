@@ -11,6 +11,7 @@ import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
+import ConnectButton from 'components/common/ConnectButton';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import Wrapper from 'components/ssov/Wrapper';
 
@@ -32,11 +33,11 @@ const DepositCard = () => {
   const sendTx = useSendTx();
 
   const [userQuoteBalance, setUserQuoteBalance] = useState<BigNumber>(
-    BigNumber.from('0')
+    BigNumber.from('0'),
   );
 
   const [userBaseBalance, setUserBaseBalance] = useState<BigNumber>(
-    BigNumber.from('0')
+    BigNumber.from('0'),
   );
 
   const [wrapEthOpen, setWrapEthOpen] = useState(false);
@@ -58,7 +59,7 @@ const DepositCard = () => {
   const [rawAmount, setRawAmount] = useState<string>('1');
 
   const [estimatedLpTokens, setEstimatedLpTokens] = useState<BigNumber>(
-    BigNumber.from(0)
+    BigNumber.from(0),
   );
 
   const amount: number = useMemo(() => {
@@ -71,14 +72,14 @@ const DepositCard = () => {
         userTokenBalance,
         isQuote
           ? optionScalpData?.quoteDecimals?.toNumber()!
-          : optionScalpData?.baseDecimals!.toNumber()!
-      )
+          : optionScalpData?.baseDecimals!.toNumber()!,
+      ),
     );
   }, [optionScalpData, userTokenBalance, isQuote]);
 
   const handleSetMax = useCallback(() => {
     setRawAmount(
-      String(Math.floor(readableUserTokenBalance * 100000) / 100000)
+      String(Math.floor(readableUserTokenBalance * 100000) / 100000),
     ); // 5 decimals
   }, [readableUserTokenBalance]);
 
@@ -88,7 +89,7 @@ const DepositCard = () => {
       isQuote
         ? contractAddresses[optionScalpData!.quoteSymbol!]
         : contractAddresses[optionScalpData!.baseSymbol!],
-      provider
+      provider,
     ).balanceOf(accountAddress);
 
     if (isQuote) {
@@ -107,21 +108,21 @@ const DepositCard = () => {
 
     const quote = ERC20__factory.connect(
       contractAddresses[optionScalpData!.quoteSymbol!],
-      signer
+      signer,
     );
     const base = ERC20__factory.connect(
       contractAddresses[optionScalpData!.baseSymbol!],
-      signer
+      signer,
     );
 
     const [quoteAllowance, baseAllowance] = await Promise.all([
       quote.allowance(
         accountAddress,
-        optionScalpData?.optionScalpContract?.address
+        optionScalpData?.optionScalpContract?.address,
       ),
       base.allowance(
         accountAddress,
-        optionScalpData?.optionScalpContract?.address
+        optionScalpData?.optionScalpContract?.address,
       ),
     ]);
 
@@ -129,7 +130,7 @@ const DepositCard = () => {
       rawAmount,
       isQuote
         ? optionScalpData?.quoteDecimals?.toNumber()
-        : optionScalpData?.baseDecimals!.toNumber()
+        : optionScalpData?.baseDecimals!.toNumber(),
     );
 
     if (isQuote) {
@@ -160,11 +161,11 @@ const DepositCard = () => {
 
     const quote = ERC20__factory.connect(
       contractAddresses[optionScalpData!.quoteSymbol!],
-      signer
+      signer,
     );
     const base = ERC20__factory.connect(
       contractAddresses[optionScalpData!.baseSymbol!],
-      signer
+      signer,
     );
 
     try {
@@ -174,7 +175,7 @@ const DepositCard = () => {
           rawAmount,
           isQuote
             ? optionScalpData?.quoteDecimals?.toNumber()
-            : optionScalpData?.baseDecimals!.toNumber()
+            : optionScalpData?.baseDecimals!.toNumber(),
         ),
       ])
         .then(async () => await checkApproved())
@@ -215,9 +216,9 @@ const DepositCard = () => {
             String(amount),
             isQuote
               ? optionScalpData?.quoteDecimals?.toNumber()!
-              : optionScalpData?.baseDecimals!.toNumber()!
+              : optionScalpData?.baseDecimals!.toNumber()!,
           ),
-        ]
+        ],
       );
       await updateOptionScalp();
       await updateOptionScalpUserData();
@@ -247,8 +248,8 @@ const DepositCard = () => {
             String(amount),
             isQuote
               ? optionScalpData?.quoteDecimals?.toNumber()!
-              : optionScalpData?.baseDecimals!.toNumber()!
-          )
+              : optionScalpData?.baseDecimals!.toNumber()!,
+          ),
         );
       setEstimatedLpTokens(estimatedOutput);
     } catch (e) {}
@@ -298,7 +299,7 @@ const DepositCard = () => {
               <h6
                 className={cx(
                   'font-medium mt-1 cursor-pointer text-[0.8rem]',
-                  !isQuote && 'opacity-50'
+                  !isQuote && 'opacity-50',
                 )}
                 onClick={() => setisQuote(true)}
               >
@@ -309,7 +310,7 @@ const DepositCard = () => {
               <h6
                 className={cx(
                   'font-medium mt-1 cursor-pointer text-[0.8rem]',
-                  isQuote && 'opacity-50'
+                  isQuote && 'opacity-50',
                 )}
                 onClick={() => setisQuote(false)}
               >
@@ -365,10 +366,10 @@ const DepositCard = () => {
                         estimatedLpTokens,
                         isQuote
                           ? optionScalpData?.quoteDecimals?.toNumber()!
-                          : optionScalpData?.baseDecimals!.toNumber()!
-                      )
+                          : optionScalpData?.baseDecimals!.toNumber()!,
+                      ),
                     ),
-                    2
+                    2,
                   )}{' '}
                   {isQuote ? quoteSymbol : optionScalpData?.baseSymbol!} LP
                 </h6>
@@ -394,25 +395,29 @@ const DepositCard = () => {
           <div className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800">
             <EstimatedGasCostButton gas={500000} chainId={chainId} />
           </div>
-          <Button
-            size="small"
-            className="w-full"
-            color={
-              !approved || (amount > 0 && amount <= readableUserTokenBalance)
-                ? 'primary'
-                : 'mineshaft'
-            }
-            disabled={amount <= 0}
-            onClick={approved ? handleDeposit : handleApprove}
-          >
-            <p className="text-[0.8rem]">
-              {loading ? (
-                <CircularProgress className="text-white" size="1rem" />
-              ) : (
-                depositButtonMessage
-              )}
-            </p>
-          </Button>
+          {accountAddress === undefined ? (
+            <ConnectButton className="w-full" />
+          ) : (
+            <Button
+              size="small"
+              className="w-full"
+              color={
+                !approved || (amount > 0 && amount <= readableUserTokenBalance)
+                  ? 'primary'
+                  : 'mineshaft'
+              }
+              disabled={amount <= 0}
+              onClick={approved ? handleDeposit : handleApprove}
+            >
+              <p className="text-[0.8rem]">
+                {loading ? (
+                  <CircularProgress className="text-white" size="1rem" />
+                ) : (
+                  depositButtonMessage
+                )}
+              </p>
+            </Button>
+          )}
         </div>
       </div>
     </div>

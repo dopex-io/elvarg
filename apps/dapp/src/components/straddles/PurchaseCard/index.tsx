@@ -3,7 +3,6 @@ import { BigNumber, ethers, utils as ethersUtils } from 'ethers';
 
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
-import Input from '@mui/material/Input';
 import Tooltip from '@mui/material/Tooltip';
 
 import {
@@ -22,6 +21,7 @@ import useSendTx from 'hooks/useSendTx';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CustomButton from 'components/UI/Button';
+import Input from 'components/UI/Input';
 import NumberDisplay from 'components/UI/NumberDisplay';
 
 import { get1inchParams, get1inchSwap } from 'utils/1inch';
@@ -85,13 +85,13 @@ const PurchaseCard = () => {
   const { isLoading, error, data } = useQuery(
     ['currentPrice'],
     () => straddlesData?.straddlesContract?.getUnderlyingPrice(),
-    { initialData: oneEBigNumber(8) }
+    { initialData: oneEBigNumber(8) },
   );
 
   const [finalCost, setFinalCost] = useState(BigNumber.from(0));
 
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
-    BigNumber.from('0')
+    BigNumber.from('0'),
   );
 
   const maxStraddlesCanBeBought = useMemo(() => {
@@ -99,8 +99,8 @@ const PurchaseCard = () => {
 
     const availableUsdDeposits = straddlesEpochData?.usdDeposits.sub(
       BigNumber.from(straddlesEpochData?.activeUsdDeposits).div(
-        '100000000000000000000'
-      )
+        '100000000000000000000',
+      ),
     );
 
     if (!availableUsdDeposits) return BigNumber.from(0);
@@ -134,7 +134,7 @@ const PurchaseCard = () => {
           getContractReadableAmount(2 * amount, 18),
           0,
           POOL_TO_SWAPPER_IDS[selectedPoolName]!,
-          accountAddress
+          accountAddress,
         );
 
       setFinalCost(data.protocolFee.add(data.straddleCost));
@@ -151,21 +151,21 @@ const PurchaseCard = () => {
 
       const straddlesContract = AtlanticStraddleV2__factory.connect(
         Addresses[137]['STRADDLES'].Vault['MATIC'],
-        signer
+        signer,
       );
 
       const currentPrice = await straddlesContract.getUnderlyingPrice();
 
       const amountOfUsdToSwap = currentPrice
-        .mul(amount)
-        .div(BigNumber.from('100'));
+        .mul(ethers.utils.parseUnits(String(amount), 8))
+        .div(BigNumber.from('10000000000'));
 
       const swap = await get1inchSwap({
-        fromTokenAddress: straddlesData.usd,
-        toTokenAddress: straddlesData.underlying,
-        amount: amountOfUsdToSwap,
         chainId: 137,
-        accountAddress: straddlesContract.address,
+        src: straddlesData.usd,
+        dst: straddlesData.underlying,
+        amount: amountOfUsdToSwap.toString(),
+        from: straddlesContract.address,
       });
 
       try {
@@ -175,7 +175,7 @@ const PurchaseCard = () => {
           0,
           accountAddress,
           //@ts-ignore
-          purchaseParams
+          purchaseParams,
         );
 
         const protocolFee = results[1];
@@ -219,41 +219,41 @@ const PurchaseCard = () => {
       if (chainId === 137) {
         const straddlesContract = AtlanticStraddleV2__factory.connect(
           Addresses[137]['STRADDLES'].Vault['MATIC'],
-          signer
+          signer,
         );
 
         const currentPrice = await straddlesContract.getUnderlyingPrice();
 
         const amountOfUsdToSwap = currentPrice
-          .mul(amount)
-          .div(BigNumber.from('100'));
+          .mul(ethers.utils.parseUnits(String(amount), 8))
+          .div(BigNumber.from('10000000000'));
 
         const swap = await get1inchSwap({
-          fromTokenAddress: straddlesData.usd,
-          toTokenAddress: straddlesData.underlying,
-          amount: amountOfUsdToSwap,
           chainId: 137,
-          accountAddress: straddlesData.straddlesContract.address,
+          src: straddlesData.usd,
+          dst: straddlesData.underlying,
+          amount: amountOfUsdToSwap.toString(),
+          from: straddlesData.straddlesContract.address,
         });
 
         const { purchaseParams } = get1inchParams(swap['tx']['data']);
 
         const { data } = await axios.get(
-          `https://gasstation-mainnet.matic.network/v2`
+          `https://gasstation.polygon.technology/v2`,
         );
 
         const maxFeePerGas = ethers.utils.parseUnits(
           data['fast']['maxFee'].toFixed(9),
-          9
+          9,
         );
 
         const maxPriorityFeePerGas = ethers.utils.parseUnits(
           data['fast']['maxPriorityFee'].toFixed(9),
-          9
+          9,
         );
 
-        const minAmount = BigNumber.from(swap['toTokenAmount']).sub(
-          BigNumber.from(swap['toTokenAmount']).div(100)
+        const minAmount = BigNumber.from(swap['toAmount']).sub(
+          BigNumber.from(swap['toAmount']).div(100),
         );
 
         await sendTx(straddlesContract, 'purchase', [
@@ -277,7 +277,7 @@ const PurchaseCard = () => {
             0,
             POOL_TO_SWAPPER_IDS[selectedPoolName]!,
             accountAddress,
-          ]
+          ],
         );
       }
       await updateStraddlesUserData();
@@ -305,7 +305,7 @@ const PurchaseCard = () => {
       await sendTx(
         ERC20__factory.connect(straddlesData.usd, signer),
         'approve',
-        [straddlesData.straddlesContract.address, MAX_VALUE]
+        [straddlesData.straddlesContract.address, MAX_VALUE],
       );
       setApproved(true);
     } catch (err) {
@@ -358,7 +358,7 @@ const PurchaseCard = () => {
       const token = ERC20__factory.connect(straddlesData.usd, signer);
       const allowance: BigNumber = await token.allowance(
         accountAddress,
-        straddlesData?.straddlesContract?.address
+        straddlesData?.straddlesContract?.address,
       );
       const balance: BigNumber = await token.balanceOf(accountAddress);
       setApproved(allowance.gte(finalAmount));
@@ -386,7 +386,7 @@ const PurchaseCard = () => {
 
   return (
     <div>
-      <div className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
+      <div className="bg-umbra rounded-2xl flex flex-col mb-4 px-3 pt-3 pr-2">
         <div className="flex flex-row justify-between">
           <div className="h-12 bg-cod-gray rounded-full pl-1 pr-1 pt-0 pb-0 flex flex-row items-center">
             <div className="flex flex-row h-10 w-[130px] p-1">
@@ -405,15 +405,14 @@ const PurchaseCard = () => {
             name="notionalSize"
             placeholder="0"
             type="number"
-            className="h-12 text-2xl text-white ml-2 mr-3 font-mono"
             value={rawAmount}
             onChange={(e) => setRawAmount(e.target.value)}
-            classes={{ input: 'text-right' }}
+            variant="straddles"
           />
         </div>
         <div className="my-1 w-full border-neutral-800">
           <div className="flex justify-between mx-2 pb-2 text-stieglitz text-sm">
-            <div>Max amount of straddles available:</div>
+            <div>Straddles Available:</div>
             <div>
               <NumberDisplay
                 n={maxStraddlesCanBeBought || BigNumber.from(0)}

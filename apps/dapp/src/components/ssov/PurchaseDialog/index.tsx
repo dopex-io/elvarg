@@ -227,17 +227,16 @@ const PurchaseDialog = ({
     const {
       toTokenAmount,
       toToken: { decimals },
-    } = await get1inchQuote(
-      fromTokenAddress,
-      toTokenAddress,
-      getContractReadableAmount(
+    } = await get1inchQuote({
+      chainId,
+      src: fromTokenAddress,
+      dst: toTokenAddress,
+      amount: getContractReadableAmount(
         1,
         getTokenDecimals(fromTokenSymbol, chainId),
       ).toString(),
-      chainId,
-      accountAddress,
-      '3',
-    );
+      from: accountAddress,
+    });
 
     const collateralTokenDecimals = getTokenDecimals(
       ssovData.collateralSymbol,
@@ -270,11 +269,11 @@ const PurchaseDialog = ({
     }
 
     await get1inchSwap({
-      fromTokenAddress,
-      toTokenAddress,
-      amount: fromTokenAmountRequired,
+      src: fromTokenAddress,
+      dst: toTokenAddress,
+      amount: fromTokenAmountRequired.toString(),
       chainId,
-      accountAddress: ssovSigner.ssovRouterWithSigner.address,
+      from: ssovSigner.ssovRouterWithSigner.address,
     })
       .then((res: any) => {
         setQuote({

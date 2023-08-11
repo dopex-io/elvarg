@@ -31,6 +31,12 @@ const variants: Record<string, Record<string, string>> = {
     textPosition: 'text-right',
     alignment: 'flex justify-between items-center',
   },
+  straddles: {
+    box: 'bg-umbra pr-4 rounded-xl',
+    font: 'text-2xl text-white ml-2 font-mono',
+    textPosition: 'text-right',
+    alignment: 'flex justify-between items-center',
+  },
 };
 
 /**
@@ -80,7 +86,7 @@ const Input = (props: InputProps) => {
             input:
               variants[variant]?.['textPosition']?.concat(
                 ' ',
-                variants[variant]?.['font'] ?? ''
+                variants[variant]?.['font'] ?? '',
               ) ?? '',
           }}
           {...rest}

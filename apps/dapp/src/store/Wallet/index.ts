@@ -1,6 +1,5 @@
 import Router from 'next/router';
-
-import { Signer, ethers } from 'ethers';
+import { ethers, Signer } from 'ethers';
 
 import { providers } from '@0xsequence/multicall';
 import { Addresses } from '@dopex-io/sdk';
@@ -63,21 +62,26 @@ export const createWalletSlice: StateCreator<
   }) => {
     let router = Router;
 
+    const path = router.asPath.split('?')[0] ?? router.asPath;
+
+    // @ts-ignore
+    window.hashmail.identify('anonymous');
+
     if (
-      PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath] &&
-      !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.includes(chainId) &&
-      PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all.length !== 0
+      PAGE_TO_SUPPORTED_CHAIN_IDS[path] &&
+      !PAGE_TO_SUPPORTED_CHAIN_IDS[path]?.all.includes(chainId) &&
+      PAGE_TO_SUPPORTED_CHAIN_IDS[path]?.all.length !== 0
     ) {
       set((prevState: any) => ({
         ...prevState,
         wrongNetwork: true,
-        supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all ?? [
+        supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[path]?.all ?? [
           DEFAULT_CHAIN_ID,
         ],
       }));
       return;
     } else if (
-      !PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath] &&
+      !PAGE_TO_SUPPORTED_CHAIN_IDS[path] &&
       chainId !== DEFAULT_CHAIN_ID
     ) {
       set((prevState: any) => ({
@@ -89,7 +93,7 @@ export const createWalletSlice: StateCreator<
     }
 
     const multicallProvider = new providers.MulticallProvider(
-      new ethers.providers.StaticJsonRpcProvider(CHAINS[chainId]?.rpc)
+      new ethers.providers.StaticJsonRpcProvider(CHAINS[chainId]?.rpc),
     );
 
     let contractAddresses: any;
@@ -102,7 +106,7 @@ export const createWalletSlice: StateCreator<
       provider: multicallProvider,
       chainId,
       contractAddresses,
-      supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[router.asPath]?.all ?? [
+      supportedChainIds: PAGE_TO_SUPPORTED_CHAIN_IDS[path]?.all ?? [
         DEFAULT_CHAIN_ID,
       ],
       signer,
@@ -119,7 +123,7 @@ export const createWalletSlice: StateCreator<
   supportedChainIds: [DEFAULT_CHAIN_ID],
   contractAddresses: Addresses[Number(DEFAULT_CHAIN_ID)],
   provider: new providers.MulticallProvider(
-    new ethers.providers.StaticJsonRpcProvider(CHAINS[DEFAULT_CHAIN_ID]?.rpc)
+    new ethers.providers.StaticJsonRpcProvider(CHAINS[DEFAULT_CHAIN_ID]?.rpc),
   ),
   getContractAddress: (key: string) => {
     const { contractAddresses } = get();
