@@ -100,7 +100,7 @@ export default function Deposits() {
         if (!selectedSides.includes(deposit?.isPut ? 'PUT' : 'CALL'))
           toAdd = false;
         if (toAdd) _deposits.push(deposit);
-      }
+      },
     );
     return _deposits;
   }, [portfolioData, searchText, selectedSides]);
@@ -123,7 +123,7 @@ export default function Deposits() {
         )
           toAdd = false;
         if (toAdd) _deposits.push(deposit);
-      }
+      },
     );
     return _deposits;
   }, [portfolioData, searchText]);
@@ -248,7 +248,7 @@ export default function Deposits() {
                       <span className="text-white">
                         {formatAmount(
                           getUserReadableAmount(deposit.amount, 18),
-                          2
+                          2,
                         )}
                       </span>
                     </Typography>
@@ -290,7 +290,7 @@ export default function Deposits() {
                     'grid grid-cols-12 px-4 py-2',
                     filteredSSOVDeposits.length > 0
                       ? 'border-t-[1.5px] pt-6 border-umbra'
-                      : ''
+                      : '',
                   )}
                   gap={0}
                 >
@@ -311,7 +311,7 @@ export default function Deposits() {
                   key={i}
                   className={cx(
                     'grid grid-cols-12 px-4 pt-2 pb-4',
-                    filteredSSOVDeposits.length > 0 ? 'mt-2' : ''
+                    filteredSSOVDeposits.length > 0 ? 'mt-2' : '',
                   )}
                   gap={0}
                 >
@@ -343,7 +343,7 @@ export default function Deposits() {
                       <span className="text-white">
                         {formatAmount(
                           getUserReadableAmount(deposit.amount, 6),
-                          4
+                          4,
                         )}
                       </span>
                     </Typography>

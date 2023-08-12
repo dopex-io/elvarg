@@ -73,9 +73,9 @@ export default function Balances() {
                       {formatAmount(
                         getUserReadableAmount(
                           BigNumber.from(userAssetBalances[asset]),
-                          getTokenDecimals(asset, chainId)
+                          getTokenDecimals(asset, chainId),
                         ),
-                        6
+                        6,
                       )}
                     </span>
                   </Typography>
@@ -88,7 +88,7 @@ export default function Balances() {
                     </Typography>
                   </Box>
                 </Box>
-              )
+              ),
             )
         )}
       </Box>

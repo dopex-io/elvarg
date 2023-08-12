@@ -121,11 +121,11 @@ function getChainProvider(address: string) {
     address.toLowerCase() === POLYGON_STRADDLES_ADDR
   ) {
     return new providers.MulticallProvider(
-      new ethers.providers.StaticJsonRpcProvider(CHAINS[polygon.id]?.rpc)
+      new ethers.providers.StaticJsonRpcProvider(CHAINS[polygon.id]?.rpc),
     );
   }
   return new providers.MulticallProvider(
-    new ethers.providers.StaticJsonRpcProvider(CHAINS[DEFAULT_CHAIN_ID]?.rpc)
+    new ethers.providers.StaticJsonRpcProvider(CHAINS[DEFAULT_CHAIN_ID]?.rpc),
   );
 }
 
@@ -201,7 +201,7 @@ export const createPortfolioSlice: StateCreator<
 
         const epochStrikeData = await ssov.getEpochStrikeData(
           userPosition.epoch,
-          userPosition.strike
+          userPosition.strike,
         );
 
         const token = ERC20__factory.connect(epochStrikeData[0], provider);
@@ -255,7 +255,7 @@ export const createPortfolioSlice: StateCreator<
           vaultType: 'SSOV',
           expiry: format(
             new Date(Number(epochData.expiry) * 1000),
-            'd LLL yyyy'
+            'd LLL yyyy',
           ).toLocaleUpperCase(),
           owner: accountAddress!,
         };
@@ -276,7 +276,7 @@ export const createPortfolioSlice: StateCreator<
       if (vaultAddress.toLowerCase() === POLYGON_STRADDLES_ADDR) {
         const vault = AtlanticStraddleV2__factory.connect(
           vaultAddress,
-          provider
+          provider,
         );
         epoch = userPosition.epoch;
 
@@ -334,7 +334,7 @@ export const createPortfolioSlice: StateCreator<
       if (vaultAddress.toLowerCase() === POLYGON_STRADDLES_ADDR) {
         const vault = AtlanticStraddleV2__factory.connect(
           vaultAddress,
-          provider
+          provider,
         );
         responses = await Promise.all([vault.symbol(), vault.paused()]);
       } else {
@@ -385,7 +385,7 @@ export const createPortfolioSlice: StateCreator<
             getSsovPolygonUserDataDocument,
             {
               user: accountAddress.toLowerCase(),
-            }
+            },
           ),
       }),
     ]);
@@ -399,7 +399,7 @@ export const createPortfolioSlice: StateCreator<
 
       for (let i in data?.userSSOVDeposit) {
         ssovDepositsPromises.push(
-          getUserSSOVDeposit(data?.userSSOVDeposit[Number(i)])
+          getUserSSOVDeposit(data?.userSSOVDeposit[Number(i)]),
         );
       }
 
@@ -420,7 +420,7 @@ export const createPortfolioSlice: StateCreator<
 
       for (let i in data?.userSSOVOptionBalance) {
         ssovPositionsPromises.push(
-          getUserSSOVPosition(data?.userSSOVOptionBalance[Number(i)])
+          getUserSSOVPosition(data?.userSSOVOptionBalance[Number(i)]),
         );
       }
 
@@ -441,7 +441,7 @@ export const createPortfolioSlice: StateCreator<
 
       for (let i in data?.userSSOVOptionPurchases) {
         ssovPositionsPromises.push(
-          getUserSSOVPosition(data?.userSSOVOptionPurchases[Number(i)])
+          getUserSSOVPosition(data?.userSSOVOptionPurchases[Number(i)]),
         );
       }
 
@@ -477,7 +477,7 @@ export const createPortfolioSlice: StateCreator<
               getStraddlesUserDataDocument,
               {
                 user: accountAddress.toLowerCase(),
-              }
+              },
             ),
         }),
         queryClient.fetchQuery({
@@ -488,7 +488,7 @@ export const createPortfolioSlice: StateCreator<
               getStraddlesUserDataDocument,
               {
                 user: accountAddress.toLowerCase(),
-              }
+              },
             ),
         }),
       ]);
@@ -505,12 +505,12 @@ export const createPortfolioSlice: StateCreator<
 
       for (let i in straddlesData?.userOpenStraddles) {
         straddlesPositionsPromises.push(
-          getUserStraddlesPosition(straddlesData?.userOpenStraddles[Number(i)])
+          getUserStraddlesPosition(straddlesData?.userOpenStraddles[Number(i)]),
         );
       }
 
       const straddlePositionsResponses = await Promise.all(
-        straddlesPositionsPromises
+        straddlesPositionsPromises,
       );
 
       for (let i in straddlePositionsResponses) {
@@ -527,13 +527,13 @@ export const createPortfolioSlice: StateCreator<
       for (let i in straddlesData?.straddlesUserOpenDeposits) {
         straddlesDepositsPromises.push(
           getUserStraddlesDeposit(
-            straddlesData?.straddlesUserOpenDeposits[Number(i)]
-          )
+            straddlesData?.straddlesUserOpenDeposits[Number(i)],
+          ),
         );
       }
 
       const straddleDepositsResponses = await Promise.all(
-        straddlesDepositsPromises
+        straddlesDepositsPromises,
       );
 
       for (let i in straddleDepositsResponses) {
@@ -555,10 +555,10 @@ export const createPortfolioSlice: StateCreator<
         userSSOVDeposits: ssovDeposits.concat(ssovDepositsPolygon),
         userSSOVPositions: ssovPositions.concat(ssovPositionsPolygon),
         userStraddlesDeposits: straddlesDepositsArb.concat(
-          straddlesDepositsPolygon
+          straddlesDepositsPolygon,
         ),
         userStraddlesPositions: straddlesPositionsArb.concat(
-          straddlesPositionsPolygon
+          straddlesPositionsPolygon,
         ),
         isLoading: false,
       },

@@ -93,7 +93,7 @@ export const createWalletSlice: StateCreator<
     }
 
     const multicallProvider = new providers.MulticallProvider(
-      new ethers.providers.StaticJsonRpcProvider(CHAINS[chainId]?.rpc)
+      new ethers.providers.StaticJsonRpcProvider(CHAINS[chainId]?.rpc),
     );
 
     let contractAddresses: any;
@@ -123,7 +123,7 @@ export const createWalletSlice: StateCreator<
   supportedChainIds: [DEFAULT_CHAIN_ID],
   contractAddresses: Addresses[Number(DEFAULT_CHAIN_ID)],
   provider: new providers.MulticallProvider(
-    new ethers.providers.StaticJsonRpcProvider(CHAINS[DEFAULT_CHAIN_ID]?.rpc)
+    new ethers.providers.StaticJsonRpcProvider(CHAINS[DEFAULT_CHAIN_ID]?.rpc),
   ),
   getContractAddress: (key: string) => {
     const { contractAddresses } = get();

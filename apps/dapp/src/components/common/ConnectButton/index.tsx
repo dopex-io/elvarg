@@ -58,7 +58,7 @@ export function ConnectButton({ className }: { className?: string }) {
         <Button
           className={cx(
             'text-white border-cod-gray flex items-center',
-            className
+            className,
           )}
           color="carbon"
           onClick={handleClick}

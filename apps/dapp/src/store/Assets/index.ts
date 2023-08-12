@@ -62,7 +62,7 @@ export const createAssetsSlice: StateCreator<
       queryKey: ['token_prices'],
       queryFn: () =>
         axios.get(
-          `https://api.coingecko.com/api/v3/simple/price?ids=${cgIds}&vs_currencies=usd&include_24hr_change=true`
+          `https://api.coingecko.com/api/v3/simple/price?ids=${cgIds}&vs_currencies=usd&include_24hr_change=true`,
         ),
     });
 
@@ -114,7 +114,7 @@ export const createAssetsSlice: StateCreator<
 
     chainIds.map(async (chainId) => {
       const provider = new providers.MulticallProvider(
-        new ethers.providers.StaticJsonRpcProvider(CHAINS[chainId]?.rpc)
+        new ethers.providers.StaticJsonRpcProvider(CHAINS[chainId]?.rpc),
       );
       let assets = Object.keys(userAssetBalances)
         .map((asset) => {
@@ -147,8 +147,8 @@ export const createAssetsSlice: StateCreator<
 
       const balanceCalls = assetAddresses.map((assetAddress) =>
         ERC20__factory.connect(assetAddress, provider).balanceOf(
-          accountAddress ?? ''
-        )
+          accountAddress ?? '',
+        ),
       );
 
       const balances = await Promise.all(balanceCalls);
@@ -183,8 +183,8 @@ export const createAssetsSlice: StateCreator<
       await ERC20__factory.connect(
         '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
         new providers.MulticallProvider(
-          new ethers.providers.StaticJsonRpcProvider(CHAINS[arbitrum.id]?.rpc)
-        )
+          new ethers.providers.StaticJsonRpcProvider(CHAINS[arbitrum.id]?.rpc),
+        ),
       ).balanceOf(accountAddress ?? '')
     ).toString();
     userAssetBalances['USDC-arb'] = usdcArbBalance;
@@ -193,8 +193,8 @@ export const createAssetsSlice: StateCreator<
       await ERC20__factory.connect(
         '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
         new providers.MulticallProvider(
-          new ethers.providers.StaticJsonRpcProvider(CHAINS[polygon.id]?.rpc)
-        )
+          new ethers.providers.StaticJsonRpcProvider(CHAINS[polygon.id]?.rpc),
+        ),
       ).balanceOf(accountAddress ?? '')
     ).toString();
     userAssetBalances['USDC-matic'] = usdcMaticBalance;
