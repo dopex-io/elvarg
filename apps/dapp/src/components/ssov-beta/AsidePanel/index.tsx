@@ -64,6 +64,28 @@ export const ButtonGroup = ({
   );
 };
 
+const UserBalance = ({
+  symbol,
+  userBalance,
+  ...rest
+}: React.DetailedHTMLProps<
+  React.HTMLAttributes<HTMLDivElement>,
+  HTMLDivElement
+> & {
+  symbol: string | undefined;
+  userBalance: bigint;
+}) => (
+  <div className="flex justify-between text-xs text-stieglitz px-1" {...rest}>
+    <p>Balance</p>
+    <span className="flex">
+      <p className="text-white pr-1">
+        {formatAmount(formatUnits(userBalance, DECIMALS_TOKEN), 3, true)}
+      </p>
+      {symbol || ''}
+    </span>
+  </div>
+);
+
 const AsidePanel = ({ market }: { market: string }) => {
   const [amount, setAmount] = useState<string>('0');
   const [activeIndex, setActiveIndex] = useState<number>(0);
@@ -354,6 +376,10 @@ const AsidePanel = ({ market }: { market: string }) => {
             />
           }
           placeholder="0.0"
+        />
+        <UserBalance
+          symbol={collateralTokenReads.data?.[0].result as string}
+          userBalance={userBalance}
         />
         {infoPopover.textContent !== '' ? (
           <div
