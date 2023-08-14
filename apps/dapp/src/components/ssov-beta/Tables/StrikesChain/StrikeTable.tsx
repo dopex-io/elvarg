@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { Address, formatUnits } from 'viem';
 
-import { Button, Disclosure, Menu, Skeleton } from '@dopex-io/ui';
+import { Button /* Menu,*/, Disclosure, Skeleton } from '@dopex-io/ui';
 import { MinusCircleIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
 import {
   ChevronDownIcon,
@@ -334,7 +334,7 @@ const StrikesTable = ({ market }: { market: string }) => {
   }, []);
 
   const strikeData = useMemo(() => {
-    if (!strikesData) return [];
+    if (!strikesData || !selectedVault) return [];
 
     return strikesData.map((strikeData, index) => {
       const premiumFormatted = Number(
@@ -357,12 +357,15 @@ const StrikesTable = ({ market }: { market: string }) => {
 
       premiumApy = premiumApy * (365 / (vault.duration === 'WEEKLY' ? 7 : 30));
 
+      const premiumInUSD =
+        (selectedVault.isPut ? 1 : Number(selectedVault.currentPrice)) *
+        premiumFormatted;
+
       return {
         strike: strikeData.strike,
         breakeven: (vault.isPut
-          ? strikeData.strike - premiumFormatted
-          : strikeData.strike +
-            premiumFormatted * Number(selectedVault?.currentPrice)
+          ? strikeData.strike - premiumInUSD
+          : strikeData.strike + premiumInUSD
         ).toFixed(3),
         availableCollateral: {
           strike: strikeData.strike,
@@ -396,8 +399,7 @@ const StrikesTable = ({ market }: { market: string }) => {
     });
   }, [
     strikesData,
-    selectedVault?.currentPrice,
-    selectedVault?.apy,
+    selectedVault,
     vault.duration,
     vault.isPut,
     vault.underlyingSymbol,

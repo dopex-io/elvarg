@@ -479,23 +479,7 @@ const AsidePanel = ({ market }: { market: string }) => {
       </div>
       <div className="bg-cod-gray p-3 rounded-lg">
         <PnlChart
-          breakEven={
-            vault.isPut
-              ? Number(selectedStrike.strike) -
-                Number(
-                  formatUnits(
-                    selectedStrike.premiumPerOption || 0n,
-                    DECIMALS_TOKEN,
-                  ),
-                )
-              : Number(selectedStrike.strike) +
-                Number(
-                  formatUnits(
-                    selectedStrike.premiumPerOption || 0n,
-                    DECIMALS_TOKEN,
-                  ),
-                )
-          }
+          breakEven={selectedStrike.breakeven}
           optionPrice={Number(
             formatUnits(selectedStrike.premiumPerOption || 0n, DECIMALS_TOKEN),
           )}
