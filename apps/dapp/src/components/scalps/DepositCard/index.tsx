@@ -326,7 +326,7 @@ const DepositCard = () => {
             placeholder="0"
             type="number"
             value={rawAmount}
-            handleChange={(e: {
+            onChange={(e: {
               target: { value: React.SetStateAction<string | number> };
             }) => setRawAmount(String(e.target.value))}
           />

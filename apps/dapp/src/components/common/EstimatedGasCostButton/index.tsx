@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
+
 import Box from '@mui/material/Box';
+
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';

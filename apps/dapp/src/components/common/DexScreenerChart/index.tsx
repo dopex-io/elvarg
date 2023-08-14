@@ -4,6 +4,7 @@ import { SingleChartProps } from './SingleChart';
 
 type ChartType = {
   poolAddress: string;
+  className?: string;
 };
 
 // @ts-ignore TODO FIX
@@ -12,7 +13,7 @@ const Chart = dynamic<ChartType>(() => import('./SingleChart.tsx'), {
 });
 
 const DexScreenerChart = (props: SingleChartProps) => {
-  return <Chart poolAddress={props.poolAddress} />;
+  return <Chart {...props} />;
 };
 
 export default DexScreenerChart;

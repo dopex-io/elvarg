@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import Image from 'next/image';
+
 import cx from 'classnames';
 import { useBoundStore } from 'store';
 

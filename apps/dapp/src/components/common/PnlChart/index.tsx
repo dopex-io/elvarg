@@ -1,14 +1,16 @@
-import { useMemo, useState, useCallback, useEffect } from 'react';
-import { LineChart, Line, Tooltip, ResponsiveContainer } from 'recharts';
-import { CategoricalChartFunc } from 'recharts/types/chart/generateCategoricalChart';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
 import Box from '@mui/material/Box';
 
+import { Line, LineChart, ResponsiveContainer, Tooltip } from 'recharts';
+import { CategoricalChartFunc } from 'recharts/types/chart/generateCategoricalChart';
+
+import PnlInfoBox from 'components/common/PnlInfoBox';
 import Typography from 'components/UI/Typography';
 
 import formatAmount from 'utils/general/formatAmount';
 import getValueColorClass from 'utils/general/getValueColorClass';
 import getValueSign from 'utils/general/getValueSign';
-import PnlInfoBox from 'components/common/PnlInfoBox';
 
 const CustomTooltip = () => {
   return null;
@@ -76,13 +78,13 @@ const PnlChart = (props: PnlChartProps) => {
   );
 
   return (
-    <Box className="h-[11.25rem]">
+    <Box className="h-[14.25rem]">
       <Box className="flex justify-between">
         <Typography variant="h6" className="text-stieglitz font-small">
           Calculator
         </Typography>
       </Box>
-      <ResponsiveContainer width="100%" height="35%" className="mb-4">
+      <ResponsiveContainer width="100%" height="50%" className="mb-4">
         <LineChart
           width={300}
           height={100}

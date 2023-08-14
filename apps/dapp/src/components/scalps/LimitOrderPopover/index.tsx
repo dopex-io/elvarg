@@ -135,7 +135,7 @@ const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
                   )
                 )
               )}
-              handleChange={(e: {
+              onChange={(e: {
                 target: { value: React.SetStateAction<string | number> };
               }) => setRawLimitPrice(String(e.target.value))}
               type="number"

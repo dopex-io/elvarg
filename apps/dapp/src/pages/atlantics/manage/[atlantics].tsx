@@ -1,9 +1,9 @@
 import { useEffect, useMemo } from 'react';
-
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
 import Box from '@mui/material/Box';
+
 import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
 

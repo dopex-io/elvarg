@@ -15,6 +15,7 @@ import queryClient from 'queryClient';
 import { getSsovPurchasesFromTimestampDocument } from 'graphql/ssovs';
 
 import AppBar from 'components/common/AppBar';
+import NewSsovUIBanner from 'components/common/Banners/NewSsovUIBanner';
 import SsovCard from 'components/ssov/SsovCard';
 import SsovFilter from 'components/ssov/SsovFilter';
 import SsovStat from 'components/ssov/Stats/SsovStat';
@@ -57,7 +58,7 @@ export async function getVolume(payload: any, wantContract: string) {
         return acc;
       }
     },
-    BigNumber.from(0)
+    BigNumber.from(0),
   );
   return _twentyFourHourVolume;
 }
@@ -74,14 +75,14 @@ const SsovData = () => {
         queryKey: ['twentyFourHVol'],
         queryFn: () =>
           fetch(`${DOPEX_API_BASE_URL}/v2/24h-volume`).then((res) =>
-            res.json()
+            res.json(),
           ),
       },
       {
         queryKey: ['openInterest'],
         queryFn: () =>
           fetch(`${DOPEX_API_BASE_URL}/v2/open-interest`).then((res) =>
-            res.json()
+            res.json(),
           ),
       },
     ],
@@ -100,9 +101,9 @@ const SsovData = () => {
             getSsovPurchasesFromTimestampDocument,
             {
               fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
-            }
+            },
           ),
-      })
+      }),
   );
 
   const [selectedSsovTokens, setSelectedSsovTokens] = useState<string[]>([]);
@@ -129,7 +130,7 @@ const SsovData = () => {
         ssovs[key]?.reduce(
           (_acc: number, ssov: { tvl: string }) =>
             (_acc += parseFloat(ssov.tvl)),
-          0
+          0,
         )
       );
     }, 0);
@@ -172,7 +173,7 @@ const SsovData = () => {
 
     Object.keys(ssovs).forEach((key) => {
       ssovs[key].forEach((so: { underlyingSymbol: string }) =>
-        tokensSet.add(so.underlyingSymbol)
+        tokensSet.add(so.underlyingSymbol),
       );
     });
 
@@ -199,6 +200,7 @@ const SsovData = () => {
       <AppBar />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         <Box className="text-center mx-auto max-w-xl mb-8 mt-32">
+          <NewSsovUIBanner />
           <Typography variant="h2" className="z-1">
             Single Staking Option Vaults
           </Typography>
@@ -262,12 +264,12 @@ const SsovData = () => {
                           .sort(
                             (
                               a: { [x: string]: string },
-                              b: { [x: string]: string }
+                              b: { [x: string]: string },
                             ) =>
                               parseFloat(a[sortBy.toLowerCase()]!) <
                               parseFloat(b[sortBy.toLowerCase()]!)
                                 ? 1
-                                : -1
+                                : -1,
                           )
                           .map(
                             (
@@ -277,17 +279,17 @@ const SsovData = () => {
                                 retired: any;
                                 volume: number;
                               },
-                              index: number
+                              index: number,
                             ) => {
                               let visible: boolean = false;
                               if (
                                 (selectedSsovTokens.length === 0 ||
                                   selectedSsovTokens.includes(
-                                    ssov.underlyingSymbol
+                                    ssov.underlyingSymbol,
                                   )) &&
                                 (selectedTypes.length === 0 ||
                                   selectedTypes.includes(
-                                    ssov.type.toUpperCase()
+                                    ssov.type.toUpperCase(),
                                   ))
                               )
                                 visible = true;
@@ -295,7 +297,7 @@ const SsovData = () => {
                               return visible ? (
                                 <SsovCard key={index} data={{ ...ssov }} />
                               ) : null;
-                            }
+                            },
                           )
                       : null}
                   </Box>

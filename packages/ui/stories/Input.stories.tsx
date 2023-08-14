@@ -27,7 +27,7 @@ export const Default = () => {
       <div className="fixed top-16 bg-cod-gray p-32">
         <Input
           variant="xl"
-          handleChange={handleChange}
+          onChange={handleChange}
           leftElement={
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -119,27 +119,27 @@ export const Variant = () => {
           variant="small"
           color="cod-gray"
           outline="umbra"
-          handleChange={handleChange}
+          onChange={handleChange}
           placeholder="Small"
         />
         <Input
           variant="small"
           color="umbra"
-          handleChange={handleChange}
+          onChange={handleChange}
           placeholder="Small"
         />
         <Input
           variant="medium"
           color="cod-gray"
           outline="umbra"
-          handleChange={handleChange}
+          onChange={handleChange}
           placeholder="Medium"
         />
         <Input
           variant="medium"
           color="cod-gray"
           outline="umbra"
-          handleChange={handleChange}
+          onChange={handleChange}
           placeholder="Medium"
         />
         <Input
@@ -154,19 +154,19 @@ export const Variant = () => {
               handleSelection={handleSelection}
             />
           }
-          handleChange={handleChange}
+          onChange={handleChange}
           placeholder="Medium"
         />
         <Input
           variant="xl"
           color="umbra"
           outline="mineshaft"
-          handleChange={handleChange}
+          onChange={handleChange}
           placeholder="XL"
         />
         <Input
           variant="xl"
-          handleChange={handleChange}
+          onChange={handleChange}
           leftElement={
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -197,7 +197,7 @@ export const Variant = () => {
         />
         <Input
           variant="xl"
-          handleChange={handleChange}
+          onChange={handleChange}
           leftElement={
             <div>
               <Menu
@@ -238,28 +238,28 @@ export const Outlines = () => {
         <Input
           variant="small"
           outline="mineshaft"
-          handleChange={handleChange}
+          onChange={handleChange}
           placeholder="Outlined"
         />
         <Input
           variant="small"
           outline="umbra"
           color="cod-gray"
-          handleChange={handleChange}
+          onChange={handleChange}
           placeholder="Outlined"
         />
         <Input
           variant="small"
           color="cod-gray"
           outline="down-bad"
-          handleChange={handleChange}
+          onChange={handleChange}
           placeholder="Validation"
         />
         <Input
           variant="xl"
           color="cod-gray"
           outline="down-bad"
-          handleChange={handleChange}
+          onChange={handleChange}
           placeholder="Validation"
         />
         <Input
@@ -285,7 +285,7 @@ export const Outlines = () => {
               />
             </svg>
           }
-          handleChange={handleChange}
+          onChange={handleChange}
           placeholder="Validation"
           bottomElement={
             <div className="flex font-sans justify-between my-auto">

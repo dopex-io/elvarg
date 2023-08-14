@@ -17,10 +17,12 @@ import { IosShare } from '@mui/icons-material';
 import request from 'graphql-request';
 import useShare from 'hooks/useShare';
 import { reverse } from 'lodash';
+
 import queryClient from 'queryClient';
-import { useBoundStore } from 'store';
 
 import { getStraddlesUserSettleDataDocument } from 'graphql/straddles';
+
+import { useBoundStore } from 'store';
 
 import { TableHeader } from 'components/straddles/Deposits/DepositsTable';
 import { TablePaginationActions } from 'components/UI';

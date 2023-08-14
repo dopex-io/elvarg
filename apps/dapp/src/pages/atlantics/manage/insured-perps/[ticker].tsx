@@ -7,8 +7,9 @@ import Box from '@mui/material/Box';
 
 import axios from 'axios';
 import { NextSeo } from 'next-seo';
-import { useBoundStore } from 'store';
 import { GmxCandleStick } from 'types';
+
+import { useBoundStore } from 'store';
 
 import ManageCard from 'components/atlantics/InsuredPerps/ManageCard';
 import Tables from 'components/atlantics/InsuredPerps/Tables';

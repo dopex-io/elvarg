@@ -34,11 +34,11 @@ const WithdrawCard = () => {
   const [approved, setApproved] = useState(false);
 
   const [userQuoteBalance, setUserQuoteBalance] = useState<BigNumber>(
-    BigNumber.from('0')
+    BigNumber.from('0'),
   );
 
   const [userBaseBalance, setUserBaseBalance] = useState<BigNumber>(
-    BigNumber.from('0')
+    BigNumber.from('0'),
   );
 
   const [isQuote, setisQuote] = useState(true);
@@ -50,7 +50,7 @@ const WithdrawCard = () => {
   const [rawAmount, setRawAmount] = useState<string>('0');
 
   const [estimatedOut, setEstimatedOut] = useState<BigNumber>(
-    BigNumber.from(0)
+    BigNumber.from(0),
   );
 
   const amount: number = useMemo(() => {
@@ -63,14 +63,14 @@ const WithdrawCard = () => {
         userTokenBalance,
         isQuote
           ? optionScalpData?.quoteDecimals?.toNumber()!
-          : optionScalpData?.baseDecimals!.toNumber()!
-      )
+          : optionScalpData?.baseDecimals!.toNumber()!,
+      ),
     );
   }, [optionScalpData, userTokenBalance, isQuote]);
 
   const handleSetMax = useCallback(() => {
     setRawAmount(
-      String(Math.floor(readableUserTokenBalance * 100000) / 100000)
+      String(Math.floor(readableUserTokenBalance * 100000) / 100000),
     ); // 5 decimals
   }, [readableUserTokenBalance]);
 
@@ -129,7 +129,7 @@ const WithdrawCard = () => {
           : optionScalpData?.baseLpContract
         ).connect(signer),
         'approve',
-        [optionScalpData?.optionScalpContract?.address, MAX_VALUE]
+        [optionScalpData?.optionScalpContract?.address, MAX_VALUE],
       );
       setApproved(true);
     } catch (err) {
@@ -158,9 +158,9 @@ const WithdrawCard = () => {
             String(amount),
             isQuote
               ? optionScalpData?.quoteDecimals?.toNumber()!
-              : optionScalpData?.baseDecimals!.toNumber()!
+              : optionScalpData?.baseDecimals!.toNumber()!,
           ),
-        ]
+        ],
       );
       await updateOptionScalp();
       await updateOptionScalpUserData();
@@ -189,8 +189,8 @@ const WithdrawCard = () => {
             String(amount),
             isQuote
               ? optionScalpData?.quoteDecimals?.toNumber()!
-              : optionScalpData?.baseDecimals!.toNumber()!
-          )
+              : optionScalpData?.baseDecimals!.toNumber()!,
+          ),
         );
       setEstimatedOut(estimatedOutput);
     } catch (e) {}
@@ -208,14 +208,14 @@ const WithdrawCard = () => {
 
       const quote = ERC20__factory.connect(
         optionScalpData!.quoteLpContract.address,
-        provider
+        provider,
       );
       const base = ERC20__factory.connect(
         optionScalpData!.baseLpContract.address,
-        provider
+        provider,
       );
       const balance: BigNumber = await (isQuote ? quote : base).balanceOf(
-        accountAddress
+        accountAddress,
       );
 
       if (isQuote) {
@@ -229,7 +229,7 @@ const WithdrawCard = () => {
         : optionScalpData?.baseLpContract
       ).allowance(
         accountAddress,
-        optionScalpData?.optionScalpContract?.address
+        optionScalpData?.optionScalpContract?.address,
       );
       setApproved(allowance.gte(balance));
     })();
@@ -256,7 +256,7 @@ const WithdrawCard = () => {
               <h6
                 className={cx(
                   'font-medium mt-1 cursor-pointer text-[0.8rem]',
-                  !isQuote && 'opacity-50'
+                  !isQuote && 'opacity-50',
                 )}
                 onClick={() => setisQuote(true)}
               >
@@ -267,7 +267,7 @@ const WithdrawCard = () => {
               <h6
                 className={cx(
                   'font-medium mt-1 cursor-pointer text-[0.8rem]',
-                  isQuote && 'opacity-50'
+                  isQuote && 'opacity-50',
                 )}
                 onClick={() => setisQuote(false)}
               >
@@ -283,7 +283,7 @@ const WithdrawCard = () => {
             placeholder="0"
             type="number"
             value={rawAmount}
-            handleChange={(e: {
+            onChange={(e: {
               target: { value: React.SetStateAction<string | number> };
             }) => setRawAmount(String(e.target.value))}
           />
@@ -322,10 +322,10 @@ const WithdrawCard = () => {
                         : optionScalpData?.totalBaseAvailable!,
                       isQuote
                         ? optionScalpData?.quoteDecimals?.toNumber()!
-                        : optionScalpData?.baseDecimals!.toNumber()!
-                    )
+                        : optionScalpData?.baseDecimals!.toNumber()!,
+                    ),
                   ),
-                  2
+                  2,
                 )}{' '}
                 {isQuote ? quoteSymbol : optionScalpData?.baseSymbol!}
               </h6>
@@ -347,10 +347,10 @@ const WithdrawCard = () => {
                         : optionScalpData?.baseLpValue!,
                       isQuote
                         ? optionScalpData?.quoteDecimals?.toNumber()!
-                        : optionScalpData?.baseDecimals!.toNumber()!
-                    )
+                        : optionScalpData?.baseDecimals!.toNumber()!,
+                    ),
                   ),
-                  9
+                  9,
                 )}{' '}
                 {isQuote ? quoteSymbol : optionScalpData?.baseSymbol!}
               </h6>
@@ -373,10 +373,10 @@ const WithdrawCard = () => {
                         estimatedOut,
                         isQuote
                           ? optionScalpData?.quoteDecimals?.toNumber()!
-                          : optionScalpData?.baseDecimals!.toNumber()!
-                      )
+                          : optionScalpData?.baseDecimals!.toNumber()!,
+                      ),
                     ),
-                    2
+                    2,
                   )}{' '}
                   {isQuote ? quoteSymbol : optionScalpData?.baseSymbol!}
                 </h6>

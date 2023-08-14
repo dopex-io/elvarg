@@ -14,30 +14,30 @@ export interface InputProps
   color?: string;
   outline?: 'mineshaft' | 'down-bad' | 'umbra';
   placeholder?: string;
-  handleChange:
+  onChange:
     | ReactEventHandler
     | ((e: {
         target: {
-          value: React.SetStateAction<string | number>;
+          value: React.SetStateAction<any>;
         };
       }) => void);
 }
 
 const variants: Record<string, Record<string, string>> = {
   xl: {
-    box: 'flex flex-col w-fit p-3 rounded-xl space-y-2',
+    box: 'flex flex-col w-full p-3 rounded-xl space-y-2',
     font: 'h-10 text-2xl text-white ml-2 font-mono',
     textPosition: 'text-right',
     alignment: 'flex justify-between items-center',
   },
   small: {
-    box: 'flex flex-col w-fit rounded-md px-2 py-1 content-center',
+    box: 'flex flex-col w-full rounded-md px-2 py-1 content-center',
     font: 'h-auto text-white',
     textPosition: 'text-left text-sm',
     alignment: 'flex justify-between items-center',
   },
   medium: {
-    box: 'flex flex-col w-fit rounded-md p-2 content-center',
+    box: 'flex flex-col w-full rounded-md p-2 content-center',
     font: 'h-auto text-white',
     textPosition: 'text-left text-sm',
     alignment: 'flex justify-between items-center',
@@ -58,7 +58,7 @@ const Input = (props: InputProps) => {
     variant = 'xl',
     outline = 'umbra',
     placeholder = '',
-    handleChange,
+    onChange,
     ...rest
   } = props;
 
@@ -78,10 +78,10 @@ const Input = (props: InputProps) => {
             variants[variant].textPosition,
             variants[variant].font,
             bgColors[color],
-            'text-white text-right focus:outline-none'
+            'text-white text-right w-1/3 focus:outline-none'
           )}
           placeholder={placeholder}
-          onChange={handleChange}
+          onChange={onChange}
           {...rest}
         />
         {rightElement}

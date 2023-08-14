@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { BigNumber, utils } from 'ethers';
+
 import { ERC20__factory } from '@dopex-io/sdk';
 import { Button, Input } from '@dopex-io/ui';
 import cx from 'classnames';
@@ -220,7 +221,7 @@ const Deposit = () => {
           <Input
             variant="small"
             color="cod-gray"
-            handleChange={handleDepositAmount}
+            onChange={handleDepositAmount}
             placeholder="0"
             value={amount}
           />

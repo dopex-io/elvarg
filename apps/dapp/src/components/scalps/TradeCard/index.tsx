@@ -630,7 +630,7 @@ const TradeCard = () => {
               placeholder="0"
               type="number"
               value={rawAmount}
-              handleChange={handleInputChange}
+              onChange={handleInputChange}
             />
             <h6 className="text-stieglitz mr-3 ml-1">
               {showAsQuote ? optionScalpData?.quoteSymbol : selectedPoolName}
@@ -660,7 +660,7 @@ const TradeCard = () => {
                 )
               )}
               value={rawLimitPrice}
-              handleChange={(e: {
+              onChange={(e: {
                 target: { value: React.SetStateAction<string | number> };
               }) => setRawLimitPrice(String(e.target.value))}
               type="number"

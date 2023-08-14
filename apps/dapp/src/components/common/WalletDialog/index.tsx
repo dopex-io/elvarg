@@ -1,14 +1,17 @@
 import { useCallback, useState } from 'react';
 import { BigNumber } from 'ethers';
-import LaunchIcon from '@mui/icons-material/Launch';
+
 import Box from '@mui/material/Box';
+
+import LaunchIcon from '@mui/icons-material/Launch';
+
 import delay from 'lodash/delay';
 import { useBoundStore } from 'store';
 import { useDisconnect } from 'wagmi';
 
-import BalanceItem from 'components/common/BalanceItem';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
+import BalanceItem from 'components/common/BalanceItem';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import displayAddress from 'utils/general/displayAddress';

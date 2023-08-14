@@ -1,6 +1,8 @@
 import { ReactNode } from 'react';
 import { BigNumber, utils as ethersUtils } from 'ethers';
+
 import Tooltip from '@mui/material/Tooltip';
+
 import formatAmount from 'utils/general/formatAmount';
 
 interface Props {

@@ -16,8 +16,8 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 import useSendTx from 'hooks/useSendTx';
 import useShare from 'hooks/useShare';
-import { useBoundStore } from 'store';
 
+import { useBoundStore } from 'store';
 import { StraddlePosition } from 'store/Vault/straddles';
 
 import { TableHeader } from 'components/straddles/Deposits/DepositsTable';

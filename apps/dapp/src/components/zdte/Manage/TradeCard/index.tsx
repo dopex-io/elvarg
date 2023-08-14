@@ -1,7 +1,9 @@
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { BigNumber } from 'ethers';
-import { ERC20__factory } from '@dopex-io/sdk';
+
 import { Input as MuiInput } from '@mui/material';
+
+import { ERC20__factory } from '@dopex-io/sdk';
 import useSendTx from 'hooks/useSendTx';
 import Countdown from 'react-countdown';
 import { useBoundStore } from 'store';
