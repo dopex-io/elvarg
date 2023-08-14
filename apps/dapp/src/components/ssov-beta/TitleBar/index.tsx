@@ -2,7 +2,7 @@ import { Menu } from '@dopex-io/ui';
 
 import useVaultsData from 'hooks/ssov/useVaultsData';
 
-import TitleItem from 'components/ssov-new/TitleBar/TitleItem';
+import TitleItem from 'components/ssov-beta/TitleBar/TitleItem';
 
 import { formatAmount } from 'utils/general';
 

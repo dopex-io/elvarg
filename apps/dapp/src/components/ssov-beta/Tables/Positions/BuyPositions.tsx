@@ -16,8 +16,8 @@ import { BuyPosition } from 'hooks/ssov/useSsovPositions';
 import useVaultsData from 'hooks/ssov/useVaultsData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
-import SettleStepper from 'components/ssov-new/Dialogs/SettleStepper';
-import Placeholder from 'components/ssov-new/Tables/Placeholder';
+import SettleStepper from 'components/ssov-beta/Dialogs/SettleStepper';
+import Placeholder from 'components/ssov-beta/Tables/Placeholder';
 
 import { STRIKE_DECIMALS } from 'utils/contracts/atlantics/pool';
 import { formatAmount } from 'utils/general';
@@ -265,7 +265,7 @@ const BuyPositions = (props: Props) => {
                         return (
                           <td
                             key={cell.id}
-                            className={`m-3 py-2 px-3 ${textAlignment}`}
+                            className={`m-3 py-2 px-4 ${textAlignment}`}
                           >
                             <span className="text-sm">
                               {flexRender(

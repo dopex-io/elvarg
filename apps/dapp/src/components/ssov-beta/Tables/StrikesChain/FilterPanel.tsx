@@ -4,7 +4,7 @@ import format from 'date-fns/format';
 
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
-import Pill from 'components/ssov-new/Tables/Pill';
+import Pill from 'components/ssov-beta/Tables/Pill';
 
 import findDefaultSsov from 'utils/ssov/findDefaultSsov';
 import findSsov from 'utils/ssov/findSsov';
@@ -52,7 +52,7 @@ const FilterPanel = (props: Props) => {
         });
       }
     },
-    [update, duration, market]
+    [update, duration, market],
   );
 
   const handleSelectDuration = useCallback(
@@ -73,7 +73,7 @@ const FilterPanel = (props: Props) => {
         });
       }
     },
-    [isPut, market, update]
+    [isPut, market, update],
   );
 
   // updates default selection of duration/side if the market has been changed

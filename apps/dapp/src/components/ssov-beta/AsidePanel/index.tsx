@@ -28,9 +28,9 @@ import useVaultsData from 'hooks/ssov/useVaultsData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
 import PnlChart from 'components/common/PnlChart';
-import alerts from 'components/ssov-new/AsidePanel/alerts';
-import RowItem from 'components/ssov-new/AsidePanel/RowItem';
-import DepositStepper from 'components/ssov-new/Dialogs/DepositStepper';
+import alerts from 'components/ssov-beta/AsidePanel/alerts';
+import RowItem from 'components/ssov-beta/AsidePanel/RowItem';
+import DepositStepper from 'components/ssov-beta/Dialogs/DepositStepper';
 
 import { getUserBalance, isApproved } from 'utils/contracts/getERC20Info';
 import formatAmount from 'utils/general/formatAmount';
@@ -314,7 +314,7 @@ const AsidePanel = ({ market }: { market: string }) => {
   }, [selectedStrike, selectedVault]);
 
   useEffect(() => {
-    if (!address) return;
+    if (vault.address === '0x' || !address) return;
     (async () => {
       const _approved = await isApproved({
         owner: address,

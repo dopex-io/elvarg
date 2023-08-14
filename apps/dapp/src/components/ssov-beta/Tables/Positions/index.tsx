@@ -5,7 +5,7 @@ import { Skeleton } from '@dopex-io/ui';
 import useSsovPositions from 'hooks/ssov/useSsovPositions';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
-import { ButtonGroup } from 'components/ssov-new/AsidePanel';
+import { ButtonGroup } from 'components/ssov-beta/AsidePanel';
 
 import BuyPositions from './BuyPositions';
 import WritePositions from './WritePositions';

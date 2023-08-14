@@ -16,8 +16,8 @@ import { RewardAccrued, WritePosition } from 'hooks/ssov/useSsovPositions';
 import useVaultsData from 'hooks/ssov/useVaultsData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
-import WithdrawStepper from 'components/ssov-new/Dialogs/WithdrawStepper';
-import Placeholder from 'components/ssov-new/Tables/Placeholder';
+import WithdrawStepper from 'components/ssov-beta/Dialogs/WithdrawStepper';
+import Placeholder from 'components/ssov-beta/Tables/Placeholder';
 
 import { formatAmount } from 'utils/general';
 

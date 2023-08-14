@@ -18,7 +18,7 @@ import useStrikesData from 'hooks/ssov/useStrikesData';
 import useVaultsData from 'hooks/ssov/useVaultsData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
-import Placeholder from 'components/ssov-new/Tables/Placeholder';
+import Placeholder from 'components/ssov-beta/Tables/Placeholder';
 
 import formatAmount from 'utils/general/formatAmount';
 

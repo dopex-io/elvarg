@@ -6,12 +6,12 @@ import { NextSeo } from 'next-seo';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
 import PageLayout from 'components/common/PageLayout';
-import AsidePanel from 'components/ssov-new/AsidePanel';
-import InfoBox from 'components/ssov-new/InfoBox';
-import PriceChart from 'components/ssov-new/PriceChart';
-import Positions from 'components/ssov-new/Tables/Positions';
-import StrikesChain from 'components/ssov-new/Tables/StrikesChain';
-import TitleBar from 'components/ssov-new/TitleBar';
+import AsidePanel from 'components/ssov-beta/AsidePanel';
+import InfoBox from 'components/ssov-beta/InfoBox';
+import PriceChart from 'components/ssov-beta/PriceChart';
+import Positions from 'components/ssov-beta/Tables/Positions';
+import StrikesChain from 'components/ssov-beta/Tables/StrikesChain';
+import TitleBar from 'components/ssov-beta/TitleBar';
 
 import findDefaultSsov from 'utils/ssov/findDefaultSsov';
 
@@ -27,7 +27,7 @@ const Vaults = () => {
 
   const handleSelectMarket = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      router.push(`/ssov-new/${e.target.innerText}`);
+      router.push(`/ssov-beta/${e.target.innerText}`);
     },
     [router],
   );
@@ -67,19 +67,19 @@ const Vaults = () => {
   return (
     <>
       <NextSeo
-        title={seo.ssovNew.title}
-        description={seo.ssovNew.description}
-        canonical={seo.ssovNew.url}
+        title={seo.ssovBeta.title}
+        description={seo.ssovBeta.description}
+        canonical={seo.ssovBeta.url}
         openGraph={{
-          url: seo.ssovNew.url,
-          title: seo.ssovNew.title,
-          description: seo.ssovNew.description,
+          url: seo.ssovBeta.url,
+          title: seo.ssovBeta.title,
+          description: seo.ssovBeta.description,
           images: [
             {
-              url: seo.ssovNew.banner,
+              url: seo.ssovBeta.banner,
               width: seo.default.width,
               height: seo.default.height,
-              alt: seo.ssovNew.alt,
+              alt: seo.ssovBeta.alt,
               type: 'image/png',
             },
           ],
