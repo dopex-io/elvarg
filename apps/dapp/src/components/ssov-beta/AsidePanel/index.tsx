@@ -64,6 +64,28 @@ export const ButtonGroup = ({
   );
 };
 
+const UserBalance = ({
+  symbol,
+  userBalance,
+  ...rest
+}: React.DetailedHTMLProps<
+  React.HTMLAttributes<HTMLDivElement>,
+  HTMLDivElement
+> & {
+  symbol: string | undefined;
+  userBalance: bigint;
+}) => (
+  <div className="flex justify-between text-xs text-stieglitz px-1" {...rest}>
+    <p>Balance</p>
+    <span className="flex">
+      <p className="text-white pr-1 underline decoration-dashed">
+        {formatAmount(formatUnits(userBalance, DECIMALS_TOKEN), 3, true)}
+      </p>
+      {symbol || ''}
+    </span>
+  </div>
+);
+
 const AsidePanel = ({ market }: { market: string }) => {
   const [amount, setAmount] = useState<string>('0');
   const [activeIndex, setActiveIndex] = useState<number>(0);
@@ -169,6 +191,10 @@ const AsidePanel = ({ market }: { market: string }) => {
     setActiveIndex(index);
   };
 
+  const handleMax = useCallback(() => {
+    setAmount(formatUnits(userBalance, DECIMALS_TOKEN).toString());
+  }, [userBalance]);
+
   const handleChange = useCallback(
     (e: { target: { value: SetStateAction<any> } }) => {
       setAmount(e.target.value);
@@ -259,7 +285,8 @@ const AsidePanel = ({ market }: { market: string }) => {
     const totalFees = Number(
       formatUnits(
         selectedVault.isPut
-          ? selectedStrike.purchaseFeePerOption * BigInt(amountDebounced)
+          ? selectedStrike.purchaseFeePerOption *
+              parseUnits(amountDebounced, DECIMALS_TOKEN)
           : (selectedStrike.purchaseFeePerOption *
               parseUnits(amountDebounced, DECIMALS_TOKEN) *
               parseUnits(selectedVault.currentPrice, DECIMALS_USD)) /
@@ -354,6 +381,12 @@ const AsidePanel = ({ market }: { market: string }) => {
             />
           }
           placeholder="0.0"
+        />
+        <UserBalance
+          symbol={collateralTokenReads.data?.[0].result as string}
+          userBalance={userBalance}
+          role="button"
+          onClick={handleMax}
         />
         {infoPopover.textContent !== '' ? (
           <div

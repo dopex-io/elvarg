@@ -20,20 +20,20 @@ export const MARKETS: { [key: string]: SsovMarket } = {
   STETH: {
     vaults: [
       {
-        symbol: 'stETH-MONTHLY-CALLS-SSOV-V3',
-        isPut: false,
-        duration: 'MONTHLY',
-        underlyingSymbol: 'stETH',
-        collateralTokenAddress: '0x5979D7b546E38E414F7E9822514be443A4800529',
-        address: '0x475a5a712b741b9ab992e6af0b9e5adee3d1851b',
-      },
-      {
         symbol: 'stETH-WEEKLY-CALLS-SSOV-V3',
         isPut: false,
         duration: 'WEEKLY',
         underlyingSymbol: 'stETH',
         collateralTokenAddress: '0x5979D7b546E38E414F7E9822514be443A4800529',
         address: '0xFca61E79F38a7a82c62f469f55A9df54CB8dF678',
+      },
+      {
+        symbol: 'stETH-MONTHLY-CALLS-SSOV-V3',
+        isPut: false,
+        duration: 'MONTHLY',
+        underlyingSymbol: 'stETH',
+        collateralTokenAddress: '0x5979D7b546E38E414F7E9822514be443A4800529',
+        address: '0x475a5a712b741b9ab992e6af0b9e5adee3d1851b',
       },
     ],
     default: {
