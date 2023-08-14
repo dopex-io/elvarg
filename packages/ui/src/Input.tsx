@@ -67,7 +67,7 @@ const Input = (props: InputProps) => {
       className={cx(
         variants[variant].box,
         bgColors[color],
-        `${outline ? `border border-${outline}` : 'border-0'}`
+        `${outline ? `border border-${outline}` : 'border-0'}`,
       )}
     >
       <div className="flex justify-between">
@@ -78,7 +78,7 @@ const Input = (props: InputProps) => {
             variants[variant].textPosition,
             variants[variant].font,
             bgColors[color],
-            'text-white text-right w-1/3 focus:outline-none'
+            'text-white text-right w-2/3 focus:outline-none',
           )}
           placeholder={placeholder}
           onChange={onChange}
