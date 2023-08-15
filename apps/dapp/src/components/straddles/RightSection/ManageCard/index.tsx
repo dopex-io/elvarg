@@ -10,11 +10,8 @@ import { formatAmount } from 'utils/general';
 
 import DepositInformation from './components/DepositInformation';
 import ErrorMessage from './components/ErrorMessage';
-import InputSection from './components/InputSection';
+import InputSection from './components/Input';
 import PurchaseInformation from './components/PurchaseInformation';
-import CardInformationSection from './components/PurchaseInformation/components/CardInformationSection';
-import PremiumSection from './components/PurchaseInformation/components/PremiumSection';
-import Strikes from './components/PurchaseInformation/components/Strikes';
 import SettingsSection from './components/SettingsSection';
 import UserBalanceSection from './components/UserBalanceSection';
 
@@ -31,7 +28,7 @@ const userCollateralTokenBalance = {
 const userCollateralTokenAllowance = BigInt(100000000);
 
 const ManageCard = () => {
-  const [isPurchase, setIsPurchase] = useState<boolean>(false);
+  const [isPurchase, setIsPurchase] = useState<boolean>(true);
   const [inputAmount, setInputAmount] = useState<InputAmountType>({
     contractReadable: BigInt(0),
     userReadable: '0',

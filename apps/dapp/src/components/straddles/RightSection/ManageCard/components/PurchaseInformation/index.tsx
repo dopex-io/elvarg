@@ -9,17 +9,20 @@ import { formatAmount } from 'utils/general';
 
 import { InputAmountType } from '../..';
 import ErrorMessage from '../ErrorMessage';
+import BreakEvensAndStrikes from './components/BreakEvensAndStrikes';
+import PremiumSection from './components/PremiumSection';
+import PurchaseCardInformation from './components/PurchaseCardInformation';
 
 // import CardInformationSection from './components/CardInformationSection';
 // import PremiumSection from './components/PremiumSection';
 // import Strikes from './components/Strikes';
 
-const collateralTokenDecimals = 6;
-const userCollateralTokenBalance = {
+export const collateralTokenDecimals = 6;
+export const userCollateralTokenBalance = {
   userReadable: '200.096',
   contractReadable: BigInt(200000000),
 };
-const userCollateralTokenAllowance = BigInt(100000000);
+export const userCollateralTokenAllowance = BigInt(100000000);
 export const collateralTokenSymbol = 'USDC';
 
 type PurchaseInformationProps = {
@@ -104,14 +107,14 @@ const PurchaseInformation = ({ inputAmount }: PurchaseInformationProps) => {
   return (
     <div className="w-full flex flex-col space-y-2">
       <ErrorMessage errorMessage={meta.errorMessage} />
-      <Strikes
+      <BreakEvensAndStrikes
         upperBreakeven={straddleInformation.upperBreakeven}
         loading={false}
         strike={straddleInformation.strike}
         lowerBreakEven={straddleInformation.lowerBreakeven}
       />
       <PremiumSection premium={straddleInformation.premium} />
-      <CardInformationSection
+      <PurchaseCardInformation
         totalCost={straddleInformation.totalCost.userReadable}
         funding={straddleInformation.funding}
         optionsSize={straddleInformation.optionsSize}
