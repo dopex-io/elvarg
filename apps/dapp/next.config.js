@@ -33,11 +33,6 @@ const nextConfig = {
         permanent: false,
       },
       {
-        source: '/ssov-beta',
-        destination: '/ssov-beta/ARB',
-        permanent: false,
-      },
-      {
         source: '/ssov-v3/:path*',
         destination: '/ssov/:path*',
         permanent: false,
