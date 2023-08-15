@@ -17,12 +17,14 @@ import findDefaultSsov from 'utils/ssov/findDefaultSsov';
 
 import seo from 'constants/seo';
 
+const DEFAULT_MARKET = 'ARB';
+
 const SsovBetaMarket = () => {
   const router = useRouter();
 
   const update = useVaultStore((state) => state.update);
 
-  const [selectedMarket, setSelectedMarket] = useState<string>('ARB');
+  const [selectedMarket, setSelectedMarket] = useState<string>(DEFAULT_MARKET);
 
   const handleSelectMarket = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,24 +34,26 @@ const SsovBetaMarket = () => {
   );
 
   useEffect(() => {
-    let market = router.query['market'] as string;
+    let market = router.query?.slug?.[0];
 
-    if (!market) return;
+    if (!market) {
+      router.replace(router.asPath, `/ssov-beta/${DEFAULT_MARKET}`);
+    } else {
+      market = market.toUpperCase();
 
-    market = market.toUpperCase();
+      setSelectedMarket(market);
 
-    setSelectedMarket(market);
+      const vault = findDefaultSsov(market);
 
-    const vault = findDefaultSsov(market);
-
-    if (vault) {
-      update({
-        address: vault.address,
-        isPut: vault.isPut,
-        underlyingSymbol: vault.underlyingSymbol,
-        duration: vault.duration,
-        collateralTokenAddress: vault.collateralTokenAddress,
-      });
+      if (vault) {
+        update({
+          address: vault.address,
+          isPut: vault.isPut,
+          underlyingSymbol: vault.underlyingSymbol,
+          duration: vault.duration,
+          collateralTokenAddress: vault.collateralTokenAddress,
+        });
+      }
     }
   }, [router, update]);
 
