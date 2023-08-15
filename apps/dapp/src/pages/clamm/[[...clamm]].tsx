@@ -1,5 +1,6 @@
 import { NextSeo } from 'next-seo';
 
+import { OptionType } from 'components/clamm/OptionType';
 import { TokenPair } from 'components/clamm/TokenPair';
 import AppBar from 'components/common/AppBar';
 import PageLayout from 'components/common/PageLayout';
@@ -31,6 +32,7 @@ const ClammPage = () => {
       <AppBar />
       <PageLayout>
         <TokenPair />
+        <OptionType />
       </PageLayout>
     </div>
   );
