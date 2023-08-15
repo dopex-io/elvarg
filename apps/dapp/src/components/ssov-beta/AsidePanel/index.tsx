@@ -64,23 +64,28 @@ export const ButtonGroup = ({
   );
 };
 
-const UserBalance = ({
+const CustomBottomElement = ({
   symbol,
-  userBalance,
+  value,
+  label,
   ...rest
 }: React.DetailedHTMLProps<
   React.HTMLAttributes<HTMLDivElement>,
   HTMLDivElement
 > & {
   symbol: string | undefined;
-  userBalance: bigint;
+  label: string;
+  value: string;
 }) => (
-  <div className="flex justify-between text-xs text-stieglitz px-1" {...rest}>
-    <p>Balance</p>
+  <div className="flex justify-between text-xs text-stieglitz" {...rest}>
+    <p>{label}</p>
     <span className="flex">
-      <p className="text-white pr-1 underline decoration-dashed">
-        {formatAmount(formatUnits(userBalance, DECIMALS_TOKEN), 3, true)}
-      </p>
+      <img
+        src="/assets/max.svg"
+        className="hover:bg-silver rounded-[4px]"
+        alt="max"
+      />
+      <p className="text-white px-1">{value}</p>
       {symbol || ''}
     </span>
   </div>
@@ -175,36 +180,83 @@ const AsidePanel = ({ market }: { market: string }) => {
     const breakeven = selectedVault.isPut
       ? strikeData.strike - premiumInUSD
       : premiumInUSD + strikeData.strike;
-    const availableCollateral = formatAmount(
-      selectedVault.isPut
-        ? Number(formatUnits(strikeData.availableCollateral || 0n, 18)) /
-            Number(strikeData.strike)
-        : formatUnits(strikeData.availableCollateral || 0n, 18),
-      5,
-    );
+    const availableCollateral = selectedVault.isPut
+      ? Number(formatUnits(strikeData.availableCollateral || 0n, 18)) /
+        Number(strikeData.strike)
+      : formatUnits(strikeData.availableCollateral || 0n, 18);
     const totalPremium = premiumInUSD * Number(amountDebounced);
 
     return { ...strikeData, breakeven, availableCollateral, totalPremium };
   }, [activeStrikeIndex, amountDebounced, selectedVault, strikesData]);
 
-  const handleClick = (index: number) => {
-    setActiveIndex(index);
-  };
+  const panelData = useMemo(() => {
+    if (!selectedStrike || !selectedVault)
+      return {
+        epoch: 0,
+        strike: 0,
+        optionSize: 0,
+        fees: 0,
+        iv: 0,
+        breakeven: 0,
+        totalCost: 0,
+        availableCollateral: 0,
+        side: '-',
+        epochStartTime: format(new Date(), 'dd LLL yyyy'),
+        withdrawableDate: format(new Date(), 'dd LLL yyyy'),
+        premiumPerOption: 0,
+        premiumApr: 0,
+      };
 
-  const handleMax = useCallback(() => {
-    setAmount(formatUnits(userBalance, DECIMALS_TOKEN).toString());
-  }, [userBalance]);
+    const activeCollateral =
+      selectedStrike.activeCollateral === 0n
+        ? 1
+        : Number(formatUnits(selectedStrike.activeCollateral, DECIMALS_TOKEN));
 
-  const handleChange = useCallback(
-    (e: { target: { value: SetStateAction<any> } }) => {
-      setAmount(e.target.value);
-    },
-    [],
-  );
+    const totalFees = Number(
+      formatUnits(
+        selectedVault.isPut
+          ? selectedStrike.purchaseFeePerOption *
+              parseUnits(amountDebounced, DECIMALS_TOKEN)
+          : (selectedStrike.purchaseFeePerOption *
+              parseUnits(amountDebounced, DECIMALS_TOKEN) *
+              parseUnits(selectedVault.currentPrice, DECIMALS_USD)) /
+              parseUnits('1', DECIMALS_TOKEN),
+        selectedVault.isPut
+          ? 2 * DECIMALS_TOKEN
+          : DECIMALS_TOKEN + DECIMALS_USD,
+      ),
+    );
 
-  const handleClose = () => {
-    setIsOpen(false);
-  };
+    return {
+      epoch: selectedVault.currentEpoch,
+      strike: selectedStrike.strike,
+      optionSize: formatAmount(amountDebounced, 3),
+      fees: `$${formatAmount(totalFees, 3)}`,
+      iv: selectedStrike.iv,
+      breakeven: `$${formatAmount(selectedStrike.breakeven, 3)}`,
+      totalCost: formatAmount(selectedStrike.totalPremium + totalFees, 3),
+      availableCollateral: selectedStrike.availableCollateral,
+      side: selectedVault.isPut ? 'Put' : 'Call',
+      epochStartTime: format(
+        new Date(Number(selectedVault.epochTimes.startTime) * 1000),
+        'dd LLL yyy',
+      ),
+      withdrawableDate: format(
+        new Date(Number(selectedVault.epochTimes.expiry) * 1000),
+        'dd LLL yyy',
+      ),
+      premiumPerOption: formatAmount(
+        formatUnits(selectedStrike.premiumPerOption || 0n, DECIMALS_TOKEN),
+        3,
+      ),
+      premiumApr: formatAmount(
+        (Number(formatUnits(selectedStrike.premiumsAccrued, DECIMALS_TOKEN)) /
+          activeCollateral) *
+          100,
+        3,
+      ),
+    };
+  }, [amountDebounced, selectedStrike, selectedVault]);
 
   const infoPopover = useMemo(() => {
     const buttonContent = activeIndex === 0 ? 'Purchase' : 'Deposit';
@@ -259,72 +311,29 @@ const AsidePanel = ({ market }: { market: string }) => {
     approved,
   ]);
 
-  const panelData = useMemo(() => {
-    if (!selectedStrike || !selectedVault)
-      return {
-        epoch: 0,
-        strike: 0,
-        optionSize: 0,
-        fees: 0,
-        iv: 0,
-        breakeven: 0,
-        totalCost: 0,
-        availableCollateral: 0,
-        side: '-',
-        epochStartTime: format(new Date(), 'dd LLL yyyy'),
-        withdrawableDate: format(new Date(), 'dd LLL yyyy'),
-        premiumPerOption: 0,
-        premiumApr: 0,
-      };
+  const renderCondition = useMemo(() => {
+    return !selectedStrike || !selectedStrike || !selectedVault;
+  }, [selectedStrike, selectedVault]);
 
-    const activeCollateral =
-      selectedStrike.activeCollateral === 0n
-        ? 1
-        : Number(formatUnits(selectedStrike.activeCollateral, DECIMALS_TOKEN));
+  const handleClick = (index: number) => {
+    setActiveIndex(index);
+  };
 
-    const totalFees = Number(
-      formatUnits(
-        selectedVault.isPut
-          ? selectedStrike.purchaseFeePerOption *
-              parseUnits(amountDebounced, DECIMALS_TOKEN)
-          : (selectedStrike.purchaseFeePerOption *
-              parseUnits(amountDebounced, DECIMALS_TOKEN) *
-              parseUnits(selectedVault.currentPrice, DECIMALS_USD)) /
-              parseUnits('1', DECIMALS_TOKEN),
-        selectedVault.isPut ? DECIMALS_TOKEN : DECIMALS_TOKEN + DECIMALS_USD,
-      ),
+  const handleMax = useCallback(() => {
+    setAmount(
+      activeIndex === 0
+        ? selectedStrike.availableCollateral.toString()
+        : formatUnits(userBalance, DECIMALS_TOKEN),
     );
+  }, [selectedStrike.availableCollateral, userBalance, activeIndex]);
 
-    return {
-      epoch: selectedVault.currentEpoch,
-      strike: selectedStrike.strike,
-      optionSize: formatAmount(amountDebounced, 3),
-      fees: `$${formatAmount(totalFees, 3)}`,
-      iv: selectedStrike.iv,
-      breakeven: `$${formatAmount(selectedStrike.breakeven, 3)}`,
-      totalCost: formatAmount(selectedStrike.totalPremium + totalFees, 3),
-      availableCollateral: selectedStrike.availableCollateral,
-      side: selectedVault.isPut ? 'Put' : 'Call',
-      epochStartTime: format(
-        new Date(Number(selectedVault.epochTimes.startTime) * 1000),
-        'dd LLL yyy',
-      ),
-      withdrawableDate: format(
-        new Date(Number(selectedVault.epochTimes.expiry) * 1000),
-        'dd LLL yyy',
-      ),
-      premiumPerOption: formatAmount(
-        formatUnits(selectedStrike.premiumPerOption || 0n, DECIMALS_TOKEN),
-        3,
-      ),
-      premiumApr: formatAmount(
-        (Number(formatUnits(selectedStrike.premiumsAccrued, DECIMALS_TOKEN)) /
-          activeCollateral) *
-          100,
-        3,
-      ),
-    };
-  }, [amountDebounced, selectedStrike, selectedVault]);
+  const handleChange = (e: { target: { value: SetStateAction<any> } }) => {
+    setAmount(e.target.value);
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+  };
 
   const transact = useCallback(() => {
     if (infoPopover.textContent?.includes('allowance')) {
@@ -335,10 +344,6 @@ const AsidePanel = ({ market }: { market: string }) => {
       setIsOpen((prevState) => !prevState);
     }
   }, [activeIndex, approve, infoPopover.textContent, purchase]);
-
-  const renderCondition = useMemo(() => {
-    return !selectedStrike || !selectedStrike || !selectedVault;
-  }, [selectedStrike, selectedVault]);
 
   useEffect(() => {
     if (vault.address === '0x' || !address) return;
@@ -380,13 +385,22 @@ const AsidePanel = ({ market }: { market: string }) => {
               className="w-[30px] h-[30px] border border-mineshaft rounded-full ring-4 ring-cod-gray"
             />
           }
+          bottomElement={
+            <CustomBottomElement
+              symbol={collateralTokenReads.data?.[0].result as string}
+              label={activeIndex === 0 ? 'Max Qty' : 'Balance'}
+              value={formatAmount(
+                activeIndex === 0
+                  ? String(selectedStrike.availableCollateral)
+                  : formatUnits(userBalance, DECIMALS_TOKEN),
+                3,
+                true,
+              )}
+              role="button"
+              onClick={handleMax}
+            />
+          }
           placeholder="0.0"
-        />
-        <UserBalance
-          symbol={collateralTokenReads.data?.[0].result as string}
-          userBalance={userBalance}
-          role="button"
-          onClick={handleMax}
         />
         {infoPopover.textContent !== '' ? (
           <div
@@ -447,12 +461,14 @@ const AsidePanel = ({ market }: { market: string }) => {
               content={<p>${panelData.totalCost}</p>}
             />
             <RowItem
-              label="Available"
+              label="Balance"
               content={
-                <p>
-                  {panelData.availableCollateral}{' '}
-                  {String(collateralTokenReads.data?.[0].result)}
-                </p>
+                <span className="flex text-stieglitz space-x-1">
+                  <p className="text-white">
+                    {formatAmount(formatUnits(userBalance, DECIMALS_TOKEN), 3)}{' '}
+                  </p>
+                  <p>{String(collateralTokenReads.data?.[0].result)}</p>
+                </span>
               }
             />
           </div>
