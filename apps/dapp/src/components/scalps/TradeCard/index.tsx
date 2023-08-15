@@ -162,7 +162,7 @@ const TradeCard = () => {
       Number(rawLimitPrice) *
       10 **
         (optionScalpData?.quoteDecimals?.toNumber() -
-          optionScalpData?.baseDecimals!.toNumber());
+          optionScalpData?.baseDecimals?.toNumber());
 
     let tick0;
     let tick1;

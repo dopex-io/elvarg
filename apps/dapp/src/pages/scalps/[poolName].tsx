@@ -92,7 +92,7 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
   useEffect(() => {
     const interval = setInterval(() => {
       updateAll();
-    }, 30000);
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [updateAll]);
