@@ -110,6 +110,14 @@ const seo = {
     title: 'SSOV Beta | Dopex',
     description: 'Buy/Sell vanilla options from the SSOVs',
   },
+  clamm: {
+    url: `${HOST_URL}/clamm`,
+    banner:
+      'https://res.cloudinary.com/dxitdndu3/image/upload/v1684326255/dopex_images/preview_images/default_qfq5rc.png',
+    alt: 'CLAMM',
+    title: 'CLAMM | Dopex',
+    description: 'Buy/Sell vanilla options from the SSOVs',
+  },
   default: {
     url: HOST_URL,
     title: 'Dopex',
