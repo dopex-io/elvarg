@@ -56,7 +56,7 @@ const ChartDashboard = () => {
       />
       <div className="flex flex-col items-left justify-center">
         <span className="text-sm">
-          <span className="text-stieglitz mr-1">$</span>1.04
+          <span className="text-stieglitz mr-1">$</span>1850.08
         </span>
         <span className="text-stieglitz text-sm ">Mark Price</span>
       </div>
