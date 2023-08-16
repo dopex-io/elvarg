@@ -16,11 +16,11 @@ const PositionsTable = () => {
       <div className="w-full flex space-x-5 text-sm">
         <div className="flex items-center justify-center space-x-2">
           <span>Buy Positions</span>
-          <PositionsLength length={5} />
+          <PositionsLength length={0} />
         </div>
         <div className="flex items-center justify-center space-x-2">
           <span>Sell Positions</span>
-          <PositionsLength length={100} />
+          <PositionsLength length={0} />
         </div>
       </div>
     );
@@ -70,10 +70,19 @@ const PositionsTable = () => {
     );
   };
 
+  const EmptyPositionsBox = () => {
+    return (
+      <div className="w-full h-[5rem] flex items-center justify-center bg-cod-gray rounded-md">
+        <span className="text-sm text-stieglitz">No Positions to show.</span>
+      </div>
+    );
+  };
+
   return (
-    <div className="w-full h-full flex-[0.7] flex flex-col">
+    <div className="w-full h-full flex-[0.7] flex flex-col space-y-2">
       <StraddlePositionsTypeSelector />
-      <PositionsTable />
+      <EmptyPositionsBox />
+      {/* { true ? <PositionsTable />} */}
     </div>
   );
 };

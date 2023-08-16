@@ -7,7 +7,7 @@ import { MARKETS, MARKETS_MENU } from 'constants/straddles/markets';
 
 const ChartDashboard = () => {
   const router = useRouter();
-  const [selectedMarket, setSelectedMarket] = useState<string>('ARB');
+  const [selectedMarket, setSelectedMarket] = useState<string>('ETH');
 
   const handleSelectMarket = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
