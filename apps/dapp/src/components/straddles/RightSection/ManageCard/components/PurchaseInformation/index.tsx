@@ -20,7 +20,7 @@ import PurchaseCardInformation from './components/PurchaseCardInformation';
 export const collateralTokenDecimals = 6;
 export const userCollateralTokenBalance = {
   userReadable: '200.096',
-  contractReadable: BigInt(200000000),
+  contractReadable: BigInt(200096000),
 };
 export const userCollateralTokenAllowance = BigInt(100000000);
 export const collateralTokenSymbol = 'USDC';

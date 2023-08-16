@@ -21,11 +21,11 @@ const ErrorIcon = (props: SVGProps<SVGSVGElement>) => {
 const ErrorMessage = (props: { errorMessage: string }) => {
   return (
     props.errorMessage !== '' && (
-      <div className="w-full h-[4rem] bg-mineshaft flex items-center justify-center px-9 rounded-md space-x-2">
+      <div className="w-full h-[4rem] bg-mineshaft flex items-center justify-center px-6 py-5 rounded-md space-x-2">
         <span>
           <ErrorIcon />
         </span>
-        <span className="text-sm text-center">{props.errorMessage}</span>
+        <span className="text-sm text-left">{props.errorMessage}</span>
       </div>
     )
   );

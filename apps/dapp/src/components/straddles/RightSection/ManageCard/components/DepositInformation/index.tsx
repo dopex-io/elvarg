@@ -7,13 +7,17 @@ import { formatDistance } from 'date-fns';
 
 import { InputAmountType } from '../..';
 import ErrorMessage from '../ErrorMessage';
+import {
+  collateralTokenSymbol,
+  userCollateralTokenBalance,
+} from '../PurchaseInformation';
+
+export const userCollateralTokenAllowance = BigInt(100000000);
 
 type DepositInformationProps = {
   inputAmount: InputAmountType;
 };
-const DepositInformation = (props: DepositInformationProps) => {
-  const meta = useMemo(() => {}, []);
-
+const DepositInformation = ({ inputAmount }: DepositInformationProps) => {
   const greeks = useMemo(() => {
     return {
       iv: 50,
@@ -32,23 +36,66 @@ const DepositInformation = (props: DepositInformationProps) => {
   //   isPut: data[2].result ?? false,
   // });
 
+  const meta = useMemo(() => {
+    let errorMessage = '';
+    let approved = false;
+    let disabled = false;
+
+    if (inputAmount.contractReadable === 0n) {
+      errorMessage = `Please begin by entering amount of ${collateralTokenSymbol} to deposit.`;
+      disabled = true;
+    }
+
+    if (
+      errorMessage === '' &&
+      userCollateralTokenBalance.contractReadable <
+        inputAmount.contractReadable &&
+      inputAmount.contractReadable !== 0n
+    ) {
+      errorMessage = `Deposit amount exceeds ${collateralTokenSymbol} balance.`;
+      disabled = true;
+    }
+
+    if (
+      errorMessage === '' &&
+      userCollateralTokenAllowance < inputAmount.contractReadable
+    ) {
+      errorMessage = `Please approve your ${collateralTokenSymbol}.`;
+    } else {
+      approved = true;
+    }
+
+    return {
+      errorMessage: errorMessage,
+      approved: approved,
+      buttonDisabled: disabled,
+      buttonColor: (disabled ? 'mineshaft' : 'primary') as
+        | 'mineshaft'
+        | 'mineshaft',
+      buttonText: approved ? 'Deposit' : 'Approve',
+    };
+  }, [inputAmount.contractReadable]);
+
   return (
     <div className="w-full flex flex-col space-y-2">
-      <ErrorMessage errorMessage="???????????????????????????? ???????????????????????????" />
+      <ErrorMessage errorMessage={meta.errorMessage} />
       <IvAndGreeks {...greeks} />
-      <DepositCardInformation />
-      <Button>Approve</Button>
+      <DepositCardInformation epoch={0} />
+      <Button disabled={meta.buttonDisabled} color={meta.buttonColor}>
+        {meta.buttonText}
+      </Button>
     </div>
   );
 };
 
 type CardInformationSectionProps = {
-  depositAmount: string;
-  setCompound: Function;
-  setRollover: Function;
+  depositAmount?: string;
+  setCompound?: Function;
+  setRollover?: Function;
+  epoch: number;
 };
 
-const DepositCardInformation = (props: any) => {
+const DepositCardInformation = (props: CardInformationSectionProps) => {
   return (
     <div className="flex flex-col bg-umbra p-2 space-y-2">
       <div className="flex items-center justify-between">
@@ -60,7 +107,11 @@ const DepositCardInformation = (props: any) => {
         <Switch size="small" />
       </div>
       <div className="flex items-center justify-between">
-        <span className="text-sm text-stieglitz">Withdrawable after</span>
+        <span className="text-sm text-stieglitz">Deposit Epoch</span>
+        <span className="text-sm">{props.epoch + 1}</span>
+      </div>
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-stieglitz">Withdrawable After</span>
         <span className="text-sm">
           {formatDistance(
             Number(new Date().getTime() + 86400000 * 3),

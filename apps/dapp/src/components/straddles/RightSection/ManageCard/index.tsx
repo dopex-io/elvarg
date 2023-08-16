@@ -2,7 +2,7 @@ import { SyntheticEvent, useCallback, useMemo, useState } from 'react';
 import { formatUnits, parseUnits } from 'viem';
 
 import { Button } from '@dopex-io/ui';
-import { collateralTokenSymbol } from 'pages/straddles';
+import { collateralTokenSymbol } from 'pages/straddles/[market]';
 
 import { getStraddleOptionsPrice } from 'components/temp/utils/straddles/getStraddleOptionsPrice';
 
