@@ -480,8 +480,8 @@ const PurchaseCard = () => {
         </span>
       </div>
       <div className="mt-4 flex mb-4 p-2 w-full rounded border border-neutral-800 justify-between">
-        <span className="text-stieglitz text-sm">You will spend </span>
-        <span className="text-sm">
+        <span className="text-stieglitz text-xs">You will spend </span>
+        <span className="text-xs">
           {formatAmount(
             finalCost.isZero()
               ? estimatedFinalCost
