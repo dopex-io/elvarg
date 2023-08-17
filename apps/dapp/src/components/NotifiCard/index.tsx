@@ -26,9 +26,6 @@ export const NotifiCard: React.FC = () => {
     emailSeparator: {
       content: 'OR',
     },
-    telegramSeparator: {
-      content: 'OR',
-    },
   };
 
   return (
