@@ -18,9 +18,11 @@ import seo from 'constants/seo';
 
 import theme from '../style/muiTheme';
 
+import '@notifi-network/notifi-react-card/dist/index.css';
 import 'tailwindcss/tailwind.css';
 import '../style/index.css';
 import '../wdyr';
+import '../style/notifi.css';
 
 function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
