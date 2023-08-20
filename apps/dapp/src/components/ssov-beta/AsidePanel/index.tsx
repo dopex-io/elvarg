@@ -279,7 +279,10 @@ const AsidePanel = ({ market }: { market: string }) => {
       return {
         ...alerts.info.insufficientLiquidity,
       };
-    else if (userBalance < parseUnits(amountDebounced || '0', DECIMALS_TOKEN))
+    else if (
+      Number(formatUnits(userBalance, DECIMALS_TOKEN)) <
+      Number(panelData.totalCost) / Number(selectedVault?.currentPrice || 1)
+    )
       return {
         ...alerts.error.insufficientBalance,
         buttonContent,
@@ -309,6 +312,7 @@ const AsidePanel = ({ market }: { market: string }) => {
     selectedStrike.iv,
     userBalance,
     approved,
+    panelData.totalCost,
   ]);
 
   const renderCondition = useMemo(() => {
