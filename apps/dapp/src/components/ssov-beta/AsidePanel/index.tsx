@@ -259,7 +259,13 @@ const AsidePanel = ({ market }: { market: string }) => {
   }, [amountDebounced, selectedStrike, selectedVault]);
 
   const infoPopover = useMemo(() => {
-    const buttonContent = activeIndex === 0 ? 'Purchase' : 'Deposit';
+    const isLong = activeIndex === 0;
+    const buttonContent = isLong ? 'Purchase' : 'Deposit';
+    const insufficientBalance = isLong
+      ? Number(formatUnits(userBalance, DECIMALS_TOKEN)) <
+        Number(panelData.totalCost) / Number(selectedVault?.currentPrice || 1)
+      : userBalance < parseUnits(amountDebounced || '0', DECIMALS_TOKEN);
+
     if (!selectedVault || !collateralTokenReads.data || !approveConfig.result)
       return {
         ...alerts.error.fallback,
@@ -279,10 +285,7 @@ const AsidePanel = ({ market }: { market: string }) => {
       return {
         ...alerts.info.insufficientLiquidity,
       };
-    else if (
-      Number(formatUnits(userBalance, DECIMALS_TOKEN)) <
-      Number(panelData.totalCost) / Number(selectedVault?.currentPrice || 1)
-    )
+    else if (insufficientBalance)
       return {
         ...alerts.error.insufficientBalance,
         buttonContent,
