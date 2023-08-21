@@ -261,9 +261,11 @@ const AsidePanel = ({ market }: { market: string }) => {
   const infoPopover = useMemo(() => {
     const isLong = activeIndex === 0;
     const buttonContent = isLong ? 'Purchase' : 'Deposit';
+    const userBalanceInUsd =
+      Number(formatUnits(userBalance, DECIMALS_TOKEN)) *
+      Number(selectedVault?.currentPrice || 1);
     const insufficientBalance = isLong
-      ? Number(formatUnits(userBalance, DECIMALS_TOKEN)) <
-        Number(panelData.totalCost) / Number(selectedVault?.currentPrice || 1)
+      ? userBalanceInUsd < Number(panelData.totalCost)
       : userBalance < parseUnits(amountDebounced || '0', DECIMALS_TOKEN);
 
     if (!selectedVault || !collateralTokenReads.data || !approveConfig.result)
@@ -294,7 +296,7 @@ const AsidePanel = ({ market }: { market: string }) => {
       return {
         ...alerts.error.insufficientAllowance,
       };
-    } else if (selectedStrike.iv > 100)
+    } else if (selectedStrike.iv > 80)
       return {
         ...alerts.warning.highIv,
         buttonContent,
@@ -355,11 +357,18 @@ const AsidePanel = ({ market }: { market: string }) => {
   useEffect(() => {
     if (vault.address === '0x' || !address) return;
     (async () => {
+      const isLong = activeIndex === 0;
+      const longCostInCollateralUnits = (
+        Number(panelData.totalCost) / Number(selectedVault?.currentPrice || '1')
+      ).toString();
+      const _amount = isLong
+        ? parseUnits(longCostInCollateralUnits, DECIMALS_TOKEN)
+        : parseUnits(amountDebounced, DECIMALS_TOKEN);
       const _approved = await isApproved({
         owner: address,
         spender: vault.address,
         tokenAddress: vault.collateralTokenAddress,
-        amount: parseUnits(amountDebounced, DECIMALS_TOKEN),
+        amount: _amount,
       });
       setApproved(_approved);
       const _balance = await getUserBalance({
@@ -368,7 +377,16 @@ const AsidePanel = ({ market }: { market: string }) => {
       });
       setUserBalance(_balance || 0n);
     })();
-  }, [address, vault.address, vault.collateralTokenAddress, amountDebounced]);
+  }, [
+    address,
+    vault.address,
+    vault.collateralTokenAddress,
+    amountDebounced,
+    activeIndex,
+    panelData.totalCost,
+    selectedVault?.currentPrice,
+    userBalance,
+  ]);
 
   return renderCondition ? null : (
     <div className="flex flex-col space-y-4">
