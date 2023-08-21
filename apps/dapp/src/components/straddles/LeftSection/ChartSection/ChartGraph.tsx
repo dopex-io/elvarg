@@ -1,7 +1,7 @@
 import PriceChart from 'components/ssov-beta/PriceChart';
 
 const ChartGraph = () => {
-  return <PriceChart market="ARB" />;
+  return <PriceChart market="ETH" />;
 };
 
 export default ChartGraph;
