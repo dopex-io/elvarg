@@ -121,12 +121,12 @@ const appLinks: {
       subLinks: [
         {
           name: 'Option AMM',
-          to: '/option-amm/ETH-USDC',
+          to: '/v2/option-amm/ETH-USDC',
           description: 'Trade options at margin via personalized portfolios',
         },
         {
           name: 'CLAMM',
-          to: '/ssov',
+          to: '/v2/clamm/*',
           description: 'Trade options using UniswapV3 positions',
         },
       ],

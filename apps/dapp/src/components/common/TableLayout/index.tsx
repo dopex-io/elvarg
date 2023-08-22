@@ -7,14 +7,20 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 
-import Placeholder from 'components/ssov-beta/Tables/Placeholder';
-
 interface Props<T> {
   data: T[];
   columns: (ColumnDef<T, any> | AccessorKeyColumnDef<T>)[];
   isContentLoading: boolean;
   disclosure?: React.ReactElement<Partial<T>>[];
 }
+
+const Placeholder = () => {
+  return (
+    <div className="flex justify-center my-auto w-full bg-cod-gray rounded-lg py-8">
+      <p className="text-sm text-stieglitz">Nothing to show</p>
+    </div>
+  );
+};
 
 const TableLayout = <T extends object>({
   data,
@@ -29,6 +35,19 @@ const TableLayout = <T extends object>({
   });
 
   const { getHeaderGroups, getRowModel } = table;
+
+  if (isContentLoading)
+    return Array.from(Array(4)).map((_, index) => {
+      return (
+        <Skeleton
+          key={index}
+          width="fitContent"
+          height={70}
+          color="carbon"
+          variant="rounded"
+        />
+      );
+    });
 
   return data.length > 0 ? (
     <div className="space-y-2 bg-cod-gray rounded-lg">
@@ -65,18 +84,14 @@ const TableLayout = <T extends object>({
               </tr>
             ))}
           </thead>
-          <tbody className="max-h-32 overflow-y-auto">
+          <tbody className="max-h-32 overflow-y-auto divide-y divide-umbra">
             {getRowModel().rows.map((row, index) => {
               return (
                 <Disclosure key={row.id}>
                   {({ open }: { open: boolean }) => {
                     return (
                       <>
-                        <tr
-                          className={`border-b border-umbra ${
-                            open ? 'bg-umbra' : ''
-                          }`}
-                        >
+                        <tr className={`${open ? 'bg-umbra' : ''}`}>
                           {row.getVisibleCells().map((cell, index) => {
                             let textAlignment;
                             if (index === 0) {
@@ -113,23 +128,7 @@ const TableLayout = <T extends object>({
       </div>
     </div>
   ) : (
-    <div className="grid grid-cols-1 gap-4 p-2">
-      {isContentLoading ? (
-        Array.from(Array(4)).map((_, index) => {
-          return (
-            <Skeleton
-              key={index}
-              width="fitContent"
-              height={70}
-              color="carbon"
-              variant="rounded"
-            />
-          );
-        })
-      ) : (
-        <Placeholder isLoading={false} />
-      )}
-    </div>
+    <Placeholder />
   );
 };
 
