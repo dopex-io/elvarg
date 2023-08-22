@@ -110,6 +110,14 @@ const seo = {
     title: 'SSOV Beta | Dopex',
     description: 'Buy/Sell vanilla options from the SSOVs',
   },
+  optionsAmm: {
+    url: `${HOST_URL}/option-amm`,
+    banner:
+      'https://res.cloudinary.com/dxitdndu3/image/upload/v1684326255/dopex_images/preview_images/default_qfq5rc.png',
+    alt: 'Option AMM',
+    title: 'Option AMM | Dopex',
+    description: 'Long/Short options at margin.',
+  },
   default: {
     url: HOST_URL,
     title: 'Dopex',

@@ -1,0 +1,8 @@
+{
+  "infoBox": {
+    "header": "What are Option AMMs?",
+    "description": "Option AMMs allow users to long (buy) or short (sell) options with partially collateralized portfolios.",
+    "url": "https://docs.dopex.io/products/ssov",
+    "buttonLabel": "Learn More"
+  }
+}
