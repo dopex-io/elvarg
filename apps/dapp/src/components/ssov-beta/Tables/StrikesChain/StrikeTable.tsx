@@ -7,18 +7,13 @@ import {
   ChevronDownIcon,
   // EllipsisVerticalIcon,
 } from '@heroicons/react/24/solid';
-import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from '@tanstack/react-table';
+import { createColumnHelper } from '@tanstack/react-table';
 
 import useStrikesData from 'hooks/ssov/useStrikesData';
 import useVaultsData from 'hooks/ssov/useVaultsData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
-import Placeholder from 'components/ssov-beta/Tables/Placeholder';
+import TableLayout from 'components/common/TableLayout';
 
 import formatAmount from 'utils/general/formatAmount';
 
@@ -59,7 +54,6 @@ interface StrikeItem {
     setActiveStrikeIndex: () => void;
     handleSelection: React.ReactEventHandler;
   };
-  chevron: null;
   disclosure: DisclosureStrikeItem;
 }
 
@@ -173,6 +167,14 @@ const columns = [
               )}
             </span>
           </Button>
+          <Disclosure.Button className="w-6">
+            <ChevronDownIcon
+              className={`text-stieglitz text-2xl cursor-pointer ${
+                // @ts-ignore TODO: find the right way to pass a custom prop to a cell
+                info.open ? 'rotate-180 transform' : ''
+              }`}
+            />
+          </Disclosure.Button>
           {/* TODO: OLP dialog
         Pass selected strike, ssov address, side into dialog
         */}
@@ -189,119 +191,7 @@ const columns = [
       );
     },
   }),
-  columnHelper.accessor('chevron', {
-    header: () => null,
-    cell: (info) => {
-      return (
-        <Disclosure.Button className="w-6">
-          <ChevronDownIcon
-            className={`text-stieglitz text-2xl cursor-pointer ${
-              // @ts-ignore TODO: find the right way to pass a custom prop to a cell
-              info.open ? 'rotate-180 transform' : ''
-            }`}
-          />
-        </Disclosure.Button>
-      );
-    },
-  }),
 ];
-
-const Table = ({ strikeData }: { strikeData: any }) => {
-  const table = useReactTable({
-    columns,
-    data: strikeData,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
-  return (
-    <div className="space-y-2 bg-cod-gray rounded-lg pt-3">
-      <div className="overflow-x-auto">
-        {strikeData.length > 0 ? (
-          <table className="bg-cod-gray rounded-lg w-full">
-            <thead className="border-b border-umbra sticky">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map((header, index) => {
-                    let textAlignment;
-                    if (index === 0) {
-                      textAlignment = 'text-left';
-                    } else if (index === columns.length - 1) {
-                      textAlignment = 'text-right';
-                    } else {
-                      textAlignment = 'text-left';
-                    }
-                    return (
-                      <th
-                        key={header.id}
-                        className={`m-3 py-1 px-3 ${textAlignment}`}
-                      >
-                        <span className="text-sm text-stieglitz font-normal">
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext(),
-                              )}
-                        </span>
-                      </th>
-                    );
-                  })}
-                </tr>
-              ))}
-            </thead>
-            <tbody className="max-h-32 overflow-y-auto">
-              {table.getRowModel().rows.map((row, index) => {
-                return (
-                  <Disclosure key={row.id}>
-                    {({ open }: { open: boolean }) => {
-                      return (
-                        <>
-                          <tr
-                            className={`border-t border-umbra ${
-                              open ? 'bg-umbra' : ''
-                            }`}
-                          >
-                            {row.getVisibleCells().map((cell, index) => {
-                              let textAlignment;
-                              if (index === 0) {
-                                textAlignment = 'text-left';
-                              } else if (index === columns.length - 1) {
-                                textAlignment = 'text-right';
-                              } else {
-                                textAlignment = 'text-left';
-                              }
-
-                              return (
-                                <td
-                                  key={cell.id}
-                                  className={`m-3 py-4 px-3 ${textAlignment}`}
-                                >
-                                  <span className="text-sm">
-                                    {flexRender(cell.column.columnDef.cell, {
-                                      ...cell.getContext(),
-                                      open,
-                                    })}
-                                  </span>
-                                </td>
-                              );
-                            })}
-                          </tr>
-                          <TableDisclosure {...strikeData[index].disclosure} />
-                        </>
-                      );
-                    }}
-                  </Disclosure>
-                );
-              })}
-            </tbody>
-          </table>
-        ) : (
-          <Placeholder isLoading={false} />
-        )}
-      </div>
-    </div>
-  );
-};
 
 const StrikesTable = ({ market }: { market: string }) => {
   const vault = useVaultStore((store) => store.vault);
@@ -383,7 +273,6 @@ const StrikesTable = ({ market }: { market: string }) => {
             handleClickMenu(e);
           },
         },
-        chevron: null,
         disclosure: {
           iv: strikeData.iv,
           delta: strikeData.delta,
@@ -425,7 +314,16 @@ const StrikesTable = ({ market }: { market: string }) => {
       </div>
     );
 
-  return <Table strikeData={strikeData} />;
+  return (
+    <TableLayout<StrikeItem>
+      data={strikeData}
+      columns={columns}
+      disclosure={strikeData.map((s, index) => (
+        <TableDisclosure key={index} {...s.disclosure} />
+      ))}
+      isContentLoading={isLoading}
+    />
+  );
 };
 
 export default StrikesTable;
