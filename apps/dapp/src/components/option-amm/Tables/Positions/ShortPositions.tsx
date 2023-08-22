@@ -65,7 +65,7 @@ interface Props {
   data: ShortPositionData[];
 }
 
-const LongPositions = ({ data }: Props) => {
+const ShortPositions = ({ data }: Props) => {
   return (
     <TableLayout<ShortPositionData>
       data={data}
@@ -75,4 +75,4 @@ const LongPositions = ({ data }: Props) => {
   );
 };
 
-export default LongPositions;
+export default ShortPositions;

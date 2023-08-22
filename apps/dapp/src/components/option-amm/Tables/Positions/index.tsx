@@ -2,12 +2,11 @@ import { useMemo, useState } from 'react';
 
 import { Skeleton } from '@dopex-io/ui';
 
+import LongPositions from 'components/option-amm/Tables/Positions/LongPositions';
+import ShortPositions from 'components/option-amm/Tables/Positions/ShortPositions';
 import { ButtonGroup } from 'components/ssov-beta/AsidePanel';
 
 import { longs, shorts } from 'constants/optionAmm/placeholders';
-
-import LongPositions from './LongPositions';
-import ShortPositions from './ShortPositions';
 
 const Positions = () => {
   const [activeIndex, setActiveIndex] = useState<number>(0);
