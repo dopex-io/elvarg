@@ -13,7 +13,7 @@ import PriceChart from 'components/ssov-beta/PriceChart';
 
 import seo from 'constants/seo';
 
-const DEFAULT_MARKET = 'ETH-USDC';
+const DEFAULT_MARKET = 'ARB-USDC';
 
 const OptionsAmm = () => {
   const router = useRouter();
@@ -22,7 +22,7 @@ const OptionsAmm = () => {
 
   const handleSelectMarket = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      router.push(`/option-amm/${e.target.innerText}`);
+      router.push(`/v2/option-amm/${e.target.innerText}`);
       setSelectedMarket(e.target.innerText);
     },
     [router],

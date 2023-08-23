@@ -1,7 +1,7 @@
 // @todo duration N/A
 import { Address } from 'viem';
 
-export const ammDurations = ['WEEKLY', 'MONTHLY'] as const;
+export const ammDurations = ['DAILY', 'WEEKLY', 'MONTHLY'] as const;
 
 export type AmmDuration = (typeof ammDurations)[number];
 
@@ -10,6 +10,7 @@ interface Vault {
   duration: AmmDuration;
   underlyingSymbol: string;
   address: Address;
+  lp: Address;
   collateralTokenAddress: Address;
 }
 
@@ -21,34 +22,30 @@ export interface OptionAmmMarket {
 }
 
 export const MARKETS: { [key: string]: OptionAmmMarket } = {
-  ETH: {
-    vaults: [
-      {
-        symbol: 'ETH-USDC',
-        duration: 'WEEKLY',
-        underlyingSymbol: 'ETH',
-        collateralTokenAddress: '0x',
-        address: '0x',
-      },
-      {
-        symbol: 'ETH-ARB',
-        duration: 'WEEKLY',
-        underlyingSymbol: 'ETH',
-        collateralTokenAddress: '0x',
-        address: '0x',
-      },
-    ],
-    default: {
-      duration: 'WEEKLY',
-    },
-  },
   ARB: {
     vaults: [
+      {
+        symbol: 'ARB-USDC',
+        duration: 'DAILY',
+        underlyingSymbol: 'ARB',
+        collateralTokenAddress: '0x',
+        lp: '0x',
+        address: '0x',
+      },
+      {
+        symbol: 'ARB-USDC',
+        duration: 'WEEKLY',
+        underlyingSymbol: 'ARB',
+        collateralTokenAddress: '0x',
+        lp: '0x',
+        address: '0x',
+      },
       {
         symbol: 'ARB-USDC',
         duration: 'MONTHLY',
         underlyingSymbol: 'ARB',
         collateralTokenAddress: '0x',
+        lp: '0x',
         address: '0x',
       },
     ],

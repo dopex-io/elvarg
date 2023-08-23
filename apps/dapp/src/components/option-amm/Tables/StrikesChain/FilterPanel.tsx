@@ -1,14 +1,28 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { addDays } from 'date-fns';
 import format from 'date-fns/format';
 
 import Pill from 'components/ssov-beta/Tables/Pill';
 
-import getExpiry from 'utils/ssov/getExpiry';
+import getWeeklyExpiry from 'utils/date/getWeeklyExpiry';
 
 import { AmmDuration, MARKETS } from 'constants/optionAmm/markets';
 
-import { SsovDuration } from 'types/ssov';
+const getDailyExpiry = () => {
+  return addDays(new Date().setUTCHours(8, 0, 0), 1);
+};
+
+const getExpiry = (duration: AmmDuration) => {
+  switch (duration) {
+    case 'WEEKLY':
+      return getWeeklyExpiry();
+    case 'MONTHLY':
+      return getWeeklyExpiry();
+    default:
+      return getDailyExpiry();
+  }
+};
 
 const findDefaultMarket = (marketName: string) => {
   const market = MARKETS[marketName.split('-')[0]];
@@ -20,7 +34,7 @@ const findDefaultMarket = (marketName: string) => {
   );
 };
 
-const findAmmMarket = (marketName: string, duration: SsovDuration) => {
+const findAmmMarket = (marketName: string, duration: AmmDuration) => {
   const market = MARKETS[marketName.split('-')[0]];
   if (!market) return;
   return market.vaults.find((vault) => vault.duration === duration);
@@ -51,7 +65,7 @@ const FilterPanel = (props: Props) => {
 
   const handleSelectDuration = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const _duration = e.currentTarget.value as SsovDuration;
+      const _duration = e.currentTarget.value as AmmDuration;
       setDuration(_duration);
 
       // let vault = findAmmMarket(market, _duration);

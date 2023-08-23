@@ -7,14 +7,14 @@ import PlusCircleIcon from '@heroicons/react/24/outline/PlusCircleIcon';
 import { ChevronDownIcon } from '@heroicons/react/24/solid';
 import { createColumnHelper } from '@tanstack/react-table';
 
+import useStrikesData from 'hooks/option-amm/useStrikesData';
 import useVaultStore from 'hooks/option-amm/useVaultStore';
 
 import TableLayout from 'components/common/TableLayout';
 
 import formatAmount from 'utils/general/formatAmount';
 
-import { DECIMALS_TOKEN } from 'constants/index';
-import { strikesPlaceholder } from 'constants/optionAmm/placeholders';
+import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 
 interface DisclosureStrikeItem {
   iv: number;
@@ -22,10 +22,6 @@ interface DisclosureStrikeItem {
   theta: number;
   vega: number;
   gamma: number;
-  utilization: number;
-  tvl: number;
-  apy: number;
-  premiumApy: number;
 }
 
 interface StrikeItem {
@@ -146,19 +142,6 @@ const TableDisclosure = (props: DisclosureStrikeItem) => {
           <StatItem name="Vega" value={formatAmount(props.vega, 5)} />
           <StatItem name="Gamma" value={formatAmount(props.gamma, 5)} />
           <StatItem name="Theta" value={formatAmount(props.theta, 5)} />
-          <StatItem
-            name="Utilization"
-            value={`${formatAmount(props.utilization, 5)}%`}
-          />
-          <StatItem name="TVL" value={`$${formatAmount(props.tvl, 2, true)}`} />
-          <StatItem
-            name="Reward APY"
-            value={`${formatAmount(props.apy, 2, true)}%`}
-          />
-          <StatItem
-            name="Premium APY"
-            value={`${formatAmount(props.premiumApy, 2, true)}%`}
-          />
         </div>
       </td>
     </Disclosure.Panel>
@@ -170,7 +153,12 @@ interface Props {
 }
 
 const StrikesTable = (props: Props) => {
-  const {} = props;
+  const { market } = props;
+
+  const { strikeData, greeks, loading } = useStrikesData({
+    ammAddress: '0x',
+    duration: 'MONTHLY',
+  });
 
   const activeStrikeIndex = useVaultStore((store) => store.activeStrikeIndex);
   const setActiveStrikeIndex = useVaultStore(
@@ -178,15 +166,21 @@ const StrikesTable = (props: Props) => {
   );
 
   const data = useMemo(() => {
-    return strikesPlaceholder.map((strikeData, index) => {
+    if (!strikeData || !greeks) return [];
+    return strikeData.map((sd, index) => {
       return {
-        strike: strikeData.strike,
-        breakeven: strikeData.breakeven,
-        availableCollateral: strikeData.availableCollateral,
+        strike: Number(formatUnits(sd.strike || 0n, DECIMALS_STRIKE)),
+        breakeven: '1',
+        availableCollateral: {
+          strike: Number(
+            formatUnits(sd.availableCollateral || 0n, DECIMALS_TOKEN),
+          ),
+          totalAvailableCollateral: Number(sd.availableCollateral),
+        },
         button: {
-          index: strikeData.button.index,
-          base: strikeData.button.base,
-          premiumPerOption: strikeData.button.premiumPerOption,
+          index: index,
+          base: market.split('-')[0],
+          premiumPerOption: sd.premiumPerOption || 0n,
           activeStrikeIndex: activeStrikeIndex,
           setActiveStrikeIndex: () => setActiveStrikeIndex(index),
           handleSelection: (e: SyntheticEvent) => {
@@ -194,27 +188,24 @@ const StrikesTable = (props: Props) => {
           },
         },
         disclosure: {
-          iv: strikeData.disclosure.iv,
-          delta: strikeData.disclosure.delta,
-          theta: strikeData.disclosure.theta,
-          gamma: strikeData.disclosure.gamma,
-          vega: strikeData.disclosure.vega,
-          utilization: strikeData.disclosure.utilization,
-          tvl: strikeData.disclosure.tvl,
-          apy: strikeData.disclosure.apy,
-          premiumApy: strikeData.disclosure.premiumApy,
+          iv: greeks[index].iv,
+          delta: greeks[index].delta,
+          theta: greeks[index].theta,
+          gamma: greeks[index].gamma,
+          vega: greeks[index].vega,
         },
       };
     });
-  }, [activeStrikeIndex, setActiveStrikeIndex]);
+  }, [activeStrikeIndex, greeks, market, setActiveStrikeIndex, strikeData]);
 
   return (
     <TableLayout<StrikeItem>
-      isContentLoading={false}
+      isContentLoading={loading}
       columns={columns}
       data={data}
-      disclosure={strikesPlaceholder.map((s, index) => (
-        <TableDisclosure key={index} {...s.disclosure} />
+      rowSpacing={3}
+      disclosure={greeks.map((s, index) => (
+        <TableDisclosure key={index} {...s} />
       ))}
     />
   );

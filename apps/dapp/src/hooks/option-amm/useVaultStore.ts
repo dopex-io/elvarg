@@ -3,12 +3,13 @@ import { Address } from 'viem';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
-import { SsovDuration } from 'types/ssov';
+import { AmmDuration } from 'constants/optionAmm/markets';
 
 export interface VaultState {
   address: Address;
   underlyingSymbol: string;
-  duration: SsovDuration;
+  duration: AmmDuration;
+  lp: Address;
   collateralTokenAddress: Address;
 }
 
@@ -23,6 +24,7 @@ const useVaultStore = create<Props>()(
   devtools((set) => ({
     vault: {
       address: '0x',
+      lp: '0x',
       underlyingSymbol: 'UNKNOWN',
       duration: 'WEEKLY',
       collateralTokenAddress: '0x',

@@ -81,7 +81,7 @@ export const strikesPlaceholder = [
     },
     button: {
       index: 0,
-      base: 'ETH',
+      base: 'ARB',
       premiumPerOption: 10n,
       handleSelection: (_: any) => {},
     },
@@ -106,7 +106,7 @@ export const strikesPlaceholder = [
     },
     button: {
       index: 1,
-      base: 'ETH',
+      base: 'ARB',
       premiumPerOption: 10n,
       handleSelection: (_: any) => {},
     },
@@ -131,7 +131,7 @@ export const strikesPlaceholder = [
     },
     button: {
       index: 2,
-      base: 'ETH',
+      base: 'ARB',
       premiumPerOption: 10n ^ 18n,
       handleSelection: (_: any) => {},
     },
@@ -156,7 +156,7 @@ export const strikesPlaceholder = [
     },
     button: {
       index: 3,
-      base: 'ETH',
+      base: 'ARB',
       premiumPerOption: 10n,
       handleSelection: (_: any) => {},
     },
