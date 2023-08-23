@@ -9,7 +9,7 @@ The Dopex frontend monorepo
 Please have these installed on your machine:
 
 - [node.js 18+](https://nodejs.org/)
-- [pnpm](https://pnpm.io/)
+- [pnpm 8.6+](https://pnpm.io/)
 
 ### Install dependencies:
 

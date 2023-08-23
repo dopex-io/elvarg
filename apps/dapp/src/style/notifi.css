@@ -1,0 +1,167 @@
+.notifi__dark {
+  --notifi-card-secondary-background: #1e1e1e;
+  --notifi-toggle-inactive: #484848;
+  --notifi-toggle-active: #69d9f5;
+  --notifi-checkmark-color: #69d9f5;
+  --notifi-card-background: #151515;
+  --notifi-button-color: #0f2df5;
+}
+
+.NotifiSubscriptionCard__container {
+  padding: 20px 0px 5px 0px;
+  min-height: 570px;
+  width: 350px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.NotifiPreviewCard__title {
+  margin-bottom: 17.5px !important;
+  font-size: 14px;
+}
+
+.NotifiInputContainer {
+  margin: 10px 20px;
+}
+
+.NotifiSubscriptionCardV1__alertContainer {
+  margin-bottom: 0px !important;
+}
+
+.NotifiFooter__container {
+  padding: 12px 0px;
+}
+
+.NotifiAlertHistory__notificationRow {
+  border-bottom: 1px solid var(--notifi-divider-line);
+}
+
+.NotifiAlertBox__container {
+  padding: 0px 20px;
+}
+
+.NotifiAlertHistory__content,
+.SignupBanner__Content {
+  padding-left: 8px;
+}
+
+.DividerLine {
+  border-top: none;
+  border-radius: 5px;
+  margin-bottom: 0 !important;
+}
+
+.history {
+  border-top: 1px solid var(--notifi-divider-line);
+}
+
+.NotifiAlertHistory__notificationDate {
+  padding-right: 8px;
+  padding-top: 5px;
+}
+
+.NotifiEmailInput__container,
+.NotifiSmsInput__container,
+.NotifiTelegramInput__container {
+  border: 1.5px solid var(--notifi-input-border);
+  max-height: 18px;
+}
+
+.NotifiEmailInput__input,
+.NotifiSmsInput__input,
+.NotifiTelegramInput__input {
+  font-size: 14px;
+}
+
+.NotifiToggle__container {
+  --notifi-toggle-size: 16px;
+}
+
+.NotifiDiscordToggle__container {
+  padding-bottom: 10px;
+}
+
+.NotifiHwWalletToggle__label,
+.NotifiDiscordToggle__label {
+  font-size: 14px;
+}
+
+.EventTypeBroadcastRow__label,
+.EventTypePriceChangeRow__label,
+.EventTypeDirectPushRow__label,
+.EventTypeCustomToggleRow_label,
+.EventTypeHealthCheckRow__label,
+.EventTypeFusionToggleRow__label,
+.EventTypeCustomHealthCheckRow__label,
+.EventTypeCustomToggleRow__label,
+.EventTypeWalletBalanceRow__label,
+.EventTypeXMTPRow__label,
+.BrowserAlertToggle__label {
+  font-size: 14px;
+}
+
+.EventTypeHealthCheckRow__container,
+.EventTypeHealthCheckRow__label {
+  margin-bottom: 0 !important;
+}
+
+.NotifiCardButton__button,
+.NotifiSubscribeButton__button {
+  background-color: var(--notifi-button-color);
+  font-size: 14px;
+  border-radius: 6px;
+}
+
+.NotifiInputSeparator__container {
+  font-size: 12px;
+  margin-top: 2px;
+  margin-bottom: 2px !important;
+}
+
+.NotifiUserInfoPanelContainer {
+  margin: 0px 20px;
+}
+
+.NotifiPreviewCard__editButton {
+  font-size: 14px;
+}
+
+.ConnectWalletRow__button,
+.ConnectWalletRow__connectAnywayButton,
+.NotifiUserInfoPanel__myWalletConfirmation,
+.NotifiUserInfoPanel__emailConfirmationLabel,
+.NotifiUserInfoPanel__telegramConfirmationLabel,
+.DestinationErrorMessage__confirmationLinkLabel {
+  color: #d5828b;
+}
+
+.NotifiUserInfoPanel__myWalletLabel,
+.NotifiUserInfoPanel__emailLabel,
+.NotifiUserInfoPanel__smsLabel,
+.NotifiUserInfoPanel__smsLabel,
+.NotifiUserInfoPanel__telegramLabel,
+.NotifiUserInfoPanel__discordLabel {
+  font-size: 14px;
+}
+
+.NotifiTooltip__infoIcon {
+  width: 16px;
+}
+
+.NotifiAlertDetails__container {
+  margin: 0px 20px;
+}
+
+.NotifiAlertListContainer__listItemContent {
+  font-size: 12px;
+}
+
+.NotifiAlertHistory__container {
+  margin: 0px 20px;
+}
+
+.SignupBanner__Image {
+  margin: 0px 8px 0px 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
