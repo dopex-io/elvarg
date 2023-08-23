@@ -121,13 +121,13 @@ export const MARKETS: { [key: string]: SsovMarket } = {
       duration: 'WEEKLY',
     },
   },
-  WBTC: {
+  BTC: {
     vaults: [
       {
         symbol: 'BTC-WEEKLY-PUTS-SSOV-V3-3',
         isPut: true,
         duration: 'WEEKLY',
-        underlyingSymbol: 'WBTC',
+        underlyingSymbol: 'BTC',
         collateralTokenAddress: '0x7f90122bf0700f9e7e1f688fe926940e8839f353',
         address: '0xa7507c48d78345475b85bc27B9CE9B84b354CaF7',
       },
