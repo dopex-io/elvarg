@@ -254,6 +254,7 @@ const WritePositions = (props: Props) => {
       <TableLayout<WritePositionData>
         data={positions}
         columns={columns}
+        rowSpacing={2}
         isContentLoading={isLoading}
       />
       <WithdrawStepper

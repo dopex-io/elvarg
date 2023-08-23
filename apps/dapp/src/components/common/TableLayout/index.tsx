@@ -11,6 +11,7 @@ interface Props<T> {
   data: T[];
   columns: (ColumnDef<T, any> | AccessorKeyColumnDef<T>)[];
   isContentLoading: boolean;
+  rowSpacing?: number;
   disclosure?: React.ReactElement<Partial<T>>[];
 }
 
@@ -26,6 +27,7 @@ const TableLayout = <T extends object>({
   data,
   columns,
   disclosure,
+  rowSpacing = 1,
   isContentLoading = true,
 }: Props<T>) => {
   const table = useReactTable({
@@ -104,7 +106,7 @@ const TableLayout = <T extends object>({
                             return (
                               <td
                                 key={cell.id}
-                                className={`m-3 py-2 px-4 ${textAlignment}`}
+                                className={`m-3 py-${rowSpacing} px-4 ${textAlignment}`}
                               >
                                 <span className="text-sm">
                                   {flexRender(cell.column.columnDef.cell, {
