@@ -238,7 +238,7 @@ const useSsovPositions = (args: Args) => {
       });
 
       const activeCollateralShare =
-        (checkpointData.totalCollateral * checkpointData.activeCollateral) /
+        (BigInt(vault.amount) * checkpointData.activeCollateral) /
         checkpointData.totalCollateral;
 
       const accruedPremium =
