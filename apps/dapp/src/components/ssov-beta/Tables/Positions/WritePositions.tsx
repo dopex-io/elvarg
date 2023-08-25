@@ -2,12 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { Address, formatUnits, zeroAddress } from 'viem';
 
 import { Button } from '@dopex-io/ui';
-import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from '@tanstack/react-table';
+import { createColumnHelper } from '@tanstack/react-table';
 import format from 'date-fns/format';
 import Countdown from 'react-countdown';
 import { useAccount } from 'wagmi';
@@ -16,8 +11,8 @@ import { RewardAccrued, WritePosition } from 'hooks/ssov/useSsovPositions';
 import useVaultsData from 'hooks/ssov/useVaultsData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
+import TableLayout from 'components/common/TableLayout';
 import WithdrawStepper from 'components/ssov-beta/Dialogs/WithdrawStepper';
-import Placeholder from 'components/ssov-beta/Tables/Placeholder';
 
 import { formatAmount } from 'utils/general';
 
@@ -258,91 +253,14 @@ const WritePositions = (props: Props) => {
     return !_positions || !_positions[activeIndex] || !accountAddress;
   }, [_positions, accountAddress, activeIndex]);
 
-  const table = useReactTable({
-    columns,
-    data: positions,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
-  const { getHeaderGroups, getRowModel } = table;
-
   return (
     <div className="space-y-2">
-      {positions.length > 0 ? (
-        <div className="space-y-2 bg-cod-gray rounded-lg py-3">
-          <div className="overflow-x-auto">
-            <table className="bg-cod-gray rounded-lg w-full">
-              <thead className="sticky">
-                {getHeaderGroups().map((headerGroup) => (
-                  <tr key={headerGroup.id}>
-                    {headerGroup.headers.map((header, index: number) => {
-                      let textAlignment;
-                      if (index === 0) {
-                        textAlignment = 'text-left';
-                      } else if (index === columns.length - 1) {
-                        textAlignment = 'text-right';
-                      } else {
-                        textAlignment = 'text-left';
-                      }
-                      return (
-                        <th
-                          key={header.id}
-                          className={`m-3 py-2 px-3 ${textAlignment} w-1/${columns.length}`}
-                        >
-                          <span className="text-sm text-stieglitz font-normal">
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext(),
-                                )}{' '}
-                          </span>
-                        </th>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </thead>
-              <tbody className="max-h-32 overflow-y-auto">
-                {getRowModel().rows.map((row) => {
-                  return (
-                    <tr
-                      key={row.id}
-                      className="hover:bg-umbra border-b border-umbra"
-                    >
-                      {row.getVisibleCells().map((cell, index) => {
-                        let textAlignment;
-                        if (index === 0) {
-                          textAlignment = 'text-left';
-                        } else if (index === columns.length - 1) {
-                          textAlignment = 'text-right';
-                        } else {
-                          textAlignment = 'text-left';
-                        }
-                        return (
-                          <td
-                            key={cell.id}
-                            className={`m-3 py-2 px-3 ${textAlignment}`}
-                          >
-                            <span className="text-sm">
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext(),
-                              )}{' '}
-                            </span>
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : (
-        <Placeholder isLoading={isLoading} />
-      )}
+      <TableLayout<WritePositionData>
+        data={positions}
+        columns={columns}
+        rowSpacing={2}
+        isContentLoading={isLoading}
+      />
       {!renderStepperCondition ? (
         <WithdrawStepper
           isOpen={open}
