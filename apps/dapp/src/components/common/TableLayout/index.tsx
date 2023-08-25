@@ -70,7 +70,7 @@ const TableLayout = <T extends object>({
                   return (
                     <th
                       key={header.id}
-                      className={`m-3 pt-1 pb-2 px-4 ${textAlignment} w-1/${columns.length}`}
+                      className={`m-3 py-2 px-4 ${textAlignment} w-1/${columns.length}`}
                     >
                       <span className="text-xs text-stieglitz font-normal">
                         {header.isPlaceholder

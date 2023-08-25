@@ -201,6 +201,7 @@ const BuyPositions = (props: Props) => {
       <TableLayout<BuyPositionData>
         data={positions}
         columns={columns}
+        rowSpacing={2}
         isContentLoading={isLoading}
       />
       <SettleStepper

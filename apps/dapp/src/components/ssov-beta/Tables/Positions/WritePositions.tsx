@@ -249,26 +249,34 @@ const WritePositions = (props: Props) => {
     });
   }, [_positions, vault.underlyingSymbol, selectedVault?.currentEpoch]);
 
+  const renderStepperCondition = useMemo(() => {
+    return !_positions || !_positions[activeIndex] || !accountAddress;
+  }, [_positions, accountAddress, activeIndex]);
+
   return (
     <div className="space-y-2">
       <TableLayout<WritePositionData>
         data={positions}
         columns={columns}
+        rowSpacing={2}
         isContentLoading={isLoading}
       />
-      <WithdrawStepper
-        isOpen={open}
-        handleClose={handleClose}
-        data={{
-          ssov: (_positions?.[activeIndex]?.address ?? zeroAddress) as Address,
-          tokenId: BigInt(_positions?.[activeIndex]?.tokenId || 0),
-          to: accountAddress as Address,
-          epoch: BigInt(_positions?.[activeIndex]?.epoch || 0),
-          expiry: _positions?.[activeIndex]?.expiry || 0,
-          canStake: positions?.[activeIndex]?.button.canStake,
-          rewardsAccrued: positions?.[activeIndex]?.rewardsAccrued,
-        }}
-      />
+      {!renderStepperCondition ? (
+        <WithdrawStepper
+          isOpen={open}
+          handleClose={handleClose}
+          data={{
+            ssov: (_positions?.[activeIndex]?.address ??
+              zeroAddress) as Address,
+            tokenId: BigInt(positions[activeIndex].button.tokenId),
+            to: accountAddress as Address,
+            epoch: BigInt(positions[activeIndex].button.epoch || 0),
+            expiry: positions[activeIndex].expiry || 0,
+            canStake: positions[activeIndex].button.canStake,
+            rewardsAccrued: positions[activeIndex].rewardsAccrued,
+          }}
+        />
+      ) : null}
     </div>
   );
 };

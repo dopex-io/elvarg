@@ -321,6 +321,7 @@ const StrikesTable = ({ market }: { market: string }) => {
       disclosure={strikeData.map((s, index) => (
         <TableDisclosure key={index} {...s.disclosure} />
       ))}
+      rowSpacing={3}
       isContentLoading={isLoading}
     />
   );
