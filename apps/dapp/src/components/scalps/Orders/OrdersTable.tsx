@@ -4,10 +4,11 @@ import { utils } from 'ethers';
 
 import { Button } from '@dopex-io/ui';
 import cx from 'classnames';
-import useSendTx from 'hooks/useSendTx';
 import Countdown from 'react-countdown';
 
 import { useBoundStore } from 'store';
+
+import useSendTx from 'hooks/useSendTx';
 
 import { displayAddress, formatAmount } from 'utils/general';
 
@@ -73,13 +74,16 @@ const OrdersTable = () => {
             ? Number(
                 utils.formatUnits(
                   data,
-                  optionScalpData?.quoteDecimals.toNumber()
-                )
+                  optionScalpData?.quoteDecimals.toNumber(),
+                ),
               )
             : null
           : '+' + data
           ? Number(
-              utils.formatUnits(data, optionScalpData?.quoteDecimals.toNumber())
+              utils.formatUnits(
+                data,
+                optionScalpData?.quoteDecimals.toNumber(),
+              ),
             )
           : null;
       }
@@ -90,10 +94,10 @@ const OrdersTable = () => {
               Number(
                 utils.formatUnits(
                   order[key],
-                  optionScalpData?.quoteDecimals.toNumber()
-                )
+                  optionScalpData?.quoteDecimals.toNumber(),
+                ),
               ),
-              4
+              4,
             )
           : null;
       }
@@ -104,10 +108,10 @@ const OrdersTable = () => {
               Number(
                 utils.formatUnits(
                   order[key],
-                  optionScalpData?.quoteDecimals.toNumber()
-                )
+                  optionScalpData?.quoteDecimals.toNumber(),
+                ),
               ),
-              4
+              4,
             ) +
               ' ' +
               optionScalpData.quoteSymbol ===
@@ -147,7 +151,7 @@ const OrdersTable = () => {
         <span
           className={cx(
             styles,
-            'text-xs md:text-sm text-left w-full text-white space-x-2 md:space-x-1'
+            'text-xs md:text-sm text-left w-full text-white space-x-2 md:space-x-1',
           )}
         >
           <span className={dataStyle}>{data}</span>
@@ -155,7 +159,7 @@ const OrdersTable = () => {
         </span>
       );
     },
-    [optionScalpData]
+    [optionScalpData],
   );
 
   const handleCancel = useCallback(
@@ -167,23 +171,29 @@ const OrdersTable = () => {
         await sendTx(
           optionScalpData.limitOrdersContract.connect(signer),
           'cancelOpenOrder',
-          [id]
+          [id],
         );
       } else {
         await sendTx(
           optionScalpData.limitOrdersContract.connect(signer),
           'cancelCloseOrder',
-          [id]
+          [id],
         );
       }
       await updateOptionScalpUserData();
       await getScalpOrders();
     },
-    [optionScalpData, sendTx, signer, updateOptionScalpUserData, getScalpOrders]
+    [
+      optionScalpData,
+      sendTx,
+      signer,
+      updateOptionScalpUserData,
+      getScalpOrders,
+    ],
   );
 
   return (
-    <div className="rounded-lg bg-inherit w-fit-content h-fit-content px-5 flex flex-row">
+    <div className="rounded-lg bg-umbra w-fit-content px-5 flex flex-row">
       {orders && orders.length !== 0 ? (
         <div className="w-full h-full mb-4">
           <div className="flex flex-col space-y-4 py-2">
@@ -215,7 +225,7 @@ const OrdersTable = () => {
           </div>
         </div>
       ) : (
-        <span className="ml-auto mr-auto text-[0.8rem] h-full mb-10 mt-4">
+        <span className="ml-auto mr-auto text-[0.8rem] h-full my-5">
           Your orders will appear here
         </span>
       )}
