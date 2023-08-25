@@ -26,24 +26,26 @@ const ManageComponent = () => {
   const [manageSection, setManageSection] = useState<string>('Trade');
 
   return (
-    <div className="p-2 rounded-md flex flex-col w-full lg:w-1/4 bg-cod-gray space-y-2 h-fit">
-      <ButtonGroup className="flex justify-between border bg-cod-gray border-umbra rounded-top-lg">
-        {['LP', 'Trade'].map((label, index) => (
-          <Button
-            key={index}
-            className={`border-0 hover:border-0 w-1/2 p-1 m-1 transition ease-in-out duration-200 ${
-              manageSection === label
-                ? 'text-white bg-carbon hover:bg-carbon'
-                : 'text-stieglitz bg-transparent hover:bg-transparent'
-            } hover:text-white`}
-            disableRipple
-            onClick={() => setManageSection(label)}
-          >
-            <h6 className="text-xs pb-1">{label}</h6>
-          </Button>
-        ))}
-      </ButtonGroup>
-      {manageSection === 'Trade' ? <TradeCard /> : <Manage />}
+    <div className="flex flex-col w-full lg:w-1/4 bg-black space-y-4 h-fit">
+      <div className="p-2 rounded-md bg-cod-gray space-y-2 h-fit">
+        <ButtonGroup className="flex justify-between border bg-cod-gray border-umbra rounded-top-lg">
+          {['LP', 'Trade'].map((label, index) => (
+            <Button
+              key={index}
+              className={`border-0 hover:border-0 w-1/2 p-1 m-1 transition ease-in-out duration-200 ${
+                manageSection === label
+                  ? 'text-white bg-carbon hover:bg-carbon'
+                  : 'text-stieglitz bg-transparent hover:bg-transparent'
+              } hover:text-white`}
+              disableRipple
+              onClick={() => setManageSection(label)}
+            >
+              <h6 className="text-xs pb-1">{label}</h6>
+            </Button>
+          ))}
+        </ButtonGroup>
+        {manageSection === 'Trade' ? <TradeCard /> : <Manage />}
+      </div>
       <div className="mt-6 w-auto">
         <div className="flex flex-col space-y-2">
           <QuickLink
