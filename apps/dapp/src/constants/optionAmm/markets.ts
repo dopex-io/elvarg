@@ -9,9 +9,11 @@ interface Vault {
   symbol: string;
   duration: AmmDuration;
   underlyingSymbol: string;
+  underlyingTokenAddress: Address;
+  collateralSymbol: string;
+  collateralTokenAddress: Address;
   address: Address;
   lp: Address;
-  collateralTokenAddress: Address;
 }
 
 export interface OptionAmmMarket {
@@ -28,22 +30,18 @@ export const MARKETS: { [key: string]: OptionAmmMarket } = {
         symbol: 'ARB-USDC',
         duration: 'DAILY',
         underlyingSymbol: 'ARB',
+        underlyingTokenAddress: '0x',
+        collateralSymbol: 'USDC',
         collateralTokenAddress: '0x',
         lp: '0x',
         address: '0x',
       },
       {
-        symbol: 'ARB-USDC',
+        symbol: 'ARB-ETH',
         duration: 'WEEKLY',
         underlyingSymbol: 'ARB',
-        collateralTokenAddress: '0x',
-        lp: '0x',
-        address: '0x',
-      },
-      {
-        symbol: 'ARB-USDC',
-        duration: 'MONTHLY',
-        underlyingSymbol: 'ARB',
+        underlyingTokenAddress: '0x',
+        collateralSymbol: 'ETH',
         collateralTokenAddress: '0x',
         lp: '0x',
         address: '0x',

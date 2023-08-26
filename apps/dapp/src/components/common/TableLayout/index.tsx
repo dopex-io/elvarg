@@ -1,9 +1,14 @@
+import { useEffect } from 'react';
+
 import { Disclosure, Skeleton } from '@dopex-io/ui';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 import {
   AccessorKeyColumnDef,
   ColumnDef,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
   useReactTable,
 } from '@tanstack/react-table';
 
@@ -12,6 +17,7 @@ interface Props<T> {
   columns: (ColumnDef<T, any> | AccessorKeyColumnDef<T>)[];
   isContentLoading: boolean;
   rowSpacing?: number;
+  pageSize?: number;
   disclosure?: React.ReactElement<Partial<T>>[];
 }
 
@@ -29,14 +35,32 @@ const TableLayout = <T extends object>({
   disclosure,
   rowSpacing = 1,
   isContentLoading = true,
+  pageSize = 5,
 }: Props<T>) => {
   const table = useReactTable({
     columns,
     data,
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
-  const { getHeaderGroups, getRowModel } = table;
+  const {
+    getHeaderGroups,
+    getRowModel,
+    getState,
+    setPageIndex,
+    previousPage,
+    getCanPreviousPage,
+    nextPage,
+    getCanNextPage,
+    setPageSize,
+    getPageCount,
+  } = table;
+
+  useEffect(() => {
+    setPageSize(pageSize);
+  }, [pageSize, setPageSize]);
 
   if (isContentLoading)
     return Array.from(Array(4)).map((_, index) => {
@@ -52,7 +76,7 @@ const TableLayout = <T extends object>({
     });
 
   return data.length > 0 ? (
-    <div className="space-y-2 bg-cod-gray rounded-lg">
+    <div className="bg-cod-gray rounded-lg">
       <div className="overflow-x-auto">
         <table className="bg-cod-gray rounded-lg w-full">
           <thead className="sticky">
@@ -127,6 +151,72 @@ const TableLayout = <T extends object>({
             })}
           </tbody>
         </table>
+        {data.length > getState().pagination.pageSize ? (
+          <div className="flex justify-end border-t border-umbra py-3 px-3 text-xs text-stieglitz space-x-3">
+            <span className="flex my-auto text-center space-x-1">
+              <p>Rows per page: </p>
+              <p className="text-white">{pageSize}</p>
+            </span>
+            <span className="my-auto text-center">
+              {getState().pagination.pageIndex *
+                getState().pagination.pageSize +
+                1}
+              -
+              {Math.min(
+                (getState().pagination.pageIndex + 1) *
+                  getState().pagination.pageSize,
+                data.length,
+              )}{' '}
+              of {data.length}
+            </span>
+            <button
+              onClick={() => previousPage()}
+              disabled={!getCanPreviousPage()}
+              color="transparent"
+              className={`${
+                !getCanPreviousPage() ? 'hover:cursor-not-allowed' : ''
+              }`}
+            >
+              <ChevronLeftIcon className="w-6 h-6 fill-current text-stieglitz hover:text-white" />
+            </button>
+            <div className="my-auto">
+              {Array.from(Array(Math.min(pageSize, getPageCount()))).map(
+                (_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={(e: any) => setPageIndex(e.target.innerText - 1)}
+                    className={`py-2 px-3 rounded-md ${
+                      idx === getState().pagination.pageIndex
+                        ? 'text-white bg-mineshaft'
+                        : ''
+                    }`}
+                  >
+                    {idx + 1}
+                  </button>
+                ),
+              )}
+            </div>
+            <button
+              onClick={() => nextPage()}
+              disabled={!getCanNextPage()}
+              color="transparent"
+              className={`${
+                !getCanNextPage() ? 'hover:cursor-not-allowed' : ''
+              }`}
+            >
+              <ChevronRightIcon className="w-6 h-6 fill-current text-stieglitz hover:text-white" />
+            </button>
+            <span
+              role="button"
+              onClick={(e: any) => setPageIndex(e.target.innerText - 1)}
+              className={`py-2 px-3 my-auto rounded-md ${
+                !getCanNextPage() ? 'text-white bg-mineshaft' : ''
+              }`}
+            >
+              {getPageCount()}
+            </span>
+          </div>
+        ) : null}
       </div>
     </div>
   ) : (

@@ -1,3 +1,4 @@
+import { Button } from '@dopex-io/ui';
 import { createColumnHelper } from '@tanstack/react-table';
 
 import TableLayout from 'components/common/TableLayout';
@@ -52,11 +53,26 @@ const columns = [
     ),
   }),
   columnHelper.accessor('pnl', {
-    header: 'PnL',
+    header: 'PNL',
     cell: (info) => (
       <span className="space-x-2">
         <p className="inline-block">$ {info.getValue()}</p>
       </span>
+    ),
+  }),
+  columnHelper.accessor('button', {
+    header: '',
+    cell: (info) => (
+      <Button
+        className="inline-block"
+        onClick={info.getValue().handleSettle}
+        color="primary"
+        disabled={info.getValue().canItBeSettled}
+        size="small"
+        variant="contained"
+      >
+        Withdraw
+      </Button>
     ),
   }),
 ];
@@ -71,6 +87,7 @@ const ShortPositions = ({ data }: Props) => {
       data={data}
       columns={columns}
       isContentLoading={false}
+      rowSpacing={2}
     />
   );
 };

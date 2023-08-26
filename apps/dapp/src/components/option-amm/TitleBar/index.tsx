@@ -17,11 +17,18 @@ const TitleBar = (props: Props) => {
 
   return (
     <div className="flex space-x-4 my-auto">
-      <img
-        src={`/images/tokens/${market.toLowerCase()}.svg`}
-        className="w-[45px] h-[45px] my-auto border-carbon"
-        alt={market}
-      />
+      <div className="relative flex my-auto w-[50px] h-[32px]">
+        <img
+          src={`/images/tokens/${market.split('-')[0].toLowerCase()}.svg`}
+          className="absolute w-[32px] h-[32px] z-10 border border-carbon rounded-full"
+          alt={market}
+        />
+        <img
+          src={`/images/tokens/${market.split('-')[1].toLowerCase()}.svg`}
+          className="absolute left-[18px] w-[32px] h-[32px] border border-carbon rounded-full"
+          alt={market}
+        />
+      </div>
       <Menu
         color="mineshaft"
         dropdownVariant="icon"

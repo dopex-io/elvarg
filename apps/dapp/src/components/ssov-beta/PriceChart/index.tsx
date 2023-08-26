@@ -13,7 +13,7 @@ const PriceChart = ({ market }: { market: string }) => {
   const query = useQuery({
     queryFn: () =>
       axios.get(
-        `https://api.coingecko.com/api/v3/coins/${TOKEN_DATA[market].cgId}/market_chart?vs_currency=usd&days=30`,
+        `https://api.coingecko.com/api/v3/coins/${TOKEN_DATA[market].cgId}/market_chart?vs_currency=usd&days=365`,
       ),
     queryKey: [market, 'coingecko-historic-pricing'],
   });

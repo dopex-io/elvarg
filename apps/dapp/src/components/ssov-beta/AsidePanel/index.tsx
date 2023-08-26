@@ -64,7 +64,7 @@ export const ButtonGroup = ({
   );
 };
 
-const CustomBottomElement = ({
+export const CustomBottomElement = ({
   symbol,
   value,
   label,
