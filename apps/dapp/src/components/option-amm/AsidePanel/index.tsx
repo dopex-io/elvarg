@@ -44,15 +44,15 @@ export const ButtonGroupSub = ({
   );
 };
 
-const buttonSubGroupLabels = [
-  ['Long', 'Short'],
-  ['Deposit', 'Withdraw'],
-];
-
 enum PanelStates {
   'Trade' = 0,
   'Liquidity Provision' = 1,
 }
+
+const buttonSubGroupLabels = [
+  ['Long', 'Short'],
+  ['Deposit', 'Withdraw'],
+];
 
 const AsidePanel = ({ market }: { market: string }) => {
   const { address } = useAccount();
@@ -157,6 +157,11 @@ const AsidePanel = ({ market }: { market: string }) => {
                 value: <p className="text-xs">-</p>,
               },
             ]}
+            button={{
+              handler: () => {},
+              disabled: false,
+              label: buttonSubGroupLabels[panelState][activeIndexSub],
+            }}
           />
         ) : (
           <LiquidityProvision
@@ -171,6 +176,11 @@ const AsidePanel = ({ market }: { market: string }) => {
                 value: <p className="text-xs">-</p>,
               },
             ]}
+            button={{
+              handler: () => {},
+              disabled: false,
+              label: buttonSubGroupLabels[panelState][activeIndexSub],
+            }}
           />
         )}
       </div>
