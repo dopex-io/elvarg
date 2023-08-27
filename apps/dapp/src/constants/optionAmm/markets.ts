@@ -1,13 +1,14 @@
 // @todo duration N/A
 import { Address } from 'viem';
 
+import { VaultState } from 'hooks/option-amm/useVaultStore';
+
 export const ammDurations = ['DAILY', 'WEEKLY', 'MONTHLY'] as const;
 
 export type AmmDuration = (typeof ammDurations)[number];
 
 interface Vault {
   symbol: string;
-  duration: AmmDuration;
   underlyingSymbol: string;
   underlyingTokenAddress: Address;
   collateralSymbol: string;
@@ -20,6 +21,7 @@ export interface OptionAmmMarket {
   vaults: Vault[];
   default: {
     duration: AmmDuration;
+    isPut: boolean;
   };
 }
 
@@ -28,7 +30,6 @@ export const MARKETS: { [key: string]: OptionAmmMarket } = {
     vaults: [
       {
         symbol: 'ARB-USDC',
-        duration: 'DAILY',
         underlyingSymbol: 'ARB',
         underlyingTokenAddress: '0x',
         collateralSymbol: 'USDC',
@@ -38,7 +39,6 @@ export const MARKETS: { [key: string]: OptionAmmMarket } = {
       },
       {
         symbol: 'ARB-ETH',
-        duration: 'WEEKLY',
         underlyingSymbol: 'ARB',
         underlyingTokenAddress: '0x',
         collateralSymbol: 'ETH',
@@ -48,9 +48,22 @@ export const MARKETS: { [key: string]: OptionAmmMarket } = {
       },
     ],
     default: {
-      duration: 'MONTHLY',
+      duration: 'DAILY',
+      isPut: false,
     },
   },
+};
+
+export const vaultZeroState: VaultState = {
+  symbol: '',
+  address: '0x',
+  lp: '0x',
+  underlyingAddress: '0x',
+  underlyingSymbol: 'UNKNOWN',
+  duration: 'WEEKLY',
+  isPut: false,
+  collateralTokenAddress: '0x',
+  collateralSymbol: '0x',
 };
 
 export const MARKETS_MENU = Object.values(MARKETS)

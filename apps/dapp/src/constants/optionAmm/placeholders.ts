@@ -1,3 +1,5 @@
+import { DurationToExpiryData } from 'hooks/option-amm/useStrikesData';
+
 export interface AggregatedStats {
   oi: number;
   apy: number;
@@ -55,3 +57,48 @@ export const shorts = [
     },
   })),
 ];
+
+export const mockExpiryData: DurationToExpiryData = {
+  DAILY: {
+    active: true,
+    expired: false,
+    strikeIncrement: 5_000000n, // 0.05 USDC increment
+    maxOtmPercentage: 50n, // 50%
+    strikes: [],
+    strikeDeltas: {
+      [900_000]: [0n, 0n, 0n],
+      // ...
+    },
+    premium: 1000000000000000000n, // 1e18
+    fees: 10000000000000000n, // 1e16
+    expiry: 86400,
+  },
+  WEEKLY: {
+    active: true,
+    expired: false,
+    strikeIncrement: 10_000000n, // 0.1 USDC increment
+    maxOtmPercentage: 50n, // 50%
+    strikes: [],
+    strikeDeltas: {
+      [900_000]: [0n, 0n, 0n],
+      // ...
+    },
+    premium: 1000000000000000000n, // 1e18
+    fees: 1000000000000000000n, // 1e16
+    expiry: 604800,
+  },
+  MONTHLY: {
+    active: true,
+    expired: false,
+    strikeIncrement: 25_000000n, // 0.2 USDC increment
+    maxOtmPercentage: 50n, // 50%
+    strikes: [],
+    strikeDeltas: {
+      [600_000]: [0n, 0n, 0n],
+      // ...
+    },
+    premium: 1000000000000000000n, // 1e18
+    fees: 1000000000000000000n, // 1e16
+    expiry: 2592000, // 30 days
+  },
+};

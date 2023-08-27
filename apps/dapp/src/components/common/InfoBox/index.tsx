@@ -1,20 +1,27 @@
-import ssovInfo from 'public/locales/en/ssov.json';
+interface Props {
+  title: string;
+  url: string;
+  buttonLabel: string;
+  contentBody: string;
+}
 
-const InfoBox = () => {
+const InfoBox = (props: Props) => {
+  const { title, url, buttonLabel, contentBody } = props;
+
   return (
     <div className="flex flex-col bg-umbra rounded-md space-y-2 p-3">
       <span className="flex w-full justify-between">
-        <h6 className="text-xs">{ssovInfo.infoBox.header}</h6>
+        <h6 className="text-xs">{title}</h6>
         <a
           className="hover:cursor-pointer px-1 py-[1px] text-xs bg-primary rounded-sm"
           rel="noopener noreferrer"
           target="_blank"
-          href={ssovInfo.infoBox.url}
+          href={url}
         >
-          {ssovInfo.infoBox.buttonLabel}
+          {buttonLabel}
         </a>
       </span>
-      <p className="text-stieglitz text-xs">{ssovInfo.infoBox.description}</p>
+      <p className="text-stieglitz text-xs">{contentBody}</p>
     </div>
   );
 };

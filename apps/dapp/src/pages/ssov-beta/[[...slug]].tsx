@@ -2,12 +2,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
 import { NextSeo } from 'next-seo';
+import ssovInfo from 'public/locales/en/ssov.json';
 
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
+import InfoBox from 'components/common/InfoBox';
 import PageLayout from 'components/common/PageLayout';
 import AsidePanel from 'components/ssov-beta/AsidePanel';
-import InfoBox from 'components/ssov-beta/InfoBox';
 import PriceChart from 'components/ssov-beta/PriceChart';
 import Positions from 'components/ssov-beta/Tables/Positions';
 import StrikesChain from 'components/ssov-beta/Tables/StrikesChain';
@@ -95,7 +96,12 @@ const SsovBetaMarket = () => {
           </div>
           <div className="flex flex-col w-full lg:w-1/4 h-full space-y-4 sticky top-20">
             <AsidePanel market={selectedMarket} />
-            <InfoBox />
+            <InfoBox
+              title={ssovInfo.infoBox.header}
+              url={ssovInfo.infoBox.url}
+              buttonLabel={ssovInfo.infoBox.buttonLabel}
+              contentBody={ssovInfo.infoBox.description}
+            />
           </div>
         </div>
       </PageLayout>

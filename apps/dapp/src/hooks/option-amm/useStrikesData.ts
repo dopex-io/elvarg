@@ -6,6 +6,7 @@ import computeOptionGreeks from 'utils/ssov/computeOptionGreeks';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 import { AmmDuration } from 'constants/optionAmm/markets';
+import { mockExpiryData } from 'constants/optionAmm/placeholders';
 
 interface ExpiryData {
   active: boolean;
@@ -19,57 +20,7 @@ interface ExpiryData {
   expiry: number;
 }
 
-type DurationToExpiryData = { [K in AmmDuration]: ExpiryData };
-
-const mockExpiryData: DurationToExpiryData = {
-  DAILY: {
-    active: true,
-    expired: false,
-    strikeIncrement: 5_000000n, // 0.05 USDC increment
-    maxOtmPercentage: 50n, // 50%
-    strikes: [],
-    strikeDeltas: {
-      [900_000]: [0n, 0n, 0n],
-      // ...
-    },
-    premium: 1000000000000000000n, // 1e18
-    fees: 10000000000000000n, // 1e16
-    expiry: 86400,
-  },
-  WEEKLY: {
-    active: true,
-    expired: false,
-    strikeIncrement: 10_000000n, // 0.1 USDC increment
-    maxOtmPercentage: 50n, // 50%
-    strikes: [],
-    strikeDeltas: {
-      [900_000]: [0n, 0n, 0n],
-      // ...
-    },
-    premium: 1000000000000000000n, // 1e18
-    fees: 1000000000000000000n, // 1e16
-    expiry: 604800,
-  },
-  MONTHLY: {
-    active: true,
-    expired: false,
-    strikeIncrement: 25_000000n, // 0.2 USDC increment
-    maxOtmPercentage: 50n, // 50%
-    strikes: [],
-    strikeDeltas: {
-      [600_000]: [0n, 0n, 0n],
-      // ...
-    },
-    premium: 1000000000000000000n, // 1e18
-    fees: 1000000000000000000n, // 1e16
-    expiry: 2592000, // 30 days
-  },
-};
-
-interface Props {
-  ammAddress: Address;
-  duration: AmmDuration;
-}
+export type DurationToExpiryData = { [K in AmmDuration]: ExpiryData };
 
 export interface Greeks {
   delta: number;
@@ -104,10 +55,16 @@ interface ExpiryStrike {
   fees: bigint;
 }
 
+interface Props {
+  ammAddress: Address;
+  duration: AmmDuration;
+  isPut: boolean;
+}
+
 const NON_ZERO_DENOMINATOR = 1n;
 
 const useStrikesData = (props: Props) => {
-  const { ammAddress = '0x', duration } = props;
+  const { ammAddress = '0x', duration, isPut } = props;
 
   const [_expiryData, setExpiryData] = useState<ExpiryData>();
   const [expiryStrikeData, setExpiryStrikeData] = useState<ExpiryStrike[]>();
@@ -122,30 +79,21 @@ const useStrikesData = (props: Props) => {
     const expiryData = mockExpiryData[duration];
 
     const strikeRange = [
-      ((100n + expiryData.maxOtmPercentage) * 100000000n) / 100n,
-      ((100n - expiryData.maxOtmPercentage) * 100000000n) / 100n,
+      ((100n + expiryData.maxOtmPercentage) * 123400000n) / 100n,
+      ((100n - expiryData.maxOtmPercentage) * 123400000n) / 100n,
     ];
 
-    const intervals =
-      Number(strikeRange[0] - strikeRange[1]) /
-        Number(expiryData.strikeIncrement) +
-      1;
+    const upperBound =
+      strikeRange[0] - (strikeRange[0] % expiryData.strikeIncrement);
 
-    /** @todo get all valid strikes from given spot price, strike increment, and strike otm percentage
-     * lower_limit = ((100 - otm_percent) * spot) / 100
-     * upper_limit = ((100 + otm_percent) * spot) / 100
-     * nearest valid strike, NVS = spot - spot % strikeIncrement
-     * array of lower_strikes = [NVS - strikeIncrement * 0, NVS - strikeIncrement * 1, NVS - 2 * strikeIncrement... NVS - strikeIncrement * i]
-     * where i = 0,1,2,3,4...n, while NVS - strikeIncrement * i > lower_limit
-     * for upper_strikes, NVS + strikeIncrement * i
-     *
-     * Replace the below logic with the correct approach
-     **/
+    let i = 0;
+    let nextLowerTick = upperBound;
     let strikes = [];
-    for (let i = 0; i < intervals; i++) {
-      const strike = strikeRange[1] + BigInt(i) * expiryData.strikeIncrement;
-      if (strike < strikeRange[1] || strike > strikeRange[0]) continue;
-      strikes.push(strike);
+
+    while (nextLowerTick > strikeRange[1]) {
+      nextLowerTick = upperBound - BigInt(i + 1) * expiryData.strikeIncrement;
+      strikes.push(nextLowerTick);
+      i++;
     }
 
     setExpiryData({ ...mockExpiryData[duration], strikes });
@@ -231,17 +179,22 @@ const useStrikesData = (props: Props) => {
   const greeks = useMemo(() => {
     if (!strikeData) return [];
 
+    // mock expiries
+    let durationInSeconds;
+    if (duration === 'DAILY') {
+      durationInSeconds = Math.ceil(new Date().getTime() / 1000) + 86400;
+    } else if (duration === 'WEEKLY') {
+      durationInSeconds = Math.ceil(new Date().getTime() / 1000) + 7 * 86400;
+    } else {
+      durationInSeconds = Math.ceil(new Date().getTime() / 1000) + 30 * 86400;
+    }
+
     const greeksData = [];
     for (let i = 0; i < strikeData.length; i++) {
-      const rand = Math.random();
-      let isPut = rand > 0.5;
-
       const { delta, gamma, theta, vega } = computeOptionGreeks({
         spot: 1,
         strike: Number(formatUnits(strikeData[i].strike, DECIMALS_STRIKE)),
-        expiryInYears: getTimeToExpirationInYears(
-          Math.floor(new Date().getTime() / 1000) + 604800,
-        ),
+        expiryInYears: getTimeToExpirationInYears(durationInSeconds),
         ivInDecimals: Number(strikeData[i].iv) / 100,
         isPut,
       });
@@ -255,7 +208,7 @@ const useStrikesData = (props: Props) => {
     }
 
     return greeksData;
-  }, [strikeData]);
+  }, [duration, isPut, strikeData]);
 
   useEffect(() => {
     updateExpiryData();

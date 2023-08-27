@@ -1,5 +1,3 @@
-import { useEffect } from 'react';
-
 import { Disclosure, Skeleton } from '@dopex-io/ui';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 import {
@@ -43,6 +41,11 @@ const TableLayout = <T extends object>({
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: pageSize,
+      },
+    },
   });
 
   const {
@@ -54,13 +57,8 @@ const TableLayout = <T extends object>({
     getCanPreviousPage,
     nextPage,
     getCanNextPage,
-    setPageSize,
     getPageCount,
   } = table;
-
-  useEffect(() => {
-    setPageSize(pageSize);
-  }, [pageSize, setPageSize]);
 
   if (isContentLoading)
     return Array.from(Array(4)).map((_, index) => {
@@ -206,15 +204,14 @@ const TableLayout = <T extends object>({
             >
               <ChevronRightIcon className="w-6 h-6 fill-current text-stieglitz hover:text-white" />
             </button>
-            <span
-              role="button"
+            <button
               onClick={(e: any) => setPageIndex(e.target.innerText - 1)}
               className={`py-2 px-3 my-auto rounded-md ${
                 !getCanNextPage() ? 'text-white bg-mineshaft' : ''
               }`}
             >
               {getPageCount()}
-            </span>
+            </button>
           </div>
         ) : null}
       </div>

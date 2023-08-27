@@ -155,15 +155,17 @@ interface Props {
 const StrikesTable = (props: Props) => {
   const { market } = props;
 
-  const { strikeData, greeks, loading } = useStrikesData({
-    ammAddress: '0x',
-    duration: 'MONTHLY',
-  });
-
   const activeStrikeIndex = useVaultStore((store) => store.activeStrikeIndex);
+  const vault = useVaultStore((store) => store.vault);
   const setActiveStrikeIndex = useVaultStore(
     (store) => store.setActiveStrikeIndex,
   );
+
+  const { strikeData, greeks, loading } = useStrikesData({
+    ammAddress: '0x',
+    duration: vault.duration,
+    isPut: vault.isPut,
+  });
 
   const data = useMemo(() => {
     if (!strikeData || !greeks) return [];
@@ -178,7 +180,7 @@ const StrikesTable = (props: Props) => {
           totalAvailableCollateral: Number(sd.availableCollateral),
         },
         button: {
-          index: index,
+          index,
           base: market.split('-')[0],
           premiumPerOption: sd.premiumPerOption || 0n,
           activeStrikeIndex: activeStrikeIndex,

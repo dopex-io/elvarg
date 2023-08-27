@@ -2,10 +2,11 @@ import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
 
 import { NextSeo } from 'next-seo';
+import optionAmmInfo from 'public/locales/en/optionAmm.json';
 
+import InfoBox from 'components/common/InfoBox';
 import PageLayout from 'components/common/PageLayout';
 import AsidePanel from 'components/option-amm/AsidePanel';
-import InfoBox from 'components/option-amm/InfoBox';
 import PortfolioInfo from 'components/option-amm/PortfolioData';
 import Positions from 'components/option-amm/Tables/Positions';
 import StrikesChain from 'components/option-amm/Tables/StrikesChain';
@@ -70,7 +71,12 @@ const OptionsAmm = () => {
           </div>
           <div className="flex flex-col w-full lg:w-1/4 h-full space-y-4 sticky top-20">
             <AsidePanel market={selectedMarket} />
-            <InfoBox />
+            <InfoBox
+              title={optionAmmInfo.infoBox.header}
+              url={optionAmmInfo.infoBox.url}
+              buttonLabel={optionAmmInfo.infoBox.buttonLabel}
+              contentBody={optionAmmInfo.infoBox.description}
+            />
           </div>
         </div>
       </PageLayout>
