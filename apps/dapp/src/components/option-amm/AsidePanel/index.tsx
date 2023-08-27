@@ -4,6 +4,7 @@ import { formatUnits } from 'viem';
 import { Button, Input } from '@dopex-io/ui';
 import { useAccount } from 'wagmi';
 
+import PnlChart from 'components/common/PnlChart';
 import LiquidityProvision from 'components/option-amm/AsidePanel/LiquidityProvision';
 import Trade from 'components/option-amm/AsidePanel/Trade';
 import {
@@ -98,7 +99,7 @@ const AsidePanel = ({ market }: { market: string }) => {
         onChange={handleChange}
         leftElement={
           <img
-            src={`/images/tokens/${market.split('-')[1]}.svg`}
+            src={`/images/tokens/${market.split('-')[1].toLowerCase()}.svg`}
             alt={''.toLowerCase()}
             className="w-[30px] h-[30px] border border-mineshaft rounded-full ring-4 ring-cod-gray"
           />
@@ -183,6 +184,17 @@ const AsidePanel = ({ market }: { market: string }) => {
             }}
           />
         )}
+      </div>
+      <div className="bg-cod-gray p-3 rounded-lg">
+        {/* @todo: replace mock data */}
+        <PnlChart
+          breakEven={1.2}
+          optionPrice={0.2}
+          amount={Number(amount)}
+          isPut={false}
+          price={1}
+          symbol={market.split('-')[0]}
+        />
       </div>
     </div>
   );
