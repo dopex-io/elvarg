@@ -64,12 +64,12 @@ const OptionsAmm = () => {
             <div className="w-full rounded-lg text-center flex flex-col justify-center text-stieglitz">
               <PriceChart market={selectedMarket.split('-')[0]} />
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3">
               <StrikesChain market={selectedMarket} />
               <Positions />
             </div>
           </div>
-          <div className="flex flex-col w-full lg:w-1/4 h-full space-y-4 sticky top-20">
+          <div className="flex flex-col w-full lg:w-1/4 h-full space-y-3 sticky top-20">
             <AsidePanel market={selectedMarket} />
             <InfoBox
               title={optionAmmInfo.infoBox.header}

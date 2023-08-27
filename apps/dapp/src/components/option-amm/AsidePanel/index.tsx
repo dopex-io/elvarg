@@ -123,7 +123,7 @@ const AsidePanel = ({ market }: { market: string }) => {
   }, [panelState, amount, handleMax, market, userBalance]);
 
   return (
-    <div className="flex flex-col space-y-4">
+    <div className="flex flex-col space-y-3">
       <div className="flex flex-col bg-cod-gray rounded-xl p-3 space-y-3">
         <ButtonGroup
           active={panelState}
