@@ -121,7 +121,7 @@ const appLinks: {
       subLinks: [
         {
           name: 'Option AMM',
-          to: '/v2/option-amm/ETH-USDC',
+          to: '/v2/option-amm/ARB-USDC',
           description: 'Trade options at margin via personalized portfolios',
         },
         {
