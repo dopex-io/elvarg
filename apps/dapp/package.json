@@ -20,7 +20,7 @@
     "@heroicons/react": "^2.0.18",
     "@mui/icons-material": "^5.14.6",
     "@mui/material": "^5.14.6",
-    "@notifi-network/notifi-react-card": "0.79.0",
+    "@notifi-network/notifi-react-card": "0.81.0",
     "@sentry/nextjs": "^7.65.0",
     "@tanstack/react-query": "^4.33.0",
     "@tanstack/react-table": "^8.9.3",
