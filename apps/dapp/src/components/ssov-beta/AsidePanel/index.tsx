@@ -64,23 +64,28 @@ export const ButtonGroup = ({
   );
 };
 
-const UserBalance = ({
+const CustomBottomElement = ({
   symbol,
-  userBalance,
+  value,
+  label,
   ...rest
 }: React.DetailedHTMLProps<
   React.HTMLAttributes<HTMLDivElement>,
   HTMLDivElement
 > & {
   symbol: string | undefined;
-  userBalance: bigint;
+  label: string;
+  value: string;
 }) => (
-  <div className="flex justify-between text-xs text-stieglitz px-1" {...rest}>
-    <p>Balance</p>
+  <div className="flex justify-between text-xs text-stieglitz" {...rest}>
+    <p>{label}</p>
     <span className="flex">
-      <p className="text-white pr-1 underline decoration-dashed">
-        {formatAmount(formatUnits(userBalance, DECIMALS_TOKEN), 3, true)}
-      </p>
+      <img
+        src="/assets/max.svg"
+        className="hover:bg-silver rounded-[4px]"
+        alt="max"
+      />
+      <p className="text-white px-1">{value}</p>
       {symbol || ''}
     </span>
   </div>
@@ -158,131 +163,69 @@ const AsidePanel = ({ market }: { market: string }) => {
         totalAvailableCollateral: 0,
         availableCollateralPercentage: 0,
         totalPurchased: 0,
-        breakeven: 0,
-        availableCollateral: 0,
-        totalPremium: 0,
         premiumPerOption: 0n,
         purchaseFeePerOption: 0n,
         premiumsAccrued: 0n,
         totalCollateral: 0n,
         activeCollateral: 0n,
+        breakeven: '0',
+        availableCollateral: '0',
+        totalPremium: '0',
       };
 
     const strikeData = strikesData[activeStrikeIndex];
     const premiumInUSD =
-      (selectedVault.isPut ? 1 : Number(selectedVault.currentPrice)) *
-      Number(formatUnits(strikeData.premiumPerOption || 0n, DECIMALS_TOKEN));
-    const breakeven = selectedVault.isPut
-      ? strikeData.strike - premiumInUSD
-      : premiumInUSD + strikeData.strike;
-    const availableCollateral = formatAmount(
+      parseUnits(
+        selectedVault.isPut ? '1' : selectedVault.currentPrice,
+        DECIMALS_TOKEN,
+      ) * strikeData.premiumPerOption || 0n;
+    const breakeven = formatUnits(
       selectedVault.isPut
-        ? Number(formatUnits(strikeData.availableCollateral || 0n, 18)) /
-            Number(strikeData.strike)
-        : formatUnits(strikeData.availableCollateral || 0n, 18),
-      5,
+        ? parseUnits(String(strikeData.strike), 2 * DECIMALS_TOKEN) -
+            premiumInUSD
+        : premiumInUSD +
+            parseUnits(String(strikeData.strike), 2 * DECIMALS_TOKEN),
+      2 * DECIMALS_TOKEN,
     );
-    const totalPremium = premiumInUSD * Number(amountDebounced);
+    const availableCollateral = formatUnits(
+      selectedVault.isPut
+        ? ((strikeData.availableCollateral || 0n) *
+            parseUnits('1', DECIMALS_TOKEN)) /
+            parseUnits(String(strikeData.strike || 0), DECIMALS_TOKEN)
+        : strikeData.availableCollateral || 0n,
+      DECIMALS_TOKEN,
+    );
+    const totalPremium = formatUnits(
+      premiumInUSD * parseUnits(amountDebounced, DECIMALS_TOKEN),
+      3 * DECIMALS_TOKEN,
+    );
 
     return { ...strikeData, breakeven, availableCollateral, totalPremium };
   }, [activeStrikeIndex, amountDebounced, selectedVault, strikesData]);
-
-  const handleClick = (index: number) => {
-    setActiveIndex(index);
-  };
-
-  const handleMax = useCallback(() => {
-    setAmount(formatUnits(userBalance, DECIMALS_TOKEN).toString());
-  }, [userBalance]);
-
-  const handleChange = useCallback(
-    (e: { target: { value: SetStateAction<any> } }) => {
-      setAmount(e.target.value);
-    },
-    [],
-  );
-
-  const handleClose = () => {
-    setIsOpen(false);
-  };
-
-  const infoPopover = useMemo(() => {
-    const buttonContent = activeIndex === 0 ? 'Purchase' : 'Deposit';
-    if (!selectedVault || !collateralTokenReads.data || !approveConfig.result)
-      return {
-        ...alerts.error.fallback,
-        buttonContent,
-      };
-
-    if (!Number(amountDebounced)) {
-      return {
-        ...alerts.info.emptyInput,
-        buttonContent,
-      };
-    } else if (
-      !address ||
-      (Number(selectedStrike.availableCollateral) < Number(amountDebounced) &&
-        activeIndex === 0)
-    )
-      return {
-        ...alerts.info.insufficientLiquidity,
-      };
-    else if (userBalance < parseUnits(amountDebounced || '0', DECIMALS_TOKEN))
-      return {
-        ...alerts.error.insufficientBalance,
-        buttonContent,
-      };
-    else if (!approved) {
-      return {
-        ...alerts.error.insufficientAllowance,
-      };
-    } else if (selectedStrike.iv > 100)
-      return {
-        ...alerts.warning.highIv,
-        buttonContent,
-      };
-    else
-      return {
-        ...alerts.info.enabled,
-        buttonContent,
-      };
-  }, [
-    activeIndex,
-    selectedVault,
-    collateralTokenReads.data,
-    approveConfig.result,
-    amountDebounced,
-    address,
-    selectedStrike.availableCollateral,
-    selectedStrike.iv,
-    userBalance,
-    approved,
-  ]);
 
   const panelData = useMemo(() => {
     if (!selectedStrike || !selectedVault)
       return {
         epoch: 0,
         strike: 0,
-        optionSize: 0,
-        fees: 0,
         iv: 0,
-        breakeven: 0,
-        totalCost: 0,
-        availableCollateral: 0,
+        optionSize: '0',
+        fees: '0',
+        breakeven: '0',
+        totalCost: '0',
+        availableCollateral: '0',
         side: '-',
         epochStartTime: format(new Date(), 'dd LLL yyyy'),
         withdrawableDate: format(new Date(), 'dd LLL yyyy'),
-        premiumPerOption: 0,
-        premiumApr: 0,
+        premiumPerOption: '0',
+        premiumApr: '-',
       };
 
     const activeCollateral =
       selectedStrike.activeCollateral === 0n
         ? 1
         : Number(formatUnits(selectedStrike.activeCollateral, DECIMALS_TOKEN));
-
-    const totalFees = Number(
+    const totalFees = parseUnits(
       formatUnits(
         selectedVault.isPut
           ? selectedStrike.purchaseFeePerOption *
@@ -291,18 +234,25 @@ const AsidePanel = ({ market }: { market: string }) => {
               parseUnits(amountDebounced, DECIMALS_TOKEN) *
               parseUnits(selectedVault.currentPrice, DECIMALS_USD)) /
               parseUnits('1', DECIMALS_TOKEN),
-        selectedVault.isPut ? DECIMALS_TOKEN : DECIMALS_TOKEN + DECIMALS_USD,
+        selectedVault.isPut
+          ? 2 * DECIMALS_TOKEN
+          : DECIMALS_TOKEN + DECIMALS_USD,
       ),
+      DECIMALS_TOKEN,
+    );
+    const totalCost = formatUnits(
+      parseUnits(selectedStrike.totalPremium, DECIMALS_TOKEN) + totalFees,
+      DECIMALS_TOKEN,
     );
 
     return {
       epoch: selectedVault.currentEpoch,
       strike: selectedStrike.strike,
-      optionSize: formatAmount(amountDebounced, 3),
-      fees: `$${formatAmount(totalFees, 3)}`,
       iv: selectedStrike.iv,
+      optionSize: formatAmount(amountDebounced, 3),
+      fees: `$${formatAmount(formatUnits(totalFees, DECIMALS_TOKEN), 3)}`,
       breakeven: `$${formatAmount(selectedStrike.breakeven, 3)}`,
-      totalCost: formatAmount(selectedStrike.totalPremium + totalFees, 3),
+      totalCost,
       availableCollateral: selectedStrike.availableCollateral,
       side: selectedVault.isPut ? 'Put' : 'Call',
       epochStartTime: format(
@@ -326,6 +276,93 @@ const AsidePanel = ({ market }: { market: string }) => {
     };
   }, [amountDebounced, selectedStrike, selectedVault]);
 
+  const infoPopover = useMemo(() => {
+    const isLong = activeIndex === 0;
+    const buttonContent = isLong ? 'Purchase' : 'Deposit';
+    const userBalanceInUsd =
+      userBalance *
+      parseUnits(selectedVault?.currentPrice || '1', DECIMALS_TOKEN); // 1e36
+    const insufficientBalance = isLong
+      ? userBalanceInUsd <
+        parseUnits(String(panelData.totalCost), 2 * DECIMALS_TOKEN)
+      : userBalance < parseUnits(amountDebounced, DECIMALS_TOKEN);
+
+    if (!selectedVault || !collateralTokenReads.data || !approveConfig.result)
+      return {
+        ...alerts.error.fallback,
+        buttonContent,
+      };
+
+    if (!Number(amountDebounced)) {
+      return {
+        ...alerts.info.emptyInput,
+        buttonContent,
+      };
+    } else if (
+      !address ||
+      (Number(selectedStrike.availableCollateral) < Number(amountDebounced) &&
+        activeIndex === 0)
+    )
+      return {
+        ...alerts.info.insufficientLiquidity,
+      };
+    else if (insufficientBalance)
+      return {
+        ...alerts.error.insufficientBalance,
+        buttonContent,
+      };
+    else if (!approved) {
+      return {
+        ...alerts.error.insufficientAllowance,
+      };
+    } else if (selectedStrike.iv > 80)
+      return {
+        ...alerts.warning.highIv,
+        buttonContent,
+      };
+    else
+      return {
+        ...alerts.info.enabled,
+        buttonContent,
+      };
+  }, [
+    activeIndex,
+    selectedVault,
+    collateralTokenReads.data,
+    approveConfig.result,
+    amountDebounced,
+    address,
+    selectedStrike.availableCollateral,
+    selectedStrike.iv,
+    userBalance,
+    approved,
+    panelData.totalCost,
+  ]);
+
+  const renderCondition = useMemo(() => {
+    return !selectedStrike || !selectedStrike || !selectedVault;
+  }, [selectedStrike, selectedVault]);
+
+  const handleClick = (index: number) => {
+    setActiveIndex(index);
+  };
+
+  const handleMax = useCallback(() => {
+    setAmount(
+      activeIndex === 0
+        ? selectedStrike.availableCollateral.toString()
+        : formatUnits(userBalance, DECIMALS_TOKEN),
+    );
+  }, [selectedStrike.availableCollateral, userBalance, activeIndex]);
+
+  const handleChange = (e: { target: { value: SetStateAction<any> } }) => {
+    setAmount(e.target.value);
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+  };
+
   const transact = useCallback(() => {
     if (infoPopover.textContent?.includes('allowance')) {
       approve?.();
@@ -336,18 +373,23 @@ const AsidePanel = ({ market }: { market: string }) => {
     }
   }, [activeIndex, approve, infoPopover.textContent, purchase]);
 
-  const renderCondition = useMemo(() => {
-    return !selectedStrike || !selectedStrike || !selectedVault;
-  }, [selectedStrike, selectedVault]);
-
   useEffect(() => {
     if (vault.address === '0x' || !address) return;
     (async () => {
+      const isLong = activeIndex === 0;
+      const longCostInCollateralUnits =
+        (parseUnits(panelData.totalCost, DECIMALS_TOKEN) *
+          parseUnits('1', DECIMALS_TOKEN)) /
+        parseUnits(selectedVault?.currentPrice || '1', DECIMALS_TOKEN);
+
+      const _amount = isLong
+        ? longCostInCollateralUnits
+        : parseUnits(amountDebounced, DECIMALS_TOKEN);
       const _approved = await isApproved({
         owner: address,
         spender: vault.address,
         tokenAddress: vault.collateralTokenAddress,
-        amount: parseUnits(amountDebounced, DECIMALS_TOKEN),
+        amount: _amount,
       });
       setApproved(_approved);
       const _balance = await getUserBalance({
@@ -356,7 +398,16 @@ const AsidePanel = ({ market }: { market: string }) => {
       });
       setUserBalance(_balance || 0n);
     })();
-  }, [address, vault.address, vault.collateralTokenAddress, amountDebounced]);
+  }, [
+    address,
+    vault.address,
+    vault.collateralTokenAddress,
+    amountDebounced,
+    activeIndex,
+    panelData.totalCost,
+    selectedVault?.currentPrice,
+    userBalance,
+  ]);
 
   return renderCondition ? null : (
     <div className="flex flex-col space-y-4">
@@ -380,13 +431,22 @@ const AsidePanel = ({ market }: { market: string }) => {
               className="w-[30px] h-[30px] border border-mineshaft rounded-full ring-4 ring-cod-gray"
             />
           }
+          bottomElement={
+            <CustomBottomElement
+              symbol={collateralTokenReads.data?.[0].result as string}
+              label={activeIndex === 0 ? 'Max Qty' : 'Balance'}
+              value={formatAmount(
+                activeIndex === 0
+                  ? String(selectedStrike.availableCollateral)
+                  : formatUnits(userBalance, DECIMALS_TOKEN),
+                3,
+                true,
+              )}
+              role="button"
+              onClick={handleMax}
+            />
+          }
           placeholder="0.0"
-        />
-        <UserBalance
-          symbol={collateralTokenReads.data?.[0].result as string}
-          userBalance={userBalance}
-          role="button"
-          onClick={handleMax}
         />
         {infoPopover.textContent !== '' ? (
           <div
@@ -444,15 +504,17 @@ const AsidePanel = ({ market }: { market: string }) => {
             <RowItem label="Breakeven" content={panelData.breakeven} />
             <RowItem
               label="You will pay"
-              content={<p>${panelData.totalCost}</p>}
+              content={<p>${formatAmount(panelData.totalCost, 3)}</p>}
             />
             <RowItem
-              label="Available"
+              label="Balance"
               content={
-                <p>
-                  {panelData.availableCollateral}{' '}
-                  {String(collateralTokenReads.data?.[0].result)}
-                </p>
+                <span className="flex text-stieglitz space-x-1">
+                  <p className="text-white">
+                    {formatAmount(formatUnits(userBalance, DECIMALS_TOKEN), 3)}{' '}
+                  </p>
+                  <p>{String(collateralTokenReads.data?.[0].result)}</p>
+                </span>
               }
             />
           </div>
@@ -512,7 +574,7 @@ const AsidePanel = ({ market }: { market: string }) => {
       </div>
       <div className="bg-cod-gray p-3 rounded-lg">
         <PnlChart
-          breakEven={selectedStrike.breakeven}
+          breakEven={Number(selectedStrike.breakeven)}
           optionPrice={Number(
             formatUnits(selectedStrike.premiumPerOption || 0n, DECIMALS_TOKEN),
           )}
