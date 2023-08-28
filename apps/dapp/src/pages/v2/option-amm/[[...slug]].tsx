@@ -52,14 +52,14 @@ const OptionsAmm = () => {
         }}
       />
       <PageLayout>
-        <div className="flex justify-between flex-wrap my-3">
+        <div className="flex lg:justify-between justify-center flex-wrap my-3 space-y-3 lg:space-y-0">
           <TitleBar
             market={selectedMarket}
             handleSelectMarket={handleSelectMarket}
           />
           <PortfolioInfo />
         </div>
-        <div className="flex space-x-0 lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row space-y-3 md:space-y-0 justify-center">
+        <div className="flex space-x-0 lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row space-y-3 lg:space-y-0 justify-center">
           <div className="flex flex-col space-y-3 sm:w-full lg:w-3/4 h-full">
             <div className="w-full rounded-lg text-center flex flex-col justify-center text-stieglitz">
               <PriceChart market={selectedMarket.split('-')[0]} />

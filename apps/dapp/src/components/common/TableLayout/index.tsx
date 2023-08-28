@@ -77,7 +77,7 @@ const TableLayout = <T extends object>({
     <div className="bg-cod-gray rounded-lg">
       <div className="overflow-x-auto">
         <table className="bg-cod-gray rounded-lg w-full">
-          <thead className="sticky">
+          <thead>
             {getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header, index: number) => {
@@ -108,7 +108,7 @@ const TableLayout = <T extends object>({
               </tr>
             ))}
           </thead>
-          <tbody className="max-h-32 overflow-y-auto divide-y divide-umbra">
+          <tbody className="max-h-32 divide-y divide-umbra">
             {getRowModel().rows.map((row, index) => {
               return (
                 <Disclosure key={row.id}>
@@ -149,8 +149,10 @@ const TableLayout = <T extends object>({
             })}
           </tbody>
         </table>
-        {data.length > getState().pagination.pageSize ? (
-          <div className="flex justify-end border-t border-umbra py-3 px-3 text-xs text-stieglitz space-x-3">
+      </div>
+      {data.length > getState().pagination.pageSize ? (
+        <div className="sticky flex flex-wrap justify-center sm:justify-end border-t border-umbra py-3 px-3 text-xs text-stieglitz space-x-3">
+          <div className="flex space-x-2">
             <span className="flex my-auto text-center space-x-1">
               <p>Rows per page: </p>
               <p className="text-white">{pageSize}</p>
@@ -167,6 +169,8 @@ const TableLayout = <T extends object>({
               )}{' '}
               of {data.length}
             </span>
+          </div>
+          <div className="flex">
             <button
               onClick={() => previousPage()}
               disabled={!getCanPreviousPage()}
@@ -177,23 +181,21 @@ const TableLayout = <T extends object>({
             >
               <ChevronLeftIcon className="w-6 h-6 fill-current text-stieglitz hover:text-white" />
             </button>
-            <div className="my-auto">
-              {Array.from(Array(Math.min(pageSize, getPageCount()))).map(
-                (_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={(e: any) => setPageIndex(e.target.innerText - 1)}
-                    className={`py-2 px-3 rounded-md ${
-                      idx === getState().pagination.pageIndex
-                        ? 'text-white bg-mineshaft'
-                        : ''
-                    }`}
-                  >
-                    {idx + 1}
-                  </button>
-                ),
-              )}
-            </div>
+            {Array.from(Array(Math.min(pageSize, getPageCount()))).map(
+              (_, idx) => (
+                <button
+                  key={idx}
+                  onClick={(e: any) => setPageIndex(e.target.innerText - 1)}
+                  className={`py-2 px-3 rounded-md ${
+                    idx === getState().pagination.pageIndex
+                      ? 'text-white bg-mineshaft'
+                      : ''
+                  }`}
+                >
+                  {idx + 1}
+                </button>
+              ),
+            )}
             <button
               onClick={() => nextPage()}
               disabled={!getCanNextPage()}
@@ -213,8 +215,8 @@ const TableLayout = <T extends object>({
               {getPageCount()}
             </button>
           </div>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
     </div>
   ) : (
     <Placeholder />
