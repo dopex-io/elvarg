@@ -10,7 +10,7 @@ import { TOKEN_DATA } from 'constants/tokens';
 
 const PriceChart = ({
   market,
-  className = 'h-[520px]',
+  className,
 }: {
   market: string;
   className?: string;
@@ -81,7 +81,7 @@ const PriceChart = ({
   }, [query]);
 
   return (
-    <div className={className}>
+    <div className={cx('h-[520px]', className)}>
       {query.isFetched ? (
         <div
           ref={chartContainerRef}
