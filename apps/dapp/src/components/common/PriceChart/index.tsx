@@ -80,9 +80,6 @@ const PriceChart = ({
     };
   }, [query]);
 
-  if (query.isFetched) {
-  }
-
   return (
     <div className={className}>
       {query.isFetched ? (
