@@ -3,11 +3,18 @@ import { useEffect, useRef } from 'react';
 import { Skeleton } from '@dopex-io/ui';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import cx from 'classnames';
 import { ColorType, createChart } from 'lightweight-charts';
 
 import { TOKEN_DATA } from 'constants/tokens';
 
-const PriceChart = ({ market }: { market: string }) => {
+const PriceChart = ({
+  market,
+  className = 'h-full w-full',
+}: {
+  market: string;
+  className?: string;
+}) => {
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
 
   const query = useQuery({
@@ -26,7 +33,6 @@ const PriceChart = ({ market }: { market: string }) => {
     };
 
     const chart = createChart(chartContainerRef.current, {
-      height: 500,
       layout: {
         background: {
           type: ColorType.Solid,
@@ -74,11 +80,21 @@ const PriceChart = ({ market }: { market: string }) => {
     };
   }, [query]);
 
-  if (query.isFetching) {
-    return <Skeleton width={950} height={500} />;
+  if (query.isFetched) {
   }
 
-  return <div ref={chartContainerRef} className="m-3 rounded-xl h-full" />;
+  return (
+    <div className={className}>
+      {query.isFetched ? (
+        <div
+          ref={chartContainerRef}
+          className={cx('m-3 rounded-xl h-full w-full')}
+        />
+      ) : (
+        <Skeleton width={'100%'} height={'100%'} />
+      )}
+    </div>
+  );
 };
 
 export default PriceChart;
