@@ -30,9 +30,9 @@ const Zdte = ({ zdte }: Props) => {
     updateUserZdteLpData,
     updateUserZdteOpenPositions,
     updateVolumeFromSubgraph,
+    zdteData,
     staticZdteData,
     updateUserZdteSpreadPositions,
-    isLoading,
   } = useBoundStore();
 
   useEffect(() => {
@@ -83,7 +83,10 @@ const Zdte = ({ zdte }: Props) => {
             <TopBar />
           </div>
           <div className="lg:max-w-4xl md:max-w-3xl sm:max-w-2xl max-w-md mx-auto px-4 lg:px-0 space-y-6">
-            <PriceChart market={selectedPoolName.toUpperCase()} />
+            <PriceChart
+              className={!zdteData || !staticZdteData ? 'hidden' : 'display'}
+              market={selectedPoolName.toUpperCase()}
+            />
           </div>
           <div className="mb-5 lg:max-w-4xl md:max-w-3xl md:m-0 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0 flex-auto mx-auto">
             <OptionsTable />
