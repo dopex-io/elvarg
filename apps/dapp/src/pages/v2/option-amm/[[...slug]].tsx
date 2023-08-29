@@ -52,7 +52,7 @@ const OptionsAmm = () => {
         }}
       />
       <PageLayout>
-        <div className="flex lg:justify-between justify-center flex-wrap my-3 space-y-3 lg:space-y-0">
+        <div className="flex md:justify-between flex-wrap my-3 space-y-3 lg:space-y-0">
           <TitleBar
             market={selectedMarket}
             handleSelectMarket={handleSelectMarket}

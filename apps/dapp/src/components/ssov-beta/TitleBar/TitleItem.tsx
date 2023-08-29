@@ -11,14 +11,14 @@ const TitleItem = (props: Props) => {
   return (
     <div className="flex flex-col">
       <span
-        className={`text-sm text-white flex ${
+        className={`text-xs text-white flex ${
           !symbolPrefixed ? 'flex-row-reverse justify-end' : null
         }`}
       >
         <p className="text-stieglitz inline text-sm">{symbol}</p>
         {value}
       </span>
-      <span className="text-sm text-stieglitz">{label}</span>
+      <span className="text-xs text-stieglitz">{label}</span>
     </div>
   );
 };
