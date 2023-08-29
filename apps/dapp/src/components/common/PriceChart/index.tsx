@@ -10,7 +10,7 @@ import { TOKEN_DATA } from 'constants/tokens';
 
 const PriceChart = ({
   market,
-  className = 'h-full w-full',
+  className = 'h-[520px]',
 }: {
   market: string;
   className?: string;
