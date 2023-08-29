@@ -84,17 +84,17 @@ const SsovBetaMarket = () => {
           market={selectedMarket}
           handleSelectMarket={handleSelectMarket}
         />
-        <div className="flex space-x-0 lg:space-x-6 flex-col sm:flex-col md:flex-col lg:flex-row space-y-3 md:space-y-0 justify-center">
+        <div className="flex space-x-0 lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row space-y-3 md:space-y-0 justify-center">
           <div className="flex flex-col space-y-3 sm:w-full lg:w-3/4 h-full">
             <div className="h-[520px] rounded-lg text-center flex flex-col justify-center text-stieglitz">
               <PriceChart market={selectedMarket} />
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3">
               <StrikesChain market={selectedMarket} />
               <Positions />
             </div>
           </div>
-          <div className="flex flex-col w-full lg:w-1/4 h-full space-y-4 sticky top-20">
+          <div className="flex flex-col w-full lg:w-1/4 h-full space-y-3 sticky top-20">
             <AsidePanel market={selectedMarket} />
             <InfoBox
               title={ssovInfo.infoBox.header}
