@@ -6,12 +6,12 @@ import optionAmmInfo from 'public/locales/en/optionAmm.json';
 
 import InfoBox from 'components/common/InfoBox';
 import PageLayout from 'components/common/PageLayout';
+import PriceChart from 'components/common/PriceChart';
 import AsidePanel from 'components/option-amm/AsidePanel';
 import PortfolioInfo from 'components/option-amm/PortfolioData';
 import Positions from 'components/option-amm/Tables/Positions';
 import StrikesChain from 'components/option-amm/Tables/StrikesChain';
 import TitleBar from 'components/option-amm/TitleBar';
-import PriceChart from 'components/ssov-beta/PriceChart';
 
 import seo from 'constants/seo';
 

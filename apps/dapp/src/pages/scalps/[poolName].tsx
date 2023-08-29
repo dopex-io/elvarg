@@ -10,6 +10,7 @@ import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
 
 import PageLayout from 'components/common/PageLayout';
+import PriceChart from 'components/common/PriceChart';
 import QuickLink from 'components/common/QuickLink';
 import Manage from 'components/scalps/Manage';
 import MigrationStepper from 'components/scalps/MigrationStepper';
@@ -17,7 +18,6 @@ import Orders from 'components/scalps/Orders';
 import Positions from 'components/scalps/Positions';
 import TopBar from 'components/scalps/TopBar';
 import TradeCard from 'components/scalps/TradeCard';
-import PriceChart from 'components/ssov-beta/PriceChart';
 
 import { CHAINS } from 'constants/chains';
 import seo from 'constants/seo';
@@ -134,7 +134,7 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
   return (
     <PageLayout>
       <TopBar />
-      <div className="flex flex-col space-y-2 lg:flex-row xl:space-x-4 justify-center">
+      <div className="flex flex-col space-y-2 lg:flex-row xl:space-x-4 justify-center h-full">
         <div className="flex flex-col w-full lg:w-3/4 space-y-4 h-full">
           <PriceChart market={selectedPoolName} />
           <Orders />
