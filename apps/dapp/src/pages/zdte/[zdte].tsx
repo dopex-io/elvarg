@@ -6,8 +6,8 @@ import { NextSeo } from 'next-seo';
 import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
+import PriceChart from 'components/common/PriceChart';
 import ErrorBoundary from 'components/error/ErrorBoundary';
-import PriceChart from 'components/ssov-beta/PriceChart';
 import { OptionsTable } from 'components/zdte';
 import ManageCard from 'components/zdte/Manage';
 import Positions from 'components/zdte/Positions';
