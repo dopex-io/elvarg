@@ -86,7 +86,7 @@ const SsovBetaMarket = () => {
         <div className="flex space-x-0 lg:space-x-6 flex-col sm:flex-col md:flex-col lg:flex-row space-y-3 md:space-y-0 justify-center">
           <div className="flex flex-col space-y-3 sm:w-full lg:w-3/4 h-full">
             <PriceChart
-              className="h-[520px] rounded-lg text-center flex flex-col justify-center text-stieglitz"
+              className="rounded-lg text-center flex flex-col justify-center text-stieglitz"
               market={selectedMarket}
             />
             <div className="space-y-4">
