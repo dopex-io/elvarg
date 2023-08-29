@@ -84,7 +84,7 @@ const Zdte = ({ zdte }: Props) => {
           </div>
           <div className="lg:max-w-4xl md:max-w-3xl sm:max-w-2xl max-w-md mx-auto px-4 lg:px-0 space-y-6">
             <PriceChart
-              className={!zdteData || !staticZdteData ? 'hidden' : 'display'}
+              className={!zdteData || !staticZdteData ? 'hidden' : ''}
               market={selectedPoolName.toUpperCase()}
             />
           </div>
