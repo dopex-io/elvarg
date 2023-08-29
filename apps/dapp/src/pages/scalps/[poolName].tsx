@@ -136,7 +136,7 @@ const OptionScalps = ({ poolName }: { poolName: string }) => {
       <TopBar />
       <div className="flex flex-col space-y-2 lg:flex-row xl:space-x-4 justify-center h-full">
         <div className="flex flex-col w-full lg:w-3/4 space-y-4 h-full">
-          <PriceChart className="h-[520px]" market={selectedPoolName} />
+          <PriceChart market={selectedPoolName} />
           <Orders />
           <Positions />
         </div>
