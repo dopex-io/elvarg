@@ -126,7 +126,13 @@ const PurchaseCard = () => {
   const estimatedFinalCost: string = useMemo(() => {
     if (!straddlesEpochData?.straddlePremium) return '0';
 
-    const cost = Number(
+    let cost;
+
+    if (finalCost.gt(0)) {
+      cost = Number(ethersUtils.formatUnits(finalCost, 6));
+    }
+
+    cost = Number(
       ethersUtils.formatUnits(
         straddlesEpochData
           ?.straddlePremium!.add(straddlesEpochData?.straddleFunding!)
@@ -136,7 +142,7 @@ const PurchaseCard = () => {
     );
 
     return formatAmount(amount * cost, 2);
-  }, [straddlesEpochData, amount]);
+  }, [straddlesEpochData, amount, finalCost]);
 
   useEffect(() => {
     async function updateFinalCostV1() {
@@ -481,9 +487,7 @@ const PurchaseCard = () => {
       </div>
       <div className="mt-4 flex mb-4 p-2 w-full rounded border border-neutral-800 justify-between">
         <span className="text-stieglitz text-xs">You will spend </span>
-        <span className="text-xs">
-          {formatAmount(estimatedFinalCost, 2)} USDC.e
-        </span>
+        <span className="text-xs">{estimatedFinalCost} USDC.e</span>
       </div>
       <div className="mt-4 flex mb-4 p-2 w-full rounded border border-neutral-800 justify-between">
         <>
