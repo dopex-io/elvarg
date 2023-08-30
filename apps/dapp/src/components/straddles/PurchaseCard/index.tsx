@@ -482,13 +482,7 @@ const PurchaseCard = () => {
       <div className="mt-4 flex mb-4 p-2 w-full rounded border border-neutral-800 justify-between">
         <span className="text-stieglitz text-xs">You will spend </span>
         <span className="text-xs">
-          {formatAmount(
-            finalCost.isZero()
-              ? estimatedFinalCost
-              : ethersUtils.formatUnits(finalCost, 6),
-            2,
-          )}{' '}
-          USDC.e
+          {formatAmount(estimatedFinalCost, 2)} USDC.e
         </span>
       </div>
       <div className="mt-4 flex mb-4 p-2 w-full rounded border border-neutral-800 justify-between">
