@@ -14,6 +14,7 @@ import { usePrepareApprove } from 'hooks/ssov/usePrepareWrites';
 import PnlChart from 'components/common/PnlChart';
 import RowItem from 'components/ssov-beta/AsidePanel/RowItem';
 
+import generateStrikes from 'utils/clamm/generateStrikes';
 import { getUserBalance, isApproved } from 'utils/contracts/getERC20Info';
 import formatAmount from 'utils/general/formatAmount';
 
@@ -126,17 +127,35 @@ const AsidePanel = () => {
     updateClammStrikesData,
     tokenA,
     uniswapPoolContract,
+    provider,
   } = useBoundStore();
 
   // TODO: note that this is always token A
   const collateralToken = MARKETS[tokenA];
   const actionToken = isPut ? MARKETS['USDC'] : collateralToken;
 
-  const clammStrikes = clammStrikesData.map((s: ClammStrikeData) => ({
-    textContent: `${formatAmount(s.strike, 3)}`,
-    isDisabled: false,
-  }));
+  const loadStrikes = useCallback(async () => {
+    const pool = '0xcda53b1f66614552f834ceef361a8d12a0b8dad8';
+    let strikes = await generateStrikes(pool, 10, isPut);
+    let strikesForMenu = strikes.map((strike) => ({
+      textContent: strike.toFixed(4),
+      disabled: false,
+    }));
+    setClammStrikes(strikesForMenu);
+  }, [isPut]);
 
+  useEffect(() => {
+    loadStrikes();
+  }, [loadStrikes]);
+
+  // const clammStrikes = clammStrikesData.map((s: ClammStrikeData) => ({
+  //   textContent: `${formatAmount(s.strike, 3)}`,
+  //   isDisabled: false,
+  // }));
+
+  const [clammStrikes, setClammStrikes] = useState<
+    { textContent: string; disabled: boolean }[]
+  >([]);
   const [inputAmount, setInputAmount] = useState<string>('0');
   const [tradeOrLpIndex, setTradeOrLpIndex] = useState<number>(0);
   const [selectedExpiry, setSelectedExpiry] = useState<number>(0);
