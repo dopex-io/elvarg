@@ -16,9 +16,9 @@ const Trade = (props: Props) => {
   const { inputPanel, data, button } = props;
   return (
     <div className="space-y-3">
-      <div className="bg-umbra rounded-xl divide-y divide-cod-gray">
+      <div className="bg-umbra rounded-xl divide-y-2 divide-cod-gray">
         {inputPanel}
-        <div className="flex w-full divide-x divide-cod-gray">
+        <div className="flex w-full divide-x-2 divide-cod-gray">
           <div className="flex-grow p-3">
             <h3 className="text-xs text-stieglitz">Expiry</h3>
           </div>

@@ -107,7 +107,7 @@ const AsidePanel = ({ market }: { market: string }) => {
         bottomElement={
           <CustomBottomElement
             symbol={''}
-            label={panelState === 0 ? 'Contracts' : 'Balance'}
+            label={panelState === 0 ? 'Options' : 'Balance'}
             value={formatAmount(
               panelState === 0 ? 0 : Number(userBalance),
               3,
