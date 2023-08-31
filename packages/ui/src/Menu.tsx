@@ -28,6 +28,7 @@ export interface MenuProps<T>
   topElement?: React.ReactNode;
   color?: colors;
   showArrow?: boolean;
+  showIcon?: boolean;
 }
 
 const Menu = <T extends ItemType>(props: MenuProps<T>) => {
@@ -40,6 +41,7 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
     topElement = null,
     color = 'carbon',
     showArrow = false,
+    showIcon = false,
     className,
     ...rest
   } = props;
@@ -49,12 +51,21 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
       <div>
         <HeadlessMenu.Button
           as={Button}
-          className="flex justify-between bg-carbon"
+          className="flex justify-between bg-carbon w-full"
           color={color}
           size="medium"
         >
           {({ open }: { open: boolean }) => (
-            <div className="flex justify-between">
+            <div className="flex w-full justify-center">
+              {showIcon &&
+              selection !== undefined &&
+              typeof selection === 'string' ? (
+                <img
+                  src={`/images/tokens/${String(selection)?.toLowerCase()}.svg`}
+                  alt={selection.toLowerCase()}
+                  className="w-5 rounded-full mr-2"
+                />
+              ) : null}
               {selection}
               {showArrow ? (
                 <ChevronDownIcon
@@ -80,6 +91,7 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
           variant={dropdownVariant}
           scrollable
           topElement={topElement}
+          className="w-full"
           {...rest}
         />
       </Transition>

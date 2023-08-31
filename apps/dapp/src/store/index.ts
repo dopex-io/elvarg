@@ -2,23 +2,24 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
 import { AssetsSlice, createAssetsSlice } from './Assets';
-import { DpxBondsSlice, createDpxBondsSlice } from './Bonds';
-import { DuelSlice, createDuelSlice } from './Duel';
-import { FarmingSlice, createFarmingSlice } from './Farming';
-import { NftsSlice, createNftsSlice } from './Nfts';
-import { PortfolioSlice, createPortfolioSlice } from './Portfolio';
-import { TokenSaleSlice, createTokenSaleSlice } from './TokenSale';
+import { createDpxBondsSlice, DpxBondsSlice } from './Bonds';
+import { createDuelSlice, DuelSlice } from './Duel';
+import { createFarmingSlice, FarmingSlice } from './Farming';
+import { createNftsSlice, NftsSlice } from './Nfts';
+import { createPortfolioSlice, PortfolioSlice } from './Portfolio';
+import { createTokenSaleSlice, TokenSaleSlice } from './TokenSale';
 import { AtlanticPoolsSlice, createAtlanticsSlice } from './Vault/atlantics';
-import { GmxSlice, createGmxSlice } from './Vault/atlantics/gmx';
+import { createGmxSlice, GmxSlice } from './Vault/atlantics/gmx';
+import { ClammSlice, createClammSlice } from './Vault/clamm';
 import { CommonSlice, createCommonSlice } from './Vault/common';
-import { RateVaultSlice, createRateVaultSlice } from './Vault/ir';
-import { OlpSlice, createOlpSlice } from './Vault/olp';
-import { OptionScalpSlice, createOptionScalpSlice } from './Vault/scalps';
-import { SsovV3Slice, createSsovV3Slice } from './Vault/ssov';
-import { StraddlesSlice, createStraddlesSlice } from './Vault/straddles';
-import { ZdteSlice, createZdteSlice } from './Vault/zdte';
-import { VeDPXSlice, createVedpxSlice } from './VeDPX';
-import { WalletSlice, createWalletSlice } from './Wallet';
+import { createRateVaultSlice, RateVaultSlice } from './Vault/ir';
+import { createOlpSlice, OlpSlice } from './Vault/olp';
+import { createOptionScalpSlice, OptionScalpSlice } from './Vault/scalps';
+import { createSsovV3Slice, SsovV3Slice } from './Vault/ssov';
+import { createStraddlesSlice, StraddlesSlice } from './Vault/straddles';
+import { createZdteSlice, ZdteSlice } from './Vault/zdte';
+import { createVedpxSlice, VeDPXSlice } from './VeDPX';
+import { createWalletSlice, WalletSlice } from './Wallet';
 
 type T = WalletSlice &
   TokenSaleSlice &
@@ -37,7 +38,8 @@ type T = WalletSlice &
   OlpSlice &
   GmxSlice &
   AtlanticPoolsSlice &
-  ZdteSlice;
+  ZdteSlice &
+  ClammSlice;
 
 export const useBoundStore = create<T>()(
   devtools((...a) => ({
@@ -59,5 +61,6 @@ export const useBoundStore = create<T>()(
     ...createAtlanticsSlice(...a),
     ...createGmxSlice(...a),
     ...createZdteSlice(...a),
-  }))
+    ...createClammSlice(...a),
+  })),
 );
