@@ -35,7 +35,9 @@ const SsovBetaMarket = () => {
   );
 
   useEffect(() => {
-    let market = router.query?.slug?.[0];
+    if (!router || !router.query || !router.query.slug) return;
+
+    let market = router.query.slug[0];
 
     if (!market) {
       router.replace(router.asPath, `/ssov-beta/${DEFAULT_MARKET}`);
