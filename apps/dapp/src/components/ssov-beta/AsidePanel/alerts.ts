@@ -31,19 +31,19 @@ const alertsMapping: Record<PopoverType, Record<string, PopoverContent>> = {
   warning: {
     highIv: {
       disabled: false,
-      textContent: 'IV is currently high.',
+      textContent: 'IV is currently high',
       alertBg: 'bg-jaffa text-cod-gray',
     },
   },
   error: {
     insufficientBalance: {
       disabled: true,
-      textContent: 'Insufficient Balance.',
+      textContent: 'Insufficient Balance',
       alertBg: 'bg-down-bad text-cod-gray',
     },
     insufficientAllowance: {
       disabled: false,
-      textContent: 'Insufficient allowance. Please approve your token.',
+      textContent: 'Token approval required',
       alertBg: 'bg-down-bad text-cod-gray',
       buttonContent: 'Approve',
     },
