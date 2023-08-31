@@ -480,7 +480,9 @@ const AsidePanel = ({ market }: { market: string }) => {
                     selectedVault?.isPut ? 'flex-row-reverse' : null
                   }`}
                 >
-                  {panelData.premiumPerOption}
+                  {Number(panelData.premiumPerOption) < 0.001
+                    ? '<0.001'
+                    : panelData.premiumPerOption}
                   <p
                     className={`text-stieglitz ${
                       selectedVault?.isPut ? null : 'pl-1'
