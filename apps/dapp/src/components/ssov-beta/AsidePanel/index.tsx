@@ -410,7 +410,7 @@ const AsidePanel = ({ market }: { market: string }) => {
   ]);
 
   return renderCondition ? null : (
-    <div className="flex flex-col space-y-4">
+    <div className="flex flex-col space-y-3">
       <div className="flex flex-col bg-cod-gray rounded-lg p-3 space-y-3">
         <ButtonGroup
           active={activeIndex}

@@ -12,15 +12,12 @@ import { useContractWrite } from 'wagmi';
 
 import {
   usePrepareClaim,
-  usePrepareSettle,
   usePrepareStake,
   usePrepareWithdraw,
 } from 'hooks/ssov/usePrepareWrites';
 import { RewardAccrued } from 'hooks/ssov/useSsovPositions';
 
-import getSsovOptionTokenInfo from 'utils/ssov/getSsovOptionTokenInfo';
 import { getSsovStakingRewardsPosition } from 'utils/ssov/getSsovStakingRewardsData';
-import getStrikeIndexFromEpochStrike from 'utils/ssov/getStrikeIndexFromEpochStrike';
 
 interface Props {
   isOpen: boolean;
@@ -40,9 +37,6 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
   const [step, setStep] = useState<number>(data.canStake ? 0 : 1);
   const [loading, setLoading] = useState<boolean>(false);
   const [staked, setStaked] = useState<boolean>(false);
-  const [canSettle, setCanSettle] = useState<boolean>(false);
-  const [strikeIndex, setStrikeIndex] = useState<bigint>(0n);
-  const [settleAmount, setSettleAmount] = useState<bigint>(0n);
 
   const stakeConfig = usePrepareStake({
     ssov: data.ssov,
@@ -58,13 +52,6 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
     ssov: data.ssov,
     tokenId: data.tokenId,
     to: data.to,
-  });
-  const settleConfig = usePrepareSettle({
-    ssov: data.ssov,
-    strikeIndex,
-    to: data.to,
-    epoch: data.epoch,
-    amount: settleAmount,
   });
 
   const {
@@ -82,11 +69,6 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
     isLoading: withdrawLoading,
     isSuccess: withdrawSuccess,
   } = useContractWrite(withdrawConfig);
-  const {
-    write: settle,
-    isLoading: settleLoading,
-    isSuccess: settleSuccess,
-  } = useContractWrite(settleConfig);
 
   const handleNext = () => {
     setStep((prevStep) => prevStep + 1);
@@ -116,34 +98,6 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
     }
   }, [stake, stakeSuccess]);
 
-  const handleSettle = useCallback(() => {
-    if (canSettle) {
-      settle?.();
-    }
-    if (settleSuccess) {
-      handleNext();
-    }
-  }, [canSettle, settle, settleSuccess]);
-
-  const updateSsovFromRewardToken = useCallback(async () => {
-    if (!data.rewardsAccrued) return;
-    const token = data.rewardsAccrued.find((r) => r.isOption);
-    if (token) {
-      const optionTokenInfo = await getSsovOptionTokenInfo({
-        address: token.address,
-      });
-      if (!optionTokenInfo) return;
-      const _strikeIndex = await getStrikeIndexFromEpochStrike({
-        ssov: optionTokenInfo.ssov as Address,
-        epoch: Number(data.epoch),
-        strike: optionTokenInfo.strike as bigint,
-      });
-      setCanSettle(!!optionTokenInfo.hasExpired);
-      setSettleAmount(token.amount);
-      setStrikeIndex(BigInt(_strikeIndex));
-    }
-  }, [data]);
-
   const steps = [
     {
       ...(data.canStake
@@ -166,7 +120,7 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
         ? {
             label: 'Claim',
             description:
-              'This transaction will claim accrued rewards for this deposit. Do not attempt to withdraw before claiming rewards to avoid losing them!',
+              "This transaction will claim accrued rewards for this deposit. Rewards in the form of option tokens will be displayed under your 'Buy Positions'. Do not attempt to withdraw before claiming rewards to avoid losing them!",
           }
         : {
             label: 'Not Staked',
@@ -191,14 +145,6 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
       disabled: step == 2 && data.expiry > new Date().getTime() / 1000,
       buttonLabel: 'Withdraw',
       action: handleWithdraw,
-    },
-    {
-      label: 'Settle',
-      description:
-        'Exercise your option token reward now if they have expired ITM. You can choose to exercise them later in the "Buy Positions" section',
-      disabled: !canSettle,
-      buttonLabel: 'Settle',
-      action: handleSettle,
     },
   ];
 
@@ -237,20 +183,11 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
     if (withdrawSuccess) {
       setStep(3);
     }
-    if (settleSuccess) {
-      setStep(4);
-    }
-  }, [claimSuccess, settleSuccess, stakeSuccess, staked, withdrawSuccess]);
+  }, [claimSuccess, stakeSuccess, staked, withdrawSuccess]);
 
   useEffect(() => {
-    setLoading(
-      claimLoading || withdrawLoading || stakeLoading || settleLoading,
-    );
-  }, [claimLoading, settleLoading, stakeLoading, withdrawLoading]);
-
-  useEffect(() => {
-    updateSsovFromRewardToken();
-  }, [updateSsovFromRewardToken]);
+    setLoading(claimLoading || withdrawLoading || stakeLoading);
+  }, [claimLoading, stakeLoading, withdrawLoading]);
 
   return (
     <Dialog
