@@ -1,18 +1,18 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
 
 import { NextSeo } from 'next-seo';
+
 import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
+import PriceChart from 'components/common/PriceChart';
 import ErrorBoundary from 'components/error/ErrorBoundary';
 import { OptionsTable } from 'components/zdte';
-import Loading from 'components/zdte/Loading';
 import ManageCard from 'components/zdte/Manage';
 import Positions from 'components/zdte/Positions';
 import TopBar from 'components/zdte/TopBar';
 import ZdteContractBox from 'components/zdte/ZdteContractBox';
-import ZdteDexScreenerChart from 'components/zdte/ZdteDexScreenerChart';
 
 import seo from 'constants/seo';
 
@@ -30,9 +30,9 @@ const Zdte = ({ zdte }: Props) => {
     updateUserZdteLpData,
     updateUserZdteOpenPositions,
     updateVolumeFromSubgraph,
+    zdteData,
     staticZdteData,
     updateUserZdteSpreadPositions,
-    isLoading,
   } = useBoundStore();
 
   useEffect(() => {
@@ -74,13 +74,6 @@ const Zdte = ({ zdte }: Props) => {
     return () => clearInterval(interval);
   }, [updateAll]);
 
-  const chart = useMemo(() => {
-    if (isLoading || !staticZdteData || !selectedPoolName) {
-      return <Loading />;
-    }
-    return <ZdteDexScreenerChart poolName={selectedPoolName} />;
-  }, [staticZdteData, selectedPoolName, isLoading]);
-
   return (
     <div className="bg-black min-h-screen">
       <AppBar />
@@ -90,7 +83,10 @@ const Zdte = ({ zdte }: Props) => {
             <TopBar />
           </div>
           <div className="lg:max-w-4xl md:max-w-3xl sm:max-w-2xl max-w-md mx-auto px-4 lg:px-0 space-y-6">
-            {chart}
+            <PriceChart
+              className={!zdteData || !staticZdteData ? 'hidden' : ''}
+              market={selectedPoolName.toUpperCase()}
+            />
           </div>
           <div className="mb-5 lg:max-w-4xl md:max-w-3xl md:m-0 sm:max-w-3xl max-w-md lg:mx-auto px-2 lg:px-0 flex-auto mx-auto">
             <OptionsTable />

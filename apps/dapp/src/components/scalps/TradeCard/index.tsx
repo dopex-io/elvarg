@@ -36,7 +36,7 @@ const TradeCard = () => {
   const sendTx = useSendTx();
 
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
-    BigNumber.from('0')
+    BigNumber.from('0'),
   );
 
   const [selectedTimeWindow, setSelectedTimeWindow] = useState<string>('30m');
@@ -104,7 +104,7 @@ const TradeCard = () => {
       return BigNumber.from('0');
     return utils.parseUnits(
       (positionDetails.marginInQuote * leverage).toFixed(5),
-      optionScalpData?.quoteDecimals?.toNumber()!
+      optionScalpData?.quoteDecimals?.toNumber()!,
     );
   }, [positionDetails.marginInQuote, leverage, optionScalpData]);
 
@@ -126,7 +126,7 @@ const TradeCard = () => {
         await optionScalpData.optionScalpContract.calcPremium(
           optionScalpData?.markPrice!,
           posSize,
-          seconds[selectedTimeWindow]
+          seconds[selectedTimeWindow],
         );
       setPremium(estimatedPremium);
     } catch (e) {
@@ -140,8 +140,8 @@ const TradeCard = () => {
     const _markPrice = Number(
       utils.formatUnits(
         optionScalpData?.markPrice!,
-        optionScalpData?.quoteDecimals?.toNumber()!
-      )
+        optionScalpData?.quoteDecimals?.toNumber()!,
+      ),
     );
 
     let tick = Math.round(Math.log(_markPrice) / Math.log(1.0001) / 10) * 10;
@@ -162,7 +162,7 @@ const TradeCard = () => {
       Number(rawLimitPrice) *
       10 **
         (optionScalpData?.quoteDecimals?.toNumber() -
-          optionScalpData?.baseDecimals!.toNumber());
+          optionScalpData?.baseDecimals?.toNumber());
 
     let tick0;
     let tick1;
@@ -192,10 +192,10 @@ const TradeCard = () => {
     (e: { target: { value: React.SetStateAction<string | number> } }) => {
       if (parseFloat(String(e.target.value)) < 0) return;
       setRawAmount(
-        String(e.target.value) === '' ? '0' : String(e.target.value)
+        String(e.target.value) === '' ? '0' : String(e.target.value),
       );
     },
-    []
+    [],
   );
 
   const limitError = useMemo(() => {
@@ -204,8 +204,8 @@ const TradeCard = () => {
     const _markPrice = Number(
       utils.formatUnits(
         optionScalpData?.markPrice!,
-        optionScalpData?.quoteDecimals?.toNumber()!
-      )
+        optionScalpData?.quoteDecimals?.toNumber()!,
+      ),
     );
 
     const _limitPrice = Number(rawLimitPrice);
@@ -240,8 +240,8 @@ const TradeCard = () => {
     const _maxSize = Number(
       utils.formatUnits(
         optionScalpData?.maxSize!,
-        optionScalpData?.quoteDecimals?.toNumber()!
-      )
+        optionScalpData?.quoteDecimals?.toNumber()!,
+      ),
     );
 
     if (!approved) _props.text = 'Approve';
@@ -263,8 +263,8 @@ const TradeCard = () => {
       Number(
         utils.formatUnits(
           userTokenBalance,
-          optionScalpData?.quoteDecimals?.toNumber()!
-        )
+          optionScalpData?.quoteDecimals?.toNumber()!,
+        ),
       )
     ) {
       _props.disabled = true;
@@ -276,14 +276,14 @@ const TradeCard = () => {
       utils
         .parseUnits(
           String(positionDetails.sizeInQuote),
-          optionScalpData?.quoteDecimals?.toNumber()
+          optionScalpData?.quoteDecimals?.toNumber(),
         )
         .gt(
           isShort
             ? optionScalpData
                 ?.totalBaseAvailable!.mul(markPrice)
                 .div(10 ** optionScalpData?.quoteDecimals?.toNumber())
-            : optionScalpData?.totalQuoteAvailable!
+            : optionScalpData?.totalQuoteAvailable!,
         )
     ) {
       _props.disabled = true;
@@ -309,11 +309,11 @@ const TradeCard = () => {
     const price = Number(
       utils.formatUnits(
         optionScalpData?.markPrice!,
-        optionScalpData?.quoteDecimals?.toNumber()!
-      )
+        optionScalpData?.quoteDecimals?.toNumber()!,
+      ),
     );
     const size = Number(
-      utils.formatUnits(posSize!, optionScalpData?.quoteDecimals?.toNumber()!)
+      utils.formatUnits(posSize!, optionScalpData?.quoteDecimals?.toNumber()!),
     );
 
     const positions = size / price;
@@ -322,8 +322,8 @@ const TradeCard = () => {
       const minAbsThreshold = Number(
         utils.formatUnits(
           optionScalpData?.minimumAbsoluteLiquidationThreshold!,
-          optionScalpData?.quoteDecimals?.toNumber()!
-        )
+          optionScalpData?.quoteDecimals?.toNumber()!,
+        ),
       );
 
       const variation =
@@ -363,7 +363,7 @@ const TradeCard = () => {
       await sendTx(
         ERC20__factory.connect(
           contractAddresses[optionScalpData.quoteSymbol!],
-          signer
+          signer,
         ),
         'approve',
         [
@@ -371,7 +371,7 @@ const TradeCard = () => {
             ? optionScalpData?.limitOrdersContract?.address
             : optionScalpData?.optionScalpContract?.address,
           MAX_VALUE,
-        ]
+        ],
       );
       setApproved(true);
     } catch (err) {
@@ -410,12 +410,12 @@ const TradeCard = () => {
             timeframeIndex,
             utils.parseUnits(
               positionDetails.marginInQuote.toFixed(5),
-              optionScalpData?.quoteDecimals?.toNumber()
+              optionScalpData?.quoteDecimals?.toNumber(),
             ),
             entryLimit,
-          ]
+          ],
         ).then(() =>
-          updateOptionScalp().then(() => updateOptionScalpUserData())
+          updateOptionScalp().then(() => updateOptionScalpUserData()),
         );
       } catch (err) {
         console.log(err);
@@ -450,13 +450,13 @@ const TradeCard = () => {
             timeframeIndex,
             utils.parseUnits(
               positionDetails.marginInQuote.toFixed(5),
-              optionScalpData?.quoteDecimals?.toNumber()
+              optionScalpData?.quoteDecimals?.toNumber(),
             ), // margin + fees + premium
             tick0,
             tick1,
-          ]
+          ],
         ).then(() =>
-          updateOptionScalp().then(() => updateOptionScalpUserData())
+          updateOptionScalp().then(() => updateOptionScalpUserData()),
         );
       } catch (err) {
         console.log(err);
@@ -478,8 +478,6 @@ const TradeCard = () => {
     isShort,
   ]);
 
-  const handleMax = useCallback(() => {}, []);
-
   // Updates approved state and user balance
   useEffect(() => {
     (async () => {
@@ -493,17 +491,17 @@ const TradeCard = () => {
 
       const finalAmount: BigNumber = utils.parseUnits(
         positionDetails.marginInQuote.toFixed(5),
-        optionScalpData?.quoteDecimals?.toNumber()!
+        optionScalpData?.quoteDecimals?.toNumber()!,
       );
       const token = ERC20__factory.connect(
         contractAddresses[optionScalpData.quoteSymbol!],
-        signer
+        signer,
       );
       const allowance: BigNumber = await token.allowance(
         accountAddress,
         orderType === 'Limit'
           ? optionScalpData?.limitOrdersContract?.address
-          : optionScalpData?.optionScalpContract?.address
+          : optionScalpData?.optionScalpContract?.address,
       );
 
       const balance: BigNumber = await token.balanceOf(accountAddress);
@@ -537,8 +535,8 @@ const TradeCard = () => {
         Number(
           utils.formatUnits(
             posSize,
-            optionScalpData?.quoteDecimals?.toNumber()!
-          )
+            optionScalpData?.quoteDecimals?.toNumber()!,
+          ),
         ) * Number(utils.formatUnits(optionScalpData?.feeOpenPosition!, 10));
 
       let _premium: number = 0;
@@ -547,16 +545,16 @@ const TradeCard = () => {
           (_premium = Number(
             utils.formatUnits(
               premium,
-              optionScalpData?.quoteDecimals?.toNumber()!
-            )
-          ))
+              optionScalpData?.quoteDecimals?.toNumber()!,
+            ),
+          )),
       );
 
       const balance = Number(
         utils.formatUnits(
           userTokenBalance,
-          optionScalpData?.quoteDecimals?.toNumber()!
-        )
+          optionScalpData?.quoteDecimals?.toNumber()!,
+        ),
       );
 
       const price = showAsQuote ? 1 : Number(markPrice) / 1e6;
@@ -567,7 +565,7 @@ const TradeCard = () => {
         (
           (((balance - _premium - fee) / price) * leverage * option) /
           100
-        ).toFixed(5)
+        ).toFixed(5),
       );
     },
     [
@@ -578,15 +576,13 @@ const TradeCard = () => {
       premium,
       posSize,
       calcPremium,
-    ]
+    ],
   );
 
   return (
-    <div className="px-4 pb-4 pt-5 min-w-[24.5rem]">
-      <div className="w-full flex items-center justify-center px-3 mb-4">
-        <p className="text-xs text-stieglitz mr-2 ml-auto">
-          Open with a limit order
-        </p>
+    <div className="flex flex-col space-y-4 bg-cod-gray rounded-b-md">
+      <div className="flex items-center justify-end p-2 pb-0">
+        <p className="text-xs text-stieglitz">Open with a limit order</p>
         <Checkbox
           // @ts-ignore
           size="xs"
@@ -597,14 +593,14 @@ const TradeCard = () => {
           onChange={handleOrderTypeToggle}
         />
       </div>
-      <div className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
-        <div className="flex flex-row justify-between mt-0.5">
-          <div className="bg-cod-gray rounded-full pl-1 pr-1 flex pb-2 flex-row items-center">
+      <div className="bg-cod-gray rounded-2xl flex flex-col pr-2">
+        <div className="flex flex-row justify-between">
+          <div className="bg-umbra rounded-full pl-1 pr-1 flex pb-2 flex-row items-center">
             <div className="flex flex-row w-auto p-1 pl-3 pr-2">
               <p
                 className={cx(
                   'text-[0.8rem] mt-1 cursor-pointer hover:opacity-50',
-                  !isShort ? 'text-green-300' : 'text-stieglitz'
+                  !isShort ? 'text-green-300' : 'text-stieglitz',
                 )}
                 onClick={() => setIsShort(false)}
               >
@@ -615,7 +611,7 @@ const TradeCard = () => {
               <p
                 className={cx(
                   'text-[0.8rem] mt-1 cursor-pointer hover:opacity-50',
-                  isShort ? 'text-red-400' : 'text-stieglitz'
+                  isShort ? 'text-red-400' : 'text-stieglitz',
                 )}
                 onClick={() => setIsShort(true)}
               >
@@ -655,9 +651,9 @@ const TradeCard = () => {
                 Number(
                   utils.formatUnits(
                     markPrice,
-                    optionScalpData?.quoteDecimals?.toNumber()!
-                  )
-                )
+                    optionScalpData?.quoteDecimals?.toNumber()!,
+                  ),
+                ),
               )}
               value={rawLimitPrice}
               onChange={(e: {
@@ -672,26 +668,20 @@ const TradeCard = () => {
           </div>
         ) : null}
       </div>
-      <div className="flex mb-4">
+      <div className="grid grid-flow-col grid-cols-4 grid-rows-2">
         {['1m', '5m', '15m', '30m', '60m', '2h', '4h'].map((time, i) => (
           <div
             key={i}
-            className={
-              (i === 0
-                ? 'ml-auto mr-1.5'
-                : i === 6
-                ? 'mr-auto ml-1.5'
-                : 'mx-1.5') +
-              (time === selectedTimeWindow ? ' bg-mineshaft' : ' bg-umbra') +
-              ` text-center w-auto p-2 border-[1px] border-[#1E1E1E] rounded-md cursor-pointer group hover:bg-mineshaft hover:opacity-80`
-            }
+            className={`${
+              time === selectedTimeWindow ? ' bg-mineshaft' : 'bg-umbra'
+            } text-center m-1 px-2 py-1 border border-umbra rounded-md cursor-pointer hover:bg-mineshaft hover:opacity-80`}
             onClick={() => setSelectedTimeWindow(time)}
           >
             <h6 className="text-xs font-normal">{time}</h6>
           </div>
         ))}
       </div>
-      <div className="bg-umbra rounded-2xl flex flex-col mb-4 p-3 pr-2">
+      <div className="bg-umbra rounded-2xl flex flex-col p-3 pr-2">
         <div className="flex flex-row justify-between">
           <div>
             <h6 className="text-stieglitz text-sm pl-1 pr-3 text-[0.8rem]">
@@ -717,12 +707,12 @@ const TradeCard = () => {
         </div>
       </div>
       <div className="bg-umbra rounded-2xl">
-        <div className="flex flex-col mb-4 p-4 w-full">
-          <div className={'flex mb-2'}>
+        <div className="flex flex-col p-4 w-full">
+          <div className="flex mb-2">
             <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
               Available Liquidity
             </h6>
-            <div className={'text-right'}>
+            <div className="text-right">
               <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
                 {formatAmount(
                   Number(
@@ -736,10 +726,10 @@ const TradeCard = () => {
                               .div(markPrice.isZero() ? 1 : markPrice),
                       isShort
                         ? optionScalpData?.baseDecimals?.toNumber()!
-                        : optionScalpData?.quoteDecimals?.toNumber()!
-                    )
+                        : optionScalpData?.quoteDecimals?.toNumber()!,
+                    ),
                   ),
-                  2
+                  2,
                 )}{' '}
                 {isShort
                   ? optionScalpData?.baseSymbol!
@@ -759,10 +749,10 @@ const TradeCard = () => {
                   Number(
                     utils.formatUnits(
                       userTokenBalance,
-                      optionScalpData?.quoteDecimals?.toNumber()!
-                    )
+                      optionScalpData?.quoteDecimals?.toNumber()!,
+                    ),
                   ),
-                  3
+                  3,
                 )}{' '}
                 {optionScalpData?.quoteSymbol === 'USDC'
                   ? 'USDC.e'
@@ -793,10 +783,10 @@ const TradeCard = () => {
                   Number(
                     utils.formatUnits(
                       premium,
-                      optionScalpData?.quoteDecimals?.toNumber()!
-                    )
+                      optionScalpData?.quoteDecimals?.toNumber()!,
+                    ),
                   ),
-                  2
+                  2,
                 )}{' '}
                 {optionScalpData?.quoteSymbol === 'USDC'
                   ? 'USDC.e'
@@ -816,16 +806,16 @@ const TradeCard = () => {
                         Number(
                           utils.formatUnits(
                             posSize,
-                            optionScalpData?.quoteDecimals?.toNumber()!
-                          )
+                            optionScalpData?.quoteDecimals?.toNumber()!,
+                          ),
                         ) *
                           Number(
                             utils.formatUnits(
                               optionScalpData?.feeOpenPosition!,
-                              10
-                            )
+                              10,
+                            ),
                           ),
-                        2
+                        2,
                       )
                     : 0}{' '}
                   {optionScalpData?.quoteSymbol === 'USDC'
