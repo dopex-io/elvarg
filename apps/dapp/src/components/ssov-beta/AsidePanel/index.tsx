@@ -522,7 +522,7 @@ const AsidePanel = ({ market }: { market: string }) => {
           <div className="flex flex-col bg-umbra rounded-md p-3 space-y-3">
             <RowItem label="Side" content={panelData.side} />
             <RowItem
-              label="Epoch"
+              label="Epoch Start"
               content={<p>{panelData.epochStartTime}</p>}
             />
             <RowItem
