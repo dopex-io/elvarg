@@ -1,0 +1,8 @@
+{
+  "infoBox": {
+    "header": "What are CLAMMs?",
+    "description": "Dopex Option AMM allowing users to long/short options with portfolio margin and partial collateralization.",
+    "url": "https://docs.dopex.io/products/clamm",
+    "buttonLabel": "Learn More"
+  }
+}

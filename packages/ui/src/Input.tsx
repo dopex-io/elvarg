@@ -12,7 +12,7 @@ export interface InputProps
   rightElement?: ReactNode;
   variant?: string;
   color?: string;
-  outline?: 'mineshaft' | 'down-bad' | 'umbra';
+  outline?: 'mineshaft' | 'down-bad' | 'umbra' | 'cod-gray';
   placeholder?: string;
   onChange:
     | ReactEventHandler
