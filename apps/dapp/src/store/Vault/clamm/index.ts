@@ -1,5 +1,6 @@
 import { Address, formatUnits } from 'viem';
 
+import axios from 'axios';
 import { StateCreator } from 'zustand';
 
 import { WalletSlice } from 'store/Wallet';
@@ -8,6 +9,7 @@ import generateStrikes from 'utils/clamm/generateStrikes';
 
 import { MARKETS } from 'constants/clamm/markets';
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, ZERO_ADDRESS } from 'constants/index';
+import { TOKEN_DATA } from 'constants/tokens';
 
 import { CommonSlice } from '../common';
 
@@ -66,7 +68,6 @@ export interface ClammSlice {
   updateIsTrade: Function;
   updateMaxOtmPercentage: Function;
   updateStep: Function;
-  updateUniswapPoolContract: Function;
   updateUserAddress: Function;
 
   // state
@@ -113,7 +114,7 @@ export const createClammSlice: StateCreator<
     ]);
   },
   updateTokenDeps: async () => {
-    get().updateStep();
+    // get().updateStep();
     get().updateClammMarkPrice();
     get().updateClammStrikesData();
     get().updateBuyPositions();
@@ -121,14 +122,26 @@ export const createClammSlice: StateCreator<
   },
   updateClammMarkPrice: async () => {
     const tokenA = get().tokenA;
-    const tokenToPrice: { [key: string]: number } = {
-      ARB: 0.98,
-      '42069inu': 1800,
-    };
-    set((prevState) => ({
-      ...prevState,
-      clammMarkPrice: tokenToPrice[tokenA],
-    }));
+    let currentPrice = 0;
+
+    const tokenId = TOKEN_DATA[tokenA].cgId;
+    if (tokenId) {
+      try {
+        axios
+          .get(
+            `https://api.coingecko.com/api/v3/simple/price?ids=${tokenId}&vs_currencies=usd`,
+          )
+          .then(async (payload) => {
+            currentPrice = payload.data[tokenId].usd;
+            set((prevState) => ({
+              ...prevState,
+              clammMarkPrice: currentPrice,
+            }));
+          });
+      } catch (e) {
+        console.log(e);
+      }
+    }
   },
   updateClammOpenInterest: async () => {
     set((prevState) => ({
@@ -182,8 +195,8 @@ export const createClammSlice: StateCreator<
   maxOtmPercentage: 0,
   clammStrikesData: [],
   updateClammStrikesData: async () => {
-    const markPrice = get().clammMarkPrice;
-    get().updateSelectedStrike(markPrice);
+    // const markPrice = get().clammMarkPrice;
+    // get().updateSelectedStrike(markPrice);
     const collateralToken = MARKETS[get().tokenA];
     const isPut = get().isPut;
 
@@ -193,6 +206,11 @@ export const createClammSlice: StateCreator<
         clammStrikesData: [],
       }));
       return;
+    } else {
+      set((prevState) => ({
+        ...prevState,
+        uniswapPoolContract: collateralToken?.uniswapPoolAddress as Address,
+      }));
     }
 
     const strikes = await generateStrikes(
@@ -335,15 +353,6 @@ export const createClammSlice: StateCreator<
     }));
   },
   uniswapPoolContract: ZERO_ADDRESS as Address,
-  updateUniswapPoolContract: (address: Address | undefined) => {
-    if (!address) {
-      return;
-    }
-    set((prevState) => ({
-      ...prevState,
-      uniswapPoolContract: address,
-    }));
-  },
   userAddress: ZERO_ADDRESS as Address,
   updateUserAddress: (userAddress: Address) => {
     set((prevState) => ({
