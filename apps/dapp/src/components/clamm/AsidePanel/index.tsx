@@ -309,6 +309,48 @@ const AsidePanel = () => {
           labels={['Trade', 'Liquidity Provision']}
           handleClick={handleTradeOrLp}
         />
+        <div className="flex border border-[#1E1E1E] bg-[#1E1E1E] rounded-md p-2 gap-3">
+          <div className="flex-1">
+            <span className="text-stieglitz text-sm">Side</span>
+            <BgButtonGroup
+              active={isPut ? 1 : 0}
+              labels={['Call', 'Put']}
+              handleClick={handleIsPut}
+            />
+          </div>
+        </div>
+        <div className="mt-2">
+          {isManualInput ? (
+            <div className="relative p-1">
+              <span className="absolute top-1/2 transform -translate-y-1/2 text-stieglitz text-sm left-2">
+                $
+              </span>
+              <input
+                placeholder="0.0"
+                type="number"
+                className="text-sm text-white rounded-md w-full border border-carbon text-right bg-cod-gray p-1 pr-2"
+                value={selectedStrike}
+                onChange={handleManualStrikeAmount}
+                disabled
+              />
+            </div>
+          ) : (
+            <Menu
+              color="mineshaft"
+              dropdownVariant="icon"
+              handleSelection={handleSelectStrikePrice}
+              selection={
+                <span className="text-sm text-white flex">
+                  <p className="text-stieglitz inline mr-1">$</p>
+                  {formatAmount(selectedStrike, 3)}
+                </span>
+              }
+              data={clammStrikes}
+              className="w-full"
+              showArrow
+            />
+          )}
+        </div>
         <Input
           variant="xl"
           type="number"
@@ -346,16 +388,7 @@ const AsidePanel = () => {
             </div>
           </div>
         ) : null}
-        <div className="flex border border-[#1E1E1E] bg-[#1E1E1E] rounded-md p-2 gap-3">
-          <div className="flex-1">
-            <span className="text-stieglitz text-sm">Side</span>
-            <BgButtonGroup
-              active={isPut ? 1 : 0}
-              labels={['Call', 'Put']}
-              handleClick={handleIsPut}
-            />
-          </div>
-        </div>
+
         <div className="border border-[#1E1E1E] bg-[#1E1E1E] rounded-md p-2">
           <div className="flex justify-between">
             <span className="text-stieglitz text-sm">Strike</span>
@@ -371,38 +404,6 @@ const AsidePanel = () => {
                 </button>
               )} */}
             </div>
-          </div>
-          <div className="mt-2">
-            {isManualInput ? (
-              <div className="relative p-1">
-                <span className="absolute top-1/2 transform -translate-y-1/2 text-stieglitz text-sm left-2">
-                  $
-                </span>
-                <input
-                  placeholder="0.0"
-                  type="number"
-                  className="text-sm text-white rounded-md w-full border border-carbon text-right bg-cod-gray p-1 pr-2"
-                  value={selectedStrike}
-                  onChange={handleManualStrikeAmount}
-                  disabled
-                />
-              </div>
-            ) : (
-              <Menu
-                color="mineshaft"
-                dropdownVariant="icon"
-                handleSelection={handleSelectStrikePrice}
-                selection={
-                  <span className="text-sm text-white flex">
-                    <p className="text-stieglitz inline mr-1">$</p>
-                    {formatAmount(selectedStrike, 3)}
-                  </span>
-                }
-                data={clammStrikes}
-                className="w-full"
-                showArrow
-              />
-            )}
           </div>
         </div>
         <div className="border border-[#1E1E1E] bg-[#1E1E1E] rounded-md p-2 space-y-2">
