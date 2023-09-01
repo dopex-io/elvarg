@@ -50,7 +50,6 @@ export interface ClammSlice {
   updateClammOpenInterest: Function;
   updateClammTotalVolume: Function;
   updateTokenA: Function;
-  updateOptionPoolsContract: Function;
   updatePositionManagerContract: Function;
   updateIsPut: Function;
   updateTokenDeps: Function;
@@ -63,6 +62,7 @@ export interface ClammSlice {
   updateMaxOtmPercentage: Function;
   updateStep: Function;
   updateUniswapPoolContract: Function;
+  updateUserAddress: Function;
 
   // state
   clammMarkPrice: number;
@@ -83,6 +83,7 @@ export interface ClammSlice {
   isTrade: boolean;
   step: number;
   maxOtmPercentage: number;
+  userAddress: Address;
 }
 
 export const createClammSlice: StateCreator<
@@ -102,8 +103,8 @@ export const createClammSlice: StateCreator<
       get().updateMaxOtmPercentage(),
       get().updateStep(),
       get().updatePositionManagerContract(),
-      get().updateOptionPoolsContract(),
-      get().updateUniswapPoolContract(),
+      // get().updateOptionPoolsContract(),
+      // get().updateUniswapPoolContract(),
     ]);
   },
   updateTokenDeps: async () => {
@@ -211,13 +212,6 @@ export const createClammSlice: StateCreator<
       }));
     }
   },
-  updateOptionPoolsContract: async () => {
-    set((prevState) => ({
-      ...prevState,
-      optionPoolsContract:
-        '0xDF3d96299275E2Fb40124b8Ad9d270acFDcc6148' as Address,
-    }));
-  },
   updatePositionManagerContract: async () => {
     set((prevState) => ({
       ...prevState,
@@ -238,6 +232,21 @@ export const createClammSlice: StateCreator<
   selectedStrike: 0,
   updateWritePositions: async () => {
     const tokenA = get().tokenA;
+    const user = get().userAddress;
+
+    // const ssovQueryResult = await queryClient.fetchQuery({
+    //   queryKey: ['getSsovUserData'],
+    //   queryFn: async () =>
+    //     request(DOPEX_SSOV_SUBGRAPH_API_URL, getSsovUserDataDocument, {
+    //       user: user.toLowerCase(),
+    //     }),
+    // });
+    // const data = ssovQueryResult['users'][0];
+
+    // for (let i in data?.userSSOVDeposit) {
+
+    // }
+
     const positions: ClammWritePosition[] = [
       {
         strikeSymbol: 'ARB',
@@ -320,7 +329,16 @@ export const createClammSlice: StateCreator<
       uniswapPoolContract: ZERO_ADDRESS as Address,
     }));
   },
+  userAddress: ZERO_ADDRESS as Address,
+  updateUserAddress: (userAddress: Address) => {
+    set((prevState) => ({
+      ...prevState,
+      userAddress: userAddress,
+    }));
+  },
 });
+
+// END
 
 function generateCallStrikesData({
   strikes,

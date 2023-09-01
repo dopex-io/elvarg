@@ -15,6 +15,9 @@ const DOPEX_OPTION_SCALPS_SUBGRAPH_API_URL =
 const DOPEX_ZDTE_SUBGRAPH_API_URL =
   'https://api.thegraph.com/subgraphs/name/garyunwin42/zdte';
 
+const DOPEX_CLAMM_SUBGRAPH_API_URL =
+  'https://api.thegraph.com/subgraphs/name/garyunwin42/clamm';
+
 const config: CodegenConfig = {
   generates: {
     './src/gql/straddles/': {
@@ -42,6 +45,11 @@ const config: CodegenConfig = {
       documents: ['src/graphql/zdte/*.ts'],
       preset: 'client',
     },
+    // './src/gql/clamm/': {
+    //   schema: DOPEX_CLAMM_SUBGRAPH_API_URL,
+    //   documents: ['src/graphql/clamm/*.ts'],
+    //   preset: 'client',
+    // },
   },
 };
 
