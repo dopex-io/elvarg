@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { PositionsManager__factory } from '@dopex-io/sdk';
 import { Button } from '@dopex-io/ui';
@@ -82,20 +82,19 @@ const columns = [
   }),
 ];
 
+type BurnPositionProps = Pick<
+  ClammWritePosition,
+  'tickLower' | 'tickUpper' | 'size'
+>;
+
 const WritePositions = ({
   writePositions,
 }: {
   writePositions: ClammWritePosition[];
 }) => {
   const { positionManagerContract, uniswapPoolContract } = useBoundStore();
+  const [selectedPosition, setSelectedPosition] = useState<BurnPositionProps>();
 
-  // IUniswapV3Pool pool;
-  // int24 tickLower;
-  // int24 tickUpper;
-  // uint256 shares;
-  const tickLower = 2299; // TODO: any decimals?
-  const tickUpper = 2302;
-  const shares = 0;
   const { config: burnPositionConfig } = usePrepareContractWrite({
     abi: PositionsManager__factory.abi,
     address: positionManagerContract,
@@ -103,9 +102,9 @@ const WritePositions = ({
     args: [
       {
         pool: uniswapPoolContract,
-        tickLower: tickLower,
-        tickUpper: tickUpper,
-        shares: BigInt(shares),
+        tickLower: selectedPosition?.tickLower || 0,
+        tickUpper: selectedPosition?.tickUpper || 0,
+        shares: BigInt(selectedPosition?.size || 0),
       },
     ],
   });
@@ -115,7 +114,11 @@ const WritePositions = ({
   const handleBurn = useCallback(
     (index: number) => {
       if (!writePositions) return;
-      // const writePosition = writePositions[index];
+      setSelectedPosition({
+        tickLower: writePositions[index].tickLower,
+        tickUpper: writePositions[index].tickUpper,
+        size: writePositions[index].size,
+      });
       burnPosition?.();
     },
     [burnPosition, writePositions],
