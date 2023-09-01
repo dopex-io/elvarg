@@ -195,7 +195,6 @@ export const createClammSlice: StateCreator<
   maxOtmPercentage: 0,
   clammStrikesData: [],
   updateClammStrikesData: async () => {
-    // const markPrice = get().clammMarkPrice;
     // get().updateSelectedStrike(markPrice);
     const collateralToken = MARKETS[get().tokenA];
     const isPut = get().isPut;
@@ -218,22 +217,20 @@ export const createClammSlice: StateCreator<
       10,
       isPut,
     );
+    get().updateSelectedStrike(strikes[0]);
 
-    if (isPut) {
-      set((prevState) => ({
-        ...prevState,
-        clammStrikesData: generatePutStrikesData({
+    const strikesData = isPut
+      ? generatePutStrikesData({
           strikes: strikes,
-        }),
-      }));
-    } else {
-      set((prevState) => ({
-        ...prevState,
-        clammStrikesData: generateCallStrikesData({
+        })
+      : generateCallStrikesData({
           strikes: strikes,
-        }),
-      }));
-    }
+        });
+
+    set((prevState) => ({
+      ...prevState,
+      clammStrikesData: strikesData,
+    }));
   },
   updatePositionManagerContract: async () => {
     set((prevState) => ({
