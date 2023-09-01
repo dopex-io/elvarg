@@ -23,19 +23,15 @@ export function TitleBar() {
     tokenA,
     updateTokenA,
     updateTokenDeps,
-    updateUniswapPoolContract,
   } = useBoundStore();
 
   useEffect(() => {
     const { tokenA: tokenASymbol } = router.query;
     if (tokenASymbol) {
       updateTokenA(tokenASymbol as string);
-      updateUniswapPoolContract(
-        MARKETS[tokenASymbol as string].uniswapPoolAddress,
-      );
       updateTokenDeps();
     }
-  }, [router, updateTokenA, updateTokenDeps, updateUniswapPoolContract]);
+  }, [router, updateTokenA, updateTokenDeps]);
 
   const handleSelectedPair = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
