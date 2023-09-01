@@ -65,6 +65,7 @@ export const CHAINS: {
       USDT: 6,
       USDC: 6,
       WETH: 18,
+      ARB: 18,
     },
     displayTokens: ['ETH', 'DPX', 'RDPX'],
   },
