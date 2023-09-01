@@ -110,7 +110,6 @@ const WritePositions = ({
   });
   const { write: burnPosition } = useContractWrite(burnPositionConfig);
 
-  // TODO: how to burn based on ID?
   const handleBurn = useCallback(
     (index: number) => {
       if (!writePositions) return;
