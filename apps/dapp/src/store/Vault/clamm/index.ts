@@ -30,6 +30,8 @@ export interface ClammStrikeData {
 export interface ClammBuyPosition {
   strikeSymbol: string;
   strike: number;
+  tickLower: number;
+  tickUpper: number;
   size: number;
   isPut: boolean;
 }
@@ -37,6 +39,8 @@ export interface ClammBuyPosition {
 export interface ClammWritePosition {
   strikeSymbol: string;
   strike: number;
+  tickLower: number;
+  tickUpper: number;
   size: number;
   isPut: boolean;
   tokenId: number;
@@ -251,6 +255,8 @@ export const createClammSlice: StateCreator<
       {
         strikeSymbol: 'ARB',
         strike: Number(formatUnits(BigInt(123456789), DECIMALS_STRIKE)),
+        tickLower: 0,
+        tickUpper: 0,
         size: Number(
           formatUnits(BigInt(Math.pow(10, 18) * 13), DECIMALS_TOKEN),
         ),
@@ -266,6 +272,8 @@ export const createClammSlice: StateCreator<
       {
         strikeSymbol: '42069inu',
         strike: Number(formatUnits(BigInt(123456789), DECIMALS_STRIKE)),
+        tickLower: 0,
+        tickUpper: 0,
         size: Number(
           formatUnits(BigInt(Math.pow(10, 18) * 13), DECIMALS_TOKEN),
         ),
@@ -296,6 +304,8 @@ export const createClammSlice: StateCreator<
         size: Number(
           formatUnits(BigInt(Math.pow(10, 18) * 13), DECIMALS_TOKEN),
         ),
+        tickLower: 0,
+        tickUpper: 0,
         isPut: false,
       },
     ];
@@ -323,10 +333,13 @@ export const createClammSlice: StateCreator<
     }));
   },
   uniswapPoolContract: ZERO_ADDRESS as Address,
-  updateUniswapPoolContract: () => {
+  updateUniswapPoolContract: (address: Address | undefined) => {
+    if (!address) {
+      return;
+    }
     set((prevState) => ({
       ...prevState,
-      uniswapPoolContract: ZERO_ADDRESS as Address,
+      uniswapPoolContract: address,
     }));
   },
   userAddress: ZERO_ADDRESS as Address,
