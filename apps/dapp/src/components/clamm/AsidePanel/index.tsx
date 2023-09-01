@@ -319,6 +319,23 @@ const AsidePanel = () => {
             />
           </div>
         </div>
+        <div className="border border-[#1E1E1E] bg-[#1E1E1E] rounded-md p-2">
+          <div className="flex justify-between">
+            <span className="text-stieglitz text-sm">Strike</span>
+            <div className="-mt-1">
+              {/* {isManualInput ? (
+                <button onClick={() => setIsManualInput(false)}>
+                  <span className="text-sm text-[#22E1FF]">Select Strike</span>
+                </button>
+              ) : (
+                // TODO: disable manual input for MVP
+                <button onClick={() => setIsManualInput(true)} disabled>
+                  <span className="text-sm text-[#22E1FF]">Manual Input</span>
+                </button>
+              )} */}
+            </div>
+          </div>
+        </div>
         <div className="mt-2">
           {isManualInput ? (
             <div className="relative p-1">
@@ -388,24 +405,6 @@ const AsidePanel = () => {
             </div>
           </div>
         ) : null}
-
-        <div className="border border-[#1E1E1E] bg-[#1E1E1E] rounded-md p-2">
-          <div className="flex justify-between">
-            <span className="text-stieglitz text-sm">Strike</span>
-            <div className="-mt-1">
-              {/* {isManualInput ? (
-                <button onClick={() => setIsManualInput(false)}>
-                  <span className="text-sm text-[#22E1FF]">Select Strike</span>
-                </button>
-              ) : (
-                // TODO: disable manual input for MVP
-                <button onClick={() => setIsManualInput(true)} disabled>
-                  <span className="text-sm text-[#22E1FF]">Manual Input</span>
-                </button>
-              )} */}
-            </div>
-          </div>
-        </div>
         <div className="border border-[#1E1E1E] bg-[#1E1E1E] rounded-md p-2 space-y-2">
           {tradeOrLpIndex === 0 ? (
             <>
