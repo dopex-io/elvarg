@@ -6,13 +6,13 @@ import { useAccount } from 'wagmi';
 import { useBoundStore } from 'store';
 
 import AsidePanel from 'components/clamm/AsidePanel';
-import ClammDexScreenerChart from 'components/clamm/ClammDexScreenerChart';
 import InfoBox from 'components/clamm/InfoBox';
 import Positions from 'components/clamm/Tables/Positions';
 import StrikesChain from 'components/clamm/Tables/StrikesChain';
 import { TitleBar } from 'components/clamm/TitleBar';
 import AppBar from 'components/common/AppBar';
 import PageLayout from 'components/common/PageLayout';
+import PriceChart from 'components/common/PriceChart';
 
 import seo from 'constants/seo';
 
@@ -36,10 +36,6 @@ const ClammPage = () => {
   //   }, 60000);
   //   return () => clearInterval(interval);
   // }, [updateAll]);
-
-  const chart = useMemo(() => {
-    return <ClammDexScreenerChart poolName="ARB" />;
-  }, []);
 
   return (
     <div className="overflow-x-hidden bg-black h-screen">
@@ -68,7 +64,7 @@ const ClammPage = () => {
         <div className="flex space-x-0 lg:space-x-6 flex-col sm:flex-col md:flex-col lg:flex-row space-y-3 md:space-y-0 justify-center">
           <div className="flex flex-col space-y-3 sm:w-full lg:w-3/4 h-full">
             {/* <PriceChartRangeSelectorWrapper /> */}
-            {chart}
+            <PriceChart market="ARB" />
             <div className="space-y-4">
               <StrikesChain />
               <Positions />
