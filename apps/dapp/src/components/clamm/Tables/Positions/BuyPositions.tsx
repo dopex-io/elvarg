@@ -1,5 +1,4 @@
-import { useCallback, useMemo } from 'react';
-import { formatUnits } from 'viem';
+import { useCallback, useMemo, useState } from 'react';
 
 import { OptionPools__factory } from '@dopex-io/sdk';
 import { Button } from '@dopex-io/ui';
@@ -14,8 +13,6 @@ import TableLayout from 'components/common/TableLayout';
 
 import { formatAmount } from 'utils/general';
 import computeOptionPnl from 'utils/math/computeOptionPnl';
-
-import { DECIMALS_STRIKE } from 'constants/index';
 
 interface BuyPositionData {
   strikeSymbol: string;
@@ -87,6 +84,11 @@ const columns = [
   }),
 ];
 
+type ExercisePositionProps = Pick<
+  ClammBuyPosition,
+  'optionId' | 'tickLower' | 'tickUpper' | 'size'
+>;
+
 const BuyPositions = ({
   buyPositions,
 }: {
@@ -94,27 +96,20 @@ const BuyPositions = ({
 }) => {
   const { clammMarkPrice, uniswapPoolContract, optionPoolsContract } =
     useBoundStore();
+  const [selectedPosition, setSelectedPosition] =
+    useState<ExercisePositionProps>();
 
-  // uint256 optionId;
-  // IUniswapV3Pool pool;
-  // int24 tickLower;
-  // int24 tickUpper;
-  // uint256 amountToExercise;
-  const tickLower = 2299; // TODO: any decimals?
-  const tickUpper = 2302;
-  const amountToExercise = 0;
-  const optionId = 0;
   const { config: exerciseOptionConfig } = usePrepareContractWrite({
     abi: OptionPools__factory.abi,
     address: optionPoolsContract,
     functionName: 'exerciseOption',
     args: [
       {
-        optionId: BigInt(optionId),
+        optionId: BigInt(selectedPosition?.optionId || '0x0'),
         pool: uniswapPoolContract,
-        tickLower: tickLower,
-        tickUpper: tickUpper,
-        amountToExercise: BigInt(amountToExercise),
+        tickLower: selectedPosition?.tickLower || 0,
+        tickUpper: selectedPosition?.tickUpper || 0,
+        amountToExercise: BigInt(selectedPosition?.size || 0),
       },
     ],
   });
@@ -122,9 +117,16 @@ const BuyPositions = ({
 
   const handleExercise = useCallback(
     (index: number) => {
+      if (!buyPositions) return;
+      setSelectedPosition({
+        tickLower: buyPositions[index].tickLower,
+        tickUpper: buyPositions[index].tickUpper,
+        size: buyPositions[index].size,
+        optionId: buyPositions[index].optionId,
+      });
       exerciseOption?.();
     },
-    [exerciseOption],
+    [exerciseOption, buyPositions],
   );
 
   const positions: BuyPositionData[] = useMemo(
