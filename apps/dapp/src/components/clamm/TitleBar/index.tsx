@@ -10,7 +10,7 @@ import TitleItem from 'components/ssov-beta/TitleBar/TitleItem';
 
 import { formatAmount } from 'utils/general';
 
-import { MARKETS_MENU } from 'constants/clamm/markets';
+import { MARKETS, MARKETS_MENU } from 'constants/clamm/markets';
 import { DECIMALS_TOKEN } from 'constants/index';
 
 export function TitleBar() {
@@ -23,15 +23,19 @@ export function TitleBar() {
     tokenA,
     updateTokenA,
     updateTokenDeps,
+    updateUniswapPoolContract,
   } = useBoundStore();
 
   useEffect(() => {
     const { tokenA: tokenASymbol } = router.query;
     if (tokenASymbol) {
       updateTokenA(tokenASymbol as string);
+      updateUniswapPoolContract(
+        MARKETS[tokenASymbol as string].uniswapPoolAddress,
+      );
       updateTokenDeps();
     }
-  }, [router, updateTokenA, updateTokenDeps]);
+  }, [router, updateTokenA, updateTokenDeps, updateUniswapPoolContract]);
 
   const handleSelectedPair = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
