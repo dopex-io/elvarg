@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import { Button /* Menu,*/, Disclosure, Skeleton } from '@dopex-io/ui';
 import { MinusCircleIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
@@ -34,7 +34,8 @@ interface StrikeItem {
     base: string;
     isPut: boolean;
     premiumPerOption: number;
-    strike: number;
+    activeStrikeIndex: number;
+    setActiveStrikeIndex: () => void;
   };
   chevron: null;
   disclosure: Partial<ClammStrikeData>;
@@ -107,14 +108,14 @@ const columns = [
 
       const approximationSymbol = value.premiumPerOption < 1 ? '~' : null;
 
-      const { selectedStrike, updateSelectedStrike } = useBoundStore();
-      const isActive = value.strike === selectedStrike;
+      const isActive = value.activeStrikeIndex === value.index;
+
       return (
         <div className="flex space-x-2 justify-end">
           <Button
             id={`strike-chain-button-${value.index}`}
             color={isActive ? 'primary' : 'mineshaft'}
-            onClick={() => updateSelectedStrike(value.strike)}
+            onClick={value.setActiveStrikeIndex}
             className="space-x-2 text-xs"
           >
             <span className="flex items-center space-x-1">
@@ -314,8 +315,8 @@ const Table = ({ strikeData }: { strikeData: any }) => {
                 <button
                   key={index}
                   onClick={(e) => {
-                    const page = e.target.value
-                      ? Number(e.target.value) - 1
+                    const page = (e.target as HTMLButtonElement).value
+                      ? Number((e.target as HTMLButtonElement).value) - 1
                       : 0;
                     table.setPageIndex(page);
                   }}
@@ -347,7 +348,20 @@ const Table = ({ strikeData }: { strikeData: any }) => {
 };
 
 const StrikesTable = () => {
-  const { clammStrikesData, tokenA, isPut } = useBoundStore();
+  const {
+    clammStrikesData,
+    tokenA,
+    isPut,
+    selectedStrike,
+    updateSelectedStrike,
+  } = useBoundStore();
+  const activeStrikeIndex = clammStrikesData.findIndex(
+    (strikeData) => strikeData.strike === selectedStrike,
+  );
+  const setActiveStrikeIndex = useCallback(
+    (index: number) => updateSelectedStrike(clammStrikesData[index].strike),
+    [clammStrikesData, updateSelectedStrike],
+  );
 
   const strikeData: StrikeItem[] = useMemo(() => {
     if (!clammStrikesData) return [];
@@ -363,6 +377,8 @@ const StrikesTable = () => {
             isPut: isPut,
             premiumPerOption: strikeData.premiumPerOption,
             strike: strikeData.strike,
+            activeStrikeIndex: activeStrikeIndex,
+            setActiveStrikeIndex: () => setActiveStrikeIndex(index),
           },
           chevron: null,
           disclosure: {
@@ -380,7 +396,13 @@ const StrikesTable = () => {
         };
       },
     );
-  }, [clammStrikesData, isPut, tokenA]);
+  }, [
+    activeStrikeIndex,
+    clammStrikesData,
+    isPut,
+    setActiveStrikeIndex,
+    tokenA,
+  ]);
 
   if (clammStrikesData.length === 0)
     return (
