@@ -29,6 +29,7 @@ export interface ClammStrikeData {
 
 export interface ClammBuyPosition {
   strikeSymbol: string;
+  optionId: string;
   strike: number;
   tickLower: number;
   tickUpper: number;
@@ -300,6 +301,7 @@ export const createClammSlice: StateCreator<
     const positions: ClammBuyPosition[] = [
       {
         strikeSymbol: 'ARB',
+        optionId: '0x12334',
         strike: Number(formatUnits(BigInt(123456789), DECIMALS_STRIKE)),
         size: Number(
           formatUnits(BigInt(Math.pow(10, 18) * 13), DECIMALS_TOKEN),
