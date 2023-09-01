@@ -1,9 +1,11 @@
+import { Address } from 'viem';
+
 import calculatePriceFromTick from './calculatePriceFromTick';
 import getPoolSlot0 from './getPoolSlot0';
 import getPoolTickSpacing from './getPoolTickSpacing';
 
 const generateStrikes = async (
-  poolAddress: `0x${string}`,
+  poolAddress: Address,
   range: number,
   isPut: boolean,
 ) => {

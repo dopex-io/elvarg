@@ -4,6 +4,9 @@ import { StateCreator } from 'zustand';
 
 import { WalletSlice } from 'store/Wallet';
 
+import generateStrikes from 'utils/clamm/generateStrikes';
+
+import { MARKETS } from 'constants/clamm/markets';
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, ZERO_ADDRESS } from 'constants/index';
 
 import { CommonSlice } from '../common';
@@ -175,27 +178,35 @@ export const createClammSlice: StateCreator<
   updateClammStrikesData: async () => {
     const markPrice = get().clammMarkPrice;
     get().updateSelectedStrike(markPrice);
+    const collateralToken = MARKETS[get().tokenA];
+    const isPut = get().isPut;
 
-    const maxOtmPercentage: number = get().maxOtmPercentage;
-    const step: number = get().step;
-    const isPut: boolean = get().isPut;
+    if (!collateralToken.uniswapPoolAddress) {
+      set((prevState) => ({
+        ...prevState,
+        clammStrikesData: [],
+      }));
+      return;
+    }
+
+    const strikes = await generateStrikes(
+      collateralToken.uniswapPoolAddress,
+      10,
+      isPut,
+    );
 
     if (isPut) {
       set((prevState) => ({
         ...prevState,
         clammStrikesData: generatePutStrikesData({
-          markPrice: markPrice,
-          maxOtmPercentage: maxOtmPercentage,
-          step: step,
+          strikes: strikes,
         }),
       }));
     } else {
       set((prevState) => ({
         ...prevState,
         clammStrikesData: generateCallStrikesData({
-          markPrice: markPrice,
-          maxOtmPercentage: maxOtmPercentage,
-          step: step,
+          strikes: strikes,
         }),
       }));
     }
@@ -311,92 +322,64 @@ export const createClammSlice: StateCreator<
   },
 });
 
-function roundMarkPrice(markPrice: number, step: number): number {
-  return Math.round(markPrice * step) / step;
-}
-
 function generateCallStrikesData({
-  markPrice,
-  maxOtmPercentage,
-  step,
+  strikes,
 }: {
-  markPrice: number;
-  maxOtmPercentage: number;
-  step: number;
+  strikes: number[];
 }): ClammStrikeData[] {
-  const upper = markPrice * (1 + maxOtmPercentage / 100);
-  const upperRound = Math.round(Math.ceil(upper / step) * step * 100) / 100;
-  const roundedMarkPrice = roundMarkPrice(markPrice, 1000);
+  return strikes.map((strike) => {
+    const strikePremiumRaw = BigInt(Math.pow(10, 8) * 2.789);
+    const premiumPerOption = Number(
+      formatUnits(strikePremiumRaw, DECIMALS_STRIKE),
+    );
+    const strikeIvRaw = BigInt(139);
+    const iv = Number(strikeIvRaw);
 
-  return Array.from(
-    { length: Math.ceil((upperRound - roundedMarkPrice) / step) },
-    (_, index) => {
-      const strike = roundedMarkPrice + index * step;
-      const strikePremiumRaw = BigInt(Math.pow(10, 8) * 2.789);
-      const premiumPerOption = Number(
-        formatUnits(strikePremiumRaw, DECIMALS_STRIKE),
-      );
-      const strikeIvRaw = BigInt(139);
-      const iv = Number(strikeIvRaw);
-
-      return {
-        strike: strike,
-        liquidity: 123,
-        premiumPerOption: premiumPerOption,
-        iv: iv,
-        breakeven: strike + premiumPerOption,
-        delta: 0,
-        theta: 0,
-        vega: 0,
-        gamma: 0,
-        utilization: 0,
-        tvl: 0,
-        apy: 0,
-        premiumApy: 0,
-      };
-    },
-  );
+    return {
+      strike: strike,
+      liquidity: 123,
+      premiumPerOption: premiumPerOption,
+      iv: iv,
+      breakeven: strike + premiumPerOption,
+      delta: 0,
+      theta: 0,
+      vega: 0,
+      gamma: 0,
+      utilization: 0,
+      tvl: 0,
+      apy: 0,
+      premiumApy: 0,
+    };
+  });
 }
 
 function generatePutStrikesData({
-  markPrice,
-  maxOtmPercentage,
-  step,
+  strikes,
 }: {
-  markPrice: number;
-  maxOtmPercentage: number;
-  step: number;
+  strikes: number[];
 }): ClammStrikeData[] {
-  const lower = markPrice * (1 - maxOtmPercentage / 100);
-  const lowerRound = Math.round(Math.floor(lower / step) * step * 100) / 100;
-  const roundedMarkPrice = roundMarkPrice(markPrice, 1000);
+  return strikes.map((strike) => {
+    const strikePremiumRaw = BigInt(Math.pow(10, 8) * 2.789);
+    const premiumPerOption = Number(
+      formatUnits(strikePremiumRaw, DECIMALS_STRIKE),
+    );
+    const strikeIvRaw = BigInt(139);
+    const iv = Number(strikeIvRaw);
 
-  return Array.from(
-    { length: Math.ceil((roundedMarkPrice - lowerRound) / step) },
-    (_, index) => {
-      const strike = roundedMarkPrice - index * step;
-      const strikePremiumRaw = BigInt(Math.pow(10, 8) * 2.789);
-      const premiumPerOption = Number(
-        formatUnits(strikePremiumRaw, DECIMALS_STRIKE),
-      );
-      const strikeIvRaw = BigInt(139);
-      const iv = Number(strikeIvRaw);
-
-      return {
-        strike: strike,
-        liquidity: 234,
-        premiumPerOption: premiumPerOption,
-        iv: iv,
-        breakeven: strike - premiumPerOption,
-        delta: 0,
-        theta: 0,
-        vega: 0,
-        gamma: 0,
-        utilization: 0,
-        tvl: 0,
-        apy: 0,
-        premiumApy: 0,
-      };
-    },
-  );
+    return {
+      strike: strike,
+      liquidity: 234,
+      premiumPerOption: premiumPerOption,
+      iv: iv,
+      breakeven: strike - premiumPerOption,
+      delta: 0,
+      theta: 0,
+      vega: 0,
+      gamma: 0,
+      utilization: 0,
+      tvl: 0,
+      apy: 0,
+      premiumApy: 0,
+    };
+  });
 }
