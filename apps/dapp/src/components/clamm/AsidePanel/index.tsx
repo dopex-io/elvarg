@@ -1,4 +1,10 @@
-import { SetStateAction, useCallback, useEffect, useState } from 'react';
+import {
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { formatUnits, parseUnits } from 'viem';
 
 import { OptionPools__factory, PositionsManager__factory } from '@dopex-io/sdk';
@@ -9,17 +15,25 @@ import { useAccount, useContractWrite, usePrepareContractWrite } from 'wagmi';
 import { useBoundStore } from 'store';
 import { ClammStrikeData } from 'store/Vault/clamm';
 
+import useClammStrikes from 'hooks/clamm/useClammStrikes';
 import { usePrepareApprove } from 'hooks/ssov/usePrepareWrites';
 
 import PnlChart from 'components/common/PnlChart';
 import RowItem from 'components/ssov-beta/AsidePanel/RowItem';
 
+import generateStrikes from 'utils/clamm/generateStrikes';
+import getMarketInformation from 'utils/clamm/getMarketInformation';
 import { getUserBalance, isApproved } from 'utils/contracts/getERC20Info';
 import formatAmount from 'utils/general/formatAmount';
 
+import { CHAINS } from 'constants/chains';
 import { EXPIRIES_MENU } from 'constants/clamm/expiries';
-import { MARKETS } from 'constants/clamm/markets';
 import { DECIMALS_TOKEN, DECIMALS_USD, ZERO_ADDRESS } from 'constants/index';
+
+type ClammStrikeMenuItem = {
+  textContent: string;
+  isDisabled: boolean;
+};
 
 const CustomBottomElement = ({
   symbol,
@@ -118,19 +132,13 @@ const AsidePanel = () => {
     premiumPerOption,
     updateIsTrade,
     updateClammStrikesData,
+    selectedPair,
     tokenA,
     uniswapPoolContract,
+    chainId,
   } = useBoundStore();
 
-  // TODO: note that this is always token A
-  const collateralToken = MARKETS[tokenA];
-  const actionToken = isPut ? MARKETS['USDC'] : collateralToken;
-
-  const clammStrikes = clammStrikesData.map((s: ClammStrikeData) => ({
-    textContent: `${formatAmount(s.strike, 3)}`,
-    isDisabled: false,
-  }));
-
+  const [clammStrikes, setClammStrikes] = useState<ClammStrikeMenuItem[]>([]);
   const [inputAmount, setInputAmount] = useState<string>('0');
   const [tradeOrLpIndex, setTradeOrLpIndex] = useState<number>(0);
   const [selectedExpiry, setSelectedExpiry] = useState<number>(0);
@@ -140,12 +148,69 @@ const AsidePanel = () => {
   const [amountDebounced] = useDebounce(inputAmount, 1000);
   const { address } = useAccount();
 
+  const {
+    collateralTokenAddress,
+    collateralTokenSymbol,
+    underlyingTokenAddress,
+    underlyingTokenSymbol,
+    uniswapPoolAddress,
+  } = useMemo(() => {
+    return getMarketInformation(selectedPair);
+  }, [selectedPair]);
+
+  const [generateClammStrikesForPair] = useClammStrikes();
+
+  const loadStrikesForPair = useCallback(async () => {
+    let strikes: any = await generateClammStrikesForPair(
+      uniswapPoolAddress,
+      10,
+    );
+    const collateralTokenDecimals =
+      CHAINS[chainId].tokenDecimals[collateralTokenSymbol];
+
+    strikes = strikes.map((strike: number) => ({
+      textContent: (strike / 10 ** collateralTokenDecimals).toFixed(5),
+      disabled: false,
+    }));
+
+    setClammStrikes(strikes);
+  }, [
+    generateClammStrikesForPair,
+    uniswapPoolAddress,
+    collateralTokenSymbol,
+    chainId,
+  ]);
+
+  useEffect(() => {
+    loadStrikesForPair();
+  }, [loadStrikesForPair]);
+
   const tokenAApproveConfig = usePrepareApprove({
     spender: positionManagerContract,
-    token: actionToken.collateralTokenAddress,
+    token: collateralTokenAddress,
     amount: parseUnits(amountDebounced || '0', DECIMALS_TOKEN),
   });
   const { write: approveTokenA } = useContractWrite(tokenAApproveConfig);
+
+  const selectedToken = useMemo(() => {
+    if (isPut) {
+      return {
+        tokenSymbol: collateralTokenSymbol,
+        tokenAddress: collateralTokenAddress,
+      };
+    } else {
+      return {
+        tokenSymbol: underlyingTokenSymbol,
+        tokenAddress: underlyingTokenAddress,
+      };
+    }
+  }, [
+    collateralTokenAddress,
+    collateralTokenSymbol,
+    isPut,
+    underlyingTokenAddress,
+    underlyingTokenSymbol,
+  ]);
 
   // IUniswapV3Pool pool;
   // int24 tickLower;
@@ -285,13 +350,13 @@ const AsidePanel = () => {
       const _approved = await isApproved({
         owner: address,
         spender: optionPoolsContract,
-        tokenAddress: actionToken.collateralTokenAddress,
+        tokenAddress: collateralTokenAddress,
         amount: parseUnits(amountDebounced, DECIMALS_TOKEN),
       });
       setApproved(_approved);
       const _balance = await getUserBalance({
         owner: address,
-        tokenAddress: actionToken.collateralTokenAddress,
+        tokenAddress: collateralTokenAddress,
       });
       setUserBalance(
         Number(
@@ -299,7 +364,13 @@ const AsidePanel = () => {
         ),
       );
     })();
-  }, [address, optionPoolsContract, amountDebounced, actionToken, isPut]);
+  }, [
+    address,
+    optionPoolsContract,
+    amountDebounced,
+    collateralTokenAddress,
+    isPut,
+  ]);
 
   return (
     <div className="flex flex-col space-y-4">
@@ -359,7 +430,7 @@ const AsidePanel = () => {
               selection={
                 <span className="text-sm text-white flex">
                   <p className="text-stieglitz inline mr-1">$</p>
-                  {formatAmount(selectedStrike, 3)}
+                  {selectedStrike.toFixed(5)}
                 </span>
               }
               data={clammStrikes}
@@ -376,15 +447,15 @@ const AsidePanel = () => {
           leftElement={
             <img
               src={`/images/tokens/${String(
-                collateralToken.underlyingSymbol,
+                selectedToken.tokenSymbol,
               )?.toLowerCase()}.svg`}
-              alt={String(collateralToken)?.toLowerCase()}
+              alt={String(selectedToken.tokenSymbol)?.toLowerCase()}
               className="w-[30px] h-[30px] border border-mineshaft rounded-full ring-4 ring-cod-gray"
             />
           }
           bottomElement={
             <CustomBottomElement
-              symbol={actionToken.underlyingSymbol as string}
+              symbol={underlyingTokenSymbol as string}
               label={tradeOrLpIndex === 0 ? 'Options' : 'Deposit amount'}
               value={formatAmount(userBalance, 3, true)}
               role="button"
@@ -494,7 +565,7 @@ const AsidePanel = () => {
             amount={Number(amountDebounced)}
             isPut={isPut}
             price={clammMarkPrice}
-            symbol={collateralToken.underlyingSymbol}
+            symbol={underlyingTokenSymbol}
           />
         </div>
       ) : null}
