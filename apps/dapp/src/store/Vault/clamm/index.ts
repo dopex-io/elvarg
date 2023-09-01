@@ -6,6 +6,7 @@ import { StateCreator } from 'zustand';
 import { WalletSlice } from 'store/Wallet';
 
 import generateStrikes from 'utils/clamm/generateStrikes';
+import getMarketInformation from 'utils/clamm/getMarketInformation';
 
 import { MARKETS } from 'constants/clamm/markets';
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, ZERO_ADDRESS } from 'constants/index';
@@ -28,6 +29,10 @@ export interface ClammStrikeData {
   apy: number;
   premiumApy: number;
 }
+
+export type CollateralTokenTypes = 'USDC' | 'USDC';
+export type UnderlyingTokenTypes = 'ARB';
+export type ClammPair = `${UnderlyingTokenTypes}-${CollateralTokenTypes}`;
 
 export interface ClammBuyPosition {
   strikeSymbol: string;
@@ -69,6 +74,12 @@ export interface ClammSlice {
   updateMaxOtmPercentage: Function;
   updateStep: Function;
   updateUserAddress: Function;
+
+  /** NEWLY ADDED */
+  selectedPair: ClammPair;
+  updateSelectedPair: Function;
+
+  /** NEWLY ADDED */
 
   // state
   clammMarkPrice: number;
@@ -196,10 +207,12 @@ export const createClammSlice: StateCreator<
   clammStrikesData: [],
   updateClammStrikesData: async () => {
     // get().updateSelectedStrike(markPrice);
-    const collateralToken = MARKETS[get().tokenA];
-    const isPut = get().isPut;
 
-    if (!collateralToken.uniswapPoolAddress) {
+    const { isPut, selectedPair } = get();
+
+    const { uniswapPoolAddress } = getMarketInformation(selectedPair);
+
+    if (!uniswapPoolAddress) {
       set((prevState) => ({
         ...prevState,
         clammStrikesData: [],
@@ -208,15 +221,11 @@ export const createClammSlice: StateCreator<
     } else {
       set((prevState) => ({
         ...prevState,
-        uniswapPoolContract: collateralToken?.uniswapPoolAddress as Address,
+        uniswapPoolContract: uniswapPoolAddress as Address,
       }));
     }
 
-    const strikes = await generateStrikes(
-      collateralToken.uniswapPoolAddress,
-      10,
-      isPut,
-    );
+    const strikes = await generateStrikes(uniswapPoolAddress, 10, isPut);
     get().updateSelectedStrike(strikes[0]);
 
     const strikesData = isPut
@@ -356,6 +365,15 @@ export const createClammSlice: StateCreator<
       ...prevState,
       userAddress: userAddress,
     }));
+  },
+  selectedPair: 'ARB-USDC',
+  updateSelectedPair: (pair: ClammPair) => {
+    set((prev) => {
+      return {
+        ...prev,
+        selectedPair: pair,
+      };
+    });
   },
 });
 
