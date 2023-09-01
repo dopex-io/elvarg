@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/router';
 
 import { NextSeo } from 'next-seo';
 import { useAccount } from 'wagmi';
 
 import { useBoundStore } from 'store';
+import { ClammPair } from 'store/Vault/clamm';
 
 import AsidePanel from 'components/clamm/AsidePanel';
 import InfoBox from 'components/clamm/InfoBox';
@@ -14,10 +16,20 @@ import AppBar from 'components/common/AppBar';
 import PageLayout from 'components/common/PageLayout';
 import PriceChart from 'components/common/PriceChart';
 
+import splitMarketPair from 'utils/clamm/splitMarketPair';
+
 import seo from 'constants/seo';
 
 const ClammPage = () => {
-  const { provider, updateClammData, updateUserAddress } = useBoundStore();
+  const router = useRouter();
+
+  const {
+    provider,
+    updateClammData,
+    updateUserAddress,
+    updateSelectedPair,
+    selectedPair,
+  } = useBoundStore();
   const { address: userAddress } = useAccount();
 
   const updateAll = useCallback(async () => {
@@ -36,6 +48,22 @@ const ClammPage = () => {
   //   }, 60000);
   //   return () => clearInterval(interval);
   // }, [updateAll]);
+  const DEFAULT_PAIR = 'ARB-USDC';
+
+  useEffect(() => {
+    let pair = router.query?.clamm;
+
+    console.log('{PAIR AT MAIN COMP', pair, router.query);
+
+    if (!pair) {
+      router.replace(router.asPath, `/clamm/${DEFAULT_PAIR}`);
+      pair = DEFAULT_PAIR;
+    } else {
+      pair = pair[0] as ClammPair;
+    }
+
+    updateSelectedPair(pair);
+  }, [router, updateSelectedPair]);
 
   return (
     <div className="overflow-x-hidden bg-black h-screen">
@@ -64,7 +92,9 @@ const ClammPage = () => {
         <div className="flex space-x-0 lg:space-x-6 flex-col sm:flex-col md:flex-col lg:flex-row space-y-3 md:space-y-0 justify-center">
           <div className="flex flex-col space-y-3 sm:w-full lg:w-3/4 h-full">
             {/* <PriceChartRangeSelectorWrapper /> */}
-            <PriceChart market="ARB" />
+            <PriceChart
+              market={splitMarketPair(selectedPair).underlyingTokenSymbol}
+            />
             <div className="space-y-4">
               <StrikesChain />
               <Positions />
