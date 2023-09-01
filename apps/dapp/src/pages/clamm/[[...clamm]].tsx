@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 
 import { NextSeo } from 'next-seo';
+import { useAccount } from 'wagmi';
 
 import { useBoundStore } from 'store';
 
@@ -16,7 +17,8 @@ import PageLayout from 'components/common/PageLayout';
 import seo from 'constants/seo';
 
 const ClammPage = () => {
-  const { provider, updateClammData } = useBoundStore();
+  const { provider, updateClammData, updateUserAddress } = useBoundStore();
+  const { address: userAddress } = useAccount();
 
   const updateAll = useCallback(async () => {
     if (!provider) return;
@@ -25,7 +27,8 @@ const ClammPage = () => {
 
   useEffect(() => {
     updateAll();
-  }, [updateAll]);
+    updateUserAddress(userAddress);
+  }, [updateAll, updateUserAddress, userAddress]);
 
   // useEffect(() => {
   //   const interval = setInterval(() => {
