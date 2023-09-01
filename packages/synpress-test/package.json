@@ -1,0 +1,22 @@
+{
+  "name": "cypress",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "devDependencies": {
+    "cypress": "^11.1.0",
+    "@synthetixio/synpress": "^1.1.1",
+    "@testing-library/cypress": "^8.0.2",
+    "env-cmd": "^10.1.0",
+    "eslint": "^7.32.0",
+    "eslint-plugin-cypress": "^2.12.1",
+    "eslint-plugin-testing-library": "^5.0.6"
+  },
+  "scripts": {
+    "test": "env-cmd -f .env npx synpress run -cf synpress.json --config supportFile='cypress/support/index.ts'",
+    "test:watch": "env-cmd -f .env npx synpress open -cf synpress.json",
+    "lint": "eslint --ext .js,.ts ."
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
