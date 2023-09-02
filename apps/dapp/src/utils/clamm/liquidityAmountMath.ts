@@ -1,7 +1,7 @@
 const Q96 = BigInt('0x1000000000000000000000000');
 const RESOLUTION = BigInt(96);
 
-function getLiquidityForAmount0(
+export function getLiquidityForAmount0(
   sqrtRatioAX96: bigint,
   sqrtRatioBX96: bigint,
   amount0: bigint,
@@ -15,7 +15,7 @@ function getLiquidityForAmount0(
   return (amount0 * mid) / (sqrtRatioBX96 - sqrtRatioAX96);
 }
 
-function getLiquidityForAmount1(
+export function getLiquidityForAmount1(
   sqrtRatioAX96: bigint,
   sqrtRatioBX96: bigint,
   amount1: bigint,
@@ -63,7 +63,7 @@ export function getLiquidityForAmounts(
   return liquidity;
 }
 
-function getAmount0ForLiquidity(
+export function getAmount0ForLiquidity(
   sqrtRatioAX96: bigint,
   sqrtRatioBX96: bigint,
   liquidity: bigint,
@@ -81,7 +81,7 @@ function getAmount0ForLiquidity(
   );
 }
 
-function getAmount1ForLiquidity(
+export function getAmount1ForLiquidity(
   sqrtRatioAX96: bigint,
   sqrtRatioBX96: bigint,
   liquidity: bigint,
