@@ -6,16 +6,16 @@ import {
   UnderlyingTokenTypes,
 } from 'store/Vault/clamm';
 
-interface ClamMarket {
+export interface ClammMarket {
   underlyingTokenSymbol: UnderlyingTokenTypes;
   collateralTokenSymbol: CollateralTokenTypes;
   underlyingTokenAddress: Address;
   collateralTokenAddress: Address;
   optionPools: ''; // Will update when contract is deployed
-  uniswapPoolAddress: Address | undefined;
+  uniswapPoolAddress: Address;
 }
 
-export const MARKETS: Record<ClammPair, ClamMarket> = {
+export const MARKETS: Record<ClammPair, ClammMarket> = {
   'ARB-USDC': {
     underlyingTokenSymbol: 'ARB',
     collateralTokenSymbol: 'USDC',
