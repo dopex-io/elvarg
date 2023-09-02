@@ -15,14 +15,16 @@ import { useAccount, useContractWrite, usePrepareContractWrite } from 'wagmi';
 import { useBoundStore } from 'store';
 import { ClammStrikeData } from 'store/Vault/clamm';
 
-import useClammStrikes from 'hooks/clamm/useClammStrikes';
+import useClammStrikes, { ClammStrike } from 'hooks/clamm/useClammStrikes';
 import { usePrepareApprove } from 'hooks/ssov/usePrepareWrites';
 
 import PnlChart from 'components/common/PnlChart';
 import RowItem from 'components/ssov-beta/AsidePanel/RowItem';
 
-import generateStrikes from 'utils/clamm/generateStrikes';
 import getMarketInformation from 'utils/clamm/getMarketInformation';
+import getPoolSlot0 from 'utils/clamm/getPoolSlot0';
+import { getLiquidityForAmounts } from 'utils/clamm/liquidityAmountMath';
+import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
 import { getUserBalance, isApproved } from 'utils/contracts/getERC20Info';
 import formatAmount from 'utils/general/formatAmount';
 
@@ -138,7 +140,7 @@ const AsidePanel = () => {
     chainId,
   } = useBoundStore();
 
-  const [clammStrikes, setClammStrikes] = useState<ClammStrikeMenuItem[]>([]);
+  const [clammStrikes, setClammStrikes] = useState<ClammStrike[]>([]);
   const [inputAmount, setInputAmount] = useState<string>('0');
   const [tradeOrLpIndex, setTradeOrLpIndex] = useState<number>(0);
   const [selectedExpiry, setSelectedExpiry] = useState<number>(0);
@@ -161,36 +163,74 @@ const AsidePanel = () => {
   const [generateClammStrikesForPair] = useClammStrikes();
 
   const loadStrikesForPair = useCallback(async () => {
-    let strikes: any = await generateClammStrikesForPair(
-      uniswapPoolAddress,
-      10,
-    );
-    const collateralTokenDecimals =
-      CHAINS[chainId].tokenDecimals[collateralTokenSymbol];
+    if (!uniswapPoolAddress) return console.error('UniswapPool not found');
+    setClammStrikes(await generateClammStrikesForPair(uniswapPoolAddress, 10));
+  }, [generateClammStrikesForPair, uniswapPoolAddress]);
 
-    strikes = strikes.map((strike: number) => ({
-      textContent: (strike / 10 ** collateralTokenDecimals).toFixed(5),
+  const readableClammStrikes = useMemo(() => {
+    if (clammStrikes.length === 0) return [];
+    return clammStrikes.map(({ strike }) => ({
+      textContent: strike.toFixed(5),
       disabled: false,
     }));
+  }, [clammStrikes]);
 
-    setClammStrikes(strikes);
-  }, [
-    generateClammStrikesForPair,
-    uniswapPoolAddress,
-    collateralTokenSymbol,
-    chainId,
-  ]);
-
+  /***
+   *
+   * NEWLY ADDED START
+   */
   useEffect(() => {
     loadStrikesForPair();
   }, [loadStrikesForPair]);
 
-  const tokenAApproveConfig = usePrepareApprove({
-    spender: positionManagerContract,
-    token: collateralTokenAddress,
-    amount: parseUnits(amountDebounced || '0', DECIMALS_TOKEN),
-  });
-  const { write: approveTokenA } = useContractWrite(tokenAApproveConfig);
+  const handleDeposit = useCallback(async () => {
+    const clammStrike = clammStrikes.find(({ strike }) => {
+      return Number(strike.toFixed(5)) === selectedStrike;
+    });
+
+    const depositTokenSymbol = isPut
+      ? collateralTokenSymbol
+      : underlyingTokenSymbol;
+    const tokenDecimals = CHAINS[chainId].tokenDecimals[depositTokenSymbol];
+
+    if (!clammStrike) {
+      console.error('[handleDeposit] Relevant clammStrike not found');
+      return;
+    }
+
+    const { upperTick, lowerTick } = clammStrike;
+    const depositAmountBigInt = parseUnits(amountDebounced, tokenDecimals);
+    const slot0 = await getPoolSlot0(uniswapPoolAddress);
+    // @ts-ignore
+    const sqrtX96 = slot0[0];
+
+    const liquidity = getLiquidityForAmounts(
+      sqrtX96,
+      getSqrtRatioAtTick(BigInt(lowerTick)),
+      getSqrtRatioAtTick(BigInt(upperTick)),
+      isPut ? 0n : depositAmountBigInt,
+      isPut ? depositAmountBigInt : 0n,
+    );
+
+    // Like wise for withdraw
+    const params = {
+      pool: uniswapPoolAddress,
+      tickLower: lowerTick,
+      tickUpper: upperTick,
+      liquidity: liquidity,
+    };
+  }, [
+    uniswapPoolAddress,
+    clammStrikes,
+    selectedStrike,
+    amountDebounced,
+    chainId,
+    collateralTokenSymbol,
+    isPut,
+    underlyingTokenSymbol,
+  ]);
+
+  const handlePurchase = useCallback(async () => {}, []);
 
   const selectedToken = useMemo(() => {
     if (isPut) {
@@ -211,6 +251,18 @@ const AsidePanel = () => {
     underlyingTokenAddress,
     underlyingTokenSymbol,
   ]);
+
+  /**
+   *
+   * NEWLY ADDED END
+   */
+
+  const tokenAApproveConfig = usePrepareApprove({
+    spender: positionManagerContract,
+    token: collateralTokenAddress,
+    amount: parseUnits(amountDebounced || '0', DECIMALS_TOKEN),
+  });
+  const { write: approveTokenA } = useContractWrite(tokenAApproveConfig);
 
   // IUniswapV3Pool pool;
   // int24 tickLower;
@@ -240,12 +292,11 @@ const AsidePanel = () => {
   });
   const { write: mintPosition } = useContractWrite(mintPositionConfig);
 
-  // uint256 optionId;
   // IUniswapV3Pool pool;
   // int24 tickLower;
   // int24 tickUpper;
   // uint256 liquidityToUse;
-  // uint256 premiumAmount;
+  // uint256 ttl;
   const optionIdCall = BigInt(1);
   const premiumAmountCalls = BigInt(1);
   const { config: mintCallOptionConfig } = usePrepareContractWrite({
@@ -433,7 +484,7 @@ const AsidePanel = () => {
                   {selectedStrike.toFixed(5)}
                 </span>
               }
-              data={clammStrikes}
+              data={readableClammStrikes}
               className="w-full"
               showArrow
             />
@@ -500,10 +551,11 @@ const AsidePanel = () => {
               />
               <Button
                 variant="contained"
-                onClick={handleAction}
-                disabled={
-                  Number(inputAmount) <= 0 || Number(inputAmount) > userBalance
-                }
+                // onClick={handleAction}
+                onClick={handleDeposit}
+                // disabled={
+                //   Number(inputAmount) <= 0 || Number(inputAmount) > userBalance
+                // }
                 color={
                   !approved ||
                   (Number(inputAmount) > 0 &&
