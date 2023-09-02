@@ -17,4 +17,4 @@ export const DOPEX_ZDTE_SUBGRAPH_API_URL =
   'https://api.thegraph.com/subgraphs/name/garyunwin42/zdte';
 
 export const DOPEX_CLAMM_SUBGRAPH_API_URL =
-  'https://api.thegraph.com/subgraphs/name/garyunwin42/clamm';
+  'https://api.thegraph.com/subgraphs/name/garyunwin42/dopex-clamm';
