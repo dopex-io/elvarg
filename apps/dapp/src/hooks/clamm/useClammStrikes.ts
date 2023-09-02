@@ -50,14 +50,17 @@ const useClammStrikes = () => {
         if (isPut) {
           lowerTick = startTick - tickSpacing * i - tickSpacing;
           upperTick = startTick - tickSpacing * i;
-          strike = (1.0001 ** lowerTick * 10 ** decimals0) / 10 ** decimals1;
+          strike =
+            ((1 / 1.0001 ** lowerTick) * 10 ** decimals0) / 10 ** decimals1;
         } else {
           upperTick = startTick + tickSpacing * i + tickSpacing;
           lowerTick = startTick + tickSpacing * i;
-          strike = (1.0001 ** upperTick * 10 ** decimals0) / 10 ** decimals1;
+          strike =
+            ((1 / 1.0001 ** upperTick) * 10 ** decimals0) / 10 ** decimals1;
         }
-        strikes.push({ strike, upperTick, lowerTick });
+        strikes.push({ strike: strike, upperTick, lowerTick });
       }
+
       return strikes;
     },
     [isPut, chainId, selectedPair],
