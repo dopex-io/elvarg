@@ -8,7 +8,6 @@ import {
 import { Address, formatUnits, parseUnits } from 'viem';
 
 import { Button, Input } from '@dopex-io/ui';
-import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { format } from 'date-fns';
 import { useDebounce } from 'use-debounce';
 import {
@@ -27,6 +26,7 @@ import useStrikesData from 'hooks/ssov/useStrikesData';
 import useVaultsData from 'hooks/ssov/useVaultsData';
 import useVaultStore from 'hooks/ssov/useVaultStore';
 
+import Alert, { AlertSeverity } from 'components/common/Alert';
 import PnlChart from 'components/common/PnlChart';
 import alerts from 'components/ssov-beta/AsidePanel/alerts';
 import RowItem from 'components/ssov-beta/AsidePanel/RowItem';
@@ -291,12 +291,14 @@ const AsidePanel = ({ market }: { market: string }) => {
       return {
         ...alerts.error.fallback,
         buttonContent,
+        severity: AlertSeverity.info,
       };
 
     if (!Number(amountDebounced)) {
       return {
         ...alerts.info.emptyInput,
         buttonContent,
+        severity: AlertSeverity.info,
       };
     } else if (
       !address ||
@@ -305,25 +307,30 @@ const AsidePanel = ({ market }: { market: string }) => {
     )
       return {
         ...alerts.info.insufficientLiquidity,
+        severity: AlertSeverity.error,
       };
     else if (insufficientBalance)
       return {
         ...alerts.error.insufficientBalance,
         buttonContent,
+        severity: AlertSeverity.error,
       };
     else if (!approved) {
       return {
         ...alerts.error.insufficientAllowance,
+        severity: AlertSeverity.error,
       };
     } else if (selectedStrike.iv > 80)
       return {
         ...alerts.warning.highIv,
         buttonContent,
+        severity: AlertSeverity.warning,
       };
     else
       return {
         ...alerts.info.enabled,
         buttonContent,
+        severity: AlertSeverity.info,
       };
   }, [
     activeIndex,
@@ -364,14 +371,14 @@ const AsidePanel = ({ market }: { market: string }) => {
   };
 
   const transact = useCallback(() => {
-    if (infoPopover.textContent?.includes('allowance')) {
+    if (infoPopover.body?.includes('allowance')) {
       approve?.();
     } else if (activeIndex === 0) {
       purchase?.();
     } else {
       setIsOpen((prevState) => !prevState);
     }
-  }, [activeIndex, approve, infoPopover.textContent, purchase]);
+  }, [activeIndex, approve, infoPopover.body, purchase]);
 
   useEffect(() => {
     if (vault.address === '0x' || !address) return;
@@ -448,13 +455,12 @@ const AsidePanel = ({ market }: { market: string }) => {
           }
           placeholder="0.0"
         />
-        {infoPopover.textContent !== '' ? (
-          <div
-            className={`${infoPopover.alertBg} p-3 rounded-md text-center flex justify-center`}
-          >
-            <ExclamationTriangleIcon className="h-6 w-6 fill-current mr-2" />
-            {infoPopover.textContent}
-          </div>
+        {infoPopover.body !== '' ? (
+          <Alert
+            header={infoPopover.header}
+            body={infoPopover.body}
+            severity={infoPopover.severity}
+          />
         ) : null}
         <div className="flex flex-col divide-y divide-carbon border border-carbon rounded-md">
           <div className="flex divide-x divide-carbon text-xs">
