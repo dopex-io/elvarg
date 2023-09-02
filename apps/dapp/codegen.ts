@@ -16,7 +16,7 @@ const DOPEX_ZDTE_SUBGRAPH_API_URL =
   'https://api.thegraph.com/subgraphs/name/garyunwin42/zdte';
 
 const DOPEX_CLAMM_SUBGRAPH_API_URL =
-  'https://api.thegraph.com/subgraphs/name/garyunwin42/clamm';
+  'https://api.thegraph.com/subgraphs/name/garyunwin42/dopex-clamm';
 
 const config: CodegenConfig = {
   generates: {
@@ -45,11 +45,11 @@ const config: CodegenConfig = {
       documents: ['src/graphql/zdte/*.ts'],
       preset: 'client',
     },
-    // './src/gql/clamm/': {
-    //   schema: DOPEX_CLAMM_SUBGRAPH_API_URL,
-    //   documents: ['src/graphql/clamm/*.ts'],
-    //   preset: 'client',
-    // },
+    './src/gql/clamm/': {
+      schema: DOPEX_CLAMM_SUBGRAPH_API_URL,
+      documents: ['src/graphql/clamm/*.ts'],
+      preset: 'client',
+    },
   },
 };
 
