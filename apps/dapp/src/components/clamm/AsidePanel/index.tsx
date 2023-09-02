@@ -5,32 +5,40 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { BigNumber } from 'ethers';
 import { formatUnits, parseUnits } from 'viem';
 
-import { OptionPools__factory, PositionsManager__factory } from '@dopex-io/sdk';
+import { ERC20__factory, OptionPools__factory } from '@dopex-io/sdk';
 import { Button, Input, Menu } from '@dopex-io/ui';
+import { formatDistance, previousDay } from 'date-fns';
 import { useDebounce } from 'use-debounce';
-import { useAccount, useContractWrite, usePrepareContractWrite } from 'wagmi';
+import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 
 import { useBoundStore } from 'store';
-import { ClammStrikeData } from 'store/Vault/clamm';
 
-import useClammStrikes, { ClammStrike } from 'hooks/clamm/useClammStrikes';
+import { ClammStrike } from 'hooks/clamm/useClammStrikes';
+import usePositionManager from 'hooks/clamm/usePositionManager';
+import { usePrepareMintPosition } from 'hooks/clamm/usePrepareWrites';
 import { usePrepareApprove } from 'hooks/ssov/usePrepareWrites';
 
 import PnlChart from 'components/common/PnlChart';
 import RowItem from 'components/ssov-beta/AsidePanel/RowItem';
 
 import getMarketInformation from 'utils/clamm/getMarketInformation';
-import getPoolSlot0 from 'utils/clamm/getPoolSlot0';
-import { getLiquidityForAmounts } from 'utils/clamm/liquidityAmountMath';
-import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
+import getPremium from 'utils/clamm/getPremium';
+import { getBlockTime } from 'utils/contracts';
 import { getUserBalance, isApproved } from 'utils/contracts/getERC20Info';
 import formatAmount from 'utils/general/formatAmount';
 
 import { CHAINS } from 'constants/chains';
-import { EXPIRIES_MENU } from 'constants/clamm/expiries';
-import { DECIMALS_TOKEN, DECIMALS_USD, ZERO_ADDRESS } from 'constants/index';
+import { EXPIRIES_BY_INDEX, EXPIRIES_MENU } from 'constants/clamm/expiries';
+import { positionManagerAddress } from 'constants/clamm/markets';
+import {
+  DECIMALS_TOKEN,
+  DECIMALS_USD,
+  OPTION_TOKEN_DECIMALS,
+  ZERO_ADDRESS,
+} from 'constants/index';
 
 type ClammStrikeMenuItem = {
   textContent: string;
@@ -135,9 +143,11 @@ const AsidePanel = () => {
     updateIsTrade,
     updateClammStrikesData,
     selectedPair,
-    tokenA,
     uniswapPoolContract,
     chainId,
+    provider,
+    isTrade,
+    userAddress,
   } = useBoundStore();
 
   const [clammStrikes, setClammStrikes] = useState<ClammStrike[]>([]);
@@ -148,7 +158,11 @@ const AsidePanel = () => {
   const [userBalance, setUserBalance] = useState<number>(0);
   const [isManualInput, setIsManualInput] = useState(false);
   const [amountDebounced] = useDebounce(inputAmount, 1000);
-  const { address } = useAccount();
+  const [tokenAmountToSpend, setTokenAmountToSpend] = useState(0n);
+  const [userTokenBalances, setUserTokenBalances] = useState({
+    collateralTokenBalance: 0n,
+    underlyingTokenBalance: 0n,
+  });
 
   const {
     collateralTokenAddress,
@@ -156,16 +170,62 @@ const AsidePanel = () => {
     underlyingTokenAddress,
     underlyingTokenSymbol,
     uniswapPoolAddress,
+    optionPool,
   } = useMemo(() => {
     return getMarketInformation(selectedPair);
   }, [selectedPair]);
 
-  const [generateClammStrikesForPair] = useClammStrikes();
+  const { getDepositParams, getStrikesWithTicks } = usePositionManager();
+
+  const depositParams = useMemo(() => {
+    const defaultDepositParams = {
+      pool: uniswapPoolAddress,
+      tickLower: 0,
+      tickUpper: 0,
+      liquidity: 0n,
+    };
+    if (isTrade) {
+      return defaultDepositParams;
+    }
+
+    const clammStrike = clammStrikes.find(({ strike }) => {
+      return Number(strike.toFixed(5)) === selectedStrike;
+    });
+
+    if (!clammStrike) {
+      console.error('[handleDeposit] Relevant clammStrike not found');
+      return defaultDepositParams;
+    }
+
+    const depositTokenSymbol = isPut
+      ? collateralTokenSymbol
+      : underlyingTokenSymbol;
+    const tokenDecimals = CHAINS[chainId].tokenDecimals[depositTokenSymbol];
+
+    const depositAMount = parseUnits(amountDebounced, tokenDecimals);
+
+    return getDepositParams(
+      clammStrike.lowerTick,
+      clammStrike.upperTick,
+      depositAMount,
+    );
+  }, [
+    uniswapPoolAddress,
+    isTrade,
+    amountDebounced,
+    chainId,
+    clammStrikes,
+    collateralTokenSymbol,
+    getDepositParams,
+    isPut,
+    selectedStrike,
+    underlyingTokenSymbol,
+  ]);
 
   const loadStrikesForPair = useCallback(async () => {
     if (!uniswapPoolAddress) return console.error('UniswapPool not found');
-    setClammStrikes(await generateClammStrikesForPair(uniswapPoolAddress, 10));
-  }, [generateClammStrikesForPair, uniswapPoolAddress]);
+    setClammStrikes(await getStrikesWithTicks(10));
+  }, [uniswapPoolAddress, getStrikesWithTicks]);
 
   const readableClammStrikes = useMemo(() => {
     if (clammStrikes.length === 0) return [];
@@ -183,54 +243,97 @@ const AsidePanel = () => {
     loadStrikesForPair();
   }, [loadStrikesForPair]);
 
-  const handleDeposit = useCallback(async () => {
-    const clammStrike = clammStrikes.find(({ strike }) => {
-      return Number(strike.toFixed(5)) === selectedStrike;
-    });
-
-    const depositTokenSymbol = isPut
-      ? collateralTokenSymbol
-      : underlyingTokenSymbol;
-    const tokenDecimals = CHAINS[chainId].tokenDecimals[depositTokenSymbol];
-
-    if (!clammStrike) {
-      console.error('[handleDeposit] Relevant clammStrike not found');
-      return;
-    }
-
-    const { upperTick, lowerTick } = clammStrike;
-    const depositAmountBigInt = parseUnits(amountDebounced, tokenDecimals);
-    const slot0 = await getPoolSlot0(uniswapPoolAddress);
-    // @ts-ignore
-    const sqrtX96 = slot0[0];
-
-    const liquidity = getLiquidityForAmounts(
-      sqrtX96,
-      getSqrtRatioAtTick(BigInt(lowerTick)),
-      getSqrtRatioAtTick(BigInt(upperTick)),
-      isPut ? 0n : depositAmountBigInt,
-      isPut ? depositAmountBigInt : 0n,
+  const checkApproved = useCallback(async () => {
+    if (!provider || !userAddress) return;
+    const token = ERC20__factory.connect(
+      isPut ? collateralTokenAddress : underlyingTokenAddress,
+      provider,
     );
-
-    // Like wise for withdraw
-    const params = {
-      pool: uniswapPoolAddress,
-      tickLower: lowerTick,
-      tickUpper: upperTick,
-      liquidity: liquidity,
-    };
+    const spender = isTrade ? optionPool : positionManagerAddress;
+    const allowance = await token.allowance(userAddress, spender);
+    if (BigNumber.from(tokenAmountToSpend.toString()).gt(allowance)) {
+      setApproved(false);
+    } else {
+      setApproved(true);
+    }
   }, [
-    uniswapPoolAddress,
-    clammStrikes,
-    selectedStrike,
+    userAddress,
+    collateralTokenAddress,
+    isPut,
+    isTrade,
+    optionPool,
+    provider,
+    tokenAmountToSpend,
+    underlyingTokenAddress,
+  ]);
+
+  const updateTokenAmountsToSpend = useCallback(async () => {
+    if (!provider) return;
+    const decimals =
+      CHAINS[chainId].tokenDecimals[
+        isPut ? collateralTokenSymbol : underlyingTokenSymbol
+      ];
+    const blockTimestamp = Number(await getBlockTime(provider));
+    const amount = isTrade
+      ? (((await getPremium(
+          optionPool,
+          isPut,
+          blockTimestamp + selectedExpiry,
+          0n,
+          0n,
+          0n,
+          0n,
+        )) as bigint) *
+          parseUnits(amountDebounced, OPTION_TOKEN_DECIMALS)) /
+        parseUnits('1', OPTION_TOKEN_DECIMALS)
+      : parseUnits(amountDebounced, decimals);
+    setTokenAmountToSpend(amount);
+  }, [
     amountDebounced,
     chainId,
     collateralTokenSymbol,
     isPut,
+    isTrade,
+    optionPool,
+    provider,
+    selectedExpiry,
     underlyingTokenSymbol,
   ]);
 
-  const handlePurchase = useCallback(async () => {}, []);
+  const updateUserTokensBalances = useCallback(async () => {
+    const [collateralTokenBalance, underlyingTokenBalance] = await Promise.all([
+      getUserBalance({
+        owner: userAddress,
+        tokenAddress: collateralTokenAddress,
+      }),
+      getUserBalance({
+        owner: userAddress,
+        tokenAddress: underlyingTokenAddress,
+      }),
+    ]);
+
+    setUserTokenBalances({
+      collateralTokenBalance: collateralTokenBalance ?? 0n,
+      underlyingTokenBalance: underlyingTokenBalance ?? 0n,
+    });
+  }, [collateralTokenAddress, underlyingTokenAddress, userAddress]);
+
+  useEffect(() => {
+    updateUserTokensBalances();
+  }, [updateUserTokensBalances]);
+
+  useEffect(() => {
+    checkApproved();
+  }, [checkApproved]);
+
+  useEffect(() => {
+    updateTokenAmountsToSpend();
+  }, [updateTokenAmountsToSpend]);
+
+  const mintPositionConfig = usePrepareMintPosition({
+    parameters: depositParams,
+  });
+  const { write: mintPosition } = useContractWrite(mintPositionConfig);
 
   const selectedToken = useMemo(() => {
     if (isPut) {
@@ -257,13 +360,6 @@ const AsidePanel = () => {
    * NEWLY ADDED END
    */
 
-  const tokenAApproveConfig = usePrepareApprove({
-    spender: positionManagerContract,
-    token: collateralTokenAddress,
-    amount: parseUnits(amountDebounced || '0', DECIMALS_TOKEN),
-  });
-  const { write: approveTokenA } = useContractWrite(tokenAApproveConfig);
-
   // IUniswapV3Pool pool;
   // int24 tickLower;
   // int24 tickUpper;
@@ -277,20 +373,6 @@ const AsidePanel = () => {
   //   isPut ? parseEther(inputAmount) : 0,
   //   !isPut ? parseEther(inputAmount) : 0,
   // )
-  const { config: mintPositionConfig } = usePrepareContractWrite({
-    abi: PositionsManager__factory.abi,
-    address: positionManagerContract,
-    functionName: 'mintPosition',
-    args: [
-      {
-        pool: uniswapPoolContract,
-        tickLower: tickLower,
-        tickUpper: tickUpper,
-        liquidity: liquidity,
-      },
-    ], // TODO: liquidity type bigint?
-  });
-  const { write: mintPosition } = useContractWrite(mintPositionConfig);
 
   // IUniswapV3Pool pool;
   // int24 tickLower;
@@ -373,54 +455,74 @@ const AsidePanel = () => {
     updateSelectedStrike(Number(e.target.value));
   };
 
-  const handleAction = useCallback(async () => {
-    if (!approved) {
-      approveTokenA?.();
-    } else if (tradeOrLpIndex === 0) {
-      if (isPut) {
-        mintPutOption?.();
-      } else {
-        mintCallOption?.();
-      }
+  const tokenAApproveConfig = usePrepareApprove({
+    spender: isTrade ? optionPool : positionManagerContract,
+    token: isPut ? underlyingTokenAddress : collateralTokenAddress,
+    amount: tokenAmountToSpend,
+  });
+
+  const approveTokens = useContractWrite(tokenAApproveConfig);
+
+  const handleApprove = useCallback(async () => {
+    const { writeAsync } = approveTokens;
+    if (!writeAsync) return;
+    await writeAsync();
+  }, [approveTokens]);
+
+  const buttonProps = useMemo(() => {
+    // @todo, why is colors type never expored from UI packages.-.
+    type colors =
+      | 'primary'
+      | 'mineshaft'
+      | 'carbon'
+      | 'umbra'
+      | 'success'
+      | 'error';
+
+    let action: (() => void) | undefined;
+    let text = 'Deposit';
+    let color: colors = 'primary';
+    let disabled = false;
+
+    const consideredBalance = isPut
+      ? userTokenBalances.collateralTokenBalance
+      : userTokenBalances.underlyingTokenBalance;
+
+    if (isTrade) {
+      text = 'Buy';
     } else {
-      mintPosition?.();
+      text = 'Deposit';
+      action = mintPosition;
     }
+
+    if (tokenAmountToSpend > consideredBalance) {
+      text = 'Insufficient Balance';
+      color = 'mineshaft';
+      disabled = true;
+    }
+
+    if (!approved) {
+      text = 'Approve';
+      color = 'primary';
+      disabled = false;
+      action = handleApprove;
+    }
+
+    return {
+      text,
+      action,
+      color,
+      disabled,
+    };
   }, [
-    approveTokenA,
+    mintPosition,
+    handleApprove,
     approved,
     isPut,
-    mintCallOption,
-    mintPosition,
-    mintPutOption,
-    tradeOrLpIndex,
-  ]);
-
-  useEffect(() => {
-    if (optionPoolsContract === ZERO_ADDRESS || !address) return;
-    (async () => {
-      const _approved = await isApproved({
-        owner: address,
-        spender: optionPoolsContract,
-        tokenAddress: collateralTokenAddress,
-        amount: parseUnits(amountDebounced, DECIMALS_TOKEN),
-      });
-      setApproved(_approved);
-      const _balance = await getUserBalance({
-        owner: address,
-        tokenAddress: collateralTokenAddress,
-      });
-      setUserBalance(
-        Number(
-          formatUnits(_balance || 0n, isPut ? DECIMALS_USD : DECIMALS_TOKEN),
-        ),
-      );
-    })();
-  }, [
-    address,
-    optionPoolsContract,
-    amountDebounced,
-    collateralTokenAddress,
-    isPut,
+    isTrade,
+    tokenAmountToSpend,
+    userTokenBalances.collateralTokenBalance,
+    userTokenBalances.underlyingTokenBalance,
   ]);
 
   return (
@@ -530,7 +632,14 @@ const AsidePanel = () => {
         <div className="border border-[#1E1E1E] bg-[#1E1E1E] rounded-md p-2 space-y-2">
           {tradeOrLpIndex === 0 ? (
             <>
-              <RowItem label="Time to expiry" content={`1 hour`} />
+              <RowItem
+                label="Time to expiry"
+                content={formatDistance(
+                  new Date().getTime() +
+                    EXPIRIES_BY_INDEX[selectedExpiry] * 1000,
+                  Number(new Date()),
+                )}
+              />
               <RowItem
                 label="Fees"
                 content={
@@ -552,26 +661,28 @@ const AsidePanel = () => {
               <Button
                 variant="contained"
                 // onClick={handleAction}
-                onClick={handleDeposit}
+                onClick={buttonProps.action}
                 // disabled={
                 //   Number(inputAmount) <= 0 || Number(inputAmount) > userBalance
                 // }
-                color={
-                  !approved ||
-                  (Number(inputAmount) > 0 &&
-                    Number(inputAmount) <= userBalance)
-                    ? 'primary'
-                    : 'mineshaft'
-                }
+                // color={
+                //   !approved ||
+                //   (Number(inputAmount) > 0 &&
+                //     Number(inputAmount) <= userBalance)
+                //     ? 'primary'
+                //     : 'mineshaft'
+                // }
+                color={buttonProps.color}
                 className="w-full"
               >
-                {approved
-                  ? inputAmount.trim() == ''
-                    ? 'Insert an amount'
-                    : Number(inputAmount) > userBalance
-                    ? 'Insufficient balance'
-                    : 'Deposit'
-                  : 'Approve'}
+                {/* {approved
+                 ? inputAmount.trim() == ''
+                   ? 'Insert an amount'
+                   : Number(inputAmount) > userBalance
+                   ? 'Insufficient balance'
+                   : 'Deposit'
+                 : 'Approve'} */}
+                {buttonProps.text}
               </Button>
             </>
           ) : (
@@ -579,26 +690,30 @@ const AsidePanel = () => {
               <RowItem label="Balance" content={`10,313 USDC`} />
               <Button
                 variant="contained"
-                onClick={handleAction}
-                disabled={
-                  Number(inputAmount) <= 0 || Number(inputAmount) > userBalance
-                }
-                color={
-                  !approved ||
-                  (Number(inputAmount) > 0 &&
-                    Number(inputAmount) <= userBalance)
-                    ? 'primary'
-                    : 'mineshaft'
-                }
+                disabled={buttonProps?.disabled}
+                onClick={buttonProps.action}
+                // onClick={handleDeposit}
+                // disabled={
+                //   Number(inputAmount) <= 0 || Number(inputAmount) > userBalance
+                // }
+                // color={
+                //   !approved ||
+                //   (Number(inputAmount) > 0 &&
+                //     Number(inputAmount) <= userBalance)
+                //     ? 'primary'
+                //     : 'mineshaft'
+                // }
+                color={buttonProps.color}
                 className="w-full"
               >
-                {approved
+                {/* {approved
                   ? inputAmount.trim() == ''
                     ? 'Insert an amount'
                     : Number(inputAmount) > userBalance
                     ? 'Insufficient balance'
                     : 'Deposit'
-                  : 'Approve'}
+                  : 'Approve'} */}
+                {buttonProps.text}
               </Button>
             </>
           )}
