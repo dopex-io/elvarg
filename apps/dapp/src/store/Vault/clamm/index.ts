@@ -1,4 +1,4 @@
-import { Address, formatUnits } from 'viem';
+import { Address, formatUnits, zeroAddress } from 'viem';
 
 import axios from 'axios';
 import { StateCreator } from 'zustand';
@@ -12,6 +12,19 @@ import { DECIMALS_STRIKE, DECIMALS_TOKEN, ZERO_ADDRESS } from 'constants/index';
 import { TOKEN_DATA } from 'constants/tokens';
 
 import { CommonSlice } from '../common';
+
+type UniswapV3Pool = {
+  sqrtX96: bigint;
+  token0: Address;
+  token1: Address;
+  currentTick: number;
+  tickSpacing: number;
+  strikes: any[];
+  address: Address;
+  underlyingToken: Address;
+  collateralToken: Address;
+  optionPool: Address;
+};
 
 export interface ClammStrikeData {
   strike: number;
@@ -77,6 +90,8 @@ export interface ClammSlice {
   /** NEWLY ADDED */
   selectedPair: ClammPair;
   updateSelectedPair: Function;
+  selectedUniswapPool: UniswapV3Pool;
+  updateSelectedUniswapPool: (pool: UniswapV3Pool) => void;
 
   /** NEWLY ADDED */
 
@@ -372,6 +387,24 @@ export const createClammSlice: StateCreator<
         selectedPair: pair,
       };
     });
+  },
+  selectedUniswapPool: {
+    sqrtX96: 0n,
+    token0: zeroAddress,
+    token1: zeroAddress,
+    currentTick: 0,
+    tickSpacing: 1,
+    strikes: [],
+    address: zeroAddress,
+    underlyingToken: zeroAddress,
+    collateralToken: zeroAddress,
+    optionPool: zeroAddress,
+  },
+  updateSelectedUniswapPool: (pool: UniswapV3Pool) => {
+    set((prev) => ({
+      ...prev,
+      selectedUniswapPool: pool,
+    }));
   },
 });
 
