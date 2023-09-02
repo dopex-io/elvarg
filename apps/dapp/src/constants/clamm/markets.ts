@@ -37,25 +37,16 @@ export const MARKETS: Record<ClammPair, ClammMarket> = {
       '0x090fdA0F2c26198058530A0A8cFE53362d54d9f1',
     ) as Address,
   },
-  // 'ARB-USDC': {
-  //   underlyingTokenSymbol: 'ARB',
-  //   collateralTokenSymbol: 'USDC',
-  //   underlyingTokenAddress: '0x912CE59144191C1204E64559FE8253a0e49E6548',
-  //   collateralTokenAddress: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
-  //   uniswapPoolAddress: '0xcda53b1f66614552f834ceef361a8d12a0b8dad8',
-  //   optionPools: '0x0',
-  // },
-
-  // '42069inu': {
-  //   underlyingSymbol: '42069inu',
-  //   collateralTokenAddress: '0x912CE59144191C1204E64559FE8253a0e49E6548',
-  //   uniswapPoolAddress: undefined,
-  // },
-  // USDC: {
-  //   underlyingSymbol: 'USDC',
-  //   collateralTokenAddress: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
-  //   uniswapPoolAddress: undefined,
-  // },
+  '42069inu': {
+    underlyingSymbol: '42069inu',
+    collateralTokenAddress: '0x912CE59144191C1204E64559FE8253a0e49E6548',
+    uniswapPoolAddress: undefined,
+  },
+  USDC: {
+    underlyingSymbol: 'USDC',
+    collateralTokenAddress: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+    uniswapPoolAddress: undefined,
+  },
 };
 
 export const FALLBACK_SLUG = '?pair=ARB-USDC';
