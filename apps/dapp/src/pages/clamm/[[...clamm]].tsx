@@ -53,8 +53,6 @@ const ClammPage = () => {
   useEffect(() => {
     let pair = router.query?.clamm;
 
-    console.log('{PAIR AT MAIN COMP', pair, router.query);
-
     if (!pair) {
       router.replace(router.asPath, `/clamm/${DEFAULT_PAIR}`);
       pair = DEFAULT_PAIR;
@@ -62,7 +60,7 @@ const ClammPage = () => {
       pair = pair[0] as ClammPair;
     }
 
-    updateSelectedPair(pair);
+    // updateSelectedPair(pair);
   }, [router, updateSelectedPair]);
 
   return (
