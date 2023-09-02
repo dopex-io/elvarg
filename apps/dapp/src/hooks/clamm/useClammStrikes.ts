@@ -9,6 +9,12 @@ import splitMarketPair from 'utils/clamm/splitMarketPair';
 
 import { CHAINS } from 'constants/chains';
 
+export type ClammStrike = {
+  strike: number;
+  upperTick: number;
+  lowerTick: number;
+};
+
 const useClammStrikes = () => {
   const { selectedPair, isPut, chainId } = useBoundStore();
   const generateClammStrikesForPair = useCallback(
@@ -18,8 +24,6 @@ const useClammStrikes = () => {
 
       const decimals0 = CHAINS[chainId].tokenDecimals[underlyingTokenSymbol];
       const decimals1 = CHAINS[chainId].tokenDecimals[collateralTokenSymbol];
-      console.log(decimals0);
-      console.log(decimals1);
 
       const slot0 = await getPoolSlot0(poolAddress);
       const tickSpacing = await getPoolTickSpacing(poolAddress);
@@ -37,21 +41,22 @@ const useClammStrikes = () => {
           ? currentTick - tickModuloFromTickSpace
           : currentTick - (tickModuloFromTickSpace - tickSpacing);
 
-      const strikes = [];
-      strikes.push(1.0001 ** startTick * 10 ** decimals0) / 10 ** decimals1;
+      const strikes: ClammStrike[] = [];
 
       for (let i = 1; i < range + 1; i++) {
+        let strike = 0;
+        let upperTick = 0;
+        let lowerTick = 0;
         if (isPut) {
-          strikes.push(
-            1.0001 ** (startTick - tickSpacing * i) * 10 ** decimals0,
-          ) /
-            10 ** decimals1;
+          lowerTick = startTick - tickSpacing * i - tickSpacing;
+          upperTick = startTick - tickSpacing * i;
+          strike = (1.0001 ** lowerTick * 10 ** decimals0) / 10 ** decimals1;
         } else {
-          strikes.push(
-            1.0001 ** (startTick + tickSpacing * i) * 10 ** decimals0,
-          ) /
-            10 ** decimals1;
+          upperTick = startTick + tickSpacing * i + tickSpacing;
+          lowerTick = startTick + tickSpacing * i;
+          strike = (1.0001 ** upperTick * 10 ** decimals0) / 10 ** decimals1;
         }
+        strikes.push({ strike, upperTick, lowerTick });
       }
       return strikes;
     },
