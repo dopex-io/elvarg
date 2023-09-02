@@ -4,17 +4,22 @@ import { Skeleton } from '@dopex-io/ui';
 
 import { useBoundStore } from 'store';
 
+import useClammPositions from 'hooks/clamm/useClammPositions';
+
 import { ButtonGroup } from 'components/clamm/AsidePanel';
 
 import BuyPositions from './BuyPositions';
 import WritePositions from './WritePositions';
 
 const Positions = () => {
-  const isLoading = false;
-
-  const { buyPositions, writePositions } = useBoundStore();
+  // const isLoading = false;
+  // const { buyPositions, writePositions } = useBoundStore();
 
   const [activeIndex, setActiveIndex] = useState<number>(0);
+
+  const { writePositions, buyPositions, isLoading } = useClammPositions({
+    market: 'dummy_ARB',
+  });
 
   const buttonLabels = useMemo(() => {
     if (!buyPositions || !writePositions) return [null, null];
