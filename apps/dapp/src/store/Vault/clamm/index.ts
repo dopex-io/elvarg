@@ -5,7 +5,6 @@ import { StateCreator } from 'zustand';
 
 import { WalletSlice } from 'store/Wallet';
 
-import generateStrikes from 'utils/clamm/generateStrikes';
 import getMarketInformation from 'utils/clamm/getMarketInformation';
 
 import { MARKETS } from 'constants/clamm/markets';
@@ -225,8 +224,7 @@ export const createClammSlice: StateCreator<
       }));
     }
 
-    const strikes = await generateStrikes(uniswapPoolAddress, 10, isPut);
-    get().updateSelectedStrike(strikes[0]);
+    const strikes: any[] = [];
 
     const strikesData = isPut
       ? generatePutStrikesData({
