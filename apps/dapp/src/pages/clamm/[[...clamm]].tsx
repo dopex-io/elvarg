@@ -16,6 +16,10 @@ import AppBar from 'components/common/AppBar';
 import PageLayout from 'components/common/PageLayout';
 import PriceChart from 'components/common/PriceChart';
 
+import getMarketInformation from 'utils/clamm/getMarketInformation';
+import getPoolSlot0 from 'utils/clamm/getPoolSlot0';
+import getPoolTickSpacing from 'utils/clamm/getPoolTickSpacing';
+import getPoolTokens from 'utils/clamm/getPoolTokens';
 import splitMarketPair from 'utils/clamm/splitMarketPair';
 
 import seo from 'constants/seo';
@@ -29,6 +33,7 @@ const ClammPage = () => {
     updateUserAddress,
     updateSelectedPair,
     selectedPair,
+    updateSelectedUniswapPool,
   } = useBoundStore();
   const { address: userAddress } = useAccount();
 
@@ -62,6 +67,45 @@ const ClammPage = () => {
 
     // updateSelectedPair(pair);
   }, [router, updateSelectedPair]);
+
+  useEffect(() => {
+    (async () => {
+      const {
+        collateralTokenAddress,
+        underlyingTokenAddress,
+        uniswapPoolAddress,
+        optionPool,
+      } = getMarketInformation(selectedPair);
+
+      const calls = [getPoolSlot0(uniswapPoolAddress)];
+      // const slot0 = await getPoolSlot0(uniswapPoolAddress)
+
+      const [slot0, tickSpacing, [token0, token1]] = await Promise.all([
+        getPoolSlot0(uniswapPoolAddress),
+        getPoolTickSpacing(uniswapPoolAddress),
+        getPoolTokens(uniswapPoolAddress),
+      ]);
+
+      updateSelectedUniswapPool({
+        address: uniswapPoolAddress,
+        collateralToken: collateralTokenAddress,
+        underlyingToken: underlyingTokenAddress,
+        // @ts-ignore
+        currentTick: slot0[1],
+        // @ts-ignore
+        sqrtX96: slot0[0],
+        strikes: [],
+        tickSpacing: tickSpacing,
+        // @ts-ignore
+        token0: token0,
+        // @ts-ignore
+        token1: token1,
+        optionPool: optionPool,
+      });
+
+      console.log('result', slot0, tickSpacing, token0, token1);
+    })();
+  }, [selectedPair, updateSelectedUniswapPool]);
 
   return (
     <div className="overflow-x-hidden bg-black h-screen">
