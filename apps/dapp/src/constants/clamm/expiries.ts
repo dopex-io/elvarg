@@ -8,3 +8,4 @@ const EXPIRIES: { [key: string]: number } = {
 };
 
 export const EXPIRIES_MENU = Object.keys(EXPIRIES);
+export const EXPIRIES_BY_INDEX = Object.values(EXPIRIES);
