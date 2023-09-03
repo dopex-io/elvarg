@@ -39,7 +39,8 @@ interface Args {
 
 const useClammPositions = (args: Args) => {
   const { market } = args;
-  const { address } = useAccount();
+  //   const { address } = useAccount();
+  const address = '0x29ed22a9e56ee1813e6ff69fc6cac676aa24c09c';
 
   const [writePositions, setWritePositions] = useState<ClammWritePosition[]>();
   const [buyPositions, setBuyPositions] = useState<ClammBuyPosition[]>();
