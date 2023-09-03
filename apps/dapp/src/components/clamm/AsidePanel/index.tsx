@@ -20,6 +20,8 @@ import { ClammStrike } from 'hooks/clamm/useClammStrikes';
 import useOptionPool from 'hooks/clamm/useOptionPool';
 import usePositionManager from 'hooks/clamm/usePositionManager';
 import {
+  usePrepareBurnMintPosition,
+  usePrepareExerciseOptionRoll,
   UsePrepareMintCallOrPutOptionProps,
   usePrepareMintCallOrPutOptionRoll,
   usePrepareMintPosition,
@@ -581,6 +583,14 @@ const AsidePanel = () => {
     token: isPut ? collateralTokenAddress : underlyingTokenAddress,
     amount: tokenAmountToSpend,
   });
+
+  // Exercise options
+  const exerciseOptionsConfig = usePrepareExerciseOptionRoll();
+  const { write: exerciseOptions } = useContractWrite(exerciseOptionsConfig);
+
+  // Burn write position
+  const burnMintPositionConfig = usePrepareBurnMintPosition();
+  const { write: burnMintPosition } = useContractWrite(burnMintPositionConfig);
 
   const approveTokens = useContractWrite(tokenAApproveConfig);
 

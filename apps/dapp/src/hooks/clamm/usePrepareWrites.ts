@@ -19,17 +19,17 @@ export type UsePrepareMintCallOrPutOptionProps = {
   optionPool: Address;
 };
 
-export type ExerciseOptionRollParams = {
-  optionPool: Address;
-  parameters: {
-    pool: Address;
-    tickLower: number;
-    tickUpper: number;
-    expiry: bigint;
-    callOrPut: boolean;
-    amountToExercise: bigint;
-  };
-};
+// export type ExerciseOptionRollParams = {
+//   optionPool?: Address;
+//   parameters?: {
+//     pool?: Address;
+//     tickLower?: number;
+//     tickUpper?: number;
+//     expiry?: bigint;
+//     callOrPut?: boolean;
+//     amountToExercise?: bigint;
+//   };
+// };
 
 export type BurnPositionParams = {
   pool: Address;
@@ -64,34 +64,47 @@ export const usePrepareMintCallOrPutOptionRoll = ({
   return config;
 };
 
-// export const usePrepareExerciseOptionRoll = ({
-//   optionPool,
-//   parameters,
-// }: ExerciseOptionRollParams) => {
-//   const { config } = usePrepareContractWrite({
-//     abi: OptionPools__factory.abi,
-//     address: '0x090fdA0F2c26198058530A0A8cFE53362d54d9f1',
-//     functionName: 'exerciseOptionRoll',
-//     args: [
-//       {
-//         pool: '0xce0F8EfCa1Bc21Dd9AaEE6ee8F2c0F2155980bBB',
-//         tickLower: 277500,
-//         tickUpper: 277510,
-//         expiry: 0n,
-//         callOrPut: true,
-//         amountToExercise: 0n,
-//       },
-//     ],
-//   });
-//   return config;
-// };
+// @todo, add params and param types
+export const usePrepareExerciseOptionRoll = () => {
+  console.log('Exercise called');
+  const { config } = usePrepareContractWrite({
+    abi: OptionPools__factory.abi,
+    address: '0x090fdA0F2c26198058530A0A8cFE53362d54d9f1',
+    functionName: 'exerciseOptionRoll',
+    args: [
+      {
+        pool: '0xce0F8EfCa1Bc21Dd9AaEE6ee8F2c0F2155980bBB',
+        // tickLower: 277460,
+        tickLower: 277500,
+        // tickUpper: 277470,
+        tickUpper: 277510,
+        // expiry: 1693839878n,
+        expiry: 1693839891n,
+        callOrPut: false,
+        // amountToExercise: 1889196001030426n,
+        amountToExercise: 1884477852069099n,
+      },
+    ],
+  });
+  return config;
+};
 
-// export const usePrepareBurnOPosition = (parameters: BurnPositionParams) => {
-//   const { config } = usePrepareContractWrite({
-//     abi: PositionsManager__factory.abi,
-//     address: '0x2a9a9f63F13dD70816C456B2f2553bb648EE0F8F',
-//     functionName: 'burnPosition',
-//     args: [parameters],
-//   });
-//   return config;
-// };
+// @todo, add params and param types
+export const usePrepareBurnMintPosition = () => {
+  console.log('Burn position called');
+  const { config } = usePrepareContractWrite({
+    abi: PositionsManager__factory.abi,
+    address: '0x2a9a9f63F13dD70816C456B2f2553bb648EE0F8F',
+    functionName: 'burnPosition',
+    args: [
+      {
+        pool: '0xce0F8EfCa1Bc21Dd9AaEE6ee8F2c0F2155980bBB',
+        tickLower: 277500,
+        tickUpper: 277510,
+        // @todo -1
+        shares: 2121753551762724917415985909n,
+      },
+    ],
+  });
+  return config;
+};
