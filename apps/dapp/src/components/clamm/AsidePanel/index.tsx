@@ -6,7 +6,7 @@ import {
   useState,
 } from 'react';
 import { BigNumber } from 'ethers';
-import { formatUnits, parseUnits } from 'viem';
+import { formatUnits, parseUnits, zeroAddress } from 'viem';
 
 import { ERC20__factory, OptionPools__factory } from '@dopex-io/sdk';
 import { Button, Input, Menu } from '@dopex-io/ui';
@@ -17,16 +17,24 @@ import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 import { useBoundStore } from 'store';
 
 import { ClammStrike } from 'hooks/clamm/useClammStrikes';
+import useOptionPool from 'hooks/clamm/useOptionPool';
 import usePositionManager from 'hooks/clamm/usePositionManager';
-import { usePrepareMintPosition } from 'hooks/clamm/usePrepareWrites';
+import {
+  UsePrepareMintCallOrPutOptionProps,
+  usePrepareMintCallOrPutOptionRoll,
+  usePrepareMintPosition,
+} from 'hooks/clamm/usePrepareWrites';
 import { usePrepareApprove } from 'hooks/ssov/usePrepareWrites';
 
 import PnlChart from 'components/common/PnlChart';
 import RowItem from 'components/ssov-beta/AsidePanel/RowItem';
 
+import getLiquidityAtTick from 'utils/clamm/getLiquidityAtTick';
 import getMarketInformation from 'utils/clamm/getMarketInformation';
 import getPremium from 'utils/clamm/getPremium';
+import { getUserOptionPositions } from 'utils/clamm/getUserOptionsPositions';
 import { getBlockTime } from 'utils/contracts';
+import { STRIKE_DECIMALS } from 'utils/contracts/atlantics/pool';
 import { getUserBalance, isApproved } from 'utils/contracts/getERC20Info';
 import formatAmount from 'utils/general/formatAmount';
 
@@ -176,6 +184,8 @@ const AsidePanel = () => {
   }, [selectedPair]);
 
   const { getDepositParams, getStrikesWithTicks } = usePositionManager();
+  const { /* getAvailableLiquidityAtTick  ,*/ getLiquidityToUse } =
+    useOptionPool();
 
   const depositParams = useMemo(() => {
     const defaultDepositParams = {
@@ -227,6 +237,46 @@ const AsidePanel = () => {
     setClammStrikes(await getStrikesWithTicks(10));
   }, [uniswapPoolAddress, getStrikesWithTicks]);
 
+  // const debugAvailableLiquidity = useCallback(async () => {
+  //   const clammStrike = clammStrikes.find(({ strike }) => {
+  //     return Number(strike.toFixed(5)) === selectedStrike;
+  //   });
+
+  //   if (!clammStrike) return;
+  //   const availableLiquidity = await getAvailableLiquidityAtTick(
+  //     clammStrike.lowerTick,
+  //     clammStrike.upperTick,
+  //   );
+
+  //   console.log("available liquidity", availableLiquidity);
+  // }, [clammStrikes, getAvailableLiquidityAtTick, selectedStrike]);
+
+  // useEffect(() => {
+  //   debugAvailableLiquidity();
+  // }, [debugAvailableLiquidity]);
+
+  // const debugGetUserOptionsPOsitions = useCallback(async () => {
+  //   // const clammStrike = clammStrikes.find(({ strike }) => {
+  //   //   return Number(strike.toFixed(5)) === selectedStrike;
+  //   // });
+
+  //   // const positions = await getUserOptionPositions(zeroAddress, uniswapPoolAddress)
+
+  //   // console.log(positions)
+
+  //   // if (!clammStrike) return;
+  //   // const availableLiquidity = await getUserOptionPositions(
+  //   //   clammStrike.lowerTick,
+  //   //   clammStrike.upperTick,
+  //   // );
+
+  //   // console.log("available liquidity", availableLiquidity);
+  // }, []);
+
+  // useEffect(() => {
+  //   debugGetUserOptionsPOsitions();
+  // }, [debugGetUserOptionsPOsitions]);
+
   const readableClammStrikes = useMemo(() => {
     if (clammStrikes.length === 0) return [];
     return clammStrikes.map(({ strike }) => ({
@@ -234,6 +284,67 @@ const AsidePanel = () => {
       disabled: false,
     }));
   }, [clammStrikes]);
+
+  const mintOptionsParams = useMemo(() => {
+    let mintOptionsParams: UsePrepareMintCallOrPutOptionProps = {
+      isPut: false,
+      optionPool: optionPool,
+      parameters: {
+        liquidityToUse: 0n,
+        pool: uniswapPoolAddress,
+        tickLower: 0,
+        tickUpper: 0,
+        ttl: 0n,
+      },
+    };
+
+    if (!isTrade) {
+      return mintOptionsParams;
+    }
+
+    const clammStrike = clammStrikes.find(({ strike }) => {
+      return Number(strike.toFixed(5)) === selectedStrike;
+    });
+
+    if (!clammStrike) {
+      console.error('[handleDeposit] Relevant clammStrike not found');
+      return mintOptionsParams;
+    }
+
+    const strikeToPrecision = BigInt(
+      (clammStrike.strike * 10 ** STRIKE_DECIMALS).toFixed(0),
+    );
+
+    const liquidityToUse = getLiquidityToUse(
+      strikeToPrecision,
+      clammStrike.lowerTick,
+      clammStrike.upperTick,
+      parseUnits(amountDebounced, OPTION_TOKEN_DECIMALS),
+      isPut,
+    );
+
+    return {
+      isPut: isPut,
+      optionPool: optionPool,
+      parameters: {
+        pool: uniswapPoolAddress,
+        tickLower: clammStrike.lowerTick,
+        tickUpper: clammStrike.upperTick,
+        liquidityToUse: liquidityToUse,
+        ttl: BigInt(EXPIRIES_BY_INDEX[selectedExpiry]),
+      },
+    };
+  }, [
+    selectedExpiry,
+    optionPool,
+    uniswapPoolAddress,
+    clammStrikes,
+    isTrade,
+    selectedStrike,
+    amountDebounced,
+    getLiquidityToUse,
+    isPut,
+  ]);
 
   /***
    *
@@ -251,6 +362,8 @@ const AsidePanel = () => {
     );
     const spender = isTrade ? optionPool : positionManagerAddress;
     const allowance = await token.allowance(userAddress, spender);
+    // console.log('Spender', spender);
+    // console.log('allowance', allowance);
     if (BigNumber.from(tokenAmountToSpend.toString()).gt(allowance)) {
       setApproved(false);
     } else {
@@ -275,7 +388,7 @@ const AsidePanel = () => {
       ];
     const blockTimestamp = Number(await getBlockTime(provider));
     const amount = isTrade
-      ? (((await getPremium(
+      ? ((await getPremium(
           optionPool,
           isPut,
           blockTimestamp + selectedExpiry,
@@ -283,10 +396,10 @@ const AsidePanel = () => {
           0n,
           0n,
           0n,
-        )) as bigint) *
-          parseUnits(amountDebounced, OPTION_TOKEN_DECIMALS)) /
-        parseUnits('1', OPTION_TOKEN_DECIMALS)
+        )) as bigint)
       : parseUnits(amountDebounced, decimals);
+
+    // console.log('COST', amount);
     setTokenAmountToSpend(amount);
   }, [
     amountDebounced,
@@ -316,6 +429,10 @@ const AsidePanel = () => {
       collateralTokenBalance: collateralTokenBalance ?? 0n,
       underlyingTokenBalance: underlyingTokenBalance ?? 0n,
     });
+
+    // console.log('BALANCES');
+    // console.log('DARB', underlyingTokenBalance);
+    // console.log('DUSC', collateralTokenBalance);
   }, [collateralTokenAddress, underlyingTokenAddress, userAddress]);
 
   useEffect(() => {
@@ -333,7 +450,11 @@ const AsidePanel = () => {
   const mintPositionConfig = usePrepareMintPosition({
     parameters: depositParams,
   });
+
+  const mintOptionsConfig =
+    usePrepareMintCallOrPutOptionRoll(mintOptionsParams);
   const { write: mintPosition } = useContractWrite(mintPositionConfig);
+  const { write: mintOptions } = useContractWrite(mintOptionsConfig);
 
   const selectedToken = useMemo(() => {
     if (isPut) {
@@ -457,7 +578,7 @@ const AsidePanel = () => {
 
   const tokenAApproveConfig = usePrepareApprove({
     spender: isTrade ? optionPool : positionManagerContract,
-    token: isPut ? underlyingTokenAddress : collateralTokenAddress,
+    token: isPut ? collateralTokenAddress : underlyingTokenAddress,
     amount: tokenAmountToSpend,
   });
 
@@ -467,7 +588,8 @@ const AsidePanel = () => {
     const { writeAsync } = approveTokens;
     if (!writeAsync) return;
     await writeAsync();
-  }, [approveTokens]);
+    await checkApproved();
+  }, [approveTokens, checkApproved]);
 
   const buttonProps = useMemo(() => {
     // @todo, why is colors type never expored from UI packages.-.
@@ -490,6 +612,7 @@ const AsidePanel = () => {
 
     if (isTrade) {
       text = 'Buy';
+      action = mintOptions;
     } else {
       text = 'Deposit';
       action = mintPosition;
@@ -515,6 +638,7 @@ const AsidePanel = () => {
       disabled,
     };
   }, [
+    mintOptions,
     mintPosition,
     handleApprove,
     approved,

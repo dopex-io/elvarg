@@ -75,10 +75,11 @@ const ClammPage = () => {
         underlyingTokenAddress,
         uniswapPoolAddress,
         optionPool,
+        underlyingTokenSymbol,
+        collateralTokenSymbol,
       } = getMarketInformation(selectedPair);
 
       const calls = [getPoolSlot0(uniswapPoolAddress)];
-      // const slot0 = await getPoolSlot0(uniswapPoolAddress)
 
       const [slot0, tickSpacing, [token0, token1]] = await Promise.all([
         getPoolSlot0(uniswapPoolAddress),
@@ -101,6 +102,8 @@ const ClammPage = () => {
         // @ts-ignore
         token1: token1,
         optionPool: optionPool,
+        underlyingTokenSymbol: underlyingTokenSymbol,
+        collateralTokenSymbol: collateralTokenSymbol,
       });
 
       console.log('result', slot0, tickSpacing, token0, token1);

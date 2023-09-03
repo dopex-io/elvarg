@@ -45,16 +45,8 @@ const usePositionManager = () => {
   const { signer, isPut, chainId, selectedPair, selectedUniswapPool } =
     useBoundStore();
 
-  const {
-    sqrtX96,
-    token0,
-    tickSpacing,
-    underlyingToken,
-    currentTick,
-    collateralToken,
-    address,
-    token1,
-  } = selectedUniswapPool;
+  const { token0, tickSpacing, underlyingToken, currentTick, address } =
+    selectedUniswapPool;
 
   const getDepositParams = useCallback(
     (

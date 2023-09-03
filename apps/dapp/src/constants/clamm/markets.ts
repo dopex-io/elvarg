@@ -34,7 +34,7 @@ export const MARKETS: Record<ClammPair, ClammMarket> = {
       '0xce0F8EfCa1Bc21Dd9AaEE6ee8F2c0F2155980bBB',
     ) as Address,
     optionPool: ethers.utils.getAddress(
-      '0xf41FF552dACA8a76D800cC3ABd368D75816F66fc',
+      '0x090fdA0F2c26198058530A0A8cFE53362d54d9f1',
     ) as Address,
   },
   // 'ARB-USDC': {
