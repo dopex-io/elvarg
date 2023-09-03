@@ -24,6 +24,8 @@ type UniswapV3Pool = {
   underlyingToken: Address;
   collateralToken: Address;
   optionPool: Address;
+  underlyingTokenSymbol: string;
+  collateralTokenSymbol: string;
 };
 
 export interface ClammStrikeData {
@@ -399,6 +401,8 @@ export const createClammSlice: StateCreator<
     underlyingToken: zeroAddress,
     collateralToken: zeroAddress,
     optionPool: zeroAddress,
+    underlyingTokenSymbol: '',
+    collateralTokenSymbol: '',
   },
   updateSelectedUniswapPool: (pool: UniswapV3Pool) => {
     set((prev) => ({
