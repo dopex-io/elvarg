@@ -18,8 +18,16 @@ interface WritePositionData {
   strike: string;
   size: string;
   isPut: boolean;
-  earned: string;
-  premiums: string;
+  earnedAndPrice: {
+    earned: string;
+    price: number;
+    strikeSymbol: string;
+  };
+  premiumsAndPrice: {
+    premiums: string;
+    price: number;
+    strikeSymbol: string;
+  };
   button: {
     handleBurn: () => void;
     id: number;
@@ -46,29 +54,41 @@ const columns = [
     header: 'Side',
     cell: (info) => <p>{info.getValue() ? 'Put' : 'Call'}</p>,
   }),
-  columnHelper.accessor('premiums', {
+  columnHelper.accessor('premiumsAndPrice', {
     header: 'Premiums',
-    cell: (info) => (
-      <>
-        <span className="space-x-2">
-          <p className="text-stieglitz inline-block">$</p>
-          <p className="text-up-only inline-block">{info.getValue()}</p>
-        </span>
-        <p className="text-stieglitz">0.21 ETH</p>
-      </>
-    ),
+    cell: (info) => {
+      const value = info.getValue();
+      const usdPrice = formatAmount(value.price * Number(value.premiums), 3);
+      return (
+        <>
+          <span className="space-x-2">
+            <p className="text-stieglitz inline-block">$</p>
+            <p className="text-up-only inline-block">{usdPrice}</p>
+          </span>
+          <p className="text-stieglitz">
+            {value.premiums} {value.strikeSymbol}
+          </p>
+        </>
+      );
+    },
   }),
-  columnHelper.accessor('earned', {
+  columnHelper.accessor('earnedAndPrice', {
     header: 'Total Earned',
-    cell: (info) => (
-      <>
-        <span className="space-x-2">
-          <p className="text-stieglitz inline-block">$</p>
-          <p className="text-up-only inline-block">{info.getValue()}</p>
-        </span>
-        <p className="text-stieglitz">0.21 ETH</p>
-      </>
-    ),
+    cell: (info) => {
+      const value = info.getValue();
+      const usdPrice = formatAmount(value.price * Number(value.earned), 3);
+      return (
+        <>
+          <span className="space-x-2">
+            <p className="text-stieglitz inline-block">$</p>
+            <p className="text-up-only inline-block">{usdPrice}</p>
+          </span>
+          <p className="text-stieglitz">
+            {value.earned} {value.strikeSymbol}
+          </p>
+        </>
+      );
+    },
   }),
   columnHelper.accessor('button', {
     header: '',
@@ -93,7 +113,8 @@ const WritePositions = ({
 }: {
   writePositions: ClammWritePosition[] | undefined;
 }) => {
-  const { positionManagerContract, uniswapPoolContract } = useBoundStore();
+  const { positionManagerContract, uniswapPoolContract, clammMarkPrice } =
+    useBoundStore();
   const [selectedPosition, setSelectedPosition] = useState<BurnPositionProps>();
 
   const { config: burnPositionConfig } = usePrepareContractWrite({
@@ -124,7 +145,7 @@ const WritePositions = ({
     [burnPosition, writePositions],
   );
 
-  const positions = useMemo(() => {
+  const positions: WritePositionData[] = useMemo(() => {
     if (!writePositions) return [];
     return writePositions.map((position: ClammWritePosition, index: number) => {
       return {
@@ -132,15 +153,23 @@ const WritePositions = ({
         strike: formatAmount(position.strike, 3),
         size: formatAmount(Number(position.size), 3),
         isPut: position.isPut,
-        earned: formatAmount(position.earned, 3),
-        premiums: formatAmount(position.premiums, 3),
+        earnedAndPrice: {
+          earned: formatAmount(position.earned, 3),
+          price: clammMarkPrice,
+          strikeSymbol: position.strikeSymbol.split('-')[0],
+        },
+        premiumsAndPrice: {
+          premiums: formatAmount(position.premiums, 3),
+          price: clammMarkPrice,
+          strikeSymbol: position.strikeSymbol.split('-')[0],
+        },
         button: {
           handleBurn: () => handleBurn(index),
           id: index,
         },
       };
     });
-  }, [writePositions, handleBurn]);
+  }, [writePositions, clammMarkPrice, handleBurn]);
 
   return (
     <TableLayout<WritePositionData>
