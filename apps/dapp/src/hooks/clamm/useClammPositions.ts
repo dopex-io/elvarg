@@ -6,7 +6,11 @@ import { Address } from 'wagmi';
 
 import queryClient from 'queryClient';
 
-import { getUserClammPositions } from 'graphql/clamm';
+import {
+  getTotalMintSize,
+  getTotalPremium,
+  getUserClammPositions,
+} from 'graphql/clamm';
 
 import { useBoundStore } from 'store';
 import {
@@ -77,17 +81,48 @@ const useClammPositions = (args: Args) => {
       setLoading(false);
       return;
     }
-    const queryResult = (await queryClient.fetchQuery({
-      queryKey: ['getUserClammPositions', address.toLowerCase()],
-      queryFn: async () =>
-        request(DOPEX_CLAMM_SUBGRAPH_API_URL, getUserClammPositions, {
-          user: address.toLowerCase(),
-        }),
-    })) as any;
+
+    const [
+      positionsQueryResult,
+      totalMintSizeQueryResult,
+      totalPremiumQueryResult,
+    ] = await Promise.all([
+      queryClient.fetchQuery({
+        queryKey: ['getUserClammPositions', address.toLowerCase()],
+        queryFn: async () =>
+          request(DOPEX_CLAMM_SUBGRAPH_API_URL, getUserClammPositions, {
+            user: address.toLowerCase(),
+          }),
+      }),
+      queryClient.fetchQuery({
+        queryKey: ['getTotalMintSize'],
+        queryFn: async () =>
+          request(DOPEX_CLAMM_SUBGRAPH_API_URL, getTotalMintSize),
+      }),
+      queryClient.fetchQuery({
+        queryKey: ['getTotalPremium'],
+        queryFn: async () =>
+          request(DOPEX_CLAMM_SUBGRAPH_API_URL, getTotalPremium),
+      }),
+    ]);
 
     const poolAddress = MARKETS[market as ClammPair].uniswapPoolAddress;
+    const totalSharesRaw: bigint = (
+      totalMintSizeQueryResult as any
+    ).writePositions.reduce(
+      (acc: bigint, item: any) => acc + BigInt(item.size),
+      0n,
+    );
+    const totalShares = Number(formatEther(totalSharesRaw));
+    const totalPremiumRaw: bigint = (
+      totalPremiumQueryResult as any
+    ).buyPositions.reduce(
+      (acc: bigint, item: any) => acc + BigInt(item.premium),
+      0n,
+    );
+    const totalPremium = Number(formatEther(totalPremiumRaw));
 
-    if (!queryResult.users[0] || !poolAddress) {
+    if (!positionsQueryResult.users[0] || !poolAddress) {
       setLoading(false);
     }
 
@@ -102,7 +137,7 @@ const useClammPositions = (args: Args) => {
     const decimals1 = CHAINS[chainId].tokenDecimals[collateralTokenSymbol];
 
     const _buyPositions: ClammBuyPosition[] =
-      queryResult.users[0].userBuyPositions
+      positionsQueryResult.users[0].userBuyPositions
         .filter((position) => {
           const poolId = position.id.split('#')[0] as string;
           return (
@@ -132,73 +167,85 @@ const useClammPositions = (args: Args) => {
         });
     setBuyPositions(_buyPositions);
 
-    const _writePositions: ClammWritePosition[] =
-      queryResult.users[0].userWritePositions
-        .filter((position) => {
-          const poolId = position.id.split('#')[0] as string;
-          return (
-            poolAddress && poolId.toLowerCase() === poolAddress.toLowerCase()
-          );
-        })
-        .map(async (item) => {
-          const positionIsPut = currentTick < item.lowerTick;
-          if (positionIsPut === isPut) {
-            const strike = calculateStrike({
-              isPut: positionIsPut,
-              tickLower: item.tickLower,
-              tickUpper: item.tickUpper,
-              decimals0: decimals0,
-              decimals1: decimals1,
-            });
-
-            const positionId = await getWritePositionId(
-              poolAddress,
-              item.tickLower,
-              item.tickUpper,
+    const _writePositions: ClammWritePosition[] = (
+      await Promise.all(
+        positionsQueryResult.users[0].userWritePositions
+          .filter((position) => {
+            const poolId = position.id.split('#')[0] as string;
+            return (
+              poolAddress && poolId.toLowerCase() === poolAddress.toLowerCase()
             );
+          })
+          .map(async (item) => {
+            const positionIsPut = currentTick < item.tickLower;
+            if (positionIsPut === isPut) {
+              const strike = calculateStrike({
+                isPut: positionIsPut,
+                tickLower: item.tickLower,
+                tickUpper: item.tickUpper,
+                decimals0: decimals0,
+                decimals1: decimals1,
+              });
 
-            const position: any[] = (await getWritePosition(
-              positionId,
-            )) as any[];
-            const positionInfo: TokenIdInfo = {
-              totalLiquidity: position[0],
-              totalSupply: position[1],
-              liquidityUsed: position[2],
-              feeGrowthInside0LastX128: position[3],
-              feeGrowthInside1LastX128: position[4],
-              tokensOwed0: position[5],
-              tokensOwed1: position[6],
-            };
+              const positionId = await getWritePositionId(
+                poolAddress,
+                item.tickLower,
+                item.tickUpper,
+              );
 
-            const shares = (await getErc1155Balance(
-              address,
-              positionId,
-            )) as bigint;
-            const userLiquidity =
-              (shares * positionInfo.totalLiquidity + 1n) /
-              positionInfo.totalSupply;
-            // TODO: fix 0n
-            const earned = await getAmountsForLiquidity(
-              1n,
-              1n,
-              1n,
-              userLiquidity,
-            );
+              const position: any[] = (await getWritePosition(
+                positionId,
+              )) as any[];
 
-            return {
-              strikeSymbol: market,
-              optionId: item.id,
-              strike: Number(strike),
-              tickLower: item.tickLower,
-              tickUpper: item.tickUpper,
-              size: formatEther(item.size),
-              isPut: positionIsPut,
-              earned: earned,
-              premiums: 0,
-            };
-          }
-        })
-        .filter((item) => item !== undefined);
+              if (position.length === 7) {
+                const positionInfo: TokenIdInfo = {
+                  totalLiquidity: position[0],
+                  totalSupply: position[1],
+                  liquidityUsed: position[2],
+                  feeGrowthInside0LastX128: position[3],
+                  feeGrowthInside1LastX128: position[4],
+                  tokensOwed0: position[5],
+                  tokensOwed1: position[6],
+                };
+
+                const shares = (await getErc1155Balance(
+                  address,
+                  positionId,
+                )) as bigint;
+                const userLiquidity =
+                  (shares * positionInfo.totalLiquidity + 1n) /
+                  positionInfo.totalSupply;
+                // TODO: fix 0n
+                const earned = await getAmountsForLiquidity(
+                  1n,
+                  1n,
+                  1n,
+                  userLiquidity,
+                );
+
+                const userCurrentShare = Number(formatEther(item.size));
+                const userDepositShare = userCurrentShare / totalShares;
+                const userPremiums =
+                  (totalPremium * userDepositShare) / totalShares;
+
+                return {
+                  strikeSymbol: market,
+                  optionId: item.id,
+                  strike: Number(strike),
+                  tickLower: item.tickLower,
+                  tickUpper: item.tickUpper,
+                  size: userCurrentShare,
+                  isPut: positionIsPut,
+                  earned: Number(formatEther(earned.amount0)),
+                  premiums: userPremiums,
+                  tokenId: Number(positionId),
+                } as ClammWritePosition;
+              }
+            }
+            return undefined;
+          }),
+      )
+    ).filter((item): item is ClammWritePosition => item !== undefined);
     setWritePositions(_writePositions);
 
     setLoading(false);
