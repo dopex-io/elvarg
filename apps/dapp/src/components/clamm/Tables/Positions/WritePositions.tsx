@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { parseEther } from 'viem';
 
 import { PositionsManager__factory } from '@dopex-io/sdk';
 import { Button } from '@dopex-io/ui';
@@ -104,7 +105,7 @@ const WritePositions = ({
         pool: uniswapPoolContract,
         tickLower: selectedPosition?.tickLower || 0,
         tickUpper: selectedPosition?.tickUpper || 0,
-        shares: BigInt(selectedPosition?.size || 0),
+        shares: parseEther((selectedPosition?.size || 0).toString()),
       },
     ],
   });
