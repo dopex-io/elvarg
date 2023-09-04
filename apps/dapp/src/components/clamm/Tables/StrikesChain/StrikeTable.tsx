@@ -19,9 +19,13 @@ import {
 import { useBoundStore } from 'store';
 import { ClammStrikeData } from 'store/Vault/clamm';
 
+import useStrikesData from 'hooks/clamm/useStrikesData';
+
 import Placeholder from 'components/ssov-beta/Tables/Placeholder';
 
 import formatAmount from 'utils/general/formatAmount';
+
+import { MARKETS } from 'constants/clamm/markets';
 
 const ROWS_PER_PAGE = 3;
 
@@ -349,12 +353,23 @@ const Table = ({ strikeData }: { strikeData: any }) => {
 
 const StrikesTable = () => {
   const {
-    clammStrikesData,
     tokenA,
     isPut,
     selectedStrike,
+    generatedStrikes,
     updateSelectedStrike,
+    clammMarkPrice,
+    selectedExpiry,
   } = useBoundStore();
+
+  const { strikesData: clammStrikesData, isLoading } = useStrikesData({
+    uniswapPoolAddress: MARKETS['ARB-USDC'].uniswapPoolAddress,
+    isPut: isPut,
+    selectedExpiryPeriod: selectedExpiry,
+    currentPrice: clammMarkPrice,
+    strikes: generatedStrikes,
+  });
+
   const activeStrikeIndex = clammStrikesData.findIndex(
     (strikeData) => strikeData.strike === selectedStrike,
   );
@@ -404,7 +419,7 @@ const StrikesTable = () => {
     tokenA,
   ]);
 
-  if (clammStrikesData.length === 0)
+  if (isLoading || clammStrikesData.length === 0)
     return (
       <div className="grid grid-cols-1 gap-4 p-2">
         {Array.from(Array(4)).map((_, index) => {
