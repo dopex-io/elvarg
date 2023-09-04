@@ -37,16 +37,6 @@ export const MARKETS: Record<ClammPair, ClammMarket> = {
       '0x090fdA0F2c26198058530A0A8cFE53362d54d9f1',
     ) as Address,
   },
-  '42069inu': {
-    underlyingSymbol: '42069inu',
-    collateralTokenAddress: '0x912CE59144191C1204E64559FE8253a0e49E6548',
-    uniswapPoolAddress: undefined,
-  },
-  USDC: {
-    underlyingSymbol: 'USDC',
-    collateralTokenAddress: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
-    uniswapPoolAddress: undefined,
-  },
 };
 
 export const FALLBACK_SLUG = '?pair=ARB-USDC';
