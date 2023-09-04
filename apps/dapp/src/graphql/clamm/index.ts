@@ -23,3 +23,19 @@ export const getUserClammPositions = graphql(`
     }
   }
 `);
+
+export const getTotalMintSize = graphql(`
+  query getTotalMintSize {
+    writePositions(where: { burnt: false }) {
+      size
+    }
+  }
+`);
+
+export const getTotalPremium = graphql(`
+  query getTotalPremium {
+    buyPositions(where: { exercised: false }) {
+      premium
+    }
+  }
+`);
