@@ -1,11 +1,10 @@
 import { useBoundStore } from 'store';
 
 const FilterPanel = () => {
-  const { isPut, updateIsPut, updateClammStrikesData } = useBoundStore();
+  const { isPut, updateIsPut } = useBoundStore();
 
   const handleIsPut = (isPut: boolean) => {
     updateIsPut(isPut);
-    updateClammStrikesData();
   };
 
   return (
