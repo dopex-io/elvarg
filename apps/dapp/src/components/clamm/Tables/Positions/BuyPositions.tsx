@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { parseEther } from 'viem';
 
 import { OptionPools__factory } from '@dopex-io/sdk';
 import { Button } from '@dopex-io/ui';
@@ -109,7 +110,7 @@ const BuyPositions = ({
         pool: uniswapPoolContract,
         tickLower: selectedPosition?.tickLower || 0,
         tickUpper: selectedPosition?.tickUpper || 0,
-        amountToExercise: BigInt(selectedPosition?.size || 0),
+        amountToExercise: parseEther((selectedPosition?.size || 0).toString()),
       },
     ],
   });
