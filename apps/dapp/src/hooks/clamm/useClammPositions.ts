@@ -15,7 +15,11 @@ import {
   ClammWritePosition,
 } from 'store/Vault/clamm';
 
+import getErc1155Balance from 'utils/clamm/getErc1155Balance';
 import getPoolSlot0 from 'utils/clamm/getPoolSlot0';
+import getWritePosition from 'utils/clamm/getWritePosition';
+import getWritePositionId from 'utils/clamm/getWritePositionId';
+import { getAmountsForLiquidity } from 'utils/clamm/liquidityAmountMath';
 import splitMarketPair from 'utils/clamm/splitMarketPair';
 
 import { CHAINS } from 'constants/chains';
@@ -31,6 +35,16 @@ export interface RewardsInfo {
   totalSupply: bigint;
   decimalsPrecision: bigint;
   rewardToken: Address;
+}
+
+interface TokenIdInfo {
+  totalLiquidity: bigint;
+  totalSupply: bigint;
+  liquidityUsed: bigint;
+  feeGrowthInside0LastX128: bigint;
+  feeGrowthInside1LastX128: bigint;
+  tokensOwed0: bigint;
+  tokensOwed1: bigint;
 }
 
 export interface RewardAccrued {
@@ -126,7 +140,7 @@ const useClammPositions = (args: Args) => {
             poolAddress && poolId.toLowerCase() === poolAddress.toLowerCase()
           );
         })
-        .map((item) => {
+        .map(async (item) => {
           const positionIsPut = currentTick < item.lowerTick;
           if (positionIsPut === isPut) {
             const strike = calculateStrike({
@@ -136,6 +150,41 @@ const useClammPositions = (args: Args) => {
               decimals0: decimals0,
               decimals1: decimals1,
             });
+
+            const positionId = await getWritePositionId(
+              poolAddress,
+              item.tickLower,
+              item.tickUpper,
+            );
+
+            const position: any[] = (await getWritePosition(
+              positionId,
+            )) as any[];
+            const positionInfo: TokenIdInfo = {
+              totalLiquidity: position[0],
+              totalSupply: position[1],
+              liquidityUsed: position[2],
+              feeGrowthInside0LastX128: position[3],
+              feeGrowthInside1LastX128: position[4],
+              tokensOwed0: position[5],
+              tokensOwed1: position[6],
+            };
+
+            const shares = (await getErc1155Balance(
+              address,
+              positionId,
+            )) as bigint;
+            const userLiquidity =
+              (shares * positionInfo.totalLiquidity + 1n) /
+              positionInfo.totalSupply;
+            // TODO: fix 0n
+            const earned = await getAmountsForLiquidity(
+              1n,
+              1n,
+              1n,
+              userLiquidity,
+            );
+
             return {
               strikeSymbol: market,
               optionId: item.id,
@@ -144,7 +193,7 @@ const useClammPositions = (args: Args) => {
               tickUpper: item.tickUpper,
               size: formatEther(item.size),
               isPut: positionIsPut,
-              earned: 0,
+              earned: earned,
               premiums: 0,
             };
           }
