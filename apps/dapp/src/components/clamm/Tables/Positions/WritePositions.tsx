@@ -129,7 +129,7 @@ const WritePositions = ({
       return {
         strikeSymbol: position.strikeSymbol,
         strike: formatAmount(position.strike, 3),
-        size: formatAmount(Number(position.size)),
+        size: formatAmount(Number(position.size), 3),
         isPut: position.isPut,
         earned: formatAmount(position.earned, 3),
         premiums: formatAmount(position.premiums, 3),
