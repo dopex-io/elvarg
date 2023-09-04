@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Address, formatUnits, parseEther, parseUnits } from 'viem';
+import {
+  Address,
+  formatUnits,
+  parseEther,
+  parseUnits,
+  zeroAddress,
+} from 'viem';
 
 import { ClammStrikeData } from 'store/Vault/clamm';
 
@@ -85,13 +91,20 @@ function generateStrikesData({
       let strikePremiumRaw = BigInt(0);
       try {
         (await getPremium(
-          optionPool,
-          isPut,
-          Math.round(getCurrentTime()) + selectedExpiryPeriod,
-          parseUnits(clammStrike.strike.toString(), DECIMALS_STRIKE),
-          parseUnits(currentPrice.toString(), DECIMALS_STRIKE),
-          strikeIvRaw,
-          parseEther('1'),
+          // optionPool,
+          // isPut,
+          // Math.round(getCurrentTime()) + selectedExpiryPeriod,
+          // parseUnits(clammStrike.strike.toString(), DECIMALS_STRIKE),
+          // parseUnits(currentPrice.toString(), DECIMALS_STRIKE),
+          // strikeIvRaw,
+          // parseEther('1'),
+          zeroAddress,
+          true,
+          0,
+          0n,
+          0n,
+          0n,
+          0n,
         )) as bigint;
       } catch (e) {
         console.error('Fail to getPremium', e);

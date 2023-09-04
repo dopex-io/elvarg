@@ -66,7 +66,6 @@ export const usePrepareMintCallOrPutOptionRoll = ({
 
 // @todo, add params and param types
 export const usePrepareExerciseOptionRoll = () => {
-  console.log('Exercise called');
   const { config } = usePrepareContractWrite({
     abi: OptionPools__factory.abi,
     address: '0x090fdA0F2c26198058530A0A8cFE53362d54d9f1',
@@ -91,7 +90,6 @@ export const usePrepareExerciseOptionRoll = () => {
 
 // @todo, add params and param types
 export const usePrepareBurnMintPosition = () => {
-  console.log('Burn position called');
   const { config } = usePrepareContractWrite({
     abi: PositionsManager__factory.abi,
     address: '0x2a9a9f63F13dD70816C456B2f2553bb648EE0F8F',
