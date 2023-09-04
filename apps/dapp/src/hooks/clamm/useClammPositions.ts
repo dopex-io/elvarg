@@ -98,11 +98,13 @@ const useClammPositions = (args: Args) => {
           );
         })
         .map((item) => {
-          const strike = item.isPut
-            ? ((1 / 1.0001 ** item.tickLower) * 10 ** decimals0) /
-              10 ** decimals1
-            : ((1 / 1.0001 ** item.tickUpper) * 10 ** decimals0) /
-              10 ** decimals1;
+          const strike = calculateStrike({
+            isPut: item.isPut,
+            tickLower: item.tickLower,
+            tickUpper: item.tickUpper,
+            decimals0: decimals0,
+            decimals1: decimals1,
+          });
           return {
             strikeSymbol: market,
             optionId: item.id,
@@ -127,11 +129,13 @@ const useClammPositions = (args: Args) => {
         .map((item) => {
           const positionIsPut = currentTick < item.lowerTick;
           if (positionIsPut === isPut) {
-            const strike = positionIsPut
-              ? ((1 / 1.0001 ** item.tickLower) * 10 ** decimals0) /
-                10 ** decimals1
-              : ((1 / 1.0001 ** item.tickUpper) * 10 ** decimals0) /
-                10 ** decimals1;
+            const strike = calculateStrike({
+              isPut: positionIsPut,
+              tickLower: item.tickLower,
+              tickUpper: item.tickUpper,
+              decimals0: decimals0,
+              decimals1: decimals1,
+            });
             return {
               strikeSymbol: market,
               optionId: item.id,
@@ -160,6 +164,25 @@ const useClammPositions = (args: Args) => {
     buyPositions,
     isLoading: loading,
   };
+};
+
+const calculateStrike = ({
+  isPut,
+  tickLower,
+  tickUpper,
+  decimals0,
+  decimals1,
+}: {
+  isPut: boolean;
+  tickLower: number;
+  tickUpper: number;
+  decimals0: number;
+  decimals1: number;
+}): number => {
+  const strike = isPut
+    ? ((1 / 1.0001 ** tickLower) * 10 ** decimals0) / 10 ** decimals1
+    : ((1 / 1.0001 ** tickUpper) * 10 ** decimals0) / 10 ** decimals1;
+  return strike;
 };
 
 export default useClammPositions;
