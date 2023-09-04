@@ -38,19 +38,13 @@ const useStrikesData = (props: Props) => {
 
     setIsLoading(true);
 
-    const _strikesData = isPut
-      ? await generatePutStrikesData({
-          strikes: strikes,
-          selectedExpiryPeriod: selectedExpiryPeriod,
-          currentPrice: currentPrice,
-          optionPool: uniswapPoolAddress,
-        })
-      : await generateCallStrikesData({
-          strikes: strikes,
-          selectedExpiryPeriod: selectedExpiryPeriod,
-          currentPrice: currentPrice,
-          optionPool: uniswapPoolAddress,
-        });
+    const _strikesData = await generateStrikesData({
+      strikes: strikes,
+      selectedExpiryPeriod: selectedExpiryPeriod,
+      currentPrice: currentPrice,
+      optionPool: uniswapPoolAddress,
+      isPut: isPut,
+    });
 
     setStrikesData(_strikesData);
     setIsLoading(false);
@@ -73,22 +67,15 @@ interface GenerateStikesProps {
   selectedExpiryPeriod: number;
   currentPrice: number;
   optionPool: Address;
+  isPut: boolean;
 }
 
-async function generateCallStrikesData({
+function generateStrikesData({
   strikes,
   selectedExpiryPeriod,
   currentPrice,
   optionPool,
-}: GenerateStikesProps): Promise<ClammStrikeData[]> {
-  return [];
-}
-
-function generatePutStrikesData({
-  strikes,
-  selectedExpiryPeriod,
-  currentPrice,
-  optionPool,
+  isPut,
 }: GenerateStikesProps): Promise<ClammStrikeData[]> {
   return Promise.all(
     strikes.map(async (clammStrike: ClammStrike) => {
@@ -99,7 +86,7 @@ function generatePutStrikesData({
       try {
         (await getPremium(
           optionPool,
-          true,
+          isPut,
           Math.round(getCurrentTime()) + selectedExpiryPeriod,
           parseUnits(clammStrike.strike.toString(), DECIMALS_STRIKE),
           parseUnits(currentPrice.toString(), DECIMALS_STRIKE),
@@ -123,7 +110,7 @@ function generatePutStrikesData({
         strike: clammStrike.strike,
         expiryInYears: getTimeToExpirationInYears(selectedExpiryPeriod),
         ivInDecimals: iv / 100,
-        isPut: false,
+        isPut: isPut,
       });
 
       return {
