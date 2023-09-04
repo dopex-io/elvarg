@@ -1,23 +1,33 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Address, formatUnits } from 'viem';
+import { Address, formatUnits, parseEther, parseUnits } from 'viem';
 
 import { ClammStrikeData } from 'store/Vault/clamm';
 
-import generateStrikes from 'utils/clamm/generateStrikes';
+import getPremium from 'utils/clamm/getPremium';
+import getCurrentTime from 'utils/date/getCurrentTime';
 import getTimeToExpirationInYears from 'utils/date/getTimeToExpirationInYears';
 import computeOptionGreeks from 'utils/ssov/computeOptionGreeks';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 
+import { ClammStrike } from './usePositionManager';
+
 interface Props {
   uniswapPoolAddress: Address;
   isPut: boolean;
-  tte: number;
+  selectedExpiryPeriod: number;
   currentPrice: number;
+  strikes: ClammStrike[];
 }
 
 const useStrikesData = (props: Props) => {
-  const { uniswapPoolAddress, isPut, tte, currentPrice } = props;
+  const {
+    uniswapPoolAddress,
+    isPut,
+    selectedExpiryPeriod,
+    currentPrice,
+    strikes,
+  } = props;
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -28,22 +38,23 @@ const useStrikesData = (props: Props) => {
 
     setIsLoading(true);
 
-    const strikes = await generateStrikes(uniswapPoolAddress, 10, isPut);
-
     const _strikesData = isPut
       ? await generatePutStrikesData({
           strikes: strikes,
-          tte: tte,
+          selectedExpiryPeriod: selectedExpiryPeriod,
           currentPrice: currentPrice,
+          optionPool: uniswapPoolAddress,
         })
       : await generateCallStrikesData({
           strikes: strikes,
-          tte: tte,
+          selectedExpiryPeriod: selectedExpiryPeriod,
           currentPrice: currentPrice,
+          optionPool: uniswapPoolAddress,
         });
+
     setStrikesData(_strikesData);
     setIsLoading(false);
-  }, [uniswapPoolAddress, isPut, tte, currentPrice]);
+  }, [uniswapPoolAddress, isPut, strikes, selectedExpiryPeriod, currentPrice]);
 
   useEffect(() => {
     constructEpochStrikeChain();
@@ -57,96 +68,76 @@ const useStrikesData = (props: Props) => {
 
 export default useStrikesData;
 
+interface GenerateStikesProps {
+  strikes: ClammStrike[];
+  selectedExpiryPeriod: number;
+  currentPrice: number;
+  optionPool: Address;
+}
+
 async function generateCallStrikesData({
   strikes,
-  tte,
+  selectedExpiryPeriod,
   currentPrice,
-}: {
-  strikes: number[];
-  tte: number;
-  currentPrice: number;
-}): Promise<ClammStrikeData[]> {
-  return strikes.map((strike) => {
-    // TODO: get these values from the contract
-    const strikePremiumRaw = BigInt(Math.pow(10, 8) * 2.789);
-    const premiumPerOption = Number(
-      formatUnits(strikePremiumRaw, DECIMALS_STRIKE),
-    );
-
-    // TODO: get these values from the contract
-    const strikeIvRaw = BigInt(139);
-    const iv = Number(strikeIvRaw);
-
-    // TODO: get these values from the contract
-    const liquidityRaw = BigInt(123);
-    const liquidity = Number(formatUnits(liquidityRaw, DECIMALS_TOKEN));
-
-    const greeks = computeOptionGreeks({
-      spot: currentPrice,
-      strike,
-      expiryInYears: getTimeToExpirationInYears(tte),
-      ivInDecimals: iv / 100,
-      isPut: false,
-    });
-
-    return {
-      ...greeks,
-      strike: strike,
-      liquidity: liquidity,
-      premiumPerOption: premiumPerOption,
-      iv: iv,
-      breakeven: strike + premiumPerOption,
-      utilization: 0,
-      tvl: 0,
-      apy: 0,
-      premiumApy: 0,
-    };
-  });
+  optionPool,
+}: GenerateStikesProps): Promise<ClammStrikeData[]> {
+  return [];
 }
 
 function generatePutStrikesData({
   strikes,
-  tte,
+  selectedExpiryPeriod,
   currentPrice,
-}: {
-  strikes: number[];
-  tte: number;
-  currentPrice: number;
-}): ClammStrikeData[] {
-  return strikes.map((strike) => {
-    // TODO: get these values from the contract
-    const strikePremiumRaw = BigInt(Math.pow(10, 8) * 2.789);
-    const premiumPerOption = Number(
-      formatUnits(strikePremiumRaw, DECIMALS_STRIKE),
-    );
+  optionPool,
+}: GenerateStikesProps): Promise<ClammStrikeData[]> {
+  return Promise.all(
+    strikes.map(async (clammStrike: ClammStrike) => {
+      const strikeIvRaw = BigInt(139);
+      const iv = Number(strikeIvRaw);
 
-    // TODO: get these values from the contract
-    const strikeIvRaw = BigInt(139);
-    const iv = Number(strikeIvRaw);
+      let strikePremiumRaw = BigInt(0);
+      try {
+        (await getPremium(
+          optionPool,
+          true,
+          Math.round(getCurrentTime()) + selectedExpiryPeriod,
+          parseUnits(clammStrike.strike.toString(), DECIMALS_STRIKE),
+          parseUnits(currentPrice.toString(), DECIMALS_STRIKE),
+          strikeIvRaw,
+          parseEther('1'),
+        )) as bigint;
+      } catch (e) {
+        console.error('Fail to getPremium', e);
+      }
 
-    // TODO: get these values from the contract
-    const liquidityRaw = BigInt(123);
-    const liquidity = Number(formatUnits(liquidityRaw, DECIMALS_TOKEN));
+      const premiumPerOption = Number(
+        formatUnits(strikePremiumRaw, DECIMALS_STRIKE),
+      );
 
-    const greeks = computeOptionGreeks({
-      spot: currentPrice,
-      strike,
-      expiryInYears: getTimeToExpirationInYears(tte),
-      ivInDecimals: iv / 100,
-      isPut: false,
-    });
+      // TODO: get these values from the contract
+      const liquidityRaw = BigInt(123);
+      const liquidity = Number(formatUnits(liquidityRaw, DECIMALS_TOKEN));
 
-    return {
-      ...greeks,
-      strike: strike,
-      liquidity: liquidity,
-      premiumPerOption: premiumPerOption,
-      iv: iv,
-      breakeven: strike - premiumPerOption,
-      utilization: 0,
-      tvl: 0,
-      apy: 0,
-      premiumApy: 0,
-    };
-  });
+      const greeks = computeOptionGreeks({
+        spot: currentPrice,
+        strike: clammStrike.strike,
+        expiryInYears: getTimeToExpirationInYears(selectedExpiryPeriod),
+        ivInDecimals: iv / 100,
+        isPut: false,
+      });
+
+      return {
+        ...greeks,
+        strike: clammStrike.strike,
+        liquidity: liquidity,
+        premiumPerOption: premiumPerOption,
+        iv: iv,
+        breakeven: clammStrike.strike - premiumPerOption,
+        utilization: 0,
+        tvl: 0,
+        apy: 0,
+        premiumApy: 0,
+      };
+    }),
+  );
 }
