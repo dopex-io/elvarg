@@ -51,7 +51,7 @@ const useClammPositions = (args: Args) => {
   const ARC = '0x2a9a9f63f13dd70816c456b2f2553bb648ee0f8f';
   const CARROT = '0x29ed22a9e56ee1813e6ff69fc6cac676aa24c09c';
   const address = CARROT;
-  const { selectedPair, chainId } = useBoundStore();
+  const { selectedPair, chainId, isPut } = useBoundStore();
 
   const [writePositions, setWritePositions] = useState<ClammWritePosition[]>();
   const [buyPositions, setBuyPositions] = useState<ClammBuyPosition[]>();
@@ -92,12 +92,13 @@ const useClammPositions = (args: Args) => {
         .filter((position) => {
           const poolId = position.id.split('#')[0] as string;
           return (
-            poolAddress && poolId.toLowerCase() === poolAddress.toLowerCase()
+            poolAddress &&
+            poolId.toLowerCase() === poolAddress.toLowerCase() &&
+            position.isPut === isPut
           );
         })
         .map((item) => {
-          const isPut = currentTick < item.lowerTick;
-          const strike = isPut
+          const strike = item.isPut
             ? ((1 / 1.0001 ** item.tickLower) * 10 ** decimals0) /
               10 ** decimals1
             : ((1 / 1.0001 ** item.tickUpper) * 10 ** decimals0) /
@@ -109,7 +110,7 @@ const useClammPositions = (args: Args) => {
             tickLower: item.tickLower,
             tickUpper: item.tickUpper,
             size: item.options,
-            isPut: isPut,
+            isPut: item.isPut,
             expiry: item.expiry,
           };
         });
@@ -124,28 +125,31 @@ const useClammPositions = (args: Args) => {
           );
         })
         .map((item) => {
-          const isPut = currentTick < item.lowerTick;
-          const strike = isPut
-            ? ((1 / 1.0001 ** item.tickLower) * 10 ** decimals0) /
-              10 ** decimals1
-            : ((1 / 1.0001 ** item.tickUpper) * 10 ** decimals0) /
-              10 ** decimals1;
-          return {
-            strikeSymbol: market,
-            optionId: item.id,
-            strike: Number(strike),
-            tickLower: item.tickLower,
-            tickUpper: item.tickUpper,
-            size: formatEther(item.size),
-            isPut: isPut,
-            earned: 0,
-            premiums: 0,
-          };
-        });
+          const positionIsPut = currentTick < item.lowerTick;
+          if (positionIsPut === isPut) {
+            const strike = positionIsPut
+              ? ((1 / 1.0001 ** item.tickLower) * 10 ** decimals0) /
+                10 ** decimals1
+              : ((1 / 1.0001 ** item.tickUpper) * 10 ** decimals0) /
+                10 ** decimals1;
+            return {
+              strikeSymbol: market,
+              optionId: item.id,
+              strike: Number(strike),
+              tickLower: item.tickLower,
+              tickUpper: item.tickUpper,
+              size: formatEther(item.size),
+              isPut: positionIsPut,
+              earned: 0,
+              premiums: 0,
+            };
+          }
+        })
+        .filter((item) => item !== undefined);
     setWritePositions(_writePositions);
 
     setLoading(false);
-  }, [address, chainId, market, selectedPair]);
+  }, [address, chainId, isPut, market, selectedPair]);
 
   useEffect(() => {
     updateClammPositions();
