@@ -6,13 +6,13 @@ import {
   useState,
 } from 'react';
 import { BigNumber } from 'ethers';
-import { formatUnits, parseUnits, zeroAddress } from 'viem';
+import { formatUnits, parseUnits } from 'viem';
 
-import { ERC20__factory, OptionPools__factory } from '@dopex-io/sdk';
+import { ERC20__factory } from '@dopex-io/sdk';
 import { Button, Input, Menu } from '@dopex-io/ui';
-import { formatDistance, previousDay } from 'date-fns';
+import { formatDistance } from 'date-fns';
 import { useDebounce } from 'use-debounce';
-import { useContractWrite, usePrepareContractWrite } from 'wagmi';
+import { useContractWrite } from 'wagmi';
 
 import { useBoundStore } from 'store';
 
@@ -29,13 +29,11 @@ import { usePrepareApprove } from 'hooks/ssov/usePrepareWrites';
 import PnlChart from 'components/common/PnlChart';
 import RowItem from 'components/ssov-beta/AsidePanel/RowItem';
 
-import getLiquidityAtTick from 'utils/clamm/getLiquidityAtTick';
 import getMarketInformation from 'utils/clamm/getMarketInformation';
 import getPremium from 'utils/clamm/getPremium';
-import { getUserOptionPositions } from 'utils/clamm/getUserOptionsPositions';
 import { getBlockTime } from 'utils/contracts';
 import { STRIKE_DECIMALS } from 'utils/contracts/atlantics/pool';
-import { getUserBalance, isApproved } from 'utils/contracts/getERC20Info';
+import { getUserBalance } from 'utils/contracts/getERC20Info';
 import formatAmount from 'utils/general/formatAmount';
 
 import { CHAINS } from 'constants/chains';
@@ -45,13 +43,7 @@ import {
   DECIMALS_TOKEN,
   DECIMALS_USD,
   OPTION_TOKEN_DECIMALS,
-  ZERO_ADDRESS,
 } from 'constants/index';
-
-type ClammStrikeMenuItem = {
-  textContent: string;
-  isDisabled: boolean;
-};
 
 const CustomBottomElement = ({
   symbol,
@@ -141,16 +133,9 @@ const AsidePanel = () => {
     updateSelectedStrike,
     selectedStrike,
     isPut,
-    positionManagerContract,
-    optionPoolsContract,
     updateIsPut,
     clammMarkPrice,
-    breakeven,
-    premiumPerOption,
-    updateIsTrade,
-    updateClammStrikesData,
     selectedPair,
-    uniswapPoolContract,
     chainId,
     provider,
     isTrade,
@@ -162,8 +147,6 @@ const AsidePanel = () => {
   const [tradeOrLpIndex, setTradeOrLpIndex] = useState<number>(0);
   const [selectedExpiry, setSelectedExpiry] = useState<number>(0);
   const [approved, setApproved] = useState<boolean>(false);
-  const [userBalance, setUserBalance] = useState<number>(0);
-  const [isManualInput, setIsManualInput] = useState(false);
   const [amountDebounced] = useDebounce(inputAmount, 1000);
   const [tokenAmountToSpend, setTokenAmountToSpend] = useState(0n);
   const [userTokenBalances, setUserTokenBalances] = useState({
@@ -426,15 +409,10 @@ const AsidePanel = () => {
         tokenAddress: underlyingTokenAddress,
       }),
     ]);
-
     setUserTokenBalances({
       collateralTokenBalance: collateralTokenBalance ?? 0n,
       underlyingTokenBalance: underlyingTokenBalance ?? 0n,
     });
-
-    // console.log('BALANCES');
-    // console.log('DARB', underlyingTokenBalance);
-    // console.log('DUSC', collateralTokenBalance);
   }, [collateralTokenAddress, underlyingTokenAddress, userAddress]);
 
   useEffect(() => {
@@ -452,10 +430,10 @@ const AsidePanel = () => {
   const mintPositionConfig = usePrepareMintPosition({
     parameters: depositParams,
   });
+  const { write: mintPosition } = useContractWrite(mintPositionConfig);
 
   const mintOptionsConfig =
     usePrepareMintCallOrPutOptionRoll(mintOptionsParams);
-  const { write: mintPosition } = useContractWrite(mintPositionConfig);
   const { write: mintOptions } = useContractWrite(mintOptionsConfig);
 
   const selectedToken = useMemo(() => {
@@ -478,68 +456,6 @@ const AsidePanel = () => {
     underlyingTokenSymbol,
   ]);
 
-  /**
-   *
-   * NEWLY ADDED END
-   */
-
-  // IUniswapV3Pool pool;
-  // int24 tickLower;
-  // int24 tickUpper;
-  // uint256 liquidity;
-  const tickLower = 2299; // TODO: any decimals?
-  const tickUpper = 2302;
-  const liquidity = BigInt(0); // LiquidityAmounts.getLiquidityForAmounts(
-  //   uniswapV3TestLib.getCurrentSqrtPriceX96(pool),
-  //   tickLower,
-  //   tickUpper,
-  //   isPut ? parseEther(inputAmount) : 0,
-  //   !isPut ? parseEther(inputAmount) : 0,
-  // )
-
-  // IUniswapV3Pool pool;
-  // int24 tickLower;
-  // int24 tickUpper;
-  // uint256 liquidityToUse;
-  // uint256 ttl;
-  const optionIdCall = BigInt(1);
-  const premiumAmountCalls = BigInt(1);
-  const { config: mintCallOptionConfig } = usePrepareContractWrite({
-    abi: OptionPools__factory.abi,
-    address: optionPoolsContract,
-    functionName: 'mintCallOption',
-    args: [
-      {
-        optionId: optionIdCall,
-        pool: uniswapPoolContract,
-        tickLower: tickLower,
-        tickUpper: tickUpper,
-        liquidityToUse: liquidity,
-        premiumAmount: premiumAmountCalls,
-      },
-    ],
-  });
-  const { write: mintCallOption } = useContractWrite(mintCallOptionConfig);
-
-  const optionIdPut = BigInt(1);
-  const premiumAmountPuts = BigInt(1);
-  const { config: mintPutOptionConfig } = usePrepareContractWrite({
-    abi: OptionPools__factory.abi,
-    address: optionPoolsContract,
-    functionName: 'mintPutOption',
-    args: [
-      {
-        optionId: optionIdPut,
-        pool: uniswapPoolContract,
-        tickLower: tickLower,
-        tickUpper: tickUpper,
-        liquidityToUse: liquidity,
-        premiumAmount: premiumAmountPuts,
-      },
-    ],
-  });
-  const { write: mintPutOption } = useContractWrite(mintPutOptionConfig);
-
   const handleSelectStrikePrice = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const numStrike = Number(e.target.innerText.replace(/,/g, ''));
@@ -554,19 +470,19 @@ const AsidePanel = () => {
 
   const handleTradeOrLp = (index: number) => {
     setTradeOrLpIndex(index);
-    updateIsTrade(index === 0);
   };
 
   const handleIsPut = (index: number) => {
     updateIsPut(index === 1);
-    updateClammStrikesData();
   };
 
   const handleMax = useCallback(() => {
     setInputAmount(
-      formatUnits(BigInt(userBalance), isPut ? DECIMALS_USD : DECIMALS_TOKEN),
+      isPut
+        ? formatUnits(userTokenBalances.collateralTokenBalance, DECIMALS_USD)
+        : formatUnits(userTokenBalances.underlyingTokenBalance, DECIMALS_TOKEN),
     );
-  }, [isPut, userBalance]);
+  }, [isPut, userTokenBalances]);
 
   const handleInputAmount = (e: { target: { value: SetStateAction<any> } }) => {
     setInputAmount(e.target.value);
@@ -579,7 +495,7 @@ const AsidePanel = () => {
   };
 
   const tokenAApproveConfig = usePrepareApprove({
-    spender: isTrade ? optionPool : positionManagerContract,
+    spender: isTrade ? optionPool : positionManagerAddress,
     token: isPut ? collateralTokenAddress : underlyingTokenAddress,
     amount: tokenAmountToSpend,
   });
@@ -687,7 +603,7 @@ const AsidePanel = () => {
           </div>
         </div>
         <div className="mt-2">
-          {isManualInput ? (
+          {/* {isManualInput ? (
             <div className="relative p-1">
               <span className="absolute top-1/2 transform -translate-y-1/2 text-stieglitz text-sm left-2">
                 $
@@ -701,22 +617,22 @@ const AsidePanel = () => {
                 disabled
               />
             </div>
-          ) : (
-            <Menu
-              color="mineshaft"
-              dropdownVariant="icon"
-              handleSelection={handleSelectStrikePrice}
-              selection={
-                <span className="text-sm text-white flex">
-                  <p className="text-stieglitz inline mr-1">$</p>
-                  {selectedStrike.toFixed(5)}
-                </span>
-              }
-              data={readableClammStrikes}
-              className="w-full"
-              showArrow
-            />
-          )}
+          ) : ( */}
+          <Menu
+            color="mineshaft"
+            dropdownVariant="icon"
+            handleSelection={handleSelectStrikePrice}
+            selection={
+              <span className="text-sm text-white flex">
+                <p className="text-stieglitz inline mr-1">$</p>
+                {selectedStrike.toFixed(5)}
+              </span>
+            }
+            data={readableClammStrikes}
+            className="w-full"
+            showArrow
+          />
+          {/* )} */}
         </div>
         <Input
           variant="xl"
@@ -736,7 +652,19 @@ const AsidePanel = () => {
             <CustomBottomElement
               symbol={underlyingTokenSymbol as string}
               label={tradeOrLpIndex === 0 ? 'Options' : 'Deposit amount'}
-              value={formatAmount(userBalance, 3, true)}
+              value={formatAmount(
+                isPut
+                  ? formatUnits(
+                      userTokenBalances.collateralTokenBalance,
+                      DECIMALS_USD,
+                    )
+                  : formatUnits(
+                      userTokenBalances.underlyingTokenBalance,
+                      DECIMALS_TOKEN,
+                    ),
+                3,
+                true,
+              )}
               role="button"
               onClick={handleMax}
             />
@@ -786,59 +714,36 @@ const AsidePanel = () => {
               />
               <Button
                 variant="contained"
-                // onClick={handleAction}
                 onClick={buttonProps.action}
-                // disabled={
-                //   Number(inputAmount) <= 0 || Number(inputAmount) > userBalance
-                // }
-                // color={
-                //   !approved ||
-                //   (Number(inputAmount) > 0 &&
-                //     Number(inputAmount) <= userBalance)
-                //     ? 'primary'
-                //     : 'mineshaft'
-                // }
                 color={buttonProps.color}
                 className="w-full"
               >
-                {/* {approved
-                 ? inputAmount.trim() == ''
-                   ? 'Insert an amount'
-                   : Number(inputAmount) > userBalance
-                   ? 'Insufficient balance'
-                   : 'Deposit'
-                 : 'Approve'} */}
                 {buttonProps.text}
               </Button>
             </>
           ) : (
             <>
-              <RowItem label="Balance" content={`10,313 USDC`} />
+              <RowItem
+                label="Balance"
+                content={`${
+                  isPut
+                    ? formatUnits(
+                        userTokenBalances.collateralTokenBalance,
+                        DECIMALS_USD,
+                      )
+                    : formatUnits(
+                        userTokenBalances.underlyingTokenBalance,
+                        DECIMALS_TOKEN,
+                      )
+                }`}
+              />
               <Button
                 variant="contained"
                 disabled={buttonProps?.disabled}
                 onClick={buttonProps.action}
-                // onClick={handleDeposit}
-                // disabled={
-                //   Number(inputAmount) <= 0 || Number(inputAmount) > userBalance
-                // }
-                // color={
-                //   !approved ||
-                //   (Number(inputAmount) > 0 &&
-                //     Number(inputAmount) <= userBalance)
-                //     ? 'primary'
-                //     : 'mineshaft'
-                // }
                 color={buttonProps.color}
                 className="w-full"
               >
-                {/* {approved
-                  ? inputAmount.trim() == ''
-                    ? 'Insert an amount'
-                    : Number(inputAmount) > userBalance
-                    ? 'Insufficient balance'
-                    : 'Deposit'
-                  : 'Approve'} */}
                 {buttonProps.text}
               </Button>
             </>
@@ -850,11 +755,18 @@ const AsidePanel = () => {
       {tradeOrLpIndex === 0 ? (
         <div className="bg-cod-gray p-3 rounded-lg">
           <PnlChart
-            breakEven={breakeven}
-            optionPrice={premiumPerOption}
-            // Number(
-            //   formatUnits(premiumPerOption || 0n, DECIMALS_TOKEN),
-            // )}
+            breakEven={
+              isPut
+                ? selectedStrike -
+                  Number(formatUnits(tokenAmountToSpend, DECIMALS_USD))
+                : selectedStrike +
+                  Number(formatUnits(tokenAmountToSpend, DECIMALS_TOKEN))
+            }
+            optionPrice={Number(
+              isPut
+                ? formatUnits(tokenAmountToSpend, DECIMALS_USD)
+                : formatUnits(tokenAmountToSpend, DECIMALS_TOKEN),
+            )}
             amount={Number(amountDebounced)}
             isPut={isPut}
             price={clammMarkPrice}
