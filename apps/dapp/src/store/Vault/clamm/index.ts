@@ -5,6 +5,8 @@ import { StateCreator } from 'zustand';
 
 import { WalletSlice } from 'store/Wallet';
 
+import { ClammStrike } from 'hooks/clamm/usePositionManager';
+
 import getMarketInformation from 'utils/clamm/getMarketInformation';
 
 import { DECIMALS_STRIKE, ZERO_ADDRESS } from 'constants/index';
@@ -86,6 +88,8 @@ export interface ClammSlice {
   updateMaxOtmPercentage: Function;
   updateStep: Function;
   updateUserAddress: Function;
+  updateGeneratedStrikes: Function;
+  updateSelectedExpiry: Function;
 
   /** NEWLY ADDED */
   selectedPair: ClammPair;
@@ -113,6 +117,8 @@ export interface ClammSlice {
   step: number;
   maxOtmPercentage: number;
   userAddress: Address;
+  generatedStrikes: ClammStrike[];
+  selectedExpiry: number;
 }
 
 export const createClammSlice: StateCreator<
@@ -317,6 +323,20 @@ export const createClammSlice: StateCreator<
       selectedUniswapPool: pool,
     }));
   },
+  generatedStrikes: [],
+  updateGeneratedStrikes: (strikes: ClammStrike[]) => {
+    set((prev) => ({
+      ...prev,
+      generatedStrikes: strikes,
+    }));
+  },
+  updateSelectedExpiry: (expiry: number) => {
+    set((prev) => ({
+      ...prev,
+      selectedExpiry: expiry,
+    }));
+  },
+  selectedExpiry: 0,
 });
 
 // END
