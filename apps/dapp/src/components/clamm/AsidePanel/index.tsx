@@ -9,7 +9,7 @@ import { BigNumber } from 'ethers';
 import { formatUnits, parseUnits } from 'viem';
 
 import { ERC20__factory } from '@dopex-io/sdk';
-import { Button, Input, Menu } from '@dopex-io/ui';
+import { Button, Input, Menu, Skeleton } from '@dopex-io/ui';
 import { formatDistance } from 'date-fns';
 import { useDebounce } from 'use-debounce';
 import { useContractWrite } from 'wagmi';
@@ -141,15 +141,16 @@ const AsidePanel = () => {
     selectedPair,
     chainId,
     provider,
-    isTrade,
     userAddress,
     updateGeneratedStrikes,
     updateSelectedExpiry,
   } = useBoundStore();
 
   const [clammStrikes, setClammStrikes] = useState<ClammStrike[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const [inputAmount, setInputAmount] = useState<string>('0');
   const [tradeOrLpIndex, setTradeOrLpIndex] = useState<number>(0);
+  console.log('Logging trade or lp index', tradeOrLpIndex);
   const [selectedExpiry, setSelectedExpiry] = useState<number>(0);
   const [approved, setApproved] = useState<boolean>(false);
   const [amountDebounced] = useDebounce(inputAmount, 1000);
@@ -181,7 +182,7 @@ const AsidePanel = () => {
       tickUpper: 0,
       liquidity: 0n,
     };
-    if (isTrade) {
+    if (tradeOrLpIndex === 0) {
       return defaultDepositParams;
     }
 
@@ -208,7 +209,7 @@ const AsidePanel = () => {
     );
   }, [
     uniswapPoolAddress,
-    isTrade,
+    tradeOrLpIndex,
     amountDebounced,
     chainId,
     clammStrikes,
@@ -221,11 +222,13 @@ const AsidePanel = () => {
 
   const loadStrikesForPair = useCallback(async () => {
     if (!uniswapPoolAddress) return console.error('UniswapPool not found');
+    setLoading(true);
     const strikes = await getStrikesWithTicks(10);
     const firstStrike = strikes[0];
     setClammStrikes(strikes);
     updateGeneratedStrikes(strikes);
     updateSelectedStrike(Number(firstStrike.strike.toFixed(5)));
+    setLoading(false);
   }, [
     uniswapPoolAddress,
     getStrikesWithTicks,
@@ -294,7 +297,7 @@ const AsidePanel = () => {
       },
     };
 
-    if (!isTrade) {
+    if (tradeOrLpIndex === 1) {
       return mintOptionsParams;
     }
 
@@ -335,7 +338,7 @@ const AsidePanel = () => {
     optionPool,
     uniswapPoolAddress,
     clammStrikes,
-    isTrade,
+    tradeOrLpIndex,
     selectedStrike,
     amountDebounced,
     getLiquidityToUse,
@@ -356,7 +359,7 @@ const AsidePanel = () => {
       isPut ? collateralTokenAddress : underlyingTokenAddress,
       provider,
     );
-    const spender = isTrade ? optionPool : positionManagerAddress;
+    const spender = tradeOrLpIndex === 0 ? optionPool : positionManagerAddress;
     const allowance = await token.allowance(userAddress, spender);
     // console.log('Spender', spender);
     // console.log('allowance', allowance);
@@ -369,7 +372,7 @@ const AsidePanel = () => {
     userAddress,
     collateralTokenAddress,
     isPut,
-    isTrade,
+    tradeOrLpIndex,
     optionPool,
     provider,
     tokenAmountToSpend,
@@ -378,31 +381,38 @@ const AsidePanel = () => {
 
   const updateTokenAmountsToSpend = useCallback(async () => {
     if (!provider) return;
+
+    setLoading(true);
     const decimals =
       CHAINS[chainId].tokenDecimals[
         isPut ? collateralTokenSymbol : underlyingTokenSymbol
       ];
     const blockTimestamp = Number(await getBlockTime(provider));
-    const amount = isTrade
-      ? ((await getPremium(
-          optionPool,
-          isPut,
-          blockTimestamp + selectedExpiry,
-          0n,
-          0n,
-          0n,
-          0n,
-        )) as bigint)
-      : parseUnits(amountDebounced, decimals);
-
-    // console.log('COST', amount);
+    let amount = 0n;
+    try {
+      amount =
+        tradeOrLpIndex === 0
+          ? ((await getPremium(
+              optionPool,
+              isPut,
+              blockTimestamp + selectedExpiry,
+              0n,
+              0n,
+              0n,
+              0n,
+            )) as bigint)
+          : parseUnits(amountDebounced, decimals);
+    } catch {
+      setLoading(false);
+    }
     setTokenAmountToSpend(amount);
+    setLoading(false);
   }, [
     amountDebounced,
     chainId,
     collateralTokenSymbol,
     isPut,
-    isTrade,
+    tradeOrLpIndex,
     optionPool,
     provider,
     selectedExpiry,
@@ -507,7 +517,7 @@ const AsidePanel = () => {
   };
 
   const tokenAApproveConfig = usePrepareApprove({
-    spender: isTrade ? optionPool : positionManagerAddress,
+    spender: tradeOrLpIndex === 0 ? optionPool : positionManagerAddress,
     token: isPut ? collateralTokenAddress : underlyingTokenAddress,
     amount: tokenAmountToSpend,
   });
@@ -519,6 +529,12 @@ const AsidePanel = () => {
   // Burn write position
   const burnMintPositionConfig = usePrepareBurnMintPosition();
   const { write: burnMintPosition } = useContractWrite(burnMintPositionConfig);
+
+  const tokenDecimals = useMemo(() => {
+    return CHAINS[chainId].tokenDecimals[
+      isPut ? collateralTokenSymbol : underlyingTokenSymbol
+    ];
+  }, [chainId, collateralTokenSymbol, isPut, underlyingTokenSymbol]);
 
   const approveTokens = useContractWrite(tokenAApproveConfig);
 
@@ -548,7 +564,7 @@ const AsidePanel = () => {
       ? userTokenBalances.collateralTokenBalance
       : userTokenBalances.underlyingTokenBalance;
 
-    if (isTrade) {
+    if (tradeOrLpIndex === 0) {
       text = 'Buy';
       action = mintOptions;
     } else {
@@ -581,7 +597,7 @@ const AsidePanel = () => {
     handleApprove,
     approved,
     isPut,
-    isTrade,
+    tradeOrLpIndex,
     tokenAmountToSpend,
     userTokenBalances.collateralTokenBalance,
     userTokenBalances.underlyingTokenBalance,
@@ -638,20 +654,22 @@ const AsidePanel = () => {
               />
             </div>
           ) : ( */}
-          <Menu
-            color="mineshaft"
-            dropdownVariant="icon"
-            handleSelection={handleSelectStrikePrice}
-            selection={
-              <span className="text-sm text-white flex">
-                <p className="text-stieglitz inline mr-1">$</p>
-                {selectedStrike.toFixed(5)}
-              </span>
-            }
-            data={readableClammStrikes}
-            className="w-full"
-            showArrow
-          />
+          <>
+            <Menu
+              color="mineshaft"
+              dropdownVariant="icon"
+              handleSelection={handleSelectStrikePrice}
+              selection={
+                <span className="text-sm text-white flex">
+                  <p className="text-stieglitz inline mr-1">$</p>
+                  {selectedStrike.toFixed(5)}
+                </span>
+              }
+              data={readableClammStrikes}
+              className="w-full"
+              showArrow
+            />
+          </>
           {/* )} */}
         </div>
         <Input
@@ -715,12 +733,20 @@ const AsidePanel = () => {
                 )}
               />
               <RowItem
-                label="Fees"
+                label="Premium"
                 content={
-                  <div className="flex">
-                    <p className="inline-block text-stieglitz">$</p>
-                    <p className="inline-block ml-1">10.31</p>
-                  </div>
+                  loading ? (
+                    <Skeleton height={10} />
+                  ) : (
+                    <div className="flex">
+                      <p className="inline-block mr-1">
+                        {formatUnits(tokenAmountToSpend, tokenDecimals)}
+                      </p>
+                      <p className="inline-block text-stieglitz">
+                        {isPut ? collateralTokenSymbol : underlyingTokenSymbol}
+                      </p>
+                    </div>
+                  )
                 }
               />
               <RowItem
