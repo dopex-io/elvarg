@@ -105,8 +105,6 @@ const ClammPage = () => {
         underlyingTokenSymbol: underlyingTokenSymbol,
         collateralTokenSymbol: collateralTokenSymbol,
       });
-
-      console.log('result', slot0, tickSpacing, token0, token1);
     })();
   }, [selectedPair, updateSelectedUniswapPool]);
 
