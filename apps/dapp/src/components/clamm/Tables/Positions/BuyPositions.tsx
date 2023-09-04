@@ -129,32 +129,32 @@ const BuyPositions = ({
     [exerciseOption, buyPositions],
   );
 
-  const positions: BuyPositionData[] = useMemo(
-    () =>
-      buyPositions.map((position: ClammBuyPosition, index: number) => {
-        return {
-          strikeSymbol: position.strikeSymbol,
-          strike: formatAmount(position.strike, 3),
-          size: formatAmount(Number(position.size)),
-          isPut: position.isPut,
-          expiry: Date.now(),
-          pnl: formatAmount(
-            computeOptionPnl({
-              side: position.isPut ? 'put' : 'call',
-              strike: position.strike,
-              size: position.size,
-              price: clammMarkPrice,
-            }),
-            3,
-          ),
-          button: {
-            handleExercise: () => handleExercise(index),
-            id: index,
-          },
-        };
-      }),
-    [buyPositions, clammMarkPrice, handleExercise],
-  );
+  const positions: BuyPositionData[] = useMemo(() => {
+    if (!buyPositions) return [];
+
+    return buyPositions.map((position: ClammBuyPosition, index: number) => {
+      return {
+        strikeSymbol: position.strikeSymbol,
+        strike: formatAmount(position.strike, 3),
+        size: formatAmount(Number(position.size)),
+        isPut: position.isPut,
+        expiry: Date.now(),
+        pnl: formatAmount(
+          computeOptionPnl({
+            side: position.isPut ? 'put' : 'call',
+            strike: position.strike,
+            size: position.size,
+            price: clammMarkPrice,
+          }),
+          3,
+        ),
+        button: {
+          handleExercise: () => handleExercise(index),
+          id: index,
+        },
+      };
+    });
+  }, [buyPositions, clammMarkPrice, handleExercise]);
 
   return (
     <div className="space-y-2">
