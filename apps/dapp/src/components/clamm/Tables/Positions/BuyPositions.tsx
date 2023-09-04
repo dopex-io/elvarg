@@ -92,7 +92,7 @@ type ExercisePositionProps = Pick<
 const BuyPositions = ({
   buyPositions,
 }: {
-  buyPositions: ClammBuyPosition[];
+  buyPositions: ClammBuyPosition[] | undefined;
 }) => {
   const { clammMarkPrice, uniswapPoolContract, optionPoolsContract } =
     useBoundStore();

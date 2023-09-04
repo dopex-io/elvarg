@@ -90,7 +90,7 @@ type BurnPositionProps = Pick<
 const WritePositions = ({
   writePositions,
 }: {
-  writePositions: ClammWritePosition[];
+  writePositions: ClammWritePosition[] | undefined;
 }) => {
   const { positionManagerContract, uniswapPoolContract } = useBoundStore();
   const [selectedPosition, setSelectedPosition] = useState<BurnPositionProps>();
