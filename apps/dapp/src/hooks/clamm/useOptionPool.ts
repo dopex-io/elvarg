@@ -14,6 +14,7 @@ import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
 import { OPTIONS_TOKEN_DECIMALS } from 'utils/contracts/atlantics/pool';
 
 import { CHAINS } from 'constants/chains';
+import { DECIMALS_TOKEN } from 'constants/index';
 
 const useOptionPool = () => {
   const { selectedUniswapPool, chainId, isPut } = useBoundStore();
@@ -86,7 +87,7 @@ const useOptionPool = () => {
       const tokenDecimals =
         CHAINS[chainId].tokenDecimals[
           isPut ? collateralTokenSymbol : underlyingTokenSymbol
-        ];
+        ] ?? DECIMALS_TOKEN;
 
       // Adjust for decimals
       if (OPTIONS_TOKEN_DECIMALS <= tokenDecimals) {
