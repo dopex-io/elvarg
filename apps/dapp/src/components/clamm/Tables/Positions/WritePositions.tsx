@@ -21,12 +21,12 @@ interface WritePositionData {
   earnedAndPrice: {
     earned: string;
     price: number;
-    strikeSymbol: string;
+    tokenSymbol: string;
   };
   premiumsAndPrice: {
     premiums: string;
     price: number;
-    strikeSymbol: string;
+    tokenSymbol: string;
   };
   button: {
     handleBurn: () => void;
@@ -66,7 +66,7 @@ const columns = [
             <p className="text-up-only inline-block">{usdPrice}</p>
           </span>
           <p className="text-stieglitz">
-            {value.premiums} {value.strikeSymbol}
+            {value.premiums} {value.tokenSymbol}
           </p>
         </>
       );
@@ -84,7 +84,7 @@ const columns = [
             <p className="text-up-only inline-block">{usdPrice}</p>
           </span>
           <p className="text-stieglitz">
-            {value.earned} {value.strikeSymbol}
+            {value.earned} {value.tokenSymbol}
           </p>
         </>
       );
@@ -156,12 +156,12 @@ const WritePositions = ({
         earnedAndPrice: {
           earned: formatAmount(position.earned, 3),
           price: clammMarkPrice,
-          strikeSymbol: position.strikeSymbol.split('-')[0],
+          tokenSymbol: position.strikeSymbol.split('-')[0],
         },
         premiumsAndPrice: {
           premiums: formatAmount(position.premiums, 3),
           price: clammMarkPrice,
-          strikeSymbol: position.strikeSymbol.split('-')[0],
+          tokenSymbol: position.strikeSymbol.split('-')[0],
         },
         button: {
           handleBurn: () => handleBurn(index),
