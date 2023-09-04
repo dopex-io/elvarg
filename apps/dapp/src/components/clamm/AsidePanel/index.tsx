@@ -16,9 +16,10 @@ import { useContractWrite } from 'wagmi';
 
 import { useBoundStore } from 'store';
 
-import { ClammStrike } from 'hooks/clamm/useClammStrikes';
 import useOptionPool from 'hooks/clamm/useOptionPool';
-import usePositionManager from 'hooks/clamm/usePositionManager';
+import usePositionManager, {
+  ClammStrike,
+} from 'hooks/clamm/usePositionManager';
 import {
   UsePrepareMintCallOrPutOptionProps,
   usePrepareMintCallOrPutOptionRoll,
@@ -140,6 +141,8 @@ const AsidePanel = () => {
     provider,
     isTrade,
     userAddress,
+    updateGeneratedStrikes,
+    updateSelectedExpiry,
   } = useBoundStore();
 
   const [clammStrikes, setClammStrikes] = useState<ClammStrike[]>([]);
@@ -219,8 +222,14 @@ const AsidePanel = () => {
     const strikes = await getStrikesWithTicks(10);
     const firstStrike = strikes[0];
     setClammStrikes(strikes);
+    updateGeneratedStrikes(strikes);
     updateSelectedStrike(Number(firstStrike.strike.toFixed(5)));
-  }, [uniswapPoolAddress, getStrikesWithTicks, updateSelectedStrike]);
+  }, [
+    uniswapPoolAddress,
+    getStrikesWithTicks,
+    updateGeneratedStrikes,
+    updateSelectedStrike,
+  ]);
 
   // const debugAvailableLiquidity = useCallback(async () => {
   //   const clammStrike = clammStrikes.find(({ strike }) => {
@@ -466,6 +475,7 @@ const AsidePanel = () => {
 
   const handleSelectExpiry = (index: number) => {
     setSelectedExpiry(index);
+    updateSelectedExpiry(EXPIRIES_BY_INDEX[index]);
   };
 
   const handleTradeOrLp = (index: number) => {
