@@ -56,6 +56,7 @@ export interface ClammBuyPosition {
   tickUpper: number;
   size: number;
   isPut: boolean;
+  expiry: number;
 }
 
 export interface ClammWritePosition {
