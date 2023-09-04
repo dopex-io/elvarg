@@ -2,8 +2,6 @@ import { useMemo, useState } from 'react';
 
 import { Skeleton } from '@dopex-io/ui';
 
-import { useBoundStore } from 'store';
-
 import useClammPositions from 'hooks/clamm/useClammPositions';
 
 import { ButtonGroup } from 'components/clamm/AsidePanel';
