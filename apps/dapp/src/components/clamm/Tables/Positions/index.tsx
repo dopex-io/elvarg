@@ -18,7 +18,7 @@ const Positions = () => {
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
   const { writePositions, buyPositions, isLoading } = useClammPositions({
-    market: 'dummy_ARB',
+    market: 'ARB-USDC',
   });
 
   const buttonLabels = useMemo(() => {
