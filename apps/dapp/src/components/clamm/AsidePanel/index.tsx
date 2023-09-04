@@ -578,7 +578,7 @@ const AsidePanel = () => {
   ]);
 
   return (
-    <div className="flex flex-col space-y-4">
+    <div className="flex flex-col space-y-4 min-w-[280px]">
       <div className="flex flex-col bg-cod-gray rounded-lg p-3 space-y-1">
         <ButtonGroup
           active={tradeOrLpIndex}
