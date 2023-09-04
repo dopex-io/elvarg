@@ -1,14 +1,41 @@
-// import { graphql } from 'gql/clamm';
+import { graphql } from 'gql/clamm';
 
-// export const getUserClammWriteBuyPositions = graphql(`
-//   query getClammWriteBuyPositions($user: ID!) {
-//     users(where: { id: $user }) {
-//       userWritePositions {
-//         id
-//       }
-//       userBuyPositions {
-//         amount
-//       }
-//     }
-//   }
-// `);
+export const getUserClammPositions = graphql(`
+  query getClammPositions($user: ID!) {
+    users(where: { id: $user }) {
+      userBuyPositions(where: { exercised: false }) {
+        id
+        isPut
+        options
+        premium
+        tickLower
+        tickUpper
+        poolAddress
+        expiry
+      }
+      userWritePositions(where: { burnt: false }) {
+        id
+        poolAddress
+        size
+        tickLower
+        tickUpper
+      }
+    }
+  }
+`);
+
+export const getTotalMintSize = graphql(`
+  query getTotalMintSize {
+    writePositions(where: { burnt: false }) {
+      size
+    }
+  }
+`);
+
+export const getTotalPremium = graphql(`
+  query getTotalPremium {
+    buyPositions(where: { exercised: false }) {
+      premium
+    }
+  }
+`);

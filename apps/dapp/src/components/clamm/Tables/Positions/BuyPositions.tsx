@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { parseEther } from 'viem';
 
 import { OptionPools__factory } from '@dopex-io/sdk';
 import { Button } from '@dopex-io/ui';
@@ -92,7 +93,7 @@ type ExercisePositionProps = Pick<
 const BuyPositions = ({
   buyPositions,
 }: {
-  buyPositions: ClammBuyPosition[];
+  buyPositions: ClammBuyPosition[] | undefined;
 }) => {
   const { clammMarkPrice, uniswapPoolContract, optionPoolsContract } =
     useBoundStore();
@@ -109,7 +110,7 @@ const BuyPositions = ({
         pool: uniswapPoolContract,
         tickLower: selectedPosition?.tickLower || 0,
         tickUpper: selectedPosition?.tickUpper || 0,
-        amountToExercise: BigInt(selectedPosition?.size || 0),
+        amountToExercise: parseEther((selectedPosition?.size || 0).toString()),
       },
     ],
   });
@@ -129,32 +130,32 @@ const BuyPositions = ({
     [exerciseOption, buyPositions],
   );
 
-  const positions: BuyPositionData[] = useMemo(
-    () =>
-      buyPositions.map((position: ClammBuyPosition, index: number) => {
-        return {
-          strikeSymbol: position.strikeSymbol,
-          strike: formatAmount(position.strike, 3),
-          size: formatAmount(Number(position.size)),
-          isPut: position.isPut,
-          expiry: Date.now(),
-          pnl: formatAmount(
-            computeOptionPnl({
-              side: position.isPut ? 'put' : 'call',
-              strike: position.strike,
-              size: position.size,
-              price: clammMarkPrice,
-            }),
-            3,
-          ),
-          button: {
-            handleExercise: () => handleExercise(index),
-            id: index,
-          },
-        };
-      }),
-    [buyPositions, clammMarkPrice, handleExercise],
-  );
+  const positions: BuyPositionData[] = useMemo(() => {
+    if (!buyPositions) return [];
+
+    return buyPositions.map((position: ClammBuyPosition, index: number) => {
+      return {
+        strikeSymbol: position.strikeSymbol,
+        strike: formatAmount(position.strike, 3),
+        size: formatAmount(Number(position.size)),
+        isPut: position.isPut,
+        expiry: Date.now(),
+        pnl: formatAmount(
+          computeOptionPnl({
+            side: position.isPut ? 'put' : 'call',
+            strike: position.strike,
+            size: position.size,
+            price: clammMarkPrice,
+          }),
+          3,
+        ),
+        button: {
+          handleExercise: () => handleExercise(index),
+          id: index,
+        },
+      };
+    });
+  }, [buyPositions, clammMarkPrice, handleExercise]);
 
   return (
     <div className="space-y-2">
