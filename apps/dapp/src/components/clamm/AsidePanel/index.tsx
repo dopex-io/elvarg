@@ -142,7 +142,6 @@ const AsidePanel = () => {
   const {
     updateSelectedStrike,
     selectedStrike,
-    clammStrikesData,
     isPut,
     positionManagerContract,
     optionPoolsContract,
@@ -236,8 +235,11 @@ const AsidePanel = () => {
 
   const loadStrikesForPair = useCallback(async () => {
     if (!uniswapPoolAddress) return console.error('UniswapPool not found');
-    setClammStrikes(await getStrikesWithTicks(10));
-  }, [uniswapPoolAddress, getStrikesWithTicks]);
+    const strikes = await getStrikesWithTicks(10);
+    const firstStrike = strikes[0];
+    setClammStrikes(strikes);
+    updateSelectedStrike(Number(firstStrike.strike.toFixed(5)));
+  }, [uniswapPoolAddress, getStrikesWithTicks, updateSelectedStrike]);
 
   // const debugAvailableLiquidity = useCallback(async () => {
   //   const clammStrike = clammStrikes.find(({ strike }) => {
