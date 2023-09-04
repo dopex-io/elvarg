@@ -34,7 +34,7 @@
     "@babel/preset-typescript": "^7.22.11",
     "@heroicons/react": "^2.0.18",
     "@storybook/addon-actions": "^7.3.2",
-    "@storybook/addon-essentials": "^7.3.2",
+    "@storybook/addon-essentials": "^7.4.0",
     "@storybook/addon-interactions": "^7.3.2",
     "@storybook/addon-links": "^7.3.2",
     "@storybook/react": "^7.4.0",
