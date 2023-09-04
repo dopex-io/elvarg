@@ -1,16 +1,16 @@
 import { MouseEventHandler } from 'react';
 import { BigNumber } from 'ethers';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
+import { styled } from '@mui/material/styles';
 import Switch from '@mui/material/Switch';
 import Tooltip from '@mui/material/Tooltip';
-import { styled } from '@mui/material/styles';
+
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import { LpPosition } from 'store/Vault/olp';
 
-import Button from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
 import ApproveDepositButton from 'components/common/ApproveDepositButton';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButtonV2';
 import {
@@ -18,6 +18,8 @@ import {
   LiquidityDialogRow,
   NumberLiquidityDialogRow,
 } from 'components/common/LpCommon/Table';
+import Button from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';

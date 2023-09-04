@@ -2,6 +2,9 @@ import React from 'react';
 
 import { Menu } from '@headlessui/react';
 
+import { MenuProps } from './Menu';
+import cx from './utils/cx';
+
 export type dropdownVariants = 'basic' | 'icon' | 'dense';
 
 const COMMON_CLASSES = {
@@ -10,7 +13,7 @@ const COMMON_CLASSES = {
   textColor: 'text-white',
   ddFill: 'bg-umbra',
   dropDownPaper:
-    'absolute left-0 mt-2 w-56 origin-top-right rounded-lg bg-umbra shadow-lg focus:outline-none',
+    'absolute left-0 mt-2 w-fit origin-top-right rounded-lg bg-umbra shadow-lg focus:outline-none',
 };
 
 const VARIANT_CLASSES: Record<
@@ -39,7 +42,7 @@ export type ItemType = Record<
   string | boolean | number | JSX.Element | undefined
 >;
 
-export interface MenuItemsProps<T extends ItemType> {
+export interface MenuItemsProps<T extends ItemType> extends MenuProps<T> {
   data: T[];
   variant?: dropdownVariants;
   scrollable?: boolean;
@@ -56,6 +59,7 @@ const MenuItems: React.FC<MenuItemsProps<ItemType>> = <T extends ItemType>(
     variant = 'basic',
     scrollable = false,
     topElement = null,
+    className,
     ...rest
   } = props;
 
@@ -63,8 +67,10 @@ const MenuItems: React.FC<MenuItemsProps<ItemType>> = <T extends ItemType>(
 
   return (
     <Menu.Items
-      className={`absolute left-50 mt-2 w-56 origin-top-right rounded-[10px] bg-umbra shadow-lg focus:outline-none border border-carbon`}
-      {...rest}
+      className={cx(
+        `absolute z-20 left-50 mt-2 origin-top-right rounded-[10px] bg-umbra shadow-lg focus:outline-none border border-carbon`,
+        className
+      )}
     >
       {topElement}
       <div
@@ -72,8 +78,8 @@ const MenuItems: React.FC<MenuItemsProps<ItemType>> = <T extends ItemType>(
           scrollable ? 'max-h-32 overflow-auto' : null
         }`}
       >
-        {data.map((dataItem) => (
-          <Menu.Item>
+        {data.map((dataItem, index) => (
+          <Menu.Item key={index}>
             {({ active }: { active: boolean }) => (
               <button
                 className={`${
@@ -87,6 +93,7 @@ const MenuItems: React.FC<MenuItemsProps<ItemType>> = <T extends ItemType>(
                 }`}
                 onClick={handleSelection}
                 disabled={Boolean(Object(dataItem)['disabled'])}
+                {...rest}
               >
                 <div className="flex space-x-2">
                   {dataItem['icon'] && variant === 'icon'

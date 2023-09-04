@@ -9,8 +9,8 @@ const Manage = () => {
   const [section, setSection] = useState('Deposit');
 
   return (
-    <div className="min-w-[24.5rem]">
-      <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-top-lg">
+    <div className="flex flex-col bg-cod-gray space-y-2">
+      <ButtonGroup className="flex justify-between border border-umbra rounded-top-lg">
         {['Deposit', 'Withdraw'].map((label, index) => (
           <Button
             key={index}
@@ -21,11 +21,11 @@ const Manage = () => {
             } hover:text-white`}
             onClick={() => setSection(label)}
           >
-            <h6 className="text-xs mt-2 pb-2">{label}</h6>
+            <p className="text-xs py-2">{label}</p>
           </Button>
         ))}
       </ButtonGroup>
-      <div className="bg-cod-gray rounded-b-xl w-full pb-3">
+      <div className="bg-cod-gray">
         {section === 'Deposit' ? <DepositCard /> : <WithdrawCard />}
       </div>
     </div>

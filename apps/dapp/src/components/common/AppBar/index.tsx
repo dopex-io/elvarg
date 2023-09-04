@@ -1,14 +1,20 @@
-import { useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ethers } from 'ethers';
-import MenuIcon from '@mui/icons-material/Menu';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import Modal from '@mui/material/Modal';
+
+import MenuIcon from '@mui/icons-material/Menu';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+
 import axios from 'axios';
-import { useBoundStore } from 'store';
 import { useNetwork } from 'wagmi';
+
+import { useBoundStore } from 'store';
 
 import DisclaimerDialog from 'components/common/DisclaimerDialog';
 
@@ -25,6 +31,12 @@ import NetworkButton from './NetworkButton';
 import NftClaims from './NftClaims';
 import RdpxAirdropButton from './RdpxAirdropButton';
 import { LinkType } from './types';
+
+const NotifiCard = lazy(() =>
+  import('components/NotifiCard').then((module) => ({
+    default: module.NotifiCard,
+  })),
+);
 
 const appLinks: {
   [key: number]: LinkType[];
@@ -104,6 +116,7 @@ const appLinks: {
     },
   ],
   137: [
+    { name: 'Portfolio', to: '/portfolio' },
     { name: 'SSOV', to: '/ssov' },
     { name: 'Straddles', to: '/straddles' },
   ],
@@ -148,9 +161,10 @@ export default function AppBar() {
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [anchorElSmall, setAnchorElSmall] = useState<null | HTMLElement>(null);
+  const [isNotifiCardOpen, setIsNotifiCardOpen] = useState(false);
 
   const links = (appLinks[chain?.id! || DEFAULT_CHAIN_ID] || []).concat(
-    baseAppLinks
+    baseAppLinks,
   );
 
   const handleClose = useCallback(() => setAnchorEl(null), []);
@@ -158,12 +172,12 @@ export default function AppBar() {
 
   const handleClickMenu = useCallback(
     (event: any) => setAnchorEl(event.currentTarget),
-    []
+    [],
   );
 
   const handleClickMenuSmall = useCallback(
     (event: any) => setAnchorElSmall(event.currentTarget),
-    []
+    [],
   );
 
   const userComplianceCheck = useCallback(async () => {
@@ -178,8 +192,8 @@ export default function AppBar() {
         await axios
           .get(
             `https://flo7r5qw6dj5mi337w2esfvhhm0caese.lambda-url.us-east-1.on.aws/?address=${ethers.utils.getAddress(
-              accountAddress
-            )}`
+              accountAddress,
+            )}`,
           )
           .then((res) => {
             signature = res.data.signature;
@@ -199,7 +213,7 @@ export default function AppBar() {
 
     const signatureSigner = ethers.utils.verifyMessage(
       DISCLAIMER_MESSAGE['english'],
-      signature
+      signature,
     );
 
     if (signatureSigner === accountAddress) setUserCompliant(true);
@@ -263,6 +277,32 @@ export default function AppBar() {
             </div>
           </div>
           <div className="flex items-center">
+            {accountAddress && chain?.network === 'arbitrum' ? (
+              <IconButton
+                sx={{ mr: 1 }}
+                onClick={() => setIsNotifiCardOpen(!isNotifiCardOpen)}
+                className="text-white border-cod-gray bg-carbon rounded-md hover:bg-carbon hover:opacity-80"
+              >
+                <NotificationsIcon />
+              </IconButton>
+            ) : null}
+            <Modal
+              sx={{
+                marginTop: '80px',
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'end',
+                right: '165px',
+                height: 'fit-content',
+              }}
+              open={isNotifiCardOpen}
+              onClose={() => setIsNotifiCardOpen(false)}
+              className="bg-opacity-10"
+            >
+              <Suspense fallback={<div>Loading...</div>}>
+                <NotifiCard />
+              </Suspense>
+            </Modal>
             {accountAddress ? <NftClaims account={accountAddress} /> : null}
             {accountAddress ? (
               <RdpxAirdropButton account={accountAddress} />
@@ -319,7 +359,7 @@ export default function AppBar() {
                             <AppLink to={to} name={name} />
                           </MenuItem>
                         );
-                      }
+                      },
                     );
                   }
                 })}

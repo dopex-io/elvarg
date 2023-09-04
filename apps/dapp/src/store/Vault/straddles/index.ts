@@ -156,14 +156,14 @@ export const createStraddlesSlice: StateCreator<
             currentPrice,
             currentPrice,
             getContractReadableAmount(1, 18),
-            epochData['expiry']
+            epochData['expiry'],
           ),
           straddlesContract!['vaultVariables'](),
           straddlesContract!['getVolatility'](currentPrice),
           straddlesContract!['calculateApFunding'](
             currentPrice,
             getContractReadableAmount(1, 18),
-            BigNumber.from(Math.round(timeToExpiry))
+            BigNumber.from(Math.round(timeToExpiry)),
           ),
         ]);
 
@@ -182,7 +182,7 @@ export const createStraddlesSlice: StateCreator<
             currentPrice,
             currentPrice,
             getContractReadableAmount(1, 18),
-            epochData['expiry']
+            epochData['expiry'],
           ),
           straddlesContract!['apFundingPercent'](),
           straddlesContract!['purchaseFeePercent'](),
@@ -190,7 +190,7 @@ export const createStraddlesSlice: StateCreator<
           straddlesContract!['calculateApFunding'](
             currentPrice,
             getContractReadableAmount(1, 18),
-            BigNumber.from(Math.round(timeToExpiry))
+            BigNumber.from(Math.round(timeToExpiry)),
           ),
         ]);
 
@@ -217,7 +217,7 @@ export const createStraddlesSlice: StateCreator<
       .div(
         epochData['activeUsdDeposits'].isZero()
           ? 1
-          : epochData['activeUsdDeposits']
+          : epochData['activeUsdDeposits'],
       )
       .div(BigNumber.from(3))
       .toNumber();
@@ -274,23 +274,23 @@ export const createStraddlesSlice: StateCreator<
 
       straddlePositionsIndexes.map((straddlePositionsIndex: BigNumber) =>
         straddlePositionsPromises.push(
-          getStraddlePosition(straddlePositionsIndex)
-        )
+          getStraddlePosition(straddlePositionsIndex),
+        ),
       );
       writePositionsIndexes.map((writePositionsIndex: BigNumber) =>
         writePositionsPromises.push(
-          getStraddlesWritePosition(writePositionsIndex)
-        )
+          getStraddlesWritePosition(writePositionsIndex),
+        ),
       );
     } catch (e) {
       console.log(e);
     }
 
     const straddlePositions: StraddlePosition[] = await Promise.all(
-      straddlePositionsPromises
+      straddlePositionsPromises,
     );
     const writePositions: WritePosition[] = await Promise.all(
-      writePositionsPromises
+      writePositionsPromises,
     );
 
     set((prevState) => ({
@@ -403,12 +403,12 @@ export const createStraddlesSlice: StateCreator<
     if (chainId === 137)
       return AtlanticStraddleV2__factory.connect(
         Addresses[chainId]['STRADDLES'].Vault[selectedPoolName],
-        provider
+        provider,
       );
 
     return AtlanticStraddle__factory.connect(
       Addresses[chainId]['STRADDLES'].Vault[selectedPoolName],
-      provider
+      provider,
     );
   },
   getOptionPricingContract: () => {
@@ -418,7 +418,7 @@ export const createStraddlesSlice: StateCreator<
 
     return SSOVOptionPricing__factory.connect(
       Addresses[chainId]['STRADDLES'].OPTION_PRICING,
-      provider
+      provider,
     );
   },
   getStraddlesWritePosition: async (id: BigNumber) => {
@@ -439,7 +439,7 @@ export const createStraddlesSlice: StateCreator<
       if (owner !== accountAddress) throw 'Invalid owner';
 
       const totalPremiumFunding = straddlesEpochData!.usdPremiums.add(
-        straddlesEpochData!.usdFunding
+        straddlesEpochData!.usdFunding,
       );
       const premiumFunding =
         data['epoch'].toNumber() === straddlesData?.currentEpoch
@@ -492,14 +492,14 @@ export const createStraddlesSlice: StateCreator<
           timeToExpiry,
           strike,
           currentPrice,
-          volatility
+          volatility,
         ),
         optionsPricingContract?.getOptionPrice(
           true,
           timeToExpiry,
           strike,
           currentPrice,
-          volatility
+          volatility,
         ),
       ]);
 

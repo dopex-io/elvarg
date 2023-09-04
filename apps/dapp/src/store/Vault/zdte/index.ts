@@ -8,8 +8,9 @@ import {
 } from '@dopex-io/sdk';
 import request from 'graphql-request';
 import { reverse } from 'lodash';
-import queryClient from 'queryClient';
 import { StateCreator } from 'zustand';
+
+import queryClient from 'queryClient';
 
 import { getZdteSpreadTradesFromTimestampDocument } from 'graphql/zdte';
 

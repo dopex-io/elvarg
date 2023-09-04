@@ -1,4 +1,5 @@
 import { BigNumber } from 'ethers';
+
 import Box from '@mui/material/Box';
 
 import { Typography } from 'components/UI';
@@ -6,7 +7,7 @@ import { Typography } from 'components/UI';
 import { getUserReadableAmount } from 'utils/contracts';
 import { formatAmount } from 'utils/general';
 
-import { DECIMALS_USD, DECIMALS_TOKEN } from 'constants/index';
+import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
 interface Props {
   assetIdx: number;

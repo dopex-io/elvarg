@@ -1,9 +1,10 @@
 import { ReactNode } from 'react';
 import { BigNumber } from 'ethers';
+
 import Box from '@mui/material/Box';
+import { styled } from '@mui/material/styles';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
-import { styled } from '@mui/material/styles';
 
 import { LpPosition } from 'store/Vault/olp';
 

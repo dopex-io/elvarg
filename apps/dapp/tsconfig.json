@@ -1,11 +1,16 @@
 {
   "extends": "tsconfig/nextjs.json",
   "compilerOptions": {
-    "baseUrl": "src"
+    "baseUrl": "src",
+    "paths": {
+      "public/*": ["../public/*"]
+    },
+    "target": "EsNext"
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
+    "**/*.js",
     "**/*.tsx",
     "sentry.server.config.ts",
     "sentry.edge.config.ts",

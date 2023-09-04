@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box';
+
 import { NextSeo } from 'next-seo';
 
 import BondsPage from 'components/bonds/Bonds';

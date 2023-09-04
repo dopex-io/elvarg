@@ -1,6 +1,8 @@
 import React, { useCallback } from 'react';
+
 import Box from '@mui/material/Box';
 import Slide from '@mui/material/Slide';
+
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';

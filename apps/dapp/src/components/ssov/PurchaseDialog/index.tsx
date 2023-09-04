@@ -46,6 +46,18 @@ export interface Props {
   ssovEpochData: SsovV3EpochData;
 }
 
+interface Cost {
+  volatility: number;
+  optionPrice: BigNumber;
+  fees: BigNumber;
+  premium: BigNumber;
+  expiry: number;
+  totalCost: BigNumber;
+  greeks: {
+    delta: number;
+  };
+}
+
 const PurchaseDialog = ({
   open,
   handleClose,
@@ -73,7 +85,7 @@ const PurchaseDialog = ({
   const [fromTokenSymbol, setFromTokenSymbol] = useState(
     ssovData.collateralSymbol ?? '',
   );
-  const [state, setState] = useState({
+  const [state, setState] = useState<Cost>({
     volatility: 0,
     optionPrice: BigNumber.from(0),
     fees: BigNumber.from(0),
@@ -435,15 +447,17 @@ const PurchaseDialog = ({
       strikeIndex === null ||
       debouncedOptionsAmount === ''
     ) {
-      setState((prev) => ({
-        ...prev,
+      setState({
         volatility: 0,
         optionPrice: BigNumber.from(0),
         fees: BigNumber.from(0),
         premium: BigNumber.from(0),
         expiry: 0,
         totalCost: BigNumber.from(0),
-      }));
+        greeks: {
+          delta: 0,
+        },
+      });
       return;
     }
 
@@ -587,10 +601,11 @@ const PurchaseDialog = ({
     } else if (optionsAmount > 0) {
       if (
         isPut
-          ? availableCollateralForStrikes[strikeIndex]!.mul(oneEBigNumber(8))
+          ? availableCollateralForStrike
+              .mul(oneEBigNumber(8))
               .div(getContractReadableAmount(strikes[strikeIndex]!, 8))
               .lt(getContractReadableAmount(optionsAmount, 18))
-          : availableCollateralForStrikes[strikeIndex]!.lt(
+          : availableCollateralForStrike.lt(
               getContractReadableAmount(optionsAmount, 18),
             )
       ) {
@@ -717,7 +732,7 @@ const PurchaseDialog = ({
                     <div className="bg-mineshaft hover:bg-neutral-700 rounded-md items-center w-1/6 h-fit clickable">
                       <IconButton
                         className="p-0"
-                        onClick={(e) => setAnchorEl(e.currentTarget)}
+                        onClick={(e: any) => setAnchorEl(e.currentTarget)}
                         size="large"
                       >
                         {anchorEl ? (
@@ -736,7 +751,7 @@ const PurchaseDialog = ({
                         onClose={() => setAnchorEl(null)}
                         classes={{ paper: 'bg-umbra' }}
                       >
-                        {strikes.map((strike, strikeIndex) => (
+                        {strikes.map((strike: string, strikeIndex: number) => (
                           <MenuItem
                             key={strikeIndex}
                             className="capitalize text-white hover:bg-mineshaft cursor-pointer"

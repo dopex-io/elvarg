@@ -1,9 +1,9 @@
 import { useCallback, useEffect } from 'react';
-
 import Head from 'next/head';
 
-import { TokenSale__factory } from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
+
+import { TokenSale__factory } from '@dopex-io/sdk';
 import c from 'classnames';
 import useEthPrice from 'hooks/useEthPrice';
 import useSendTx from 'hooks/useSendTx';

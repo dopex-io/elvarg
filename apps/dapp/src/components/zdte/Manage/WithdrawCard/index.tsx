@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
+
 import { ZdteLP__factory } from '@dopex-io/sdk';
 import { Button, Input } from '@dopex-io/ui';
 import cx from 'classnames';
@@ -300,7 +301,7 @@ const Withdraw = () => {
           <Input
             variant="small"
             color="cod-gray"
-            handleChange={handleWithdrawAmount}
+            onChange={handleWithdrawAmount}
             value={tokenWithdrawAmount}
             placeholder="0"
           />

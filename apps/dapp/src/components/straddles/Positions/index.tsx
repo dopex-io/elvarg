@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { ButtonGroup } from '@mui/material';
 
 import { Button } from '@dopex-io/ui';
+
 import { useBoundStore } from 'store';
 
 import ClosedPositionsTable from 'components/straddles/Positions/ClosedPositions/ClosedPositionsTable';

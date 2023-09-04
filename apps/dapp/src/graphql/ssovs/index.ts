@@ -39,7 +39,7 @@ export const getSsovUserDataDocument = graphql(`
           id
         }
       }
-      userSSOVOptionBalance(first: 1000) {
+      userSSOVOptionBalance {
         id
         transaction {
           id
@@ -55,6 +55,42 @@ export const getSsovUserDataDocument = graphql(`
         premium
         ssov {
           id
+        }
+      }
+    }
+  }
+`);
+
+export const getSsovUserDataV2Document = graphql(`
+  query getSsovUserDataV2($user: ID!) {
+    users(where: { id: $user }) {
+      userOpenDeposits {
+        id
+        epoch
+        strike
+        amount
+      }
+      userSSOVOptionBalance {
+        epoch
+        strike
+        amount
+        fee
+        premium
+        ssov {
+          id
+          isPut
+        }
+      }
+      userOptionBalances {
+        balance
+        optionToken {
+          id
+          epoch
+          strike
+          ssov {
+            id
+            isPut
+          }
         }
       }
     }

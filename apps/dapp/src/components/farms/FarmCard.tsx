@@ -1,13 +1,19 @@
 import { ReactNode, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
+
 import LaunchIcon from '@mui/icons-material/Launch';
+
 import { FarmStatus, LpData } from 'types/farms';
+
 import { useBoundStore } from 'store/index';
+
 import CustomButton from 'components/UI/Button';
 import NumberDisplay from 'components/UI/NumberDisplay';
 import Skeleton from 'components/UI/Skeleton';
+
 import formatAmount from 'utils/general/formatAmount';
 import getExplorerUrl from 'utils/general/getExplorerUrl';
+
 import Chip from './Chip';
 import LpRatios from './LpRatios';
 import Stat from './Stat';

@@ -1,22 +1,25 @@
 import { useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
-import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
+
 import Box from '@mui/material/Box';
+
+import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
+
 import {
+  Bar,
   BarChart,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  Tooltip,
-  Bar,
-  ResponsiveContainer,
-  Cell,
 } from 'recharts';
 import { useBoundStore } from 'store';
 import CallsIcon from 'svgs/icons/CallsIcon';
 import PutsIcon from 'svgs/icons/PutsIcon';
 
-import Typography from 'components/UI/Typography';
 import CustomTooltipContent from 'components/atlantics/Charts/LiquidityBarGraph/CustomTooltipContent';
+import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 

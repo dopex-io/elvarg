@@ -102,6 +102,14 @@ const seo = {
     title: 'Dopex Bonds',
     description: 'Commit $USDC.e to receive $DPX at a discount',
   },
+  ssovBeta: {
+    url: `${HOST_URL}/ssov-beta`,
+    banner:
+      'https://res.cloudinary.com/dxitdndu3/image/upload/v1684326255/dopex_images/preview_images/default_qfq5rc.png',
+    alt: 'SSOV Beta',
+    title: 'SSOV Beta | Dopex',
+    description: 'Buy/Sell vanilla options from the SSOVs',
+  },
   default: {
     url: HOST_URL,
     title: 'Dopex',

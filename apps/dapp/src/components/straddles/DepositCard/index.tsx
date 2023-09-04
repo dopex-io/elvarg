@@ -1,17 +1,20 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
-import { ERC20__factory } from '@dopex-io/sdk';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import Switch from '@mui/material/Switch';
+
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+
+import { ERC20__factory } from '@dopex-io/sdk';
 import { format } from 'date-fns';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';

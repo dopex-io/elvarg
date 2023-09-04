@@ -63,15 +63,15 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         Number(
           utils.formatUnits(
             position.margin,
-            optionScalpData?.quoteDecimals.toNumber()
-          )
+            optionScalpData?.quoteDecimals.toNumber(),
+          ),
         );
 
       const _markPrice: any = formatAmount(
         isOpen
           ? Number(utils.formatUnits(isOpen ? markPrice : closePrice, 6))
           : closePrice,
-        4
+        4,
       );
 
       const { baseSymbol, quoteSymbol } = optionScalpData;
@@ -96,8 +96,8 @@ const PositionsTable = ({ tab }: { tab: string }) => {
             Number(
               utils.formatUnits(
                 margin.add(premium).add(fees),
-                optionScalpData?.quoteDecimals.toNumber()
-              )
+                optionScalpData?.quoteDecimals.toNumber(),
+              ),
             )) *
           100,
         customPath: `/scalps/${selectedPoolName}`,
@@ -110,7 +110,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         ],
       });
     },
-    [share, optionScalpData, markPrice, selectedPoolName]
+    [share, optionScalpData, markPrice, selectedPoolName],
   );
 
   const handleClose = useCallback(
@@ -119,7 +119,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         await sendTx(
           optionScalpData?.optionScalpContract.connect(signer),
           'closePosition',
-          [id]
+          [id],
         );
       } catch (e) {}
       await updateOptionScalp();
@@ -131,7 +131,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       sendTx,
       updateOptionScalp,
       updateOptionScalpUserData,
-    ]
+    ],
   );
 
   const positions = useMemo(() => {
@@ -150,16 +150,16 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           inverted
             ? 1 /
                 Number(
-                  utils.formatUnits(position.entry, quoteDecimals.toNumber())
+                  utils.formatUnits(position.entry, quoteDecimals.toNumber()),
                 )
             : Number(
-                utils.formatUnits(position.entry, quoteDecimals.toNumber())
+                utils.formatUnits(position.entry, quoteDecimals.toNumber()),
               ),
-          4
+          4,
         );
 
         const size = Number(
-          utils.formatUnits(position.size, quoteDecimals.toNumber())
+          utils.formatUnits(position.size, quoteDecimals.toNumber()),
         );
 
         const liquidationPrice = formatAmount(
@@ -168,27 +168,27 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                 Number(
                   utils.formatUnits(
                     position.liquidationPrice,
-                    quoteDecimals.toNumber()
-                  )
+                    quoteDecimals.toNumber(),
+                  ),
                 )
             : Number(
                 utils.formatUnits(
                   position.liquidationPrice,
-                  quoteDecimals.toNumber()
-                )
+                  quoteDecimals.toNumber(),
+                ),
               ),
-          4
+          4,
         );
 
         const positions = formatAmount(
           Number(
-            utils.formatUnits(position.positions, quoteDecimals.toNumber())
+            utils.formatUnits(position.positions, quoteDecimals.toNumber()),
           ),
-          5
+          5,
         );
 
         const pnl = Number(
-          utils.formatUnits(position.pnl, quoteDecimals.toNumber())
+          utils.formatUnits(position.pnl, quoteDecimals.toNumber()),
         );
 
         const variation = position.pnl
@@ -202,8 +202,8 @@ const PositionsTable = ({ tab }: { tab: string }) => {
             position.isShort
               ? position.entry.sub(variation)
               : position.entry.add(variation),
-            optionScalpData?.quoteDecimals?.toNumber()!
-          )
+            optionScalpData?.quoteDecimals?.toNumber()!,
+          ),
         );
 
         const openedAt = position.openedAt.toNumber();
@@ -251,7 +251,6 @@ const PositionsTable = ({ tab }: { tab: string }) => {
   const getCellComponent = useCallback(
     (key: string, position: any) => {
       if (!optionScalpData) return null;
-      // if (key === 'positions');
       let rightContent: string | null = null;
       let styles = '';
       let data = position[key];
@@ -284,19 +283,19 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                   Number(
                     utils.formatUnits(
                       position.fees,
-                      optionScalpData?.quoteDecimals.toNumber()
-                    )
+                      optionScalpData?.quoteDecimals.toNumber(),
+                    ),
                   ),
-                  4
+                  4,
                 )}`}</div>
                 <div>{`Premium ${formatAmount(
                   Number(
                     utils.formatUnits(
                       position.premium,
-                      optionScalpData?.quoteDecimals.toNumber()
-                    )
+                      optionScalpData?.quoteDecimals.toNumber(),
+                    ),
                   ),
-                  4
+                  4,
                 )}`}</div>
               </div>
             }
@@ -306,11 +305,11 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                 Number(
                   utils.formatUnits(
                     position.margin.add(position.premium).add(position.fees),
-                    optionScalpData?.quoteDecimals.toNumber()
-                  )
+                    optionScalpData?.quoteDecimals.toNumber(),
+                  ),
                 )) *
                 100,
-              2
+              2,
             )}%)`}</span>
           </Tooltip>
         );
@@ -323,9 +322,9 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       if (key === 'margin' || key === 'premium') {
         data = formatAmount(
           Number(
-            utils.formatUnits(data, optionScalpData?.quoteDecimals.toNumber())
+            utils.formatUnits(data, optionScalpData?.quoteDecimals.toNumber()),
           ),
-          4
+          4,
         );
         rightContent =
           optionScalpData.quoteSymbol === 'USDC' ? 'USDC.e' : 'USDC';
@@ -356,7 +355,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         <span
           className={cx(
             styles,
-            'text-xs md:text-sm text-left w-full text-white space-x-2 md:space-x-1'
+            'text-xs md:text-sm text-left w-full text-white space-x-2 md:space-x-1',
           )}
         >
           <span className={dataStyle}>{data}</span>
@@ -364,11 +363,11 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         </span>
       );
     },
-    [optionScalpData]
+    [optionScalpData],
   );
 
   return (
-    <div className="rounded-lg bg-inherit w-fit-content h-fit-content px-5 flex flex-row">
+    <div className="rounded-lg bg-inherit h-fit-content px-5 flex flex-row">
       {positions.length !== 0 ? (
         <div className="w-full h-full mb-4">
           <div className="flex flex-col space-y-4 py-2">
@@ -419,7 +418,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           </div>
         </div>
       ) : (
-        <span className="ml-auto mr-auto text-[0.8rem] h-full mb-10">
+        <span className="ml-auto mr-auto text-[0.8rem] h-full my-5">
           Your {tab === 'Open' ? 'active' : 'closed'} positions will appear here
         </span>
       )}

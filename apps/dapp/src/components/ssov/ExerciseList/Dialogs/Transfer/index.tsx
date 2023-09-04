@@ -6,11 +6,14 @@ import {
   useState,
 } from 'react';
 import { BigNumber, utils as ethersUtils } from 'ethers';
-import { ERC20__factory } from '@dopex-io/sdk';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Input from '@mui/material/Input';
+
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
+import { ERC20__factory } from '@dopex-io/sdk';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 

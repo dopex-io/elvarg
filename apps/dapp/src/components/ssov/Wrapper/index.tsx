@@ -1,6 +1,8 @@
 import { useCallback, useState } from 'react';
 import { BigNumber, ethers } from 'ethers';
+
 import Box from '@mui/material/Box';
+
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 

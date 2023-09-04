@@ -15,14 +15,19 @@ type colors =
   | 'success'
   | 'error';
 
-export interface MenuProps<T> {
+export interface MenuProps<T>
+  extends React.DetailedHTMLProps<
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    HTMLButtonElement
+  > {
   data: T[];
-  selection?: string;
+  selection?: string | React.ReactNode;
   handleSelection: ReactEventHandler;
   dropdownVariant?: dropdownVariants;
   scrollable?: boolean;
   topElement?: React.ReactNode;
   color?: colors;
+  showArrow?: boolean;
 }
 
 const Menu = <T extends ItemType>(props: MenuProps<T>) => {
@@ -34,11 +39,13 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
     scrollable = false,
     topElement = null,
     color = 'carbon',
+    showArrow = false,
+    className,
     ...rest
   } = props;
 
   return (
-    <HeadlessMenu as="div" className="inline-block text-left">
+    <HeadlessMenu as="div" className={cx('inline-block text-left', className)}>
       <div>
         <HeadlessMenu.Button
           as={Button}
@@ -49,9 +56,11 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
           {({ open }: { open: boolean }) => (
             <div className="flex justify-between">
               {selection}
-              <ChevronDownIcon
-                className={cx('ml-2 w-4', open ? `transform rotate-180` : '')}
-              />
+              {showArrow ? (
+                <ChevronDownIcon
+                  className={cx('ml-2 w-4', open ? `transform rotate-180` : '')}
+                />
+              ) : null}
             </div>
           )}
         </HeadlessMenu.Button>

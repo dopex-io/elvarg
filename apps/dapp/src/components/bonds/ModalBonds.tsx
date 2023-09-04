@@ -1,20 +1,23 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
-import { ERC20__factory } from '@dopex-io/sdk';
+
+import Box from '@mui/material/Box';
+import Dialog from '@mui/material/Dialog';
+
 import AccessibleForwardIcon from '@mui/icons-material/AccessibleForward';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import LaunchIcon from '@mui/icons-material/Launch';
-import Box from '@mui/material/Box';
-import Dialog from '@mui/material/Dialog';
+
+import { ERC20__factory } from '@dopex-io/sdk';
 import axios from 'axios';
 import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 import WhiteLockerIcon from 'svgs/icons/WhiteLockerIcon';
 
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CustomButton from 'components/UI/Button';
 import Input from 'components/UI/Input';
 import Typography from 'components/UI/Typography';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import displayAddress from 'utils/general/displayAddress';

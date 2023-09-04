@@ -27,16 +27,16 @@ const TopBar = () => {
           query: {},
         },
         undefined,
-        { shallow: true }
+        { shallow: true },
       );
       await updateOptionScalp();
       await updateOptionScalpUserData();
     },
-    [router, setSelectedPoolName, updateOptionScalp, updateOptionScalpUserData]
+    [router, setSelectedPoolName, updateOptionScalp, updateOptionScalpUserData],
   );
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center flex-wrap">
       <div className="flex items-center justify-center">
         <h5 className="bg-primary rounded-md px-2 font-bold text-[0.5rem] sm:text-[0.8rem] mr-2">
           BETA
