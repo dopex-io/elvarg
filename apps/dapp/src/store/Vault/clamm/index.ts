@@ -7,8 +7,7 @@ import { WalletSlice } from 'store/Wallet';
 
 import getMarketInformation from 'utils/clamm/getMarketInformation';
 
-import { MARKETS } from 'constants/clamm/markets';
-import { DECIMALS_STRIKE, DECIMALS_TOKEN, ZERO_ADDRESS } from 'constants/index';
+import { DECIMALS_STRIKE, ZERO_ADDRESS } from 'constants/index';
 import { TOKEN_DATA } from 'constants/tokens';
 
 import { CommonSlice } from '../common';
@@ -82,8 +81,6 @@ export interface ClammSlice {
   updateTokenDeps: Function;
   updateClammStrikesData: Function;
   updateSelectedStrike: Function;
-  updateBuyPositions: Function;
-  updateWritePositions: Function;
   updateAvailableOptions: Function;
   updateIsTrade: Function;
   updateMaxOtmPercentage: Function;
@@ -111,8 +108,6 @@ export interface ClammSlice {
   premiumPerOption: number;
   clammStrikesData: ClammStrikeData[];
   selectedStrike: number;
-  buyPositions: ClammBuyPosition[];
-  writePositions: ClammWritePosition[];
   availableOptions: bigint;
   isTrade: boolean;
   step: number;
@@ -132,8 +127,6 @@ export const createClammSlice: StateCreator<
       get().updateClammOpenInterest(),
       get().updateClammTotalVolume(),
       get().updateClammStrikesData(),
-      get().updateBuyPositions(),
-      get().updateWritePositions(),
       get().updateMaxOtmPercentage(),
       get().updateStep(),
       get().updatePositionManagerContract(),
@@ -145,8 +138,6 @@ export const createClammSlice: StateCreator<
     // get().updateStep();
     get().updateClammMarkPrice();
     get().updateClammStrikesData();
-    get().updateBuyPositions();
-    get().updateWritePositions();
   },
   updateClammMarkPrice: async () => {
     const tokenA = get().tokenA;
@@ -275,91 +266,6 @@ export const createClammSlice: StateCreator<
     }));
   },
   selectedStrike: 0,
-  updateWritePositions: async () => {
-    const tokenA = get().tokenA;
-    const user = get().userAddress;
-
-    // const ssovQueryResult = await queryClient.fetchQuery({
-    //   queryKey: ['getSsovUserData'],
-    //   queryFn: async () =>
-    //     request(DOPEX_SSOV_SUBGRAPH_API_URL, getSsovUserDataDocument, {
-    //       user: user.toLowerCase(),
-    //     }),
-    // });
-    // const data = ssovQueryResult['users'][0];
-
-    // for (let i in data?.userSSOVDeposit) {
-
-    // }
-
-    const positions: ClammWritePosition[] = [
-      {
-        strikeSymbol: 'ARB',
-        strike: Number(formatUnits(BigInt(123456789), DECIMALS_STRIKE)),
-        tickLower: 0,
-        tickUpper: 0,
-        size: Number(
-          formatUnits(BigInt(Math.pow(10, 18) * 13), DECIMALS_TOKEN),
-        ),
-        isPut: false,
-        tokenId: Number(BigInt(1)),
-        earned: Number(
-          formatUnits(BigInt(Math.pow(10, 18) * 13), DECIMALS_TOKEN),
-        ),
-        premiums: Number(
-          formatUnits(BigInt(Math.pow(10, 18) * 13), DECIMALS_TOKEN),
-        ),
-      },
-      {
-        strikeSymbol: '42069inu',
-        strike: Number(formatUnits(BigInt(123456789), DECIMALS_STRIKE)),
-        tickLower: 0,
-        tickUpper: 0,
-        size: Number(
-          formatUnits(BigInt(Math.pow(10, 18) * 13), DECIMALS_TOKEN),
-        ),
-        isPut: false,
-        tokenId: Number(BigInt(1)),
-        earned: Number(
-          formatUnits(BigInt(Math.pow(10, 18) * 13), DECIMALS_TOKEN),
-        ),
-        premiums: Number(
-          formatUnits(BigInt(Math.pow(10, 18) * 13), DECIMALS_TOKEN),
-        ),
-      },
-    ];
-    set((prevState) => ({
-      ...prevState,
-      writePositions: positions.filter(
-        (position) => position.strikeSymbol === tokenA,
-      ),
-    }));
-  },
-  writePositions: [],
-  updateBuyPositions: async () => {
-    const tokenA = get().tokenA;
-    const positions: ClammBuyPosition[] = [
-      {
-        strikeSymbol: 'ARB',
-        optionId: '0x12334',
-        strike: Number(formatUnits(BigInt(123456789), DECIMALS_STRIKE)),
-        size: Number(
-          formatUnits(BigInt(Math.pow(10, 18) * 13), DECIMALS_TOKEN),
-        ),
-        tickLower: 0,
-        tickUpper: 0,
-        isPut: false,
-      },
-    ];
-
-    set((prevState) => ({
-      ...prevState,
-      buyPositions: positions.filter(
-        (position) => position.strikeSymbol === tokenA,
-      ),
-    }));
-  },
-  buyPositions: [],
   updateAvailableOptions: async () => {
     set((prevState) => ({
       ...prevState,

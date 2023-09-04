@@ -10,9 +10,6 @@ import BuyPositions from './BuyPositions';
 import WritePositions from './WritePositions';
 
 const Positions = () => {
-  // const isLoading = false;
-  // const { buyPositions, writePositions } = useBoundStore();
-
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
   const { writePositions, buyPositions, isLoading } = useClammPositions({
