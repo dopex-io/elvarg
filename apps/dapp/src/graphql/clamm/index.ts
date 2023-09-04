@@ -3,7 +3,7 @@ import { graphql } from 'gql/clamm';
 export const getUserClammPositions = graphql(`
   query getClammPositions($user: ID!) {
     users(where: { id: $user }) {
-      userBuyPositions {
+      userBuyPositions(where: { exercised: false }) {
         id
         isPut
         options
@@ -13,7 +13,7 @@ export const getUserClammPositions = graphql(`
         poolAddress
         expiry
       }
-      userWritePositions {
+      userWritePositions(where: { burnt: false }) {
         id
         poolAddress
         size
