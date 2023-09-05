@@ -7,8 +7,6 @@ import { WalletSlice } from 'store/Wallet';
 
 import { ClammStrike } from 'hooks/clamm/usePositionManager';
 
-import getMarketInformation from 'utils/clamm/getMarketInformation';
-
 import { DECIMALS_STRIKE, ZERO_ADDRESS } from 'constants/index';
 import { TOKEN_DATA } from 'constants/tokens';
 
@@ -90,7 +88,6 @@ export interface ClammSlice {
   updatePositionManagerContract: Function;
   updateIsPut: Function;
   updateTokenDeps: Function;
-  updateClammStrikesData: Function;
   updateSelectedStrike: Function;
   updateAvailableOptions: Function;
   updateIsTrade: Function;
@@ -115,7 +112,6 @@ export interface ClammSlice {
   tokenA: string;
   optionPoolsContract: Address;
   positionManagerContract: Address;
-  uniswapPoolContract: Address;
   isPut: boolean;
   breakeven: number;
   premiumPerOption: number;
@@ -141,7 +137,6 @@ export const createClammSlice: StateCreator<
       get().updateClammMarkPrice(),
       get().updateClammOpenInterest(),
       get().updateClammTotalVolume(),
-      get().updateClammStrikesData(),
       get().updateMaxOtmPercentage(),
       get().updateStep(),
       get().updatePositionManagerContract(),
@@ -152,7 +147,6 @@ export const createClammSlice: StateCreator<
   updateTokenDeps: async () => {
     // get().updateStep();
     get().updateClammMarkPrice();
-    get().updateClammStrikesData();
   },
   updateClammMarkPrice: async () => {
     const tokenA = get().tokenA;
@@ -228,41 +222,6 @@ export const createClammSlice: StateCreator<
   step: 0,
   maxOtmPercentage: 0,
   clammStrikesData: [],
-  updateClammStrikesData: async () => {
-    // get().updateSelectedStrike(markPrice);
-
-    const { isPut, selectedPair } = get();
-
-    const { uniswapPoolAddress } = getMarketInformation(selectedPair);
-
-    if (!uniswapPoolAddress) {
-      set((prevState) => ({
-        ...prevState,
-        clammStrikesData: [],
-      }));
-      return;
-    } else {
-      set((prevState) => ({
-        ...prevState,
-        uniswapPoolContract: uniswapPoolAddress as Address,
-      }));
-    }
-
-    const strikes: any[] = [];
-
-    const strikesData = isPut
-      ? generatePutStrikesData({
-          strikes: strikes,
-        })
-      : generateCallStrikesData({
-          strikes: strikes,
-        });
-
-    set((prevState) => ({
-      ...prevState,
-      clammStrikesData: strikesData,
-    }));
-  },
   updatePositionManagerContract: async () => {
     set((prevState) => ({
       ...prevState,
@@ -295,7 +254,6 @@ export const createClammSlice: StateCreator<
       isTrade: isTrade,
     }));
   },
-  uniswapPoolContract: ZERO_ADDRESS as Address,
   userAddress: ZERO_ADDRESS as Address,
   updateUserAddress: (userAddress: Address) => {
     set((prevState) => ({
