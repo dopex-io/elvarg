@@ -95,8 +95,11 @@ const BuyPositions = ({
 }: {
   buyPositions: ClammBuyPosition[] | undefined;
 }) => {
-  const { clammMarkPrice, uniswapPoolContract, optionPoolsContract } =
-    useBoundStore();
+  const {
+    clammMarkPrice,
+    uniswapPoolContract,
+    optionPoolsContract,
+  } = useBoundStore();
   const [selectedPosition, setSelectedPosition] =
     useState<ExercisePositionProps>();
 
