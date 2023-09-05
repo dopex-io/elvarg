@@ -15,6 +15,8 @@ import TableLayout from 'components/common/TableLayout';
 import { formatAmount } from 'utils/general';
 import computeOptionPnl from 'utils/math/computeOptionPnl';
 
+import { MARKETS } from 'constants/clamm/markets';
+
 interface BuyPositionData {
   strikeSymbol: string;
   strike: string;
@@ -95,11 +97,7 @@ const BuyPositions = ({
 }: {
   buyPositions: ClammBuyPosition[] | undefined;
 }) => {
-  const {
-    clammMarkPrice,
-    uniswapPoolContract,
-    optionPoolsContract,
-  } = useBoundStore();
+  const { clammMarkPrice, optionPoolsContract } = useBoundStore();
   const [selectedPosition, setSelectedPosition] =
     useState<ExercisePositionProps>();
 
@@ -110,7 +108,7 @@ const BuyPositions = ({
     args: [
       {
         optionId: BigInt(selectedPosition?.optionId || '0x0'),
-        pool: uniswapPoolContract,
+        pool: MARKETS['ARB-USDC'].uniswapPoolAddress,
         tickLower: selectedPosition?.tickLower || 0,
         tickUpper: selectedPosition?.tickUpper || 0,
         amountToExercise: parseEther((selectedPosition?.size || 0).toString()),
