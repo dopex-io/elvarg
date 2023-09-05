@@ -371,7 +371,7 @@ const StrikesTable = () => {
   });
 
   const activeStrikeIndex = clammStrikesData.findIndex(
-    (strikeData) => strikeData.strike === selectedStrike,
+    (strikeData) => strikeData.strike.toFixed(5) === selectedStrike.toFixed(5),
   );
   const setActiveStrikeIndex = useCallback(
     (index: number) => updateSelectedStrike(clammStrikesData[index].strike),
