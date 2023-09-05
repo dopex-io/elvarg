@@ -22,7 +22,11 @@ interface BuyPositionData {
   strike: string;
   size: string;
   isPut: boolean;
-  pnl: string;
+  pnlAndPrice: {
+    pnl: number;
+    price: number;
+    tokenSymbol: string;
+  };
   expiry: number;
   button: {
     handleExercise: () => void;
@@ -58,21 +62,28 @@ const columns = [
     header: 'Side',
     cell: (info) => <p>{info.getValue() ? 'Put' : 'Call'}</p>,
   }),
-  columnHelper.accessor('pnl', {
+  columnHelper.accessor('pnlAndPrice', {
     header: 'PnL',
-    cell: (info) => (
-      <>
-        <span className="space-x-2">
-          <p className="text-stieglitz inline-block">$</p>
-          {Number(info.getValue()) >= 0 ? (
-            <p className="text-up-only inline-block">{info.getValue()}</p>
-          ) : (
-            <p className="text-down-bad inline-block">{info.getValue()}</p>
-          )}
-        </span>
-        <p className="text-stieglitz">0.21 ETH</p>
-      </>
-    ),
+    cell: (info) => {
+      const value = info.getValue();
+      const usdPrice = formatAmount(value.price * value.pnl, 3);
+
+      return (
+        <>
+          <span className="space-x-2">
+            <p className="text-stieglitz inline-block">$</p>
+            {Number(usdPrice) >= 0 ? (
+              <p className="text-up-only inline-block">{usdPrice}</p>
+            ) : (
+              <p className="text-down-bad inline-block">{usdPrice}</p>
+            )}
+          </span>
+          <p className="text-stieglitz">
+            {formatAmount(value.pnl, 3)} {value.tokenSymbol}
+          </p>
+        </>
+      );
+    },
   }),
   columnHelper.accessor('button', {
     header: '',
@@ -141,15 +152,16 @@ const BuyPositions = ({
         size: formatAmount(Number(position.size)),
         isPut: position.isPut,
         expiry: Date.now(),
-        pnl: formatAmount(
-          computeOptionPnl({
+        pnlAndPrice: {
+          pnl: computeOptionPnl({
             side: position.isPut ? 'put' : 'call',
             strike: position.strike,
             size: position.size,
             price: clammMarkPrice,
           }),
-          3,
-        ),
+          price: clammMarkPrice,
+          tokenSymbol: position.strikeSymbol.split('-')[0],
+        },
         button: {
           handleExercise: () => handleExercise(index),
           id: index,
