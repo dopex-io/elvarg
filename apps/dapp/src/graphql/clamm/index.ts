@@ -12,6 +12,7 @@ export const getUserClammPositions = graphql(`
         tickUpper
         poolAddress
         expiry
+        txInput
       }
       userWritePositions(where: { burnt: false }) {
         id
@@ -36,6 +37,26 @@ export const getTotalPremium = graphql(`
   query getTotalPremium {
     buyPositions(where: { exercised: false }) {
       premium
+    }
+  }
+`);
+
+export const getUsePositions = graphql(`
+  query getUsePositions {
+    usePositions {
+      liquidityToUse
+      tickUpper
+      tickLower
+    }
+  }
+`);
+
+export const getBuyPositionsWithCallData = graphql(`
+  query getBuyPositions {
+    buyPositions {
+      tickLower
+      tickUpper
+      txInput
     }
   }
 `);
