@@ -28,10 +28,10 @@ export const MARKETS: Record<ClammPair, ClammMarket> = {
     underlyingTokenSymbol: 'ARB',
     collateralTokenSymbol: 'USDC',
     underlyingTokenAddress: ethers.utils.getAddress(
-      '0x63a38a21f74e69f75209ae5a76dbe7f1558ab890',
+      '0x912CE59144191C1204E64559FE8253a0e49E6548',
     ) as Address,
     collateralTokenAddress: ethers.utils.getAddress(
-      '0x50dfff781e60875d304cac5f034d3f9e275445a9',
+      '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
     ) as Address,
     uniswapPoolAddress: ethers.utils.getAddress(
       '0xce0F8EfCa1Bc21Dd9AaEE6ee8F2c0F2155980bBB',
