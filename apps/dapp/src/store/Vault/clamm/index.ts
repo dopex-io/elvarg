@@ -65,11 +65,20 @@ export interface ClammWritePosition {
   strike: number;
   tickLower: number;
   tickUpper: number;
-  size: number;
+  size: {
+    token0: bigint;
+    token1: bigint;
+  };
+  premiums2: {
+    token0: bigint;
+    token1: bigint;
+  };
   isPut: boolean;
   tokenId: number;
   earned: number;
   premiums: number;
+  balance: bigint;
+  withdrawable: bigint;
 }
 
 export interface ClammSlice {
