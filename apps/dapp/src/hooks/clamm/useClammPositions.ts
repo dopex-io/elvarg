@@ -20,6 +20,8 @@ import {
 } from 'store/Vault/clamm';
 
 import getErc1155Balance from 'utils/clamm/getErc1155Balance';
+import getOptionsId from 'utils/clamm/getOptionsPositionId';
+import getOptionsPositionId from 'utils/clamm/getOptionsPositionId';
 import getPoolSlot0 from 'utils/clamm/getPoolSlot0';
 import getWritePosition from 'utils/clamm/getWritePosition';
 import getWritePositionId from 'utils/clamm/getWritePositionId';
@@ -169,6 +171,11 @@ const useClammPositions = (args: Args) => {
             getSqrtRatioAtTick(BigInt(item.tickUpper)),
             liquidity,
           );
+          const positionId = getOptionsPositionId(
+            getWritePositionId(poolAddress, item.tickLower, item.tickUpper),
+            item.expiry,
+            item.isPut,
+          );
 
           const strike = calculateStrike({
             isPut: item.isPut,
@@ -179,7 +186,7 @@ const useClammPositions = (args: Args) => {
           });
           return {
             strikeSymbol: market,
-            optionId: item.id,
+            optionId: positionId,
             strike: Number(strike),
             tickLower: item.tickLower,
             tickUpper: item.tickUpper,
@@ -301,7 +308,7 @@ const useClammPositions = (args: Args) => {
 
               return {
                 strikeSymbol: market,
-                optionId: item.id,
+                optionId: positionId,
                 strike: Number(strike),
                 tickLower: item.tickLower,
                 tickUpper: item.tickUpper,
