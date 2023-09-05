@@ -14,6 +14,7 @@ import TableLayout from 'components/common/TableLayout';
 import { formatAmount } from 'utils/general';
 
 import { CHAINS } from 'constants/chains';
+import { MARKETS } from 'constants/clamm/markets';
 
 import WithdrawModal from './WithdrawModal/WithdrawModal';
 
@@ -169,7 +170,6 @@ const WritePositions = ({
 }) => {
   const {
     positionManagerContract,
-    uniswapPoolContract,
     clammMarkPrice,
     selectedUniswapPool,
     chainId,
@@ -210,7 +210,7 @@ const WritePositions = ({
     functionName: 'burnPosition',
     args: [
       {
-        pool: uniswapPoolContract,
+        pool: MARKETS['ARB-USDC'].uniswapPoolAddress,
         tickLower: selectedPosition?.tickLower || 0,
         tickUpper: selectedPosition?.tickUpper || 0,
         shares: 1n,
