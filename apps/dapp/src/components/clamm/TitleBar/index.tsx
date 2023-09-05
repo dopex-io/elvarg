@@ -6,6 +6,8 @@ import { Menu } from '@dopex-io/ui';
 
 import { useBoundStore } from 'store';
 
+import useStats from 'hooks/clamm/useStats';
+
 import TitleItem from 'components/ssov-beta/TitleBar/TitleItem';
 
 import { formatAmount } from 'utils/general';
@@ -19,11 +21,12 @@ export function TitleBar() {
   const {
     clammMarkPrice,
     clammOpenInterest,
-    clammTotalVolume,
     tokenA,
     updateTokenA,
     updateTokenDeps,
   } = useBoundStore();
+
+  const { openInterest, totalVolume } = useStats();
 
   useEffect(() => {
     const { tokenA: tokenASymbol } = router.query;
@@ -79,21 +82,13 @@ export function TitleBar() {
           symbol="$"
           symbolPrefixed
           label="Open Interest"
-          value={formatAmount(
-            formatUnits(clammOpenInterest, DECIMALS_TOKEN),
-            3,
-            true,
-          )}
+          value={formatAmount(openInterest, 3, true)}
         />
         <TitleItem
           symbol="$"
           symbolPrefixed
           label="Total Volume"
-          value={formatAmount(
-            formatUnits(clammTotalVolume, DECIMALS_TOKEN),
-            3,
-            true,
-          )}
+          value={formatAmount(totalVolume, 3, true)}
         />
       </div>
     </>
