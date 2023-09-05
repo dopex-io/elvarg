@@ -139,8 +139,8 @@ const ClammPage = () => {
               market={splitMarketPair(selectedPair).underlyingTokenSymbol}
             />
             <div className="space-y-4">
-              <StrikesChain />
-              <Positions />
+               <StrikesChain />
+              <Positions /> 
             </div>
           </div>
           <div className="flex flex-col w-full lg:w-1/3 h-full space-y-4 sticky top-20">
