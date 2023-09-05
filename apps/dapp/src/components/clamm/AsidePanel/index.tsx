@@ -48,6 +48,8 @@ import {
   OPTION_TOKEN_DECIMALS,
 } from 'constants/index';
 
+import DisclaimerDialog from './DisclaimerDialog';
+
 const CustomBottomElement = ({
   symbol,
   value,
@@ -158,6 +160,8 @@ const AsidePanel = () => {
     collateralTokenBalance: 0n,
     underlyingTokenBalance: 0n,
   });
+  const [showDisclaimer, setShowDisclaimer] = useState<boolean>(false);
+  const [agree, setAgree] = useState<boolean>(false);
 
   const {
     collateralTokenAddress,
@@ -235,7 +239,7 @@ const AsidePanel = () => {
     updateSelectedStrike,
   ]);
 
-  // const debugUsePositions = useCallback(async () => { 
+  // const debugUsePositions = useCallback(async () => {
   //   await getOpenInterestAndTotalVolume();
   // }, [])
 
@@ -570,6 +574,9 @@ const AsidePanel = () => {
       ? userTokenBalances.collateralTokenBalance
       : userTokenBalances.underlyingTokenBalance;
 
+    if (!agree) {
+      action = () => setShowDisclaimer(true);
+    }
     if (tradeOrLpIndex === 0) {
       text = 'Buy';
       action = mintOptions;
@@ -598,15 +605,16 @@ const AsidePanel = () => {
       disabled,
     };
   }, [
+    isPut,
+    userTokenBalances.collateralTokenBalance,
+    userTokenBalances.underlyingTokenBalance,
+    agree,
+    tradeOrLpIndex,
+    tokenAmountToSpend,
+    approved,
     mintOptions,
     mintPosition,
     handleApprove,
-    approved,
-    isPut,
-    tradeOrLpIndex,
-    tokenAmountToSpend,
-    userTokenBalances.collateralTokenBalance,
-    userTokenBalances.underlyingTokenBalance,
   ]);
 
   return (
@@ -801,6 +809,17 @@ const AsidePanel = () => {
             </>
           )}
         </div>
+        {!agree && (
+          <DisclaimerDialog
+            isOpen={showDisclaimer}
+            handleClose={() => {
+              setShowDisclaimer(false);
+            }}
+            handleAgree={() => {
+              setAgree(true);
+            }}
+          />
+        )}
         {/* remove for MVP */}
         {/* <StrikeRangeSelectorWrapper /> */}
       </div>
