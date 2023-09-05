@@ -1,10 +1,12 @@
 import { OptionPools__factory } from '@dopex-io/sdk';
 import { readContract } from 'wagmi/actions';
 
+import { ARB_USDC_UNISWAP_POOL_ADDRESS } from 'constants/clamm/markets';
+
 async function getOptionsPosition(id: bigint) {
   return readContract({
     abi: OptionPools__factory.abi,
-    address: '0x090fdA0F2c26198058530A0A8cFE53362d54d9f1',
+    address: ARB_USDC_UNISWAP_POOL_ADDRESS,
     functionName: 'optionInfos',
     args: [id],
   });

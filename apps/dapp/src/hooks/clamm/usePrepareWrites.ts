@@ -1,6 +1,8 @@
 import { OptionPools__factory, PositionsManager__factory } from '@dopex-io/sdk';
 import { Address, usePrepareContractWrite } from 'wagmi';
 
+import { ARB_USDC_UNISWAP_POOL_ADDRESS } from 'constants/clamm/markets';
+
 import { PositionManagerParams } from './usePositionManager';
 
 export type UsePrepareMintPositionProps = {
@@ -57,7 +59,7 @@ export const usePrepareMintCallOrPutOptionRoll = ({
 }: UsePrepareMintCallOrPutOptionProps) => {
   const { config } = usePrepareContractWrite({
     abi: OptionPools__factory.abi,
-    address: '0x090fdA0F2c26198058530A0A8cFE53362d54d9f1',
+    address: ARB_USDC_UNISWAP_POOL_ADDRESS,
     functionName: isPut ? 'mintPutOptionRoll' : 'mintCallOptionRoll',
     args: [parameters],
   });
@@ -68,7 +70,7 @@ export const usePrepareMintCallOrPutOptionRoll = ({
 export const usePrepareExerciseOptionRoll = () => {
   const { config } = usePrepareContractWrite({
     abi: OptionPools__factory.abi,
-    address: '0x090fdA0F2c26198058530A0A8cFE53362d54d9f1',
+    address: ARB_USDC_UNISWAP_POOL_ADDRESS,
     functionName: 'exerciseOptionRoll',
     args: [
       {
