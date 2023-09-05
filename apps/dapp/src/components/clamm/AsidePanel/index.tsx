@@ -150,7 +150,6 @@ const AsidePanel = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [inputAmount, setInputAmount] = useState<string>('0');
   const [tradeOrLpIndex, setTradeOrLpIndex] = useState<number>(0);
-  console.log('Logging trade or lp index', tradeOrLpIndex);
   const [selectedExpiry, setSelectedExpiry] = useState<number>(0);
   const [approved, setApproved] = useState<boolean>(false);
   const [amountDebounced] = useDebounce(inputAmount, 1000);
@@ -236,6 +235,13 @@ const AsidePanel = () => {
     updateSelectedStrike,
   ]);
 
+  // const debugUsePositions = useCallback(async () => { 
+  //   await getOpenInterestAndTotalVolume();
+  // }, [])
+
+  // useEffect(() => {
+  //   debugUsePositions()
+  //  }, [debugUsePositions])
   // const debugAvailableLiquidity = useCallback(async () => {
   //   const clammStrike = clammStrikes.find(({ strike }) => {
   //     return Number(strike.toFixed(5)) === selectedStrike;
