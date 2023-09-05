@@ -101,6 +101,7 @@ const useClammPositions = (args: Args) => {
           request(DOPEX_CLAMM_SUBGRAPH_API_URL, getUserClammPositions, {
             user: address.toLowerCase(),
           }),
+        staleTime: 1000,
       }),
       queryClient.fetchQuery({
         queryKey: ['getTotalMintSize'],
