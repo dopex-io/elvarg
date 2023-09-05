@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { formatEther } from 'viem';
+import { formatEther, formatUnits } from 'viem';
 
 import request from 'graphql-request';
 import { Address } from 'wagmi';
@@ -23,8 +23,14 @@ import getErc1155Balance from 'utils/clamm/getErc1155Balance';
 import getPoolSlot0 from 'utils/clamm/getPoolSlot0';
 import getWritePosition from 'utils/clamm/getWritePosition';
 import getWritePositionId from 'utils/clamm/getWritePositionId';
-import { getAmountsForLiquidity } from 'utils/clamm/liquidityAmountMath';
+import {
+  getAmountsForLiquidity,
+  getLiquidityForAmount0,
+  getLiquidityForAmount1,
+} from 'utils/clamm/liquidityAmountMath';
+import parseLiquidityFromMintPositionTxData from 'utils/clamm/parseLiquidityFromMintPositionTxData';
 import splitMarketPair from 'utils/clamm/splitMarketPair';
+import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
 
 import { CHAINS } from 'constants/chains';
 import { MARKETS } from 'constants/clamm/markets';
@@ -69,7 +75,7 @@ const useClammPositions = (args: Args) => {
   const ARC = '0x2a9a9f63f13dd70816c456b2f2553bb648ee0f8f';
   const CARROT = '0x29ed22a9e56ee1813e6ff69fc6cac676aa24c09c';
   const address = CARROT;
-  const { selectedPair, chainId, isPut } = useBoundStore();
+  const { selectedPair, chainId, isPut, selectedUniswapPool } = useBoundStore();
 
   const [writePositions, setWritePositions] = useState<ClammWritePosition[]>();
   const [buyPositions, setBuyPositions] = useState<ClammBuyPosition[]>();
@@ -133,8 +139,17 @@ const useClammPositions = (args: Args) => {
     const { underlyingTokenSymbol, collateralTokenSymbol } =
       splitMarketPair(selectedPair);
 
-    const decimals0 = CHAINS[chainId].tokenDecimals[underlyingTokenSymbol];
-    const decimals1 = CHAINS[chainId].tokenDecimals[collateralTokenSymbol];
+    const tickScaleFlipped =
+      selectedUniswapPool.token0 !== selectedUniswapPool.underlyingToken;
+
+    const decimals0 =
+      CHAINS[chainId].tokenDecimals[
+        tickScaleFlipped ? collateralTokenSymbol : underlyingTokenSymbol
+      ];
+    const decimals1 =
+      CHAINS[chainId].tokenDecimals[
+        tickScaleFlipped ? underlyingTokenSymbol : collateralTokenSymbol
+      ];
 
     const _buyPositions: ClammBuyPosition[] =
       positionsQueryResult.users[0].userBuyPositions
@@ -147,6 +162,14 @@ const useClammPositions = (args: Args) => {
           );
         })
         .map((item) => {
+          const liquidity = parseLiquidityFromMintPositionTxData(item.txInput);
+          const optionsSize = getAmountsForLiquidity(
+            selectedUniswapPool.sqrtX96,
+            getSqrtRatioAtTick(BigInt(item.tickLower)),
+            getSqrtRatioAtTick(BigInt(item.tickUpper)),
+            liquidity,
+          );
+
           const strike = calculateStrike({
             isPut: item.isPut,
             tickLower: item.tickLower,
@@ -160,7 +183,10 @@ const useClammPositions = (args: Args) => {
             strike: Number(strike),
             tickLower: item.tickLower,
             tickUpper: item.tickUpper,
-            size: item.options,
+            size:
+              optionsSize.amount0 === 0n
+                ? formatUnits(optionsSize.amount1, decimals1)
+                : formatUnits(optionsSize.amount0, decimals0),
             isPut: item.isPut,
             expiry: item.expiry,
           };
@@ -177,79 +203,139 @@ const useClammPositions = (args: Args) => {
             );
           })
           .map(async (item) => {
-            const positionIsPut = currentTick < item.tickLower;
-            if (positionIsPut === isPut) {
-              const strike = calculateStrike({
-                isPut: positionIsPut,
-                tickLower: item.tickLower,
-                tickUpper: item.tickUpper,
-                decimals0: decimals0,
-                decimals1: decimals1,
-              });
+            let positionIsPut = true;
 
-              const positionId = await getWritePositionId(
-                poolAddress,
-                item.tickLower,
-                item.tickUpper,
-              );
-
-              const position: any[] = (await getWritePosition(
-                positionId,
-              )) as any[];
-
-              if (position.length === 7) {
-                const positionInfo: TokenIdInfo = {
-                  totalLiquidity: position[0],
-                  totalSupply: position[1],
-                  liquidityUsed: position[2],
-                  feeGrowthInside0LastX128: position[3],
-                  feeGrowthInside1LastX128: position[4],
-                  tokensOwed0: position[5],
-                  tokensOwed1: position[6],
-                };
-
-                const shares = (await getErc1155Balance(
-                  address,
-                  positionId,
-                )) as bigint;
-                const userLiquidity =
-                  (shares * positionInfo.totalLiquidity + 1n) /
-                  positionInfo.totalSupply;
-                // TODO: fix 0n
-                const earned = await getAmountsForLiquidity(
-                  1n,
-                  1n,
-                  1n,
-                  userLiquidity,
-                );
-
-                const userCurrentShare = Number(formatEther(item.size));
-                const userDepositShare = userCurrentShare / totalShares;
-                const userPremiums =
-                  (totalPremium * userDepositShare) / totalShares;
-
-                return {
-                  strikeSymbol: market,
-                  optionId: item.id,
-                  strike: Number(strike),
-                  tickLower: item.tickLower,
-                  tickUpper: item.tickUpper,
-                  size: userCurrentShare,
-                  isPut: positionIsPut,
-                  earned: Number(formatEther(earned.amount0)),
-                  premiums: userPremiums,
-                  tokenId: Number(positionId),
-                } as ClammWritePosition;
+            if (
+              selectedUniswapPool.token0 == selectedUniswapPool.underlyingToken
+            ) {
+              if (currentTick > item.tickLower) {
+                positionIsPut = true;
+              } else if (currentTick < item.tickUpper) {
+                positionIsPut = false;
+              }
+            } else {
+              if (currentTick > item.tickLower) {
+                positionIsPut = false;
+              } else if (currentTick < item.tickUpper) {
+                positionIsPut = true;
               }
             }
-            return undefined;
+            // if (positionIsPut === isPut) {
+            const strike = calculateStrike({
+              isPut: positionIsPut,
+              tickLower: item.tickLower,
+              tickUpper: item.tickUpper,
+              decimals0: decimals0,
+              decimals1: decimals1,
+            });
+
+            const positionId = getWritePositionId(
+              poolAddress,
+              item.tickLower,
+              item.tickUpper,
+            );
+
+            const position = await getWritePosition(positionId);
+
+            if (position.length === 7) {
+              const positionInfo: TokenIdInfo = {
+                totalLiquidity: position[0],
+                totalSupply: position[1],
+                liquidityUsed: position[2],
+                feeGrowthInside0LastX128: position[3],
+                feeGrowthInside1LastX128: position[4],
+                tokensOwed0: position[5],
+                tokensOwed1: position[6],
+              };
+
+              const precisionForCalcs = BigInt(1e10);
+
+              const shares = (await getErc1155Balance(
+                address,
+                positionId,
+              )) as bigint;
+              const userLiquidity =
+                (shares * positionInfo.totalLiquidity + 1n) /
+                positionInfo.totalSupply;
+
+              const userSharesBalance =
+                ((await getErc1155Balance(address, positionId)) as bigint) ??
+                0n;
+
+              const userLiquidityShare =
+                (userSharesBalance * precisionForCalcs) /
+                positionInfo.totalSupply;
+
+              const liquidityNotUtilizedPercentage =
+                ((positionInfo.totalLiquidity - positionInfo.liquidityUsed) *
+                  precisionForCalcs) /
+                positionInfo.totalLiquidity;
+
+              const withdrawableShares =
+                (userSharesBalance * liquidityNotUtilizedPercentage) /
+                precisionForCalcs;
+
+              // TODO: fix 0n
+              const earned = getAmountsForLiquidity(1n, 1n, 1n, userLiquidity);
+
+              const userCurrentShare = Number(formatEther(item.size));
+              const userDepositShare = userCurrentShare / totalShares;
+              const userPremiums =
+                (totalPremium * userDepositShare) / totalShares;
+
+              const liquidtyAmounts = getAmountsForLiquidity(
+                selectedUniswapPool.sqrtX96,
+                getSqrtRatioAtTick(BigInt(item.tickLower)),
+                getSqrtRatioAtTick(BigInt(item.tickUpper)),
+                BigInt(item.size),
+              );
+              const balance = (await getErc1155Balance(
+                address,
+                positionId,
+              )) as bigint;
+
+              const size = {
+                token0: liquidtyAmounts.amount0,
+                token1: liquidtyAmounts.amount1,
+              };
+
+              return {
+                strikeSymbol: market,
+                optionId: item.id,
+                strike: Number(strike),
+                tickLower: item.tickLower,
+                tickUpper: item.tickUpper,
+                size: size,
+                isPut: positionIsPut,
+                earned: Number(formatEther(earned.amount0)),
+                premiums: userPremiums,
+                premiums2: {
+                  token0: 0n,
+                  token1: 0n,
+                },
+                tokenId: Number(positionId),
+                balance,
+                withdrawable: withdrawableShares,
+              } as ClammWritePosition;
+            }
+            // }
+            // return undefined;
           }),
       )
     ).filter((item): item is ClammWritePosition => item !== undefined);
     setWritePositions(_writePositions);
 
     setLoading(false);
-  }, [address, chainId, isPut, market, selectedPair]);
+  }, [
+    address,
+    chainId,
+    isPut,
+    market,
+    selectedPair,
+    selectedUniswapPool.sqrtX96,
+    selectedUniswapPool.token0,
+    selectedUniswapPool.underlyingToken,
+  ]);
 
   useEffect(() => {
     updateClammPositions();
