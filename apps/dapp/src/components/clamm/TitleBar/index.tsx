@@ -16,7 +16,15 @@ import { MARKETS_MENU } from 'constants/clamm/markets';
 export function TitleBar() {
   const router = useRouter();
 
-  const { clammMarkPrice, selectedPair, updateSelectedPair } = useBoundStore();
+  const { selectedPair, tokenPrices, selectedUniswapPool, updateSelectedPair } =
+    useBoundStore();
+
+  const clammMarkPrice =
+    tokenPrices.find(
+      ({ name }) =>
+        name.toLowerCase() ===
+        selectedUniswapPool.underlyingTokenSymbol.toLowerCase(),
+    )?.price ?? undefined;
 
   const { openInterest, totalVolume } = useStats();
 

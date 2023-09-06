@@ -29,8 +29,6 @@ const ClammPage = () => {
   const router = useRouter();
 
   const {
-    provider,
-    updateClammData,
     updateUserAddress,
     updateSelectedPair,
     selectedPair,
@@ -39,15 +37,9 @@ const ClammPage = () => {
   } = useBoundStore();
   const { address: userAddress } = useAccount();
 
-  const updateAll = useCallback(async () => {
-    if (!provider) return;
-    updateClammData();
-  }, [provider, updateClammData]);
-
   useEffect(() => {
-    updateAll();
     updateUserAddress(userAddress);
-  }, [updateAll, updateUserAddress, userAddress]);
+  }, [updateUserAddress, userAddress]);
 
   // useEffect(() => {
   //   const interval = setInterval(() => {

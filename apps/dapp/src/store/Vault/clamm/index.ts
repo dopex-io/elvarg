@@ -131,19 +131,9 @@ export interface OptionsPosition {
 }
 
 export interface ClammSlice {
-  updateClammData: Function;
-  updateClammMarkPrice: Function;
-  updateClammOpenInterest: Function;
-  updateClammTotalVolume: Function;
   updateTokenA: Function;
-  updatePositionManagerContract: Function;
   updateIsPut: Function;
-  updateTokenDeps: Function;
   updateSelectedStrike: Function;
-  updateAvailableOptions: Function;
-  updateIsTrade: Function;
-  updateMaxOtmPercentage: Function;
-  updateStep: Function;
   updateUserAddress: Function;
   updateGeneratedStrikes: Function;
   updateSelectedExpiry: Function;
@@ -163,21 +153,12 @@ export interface ClammSlice {
   /** NEWLY ADDED */
 
   // state
-  clammMarkPrice: number | undefined;
-  clammOpenInterest: bigint;
-  clammTotalVolume: bigint;
   tokenA: string;
-  optionPoolsContract: Address;
-  positionManagerContract: Address;
   isPut: boolean;
   breakeven: number;
   premiumPerOption: number;
-  clammStrikesData: ClammStrikeData[];
   selectedStrike: number;
-  availableOptions: bigint;
   isTrade: boolean;
-  step: number;
-  maxOtmPercentage: number;
   userAddress: Address;
   generatedStrikes: ClammStrike[];
   selectedExpiry: number;
@@ -189,50 +170,6 @@ export const createClammSlice: StateCreator<
   [],
   ClammSlice
 > = (set, get) => ({
-  updateClammData: async () => {
-    Promise.all([
-      get().updateClammMarkPrice(),
-      get().updateClammOpenInterest(),
-      get().updateClammTotalVolume(),
-      get().updateMaxOtmPercentage(),
-      get().updateStep(),
-      get().updatePositionManagerContract(),
-      // get().updateOptionPoolsContract(),
-      // get().updateUniswapPoolContract(),
-    ]);
-  },
-  updateTokenDeps: async () => {
-    // get().updateStep();
-    get().updateClammMarkPrice();
-  },
-  updateClammMarkPrice: async () => {
-    const { tokenPrices, selectedUniswapPool } = get();
-    const tokenData = tokenPrices.find(
-      ({ name }) =>
-        name.toLowerCase() ===
-        selectedUniswapPool.underlyingTokenSymbol.toLowerCase(),
-    );
-    set((prev) => ({
-      ...prev,
-      clammMarkPrice:
-        tokenData === undefined ? undefined : Number(tokenData?.price),
-    }));
-  },
-  updateClammOpenInterest: async () => {
-    set((prevState) => ({
-      ...prevState,
-      clammOpenInterest: BigInt(Math.pow(10, 23)),
-    }));
-  },
-  updateClammTotalVolume: async () => {
-    set((prevState) => ({
-      ...prevState,
-      clammTotalVolume: BigInt(Math.pow(10, 24)),
-    }));
-  },
-  clammMarkPrice: 0,
-  clammOpenInterest: BigInt(0),
-  clammTotalVolume: BigInt(0),
   updateTokenA: async (tokenA: string) => {
     set((prevState) => ({
       ...prevState,
@@ -249,35 +186,6 @@ export const createClammSlice: StateCreator<
   isPut: false,
   breakeven: 0,
   premiumPerOption: 0,
-  updateMaxOtmPercentage: async () => {
-    set((prevState) => ({
-      ...prevState,
-      maxOtmPercentage: 20,
-    }));
-  },
-  updateStep: async () => {
-    const tokenA = get().tokenA;
-    const tokenToStrike: { [key: string]: number } = {
-      ARB: 0.1,
-      '42069inu': 50,
-    };
-    set((prevState) => ({
-      ...prevState,
-      step: tokenToStrike[tokenA],
-    }));
-  },
-  step: 0,
-  maxOtmPercentage: 0,
-  clammStrikesData: [],
-  updatePositionManagerContract: async () => {
-    set((prevState) => ({
-      ...prevState,
-      positionManagerContract:
-        '0xDF3d96299275E2Fb40124b8Ad9d270acFDcc6148' as Address,
-    }));
-  },
-  optionPoolsContract: ZERO_ADDRESS as Address,
-  positionManagerContract: ZERO_ADDRESS as Address,
   updateSelectedStrike: async (selectedStrike: number) => {
     set((prevState) => ({
       ...prevState,
@@ -287,20 +195,7 @@ export const createClammSlice: StateCreator<
     }));
   },
   selectedStrike: 0,
-  updateAvailableOptions: async () => {
-    set((prevState) => ({
-      ...prevState,
-      availableOptions: BigInt(123),
-    }));
-  },
-  availableOptions: BigInt(0),
   isTrade: true,
-  updateIsTrade: (isTrade: boolean) => {
-    set((prevState) => ({
-      ...prevState,
-      isTrade: isTrade,
-    }));
-  },
   userAddress: ZERO_ADDRESS as Address,
   updateUserAddress: (userAddress: Address) => {
     set((prevState) => ({

@@ -141,7 +141,6 @@ const AsidePanel = () => {
     selectedStrike,
     isPut,
     updateIsPut,
-    clammMarkPrice,
     selectedPair,
     chainId,
     provider,
@@ -149,7 +148,16 @@ const AsidePanel = () => {
     updateGeneratedStrikes,
     updateSelectedExpiry,
     getClammStrikes,
+    tokenPrices,
+    selectedUniswapPool,
   } = useBoundStore();
+
+  const clammMarkPrice =
+    tokenPrices.find(
+      ({ name }) =>
+        name.toLowerCase() ===
+        selectedUniswapPool.underlyingTokenSymbol.toLowerCase(),
+    )?.price ?? 0;
 
   const [clammStrikes, setClammStrikes] = useState<ClammStrike[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -860,7 +868,7 @@ const AsidePanel = () => {
             )}
             amount={Number(amountDebounced)}
             isPut={isPut}
-            price={clammMarkPrice}
+            price={clammMarkPrice ?? 0}
             symbol={underlyingTokenSymbol}
           />
         </div>
