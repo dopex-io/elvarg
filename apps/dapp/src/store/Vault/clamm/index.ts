@@ -163,7 +163,7 @@ export interface ClammSlice {
   /** NEWLY ADDED */
 
   // state
-  clammMarkPrice: number;
+  clammMarkPrice: number | undefined;
   clammOpenInterest: bigint;
   clammTotalVolume: bigint;
   tokenA: string;
@@ -214,7 +214,8 @@ export const createClammSlice: StateCreator<
     );
     set((prev) => ({
       ...prev,
-      clammMarkPrice: Number(tokenData?.price),
+      clammMarkPrice:
+        tokenData === undefined ? undefined : Number(tokenData?.price),
     }));
   },
   updateClammOpenInterest: async () => {

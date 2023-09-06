@@ -68,7 +68,11 @@ export function TitleBar() {
           symbol="$"
           symbolPrefixed
           label="Mark Price"
-          value={formatAmount(clammMarkPrice, 3)}
+          value={
+            clammMarkPrice === undefined
+              ? '...'
+              : formatAmount(clammMarkPrice, 3)
+          }
         />
         <TitleItem
           symbol="$"
