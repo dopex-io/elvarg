@@ -574,9 +574,6 @@ const AsidePanel = () => {
       ? userTokenBalances.collateralTokenBalance
       : userTokenBalances.underlyingTokenBalance;
 
-    if (!agree) {
-      action = () => setShowDisclaimer(true);
-    }
     if (tradeOrLpIndex === 0) {
       text = 'Buy';
       action = mintOptions;
@@ -596,6 +593,10 @@ const AsidePanel = () => {
       color = 'primary';
       disabled = false;
       action = handleApprove;
+    }
+
+    if (!agree) {
+      action = () => setShowDisclaimer(true);
     }
 
     return {
