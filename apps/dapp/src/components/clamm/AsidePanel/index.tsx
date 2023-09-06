@@ -258,8 +258,6 @@ const AsidePanel = () => {
 
   const readableClammStrikes = useMemo(() => {
     if (clammStrikes.length === 0) return [];
-    if (purchaseStrikes.length === 0) return [];
-
     if (tradeOrLpIndex === 0) {
       return purchaseStrikes.map(({ strike }) => ({
         textContent: strike.toFixed(5),
