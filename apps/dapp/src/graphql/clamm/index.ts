@@ -1,62 +1,87 @@
 import { graphql } from 'gql/clamm';
 
-export const getUserClammPositions = graphql(`
-  query getClammPositions($user: ID!) {
-    users(where: { id: $user }) {
-      userBuyPositions(where: { exercised: false }) {
-        id
-        isPut
-        options
-        premium
-        tickLower
-        tickUpper
-        poolAddress
-        expiry
-        txInput
-      }
-      userWritePositions(where: { burnt: false }) {
-        id
-        poolAddress
-        size
-        tickLower
-        tickUpper
-      }
+export const getTickerLiquidities = graphql(`
+  query getTickerLiquidities($first: Int!, $skip: Int) {
+    tickerLiquidities(first: $first, skip: $skip) {
+      poolAddress
+      tickLower
+      tickUpper
+      liquidity
+      liquidityUsed
+      liquidityUnused
+      liquidityCompounded
+      liquidityWithdrawn
+      totalEarningsWithdrawn
+      totalShares
+      totalCallAssetsEarned
+      totalPutAssetsEarned
     }
   }
 `);
 
-export const getTotalMintSize = graphql(`
-  query getTotalMintSize {
-    writePositions(where: { burnt: false }) {
-      size
+export const getTickerLiquidity = graphql(`
+  query getTickerLiquidity($tickLower: Int!, $tickUpper: Int!) {
+    tickerLiquidities(where: { tickLower: $tickLower, tickUpper: $tickUpper }) {
+      poolAddress
+      tickLower
+      tickUpper
+      liquidity
+      liquidityUsed
+      liquidityUnused
+      liquidityCompounded
+      liquidityWithdrawn
+      totalEarningsWithdrawn
+      totalShares
+      totalCallAssetsEarned
+      totalPutAssetsEarned
     }
   }
 `);
 
-export const getTotalPremium = graphql(`
-  query getTotalPremium {
-    buyPositions(where: { exercised: false }) {
+export const getOptionsPositionsForUser = graphql(`
+  query getOptionsPositionsForUser(
+    $user: String!
+    $poolAddress: String!
+    $first: Int!
+    $skip: Int
+  ) {
+    optionsPositions(
+      first: $first
+      skip: $skip
+      where: { user: $user, poolAddress: $poolAddress }
+    ) {
+      user
+      poolAddress
+      tickUpper
+      tickLower
+      options
+      exercised
       premium
+      expiry
+      isPut
     }
   }
 `);
 
-export const getUsePositions = graphql(`
-  query getUsePositions {
-    usePositions {
-      liquidityToUse
+export const getWritePositionsForUser = graphql(`
+  query getWritePositionsForUser(
+    $user: String!
+    $poolAddress: String!
+    $first: Int!
+    $skip: Int
+  ) {
+    writePositions(
+      first: $first
+      skip: $skip
+      where: { user: $user, poolAddress: $poolAddress }
+    ) {
+      poolAddress
+      liquidity
+      shares
       tickUpper
       tickLower
-    }
-  }
-`);
-
-export const getBuyPositionsWithCallData = graphql(`
-  query getBuyPositions {
-    buyPositions {
-      tickLower
-      tickUpper
-      txInput
+      user
+      earned
     }
   }
 `);

@@ -19,8 +19,10 @@ export interface ClammMarket {
 export const positionManagerAddress =
   '0x2a9a9f63F13dD70816C456B2f2553bb648EE0F8F';
 
+// export const ARB_USDC_UNISWAP_POOL_ADDRESS =
+//   '0x6551Be4EE5A600576a356bBdc5e43ACa35B5e9D9' as Address;
 export const ARB_USDC_UNISWAP_POOL_ADDRESS =
-  '0x6551Be4EE5A600576a356bBdc5e43ACa35B5e9D9' as Address;
+  '0x090fdA0F2c26198058530A0A8cFE53362d54d9f1' as Address;
 
 /// @TODO: checksum the addresses
 export const MARKETS: Record<ClammPair, ClammMarket> = {

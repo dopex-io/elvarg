@@ -1,16 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import {
-  Address,
-  formatUnits,
-  parseEther,
-  parseUnits,
-  zeroAddress,
-} from 'viem';
+import { Address, formatUnits, zeroAddress } from 'viem';
 
 import { ClammStrikeData } from 'store/Vault/clamm';
 
 import getPremium from 'utils/clamm/getPremium';
-import getCurrentTime from 'utils/date/getCurrentTime';
 import getTimeToExpirationInYears from 'utils/date/getTimeToExpirationInYears';
 import computeOptionGreeks from 'utils/ssov/computeOptionGreeks';
 
@@ -76,7 +69,7 @@ interface GenerateStikesProps {
   isPut: boolean;
 }
 
-function generateStrikesData({
+async function generateStrikesData({
   strikes,
   selectedExpiryPeriod,
   currentPrice,

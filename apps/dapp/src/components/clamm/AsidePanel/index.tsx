@@ -16,6 +16,7 @@ import { useContractWrite } from 'wagmi';
 
 import { useBoundStore } from 'store';
 
+import useClammPositions from 'hooks/clamm/useClammPositions';
 import useOptionPool from 'hooks/clamm/useOptionPool';
 import usePositionManager, {
   ClammStrike,
@@ -146,6 +147,7 @@ const AsidePanel = () => {
     userAddress,
     updateGeneratedStrikes,
     updateSelectedExpiry,
+    getClammStrikes,
   } = useBoundStore();
 
   const [clammStrikes, setClammStrikes] = useState<ClammStrike[]>([]);
@@ -175,6 +177,7 @@ const AsidePanel = () => {
   }, [selectedPair]);
 
   const { getDepositParams, getStrikesWithTicks } = usePositionManager();
+  const { updateClammPositions } = useClammPositions();
   const { /* getAvailableLiquidityAtTick  ,*/ getLiquidityToUse } =
     useOptionPool();
 
@@ -239,60 +242,36 @@ const AsidePanel = () => {
     updateSelectedStrike,
   ]);
 
-  // const debugUsePositions = useCallback(async () => {
-  //   await getOpenInterestAndTotalVolume();
-  // }, [])
-
-  // useEffect(() => {
-  //   debugUsePositions()
-  //  }, [debugUsePositions])
-  // const debugAvailableLiquidity = useCallback(async () => {
-  //   const clammStrike = clammStrikes.find(({ strike }) => {
-  //     return Number(strike.toFixed(5)) === selectedStrike;
-  //   });
-
-  //   if (!clammStrike) return;
-  //   const availableLiquidity = await getAvailableLiquidityAtTick(
-  //     clammStrike.lowerTick,
-  //     clammStrike.upperTick,
-  //   );
-
-  //   console.log("available liquidity", availableLiquidity);
-  // }, [clammStrikes, getAvailableLiquidityAtTick, selectedStrike]);
-
-  // useEffect(() => {
-  //   debugAvailableLiquidity();
-  // }, [debugAvailableLiquidity]);
-
-  // const debugGetUserOptionsPOsitions = useCallback(async () => {
-  //   // const clammStrike = clammStrikes.find(({ strike }) => {
-  //   //   return Number(strike.toFixed(5)) === selectedStrike;
-  //   // });
-
-  //   // const positions = await getUserOptionPositions(zeroAddress, uniswapPoolAddress)
-
-  //   // console.log(positions)
-
-  //   // if (!clammStrike) return;
-  //   // const availableLiquidity = await getUserOptionPositions(
-  //   //   clammStrike.lowerTick,
-  //   //   clammStrike.upperTick,
-  //   // );
-
-  //   // console.log("available liquidity", availableLiquidity);
-  // }, []);
-
-  // useEffect(() => {
-  //   debugGetUserOptionsPOsitions();
-  // }, [debugGetUserOptionsPOsitions]);
+  const purchaseStrikes = useMemo(() => {
+    if (tradeOrLpIndex === 1) return [];
+    const { callStrikes, putStrikes } = getClammStrikes();
+    if (isPut) {
+      return putStrikes.filter(
+        ({ optionsAvailable }) => optionsAvailable !== 0n,
+      );
+    } else {
+      return callStrikes.filter(
+        ({ optionsAvailable }) => optionsAvailable !== 0n,
+      );
+    }
+  }, [getClammStrikes, isPut, tradeOrLpIndex]);
 
   const readableClammStrikes = useMemo(() => {
     if (clammStrikes.length === 0) return [];
-    return clammStrikes.map(({ strike }) => ({
-      textContent: strike.toFixed(5),
-      disabled: false,
-    }));
-  }, [clammStrikes]);
+    if (purchaseStrikes.length === 0) return [];
+
+    if (tradeOrLpIndex === 0) {
+      return purchaseStrikes.map(({ strike }) => ({
+        textContent: strike.toFixed(5),
+        disabled: false,
+      }));
+    } else {
+      return clammStrikes.map(({ strike }) => ({
+        textContent: strike.toFixed(5),
+        disabled: false,
+      }));
+    }
+  }, [clammStrikes, tradeOrLpIndex, purchaseStrikes]);
 
   const mintOptionsParams = useMemo(() => {
     let mintOptionsParams: UsePrepareMintCallOrPutOptionProps = {
@@ -355,14 +334,6 @@ const AsidePanel = () => {
     isPut,
   ]);
 
-  /***
-   *
-   * NEWLY ADDED START
-   */
-  useEffect(() => {
-    loadStrikesForPair();
-  }, [loadStrikesForPair]);
-
   const checkApproved = useCallback(async () => {
     if (!provider || !userAddress) return;
     const token = ERC20__factory.connect(
@@ -371,8 +342,6 @@ const AsidePanel = () => {
     );
     const spender = tradeOrLpIndex === 0 ? optionPool : positionManagerAddress;
     const allowance = await token.allowance(userAddress, spender);
-    // console.log('Spender', spender);
-    // console.log('allowance', allowance);
     if (BigNumber.from(tokenAmountToSpend.toString()).gt(allowance)) {
       setApproved(false);
     } else {
@@ -458,6 +427,10 @@ const AsidePanel = () => {
     updateTokenAmountsToSpend();
   }, [updateTokenAmountsToSpend]);
 
+  useEffect(() => {
+    loadStrikesForPair();
+  }, [loadStrikesForPair]);
+
   const mintPositionConfig = usePrepareMintPosition({
     parameters: depositParams,
   });
@@ -508,13 +481,43 @@ const AsidePanel = () => {
     updateIsPut(index === 1);
   };
 
+  const availableOptionsOrBalance = useMemo(() => {
+    if (tradeOrLpIndex === 0) {
+      const strikeData = purchaseStrikes.find(({ strike }) => {
+        return Number(strike.toFixed(5)) === selectedStrike;
+      });
+      if (!strikeData) return 0n;
+      return strikeData.optionsAvailable === 0n
+        ? 1n
+        : strikeData.optionsAvailable;
+    } else {
+      return isPut
+        ? userTokenBalances.collateralTokenBalance
+        : userTokenBalances.collateralTokenBalance;
+    }
+  }, [
+    isPut,
+    purchaseStrikes,
+    selectedStrike,
+    tradeOrLpIndex,
+    userTokenBalances.collateralTokenBalance,
+  ]);
   const handleMax = useCallback(() => {
     setInputAmount(
-      isPut
-        ? formatUnits(userTokenBalances.collateralTokenBalance, DECIMALS_USD)
-        : formatUnits(userTokenBalances.underlyingTokenBalance, DECIMALS_TOKEN),
+      formatUnits(
+        availableOptionsOrBalance,
+        CHAINS[chainId].tokenDecimals[
+          isPut ? collateralTokenSymbol : underlyingTokenSymbol
+        ],
+      ),
     );
-  }, [isPut, userTokenBalances]);
+  }, [
+    isPut,
+    availableOptionsOrBalance,
+    chainId,
+    collateralTokenSymbol,
+    underlyingTokenSymbol,
+  ]);
 
   const handleInputAmount = (e: { target: { value: SetStateAction<any> } }) => {
     setInputAmount(e.target.value);
@@ -705,18 +708,25 @@ const AsidePanel = () => {
             <CustomBottomElement
               symbol={underlyingTokenSymbol as string}
               label={tradeOrLpIndex === 0 ? 'Options' : 'Deposit amount'}
+              // value={formatAmount(
+              //   isPut
+              //     ? formatUnits(
+              //         userTokenBalances.collateralTokenBalance,
+              //         DECIMALS_USD,
+              //       )
+              //     : formatUnits(
+              //         userTokenBalances.underlyingTokenBalance,
+              //         DECIMALS_TOKEN,
+              //       ),
+              //   3,
+              //   true,
+              // )}
               value={formatAmount(
-                isPut
-                  ? formatUnits(
-                      userTokenBalances.collateralTokenBalance,
-                      DECIMALS_USD,
-                    )
-                  : formatUnits(
-                      userTokenBalances.underlyingTokenBalance,
-                      DECIMALS_TOKEN,
-                    ),
-                3,
-                true,
+                formatUnits(
+                  availableOptionsOrBalance,
+                  isPut ? DECIMALS_USD : DECIMALS_TOKEN,
+                ),
+                5,
               )}
               role="button"
               onClick={handleMax}

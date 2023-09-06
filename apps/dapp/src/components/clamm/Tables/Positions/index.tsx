@@ -6,23 +6,21 @@ import useClammPositions from 'hooks/clamm/useClammPositions';
 
 import { ButtonGroup } from 'components/clamm/AsidePanel';
 
-import BuyPositions from './BuyPositions';
+import OptionsPositions from './OptionsPositions';
 import WritePositions from './WritePositions';
 
 const Positions = () => {
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
-  const { writePositions, buyPositions, isLoading } = useClammPositions({
-    market: 'ARB-USDC',
-  });
+  const { writePositions, optionsPositions, isLoading } = useClammPositions();
 
   const buttonLabels = useMemo(() => {
-    if (!buyPositions || !writePositions) return [null, null];
+    if (!optionsPositions || !writePositions) return [null, null];
     return [
       <div className="flex space-x-2 my-auto" key="buy-positions">
         <span>Buy Positions</span>
         <div className="rounded-full bg-carbon w-5 h-auto flex items-center justify-center">
-          <span>{buyPositions.length}</span>
+          <span>{optionsPositions.length}</span>
         </div>
       </div>,
       <div className="flex space-x-2 my-auto" key="buy-positions">
@@ -35,7 +33,7 @@ const Positions = () => {
         <span>History</span>
       </div>,
     ];
-  }, [buyPositions, writePositions]);
+  }, [optionsPositions, writePositions]);
 
   const handleClick = (index: number) => {
     setActiveIndex(index);
@@ -60,11 +58,12 @@ const Positions = () => {
           </div>
         </div>
       );
-    if (activeIndex === 0) return <BuyPositions buyPositions={buyPositions} />;
+    if (activeIndex === 0)
+      return <OptionsPositions optionsPositions={optionsPositions} />;
     else if (activeIndex === 1)
       return <WritePositions writePositions={writePositions} />;
     return null;
-  }, [isLoading, activeIndex, buyPositions, writePositions]);
+  }, [isLoading, activeIndex, optionsPositions, writePositions]);
 
   // TODO: make these tables reusable
   return (

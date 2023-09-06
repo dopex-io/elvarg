@@ -21,7 +21,6 @@ const useOptionPool = () => {
 
   const {
     token0,
-    sqrtX96,
     underlyingToken,
     underlyingTokenSymbol,
     collateralTokenSymbol,

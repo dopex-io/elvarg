@@ -5,7 +5,7 @@ import { NextSeo } from 'next-seo';
 import { useAccount } from 'wagmi';
 
 import { useBoundStore } from 'store';
-import { ClammPair } from 'store/Vault/clamm';
+import { ClammPair, TickerData } from 'store/Vault/clamm';
 
 import AsidePanel from 'components/clamm/AsidePanel';
 import InfoBox from 'components/clamm/InfoBox';
@@ -20,6 +20,7 @@ import getMarketInformation from 'utils/clamm/getMarketInformation';
 import getPoolSlot0 from 'utils/clamm/getPoolSlot0';
 import getPoolTickSpacing from 'utils/clamm/getPoolTickSpacing';
 import getPoolTokens from 'utils/clamm/getPoolTokens';
+import getTickerLiquidityData from 'utils/clamm/getTickerLiquidities';
 import splitMarketPair from 'utils/clamm/splitMarketPair';
 
 import seo from 'constants/seo';
@@ -34,6 +35,7 @@ const ClammPage = () => {
     updateSelectedPair,
     selectedPair,
     updateSelectedUniswapPool,
+    updateTickersData,
   } = useBoundStore();
   const { address: userAddress } = useAccount();
 
@@ -104,9 +106,19 @@ const ClammPage = () => {
         optionPool: optionPool,
         underlyingTokenSymbol: underlyingTokenSymbol,
         collateralTokenSymbol: collateralTokenSymbol,
+        tickScaleFlipped: token0 !== underlyingTokenAddress,
       });
     })();
   }, [selectedPair, updateSelectedUniswapPool]);
+
+  const loadTickerLiquidityData = useCallback(async () => {
+    const data: TickerData[] = await getTickerLiquidityData();
+    updateTickersData(data ?? []);
+  }, [updateTickersData]);
+
+  useEffect(() => {
+    loadTickerLiquidityData();
+  }, [loadTickerLiquidityData]);
 
   return (
     <div className="overflow-x-hidden bg-black h-screen">
@@ -139,8 +151,8 @@ const ClammPage = () => {
               market={splitMarketPair(selectedPair).underlyingTokenSymbol}
             />
             <div className="space-y-4">
-               <StrikesChain />
-              <Positions /> 
+              <StrikesChain />
+              <Positions />
             </div>
           </div>
           <div className="flex flex-col w-full lg:w-1/3 h-full space-y-4 sticky top-20">

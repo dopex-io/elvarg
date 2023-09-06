@@ -4,11 +4,11 @@ import { parseEther } from 'viem';
 import { OptionPools__factory } from '@dopex-io/sdk';
 import { Button } from '@dopex-io/ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { format } from 'date-fns';
+import { format, formatDistance } from 'date-fns';
 import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 
 import { useBoundStore } from 'store';
-import { ClammBuyPosition } from 'store/Vault/clamm';
+import { OptionsPosition } from 'store/Vault/clamm';
 
 import TableLayout from 'components/common/TableLayout';
 
@@ -17,11 +17,10 @@ import computeOptionPnl from 'utils/math/computeOptionPnl';
 
 import { MARKETS } from 'constants/clamm/markets';
 
-interface BuyPositionData {
-  strikeSymbol: string;
+interface OptionsPositionTablesData {
   strike: string;
   size: string;
-  isPut: boolean;
+  side: string;
   pnlAndPrice: {
     pnl: number;
     price: number;
@@ -34,7 +33,7 @@ interface BuyPositionData {
   };
 }
 
-const columnHelper = createColumnHelper<BuyPositionData>();
+const columnHelper = createColumnHelper<OptionsPositionTablesData>();
 
 const columns = [
   columnHelper.accessor('strike', {
@@ -42,25 +41,26 @@ const columns = [
     cell: (info) => (
       <span className="space-x-2 text-left">
         <p className="text-stieglitz inline-block">$</p>
-        <p className="inline-block">{info.getValue()}</p>
+        <p className="inline-block">{formatAmount(info.getValue(), 5)}</p>
       </span>
     ),
   }),
   columnHelper.accessor('size', {
     header: 'Size',
-    cell: (info) => <p>{info.getValue()}</p>,
+    cell: (info) => <p>{formatAmount(info.getValue(), 5)}</p>,
   }),
   columnHelper.accessor('expiry', {
     header: 'Expiry',
     cell: (info) => (
       <p className="overflow-hidden whitespace-nowrap">
-        {format(info.getValue(), 'dd MMM yyyy')}
+        {formatDistance(Number(info.getValue()) * 1000, new Date())}{' '}
+        {Number(info.getValue()) * 1000 < new Date().getTime() && 'ago'}
       </p>
     ),
   }),
-  columnHelper.accessor('isPut', {
+  columnHelper.accessor('side', {
     header: 'Side',
-    cell: (info) => <p>{info.getValue() ? 'Put' : 'Call'}</p>,
+    cell: (info) => <p>{info.getValue()}</p>,
   }),
   columnHelper.accessor('pnlAndPrice', {
     header: 'PnL',
@@ -72,9 +72,13 @@ const columns = [
         <>
           <span className="space-x-2">
             <p className="text-stieglitz inline-block">$</p>
-            {Number(usdPrice) >= 0 ? (
+            {Number(usdPrice) === 0 && (
+              <p className="text-stieglitz inline-block">{usdPrice}</p>
+            )}
+            {Number(usdPrice) > 0 && (
               <p className="text-up-only inline-block">{usdPrice}</p>
-            ) : (
+            )}
+            {Number(usdPrice) < 0 && (
               <p className="text-down-bad inline-block">{usdPrice}</p>
             )}
           </span>
@@ -98,31 +102,35 @@ const columns = [
   }),
 ];
 
-type ExercisePositionProps = Pick<
-  ClammBuyPosition,
-  'optionId' | 'tickLower' | 'tickUpper' | 'size'
->;
+type ExercisePositionProps = {
+  tickLower: number;
+  tickUpper: number;
+  expiry: bigint;
+  callOrPut: boolean;
+  amountToExercise: bigint;
+};
 
-const BuyPositions = ({
-  buyPositions,
+const OptionsPositions = ({
+  optionsPositions,
 }: {
-  buyPositions: ClammBuyPosition[] | undefined;
+  optionsPositions: OptionsPosition[] | undefined;
 }) => {
-  const { clammMarkPrice, optionPoolsContract } = useBoundStore();
+  const { clammMarkPrice, selectedUniswapPool } = useBoundStore();
   const [selectedPosition, setSelectedPosition] =
     useState<ExercisePositionProps>();
 
   const { config: exerciseOptionConfig } = usePrepareContractWrite({
     abi: OptionPools__factory.abi,
-    address: optionPoolsContract,
-    functionName: 'exerciseOption',
+    address: selectedUniswapPool.optionPool,
+    functionName: 'exerciseOptionRoll',
     args: [
       {
-        optionId: BigInt(selectedPosition?.optionId || '0x0'),
         pool: MARKETS['ARB-USDC'].uniswapPoolAddress,
         tickLower: selectedPosition?.tickLower || 0,
         tickUpper: selectedPosition?.tickUpper || 0,
-        amountToExercise: parseEther((selectedPosition?.size || 0).toString()),
+        expiry: selectedPosition?.expiry || 0n,
+        callOrPut: selectedPosition?.callOrPut || false,
+        amountToExercise: selectedPosition?.amountToExercise || 0n,
       },
     ],
   });
@@ -130,49 +138,57 @@ const BuyPositions = ({
 
   const handleExercise = useCallback(
     (index: number) => {
-      if (!buyPositions) return;
+      if (!optionsPositions) return;
       setSelectedPosition({
-        tickLower: buyPositions[index].tickLower,
-        tickUpper: buyPositions[index].tickUpper,
-        size: buyPositions[index].size,
-        optionId: buyPositions[index].optionId,
+        tickLower: optionsPositions[index].tickLower,
+        tickUpper: optionsPositions[index].tickUpper,
+        expiry: BigInt(optionsPositions[index].expiry),
+        callOrPut: optionsPositions[index].callOrPut,
+        amountToExercise: optionsPositions[index].amount.contractReadable,
       });
       exerciseOption?.();
     },
-    [exerciseOption, buyPositions],
+    [exerciseOption, optionsPositions],
   );
 
-  const positions: BuyPositionData[] = useMemo(() => {
-    if (!buyPositions) return [];
+  const positions: OptionsPositionTablesData[] = useMemo(() => {
+    if (!optionsPositions || optionsPositions.length === 0) return [];
 
-    return buyPositions.map((position: ClammBuyPosition, index: number) => {
+    return optionsPositions.map((position, index) => {
       return {
-        strikeSymbol: position.strikeSymbol,
-        strike: formatAmount(position.strike, 3),
-        size: formatAmount(Number(position.size)),
-        isPut: position.isPut,
-        expiry: Date.now(),
+        strike: position.strike,
+        size: position.amount.userReadable,
+        side: position.callOrPut ? 'Call' : 'Put',
         pnlAndPrice: {
           pnl: computeOptionPnl({
-            side: position.isPut ? 'put' : 'call',
-            strike: position.strike,
-            size: position.size,
+            side: position.callOrPut ? 'call' : 'put',
+            strike: Number(position.strike),
+            size: Number(position.amount.userReadable),
             price: clammMarkPrice,
           }),
           price: clammMarkPrice,
-          tokenSymbol: position.strikeSymbol.split('-')[0],
+          tokenSymbol: position.callOrPut
+            ? selectedUniswapPool.underlyingTokenSymbol
+            : selectedUniswapPool.collateralTokenSymbol,
         },
+        expiry: position.expiry,
         button: {
           handleExercise: () => handleExercise(index),
           id: index,
         },
       };
     });
-  }, [buyPositions, clammMarkPrice, handleExercise]);
+  }, [
+    optionsPositions,
+    clammMarkPrice,
+    handleExercise,
+    selectedUniswapPool.collateralTokenSymbol,
+    selectedUniswapPool.underlyingTokenSymbol,
+  ]);
 
   return (
     <div className="space-y-2">
-      <TableLayout<BuyPositionData>
+      <TableLayout<OptionsPositionTablesData>
         data={positions}
         columns={columns}
         rowSpacing={2}
@@ -182,4 +198,4 @@ const BuyPositions = ({
   );
 };
 
-export default BuyPositions;
+export default OptionsPositions;
