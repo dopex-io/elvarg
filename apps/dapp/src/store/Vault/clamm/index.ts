@@ -1,14 +1,17 @@
-import { Address, formatUnits, zeroAddress } from 'viem';
+import { Address, zeroAddress } from 'viem';
 
-import axios from 'axios';
 import { StateCreator } from 'zustand';
 
+import { AssetsSlice } from 'store/Assets';
 import { WalletSlice } from 'store/Wallet';
 
 import { ClammStrike } from 'hooks/clamm/usePositionManager';
 
-import { DECIMALS_STRIKE, ZERO_ADDRESS } from 'constants/index';
-import { TOKEN_DATA } from 'constants/tokens';
+import calculatePriceFromTick from 'utils/clamm/calculatePriceFromTick';
+import { getAmountsForLiquidity } from 'utils/clamm/liquidityAmountMath';
+import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
+
+import { ZERO_ADDRESS } from 'constants/index';
 
 import { CommonSlice } from '../common';
 
@@ -25,6 +28,42 @@ type UniswapV3Pool = {
   optionPool: Address;
   underlyingTokenSymbol: string;
   collateralTokenSymbol: string;
+  tickScaleFlipped: boolean;
+};
+
+export type WritePosition = {
+  strike: number;
+  shares: bigint;
+  tickLower: number;
+  tickUpper: number;
+  liquidity: {
+    token0Amount: string;
+    token0Symbol: string;
+    token1Amount: string;
+    token1Symbol: string;
+  };
+  callOrPut: boolean;
+  earnings: {
+    token0Amount: string;
+    token0Symbol: string;
+    token1Amount: string;
+    token1Symbol: string;
+  };
+};
+
+export type TickerData = {
+  poolAddress: Address;
+  tickLower: number;
+  tickUpper: number;
+  liquidity: bigint;
+  liquidityUsed: bigint;
+  liquidityUnused: bigint;
+  liquidityCompounded: bigint;
+  liquidityWithdrawn: bigint;
+  totalEarningsWithdrawn: bigint;
+  totalShares: bigint;
+  totalCallAssetsEarned: bigint;
+  totalPutAssetsEarned: bigint;
 };
 
 export interface ClammStrikeData {
@@ -79,6 +118,18 @@ export interface ClammWritePosition {
   withdrawable: bigint;
 }
 
+export interface OptionsPosition {
+  amount: {
+    userReadable: string;
+    contractReadable: bigint;
+  };
+  strike: string;
+  tickLower: number;
+  tickUpper: number;
+  expiry: number;
+  callOrPut: boolean;
+}
+
 export interface ClammSlice {
   updateClammData: Function;
   updateClammMarkPrice: Function;
@@ -102,6 +153,12 @@ export interface ClammSlice {
   updateSelectedPair: Function;
   selectedUniswapPool: UniswapV3Pool;
   updateSelectedUniswapPool: (pool: UniswapV3Pool) => void;
+  tickersData: TickerData[];
+  updateTickersData: (data: TickerData[]) => void;
+  getClammStrikes: () => {
+    callStrikes: ClammStrike[];
+    putStrikes: ClammStrike[];
+  };
 
   /** NEWLY ADDED */
 
@@ -127,7 +184,7 @@ export interface ClammSlice {
 }
 
 export const createClammSlice: StateCreator<
-  ClammSlice & WalletSlice & CommonSlice,
+  ClammSlice & WalletSlice & CommonSlice & AssetsSlice,
   [['zustand/devtools', never]],
   [],
   ClammSlice
@@ -149,27 +206,16 @@ export const createClammSlice: StateCreator<
     get().updateClammMarkPrice();
   },
   updateClammMarkPrice: async () => {
-    const tokenA = get().tokenA;
-    let currentPrice = 0;
-
-    const tokenId = TOKEN_DATA[tokenA].cgId;
-    if (tokenId) {
-      try {
-        axios
-          .get(
-            `https://api.coingecko.com/api/v3/simple/price?ids=${tokenId}&vs_currencies=usd`,
-          )
-          .then(async (payload) => {
-            currentPrice = payload.data[tokenId].usd;
-            set((prevState) => ({
-              ...prevState,
-              clammMarkPrice: currentPrice,
-            }));
-          });
-      } catch (e) {
-        console.log(e);
-      }
-    }
+    const { tokenPrices, selectedUniswapPool } = get();
+    const tokenData = tokenPrices.find(
+      ({ name }) =>
+        name.toLowerCase() ===
+        selectedUniswapPool.underlyingTokenSymbol.toLowerCase(),
+    );
+    set((prev) => ({
+      ...prev,
+      clammMarkPrice: Number(tokenData?.price),
+    }));
   },
   updateClammOpenInterest: async () => {
     set((prevState) => ({
@@ -283,6 +329,7 @@ export const createClammSlice: StateCreator<
     optionPool: zeroAddress,
     underlyingTokenSymbol: '',
     collateralTokenSymbol: '',
+    tickScaleFlipped: false,
   },
   updateSelectedUniswapPool: (pool: UniswapV3Pool) => {
     set((prev) => ({
@@ -304,68 +351,114 @@ export const createClammSlice: StateCreator<
     }));
   },
   selectedExpiry: 0,
+  tickersData: [],
+  updateTickersData: (data: TickerData[]) => {
+    set((prev) => ({
+      ...prev,
+      tickersData: data,
+    }));
+  },
+  getClammStrikes: () => {
+    const { selectedUniswapPool, tickersData } = get();
+    const { tickScaleFlipped, currentTick } = selectedUniswapPool;
+
+    console.log(tickersData);
+
+    const putStrikes = tickersData
+      .filter(({ tickLower, tickUpper }) =>
+        tickScaleFlipped ? tickUpper > currentTick : tickLower < currentTick,
+      )
+      .map(
+        ({
+          tickLower,
+          tickUpper,
+          liquidity,
+          liquidityWithdrawn,
+          liquidityUsed,
+          liquidityUnused,
+        }) => {
+          const totalLiquidtyAtTick =
+            BigInt(liquidity) - BigInt(liquidityWithdrawn);
+          const liquidityUsedAtTick =
+            BigInt(liquidityUsed) - BigInt(liquidityUnused);
+          const availableLiquidity =
+            BigInt(totalLiquidtyAtTick) - BigInt(liquidityUsedAtTick);
+
+          let optionsAvailable = 0n;
+          const { amount0, amount1 } = getAmountsForLiquidity(
+            selectedUniswapPool.sqrtX96,
+            getSqrtRatioAtTick(BigInt(tickLower)),
+            getSqrtRatioAtTick(BigInt(tickUpper)),
+            availableLiquidity,
+          );
+
+          const priceFromTick = calculatePriceFromTick(
+            tickScaleFlipped ? tickUpper : tickLower,
+            10 ** 18,
+            10 ** 6,
+            tickScaleFlipped,
+          );
+
+          optionsAvailable = amount0 > amount1 ? amount0 : amount1;
+          optionsAvailable =
+            (optionsAvailable * BigInt(1e8)) /
+            BigInt(Number(priceFromTick.toFixed(0)) * 1e8);
+
+          return {
+            strike: priceFromTick,
+            lowerTick: tickLower,
+            upperTick: tickUpper,
+            optionsAvailable: optionsAvailable,
+          };
+        },
+      );
+
+    const callStrikes = tickersData
+      .filter(({ tickUpper, tickLower }) =>
+        tickScaleFlipped ? tickLower < currentTick : tickUpper > currentTick,
+      )
+      .map(
+        ({
+          tickLower,
+          tickUpper,
+          liquidityWithdrawn,
+          liquidityUsed,
+          liquidity,
+          liquidityUnused,
+        }) => {
+          const totalLiquidtyAtTick =
+            BigInt(liquidity) - BigInt(liquidityWithdrawn);
+          const liquidityUsedAtTick =
+            BigInt(liquidityUsed) - BigInt(liquidityUnused);
+          const availableLiquidity =
+            BigInt(totalLiquidtyAtTick) - BigInt(liquidityUsedAtTick);
+
+          let optionsAvailable = 0n;
+          const { amount0, amount1 } = getAmountsForLiquidity(
+            selectedUniswapPool.sqrtX96,
+            getSqrtRatioAtTick(BigInt(tickLower)),
+            getSqrtRatioAtTick(BigInt(tickUpper)),
+            availableLiquidity,
+          );
+          optionsAvailable = amount0 > amount1 ? amount0 : amount1;
+
+          return {
+            strike: calculatePriceFromTick(
+              tickScaleFlipped ? tickLower : tickUpper,
+              10 ** 18,
+              10 ** 6,
+              tickScaleFlipped,
+            ),
+            lowerTick: tickLower,
+            upperTick: tickUpper,
+            optionsAvailable: optionsAvailable,
+          };
+        },
+      );
+
+    return {
+      callStrikes,
+      putStrikes,
+    };
+  },
 });
-
-// END
-
-function generateCallStrikesData({
-  strikes,
-}: {
-  strikes: number[];
-}): ClammStrikeData[] {
-  return strikes.map((strike) => {
-    const strikePremiumRaw = BigInt(Math.pow(10, 8) * 2.789);
-    const premiumPerOption = Number(
-      formatUnits(strikePremiumRaw, DECIMALS_STRIKE),
-    );
-    const strikeIvRaw = BigInt(139);
-    const iv = Number(strikeIvRaw);
-
-    return {
-      strike: strike,
-      liquidity: 123,
-      premiumPerOption: premiumPerOption,
-      iv: iv,
-      breakeven: strike + premiumPerOption,
-      delta: 0,
-      theta: 0,
-      vega: 0,
-      gamma: 0,
-      utilization: 0,
-      tvl: 0,
-      apy: 0,
-      premiumApy: 0,
-    };
-  });
-}
-
-function generatePutStrikesData({
-  strikes,
-}: {
-  strikes: number[];
-}): ClammStrikeData[] {
-  return strikes.map((strike) => {
-    const strikePremiumRaw = BigInt(Math.pow(10, 8) * 2.789);
-    const premiumPerOption = Number(
-      formatUnits(strikePremiumRaw, DECIMALS_STRIKE),
-    );
-    const strikeIvRaw = BigInt(139);
-    const iv = Number(strikeIvRaw);
-
-    return {
-      strike: strike,
-      liquidity: 234,
-      premiumPerOption: premiumPerOption,
-      iv: iv,
-      breakeven: strike - premiumPerOption,
-      delta: 0,
-      theta: 0,
-      vega: 0,
-      gamma: 0,
-      utilization: 0,
-      tvl: 0,
-      apy: 0,
-      premiumApy: 0,
-    };
-  });
-}

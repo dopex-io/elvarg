@@ -37,13 +37,11 @@ export type ClammStrike = {
   strike: number;
   upperTick: number;
   lowerTick: number;
+  optionsAvailable: bigint;
 };
 
 const usePositionManager = () => {
-  const positionManagerAddress = '0x2a9a9f63F13dD70816C456B2f2553bb648EE0F8F';
-
-  const { signer, isPut, chainId, selectedPair, selectedUniswapPool } =
-    useBoundStore();
+  const { isPut, chainId, selectedPair, selectedUniswapPool } = useBoundStore();
 
   const { token0, tickSpacing, underlyingToken, currentTick, address } =
     selectedUniswapPool;
@@ -150,7 +148,12 @@ const usePositionManager = () => {
             10 ** decimals1;
         }
 
-        strikes.push({ strike: strike, upperTick, lowerTick });
+        strikes.push({
+          strike: strike,
+          upperTick,
+          lowerTick,
+          optionsAvailable: 0n,
+        });
       }
 
       return strikes;
