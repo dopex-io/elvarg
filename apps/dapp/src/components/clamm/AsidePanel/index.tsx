@@ -30,6 +30,7 @@ import {
 } from 'hooks/clamm/usePrepareWrites';
 import { usePrepareApprove } from 'hooks/ssov/usePrepareWrites';
 
+import ConnectButton from 'components/common/ConnectButton';
 import PnlChart from 'components/common/PnlChart';
 import RowItem from 'components/ssov-beta/AsidePanel/RowItem';
 
@@ -783,14 +784,18 @@ const AsidePanel = () => {
                   </div>
                 }
               />
-              <Button
-                variant="contained"
-                onClick={buttonProps.action}
-                color={buttonProps.color}
-                className="w-full"
-              >
-                {buttonProps.text}
-              </Button>
+              {userAddress === undefined ? (
+                <ConnectButton className="w-full" />
+              ) : (
+                <Button
+                  variant="contained"
+                  onClick={buttonProps.action}
+                  color={buttonProps.color}
+                  className="w-full"
+                >
+                  {buttonProps.text}
+                </Button>
+              )}
             </>
           ) : (
             <>
@@ -808,15 +813,19 @@ const AsidePanel = () => {
                       )
                 }`}
               />
-              <Button
-                variant="contained"
-                disabled={buttonProps?.disabled}
-                onClick={buttonProps.action}
-                color={buttonProps.color}
-                className="w-full"
-              >
-                {buttonProps.text}
-              </Button>
+              {userAddress === undefined ? (
+                <ConnectButton className="w-full" />
+              ) : (
+                <Button
+                  variant="contained"
+                  disabled={buttonProps?.disabled}
+                  onClick={buttonProps.action}
+                  color={buttonProps.color}
+                  className="w-full"
+                >
+                  {buttonProps.text}
+                </Button>
+              )}
             </>
           )}
         </div>
