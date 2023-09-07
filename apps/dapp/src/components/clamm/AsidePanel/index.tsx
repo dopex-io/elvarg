@@ -708,7 +708,11 @@ const AsidePanel = () => {
           }
           bottomElement={
             <CustomBottomElement
-              symbol={underlyingTokenSymbol as string}
+              symbol={
+                (!isPut
+                  ? underlyingTokenSymbol
+                  : collateralTokenSymbol) as string
+              }
               label={tradeOrLpIndex === 0 ? 'Options' : 'Deposit amount'}
               // value={formatAmount(
               //   isPut
