@@ -131,7 +131,6 @@ export interface OptionsPosition {
 }
 
 export interface ClammSlice {
-  updateTokenA: Function;
   updateIsPut: Function;
   updateSelectedStrike: Function;
   updateUserAddress: Function;
@@ -153,10 +152,7 @@ export interface ClammSlice {
   /** NEWLY ADDED */
 
   // state
-  tokenA: string;
   isPut: boolean;
-  breakeven: number;
-  premiumPerOption: number;
   selectedStrike: number;
   isTrade: boolean;
   userAddress: Address;
@@ -170,13 +166,6 @@ export const createClammSlice: StateCreator<
   [],
   ClammSlice
 > = (set, get) => ({
-  updateTokenA: async (tokenA: string) => {
-    set((prevState) => ({
-      ...prevState,
-      tokenA: tokenA,
-    }));
-  },
-  tokenA: 'ARB',
   updateIsPut: async (isPut: boolean) => {
     set((prevState) => ({
       ...prevState,
@@ -184,13 +173,9 @@ export const createClammSlice: StateCreator<
     }));
   },
   isPut: false,
-  breakeven: 0,
-  premiumPerOption: 0,
   updateSelectedStrike: async (selectedStrike: number) => {
     set((prevState) => ({
       ...prevState,
-      breakeven: 0,
-      premiumPerOption: 0,
       selectedStrike: selectedStrike,
     }));
   },

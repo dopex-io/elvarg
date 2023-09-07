@@ -29,16 +29,16 @@ export function TitleBar() {
   const { openInterest, totalVolume } = useStats();
 
   useEffect(() => {
-    const { tokenA: tokenASymbol } = router.query;
-    if (tokenASymbol) {
-      updateSelectedPair(tokenASymbol as string);
+    const { selectedPair: selectedPairSymbol } = router.query;
+    if (selectedPairSymbol) {
+      updateSelectedPair(selectedPairSymbol as string);
     }
   }, [router, updateSelectedPair]);
 
   const handleSelectedPair = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const selectedPair = e.target.innerText;
-      router.query.tokenA = selectedPair;
+      router.query.selectedPair = selectedPair;
       router.push(router);
       updateSelectedPair(selectedPair);
     },

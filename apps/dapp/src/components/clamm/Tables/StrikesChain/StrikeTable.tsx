@@ -353,7 +353,6 @@ const Table = ({ strikeData }: { strikeData: any }) => {
 
 const StrikesTable = () => {
   const {
-    tokenA,
     isPut,
     selectedStrike,
     generatedStrikes,
@@ -363,12 +362,12 @@ const StrikesTable = () => {
     selectedUniswapPool,
   } = useBoundStore();
 
+  const underlyingTokenSymbol =
+    selectedUniswapPool.underlyingTokenSymbol.toLowerCase();
+
   const clammMarkPrice =
-    tokenPrices.find(
-      ({ name }) =>
-        name.toLowerCase() ===
-        selectedUniswapPool.underlyingTokenSymbol.toLowerCase(),
-    )?.price ?? 0;
+    tokenPrices.find(({ name }) => name.toLowerCase() === underlyingTokenSymbol)
+      ?.price ?? 0;
 
   const { strikesData: clammStrikesData, isLoading } = useStrikesData({
     uniswapPoolAddress: MARKETS['ARB-USDC'].uniswapPoolAddress,
@@ -396,7 +395,7 @@ const StrikesTable = () => {
           breakeven: strikeData.breakeven,
           button: {
             index,
-            base: tokenA,
+            base: underlyingTokenSymbol,
             isPut: isPut,
             premiumPerOption: strikeData.premiumPerOption,
             strike: strikeData.strike,
@@ -424,7 +423,7 @@ const StrikesTable = () => {
     clammStrikesData,
     isPut,
     setActiveStrikeIndex,
-    tokenA,
+    underlyingTokenSymbol,
   ]);
 
   if (isLoading || clammStrikesData.length === 0)
