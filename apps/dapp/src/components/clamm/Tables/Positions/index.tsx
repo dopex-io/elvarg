@@ -48,7 +48,11 @@ const Positions = () => {
   };
 
   const renderComponent = useMemo(() => {
-    if (isLoading)
+    if (
+      isLoading &&
+      writePositions.length === 0 &&
+      optionsPositions.length === 0
+    )
       return (
         <div className="bg-cod-gray rounded-lg pt-3">
           <div className="grid grid-cols-1 gap-4 p-2">

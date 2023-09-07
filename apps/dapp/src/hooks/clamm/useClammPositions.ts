@@ -305,7 +305,10 @@ const useClammPositions = () => {
   ]);
 
   useEffect(() => {
-    updateClammPositions();
+    const interval = setInterval(() => {
+      updateClammPositions();
+    }, 2500);
+    return () => clearInterval(interval);
   }, [updateClammPositions]);
 
   return {
