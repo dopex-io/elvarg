@@ -22,8 +22,6 @@ import usePositionManager, {
   ClammStrike,
 } from 'hooks/clamm/usePositionManager';
 import {
-  usePrepareBurnMintPosition,
-  usePrepareExerciseOptionRoll,
   UsePrepareMintCallOrPutOptionProps,
   usePrepareMintCallOrPutOptionRoll,
   usePrepareMintPosition,
@@ -247,20 +245,15 @@ const AsidePanel = () => {
       updateSelectedStrike(Number(firstStrike.strike.toFixed(5)));
     } else {
       const { callStrikes, putStrikes } = getClammStrikes();
-      if (isPut) {
-        const firstStrike = putStrikes[0];
-        if (firstStrike) {
-          setClammStrikes(putStrikes);
-          updateGeneratedStrikes(putStrikes);
-          updateSelectedStrike(Number(firstStrike.strike.toFixed(5)));
-        }
-      } else {
-        const firstStrike = callStrikes[0];
-        if (firstStrike) {
-          setClammStrikes(callStrikes);
-          updateGeneratedStrikes(callStrikes);
-          updateSelectedStrike(Number(firstStrike.strike.toFixed(5)));
-        }
+
+      let strikes = isPut ? putStrikes : callStrikes;
+
+      strikes.reverse();
+      const firstStrike = strikes[0];
+      if (firstStrike) {
+        setClammStrikes(strikes);
+        updateGeneratedStrikes(strikes);
+        updateSelectedStrike(Number(firstStrike.strike.toFixed(5)));
       }
     }
     setLoading(false);
