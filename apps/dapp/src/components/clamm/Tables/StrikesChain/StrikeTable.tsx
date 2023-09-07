@@ -359,6 +359,8 @@ const StrikesTable = () => {
     selectedExpiry,
     tokenPrices,
     selectedUniswapPool,
+    isTrade,
+    getClammStrikes,
   } = useBoundStore();
 
   const underlyingTokenSymbol =
@@ -373,6 +375,8 @@ const StrikesTable = () => {
     isPut: isPut,
     selectedExpiryPeriod: selectedExpiry,
     currentPrice: clammMarkPrice,
+    isTrade: isTrade,
+    getClammStrikes: getClammStrikes,
   });
 
   const activeStrikeIndex = clammStrikesData.findIndex(

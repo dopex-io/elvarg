@@ -147,6 +147,7 @@ const AsidePanel = () => {
     getClammStrikes,
     tokenPrices,
     selectedUniswapPool,
+    updateIsTrade,
   } = useBoundStore();
 
   const clammMarkPrice =
@@ -467,6 +468,7 @@ const AsidePanel = () => {
 
   const handleTradeOrLp = (index: number) => {
     setTradeOrLpIndex(index);
+    updateIsTrade(index === 0);
   };
 
   const handleIsPut = (index: number) => {

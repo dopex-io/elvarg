@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Address, formatUnits, zeroAddress } from 'viem';
+import { Address, formatUnits } from 'viem';
 
 import { ClammStrikeData } from 'store/Vault/clamm';
 
@@ -14,13 +14,21 @@ import usePositionManager, { ClammStrike } from './usePositionManager';
 interface Props {
   uniswapPoolAddress: Address;
   isPut: boolean;
+  isTrade: boolean;
   selectedExpiryPeriod: number;
   currentPrice: number;
+  getClammStrikes: Function;
 }
 
 const useStrikesData = (props: Props) => {
-  const { uniswapPoolAddress, isPut, selectedExpiryPeriod, currentPrice } =
-    props;
+  const {
+    uniswapPoolAddress,
+    isPut,
+    isTrade,
+    selectedExpiryPeriod,
+    currentPrice,
+    getClammStrikes,
+  } = props;
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -33,31 +41,36 @@ const useStrikesData = (props: Props) => {
 
     setIsLoading(true);
 
-    const strikes = await getStrikesWithTicks(10);
+    if (!isTrade) {
+      const strikes = await getStrikesWithTicks(10);
+      const _strikesData = await generateStrikesData({
+        strikes: strikes,
+        selectedExpiryPeriod: selectedExpiryPeriod,
+        currentPrice: currentPrice,
+        optionPool: uniswapPoolAddress,
+        isPut: isPut,
+      });
+      setStrikesData(_strikesData);
+    } else {
+      const { callStrikes, putStrikes } = getClammStrikes();
+      let _strikesData = isPut ? putStrikes : callStrikes;
+      _strikesData.reverse();
+      setStrikesData(_strikesData);
+    }
 
-    const _strikesData = await generateStrikesData({
-      strikes: strikes,
-      selectedExpiryPeriod: selectedExpiryPeriod,
-      currentPrice: currentPrice,
-      optionPool: '0x090fdA0F2c26198058530A0A8cFE53362d54d9f1',
-      isPut: isPut,
-    });
-
-    setStrikesData(_strikesData);
     setIsLoading(false);
   }, [
     uniswapPoolAddress,
+    isTrade,
     getStrikesWithTicks,
     selectedExpiryPeriod,
     currentPrice,
     isPut,
+    getClammStrikes,
   ]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      constructEpochStrikeChain();
-    }, 2500);
-    return () => clearInterval(interval);
+    constructEpochStrikeChain();
   }, [constructEpochStrikeChain]);
 
   return {

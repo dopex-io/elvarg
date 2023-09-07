@@ -132,6 +132,7 @@ export interface OptionsPosition {
 
 export interface ClammSlice {
   updateIsPut: Function;
+  updateIsTrade: Function;
   updateSelectedStrike: Function;
   updateUserAddress: Function;
   updateSelectedExpiry: Function;
@@ -164,13 +165,20 @@ export const createClammSlice: StateCreator<
   [],
   ClammSlice
 > = (set, get) => ({
-  updateIsPut: async (isPut: boolean) => {
+  updateIsPut: (isPut: boolean) => {
     set((prevState) => ({
       ...prevState,
       isPut: isPut,
     }));
   },
   isPut: false,
+  updateIsTrade: (isTrade: boolean) => {
+    set((prevState) => ({
+      ...prevState,
+      isTrade: isTrade,
+    }));
+  },
+  isTrade: true,
   updateSelectedStrike: async (selectedStrike: number) => {
     set((prevState) => ({
       ...prevState,
@@ -178,7 +186,6 @@ export const createClammSlice: StateCreator<
     }));
   },
   selectedStrike: 0,
-  isTrade: true,
   userAddress: ZERO_ADDRESS as Address,
   updateUserAddress: (userAddress: Address) => {
     set((prevState) => ({
@@ -233,8 +240,6 @@ export const createClammSlice: StateCreator<
   getClammStrikes: () => {
     const { selectedUniswapPool, tickersData } = get();
     const { tickScaleFlipped, currentTick } = selectedUniswapPool;
-
-    console.log(tickersData);
 
     const putStrikes = tickersData
       .filter(({ tickLower, tickUpper }) =>
