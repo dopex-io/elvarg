@@ -267,19 +267,6 @@ const AsidePanel = () => {
     updateSelectedStrike,
   ]);
 
-  // const purchaseStrikes = useMemo(() => {
-  //   if (tradeOrLpIndex === 1) return [];
-  //   if (isPut) {
-  //     return putStrikes.filter(
-  //       ({ optionsAvailable }) => optionsAvailable !== 0n,
-  //     );
-  //   } else {
-  //     return callStrikes.filter(
-  //       ({ optionsAvailable }) => optionsAvailable !== 0n,
-  //     );
-  //   }
-  // }, [getClammStrikes, isPut, tradeOrLpIndex]);
-
   const readableClammStrikes = useMemo(() => {
     if (clammStrikes.length === 0) return [];
     if (tradeOrLpIndex === 0) {
