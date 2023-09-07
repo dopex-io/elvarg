@@ -274,7 +274,7 @@ const Table = ({ strikeData }: { strikeData: any }) => {
                 }}
                 className="text-white text-sm rounded-md bg-carbon p-1 mr-3"
               >
-                {[3, 5, 10].map((pageSize) => (
+                {[5, 10].map((pageSize) => (
                   <option key={pageSize} value={pageSize}>
                     {pageSize}
                   </option>
