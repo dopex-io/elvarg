@@ -782,8 +782,23 @@ const AsidePanel = () => {
                 label="Balance"
                 content={
                   <div className="flex">
-                    <p className="inline-block">10.31</p>
-                    <p className="inline-block ml-1 text-stieglitz">USDC</p>
+                    <p className="inline-block">
+                      {formatAmount(
+                        isPut
+                          ? formatUnits(
+                              userTokenBalances.collateralTokenBalance,
+                              DECIMALS_USD,
+                            )
+                          : formatUnits(
+                              userTokenBalances.underlyingTokenBalance,
+                              DECIMALS_TOKEN,
+                            ),
+                        3,
+                      )}{' '}
+                    </p>
+                    <p className="inline-block ml-1 text-stieglitz">
+                      {isPut ? collateralTokenSymbol : underlyingTokenSymbol}
+                    </p>
                   </div>
                 }
               />
@@ -804,17 +819,27 @@ const AsidePanel = () => {
             <>
               <RowItem
                 label="Balance"
-                content={`${
-                  isPut
-                    ? formatUnits(
-                        userTokenBalances.collateralTokenBalance,
-                        DECIMALS_USD,
-                      )
-                    : formatUnits(
-                        userTokenBalances.underlyingTokenBalance,
-                        DECIMALS_TOKEN,
-                      )
-                }`}
+                content={
+                  <div className="flex">
+                    <p className="inline-block">
+                      {formatAmount(
+                        isPut
+                          ? formatUnits(
+                              userTokenBalances.collateralTokenBalance,
+                              DECIMALS_USD,
+                            )
+                          : formatUnits(
+                              userTokenBalances.underlyingTokenBalance,
+                              DECIMALS_TOKEN,
+                            ),
+                        3,
+                      )}{' '}
+                    </p>
+                    <p className="inline-block ml-1 text-stieglitz">
+                      {isPut ? collateralTokenSymbol : underlyingTokenSymbol}
+                    </p>
+                  </div>
+                }
               />
               {userAddress === undefined ? (
                 <ConnectButton className="w-full" />
