@@ -1,6 +1,5 @@
 import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { formatUnits } from 'viem';
 
 import { Menu } from '@dopex-io/ui';
 
@@ -12,40 +11,41 @@ import TitleItem from 'components/ssov-beta/TitleBar/TitleItem';
 
 import { formatAmount } from 'utils/general';
 
-import { MARKETS, MARKETS_MENU } from 'constants/clamm/markets';
-import { DECIMALS_TOKEN } from 'constants/index';
+import { MARKETS_MENU } from 'constants/clamm/markets';
 
 export function TitleBar() {
   const router = useRouter();
 
-  const {
-    clammMarkPrice,
-    clammOpenInterest,
-    tokenA,
-    updateTokenA,
-    updateTokenDeps,
-  } = useBoundStore();
+  const { selectedPair, tokenPrices, selectedUniswapPool, updateSelectedPair } =
+    useBoundStore();
+
+  const clammMarkPrice =
+    tokenPrices.find(
+      ({ name }) =>
+        name.toLowerCase() ===
+        selectedUniswapPool.underlyingTokenSymbol.toLowerCase(),
+    )?.price ?? undefined;
 
   const { openInterest, totalVolume } = useStats();
 
   useEffect(() => {
     const { tokenA: tokenASymbol } = router.query;
     if (tokenASymbol) {
-      updateTokenA(tokenASymbol as string);
-      updateTokenDeps();
+      updateSelectedPair(tokenASymbol as string);
     }
-  }, [router, updateTokenA, updateTokenDeps]);
+  }, [router, updateSelectedPair]);
 
   const handleSelectedPair = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const selectedPair = e.target.innerText.split('-')[0].trim();
+      const selectedPair = e.target.innerText;
       router.query.tokenA = selectedPair;
       router.push(router);
-      updateTokenA(selectedPair);
-      updateTokenDeps();
+      updateSelectedPair(selectedPair);
     },
-    [router, updateTokenA, updateTokenDeps],
+    [router, updateSelectedPair],
   );
+
+  const underlyingTokenSymbol = selectedPair.split('-')[0].trim();
 
   return (
     <>
@@ -54,8 +54,8 @@ export function TitleBar() {
         <div className="flex -space-x-4 self-center">
           <img
             className="w-8 h-8 z-10 border border-gray-500 rounded-full"
-            src={`/images/tokens/${tokenA.toLowerCase()}.svg`}
-            alt={tokenA}
+            src={`/images/tokens/${underlyingTokenSymbol.toLowerCase()}.svg`}
+            alt={underlyingTokenSymbol}
           />
           <img
             className="w-8 h-8 z-0"
@@ -67,7 +67,7 @@ export function TitleBar() {
           color="mineshaft"
           dropdownVariant="icon"
           handleSelection={handleSelectedPair}
-          selection={`${tokenA} - USDC`}
+          selection={selectedPair}
           data={MARKETS_MENU}
           className="z-20"
           showArrow
@@ -76,7 +76,11 @@ export function TitleBar() {
           symbol="$"
           symbolPrefixed
           label="Mark Price"
-          value={formatAmount(clammMarkPrice, 3)}
+          value={
+            clammMarkPrice === undefined
+              ? '...'
+              : formatAmount(clammMarkPrice, 3)
+          }
         />
         <TitleItem
           symbol="$"

@@ -358,9 +358,17 @@ const StrikesTable = () => {
     selectedStrike,
     generatedStrikes,
     updateSelectedStrike,
-    clammMarkPrice,
     selectedExpiry,
+    tokenPrices,
+    selectedUniswapPool,
   } = useBoundStore();
+
+  const clammMarkPrice =
+    tokenPrices.find(
+      ({ name }) =>
+        name.toLowerCase() ===
+        selectedUniswapPool.underlyingTokenSymbol.toLowerCase(),
+    )?.price ?? 0;
 
   const { strikesData: clammStrikesData, isLoading } = useStrikesData({
     uniswapPoolAddress: MARKETS['ARB-USDC'].uniswapPoolAddress,

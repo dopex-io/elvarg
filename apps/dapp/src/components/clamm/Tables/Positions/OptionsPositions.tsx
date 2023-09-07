@@ -115,7 +115,14 @@ const OptionsPositions = ({
 }: {
   optionsPositions: OptionsPosition[] | undefined;
 }) => {
-  const { clammMarkPrice, selectedUniswapPool } = useBoundStore();
+  const { tokenPrices, selectedUniswapPool } = useBoundStore();
+  const clammMarkPrice =
+    tokenPrices.find(
+      ({ name }) =>
+        name.toLowerCase() ===
+        selectedUniswapPool.underlyingTokenSymbol.toLowerCase(),
+    )?.price ?? 0;
+
   const [selectedPosition, setSelectedPosition] =
     useState<ExercisePositionProps>();
 

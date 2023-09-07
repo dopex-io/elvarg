@@ -281,10 +281,10 @@ export const DISCLAIMER_MESSAGE = {
 
 export const CLAMM_DISCLAIMER_MESSAGE = {
   english:
-    'This is an MVP (Minimum Viable Product), and we encourage you to explore its features. If you encounter any issues or bugs, please report them on our Discord channel or any other available communication platform.\n' +
-    "Regarding purchased options, it's important to note that they must be exercised before the expiry deadline. Failure to do so will result in the inability to exercise those options altogether. Please keep in mind that this limitation is specific to the MVP and does not reflect the functionality of the final product.\n" +
+    'This is an MVP, and we encourage you to explore its features. If you encounter any issues or bugs, please report them on our Discord channel.\n' +
+    "Regarding purchased options, it's important to note that they must be exercised before the expiry deadline. Failure to do so will result in the inability to exercise those options altogether. Please keep in mind that this limitation is specific to the MVP.\n" +
     "When it comes to deposits, please be aware that the strike prices are subject to change based on the asset's price fluctuations. This means that a strike price you see at a certain point may not be available at a later time, depending on how the asset's price evolves.\n" +
-    "As for withdrawals, if you have written options that are currently active as collateral for other options, you can only withdraw the portion of your liquidity provider (LP) tokens that hasn't been utilized. The remaining LP tokens can be withdrawn once the options have been exercised",
+    "If you have written options that are currently active as collateral for other options, you can only withdraw the portion of your liquidity provider (LP) tokens that hasn't been utilized. The remaining LP tokens can be withdrawn once the options have been exercised",
 };
 
 export const OFAC_COMPLIANCE_LOCAL_STORAGE_KEY =

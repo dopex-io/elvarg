@@ -46,9 +46,7 @@ export const MARKETS: Record<ClammPair, ClammMarket> = {
 
 export const FALLBACK_SLUG = '?pair=ARB-USDC';
 
-export const MARKETS_MENU = Object.keys(MARKETS)
-  .filter((token) => token !== 'USDC')
-  .map((key) => ({
-    textContent: `${key} - USDC`,
-    isDisabled: false,
-  }));
+export const MARKETS_MENU = Object.keys(MARKETS).map((key) => ({
+  textContent: key,
+  isDisabled: false,
+}));

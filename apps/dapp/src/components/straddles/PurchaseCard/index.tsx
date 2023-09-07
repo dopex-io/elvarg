@@ -123,6 +123,27 @@ const PurchaseCard = () => {
     return parseFloat(debouncedRawAmount) || 0;
   }, [debouncedRawAmount]);
 
+  const estimatedFinalCost: string = useMemo(() => {
+    if (!straddlesEpochData?.straddlePremium) return '0';
+
+    let cost;
+
+    if (finalCost.gt(0)) {
+      cost = Number(ethersUtils.formatUnits(finalCost, 6));
+    }
+
+    cost = Number(
+      ethersUtils.formatUnits(
+        straddlesEpochData
+          ?.straddlePremium!.add(straddlesEpochData?.straddleFunding!)
+          .add(straddlesEpochData?.purchaseFee!)!,
+        26,
+      ),
+    );
+
+    return formatAmount(amount * cost, 2);
+  }, [straddlesEpochData, amount, finalCost]);
+
   useEffect(() => {
     async function updateFinalCostV1() {
       if (!accountAddress || !signer || !straddlesData?.straddlesContract)
@@ -183,7 +204,9 @@ const PurchaseCard = () => {
 
         setFinalCost(protocolFee.add(straddleCost));
       } catch {
-        console.error('Error calculating final cost');
+        console.error(
+          'Error calculating final cost, defaults to simple estimation',
+        );
       }
     }
 
@@ -458,28 +481,13 @@ const PurchaseCard = () => {
           precision={4}
         />
         <span className="text-down-bad text-sm">
-          Note that the above cost breakdown is an approximation.
+          Note that the above cost breakdown is an approximation.{' '}
+          {approved ? '' : 'You will see the actual amount after you approve.'}
         </span>
       </div>
       <div className="mt-4 flex mb-4 p-2 w-full rounded border border-neutral-800 justify-between">
-        {finalCost.isZero() ? (
-          approved ? (
-            <span className="text-down-bad text-sm">
-              Error calculating final cost
-            </span>
-          ) : (
-            <span className="text-wave-blue text-sm">
-              Please approve to see final cost
-            </span>
-          )
-        ) : (
-          <>
-            <span className="text-stieglitz text-sm">You will spend </span>
-            <span className="text-sm">
-              {ethersUtils.formatUnits(finalCost, 6)} USDC.e
-            </span>
-          </>
-        )}
+        <span className="text-stieglitz text-xs">You will spend </span>
+        <span className="text-xs">{estimatedFinalCost} USDC.e</span>
       </div>
       <div className="mt-4 flex mb-4 p-2 w-full rounded border border-neutral-800 justify-between">
         <>

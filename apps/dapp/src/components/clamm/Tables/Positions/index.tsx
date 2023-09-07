@@ -9,6 +9,14 @@ import { ButtonGroup } from 'components/clamm/AsidePanel';
 import OptionsPositions from './OptionsPositions';
 import WritePositions from './WritePositions';
 
+const Placeholder = () => {
+  return (
+    <div className="flex justify-center my-auto w-full bg-cod-gray rounded-lg py-8">
+      <p className="text-sm text-stieglitz">Nothing to show</p>
+    </div>
+  );
+};
+
 const Positions = () => {
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
@@ -62,7 +70,7 @@ const Positions = () => {
       return <OptionsPositions optionsPositions={optionsPositions} />;
     else if (activeIndex === 1)
       return <WritePositions writePositions={writePositions} />;
-    return null;
+    return <Placeholder />;
   }, [isLoading, activeIndex, optionsPositions, writePositions]);
 
   // TODO: make these tables reusable

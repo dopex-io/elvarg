@@ -30,6 +30,7 @@ import {
 } from 'hooks/clamm/usePrepareWrites';
 import { usePrepareApprove } from 'hooks/ssov/usePrepareWrites';
 
+import ConnectButton from 'components/common/ConnectButton';
 import PnlChart from 'components/common/PnlChart';
 import RowItem from 'components/ssov-beta/AsidePanel/RowItem';
 
@@ -140,7 +141,6 @@ const AsidePanel = () => {
     selectedStrike,
     isPut,
     updateIsPut,
-    clammMarkPrice,
     selectedPair,
     chainId,
     provider,
@@ -148,7 +148,16 @@ const AsidePanel = () => {
     updateGeneratedStrikes,
     updateSelectedExpiry,
     getClammStrikes,
+    tokenPrices,
+    selectedUniswapPool,
   } = useBoundStore();
+
+  const clammMarkPrice =
+    tokenPrices.find(
+      ({ name }) =>
+        name.toLowerCase() ===
+        selectedUniswapPool.underlyingTokenSymbol.toLowerCase(),
+    )?.price ?? 0;
 
   const [clammStrikes, setClammStrikes] = useState<ClammStrike[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -781,14 +790,18 @@ const AsidePanel = () => {
                   </div>
                 }
               />
-              <Button
-                variant="contained"
-                onClick={buttonProps.action}
-                color={buttonProps.color}
-                className="w-full"
-              >
-                {buttonProps.text}
-              </Button>
+              {userAddress === undefined ? (
+                <ConnectButton className="w-full" />
+              ) : (
+                <Button
+                  variant="contained"
+                  onClick={buttonProps.action}
+                  color={buttonProps.color}
+                  className="w-full"
+                >
+                  {buttonProps.text}
+                </Button>
+              )}
             </>
           ) : (
             <>
@@ -806,15 +819,19 @@ const AsidePanel = () => {
                       )
                 }`}
               />
-              <Button
-                variant="contained"
-                disabled={buttonProps?.disabled}
-                onClick={buttonProps.action}
-                color={buttonProps.color}
-                className="w-full"
-              >
-                {buttonProps.text}
-              </Button>
+              {userAddress === undefined ? (
+                <ConnectButton className="w-full" />
+              ) : (
+                <Button
+                  variant="contained"
+                  disabled={buttonProps?.disabled}
+                  onClick={buttonProps.action}
+                  color={buttonProps.color}
+                  className="w-full"
+                >
+                  {buttonProps.text}
+                </Button>
+              )}
             </>
           )}
         </div>
@@ -849,7 +866,7 @@ const AsidePanel = () => {
             )}
             amount={Number(amountDebounced)}
             isPut={isPut}
-            price={clammMarkPrice}
+            price={clammMarkPrice ?? 0}
             symbol={underlyingTokenSymbol}
           />
         </div>
