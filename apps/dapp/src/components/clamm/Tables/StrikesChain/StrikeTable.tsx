@@ -27,7 +27,7 @@ import formatAmount from 'utils/general/formatAmount';
 
 import { MARKETS } from 'constants/clamm/markets';
 
-const ROWS_PER_PAGE = 3;
+const ROWS_PER_PAGE = 5;
 
 interface StrikeItem {
   strike: number;
@@ -355,7 +355,6 @@ const StrikesTable = () => {
   const {
     isPut,
     selectedStrike,
-    generatedStrikes,
     updateSelectedStrike,
     selectedExpiry,
     tokenPrices,
@@ -374,7 +373,6 @@ const StrikesTable = () => {
     isPut: isPut,
     selectedExpiryPeriod: selectedExpiry,
     currentPrice: clammMarkPrice,
-    strikes: generatedStrikes,
   });
 
   const activeStrikeIndex = clammStrikesData.findIndex(
@@ -426,7 +424,7 @@ const StrikesTable = () => {
     underlyingTokenSymbol,
   ]);
 
-  if (isLoading || clammStrikesData.length === 0)
+  if (isLoading && clammStrikesData.length === 0)
     return (
       <div className="grid grid-cols-1 gap-4 p-2">
         {Array.from(Array(4)).map((_, index) => {

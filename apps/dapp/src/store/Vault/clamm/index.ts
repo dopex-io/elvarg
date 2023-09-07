@@ -134,7 +134,6 @@ export interface ClammSlice {
   updateIsPut: Function;
   updateSelectedStrike: Function;
   updateUserAddress: Function;
-  updateGeneratedStrikes: Function;
   updateSelectedExpiry: Function;
 
   /** NEWLY ADDED */
@@ -156,7 +155,6 @@ export interface ClammSlice {
   selectedStrike: number;
   isTrade: boolean;
   userAddress: Address;
-  generatedStrikes: ClammStrike[];
   selectedExpiry: number;
 }
 
@@ -216,13 +214,6 @@ export const createClammSlice: StateCreator<
     set((prev) => ({
       ...prev,
       selectedUniswapPool: pool,
-    }));
-  },
-  generatedStrikes: [],
-  updateGeneratedStrikes: (strikes: ClammStrike[]) => {
-    set((prev) => ({
-      ...prev,
-      generatedStrikes: strikes,
     }));
   },
   updateSelectedExpiry: (expiry: number) => {

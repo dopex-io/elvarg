@@ -9,33 +9,31 @@ import computeOptionGreeks from 'utils/ssov/computeOptionGreeks';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 
-import { ClammStrike } from './usePositionManager';
+import usePositionManager, { ClammStrike } from './usePositionManager';
 
 interface Props {
   uniswapPoolAddress: Address;
   isPut: boolean;
   selectedExpiryPeriod: number;
   currentPrice: number;
-  strikes: ClammStrike[];
 }
 
 const useStrikesData = (props: Props) => {
-  const {
-    uniswapPoolAddress,
-    isPut,
-    selectedExpiryPeriod,
-    currentPrice,
-    strikes,
-  } = props;
+  const { uniswapPoolAddress, isPut, selectedExpiryPeriod, currentPrice } =
+    props;
 
   const [isLoading, setIsLoading] = useState(false);
 
   const [strikesData, setStrikesData] = useState<ClammStrikeData[]>([]);
 
+  const { getStrikesWithTicks } = usePositionManager();
+
   const constructEpochStrikeChain = useCallback(async () => {
     if (!uniswapPoolAddress) return;
 
     setIsLoading(true);
+
+    const strikes = await getStrikesWithTicks(10);
 
     const _strikesData = await generateStrikesData({
       strikes: strikes,
@@ -47,10 +45,19 @@ const useStrikesData = (props: Props) => {
 
     setStrikesData(_strikesData);
     setIsLoading(false);
-  }, [uniswapPoolAddress, isPut, strikes, selectedExpiryPeriod, currentPrice]);
+  }, [
+    uniswapPoolAddress,
+    getStrikesWithTicks,
+    selectedExpiryPeriod,
+    currentPrice,
+    isPut,
+  ]);
 
   useEffect(() => {
-    constructEpochStrikeChain();
+    const interval = setInterval(() => {
+      constructEpochStrikeChain();
+    }, 2500);
+    return () => clearInterval(interval);
   }, [constructEpochStrikeChain]);
 
   return {

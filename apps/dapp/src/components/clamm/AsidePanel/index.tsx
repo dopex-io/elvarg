@@ -143,7 +143,6 @@ const AsidePanel = () => {
     chainId,
     provider,
     userAddress,
-    updateGeneratedStrikes,
     updateSelectedExpiry,
     getClammStrikes,
     tokenPrices,
@@ -241,7 +240,6 @@ const AsidePanel = () => {
       const strikes = await getStrikesWithTicks(10);
       const firstStrike = strikes[0];
       setClammStrikes(strikes);
-      updateGeneratedStrikes(strikes);
       updateSelectedStrike(Number(firstStrike.strike.toFixed(5)));
     } else {
       const { callStrikes, putStrikes } = getClammStrikes();
@@ -252,7 +250,6 @@ const AsidePanel = () => {
       const firstStrike = strikes[0];
       if (firstStrike) {
         setClammStrikes(strikes);
-        updateGeneratedStrikes(strikes);
         updateSelectedStrike(Number(firstStrike.strike.toFixed(5)));
       }
     }
@@ -263,7 +260,6 @@ const AsidePanel = () => {
     getClammStrikes,
     uniswapPoolAddress,
     getStrikesWithTicks,
-    updateGeneratedStrikes,
     updateSelectedStrike,
   ]);
 
