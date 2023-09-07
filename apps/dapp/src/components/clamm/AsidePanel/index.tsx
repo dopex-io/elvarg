@@ -238,37 +238,62 @@ const AsidePanel = () => {
   const loadStrikesForPair = useCallback(async () => {
     if (!uniswapPoolAddress) return console.error('UniswapPool not found');
     setLoading(true);
-    const strikes = await getStrikesWithTicks(10);
-    const firstStrike = strikes[0];
-    setClammStrikes(strikes);
-    updateGeneratedStrikes(strikes);
-    updateSelectedStrike(Number(firstStrike.strike.toFixed(5)));
+
+    if (tradeOrLpIndex === 1) {
+      const strikes = await getStrikesWithTicks(10);
+      const firstStrike = strikes[0];
+      setClammStrikes(strikes);
+      updateGeneratedStrikes(strikes);
+      updateSelectedStrike(Number(firstStrike.strike.toFixed(5)));
+    } else {
+      const { callStrikes, putStrikes } = getClammStrikes();
+      if (isPut) {
+        const firstStrike = putStrikes[0];
+        if (firstStrike) {
+          setClammStrikes(putStrikes);
+          updateGeneratedStrikes(putStrikes);
+          updateSelectedStrike(Number(firstStrike.strike.toFixed(5)));
+        }
+      } else {
+        const firstStrike = callStrikes[0];
+        if (firstStrike) {
+          setClammStrikes(callStrikes);
+          updateGeneratedStrikes(callStrikes);
+          updateSelectedStrike(Number(firstStrike.strike.toFixed(5)));
+        }
+      }
+    }
     setLoading(false);
   }, [
+    isPut,
+    tradeOrLpIndex,
+    getClammStrikes,
     uniswapPoolAddress,
     getStrikesWithTicks,
     updateGeneratedStrikes,
     updateSelectedStrike,
   ]);
 
-  const purchaseStrikes = useMemo(() => {
-    if (tradeOrLpIndex === 1) return [];
-    const { callStrikes, putStrikes } = getClammStrikes();
-    if (isPut) {
-      return putStrikes.filter(
-        ({ optionsAvailable }) => optionsAvailable !== 0n,
-      );
-    } else {
-      return callStrikes.filter(
-        ({ optionsAvailable }) => optionsAvailable !== 0n,
-      );
-    }
-  }, [getClammStrikes, isPut, tradeOrLpIndex]);
+  // const purchaseStrikes = useMemo(() => {
+  //   if (tradeOrLpIndex === 1) return [];
+  //   if (isPut) {
+  //     return putStrikes.filter(
+  //       ({ optionsAvailable }) => optionsAvailable !== 0n,
+  //     );
+  //   } else {
+  //     return callStrikes.filter(
+  //       ({ optionsAvailable }) => optionsAvailable !== 0n,
+  //     );
+  //   }
+  // }, [getClammStrikes, isPut, tradeOrLpIndex]);
 
   const readableClammStrikes = useMemo(() => {
     if (clammStrikes.length === 0) return [];
     if (tradeOrLpIndex === 0) {
-      return purchaseStrikes.map(({ strike }) => ({
+      const strikes = clammStrikes.filter(
+        ({ optionsAvailable }) => optionsAvailable !== 0n,
+      );
+      return strikes.map(({ strike }) => ({
         textContent: strike.toFixed(5),
         disabled: false,
       }));
@@ -278,7 +303,7 @@ const AsidePanel = () => {
         disabled: false,
       }));
     }
-  }, [clammStrikes, tradeOrLpIndex, purchaseStrikes]);
+  }, [clammStrikes, tradeOrLpIndex]);
 
   const mintOptionsParams = useMemo(() => {
     let mintOptionsParams: UsePrepareMintCallOrPutOptionProps = {
@@ -422,22 +447,6 @@ const AsidePanel = () => {
     });
   }, [collateralTokenAddress, underlyingTokenAddress, userAddress]);
 
-  useEffect(() => {
-    updateUserTokensBalances();
-  }, [updateUserTokensBalances]);
-
-  useEffect(() => {
-    checkApproved();
-  }, [checkApproved]);
-
-  useEffect(() => {
-    updateTokenAmountsToSpend();
-  }, [updateTokenAmountsToSpend]);
-
-  useEffect(() => {
-    loadStrikesForPair();
-  }, [loadStrikesForPair]);
-
   const mintPositionConfig = usePrepareMintPosition({
     parameters: depositParams,
   });
@@ -490,7 +499,7 @@ const AsidePanel = () => {
 
   const availableOptionsOrBalance = useMemo(() => {
     if (tradeOrLpIndex === 0) {
-      const strikeData = purchaseStrikes.find(({ strike }) => {
+      const strikeData = clammStrikes.find(({ strike }) => {
         return Number(strike.toFixed(5)) === selectedStrike;
       });
       if (!strikeData) return 0n;
@@ -503,8 +512,8 @@ const AsidePanel = () => {
         : userTokenBalances.collateralTokenBalance;
     }
   }, [
+    clammStrikes,
     isPut,
-    purchaseStrikes,
     selectedStrike,
     tradeOrLpIndex,
     userTokenBalances.collateralTokenBalance,
@@ -541,14 +550,6 @@ const AsidePanel = () => {
     token: isPut ? collateralTokenAddress : underlyingTokenAddress,
     amount: tokenAmountToSpend,
   });
-
-  // Exercise options
-  const exerciseOptionsConfig = usePrepareExerciseOptionRoll();
-  const { write: exerciseOptions } = useContractWrite(exerciseOptionsConfig);
-
-  // Burn write position
-  const burnMintPositionConfig = usePrepareBurnMintPosition();
-  const { write: burnMintPosition } = useContractWrite(burnMintPositionConfig);
 
   const tokenDecimals = useMemo(() => {
     return CHAINS[chainId].tokenDecimals[
@@ -627,6 +628,22 @@ const AsidePanel = () => {
     mintPosition,
     handleApprove,
   ]);
+
+  useEffect(() => {
+    updateUserTokensBalances();
+  }, [updateUserTokensBalances]);
+
+  useEffect(() => {
+    checkApproved();
+  }, [checkApproved]);
+
+  useEffect(() => {
+    updateTokenAmountsToSpend();
+  }, [updateTokenAmountsToSpend]);
+
+  useEffect(() => {
+    loadStrikesForPair();
+  }, [loadStrikesForPair]);
 
   return (
     <div className="flex flex-col space-y-4 min-w-[280px]">
