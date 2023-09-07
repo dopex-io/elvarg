@@ -289,7 +289,7 @@ export const createClammSlice: StateCreator<
           );
 
           const priceFromTick = calculatePriceFromTick(
-            tickScaleFlipped ? tickUpper : tickLower,
+            tickLower,
             10 ** 18,
             10 ** 6,
             tickScaleFlipped,
@@ -340,7 +340,7 @@ export const createClammSlice: StateCreator<
 
           return {
             strike: calculatePriceFromTick(
-              tickScaleFlipped ? tickLower : tickUpper,
+              tickUpper,
               10 ** 18,
               10 ** 6,
               tickScaleFlipped,
