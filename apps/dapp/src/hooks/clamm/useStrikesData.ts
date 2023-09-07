@@ -41,7 +41,7 @@ const useStrikesData = (props: Props) => {
       strikes: strikes,
       selectedExpiryPeriod: selectedExpiryPeriod,
       currentPrice: currentPrice,
-      optionPool: uniswapPoolAddress,
+      optionPool: '0x090fdA0F2c26198058530A0A8cFE53362d54d9f1',
       isPut: isPut,
     });
 
@@ -91,7 +91,7 @@ async function generateStrikesData({
           // parseUnits(currentPrice.toString(), DECIMALS_STRIKE),
           // strikeIvRaw,
           // parseEther('1'),
-          zeroAddress,
+          optionPool,
           true,
           0,
           0n,
