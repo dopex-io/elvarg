@@ -360,23 +360,23 @@ const StrikesTable = () => {
     tokenPrices,
     selectedUniswapPool,
     isTrade,
-    getClammStrikes,
+    selectedPair,
   } = useBoundStore();
 
-  const underlyingTokenSymbol =
-    selectedUniswapPool.underlyingTokenSymbol.toLowerCase();
+  const underlyingTokenSymbol = selectedUniswapPool.underlyingTokenSymbol;
 
   const clammMarkPrice =
-    tokenPrices.find(({ name }) => name.toLowerCase() === underlyingTokenSymbol)
-      ?.price ?? 0;
+    tokenPrices.find(
+      ({ name }) => name.toLowerCase() === underlyingTokenSymbol.toLowerCase(),
+    )?.price ?? 0;
 
   const { strikesData: clammStrikesData, isLoading } = useStrikesData({
-    uniswapPoolAddress: MARKETS['ARB-USDC'].uniswapPoolAddress,
+    uniswapPoolAddress: MARKETS[selectedPair].uniswapPoolAddress,
     isPut: isPut,
     selectedExpiryPeriod: selectedExpiry,
     currentPrice: clammMarkPrice,
     isTrade: isTrade,
-    getClammStrikes: getClammStrikes,
+    selectedUniswapPool: selectedUniswapPool,
   });
 
   const activeStrikeIndex = clammStrikesData.findIndex(
@@ -428,7 +428,7 @@ const StrikesTable = () => {
     underlyingTokenSymbol,
   ]);
 
-  if (isLoading && clammStrikesData.length === 0)
+  if (isLoading)
     return (
       <div className="grid grid-cols-1 gap-4 p-2">
         {Array.from(Array(4)).map((_, index) => {

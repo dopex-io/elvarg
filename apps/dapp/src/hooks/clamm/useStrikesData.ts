@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Address, formatUnits } from 'viem';
 
-import { ClammStrikeData } from 'store/Vault/clamm';
+import { ClammStrikeData, TickerData } from 'store/Vault/clamm';
 
+import calculatePriceFromTick from 'utils/clamm/calculatePriceFromTick';
 import getPremium from 'utils/clamm/getPremium';
+import getTickerLiquidityData from 'utils/clamm/getTickerLiquidities';
+import { getAmountsForLiquidity } from 'utils/clamm/liquidityAmountMath';
+import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
 import getTimeToExpirationInYears from 'utils/date/getTimeToExpirationInYears';
 import computeOptionGreeks from 'utils/ssov/computeOptionGreeks';
 
@@ -17,7 +21,7 @@ interface Props {
   isTrade: boolean;
   selectedExpiryPeriod: number;
   currentPrice: number;
-  getClammStrikes: Function;
+  selectedUniswapPool: any;
 }
 
 const useStrikesData = (props: Props) => {
@@ -27,7 +31,7 @@ const useStrikesData = (props: Props) => {
     isTrade,
     selectedExpiryPeriod,
     currentPrice,
-    getClammStrikes,
+    selectedUniswapPool,
   } = props;
 
   const [isLoading, setIsLoading] = useState(false);
@@ -52,7 +56,20 @@ const useStrikesData = (props: Props) => {
       });
       setStrikesData(_strikesData);
     } else {
-      const { callStrikes, putStrikes } = getClammStrikes();
+      const tickersData: TickerData[] = await getTickerLiquidityData();
+      const { tickScaleFlipped, currentTick } = selectedUniswapPool;
+      const putStrikes = extractPutStrikes(
+        tickersData,
+        tickScaleFlipped,
+        currentTick,
+        selectedUniswapPool,
+      );
+      const callStrikes = extractCallStrikes(
+        tickersData,
+        tickScaleFlipped,
+        currentTick,
+        selectedUniswapPool,
+      );
       let _strikesData = isPut ? putStrikes : callStrikes;
       _strikesData.reverse();
       setStrikesData(_strikesData);
@@ -66,7 +83,7 @@ const useStrikesData = (props: Props) => {
     selectedExpiryPeriod,
     currentPrice,
     isPut,
-    getClammStrikes,
+    selectedUniswapPool,
   ]);
 
   useEffect(() => {
@@ -154,3 +171,109 @@ async function generateStrikesData({
     }),
   );
 }
+
+const extractPutStrikes = (
+  tickersData: TickerData[],
+  tickScaleFlipped: boolean,
+  currentTick: number,
+  selectedUniswapPool: any,
+) => {
+  return tickersData
+    .filter(({ tickLower, tickUpper }) =>
+      tickScaleFlipped ? tickUpper > currentTick : tickLower < currentTick,
+    )
+    .map(
+      ({
+        tickLower,
+        tickUpper,
+        liquidity,
+        liquidityWithdrawn,
+        liquidityUsed,
+        liquidityUnused,
+      }) => {
+        const totalLiquidtyAtTick =
+          BigInt(liquidity) - BigInt(liquidityWithdrawn);
+        const liquidityUsedAtTick =
+          BigInt(liquidityUsed) - BigInt(liquidityUnused);
+        const availableLiquidity =
+          BigInt(totalLiquidtyAtTick) - BigInt(liquidityUsedAtTick);
+
+        let optionsAvailable = 0n;
+        const { amount0, amount1 } = getAmountsForLiquidity(
+          selectedUniswapPool.sqrtX96,
+          getSqrtRatioAtTick(BigInt(tickLower)),
+          getSqrtRatioAtTick(BigInt(tickUpper)),
+          availableLiquidity,
+        );
+
+        const priceFromTick = calculatePriceFromTick(
+          tickLower,
+          10 ** 18,
+          10 ** 6,
+          tickScaleFlipped,
+        );
+
+        optionsAvailable = amount0 > amount1 ? amount0 : amount1;
+        optionsAvailable =
+          (optionsAvailable * BigInt(1e8)) /
+          BigInt(Number(priceFromTick.toFixed(0)) * 1e8);
+
+        return {
+          strike: priceFromTick,
+          lowerTick: tickLower,
+          upperTick: tickUpper,
+          optionsAvailable: optionsAvailable,
+        };
+      },
+    );
+};
+
+const extractCallStrikes = (
+  tickersData: TickerData[],
+  tickScaleFlipped: boolean,
+  currentTick: number,
+  selectedUniswapPool: any,
+) => {
+  return tickersData
+    .filter(({ tickUpper, tickLower }) =>
+      tickScaleFlipped ? tickLower < currentTick : tickUpper > currentTick,
+    )
+    .map(
+      ({
+        tickLower,
+        tickUpper,
+        liquidityWithdrawn,
+        liquidityUsed,
+        liquidity,
+        liquidityUnused,
+      }) => {
+        const totalLiquidtyAtTick =
+          BigInt(liquidity) - BigInt(liquidityWithdrawn);
+        const liquidityUsedAtTick =
+          BigInt(liquidityUsed) - BigInt(liquidityUnused);
+        const availableLiquidity =
+          BigInt(totalLiquidtyAtTick) - BigInt(liquidityUsedAtTick);
+
+        let optionsAvailable = 0n;
+        const { amount0, amount1 } = getAmountsForLiquidity(
+          selectedUniswapPool.sqrtX96,
+          getSqrtRatioAtTick(BigInt(tickLower)),
+          getSqrtRatioAtTick(BigInt(tickUpper)),
+          availableLiquidity,
+        );
+        optionsAvailable = amount0 > amount1 ? amount0 : amount1;
+
+        return {
+          strike: calculatePriceFromTick(
+            tickUpper,
+            10 ** 18,
+            10 ** 6,
+            tickScaleFlipped,
+          ),
+          lowerTick: tickLower,
+          upperTick: tickUpper,
+          optionsAvailable: optionsAvailable,
+        };
+      },
+    );
+};
