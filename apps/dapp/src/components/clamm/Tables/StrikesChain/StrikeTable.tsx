@@ -86,11 +86,10 @@ const columns = [
     },
   }),
   columnHelper.accessor('optionsAvailable', {
-    header: 'Options Available',
+    header: 'Available',
     cell: (info) => {
       return (
         <span className="text-left flex">
-          <p className="text-stieglitz pr-1">$</p>
           <p className="pr-1">{formatAmount(info.getValue(), 5, true)}</p>
         </span>
       );
