@@ -1,9 +1,13 @@
 import { Button, Dialog } from '@dopex-io/ui';
+import { useAccount } from 'wagmi';
 
 import { CLAMM_DISCLAIMER_MESSAGE } from 'constants/index';
 
 const DisclaimerDialog = (props: any) => {
-  const { isOpen, handleClose, handleAgree } = props;
+  const { isOpen, handleClose, isAgree, handleAgree } = props;
+  const { address: userAddress } = useAccount();
+
+  if (!userAddress || isAgree) return null;
 
   return (
     <div className="mt-20 z-40">
