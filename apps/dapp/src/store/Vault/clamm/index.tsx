@@ -211,7 +211,7 @@ export const createClammSlice: StateCreator<
       ticksData: ticksData,
     }));
   },
-  selectedClammExpiry: 0,
+  selectedClammExpiry: 1200,
   updateSelectedExpiry: (expiry: number) => {
     set((prev) => ({
       ...prev,

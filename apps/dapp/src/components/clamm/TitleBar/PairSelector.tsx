@@ -4,13 +4,17 @@ import { Menu } from '@dopex-io/ui';
 
 import { useBoundStore } from 'store';
 
+import TitleItem from 'components/ssov-beta/TitleBar/TitleItem';
+
+import { formatAmount } from 'utils/general';
+
 import {
   CLAMM_COLLATERAL_TOKENS_LIST,
   CLAMM_UNDERLYING_TOKENS_LIST,
 } from 'constants/clamm';
 
 export function PairSelector() {
-  const { setSelectedOptionsPoolPair } = useBoundStore();
+  const { setSelectedOptionsPoolPair, markPrice } = useBoundStore();
 
   const [underlyingToken, setUnderlyingToken] = useState<string>('ARB');
   const [collateralToken, setCollateralToken] = useState<string>('USDC');
@@ -67,6 +71,24 @@ export function PairSelector() {
           className="z-20"
           showArrow
         />
+        <TitleItem
+          symbol="$"
+          symbolPrefixed
+          label="Mark Price"
+          value={markPrice === 0 ? '...' : markPrice.toFixed(5)}
+        />
+        {/* <TitleItem
+          symbol="$"
+          symbolPrefixed
+          label="Open Interest"
+          value={formatAmount(openInterest, 3, true)}
+        />
+        <TitleItem
+          symbol="$"
+          symbolPrefixed
+          label="Total Volume"
+          value={formatAmount(totalVolume, 3, true)}
+        /> */}
       </div>
     </>
   );

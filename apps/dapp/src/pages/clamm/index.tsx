@@ -31,7 +31,7 @@ import parseWritePosition, {
 import { CLAMM_PAIRS_TO_ADDRESSES } from 'constants/clamm';
 import seo from 'constants/seo';
 
-import { PairSelector } from '../../components/clamm/PairSelector';
+import { PairSelector } from '../../components/clamm/TitleBar/PairSelector';
 import fetchTicksdata from '../../utils/clamm/subgraph/fetchTicksData';
 import getUserPositions from '../../utils/clamm/subgraph/getUserPositions';
 

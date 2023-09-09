@@ -149,19 +149,24 @@ const Positions = () => {
           putAssetSymbol: optionsPool[keys.putAssetSymbolKey],
         };
 
-        let side = 'Put';
-        if (optionsPool.tick < tickLower) {
-          side = 'Put';
-          if (optionsPool.inversePrice) {
-            side = 'Call';
-          }
-        } else if (optionsPool.tick > tickUpper) {
-          side = 'Call';
-          if (optionsPool.inversePrice) {
+        let side = '';
+        if (optionsPool.inversePrice) {
+          if (optionsPool.tick <= tickLower) {
             side = 'Put';
+          } else if (optionsPool.tick >= tickUpper) {
+            side = 'Call';
+          } else {
+            side = 'Neutral';
+          }
+        } else {
+          if (optionsPool.tick <= tickLower) {
+            side = 'Call';
+          } else if (optionsPool.tick >= tickUpper) {
+            side = 'Put';
+          } else {
+            side = 'Neutral';
           }
         }
-        // if (optionsPool.inversePrice) { }
 
         return {
           tickLower,

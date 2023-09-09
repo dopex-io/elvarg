@@ -304,7 +304,6 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
       let pool = optionsPool.uniswapV3PoolAddress;
       let ttl = BigInt(selectedClammExpiry);
       let callOrPut = !isPut;
-      console.log(ttl);
 
       if (tradeOrLpIndex === 0) {
         functionName = isPut ? 'mintPutOptionRoll' : 'mintCallOptionRoll';
@@ -358,11 +357,11 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
         pool,
       };
     }, [
-      selectedClammExpiry,
       positionManagerAddress,
       keys.putAssetGetLiquidity,
       keys.callAssetGetLiquidity,
       optionsPool,
+      selectedClammExpiry,
       selectedClammStrike,
       tradeOrLpIndex,
       amountDebounced,
@@ -669,7 +668,7 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
       10 ** token0Decimals,
       10 ** token1Decimals,
       inversePrice,
-      10,
+      100,
     );
     setStrikes({
       callPurchaseStrikes,
@@ -868,7 +867,7 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
                 content={formatDistance(
                   new Date().getTime() +
                     EXPIRIES_BY_INDEX[selectedExpiry] * 1000,
-                  Number(new Date()),
+                  new Date(),
                 )}
               />
               <RowItem

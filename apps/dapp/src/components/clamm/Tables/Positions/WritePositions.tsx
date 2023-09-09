@@ -81,7 +81,7 @@ const columns = [
   }),
   columnHelper.accessor('side', {
     header: 'Side',
-    cell: (info) => <p>{info.getValue() ? 'Call' : 'Put'}</p>,
+    cell: (info) => <p>{info.getValue()}</p>,
   }),
 
   columnHelper.accessor('earned', {
