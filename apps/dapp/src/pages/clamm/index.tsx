@@ -1,5 +1,4 @@
-import { useCallback, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useCallback, useEffect, useState } from 'react';
 
 import { UniswapV3Pool__factory } from '@dopex-io/sdk';
 import { NextSeo } from 'next-seo';
@@ -9,6 +8,7 @@ import { readContract } from 'wagmi/actions';
 import { useBoundStore } from 'store';
 
 import AsidePanel from 'components/clamm/AsidePanel';
+import DisclaimerDialog from 'components/clamm/DisclaimerDialog';
 import Positions from 'components/clamm/Tables/Positions';
 import StrikesChain from 'components/clamm/Tables/StrikesChain';
 import AppBar from 'components/common/AppBar';
@@ -52,6 +52,9 @@ const ClammPage = () => {
     setPositionManagerAddress,
   } = useBoundStore();
   const { address: userAddress } = useAccount();
+  const [isAgree, setIsAgree] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
+  const handleClose = () => setIsOpen(false);
 
   useEffect(() => {
     updateUserAddress(userAddress);
@@ -72,6 +75,26 @@ const ClammPage = () => {
 
     updateOptionsPoolTickAndSqrtX96Price(tick, sqrtX96Price);
   }, [selectedOptionsPoolPair.joined, updateOptionsPoolTickAndSqrtX96Price]);
+
+  const handleAgree = useCallback(async () => {
+    if (!userAddress) return;
+    localStorage.setItem(userAddress + '-clamm', 'true');
+    setIsAgree(true);
+  }, [userAddress]);
+
+  const userAgreementCheck = useCallback(async () => {
+    if (!userAddress) return;
+    let data = localStorage.getItem(userAddress + '-clamm') as any;
+    if (data as boolean) {
+      setIsAgree(true);
+    } else {
+      setIsAgree(false);
+    }
+  }, [userAddress, setIsAgree]);
+
+  useEffect(() => {
+    userAgreementCheck();
+  }, [userAgreementCheck]);
 
   const loadOptionsPool = useCallback(async () => {
     setLoading('optionsPool', true);
@@ -244,6 +267,12 @@ const ClammPage = () => {
       />
       <AppBar />
       <PageLayout>
+        <DisclaimerDialog
+          isOpen={isOpen}
+          handleClose={handleClose}
+          isAgree={isAgree}
+          handleAgree={handleAgree}
+        />
         {/* <TitleBar /> */}
         <PairSelector />
         <div className="flex space-x-0 lg:space-x-6 flex-col sm:flex-col md:flex-col lg:flex-row space-y-3 md:space-y-0 justify-center">

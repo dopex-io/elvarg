@@ -36,8 +36,6 @@ import formatAmount from 'utils/general/formatAmount';
 import { EXPIRIES_BY_INDEX, EXPIRIES_MENU } from 'constants/clamm';
 import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
-import DisclaimerDialog from './DisclaimerDialog';
-
 type Strikes = {
   callPurchaseStrikes: PurchaseStrike[];
   putPurchaseStrikes: PurchaseStrike[];
@@ -181,8 +179,6 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
     collateralTokenBalance: 0n,
     underlyingTokenBalance: 0n,
   });
-  const [showDisclaimer, setShowDisclaimer] = useState<boolean>(false);
-  const [agree, setAgree] = useState<boolean>(false);
 
   const selectedToken = useMemo(() => {
     if (!optionsPool)
