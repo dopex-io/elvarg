@@ -44,7 +44,7 @@ function parseTickData(
   const netUsedLiquidity = liquidityUsed - liquidityUnused;
   const availableLiquidity = netLiquidity - netUsedLiquidity;
   const availableShares =
-    availableLiquidity === 0n
+    availableLiquidity === 0n || netLiquidity === 0n
       ? 0n
       : (availableLiquidity * totalShares) / netLiquidity;
   const availableLiquidityToAmounts = getAmountsForLiquidity(
