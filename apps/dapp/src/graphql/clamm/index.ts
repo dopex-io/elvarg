@@ -1,6 +1,6 @@
 import { graphql } from 'gql/clamm';
 
-export const getTickerLiquidities = graphql(`
+export const getTickerLiquiditiesDocument = graphql(`
   query getTickerLiquidities($first: Int!, $skip: Int) {
     tickerLiquidities(first: $first, skip: $skip) {
       poolAddress
@@ -19,7 +19,7 @@ export const getTickerLiquidities = graphql(`
   }
 `);
 
-export const getTickerLiquidity = graphql(`
+export const getTickerLiquidityDocument = graphql(`
   query getTickerLiquidity($tickLower: Int!, $tickUpper: Int!) {
     tickerLiquidities(where: { tickLower: $tickLower, tickUpper: $tickUpper }) {
       poolAddress
@@ -38,7 +38,7 @@ export const getTickerLiquidity = graphql(`
   }
 `);
 
-export const getOptionsPositionsForUser = graphql(`
+export const getOptionsPositionsForUserDocument = graphql(`
   query getOptionsPositionsForUser(
     $user: String!
     $poolAddress: String!
@@ -63,7 +63,7 @@ export const getOptionsPositionsForUser = graphql(`
   }
 `);
 
-export const getWritePositionsForUser = graphql(`
+export const getWritePositionsForUserDocument = graphql(`
   query getWritePositionsForUser(
     $user: String!
     $poolAddress: String!

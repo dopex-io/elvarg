@@ -1,36 +1,44 @@
 import { useCallback, useMemo, useState } from 'react';
+import { zeroAddress } from 'viem';
 
 import { PositionsManager__factory } from '@dopex-io/sdk';
 import { Button } from '@dopex-io/ui';
 import { createColumnHelper } from '@tanstack/react-table';
 import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 
-import { WritePosition } from 'store/Vault/clamm';
+import { useBoundStore } from 'store';
 
 import TableLayout from 'components/common/TableLayout';
 
-import { MARKETS } from 'constants/clamm/markets';
+import { formatAmount } from 'utils/general';
 
-interface WritePositionData {
-  strike: number;
-  size: {
-    token0Amount: string;
-    token0Symbol: string;
-    token1Amount: string;
-    token1Symbol: string;
-  };
-  side: boolean;
-  earned: {
-    token0Amount: string;
-    token0Symbol: string;
-    token1Amount: string;
-    token1Symbol: string;
-  };
+type WritePositionData = {
   button: {
-    handleBurn: () => void;
+    handleBurn: (index: number) => void;
     id: number;
+    disabled: boolean;
   };
-}
+} & WritePositionForTable;
+
+type WritePositionForTable = {
+  tickLower: number;
+  tickUpper: number;
+  side: string;
+  shares: bigint;
+  size: {
+    callAssetAmount: string;
+    putAssetAmount: string;
+    callAssetSymbol: string;
+    putAssetSymbol: string;
+  };
+  earned: {
+    callAssetAmount: string;
+    putAssetAmount: string;
+    callAssetSymbol: string;
+    putAssetSymbol: string;
+  };
+  strike: number;
+};
 
 const columnHelper = createColumnHelper<WritePositionData>();
 
@@ -47,21 +55,24 @@ const columns = [
   columnHelper.accessor('size', {
     header: 'Size',
     cell: (info) => {
-      // @ts-ignore
-      const { token0Amount, token1Amount, token0Symbol, token1Symbol } =
-        info.getValue();
+      const {
+        callAssetAmount,
+        putAssetAmount,
+        callAssetSymbol,
+        putAssetSymbol,
+      } = info.getValue();
       return (
         <div className="flex flex-col items-start justify-center">
-          {Number(token0Amount) !== 0 && (
+          {Number(callAssetAmount) !== 0 && (
             <span>
-              {token0Amount}{' '}
-              <span className="text-stieglitz">{token0Symbol}</span>
+              {formatAmount(callAssetAmount, 5)}{' '}
+              <span className="text-stieglitz">{callAssetSymbol}</span>
             </span>
           )}
-          {Number(token1Amount) !== 0 && (
+          {Number(putAssetAmount) !== 0 && (
             <span>
-              {token1Amount}{' '}
-              <span className="text-stieglitz">{token1Symbol}</span>
+              {formatAmount(putAssetAmount, 5)}{' '}
+              <span className="text-stieglitz">{putAssetSymbol}</span>
             </span>
           )}
         </div>
@@ -74,21 +85,25 @@ const columns = [
   }),
 
   columnHelper.accessor('earned', {
-    header: 'Premiums',
+    header: 'Earned',
     cell: (info) => {
-      const { token0Amount, token0Symbol, token1Amount, token1Symbol } =
-        info.getValue();
+      const {
+        callAssetAmount,
+        putAssetAmount,
+        callAssetSymbol,
+        putAssetSymbol,
+      } = info.getValue();
       return (
         <div className="flex flex-col items-start justify-center">
           {
             <span>
-              {token0Amount}{' '}
-              <span className="text-stieglitz">{token0Symbol}</span>
+              {callAssetAmount}{' '}
+              <span className="text-stieglitz">{callAssetSymbol}</span>
             </span>
           }
           <span>
-            {token1Amount}{' '}
-            <span className="text-stieglitz">{token1Symbol}</span>
+            {putAssetAmount}{' '}
+            <span className="text-stieglitz">{putAssetSymbol}</span>
           </span>
         </div>
       );
@@ -97,9 +112,13 @@ const columns = [
   columnHelper.accessor('button', {
     header: '',
     cell: (info) => {
-      const value = info.getValue();
+      const { id, handleBurn, disabled } = info.getValue();
       return (
-        <Button key={value.id} color={'primary'} onClick={value.handleBurn}>
+        <Button
+          disabled={disabled}
+          color={'primary'}
+          onClick={() => handleBurn(id)}
+        >
           Withdraw
         </Button>
       );
@@ -116,17 +135,18 @@ type BurnPositionProps = {
 const WritePositions = ({
   writePositions,
 }: {
-  writePositions: WritePosition[];
+  writePositions: WritePositionForTable[];
 }) => {
+  const { positionManagerAddress, optionsPool } = useBoundStore();
   const [selectedPosition, setSelectedPosition] = useState<BurnPositionProps>();
 
   const { config: burnPositionConfig } = usePrepareContractWrite({
     abi: PositionsManager__factory.abi,
-    address: '0x2a9a9f63F13dD70816C456B2f2553bb648EE0F8F',
+    address: positionManagerAddress,
     functionName: 'burnPosition',
     args: [
       {
-        pool: MARKETS['ARB-USDC'].uniswapPoolAddress,
+        pool: optionsPool?.uniswapV3PoolAddress ?? zeroAddress,
         tickLower: selectedPosition?.tickLower || 0,
         tickUpper: selectedPosition?.tickUpper || 0,
         shares: selectedPosition?.shares || 0n,
@@ -148,26 +168,14 @@ const WritePositions = ({
     [burnPosition, writePositions],
   );
 
-  const positions: WritePositionData[] = useMemo(() => {
-    return writePositions.map((position: WritePosition, index: number) => {
+  const positions = useMemo(() => {
+    return writePositions.map((position, index) => {
       return {
-        strike: position.strike,
-        size: {
-          token0Amount: position.liquidity.token0Amount,
-          token0Symbol: position.liquidity.token0Symbol,
-          token1Amount: position.liquidity.token1Amount,
-          token1Symbol: position.liquidity.token1Symbol,
-        },
-        side: position.callOrPut,
-        earned: {
-          token0Amount: position.earnings.token0Amount,
-          token0Symbol: position.earnings.token0Symbol,
-          token1Amount: position.earnings.token1Amount,
-          token1Symbol: position.earnings.token1Symbol,
-        },
+        ...position,
         button: {
-          handleBurn: () => handleBurn(index),
+          handleBurn,
           id: index,
+          disabled: position.shares === 0n,
         },
       };
     });

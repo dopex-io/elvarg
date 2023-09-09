@@ -1,35 +1,39 @@
 import { useCallback, useMemo, useState } from 'react';
-import { parseEther } from 'viem';
+import { zeroAddress } from 'viem';
 
 import { OptionPools__factory } from '@dopex-io/sdk';
 import { Button } from '@dopex-io/ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { format, formatDistance } from 'date-fns';
+import { formatDistance } from 'date-fns';
 import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 
 import { useBoundStore } from 'store';
-import { OptionsPosition } from 'store/Vault/clamm';
 
 import TableLayout from 'components/common/TableLayout';
 
 import { formatAmount } from 'utils/general';
-import computeOptionPnl from 'utils/math/computeOptionPnl';
-
-import { MARKETS } from 'constants/clamm/markets';
 
 interface OptionsPositionTablesData {
-  strike: string;
-  size: string;
-  side: string;
-  pnlAndPrice: {
-    pnl: number;
-    price: number;
-    tokenSymbol: string;
+  tickLower: number;
+  tickUpper: number;
+  strike: number;
+  size: {
+    amount: string;
+    symbol: string;
   };
+  pnl: {
+    amount: string;
+    symbol: string;
+    usdValue: number;
+  };
+  side: string;
+  exercisableAmount: bigint;
   expiry: number;
+  exercised: boolean;
   button: {
-    handleExercise: () => void;
+    handleExercise: (index: number) => void;
     id: number;
+    disabled: boolean;
   };
 }
 
@@ -41,13 +45,18 @@ const columns = [
     cell: (info) => (
       <span className="space-x-2 text-left">
         <p className="text-stieglitz inline-block">$</p>
-        <p className="inline-block">{formatAmount(info.getValue(), 5)}</p>
+        <p className="inline-block">{info.getValue().toFixed(5)}</p>
       </span>
     ),
   }),
   columnHelper.accessor('size', {
     header: 'Size',
-    cell: (info) => <p>{formatAmount(info.getValue(), 5)}</p>,
+    cell: (info) => (
+      <p>
+        {formatAmount(info.getValue().amount, 5)}{' '}
+        <span className="text-stieglitz">{info.getValue().symbol}</span>
+      </p>
+    ),
   }),
   columnHelper.accessor('expiry', {
     header: 'Expiry',
@@ -62,29 +71,33 @@ const columns = [
     header: 'Side',
     cell: (info) => <p>{info.getValue()}</p>,
   }),
-  columnHelper.accessor('pnlAndPrice', {
+  columnHelper.accessor('pnl', {
     header: 'PnL',
     cell: (info) => {
-      const value = info.getValue();
-      const usdPrice = formatAmount(value.price * value.pnl, 3);
+      let { amount, usdValue, symbol } = info.getValue();
+      const amountInNumber = Number(amount);
 
       return (
         <>
           <span className="space-x-2">
-            <p className="text-stieglitz inline-block">$</p>
-            {Number(usdPrice) === 0 && (
-              <p className="text-stieglitz inline-block">{usdPrice}</p>
+            {Number(amountInNumber) === 0 && (
+              <p className="text-stieglitz inline-block">
+                {formatAmount(amountInNumber, 5)}
+              </p>
             )}
-            {Number(usdPrice) > 0 && (
-              <p className="text-up-only inline-block">{usdPrice}</p>
+            {Number(amountInNumber) > 0 && (
+              <p className="text-up-only inline-block">
+                {formatAmount(amountInNumber, 5)}
+              </p>
             )}
-            {Number(usdPrice) < 0 && (
-              <p className="text-down-bad inline-block">{usdPrice}</p>
+            {Number(amountInNumber) < 0 && (
+              <p className="text-down-bad inline-block">
+                {formatAmount(amountInNumber, 5)}
+              </p>
             )}
+            <p className="text-stieglitz inline-block">{symbol}</p>
           </span>
-          <p className="text-stieglitz">
-            {formatAmount(value.pnl, 3)} {value.tokenSymbol}
-          </p>
+          {/* <p className="text-stieglitz">${formatAmount(usdValue, 5)}</p> */}
         </>
       );
     },
@@ -92,9 +105,9 @@ const columns = [
   columnHelper.accessor('button', {
     header: '',
     cell: (info) => {
-      const value = info.getValue();
+      const { id, handleExercise, disabled } = info.getValue();
       return (
-        <Button key={value.id} color={'primary'} onClick={value.handleExercise}>
+        <Button disabled={disabled} onClick={() => handleExercise(id)}>
           Exercise
         </Button>
       );
@@ -110,29 +123,42 @@ type ExercisePositionProps = {
   amountToExercise: bigint;
 };
 
+type OptionsPositionsForTable = {
+  tickLower: number;
+  tickUpper: number;
+  strike: number;
+  size: {
+    amount: string;
+    symbol: string;
+  };
+  pnl: {
+    amount: string;
+    symbol: string;
+    usdValue: number;
+  };
+  side: string;
+  exercisableAmount: bigint;
+  expiry: number;
+  exercised: boolean;
+};
+
 const OptionsPositions = ({
   optionsPositions,
 }: {
-  optionsPositions: OptionsPosition[] | undefined;
+  optionsPositions: OptionsPositionsForTable[];
 }) => {
-  const { tokenPrices, selectedUniswapPool } = useBoundStore();
-  const clammMarkPrice =
-    tokenPrices.find(
-      ({ name }) =>
-        name.toLowerCase() ===
-        selectedUniswapPool.underlyingTokenSymbol.toLowerCase(),
-    )?.price ?? 0;
+  const { optionsPool } = useBoundStore();
 
   const [selectedPosition, setSelectedPosition] =
     useState<ExercisePositionProps>();
 
   const { config: exerciseOptionConfig } = usePrepareContractWrite({
     abi: OptionPools__factory.abi,
-    address: selectedUniswapPool.optionPool,
+    address: optionsPool?.address ?? zeroAddress,
     functionName: 'exerciseOptionRoll',
     args: [
       {
-        pool: MARKETS['ARB-USDC'].uniswapPoolAddress,
+        pool: optionsPool?.uniswapV3PoolAddress ?? zeroAddress,
         tickLower: selectedPosition?.tickLower || 0,
         tickUpper: selectedPosition?.tickUpper || 0,
         expiry: selectedPosition?.expiry || 0n,
@@ -146,52 +172,32 @@ const OptionsPositions = ({
   const handleExercise = useCallback(
     (index: number) => {
       if (!optionsPositions) return;
+
       setSelectedPosition({
         tickLower: optionsPositions[index].tickLower,
         tickUpper: optionsPositions[index].tickUpper,
         expiry: BigInt(optionsPositions[index].expiry),
-        callOrPut: optionsPositions[index].callOrPut,
-        amountToExercise: optionsPositions[index].amount.contractReadable,
+        callOrPut: optionsPositions[index].side === 'Call' ? true : false,
+        amountToExercise: optionsPositions[index].exercisableAmount - 1n,
       });
+
       exerciseOption?.();
     },
     [exerciseOption, optionsPositions],
   );
 
   const positions: OptionsPositionTablesData[] = useMemo(() => {
-    if (!optionsPositions || optionsPositions.length === 0) return [];
-
-    return optionsPositions.map((position, index) => {
-      return {
-        strike: position.strike,
-        size: position.amount.userReadable,
-        side: position.callOrPut ? 'Call' : 'Put',
-        pnlAndPrice: {
-          pnl: computeOptionPnl({
-            side: position.callOrPut ? 'call' : 'put',
-            strike: Number(position.strike),
-            size: Number(position.amount.userReadable),
-            price: clammMarkPrice,
-          }),
-          price: clammMarkPrice,
-          tokenSymbol: position.callOrPut
-            ? selectedUniswapPool.underlyingTokenSymbol
-            : selectedUniswapPool.collateralTokenSymbol,
-        },
-        expiry: position.expiry,
-        button: {
-          handleExercise: () => handleExercise(index),
-          id: index,
-        },
-      };
-    });
-  }, [
-    optionsPositions,
-    clammMarkPrice,
-    handleExercise,
-    selectedUniswapPool.collateralTokenSymbol,
-    selectedUniswapPool.underlyingTokenSymbol,
-  ]);
+    return optionsPositions.map((position, index) => ({
+      ...position,
+      button: {
+        handleExercise,
+        id: index,
+        disabled:
+          position.expiry < Number(new Date().getTime()) / 1000 ||
+          position.pnl.usdValue === 0,
+      },
+    }));
+  }, [handleExercise, optionsPositions]);
 
   return (
     <div className="space-y-2">

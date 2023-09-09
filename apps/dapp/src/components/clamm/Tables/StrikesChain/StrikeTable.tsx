@@ -1,9 +1,8 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { formatUnits } from 'viem';
 
 import { Button /* Menu,*/, Disclosure, Skeleton } from '@dopex-io/ui';
-import { MinusCircleIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
 import {
-  ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   // EllipsisVerticalIcon,
@@ -17,33 +16,12 @@ import {
 } from '@tanstack/react-table';
 
 import { useBoundStore } from 'store';
-import { ClammStrikeData } from 'store/Vault/clamm';
-
-import useStrikesData from 'hooks/clamm/useStrikesData';
 
 import Placeholder from 'components/ssov-beta/Tables/Placeholder';
 
 import formatAmount from 'utils/general/formatAmount';
 
-import { MARKETS } from 'constants/clamm/markets';
-
 const ROWS_PER_PAGE = 5;
-
-interface StrikeItem {
-  strike: number;
-  liquidity: number;
-  breakeven: number;
-  button: {
-    index: number;
-    base: string;
-    isPut: boolean;
-    premiumPerOption: number;
-    activeStrikeIndex: number;
-    setActiveStrikeIndex: () => void;
-  };
-  chevron: null;
-  disclosure: Partial<ClammStrikeData>;
-}
 
 const StatItem = ({ name, value }: { name: string; value: string }) => (
   <div className="flex flex-col">
@@ -52,7 +30,7 @@ const StatItem = ({ name, value }: { name: string; value: string }) => (
   </div>
 );
 
-const TableDisclosure = (props: ClammStrikeData) => {
+const TableDisclosure = (props: any) => {
   return (
     <Disclosure.Panel as="tr" className="bg-umbra">
       <td colSpan={5}>
@@ -73,7 +51,7 @@ const TableDisclosure = (props: ClammStrikeData) => {
   );
 };
 
-const columnHelper = createColumnHelper<StrikeItem>();
+const columnHelper = createColumnHelper<any>();
 
 const columns = [
   columnHelper.accessor('strike', {
@@ -81,7 +59,7 @@ const columns = [
     cell: (info) => (
       <span className="space-x-1 text-left">
         <p className="text-stieglitz inline-block">$</p>
-        <p className="inline-block">{formatAmount(info.getValue(), 4)}</p>
+        <p className="inline-block">{info.getValue().toFixed(5)}</p>
       </span>
     ),
   }),
@@ -90,17 +68,30 @@ const columns = [
     cell: (info) => (
       <span className="text-left flex">
         <p className="text-stieglitz pr-1">$</p>
-        <p className="pr-1">{formatAmount(info.getValue(), 3)}</p>
+        <p className="pr-1">{info.getValue().toFixed(5)}</p>
       </span>
     ),
   }),
-  columnHelper.accessor('liquidity', {
+  columnHelper.accessor('liquidityAvailable', {
     header: 'Liquidity',
     cell: (info) => {
       return (
         <span className="text-left flex">
           <p className="text-stieglitz pr-1">$</p>
-          <p className="pr-1">{formatAmount(info.getValue(), 3, true)}</p>
+          <p className="pr-1">
+            {formatAmount(info.getValue().amount, 5, true)}
+          </p>
+        </span>
+      );
+    },
+  }),
+  columnHelper.accessor('optionsAvailable', {
+    header: 'Options Available',
+    cell: (info) => {
+      return (
+        <span className="text-left flex">
+          <p className="text-stieglitz pr-1">$</p>
+          <p className="pr-1">{formatAmount(info.getValue(), 5, true)}</p>
         </span>
       );
     },
@@ -108,55 +99,51 @@ const columns = [
   columnHelper.accessor('button', {
     header: () => null,
     cell: (info) => {
-      const value = info.getValue();
+      const { onClick, premium, symbol, isSelected } = info.getValue();
 
-      const approximationSymbol = value.premiumPerOption < 1 ? '~' : null;
-
-      const isActive = value.activeStrikeIndex === value.index;
+      const approximationSymbol = premium < 1 ? '~' : null;
 
       return (
         <div className="flex space-x-2 justify-end">
           <Button
-            id={`strike-chain-button-${value.index}`}
-            color={isActive ? 'primary' : 'mineshaft'}
-            onClick={value.setActiveStrikeIndex}
+            color={isSelected ? 'primary' : 'mineshaft'}
+            onClick={onClick}
             className="space-x-2 text-xs"
           >
             <span className="flex items-center space-x-1">
               <span>
                 {approximationSymbol}
-                {formatAmount(value.premiumPerOption, 3)}{' '}
-                {value.isPut ? 'USDC.e' : value.base}
+                {formatAmount(premium, 5)} {symbol}
               </span>
-              {isActive ? (
+              {/* {isActive ? (
                 <MinusCircleIcon className="w-[14px]" />
               ) : (
                 <PlusCircleIcon className="w-[14px]" />
-              )}
+              )} */}
             </span>
           </Button>
         </div>
       );
     },
   }),
-  columnHelper.accessor('chevron', {
-    header: () => null,
-    cell: (info) => {
-      return (
-        <Disclosure.Button className="w-6">
-          <ChevronDownIcon
-            className={`text-stieglitz text-2xl cursor-pointer ${
-              // @ts-ignore TODO: find the right way to pass a custom prop to a cell
-              info.open ? 'rotate-180 transform' : ''
-            }`}
-          />
-        </Disclosure.Button>
-      );
-    },
-  }),
+  // columnHelper.accessor('chevron', {
+  //   header: () => null,
+  //   cell: (info) => {
+  //     return (
+  //       <Disclosure.Button className="w-6">
+  //         <ChevronDownIcon
+  //           className={`text-stieglitz text-2xl cursor-pointer ${
+  //             // @ts-ignore TODO: find the right way to pass a custom prop to a cell
+  //             info.open ? 'rotate-180 transform' : ''
+  //           }`}
+  //         />
+  //       </Disclosure.Button>
+  //     );
+  //   },
+  // }),
 ];
 
-const Table = ({ strikeData }: { strikeData: any }) => {
+const Table = ({ strikeData }: any) => {
   const table = useReactTable({
     columns,
     data: strikeData,
@@ -354,81 +341,161 @@ const Table = ({ strikeData }: { strikeData: any }) => {
 const StrikesTable = () => {
   const {
     isPut,
-    selectedStrike,
-    updateSelectedStrike,
-    selectedExpiry,
+    // selectedExpiry,
     tokenPrices,
-    selectedUniswapPool,
-    isTrade,
-    selectedPair,
+    // isTrade,
+    // selectedPair,
+    ticksData,
+    optionsPool,
+    loading,
+    keys,
+    setSelectedClammStrike,
   } = useBoundStore();
 
-  const underlyingTokenSymbol = selectedUniswapPool.underlyingTokenSymbol;
+  // const { strikesData: clammStrikesData, isLoading } = useStrikesData({
+  //   uniswapPoolAddress: MARKETS[selectedPair].uniswapPoolAddress,
+  //   isPut: isPut,
+  //   selectedExpiryPeriod: selectedExpiry,
+  //   currentPrice: clammMarkPrice,
+  //   isTrade: isTrade,
+  //   selectedUniswapPool: selectedUniswapPool,
+  // });
 
-  const clammMarkPrice =
-    tokenPrices.find(
-      ({ name }) => name.toLowerCase() === underlyingTokenSymbol.toLowerCase(),
-    )?.price ?? 0;
-
-  const { strikesData: clammStrikesData, isLoading } = useStrikesData({
-    uniswapPoolAddress: MARKETS[selectedPair].uniswapPoolAddress,
-    isPut: isPut,
-    selectedExpiryPeriod: selectedExpiry,
-    currentPrice: clammMarkPrice,
-    isTrade: isTrade,
-    selectedUniswapPool: selectedUniswapPool,
-  });
-
-  const activeStrikeIndex = clammStrikesData.findIndex(
-    (strikeData) => strikeData.strike.toFixed(5) === selectedStrike.toFixed(5),
-  );
+  const [selectedStrikeIndex, setSelectedStrkikeIndex] = useState(0);
   const setActiveStrikeIndex = useCallback(
-    (index: number) => updateSelectedStrike(clammStrikesData[index].strike),
-    [clammStrikesData, updateSelectedStrike],
+    (index: number) => setSelectedStrkikeIndex(index),
+    // updateSelectedStrike(clammStrikesData[index].strike),
+    [],
   );
 
-  const strikeData: StrikeItem[] = useMemo(() => {
-    if (!clammStrikesData) return [];
-    return clammStrikesData.map(
-      (strikeData: ClammStrikeData, index: number) => {
-        return {
-          strike: strikeData.strike,
-          liquidity: strikeData.liquidity,
-          breakeven: strikeData.breakeven,
-          button: {
-            index,
-            base: underlyingTokenSymbol,
-            isPut: isPut,
-            premiumPerOption: strikeData.premiumPerOption,
-            strike: strikeData.strike,
-            activeStrikeIndex: activeStrikeIndex,
-            setActiveStrikeIndex: () => setActiveStrikeIndex(index),
+  const strikeData = useMemo(() => {
+    if (!optionsPool) return [];
+
+    return ticksData
+      .map(
+        (
+          {
+            liquidityAvailable,
+            tickLowerPrice,
+            tickUpperPrice,
+            tickLower,
+            tickUpper,
           },
-          chevron: null,
-          disclosure: {
-            iv: strikeData.iv,
-            liquidity: strikeData.liquidity,
-            delta: strikeData.delta,
-            theta: strikeData.theta,
-            gamma: strikeData.gamma,
-            vega: strikeData.vega,
-            utilization: strikeData.utilization,
-            tvl: strikeData.tvl,
-            apy: strikeData.apy,
-            premiumApy: strikeData.premiumApy,
-          },
-        };
-      },
-    );
+          index,
+        ) => {
+          const liquidityAvailableAtTick = formatUnits(
+            liquidityAvailable[
+              isPut ? keys.putAssetAmountKey : keys.callAssetAmountKey
+            ],
+            optionsPool[
+              isPut ? keys.putAssetDecimalsKey : keys.callAssetDecimalsKey
+            ],
+          );
+          const optionsAvailable = isPut
+            ? Number(liquidityAvailableAtTick) / tickLowerPrice
+            : Number(liquidityAvailableAtTick);
+
+          const premium = 0;
+          const breakeven = isPut
+            ? tickLowerPrice - premium
+            : tickUpperPrice + premium;
+
+          return {
+            strike: isPut ? tickLowerPrice : tickUpperPrice,
+            liquidityAvailable: {
+              amount: Number(liquidityAvailableAtTick),
+              symbol:
+                optionsPool[
+                  isPut ? keys.putAssetSymbolKey : keys.callAssetSymbolKey
+                ],
+            },
+            premium,
+            breakeven,
+            optionsAvailable,
+            button: {
+              onClick: () => {
+                setActiveStrikeIndex(index);
+                setSelectedClammStrike({
+                  tickLower: tickLower,
+                  tickUpper: tickUpper,
+                });
+              },
+              premium: premium,
+              symbol:
+                optionsPool[
+                  isPut ? keys.putAssetSymbolKey : keys.callAssetSymbolKey
+                ],
+              isSelected: index === selectedStrikeIndex,
+            },
+          };
+        },
+      )
+      .filter(({ liquidityAvailable }) => liquidityAvailable.amount !== 0);
   }, [
-    activeStrikeIndex,
-    clammStrikesData,
+    setSelectedClammStrike,
+    keys.callAssetAmountKey,
+    keys.callAssetDecimalsKey,
+    keys.callAssetSymbolKey,
+    keys.putAssetAmountKey,
+    keys.putAssetDecimalsKey,
+    keys.putAssetSymbolKey,
+    ticksData,
+    optionsPool,
     isPut,
+    selectedStrikeIndex,
     setActiveStrikeIndex,
-    underlyingTokenSymbol,
   ]);
 
-  if (isLoading)
+  // const strikeData: StrikeItem[] = useMemo(() => {
+  //   if (optionsPool) return [];
+
+  //   // Strike
+  //   // Break even
+  //   // total available
+  //   // premium button
+  //   //      premium token and premium amount
+  //   return [];
+  //   if (!clammStrikesData) return [];
+  //   return clammStrikesData.map(
+  //     (strikeData: ClammStrikeData, index: number) => {
+  //       return {
+  //         strike: strikeData.strike,
+  //         liquidity: strikeData.liquidity,
+  //         breakeven: strikeData.breakeven,
+  //         button: {
+  //           index,
+  //           base: underlyingTokenSymbol,
+  //           isPut: isPut,
+  //           premiumPerOption: strikeData.premiumPerOption,
+  //           strike: strikeData.strike,
+  //           activeStrikeIndex: activeStrikeIndex,
+  //           setActiveStrikeIndex: () => setActiveStrikeIndex(index),
+  //         },
+  //         chevron: null,
+  //         disclosure: {
+  //           iv: strikeData.iv,
+  //           liquidity: strikeData.liquidity,
+  //           delta: strikeData.delta,
+  //           theta: strikeData.theta,
+  //           gamma: strikeData.gamma,
+  //           vega: strikeData.vega,
+  //           utilization: strikeData.utilization,
+  //           tvl: strikeData.tvl,
+  //           apy: strikeData.apy,
+  //           premiumApy: strikeData.premiumApy,
+  //         },
+  //       };
+  //     },
+  //   );
+  // }, [
+  //   activeStrikeIndex,
+  //   clammStrikesData,
+  //   isPut,
+  //   setActiveStrikeIndex,
+  //   underlyingTokenSymbol,
+  // ]);
+
+  if (loading.ticksData)
     return (
       <div className="grid grid-cols-1 gap-4 p-2">
         {Array.from(Array(4)).map((_, index) => {

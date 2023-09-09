@@ -1,8 +1,7 @@
 import { Address } from 'viem';
 
+import { OptionPools__factory } from '@dopex-io/sdk';
 import { readContract } from 'wagmi/actions';
-
-import OptionPoolsAbi from './OptionPoolsAbi';
 
 const getPremium = async (
   optionPool: Address,
@@ -14,10 +13,10 @@ const getPremium = async (
   amount: bigint,
 ): Promise<bigint | unknown> => {
   return readContract({
-    abi: OptionPoolsAbi,
+    abi: OptionPools__factory.abi,
     address: optionPool,
     functionName: 'getPremiumAmount',
-    args: [isPut, expiry, strike, lastPrice, baseIv, amount],
+    args: [isPut, BigInt(expiry), strike, lastPrice, baseIv, amount],
   });
 };
 
