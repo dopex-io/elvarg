@@ -96,6 +96,7 @@ const Positions = () => {
 
     positions = positions.filter(({ exercised }) => exercised === false);
     positions = positions.filter(({ size }) => size.amount !== '0');
+    positions = positions.sort((a, b) => b.expiry - a.expiry);
 
     return positions;
   }, [
