@@ -136,7 +136,7 @@ const ClammPage = () => {
       ),
     );
 
-    const rawTickData = await fetchTicksdata();
+    const rawTickData = await fetchTicksdata(uniswapV3PoolAddress);
     if (rawTickData) {
       const parsedTicksData = rawTickData.map((data) =>
         parseTickData(

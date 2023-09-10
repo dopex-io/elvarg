@@ -1,3 +1,5 @@
+import { Address } from 'viem';
+
 import request from 'graphql-request';
 
 import queryClient from 'queryClient';
@@ -20,12 +22,15 @@ export type TickDataRaw = {
   totalPutAssetsEarned: bigint;
 };
 
-async function fetchTicksdata(): Promise<TickDataRaw[] | undefined> {
+async function fetchTicksdata(
+  uniswapV3PoolAddress: Address,
+): Promise<TickDataRaw[] | undefined> {
   try {
     const response = await queryClient.fetchQuery({
       queryKey: ['tickersLiquidityData'],
       queryFn: async () =>
         request(DOPEX_CLAMM_SUBGRAPH_API_URL, getTickerLiquiditiesDocument, {
+          pool: uniswapV3PoolAddress.toLowerCase(),
           first: 100,
         }),
     });
