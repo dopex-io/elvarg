@@ -1,8 +1,12 @@
 import { graphql } from 'gql/clamm';
 
 export const getTickerLiquiditiesDocument = graphql(`
-  query getTickerLiquidities($first: Int!, $skip: Int) {
-    tickerLiquidities(first: $first, skip: $skip) {
+  query getTickerLiquidities($pool: String!, $first: Int!, $skip: Int) {
+    tickerLiquidities(
+      first: $first
+      skip: $skip
+      where: { poolAddress: $pool }
+    ) {
       poolAddress
       tickLower
       tickUpper
