@@ -59,6 +59,7 @@ export function PairSelector() {
           handleSelection={handleSelectedUnderlyingToken}
           selection={underlyingToken}
           data={CLAMM_UNDERLYING_TOKENS_LIST}
+          className="z-10"
           showArrow
         />
         <Menu
@@ -67,6 +68,7 @@ export function PairSelector() {
           handleSelection={handleSelectedCollateralToken}
           selection={collateralToken}
           data={CLAMM_COLLATERAL_TOKENS_LIST}
+          className="z-10"
           showArrow
         />
         <TitleItem
