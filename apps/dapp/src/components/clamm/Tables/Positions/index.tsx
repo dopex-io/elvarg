@@ -21,7 +21,7 @@ const Positions = () => {
     markPrice,
   } = useBoundStore();
 
-  const filteredOptionsPositions = useMemo(() => {
+  const allOptionsPositions = useMemo(() => {
     if (!optionsPool) return [];
 
     let positions = optionsPositions.map(
@@ -102,6 +102,12 @@ const Positions = () => {
     keys.putAssetSymbolKey,
     optionsPool,
   ]);
+
+  const filteredOptionsPositions = useMemo(() => {
+    return allOptionsPositions.filter(
+      ({ expiry }) => expiry > new Date().getTime() / 1000,
+    );
+  }, [allOptionsPositions]);
 
   const filteredWritePositions = useMemo(() => {
     if (!optionsPool) return [];
@@ -189,11 +195,11 @@ const Positions = () => {
 
   const tradeHistory = useMemo(() => {
     const currentTimestamp = Number((new Date().getTime() / 1000).toFixed(0));
-    const positions = filteredOptionsPositions.filter(({ expiry }) => {
+    const positions = allOptionsPositions.filter(({ expiry }) => {
       return expiry < currentTimestamp;
     });
 
-    const filteredPositions = positions.map((position) => {
+    const historicalPositions = positions.map((position) => {
       const exercised = 'Exercised';
       const expired = 'Expired';
       const status = position.exercisableAmount < 10n ? exercised : expired;
@@ -206,8 +212,8 @@ const Positions = () => {
         },
       };
     });
-    return filteredPositions;
-  }, [filteredOptionsPositions]);
+    return historicalPositions;
+  }, [allOptionsPositions]);
 
   const buttonLabels = useMemo(() => {
     return [
