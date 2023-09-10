@@ -7,16 +7,9 @@ import { useBoundStore } from 'store';
 
 import { ButtonGroup } from 'components/clamm/AsidePanel';
 
+import HistoryPositions from './HistoryPositions';
 import OptionsPositions from './OptionsPositions';
 import WritePositions from './WritePositions';
-
-const Placeholder = () => {
-  return (
-    <div className="flex justify-center my-auto w-full bg-cod-gray rounded-lg py-8">
-      <p className="text-sm text-stieglitz">Nothing to show</p>
-    </div>
-  );
-};
 
 const Positions = () => {
   const [activeIndex, setActiveIndex] = useState<number>(0);
@@ -25,7 +18,6 @@ const Positions = () => {
     userClammPositions: { optionsPositions, writePositions },
     optionsPool,
     keys,
-    tokenPrices,
     markPrice,
   } = useBoundStore();
 
@@ -195,6 +187,86 @@ const Positions = () => {
     writePositions,
   ]);
 
+  const historyPositions = useMemo(() => {
+    if (!optionsPool) return [];
+
+    let positions = optionsPositions.map(
+      ({
+        callOrPut,
+        tickLowerPrice,
+        tickUpperPrice,
+        amounts,
+        expiry,
+        exercisableAmount,
+        exercised,
+        tickLower,
+        tickUpper,
+      }) => {
+        const sizeAmount = formatUnits(
+          amounts[callOrPut ? keys.callAssetAmountKey : keys.putAssetAmountKey],
+          optionsPool[
+            callOrPut ? keys.callAssetDecimalsKey : keys.putAssetDecimalsKey
+          ],
+        );
+        let size = {
+          amount: sizeAmount,
+          symbol:
+            optionsPool[
+              callOrPut ? keys.callAssetSymbolKey : keys.putAssetSymbolKey
+            ],
+        };
+
+        let _pnl =
+          (callOrPut
+            ? markPrice - tickUpperPrice
+            : tickLowerPrice - markPrice) * Number(sizeAmount);
+
+        let usdValue = _pnl;
+        _pnl = callOrPut ? _pnl : _pnl / markPrice;
+
+        if (_pnl < 0) {
+          _pnl = 0;
+          usdValue = 0;
+        }
+
+        const pnl = {
+          amount: _pnl.toString(),
+          symbol:
+            optionsPool[
+              callOrPut ? keys.putAssetSymbolKey : keys.callAssetSymbolKey
+            ],
+          usdValue: usdValue,
+        };
+
+        return {
+          tickLower,
+          tickUpper,
+          exercised,
+          pnl,
+          strike: callOrPut ? tickUpperPrice : tickLowerPrice,
+          side: callOrPut ? 'Call' : 'Put',
+          size,
+          expiry,
+          exercisableAmount,
+        };
+      },
+    );
+
+    positions = positions.filter(({ exercised }) => exercised === true);
+    positions = positions.sort((a, b) => b.expiry - a.expiry);
+    return positions;
+  }, [
+    keys.callAssetAmountKey,
+    keys.callAssetDecimalsKey,
+    keys.callAssetSymbolKey,
+    keys.putAssetAmountKey,
+    keys.putAssetDecimalsKey,
+    keys.putAssetSymbolKey,
+    markPrice,
+    optionsPool,
+    optionsPositions,
+  ]);
+
   const buttonLabels = useMemo(() => {
     return [
       <div className="flex space-x-2 my-auto" key="buy-positions">
@@ -210,10 +282,17 @@ const Positions = () => {
         </div>
       </div>,
       <div className="flex space-x-2 my-auto" key="buy-positions">
-        <span>History</span>
+        <span>Trade History</span>
+        <div className="rounded-full bg-carbon w-5 h-auto flex items-center justify-center">
+          <span>{historyPositions.length}</span>
+        </div>
       </div>,
     ];
-  }, [filteredOptionsPositions, filteredWritePositions]);
+  }, [
+    filteredOptionsPositions.length,
+    filteredWritePositions.length,
+    historyPositions.length,
+  ]);
 
   const handleClick = (index: number) => {
     setActiveIndex(index);
@@ -240,15 +319,15 @@ const Positions = () => {
       return <OptionsPositions optionsPositions={filteredOptionsPositions} />;
     else if (activeIndex === 1)
       return <WritePositions writePositions={filteredWritePositions} />;
-    return <Placeholder />;
+    return <HistoryPositions historyPositions={historyPositions} />;
   }, [
     loading.positions,
     activeIndex,
     filteredOptionsPositions,
     filteredWritePositions,
+    historyPositions,
   ]);
 
-  // TODO: make these tables reusable
   return (
     <div className="space-y-2">
       <ButtonGroup
