@@ -103,12 +103,8 @@ export type ClammSlice = {
   ) => void;
 
   // Loading
-  loading: {
-    optionsPool: boolean;
-    ticksData: boolean;
-    positions: boolean;
-  };
-  setLoading: Function;
+  loading: CLAMM_LOADING;
+  setLoading: (key: CLAMM_LOADING_KEYS, setAs: boolean) => void;
 
   isPut: boolean;
   setIsPut: (isPut: boolean) => void;
@@ -121,7 +117,18 @@ const DEFAULT_CLAMM_LOADING_STATES = {
   optionsPool: false,
   ticksData: false,
   positions: false,
+  asidePanelButton: false,
+  tokenAmountsToSpend: false,
 };
+
+type CLAMM_LOADING_KEYS =
+  | 'optionsPool'
+  | 'ticksData'
+  | 'positions'
+  | 'asidePanelButton'
+  | 'tokenAmountsToSpend';
+
+type CLAMM_LOADING = Record<CLAMM_LOADING_KEYS, boolean>;
 
 const DEFAULT_CLAMM_KEYS: Keys = {
   putAssetAmountKey: 'token1Amount',

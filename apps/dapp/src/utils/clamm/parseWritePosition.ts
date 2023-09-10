@@ -35,11 +35,12 @@ function parseWritePosition(
   const liquidityCompoundedAmount0 =
     totalLiquidity === 0n
       ? 0n
-      : (liquidity * liquidityCompounded.token0Amount) / totalLiquidity;
+      : (shares * liquidityCompounded.token0Amount) / availableShares;
+
   const liquidityCompoundedAmount1 =
     totalLiquidity === 0n
       ? 0n
-      : (liquidity * liquidityCompounded.token1Amount) / totalLiquidity;
+      : (shares * liquidityCompounded.token1Amount) / availableShares;
 
   const liquidityAmounts = getAmountsForLiquidity(
     priceSqrtX96,

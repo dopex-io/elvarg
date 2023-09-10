@@ -36,7 +36,6 @@ async function getUserPositions(
 }> {
   const [{ optionsPositions }, { writePositions }] = await Promise.all([
     queryClient.fetchQuery({
-      staleTime: 1000000,
       queryKey: ['userClammOptionsPositions', user.toLowerCase()],
       queryFn: async () =>
         request(
@@ -50,7 +49,6 @@ async function getUserPositions(
         ),
     }),
     queryClient.fetchQuery({
-      staleTime: 1000000,
       queryKey: ['userClammWritePositions', user.toLowerCase()],
       queryFn: async () =>
         request(

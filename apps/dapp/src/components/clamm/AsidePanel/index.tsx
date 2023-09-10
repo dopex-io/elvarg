@@ -28,6 +28,7 @@ import RowItem from 'components/ssov-beta/AsidePanel/RowItem';
 
 import generateStrikes from 'utils/clamm/generateStrikes';
 import getPremium from 'utils/clamm/getPremium';
+import getPrices from 'utils/clamm/getPrices';
 import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
 import { getBlockTime } from 'utils/contracts';
 import { getUserBalance } from 'utils/contracts/getERC20Info';
@@ -389,21 +390,45 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
   const updateTokenAmountsToSpend = useCallback(async () => {
     if (!provider) return;
     if (!optionsPool) return;
+    if (!selectedClammStrike) return;
 
     setLoading(true);
     const blockTimestamp = Number(await getBlockTime(provider));
     let amount = 0n;
+
+    const { tickLowerPrice, tickLower, tickUpper } = selectedClammStrike;
+
+    // const amountOfOptions = parseUnits(amountDebounced, selectedToken.decimals);
+
+    // const _amount = parseUnits(
+    //   isPut
+    //     ? (Number(amountDebounced) * tickLowerPrice).toString()
+    //     : amountDebounced,
+    //   selectedToken.decimals,
+    // );
+
+    const { currentPrice, strike } = (await getPrices(
+      optionsPool.address,
+      optionsPool.uniswapV3PoolAddress,
+      tickLower,
+      tickUpper,
+      isPut,
+    )) as {
+      currentPrice: bigint;
+      strike: bigint;
+    };
+
     try {
       amount =
         tradeOrLpIndex === 0
           ? ((await getPremium(
               optionsPool.address,
               isPut,
-              blockTimestamp + selectedExpiry,
-              0n,
-              0n,
-              0n,
-              0n,
+              blockTimestamp + selectedClammExpiry,
+              currentPrice,
+              strike,
+              100n,
+              parseUnits(amountDebounced, selectedToken.decimals),
             )) as bigint)
           : parseUnits(amountDebounced, selectedToken.decimals);
     } catch {
@@ -412,13 +437,14 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
     setTokenAmountToSpend(amount);
     setLoading(false);
   }, [
+    selectedClammStrike,
     selectedToken.decimals,
     optionsPool,
     amountDebounced,
     isPut,
     tradeOrLpIndex,
     provider,
-    selectedExpiry,
+    selectedClammExpiry,
   ]);
 
   const mintOptionsConfig = usePrepareContractWrite({
@@ -494,6 +520,7 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
   );
 
   const handleMax = useCallback(() => {
+    if (!selectedClammStrike) return;
     setInputAmount(
       tradeOrLpIndex === 0
         ? (selectedClammStrike as PurchaseStrike).optionsAvailable.toString()
