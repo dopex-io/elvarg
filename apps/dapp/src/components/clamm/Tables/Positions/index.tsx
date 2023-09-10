@@ -224,7 +224,7 @@ const Positions = () => {
         </div>
       </div>,
       <div className="flex space-x-2 my-auto" key="buy-positions">
-        <span>History</span>
+        <span>Trade History</span>
       </div>,
     ];
   }, [filteredOptionsPositions, filteredWritePositions]);
