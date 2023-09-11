@@ -174,6 +174,8 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
     keys,
     positionManagerAddress,
     selectedClammExpiry,
+    loading,
+    setLoading,
   } = useBoundStore();
 
   const [strikes, setStrikes] = useState<Strikes>(DEFAULT_CLAMM_STRIKE_DATA);
@@ -181,7 +183,6 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
   const [selectedClammStrike, setSelectedClammStrike] = useState<
     DepositStrike | PurchaseStrike
   >();
-  const [loading, setLoading] = useState<boolean>(false);
   const [inputAmount, setInputAmount] = useState<string>('0');
   const [tradeOrLpIndex, setTradeOrLpIndex] = useState<number>(0);
   const [selectedExpiry, setSelectedExpiry] = useState<number>(0);
@@ -392,7 +393,7 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
     if (!optionsPool) return;
     if (!selectedClammStrike) return;
 
-    setLoading(true);
+    setLoading('asidePanelButton', true);
 
     const blockTimestamp = Number(await getBlockTime(provider));
     const { tickLower, tickUpper, tickLowerPrice } = selectedClammStrike;
@@ -432,10 +433,10 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
             )) as bigint)
           : amount;
     } catch {
-      setLoading(false);
+      setLoading('asidePanelButton', false);
     }
     setTokenAmountToSpend(amount);
-    setLoading(false);
+    setLoading('asidePanelButton', false);
   }, [
     selectedClammStrike,
     selectedToken.decimals,
@@ -445,6 +446,7 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
     tradeOrLpIndex,
     provider,
     selectedClammExpiry,
+    setLoading,
   ]);
 
   const mintOptionsConfig = usePrepareContractWrite({
@@ -578,7 +580,7 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
     let action: (() => void) | undefined;
     let text = 'Deposit';
     let color: colors = 'primary';
-    let disabled = false;
+    let disabled = loading.asidePanelButton;
 
     const consideredBalance = isPut
       ? userTokenBalances.collateralTokenBalance
@@ -592,17 +594,16 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
       action = handleMintPosition;
     }
 
+    if (!approved) {
+      text = 'Approve';
+      color = 'primary';
+      action = handleApprove;
+    }
+
     if (tokenAmountToSpend > consideredBalance) {
       text = 'Insufficient Balance';
       color = 'mineshaft';
       disabled = true;
-    }
-
-    if (!approved) {
-      text = 'Approve';
-      color = 'primary';
-      disabled = false;
-      action = handleApprove;
     }
 
     return {
@@ -621,6 +622,7 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
     handleMintOptions,
     handleMintPosition,
     handleApprove,
+    loading,
   ]);
 
   const loadStrikes = useCallback(() => {
@@ -892,7 +894,7 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
               <RowItem
                 label="Premium"
                 content={
-                  loading ? (
+                  loading.asidePanelButton ? (
                     <Skeleton height={10} />
                   ) : (
                     <div className="flex">
