@@ -55,6 +55,23 @@ type PurchaseStrike = DepositStrike & {
   optionsAvailable: number;
 };
 
+type AsidePanelProps = {
+  loadOptionsPool: Function;
+  loadPositions: Function;
+};
+
+type MintPostionOrOptionsParams = {
+  to: Address;
+  tickLower: number;
+  tickUpper: number;
+  functionName: any;
+  pool: Address;
+  callOrPut: boolean;
+  ttl: bigint;
+  liquidity: bigint;
+  liquidityToUse: bigint;
+};
+
 const CustomBottomElement = ({
   symbol,
   value,
@@ -143,11 +160,6 @@ const DEFAULT_CLAMM_STRIKE_DATA = {
   putPurchaseStrikes: [],
   callDepositStrikes: [],
   putDepositStrikes: [],
-};
-
-type AsidePanelProps = {
-  loadOptionsPool: Function;
-  loadPositions: Function;
 };
 
 const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
@@ -262,18 +274,6 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
       }
     }
   }, [strikes, isPut, tradeOrLpIndex, strikeElement]);
-
-  type MintPostionOrOptionsParams = {
-    to: Address;
-    tickLower: number;
-    tickUpper: number;
-    functionName: any;
-    pool: Address;
-    callOrPut: boolean;
-    ttl: bigint;
-    liquidity: bigint;
-    liquidityToUse: bigint;
-  };
 
   const parametersForMint: MintPostionOrOptionsParams | undefined =
     useMemo(() => {
@@ -393,32 +393,32 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
     if (!selectedClammStrike) return;
 
     setLoading(true);
+
     const blockTimestamp = Number(await getBlockTime(provider));
-    let amount = 0n;
+    const { tickLower, tickUpper, tickLowerPrice } = selectedClammStrike;
 
-    const { tickLowerPrice, tickLower, tickUpper } = selectedClammStrike;
-
-    // const amountOfOptions = parseUnits(amountDebounced, selectedToken.decimals);
-
-    // const _amount = parseUnits(
-    //   isPut
-    //     ? (Number(amountDebounced) * tickLowerPrice).toString()
-    //     : amountDebounced,
-    //   selectedToken.decimals,
-    // );
-
-    const { currentPrice, strike } = (await getPrices(
+    const { iv, currentPrice, strike } = (await getPrices(
       optionsPool.address,
       optionsPool.uniswapV3PoolAddress,
       tickLower,
       tickUpper,
+      BigInt(selectedClammExpiry),
       isPut,
     )) as {
       currentPrice: bigint;
       strike: bigint;
+      iv: any;
     };
 
+    let amount = parseUnits(amountDebounced, selectedToken.decimals);
+
     try {
+      const collateralAmount = isPut
+        ? parseUnits(
+            (Number(amountDebounced) * tickLowerPrice).toString(),
+            selectedToken.decimals,
+          )
+        : amount;
       amount =
         tradeOrLpIndex === 0
           ? ((await getPremium(
@@ -427,10 +427,10 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
               blockTimestamp + selectedClammExpiry,
               currentPrice,
               strike,
-              100n,
-              parseUnits(amountDebounced, selectedToken.decimals),
+              BigInt(iv),
+              collateralAmount,
             )) as bigint)
-          : parseUnits(amountDebounced, selectedToken.decimals);
+          : amount;
     } catch {
       setLoading(false);
     }
@@ -604,10 +604,6 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
       disabled = false;
       action = handleApprove;
     }
-
-    // if (!agree) {
-    //   action = () => setShowDisclaimer(true);
-    // }
 
     return {
       text,
@@ -943,6 +939,7 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
                 <Button
                   variant="contained"
                   onClick={buttonProps.action}
+                  disabled={buttonProps.disabled}
                   color={buttonProps.color}
                   className="w-full"
                 >
@@ -981,7 +978,7 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
               ) : (
                 <Button
                   variant="contained"
-                  disabled={buttonProps?.disabled}
+                  disabled={buttonProps.disabled}
                   onClick={buttonProps.action}
                   color={buttonProps.color}
                   className="w-full"

@@ -8,6 +8,7 @@ async function getPrices(
   uniswapPoolAddress: Address,
   tickLower: number,
   tickUpper: number,
+  ttl: bigint,
   isPut: boolean,
 ) {
   let contracts: any = [];
@@ -17,13 +18,6 @@ async function getPrices(
     abi: OptionPools__factory.abi,
   };
 
-  console.log(
-    optionsPoolAddress,
-    uniswapPoolAddress,
-    tickLower,
-    tickUpper,
-    isPut,
-  );
   if (isPut) {
     contracts = [
       {
@@ -35,6 +29,11 @@ async function getPrices(
         ...optionsPoolContract,
         functionName: 'getCurrentPricePerCallAsset',
         args: [uniswapPoolAddress],
+      },
+      {
+        ...optionsPoolContract,
+        functionName: 'ttlToVEID',
+        args: [ttl],
       },
     ];
   } else {
@@ -49,6 +48,11 @@ async function getPrices(
         functionName: 'getCurrentPricePerCallAsset',
         args: [uniswapPoolAddress],
       },
+      {
+        ...optionsPoolContract,
+        functionName: 'ttlToVEID',
+        args: [ttl],
+      },
     ];
   }
 
@@ -59,6 +63,7 @@ async function getPrices(
   return {
     strike: data[0].result,
     currentPrice: data[1].result,
+    iv: data[2].result,
   };
 }
 
