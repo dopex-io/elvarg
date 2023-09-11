@@ -1,11 +1,11 @@
 import FilterPanel from './FilterPanel';
 import StrikesTable from './StrikeTable';
 
-const StrikesChain = () => {
+const StrikesChain = ({ reload }: { reload: Function }) => {
   return (
     <div className="bg-cod-gray rounded-lg pt-3">
       <div className="ml-2">
-        <FilterPanel />
+        <FilterPanel reload={reload} />
       </div>
       <StrikesTable />
     </div>

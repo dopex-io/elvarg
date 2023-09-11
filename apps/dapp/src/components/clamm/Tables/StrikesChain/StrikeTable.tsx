@@ -112,7 +112,9 @@ const StrikesTable = () => {
     setSelectedClammStrike,
   } = useBoundStore();
 
-  const [selectedStrikeIndex, setSelectedStrkikeIndex] = useState(0);
+  const [selectedStrikeIndex, setSelectedStrkikeIndex] = useState<
+    number | null
+  >(null);
   const setActiveStrikeIndex = useCallback(
     (index: number) => setSelectedStrkikeIndex(index),
     [],

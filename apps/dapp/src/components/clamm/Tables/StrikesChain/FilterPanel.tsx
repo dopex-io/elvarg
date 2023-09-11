@@ -1,6 +1,8 @@
 import { useBoundStore } from 'store';
 
-const FilterPanel = () => {
+import RefreshIcon from '../Positions/components/RefreshIcon';
+
+const FilterPanel = ({ reload }: { reload: any }) => {
   const { isPut, setIsPut } = useBoundStore();
 
   const handleIsPut = (isPut: boolean) => {
@@ -8,7 +10,7 @@ const FilterPanel = () => {
   };
 
   return (
-    <div className="flex space-x-2 z-10">
+    <div className="flex space-x-2 z-10 items-center justify-between">
       <div className="bg-mineshaft rounded-md p-1 relative flex text-xs">
         <div className="relative w-fit rounded-sm p-1">
           <div
@@ -40,6 +42,9 @@ const FilterPanel = () => {
             Put
           </button>
         </div>
+      </div>
+      <div className="pr-4 text-stieglitz" onClick={reload}>
+        <RefreshIcon />
       </div>
     </div>
   );

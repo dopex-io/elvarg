@@ -166,38 +166,45 @@ const ClammPage = () => {
 
   const loadTicksData = useCallback(async () => {
     if (!optionsPool) return;
-    const {
-      uniswapV3PoolAddress,
-      sqrtX96Price,
-      token0Decimals,
-      token1Decimals,
-      inversePrice,
-      address,
-    } = optionsPool;
-
-    const priceTokenDecimals = optionsPool[keys.putAssetDecimalsKey];
-    const rawTickData = await fetchTicksdata(uniswapV3PoolAddress);
-    if (rawTickData) {
-      const parsedTicksData = rawTickData.map((data) =>
-        parseTickData(
-          sqrtX96Price,
-          10 ** token0Decimals,
-          10 ** token1Decimals,
-          inversePrice,
-          data,
-        ),
-      );
-
-      const ticksWithPremiums = await getTicksPremiumAndBreakeven(
-        address,
+    setLoading('ticksData', true);
+    try {
+      const {
         uniswapV3PoolAddress,
-        optionsPool[keys.callAssetDecimalsKey],
-        optionsPool[keys.putAssetDecimalsKey],
-        parsedTicksData,
-      );
-      setTicksData(ticksWithPremiums);
+        sqrtX96Price,
+        token0Decimals,
+        token1Decimals,
+        inversePrice,
+        address,
+      } = optionsPool;
+
+      const rawTickData = await fetchTicksdata(uniswapV3PoolAddress);
+      if (rawTickData) {
+        const parsedTicksData = rawTickData.map((data) =>
+          parseTickData(
+            sqrtX96Price,
+            10 ** token0Decimals,
+            10 ** token1Decimals,
+            inversePrice,
+            data,
+          ),
+        );
+
+        const ticksWithPremiums = await getTicksPremiumAndBreakeven(
+          address,
+          uniswapV3PoolAddress,
+          optionsPool[keys.callAssetDecimalsKey],
+          optionsPool[keys.putAssetDecimalsKey],
+          parsedTicksData,
+        );
+        setTicksData(ticksWithPremiums);
+      }
+    } catch (err) {
+      console.error(err);
+      setLoading('ticksData', false);
     }
+    setLoading('ticksData', false);
   }, [
+    setLoading,
     setTicksData,
     optionsPool,
     keys.callAssetDecimalsKey,
@@ -314,7 +321,7 @@ const ClammPage = () => {
             />
 
             <div className="space-y-4">
-              <StrikesChain />
+              <StrikesChain reload={loadTicksData} />
               <Positions loadPositions={loadPositions} />
             </div>
           </div>

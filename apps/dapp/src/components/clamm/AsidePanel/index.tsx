@@ -415,8 +415,10 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
                 collateralAmount,
               )) as bigint)
             : amount;
+        setTokenAmountToSpend(amount);
       } catch {
         setLoading('asidePanelButton', false);
+        setTokenAmountToSpend(0n);
       }
     } else {
       setTokenAmountToSpend(amount);
@@ -511,7 +513,8 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
   );
 
   const handleMax = useCallback(() => {
-    if (!selectedClammStrike) return;
+    if (!selectedClammStrike || !!(selectedClammStrike as PurchaseStrike))
+      return;
     setInputAmount(
       tradeOrLpIndex === 0
         ? (selectedClammStrike as PurchaseStrike).optionsAvailable.toString()
