@@ -297,8 +297,8 @@ importers:
         specifier: ^7.4.0
         version: 7.4.0(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)
       '@storybook/react-webpack5':
-        specifier: ^7.3.2
-        version: 7.3.2(@babel/core@7.22.11)(@swc/core@1.3.80)(@types/react-dom@18.2.7)(@types/react@18.2.21)(esbuild@0.19.2)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)
+        specifier: ^7.4.0
+        version: 7.4.0(@babel/core@7.22.11)(@swc/core@1.3.80)(esbuild@0.19.2)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)
       '@storybook/testing-library':
         specifier: ^0.2.0
         version: 0.2.0
@@ -5726,33 +5726,23 @@ packages:
       - supports-color
     dev: true
 
-  /@storybook/builder-webpack5@7.3.2(@types/react-dom@18.2.7)(@types/react@18.2.21)(esbuild@0.19.2)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2):
-    resolution: {integrity: sha512-ywl3fKGmhB3UM+fV0Gsp++gtI8xNa6JqTYj3stJDfWe0sfMOQDSc/uW/Q4lx/oQyV5Lp8X4A/9OFccQ74ZUhXg==}
+  /@storybook/builder-webpack5@7.4.0(esbuild@0.19.2)(typescript@5.2.2):
+    resolution: {integrity: sha512-CYeXppqGACzDUpLCFvWvwD7IjN7VNi7+nwQ1uRNgW2NgBMOIldZe+gcTXcc0BuHyIitU5/vvquYM0qjis05LYw==}
     peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
       typescript: '*'
     peerDependenciesMeta:
       typescript:
         optional: true
     dependencies:
       '@babel/core': 7.22.11
-      '@storybook/addons': 7.3.2(react-dom@18.2.0)(react@18.2.0)
-      '@storybook/channels': 7.3.2
-      '@storybook/client-api': 7.3.2
-      '@storybook/client-logger': 7.3.2
-      '@storybook/components': 7.3.2(@types/react-dom@18.2.7)(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)
-      '@storybook/core-common': 7.3.2
-      '@storybook/core-events': 7.3.2
-      '@storybook/core-webpack': 7.3.2
-      '@storybook/global': 5.0.0
-      '@storybook/manager-api': 7.3.2(react-dom@18.2.0)(react@18.2.0)
-      '@storybook/node-logger': 7.3.2
-      '@storybook/preview': 7.3.2
-      '@storybook/preview-api': 7.3.2
-      '@storybook/router': 7.3.2(react-dom@18.2.0)(react@18.2.0)
-      '@storybook/store': 7.3.2
-      '@storybook/theming': 7.3.2(react-dom@18.2.0)(react@18.2.0)
+      '@storybook/channels': 7.4.0
+      '@storybook/client-logger': 7.4.0
+      '@storybook/core-common': 7.4.0
+      '@storybook/core-events': 7.4.0
+      '@storybook/core-webpack': 7.4.0
+      '@storybook/node-logger': 7.4.0
+      '@storybook/preview': 7.4.0
+      '@storybook/preview-api': 7.4.0
       '@swc/core': 1.3.80
       '@types/node': 16.18.46
       '@types/semver': 7.5.1
@@ -5768,8 +5758,6 @@ packages:
       html-webpack-plugin: 5.5.3(webpack@5.88.2)
       path-browserify: 1.0.1
       process: 0.11.10
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
       semver: 7.5.4
       style-loader: 3.3.3(webpack@5.88.2)
       swc-loader: 0.2.3(@swc/core@1.3.80)(webpack@5.88.2)
@@ -5785,8 +5773,6 @@ packages:
       webpack-virtual-modules: 0.5.0
     transitivePeerDependencies:
       - '@swc/helpers'
-      - '@types/react'
-      - '@types/react-dom'
       - encoding
       - esbuild
       - supports-color
@@ -5867,13 +5853,6 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@storybook/client-api@7.3.2:
-    resolution: {integrity: sha512-8BjoEbuBMvlJAYcIurVn7ghq3plgInOVC8IjswALhSBkvz5V2PRPFSAo9kKaDytNSw2gy1JLgp8imCvMo72+Mw==}
-    dependencies:
-      '@storybook/client-logger': 7.3.2
-      '@storybook/preview-api': 7.3.2
-    dev: true
-
   /@storybook/client-logger@7.3.2:
     resolution: {integrity: sha512-T7q/YS5lPUE6xjz9EUwJ/v+KCd5KU9dl1MQ9RcH7IpM73EtQZeNSuM9/P96uKXZTf0wZOUBTXVlTzKr66ZB/RQ==}
     dependencies:
@@ -5952,13 +5931,6 @@ packages:
     transitivePeerDependencies:
       - '@types/react'
       - '@types/react-dom'
-    dev: true
-
-  /@storybook/core-client@7.3.2:
-    resolution: {integrity: sha512-K2jCnjZiUUskFjKUj7m1FTCphIwBv0KPOE5JCd0UR7un1P1G1kdXMctADE6fHosrW73xRrad9CBSyyetUVQQOA==}
-    dependencies:
-      '@storybook/client-logger': 7.3.2
-      '@storybook/preview-api': 7.3.2
     dev: true
 
   /@storybook/core-client@7.4.0:
@@ -6090,12 +6062,12 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@storybook/core-webpack@7.3.2:
-    resolution: {integrity: sha512-N0Z1jzodhhGjTWwW4VfL/41z/Q4YEPXcYUVyTjuOgyW23uXD+3bTvBZInmWIpZezSJUgyyzAt6KamN2PBpAE1g==}
+  /@storybook/core-webpack@7.4.0:
+    resolution: {integrity: sha512-1zxzJjRbkcjl++OjYBVTDi0V/yO22Kz3ciPASTvXwrg0fXTXgxwxhJBmgOI4r17oY0kOWnJ1RDsmd95NLGAbGw==}
     dependencies:
-      '@storybook/core-common': 7.3.2
-      '@storybook/node-logger': 7.3.2
-      '@storybook/types': 7.3.2
+      '@storybook/core-common': 7.4.0
+      '@storybook/node-logger': 7.4.0
+      '@storybook/types': 7.4.0
       '@types/node': 16.18.46
       ts-dedent: 2.2.0
     transitivePeerDependencies:
@@ -6136,20 +6108,6 @@ packages:
 
   /@storybook/docs-mdx@0.1.0:
     resolution: {integrity: sha512-JDaBR9lwVY4eSH5W8EGHrhODjygPd6QImRbwjAuJNEnY0Vw4ie3bPkeGfnacB3OBW6u/agqPv2aRlR46JcAQLg==}
-    dev: true
-
-  /@storybook/docs-tools@7.3.2:
-    resolution: {integrity: sha512-MSmAiL/lg+B14CIKD6DvkBPdTDfGBSSt3bE+vW2uW9ohNJB5eWePZLQZUe34uZuunn3uqyTAgbEF7KjrtGZ/MQ==}
-    dependencies:
-      '@storybook/core-common': 7.3.2
-      '@storybook/preview-api': 7.3.2
-      '@storybook/types': 7.3.2
-      '@types/doctrine': 0.0.3
-      doctrine: 3.0.0
-      lodash: 4.17.21
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
     dev: true
 
   /@storybook/docs-tools@7.4.0:
@@ -6261,8 +6219,8 @@ packages:
     resolution: {integrity: sha512-ZVBZggqkuj7ysfuHSCd/J7ovWV06zY9uWf+VU+Zw7ZeojDT8QHFrCurPsN7D9679j9vRU1/kSzqvAiStALS33g==}
     dev: true
 
-  /@storybook/preset-react-webpack@7.3.2(@babel/core@7.22.11)(@swc/core@1.3.80)(esbuild@0.19.2)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2):
-    resolution: {integrity: sha512-MflWRKQwOGI1f0x7O/FhdJuXBbaoujHk9juBcX7KHZAx7pAeSia0sJMNTEamVQGGpsWHSx2dG7ZfKzBOvIvb6g==}
+  /@storybook/preset-react-webpack@7.4.0(@babel/core@7.22.11)(@swc/core@1.3.80)(esbuild@0.19.2)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2):
+    resolution: {integrity: sha512-9iZ9lvhRUYtxXmJMqR7txNyatrHryqo6FSKzfpUzmcCySn3d7mu9I6LEPxEir43TkPnBio3W4EsbvtIhjJ5ekA==}
     engines: {node: '>=16.0.0'}
     peerDependencies:
       '@babel/core': ^7.22.0
@@ -6279,10 +6237,10 @@ packages:
       '@babel/preset-flow': 7.22.5(@babel/core@7.22.11)
       '@babel/preset-react': 7.22.5(@babel/core@7.22.11)
       '@pmmmwh/react-refresh-webpack-plugin': 0.5.11(react-refresh@0.11.0)(webpack@5.88.2)
-      '@storybook/core-webpack': 7.3.2
-      '@storybook/docs-tools': 7.3.2
-      '@storybook/node-logger': 7.3.2
-      '@storybook/react': 7.3.2(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)
+      '@storybook/core-webpack': 7.4.0
+      '@storybook/docs-tools': 7.4.0
+      '@storybook/node-logger': 7.4.0
+      '@storybook/react': 7.4.0(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)
       '@storybook/react-docgen-typescript-plugin': 1.0.6--canary.9.0c3f3b7.0(typescript@5.2.2)(webpack@5.88.2)
       '@types/node': 16.18.46
       '@types/semver': 7.5.1
@@ -6348,8 +6306,8 @@ packages:
       util-deprecate: 1.0.2
     dev: true
 
-  /@storybook/preview@7.3.2:
-    resolution: {integrity: sha512-UXgImhD7xa+nYgXRcNFQdTqQT1725mOzWbQUtYPMJXkHO+t251hQrEc81tMzSSPEgPrFY8wndpEqTt8glFm91g==}
+  /@storybook/preview@7.4.0:
+    resolution: {integrity: sha512-R4LMTvUrVAbcUetRbAXpY3frkwD0eysqHrByiR73040+ngzDwtZOBAy0JfO3jw3WrWv2dn3kWlao5aEwVc9Exw==}
     dev: true
 
   /@storybook/react-docgen-typescript-plugin@1.0.6--canary.9.0c3f3b7.0(typescript@5.2.2)(webpack@5.88.2):
@@ -6371,16 +6329,6 @@ packages:
       - supports-color
     dev: true
 
-  /@storybook/react-dom-shim@7.3.2(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-63ysybmpl9UULmLu/aUwWwhjf5QEWTvnMW9r8Z3LF3sW8Z698ZsssdThzNWqw0zlwTlgnQA4ta2Df4/oVXR0+Q==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-    dependencies:
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-    dev: true
-
   /@storybook/react-dom-shim@7.4.0(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-TLpb8a2hnWJoRLqoXpMADh82BFfRZll6JI2Waf1FjnvJ4SF9eS0zBbxybrjW3lFAHWy2XJi+rwcK8FiPj0iBoQ==}
     peerDependencies:
@@ -6391,8 +6339,8 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: true
 
-  /@storybook/react-webpack5@7.3.2(@babel/core@7.22.11)(@swc/core@1.3.80)(@types/react-dom@18.2.7)(@types/react@18.2.21)(esbuild@0.19.2)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2):
-    resolution: {integrity: sha512-Ps+OQ7GnK37cFWpFjD9y2SvMxh29qP5q4V0HYS6u/T0cALsgLGeg3T54llGUkXGH1/WVIfxm7PQPh7+ISMhOJQ==}
+  /@storybook/react-webpack5@7.4.0(@babel/core@7.22.11)(@swc/core@1.3.80)(esbuild@0.19.2)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2):
+    resolution: {integrity: sha512-dhcWU1gpY3KgbrHJwd10ND+VdOVU07QVeijRnR0qONnruOCXKawjhTGoWdCOWXkWX5IZjjLczMflnmrQ2eSkjA==}
     engines: {node: '>=16.0.0'}
     peerDependencies:
       '@babel/core': ^7.22.0
@@ -6406,9 +6354,9 @@ packages:
         optional: true
     dependencies:
       '@babel/core': 7.22.11
-      '@storybook/builder-webpack5': 7.3.2(@types/react-dom@18.2.7)(@types/react@18.2.21)(esbuild@0.19.2)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)
-      '@storybook/preset-react-webpack': 7.3.2(@babel/core@7.22.11)(@swc/core@1.3.80)(esbuild@0.19.2)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)
-      '@storybook/react': 7.3.2(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)
+      '@storybook/builder-webpack5': 7.4.0(esbuild@0.19.2)(typescript@5.2.2)
+      '@storybook/preset-react-webpack': 7.4.0(@babel/core@7.22.11)(@swc/core@1.3.80)(esbuild@0.19.2)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)
+      '@storybook/react': 7.4.0(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)
       '@types/node': 16.18.46
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -6416,8 +6364,6 @@ packages:
     transitivePeerDependencies:
       - '@swc/core'
       - '@swc/helpers'
-      - '@types/react'
-      - '@types/react-dom'
       - '@types/webpack'
       - encoding
       - esbuild
@@ -6429,46 +6375,6 @@ packages:
       - webpack-dev-server
       - webpack-hot-middleware
       - webpack-plugin-serve
-    dev: true
-
-  /@storybook/react@7.3.2(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2):
-    resolution: {integrity: sha512-VMXy+soLnEW+lN1sfkkMGkmk3gnS3KLfEk0JssSlj+jGA4cPpvO+P1uGNkN8MjdiU9VaWt0aZ7uRdwx0rrfFUw==}
-    engines: {node: '>=16.0.0'}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-      typescript: '*'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-    dependencies:
-      '@storybook/client-logger': 7.3.2
-      '@storybook/core-client': 7.3.2
-      '@storybook/docs-tools': 7.3.2
-      '@storybook/global': 5.0.0
-      '@storybook/preview-api': 7.3.2
-      '@storybook/react-dom-shim': 7.3.2(react-dom@18.2.0)(react@18.2.0)
-      '@storybook/types': 7.3.2
-      '@types/escodegen': 0.0.6
-      '@types/estree': 0.0.51
-      '@types/node': 16.18.46
-      acorn: 7.4.1
-      acorn-jsx: 5.3.2(acorn@7.4.1)
-      acorn-walk: 7.2.0
-      escodegen: 2.1.0
-      html-tags: 3.3.1
-      lodash: 4.17.21
-      prop-types: 15.8.1
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-      react-element-to-jsx-string: 15.0.0(react-dom@18.2.0)(react@18.2.0)
-      ts-dedent: 2.2.0
-      type-fest: 2.19.0
-      typescript: 5.2.2
-      util-deprecate: 1.0.2
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
     dev: true
 
   /@storybook/react@7.4.0(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2):
@@ -6535,13 +6441,6 @@ packages:
       qs: 6.11.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
-    dev: true
-
-  /@storybook/store@7.3.2:
-    resolution: {integrity: sha512-lGgpHQjNbNpvdpCAzxbWzZyNDgjpH8eypqOj8E6YHAq1LKcyvE4KFLVRdp2nBEsWNUWMlfYMTeHc8idcdm2FgQ==}
-    dependencies:
-      '@storybook/client-logger': 7.3.2
-      '@storybook/preview-api': 7.3.2
     dev: true
 
   /@storybook/telemetry@7.4.0:
