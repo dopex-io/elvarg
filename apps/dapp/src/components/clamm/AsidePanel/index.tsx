@@ -426,8 +426,8 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
               optionsPool.address,
               isPut,
               blockTimestamp + selectedClammExpiry,
-              currentPrice,
               strike,
+              currentPrice,
               BigInt(iv),
               collateralAmount,
             )) as bigint)
@@ -511,6 +511,7 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
   const handleTradeOrLp = useCallback((index: number) => {
     setTradeOrLpIndex(index);
     setSelectedClammStrike(undefined);
+    setTokenAmountToSpend(0n);
   }, []);
 
   const handleIsPut = useCallback(
@@ -594,6 +595,23 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
       action = handleMintPosition;
     }
 
+    if (Number(amountDebounced) === 0) {
+      disabled = true;
+      text = 'Enter amount';
+    }
+
+    if (tradeOrLpIndex === 0) {
+      if (Number(amountDebounced) !== 0 && tokenAmountToSpend === 0n) {
+        disabled = true;
+        text = 'Premium is zero, Try a different strike.';
+      }
+    }
+
+    if (!selectedClammStrike) {
+      text = 'Select a strike';
+      disabled = true;
+    }
+
     if (!approved) {
       text = 'Approve';
       color = 'primary';
@@ -613,6 +631,8 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
       disabled,
     };
   }, [
+    selectedClammStrike,
+    amountDebounced,
     isPut,
     userTokenBalances.collateralTokenBalance,
     userTokenBalances.underlyingTokenBalance,
@@ -807,7 +827,9 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
               handleSelection={() => {}}
               selection={
                 <span className="text-sm text-white flex">
-                  {!selectedClammStrike ? (
+                  {readableStrikes.length === 0 ? (
+                    <span>No Strikes Available</span>
+                  ) : !selectedClammStrike ? (
                     'Select strike'
                   ) : (
                     <>
@@ -818,11 +840,12 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
                       )?.toFixed(5)}
                     </>
                   )}
+                  {}
                 </span>
               }
               data={readableStrikes}
               className="w-full"
-              showArrow
+              showArrow={readableStrikes.length !== 0}
             />
           </>
           {/* )} */}
