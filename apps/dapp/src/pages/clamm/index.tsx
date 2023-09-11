@@ -274,7 +274,7 @@ const ClammPage = () => {
         />
         {/* <TitleBar /> */}
         <PairSelector />
-        <div className="flex space-x-0 lg:space-x-6 flex-col sm:flex-col md:flex-col lg:flex-row space-y-3 md:space-y-0 justify-center">
+        <div className="flex space-x-0 lg:space-x-8 flex-col sm:flex-col md:flex-col lg:flex-row space-y-4 md:space-y-0 justify-center">
           {/* <PriceChartRangeSelectorWrapper /> */}
           <div className="flex flex-col space-y-3 sm:w-full lg:w-3/4 h-full">
             <PriceChart
