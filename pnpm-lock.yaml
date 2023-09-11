@@ -60,8 +60,8 @@ importers:
         specifier: ^5.14.6
         version: 5.14.6(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)
       '@notifi-network/notifi-react-card':
-        specifier: 0.81.0
-        version: 0.81.0(graphql@16.8.0)(react-dom@18.2.0)(react@18.2.0)
+        specifier: 0.82.1
+        version: 0.82.1(graphql@16.8.0)(react-dom@18.2.0)(react@18.2.0)
       '@sentry/nextjs':
         specifier: ^7.65.0
         version: 7.65.0(next@13.4.19)(react@18.2.0)
@@ -4183,35 +4183,35 @@ packages:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.15.0
 
-  /@notifi-network/notifi-axios-adapter@0.81.0(axios@0.26.1):
-    resolution: {integrity: sha512-ODvdoMxuhrt06Z5TB6WRhoey+ZfN0/c7q/Xji+ELwIsVjWXkIPEEXQ6QormRhkvtssDAEnjNqgkAvhLTQfD5HQ==}
+  /@notifi-network/notifi-axios-adapter@0.82.1(axios@0.26.1):
+    resolution: {integrity: sha512-46eTQqk4Xm1xz6eXPQcol0B/wNLnN35cE5gOrFRtczbKwBSYiDEhb7JkeYvJ294NyiknggfOUFcAzg2Fa9P+/A==}
     peerDependencies:
       axios: ^0.26.0
     dependencies:
-      '@notifi-network/notifi-axios-utils': 0.81.0(axios@0.26.1)
+      '@notifi-network/notifi-axios-utils': 0.82.1(axios@0.26.1)
       axios: 0.26.1
     dev: false
 
-  /@notifi-network/notifi-axios-utils@0.81.0(axios@0.26.1):
-    resolution: {integrity: sha512-cmV/BxdL+0sml9txiENx6onq6SW8UTNI1NVN7hpc3sXXwwYkiHE+G6Q/vPFmLbFi7Hcp8ClpJKr82QsHBoKiBw==}
+  /@notifi-network/notifi-axios-utils@0.82.1(axios@0.26.1):
+    resolution: {integrity: sha512-ylBW/lHZPhq5P0Gn2JH5xUMQPfMmgOACTKg9HsOcvBIg/ulj/YvdEJd1dm0aSXyVCnN7CzzQsyZ2D1yFC8uLJg==}
     peerDependencies:
       axios: ^0.26.1
     dependencies:
       axios: 0.26.1
     dev: false
 
-  /@notifi-network/notifi-core@0.81.0:
-    resolution: {integrity: sha512-LnpDWGfugAZj8RkdilaOXkJTA/3tenTaYw+OEaK18/jeiD1ZCxlMnaoeCFSynH++n30dfYF1th9umSOqzy3srg==}
+  /@notifi-network/notifi-core@0.82.1:
+    resolution: {integrity: sha512-ZbxzEEt+U7wjR/nkV2HXZAby1HR0uGx3kz9EX/xxQszG60S5UzHu8kTekFy1nvrPrcZX7Dq6cs18DrqRVsvtwQ==}
     dependencies:
-      '@notifi-network/notifi-graphql': 0.81.0
+      '@notifi-network/notifi-graphql': 0.82.1
     transitivePeerDependencies:
       - encoding
     dev: false
 
-  /@notifi-network/notifi-frontend-client@0.81.0(graphql@16.8.0):
-    resolution: {integrity: sha512-b68BSArmLVKUbosv41FHndJELlULCBMD51LPDNpiRMKvwCaoqng4P1bk8GIbwUSUBXtzTtBOBGMBEPmrShStjA==}
+  /@notifi-network/notifi-frontend-client@0.82.1(graphql@16.8.0):
+    resolution: {integrity: sha512-3OnMkAMC++PPUa06mo/THDK1rnERJJbzbDzhZ2wnTMCEBVUci6PE6DGOP8b1P0svJfE8t1FjeY5E1Sb21A/zGA==}
     dependencies:
-      '@notifi-network/notifi-graphql': 0.81.0
+      '@notifi-network/notifi-graphql': 0.82.1
       graphql-request: 5.1.0(graphql@16.8.0)
       localforage: 1.10.0
     transitivePeerDependencies:
@@ -4219,8 +4219,8 @@ packages:
       - graphql
     dev: false
 
-  /@notifi-network/notifi-graphql@0.81.0:
-    resolution: {integrity: sha512-sF4JUJERUenEOxKooTY3lT+WK5taWibc+grl8nJRNwDvn+L8sZF7U5KnxQ7AXi0EUsM14h7ZXK15v+Rcn2pm7w==}
+  /@notifi-network/notifi-graphql@0.82.1:
+    resolution: {integrity: sha512-ojYMfwLri4eG9kqdjzii3Eypkk6Y0OkZWF6y5aHE51PulCu/WiuqwIcNET/8ppF5eh/JrbHnKhNzavH+/q+E+w==}
     dependencies:
       graphql: 16.8.0
       graphql-request: 5.1.0(graphql@16.8.0)
@@ -4229,11 +4229,11 @@ packages:
       - encoding
     dev: false
 
-  /@notifi-network/notifi-react-card@0.81.0(graphql@16.8.0)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-D8isIglFWbm+k7ls+E6gcJCTueo3YxFWbPMmz+B6u4M1/TQH+f+lF011TH4nJqxIKZiWoIItTh/08M/x9Um9QQ==}
+  /@notifi-network/notifi-react-card@0.82.1(graphql@16.8.0)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-sCGEuf/1ia9P5FcEGJsQaaAwWfjg+SecwcEWpneqMuuNNoBYbyyzLxd5H+pNglqnwFSuAlAPn3MWr1ssmnsU1g==}
     dependencies:
-      '@notifi-network/notifi-frontend-client': 0.81.0(graphql@16.8.0)
-      '@notifi-network/notifi-react-hooks': 0.81.0(react-dom@18.2.0)(react@18.2.0)
+      '@notifi-network/notifi-frontend-client': 0.82.1(graphql@16.8.0)
+      '@notifi-network/notifi-react-hooks': 0.82.1(react-dom@18.2.0)(react@18.2.0)
       clsx: 1.2.1
       date-fns: 2.30.0
       libphonenumber-js: 1.10.43
@@ -4246,15 +4246,15 @@ packages:
       - react-dom
     dev: false
 
-  /@notifi-network/notifi-react-hooks@0.81.0(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-eskY0NOOCVkV5vaPb9B648gcCymLuvH7YqQ9atC1rGCqd4KJuD1A/ontXo56nV/Q9sloeAIZCn9ao+/aFr8XQg==}
+  /@notifi-network/notifi-react-hooks@0.82.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-5XcVYq1HxC3IEyj6UYjHrNlBOHU97YICF3e3dX0Tw24K1fBlNGyuQJTgETpbLcCLeDM9N+/zKXbYaVHwydMAqw==}
     peerDependencies:
       react: ^17.0.2 || ^18.0
       react-dom: ^17.0.2 || ^18.0
     dependencies:
-      '@notifi-network/notifi-axios-adapter': 0.81.0(axios@0.26.1)
-      '@notifi-network/notifi-axios-utils': 0.81.0(axios@0.26.1)
-      '@notifi-network/notifi-core': 0.81.0
+      '@notifi-network/notifi-axios-adapter': 0.82.1(axios@0.26.1)
+      '@notifi-network/notifi-axios-utils': 0.82.1(axios@0.26.1)
+      '@notifi-network/notifi-core': 0.82.1
       axios: 0.26.1
       localforage: 1.10.0
       react: 18.2.0
