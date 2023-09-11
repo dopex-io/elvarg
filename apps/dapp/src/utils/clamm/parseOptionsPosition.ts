@@ -1,11 +1,9 @@
 import {
   getAmount0ForLiquidity,
   getAmount1ForLiquidity,
-  getAmountsForLiquidity,
 } from 'utils/clamm/liquidityAmountMath';
 import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
 
-import getLowerAndUpperTicksFromTick from './getLowerAndUpperTicksFromTick';
 import parsePriceFromTick from './parsePriceFromTick';
 import { OptionsPositionRaw } from './subgraph/getUserPositions';
 
