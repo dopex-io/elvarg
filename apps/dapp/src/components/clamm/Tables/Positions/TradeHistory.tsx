@@ -25,6 +25,10 @@ type TradeHistoryData = {
   };
   expiry: number;
   exercisableAmount: bigint;
+  profit: {
+    amount: string;
+    symbol: string;
+  };
 };
 
 const columnHelper = createColumnHelper<TradeHistoryData>();
@@ -56,37 +60,31 @@ const columns = [
       </p>
     ),
   }),
-  // columnHelper.accessor('pnl', {
-  //   header: 'PnL',
-  //   cell: (info) => {
-  //     let { amount, symbol } = info.getValue();
-  //     const amountInNumber = Number(amount);
-
-  //     return (
-  //       <>
-  //         <span className="space-x-2">
-  //           {Number(amountInNumber) === 0 && (
-  //             <p className="text-stieglitz inline-block">
-  //               {formatAmount(amountInNumber, 5)}
-  //             </p>
-  //           )}
-  //           {Number(amountInNumber) > 0 && (
-  //             <p className="text-up-only inline-block">
-  //               {formatAmount(amountInNumber, 5)}
-  //             </p>
-  //           )}
-  //           {Number(amountInNumber) < 0 && (
-  //             <p className="text-down-bad inline-block">
-  //               {formatAmount(amountInNumber, 5)}
-  //             </p>
-  //           )}
-  //           <p className="text-stieglitz inline-block">{symbol}</p>
-  //         </span>
-  //         {/* <p className="text-stieglitz">${formatAmount(usdValue, 5)}</p> */}
-  //       </>
-  //     );
-  //   },
-  // }),
+  columnHelper.accessor('profit', {
+    header: 'PnL',
+    cell: (info) => {
+      const { amount, symbol } = info.getValue();
+      const amountInNumber = Number(amount);
+      return (
+        <>
+          <span className="space-x-2">
+            {Number(amountInNumber) === 0 && (
+              <p className="text-stieglitz inline-block">
+                {formatAmount(amountInNumber, 5)}
+              </p>
+            )}
+            {Number(amountInNumber) > 0 && (
+              <p className="text-up-only inline-block">
+                {formatAmount(amountInNumber, 5)}
+              </p>
+            )}
+            <p className="text-stieglitz inline-block">{symbol}</p>
+          </span>
+          {/* <p className="text-stieglitz">${formatAmount(usdValue, 5)}</p> */}
+        </>
+      );
+    },
+  }),
   columnHelper.accessor('status', {
     header: 'Status',
     cell: ({ getValue }) => (

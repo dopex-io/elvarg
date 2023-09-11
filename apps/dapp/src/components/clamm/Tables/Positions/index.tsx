@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { formatUnits } from 'viem';
 
 import { Skeleton } from '@dopex-io/ui';
@@ -7,11 +7,12 @@ import { useBoundStore } from 'store';
 
 import { ButtonGroup } from 'components/clamm/AsidePanel';
 
+import RefreshIcon from './components/RefreshIcon';
 import OptionsPositions from './OptionsPositions';
 import TradeHistory from './TradeHistory';
 import WritePositions from './WritePositions';
 
-const Positions = () => {
+const Positions = ({ loadPositions }: { loadPositions: Function }) => {
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const {
     loading,
@@ -19,6 +20,7 @@ const Positions = () => {
     optionsPool,
     keys,
     markPrice,
+    setLoading,
   } = useBoundStore();
 
   const allOptionsPositions = useMemo(() => {
@@ -35,6 +37,7 @@ const Positions = () => {
         exercised,
         tickLower,
         tickUpper,
+        profit,
       }) => {
         const sizeAmount = formatUnits(
           amounts[callOrPut ? keys.callAssetAmountKey : keys.putAssetAmountKey],
@@ -82,12 +85,23 @@ const Positions = () => {
           size,
           expiry,
           exercisableAmount,
+          // Profit earned after exercising
+          profit: {
+            amount: formatUnits(
+              profit,
+              optionsPool[
+                callOrPut ? keys.putAssetDecimalsKey : keys.callAssetDecimalsKey
+              ],
+            ),
+            symbol:
+              optionsPool[
+                callOrPut ? keys.putAssetSymbolKey : keys.callAssetSymbolKey
+              ],
+          },
         };
       },
     );
 
-    positions = positions.filter(({ exercised }) => exercised === false);
-    positions = positions.filter(({ size }) => size.amount !== '0');
     positions = positions.sort((a, b) => b.expiry - a.expiry);
 
     return positions;
@@ -104,9 +118,11 @@ const Positions = () => {
   ]);
 
   const filteredOptionsPositions = useMemo(() => {
-    return allOptionsPositions.filter(
-      ({ expiry }) => expiry > new Date().getTime() / 1000,
-    );
+    return allOptionsPositions
+      .filter(({ expiry }) => expiry > new Date().getTime() / 1000)
+      .filter(({ exercisableAmount }) => {
+        return exercisableAmount > 10n;
+      });
   }, [allOptionsPositions]);
 
   const filteredWritePositions = useMemo(() => {
@@ -193,11 +209,28 @@ const Positions = () => {
     writePositions,
   ]);
 
+  const reload = useCallback(async () => {
+    setLoading('positions', true);
+    try {
+      await loadPositions().then(() => setLoading('positions', false));
+    } catch {
+      setLoading('positions', false);
+    }
+  }, [setLoading, loadPositions]);
+
   const tradeHistory = useMemo(() => {
     const currentTimestamp = Number((new Date().getTime() / 1000).toFixed(0));
-    const positions = allOptionsPositions.filter(({ expiry }) => {
+    const expiredOptionsPositions = allOptionsPositions.filter(({ expiry }) => {
       return expiry < currentTimestamp;
     });
+
+    const exerciseOptionsPositions = allOptionsPositions.filter(
+      ({ exercisableAmount }) => {
+        return exercisableAmount < 10n;
+      },
+    );
+
+    const positions = expiredOptionsPositions.concat(exerciseOptionsPositions);
 
     const historicalPositions = positions.map((position) => {
       const exercised = 'Exercised';
@@ -239,23 +272,29 @@ const Positions = () => {
     setActiveIndex(index);
   };
 
+  // useEffect(() => {
+  //   loadPositions();
+  // }, [loadPositions]);
+
   const renderComponent = useMemo(() => {
-    if (loading.positions) return;
-    <div className="bg-cod-gray rounded-lg pt-3">
-      <div className="grid grid-cols-1 gap-4 p-2">
-        {Array.from(Array(4)).map((_, index) => {
-          return (
-            <Skeleton
-              key={index}
-              width="fitContent"
-              height={70}
-              color="carbon"
-              variant="rounded"
-            />
-          );
-        })}
-      </div>
-    </div>;
+    if (loading.positions)
+      return (
+        <div className="bg-cod-gray rounded-lg pt-3">
+          <div className="grid grid-cols-1 gap-4 p-2">
+            {Array.from(Array(4)).map((_, index) => {
+              return (
+                <Skeleton
+                  key={index}
+                  width="fitContent"
+                  height={20}
+                  color="carbon"
+                  variant="rounded"
+                />
+              );
+            })}
+          </div>
+        </div>
+      );
     if (activeIndex === 0)
       return <OptionsPositions optionsPositions={filteredOptionsPositions} />;
     else if (activeIndex === 1)
@@ -270,12 +309,17 @@ const Positions = () => {
   ]);
 
   return (
-    <div className="space-y-2">
-      <ButtonGroup
-        active={activeIndex}
-        labels={buttonLabels}
-        handleClick={handleClick}
-      />
+    <div className="space-y-2 flex flex-col">
+      <div className="w-full flex items-center justify-between">
+        <ButtonGroup
+          active={activeIndex}
+          labels={buttonLabels}
+          handleClick={handleClick}
+        />
+        <div className="mr-2" onClick={reload}>
+          <RefreshIcon className="text-stieglitz" />
+        </div>
+      </div>
       {renderComponent}
     </div>
   );

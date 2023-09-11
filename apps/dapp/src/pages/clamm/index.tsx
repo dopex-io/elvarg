@@ -224,7 +224,6 @@ const ClammPage = () => {
         position,
       );
     }, []);
-
     setUserClammPositions(parsedWritePositions, parsedOptionsPositions);
     setLoading('positions', false);
   }, [
@@ -284,7 +283,7 @@ const ClammPage = () => {
 
             <div className="space-y-4">
               <StrikesChain />
-              <Positions />
+              <Positions loadPositions={loadPositions} />
             </div>
           </div>
           <div className="flex flex-col w-full lg:w-1/3 h-full space-y-4 sticky top-20">

@@ -63,6 +63,7 @@ export const getOptionsPositionsForUserDocument = graphql(`
       premium
       expiry
       isPut
+      profit
     }
   }
 `);
