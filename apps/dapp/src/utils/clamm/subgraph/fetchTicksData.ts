@@ -31,7 +31,7 @@ async function fetchTicksdata(
       queryFn: async () =>
         request(DOPEX_CLAMM_SUBGRAPH_API_URL, getTickerLiquiditiesDocument, {
           pool: uniswapV3PoolAddress.toLowerCase(),
-          first: 100,
+          first: 1000,
         }),
     });
 

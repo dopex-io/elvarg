@@ -15,6 +15,7 @@ import AppBar from 'components/common/AppBar';
 import PageLayout from 'components/common/PageLayout';
 import PriceChart from 'components/common/PriceChart';
 
+import getTicksPremiumAndBreakeven from 'utils/clamm/getTicksPremiumAndBreakeven';
 import getTokensData from 'utils/clamm/getTokensData';
 import getUniswapPoolData from 'utils/clamm/getUniswapPoolData';
 import {
@@ -50,6 +51,7 @@ const ClammPage = () => {
     optionsPool,
     ticksData,
     setPositionManagerAddress,
+    keys,
   } = useBoundStore();
   const { address: userAddress } = useAccount();
   const [isAgree, setIsAgree] = useState(false);
@@ -136,19 +138,6 @@ const ClammPage = () => {
       ),
     );
 
-    const rawTickData = await fetchTicksdata(uniswapV3PoolAddress);
-    if (rawTickData) {
-      const parsedTicksData = rawTickData.map((data) =>
-        parseTickData(
-          sqrtX96Price,
-          10 ** token0Decimals,
-          10 ** token1Decimals,
-          inversePrice,
-          data,
-        ),
-      );
-      setTicksData(parsedTicksData);
-    }
     setOptionsPool({
       address: optionsPoolAddress,
       uniswapV3PoolAddress,
@@ -173,7 +162,46 @@ const ClammPage = () => {
     setLoading,
     selectedOptionsPoolPair.joined,
     setOptionsPool,
+  ]);
+
+  const loadTicksData = useCallback(async () => {
+    if (!optionsPool) return;
+    const {
+      uniswapV3PoolAddress,
+      sqrtX96Price,
+      token0Decimals,
+      token1Decimals,
+      inversePrice,
+      address,
+    } = optionsPool;
+
+    const priceTokenDecimals = optionsPool[keys.putAssetDecimalsKey];
+    const rawTickData = await fetchTicksdata(uniswapV3PoolAddress);
+    if (rawTickData) {
+      const parsedTicksData = rawTickData.map((data) =>
+        parseTickData(
+          sqrtX96Price,
+          10 ** token0Decimals,
+          10 ** token1Decimals,
+          inversePrice,
+          data,
+        ),
+      );
+
+      const ticksWithPremiums = await getTicksPremiumAndBreakeven(
+        address,
+        uniswapV3PoolAddress,
+        optionsPool[keys.callAssetDecimalsKey],
+        optionsPool[keys.putAssetDecimalsKey],
+        parsedTicksData,
+      );
+      setTicksData(ticksWithPremiums);
+    }
+  }, [
     setTicksData,
+    optionsPool,
+    keys.callAssetDecimalsKey,
+    keys.putAssetDecimalsKey,
   ]);
 
   const loadPositions = useCallback(async () => {
@@ -238,6 +266,10 @@ const ClammPage = () => {
   useEffect(() => {
     loadOptionsPool();
   }, [loadOptionsPool]);
+
+  useEffect(() => {
+    loadTicksData();
+  }, [loadTicksData]);
 
   useEffect(() => {
     loadPositions();

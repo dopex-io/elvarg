@@ -57,13 +57,15 @@ const columns = [
   columnHelper.accessor('button', {
     header: () => null,
     cell: (info) => {
-      const { onClick, premium, symbol, isSelected } = info.getValue();
+      const { onClick, premium, symbol, isSelected, disabled } =
+        info.getValue();
 
       const approximationSymbol = premium < 1 ? '~' : null;
 
       return (
         <div className="flex space-x-2 justify-end">
           <Button
+            disabled={disabled}
             color={isSelected ? 'primary' : 'mineshaft'}
             onClick={onClick}
             className="space-x-2 text-xs"
@@ -71,7 +73,7 @@ const columns = [
             <span className="flex items-center space-x-1">
               <span>
                 {approximationSymbol}
-                {formatAmount(premium, 5)} {symbol}
+                {premium === 0 ? 0 : premium.toFixed(6)} {symbol}
               </span>
               {/* {isActive ? (
                 <MinusCircleIcon className="w-[14px]" />
@@ -106,6 +108,7 @@ const StrikesTable = () => {
     optionsPool,
     loading,
     keys,
+    selectedClammExpiry,
     setSelectedClammStrike,
   } = useBoundStore();
 
@@ -127,6 +130,8 @@ const StrikesTable = () => {
             tickUpperPrice,
             tickLower,
             tickUpper,
+            callPremiums,
+            putPremiums,
           },
           index,
         ) => {
@@ -142,10 +147,19 @@ const StrikesTable = () => {
             ? Number(liquidityAvailableAtTick) / tickLowerPrice
             : Number(liquidityAvailableAtTick);
 
-          const premium = 0;
+          const _premium = Number(
+            formatUnits(
+              isPut
+                ? putPremiums[selectedClammExpiry.toString()]
+                : callPremiums[selectedClammExpiry.toString()],
+              optionsPool[
+                isPut ? keys.putAssetDecimalsKey : keys.callAssetDecimalsKey
+              ],
+            ),
+          );
           const breakeven = isPut
-            ? tickLowerPrice - premium
-            : tickUpperPrice + premium;
+            ? tickLowerPrice - _premium
+            : tickUpperPrice + _premium;
 
           return {
             strike: isPut ? tickLowerPrice : tickUpperPrice,
@@ -156,7 +170,7 @@ const StrikesTable = () => {
                   isPut ? keys.putAssetSymbolKey : keys.callAssetSymbolKey
                 ],
             },
-            premium,
+
             breakeven,
             optionsAvailable,
             button: {
@@ -165,20 +179,24 @@ const StrikesTable = () => {
                 setSelectedClammStrike({
                   tickLower: tickLower,
                   tickUpper: tickUpper,
+                  tickLowerPrice,
+                  tickUpperPrice,
                 });
               },
-              premium: premium,
+              premium: _premium,
               symbol:
                 optionsPool[
                   isPut ? keys.putAssetSymbolKey : keys.callAssetSymbolKey
                 ],
               isSelected: index === selectedStrikeIndex,
+              disabled: _premium === 0,
             },
           };
         },
       )
       .filter(({ liquidityAvailable }) => liquidityAvailable.amount !== 0);
   }, [
+    selectedClammExpiry,
     setSelectedClammStrike,
     keys.callAssetAmountKey,
     keys.callAssetDecimalsKey,

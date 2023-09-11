@@ -19,6 +19,7 @@ import { useDebounce } from 'use-debounce';
 import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 
 import { useBoundStore } from 'store';
+import { DepositStrike, PurchaseStrike, Strikes } from 'store/Vault/clamm';
 
 import { usePrepareApprove } from 'hooks/ssov/usePrepareWrites';
 
@@ -36,24 +37,6 @@ import formatAmount from 'utils/general/formatAmount';
 
 import { EXPIRIES_BY_INDEX, EXPIRIES_MENU } from 'constants/clamm';
 import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
-
-type Strikes = {
-  callPurchaseStrikes: PurchaseStrike[];
-  putPurchaseStrikes: PurchaseStrike[];
-  callDepositStrikes: DepositStrike[];
-  putDepositStrikes: DepositStrike[];
-};
-
-type DepositStrike = {
-  tickLower: number;
-  tickUpper: number;
-  tickLowerPrice: number;
-  tickUpperPrice: number;
-};
-
-type PurchaseStrike = DepositStrike & {
-  optionsAvailable: number;
-};
 
 type AsidePanelProps = {
   loadOptionsPool: Function;
@@ -176,14 +159,13 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
     selectedClammExpiry,
     loading,
     setLoading,
+    selectedClammStrike,
+    setSelectedClammStrike,
   } = useBoundStore();
 
   const [strikes, setStrikes] = useState<Strikes>(DEFAULT_CLAMM_STRIKE_DATA);
 
-  const [selectedClammStrike, setSelectedClammStrike] = useState<
-    DepositStrike | PurchaseStrike
-  >();
-  const [inputAmount, setInputAmount] = useState<string>('0');
+  const [inputAmount, setInputAmount] = useState<string>('1');
   const [tradeOrLpIndex, setTradeOrLpIndex] = useState<number>(0);
   const [selectedExpiry, setSelectedExpiry] = useState<number>(0);
   const [approved, setApproved] = useState<boolean>(false);
@@ -226,7 +208,7 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
     (strike: DepositStrike | PurchaseStrike) => {
       setSelectedClammStrike(strike);
     },
-    [],
+    [setSelectedClammStrike],
   );
 
   const strikeElement = useCallback(
@@ -413,29 +395,32 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
 
     let amount = parseUnits(amountDebounced, selectedToken.decimals);
 
-    try {
-      const collateralAmount = isPut
-        ? parseUnits(
-            (Number(amountDebounced) * tickLowerPrice).toString(),
-            selectedToken.decimals,
-          )
-        : amount;
-      amount =
-        tradeOrLpIndex === 0
-          ? ((await getPremium(
-              optionsPool.address,
-              isPut,
-              blockTimestamp + selectedClammExpiry,
-              strike,
-              currentPrice,
-              BigInt(iv),
-              collateralAmount,
-            )) as bigint)
+    if (tradeOrLpIndex === 0) {
+      try {
+        const collateralAmount = isPut
+          ? parseUnits(
+              (Number(amountDebounced) * tickLowerPrice).toString(),
+              selectedToken.decimals,
+            )
           : amount;
-    } catch {
-      setLoading('asidePanelButton', false);
+        amount =
+          tradeOrLpIndex === 0
+            ? ((await getPremium(
+                optionsPool.address,
+                isPut,
+                blockTimestamp + selectedClammExpiry,
+                strike,
+                currentPrice,
+                BigInt(iv),
+                collateralAmount,
+              )) as bigint)
+            : amount;
+      } catch {
+        setLoading('asidePanelButton', false);
+      }
+    } else {
+      setTokenAmountToSpend(amount);
     }
-    setTokenAmountToSpend(amount);
     setLoading('asidePanelButton', false);
   }, [
     selectedClammStrike,
@@ -508,18 +493,21 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
     [updateSelectedExpiry],
   );
 
-  const handleTradeOrLp = useCallback((index: number) => {
-    setTradeOrLpIndex(index);
-    setSelectedClammStrike(undefined);
-    setTokenAmountToSpend(0n);
-  }, []);
+  const handleTradeOrLp = useCallback(
+    (index: number) => {
+      setTradeOrLpIndex(index);
+      setSelectedClammStrike(undefined);
+      setTokenAmountToSpend(0n);
+    },
+    [setSelectedClammStrike],
+  );
 
   const handleIsPut = useCallback(
     (index: number) => {
       setIsPut(index === 1);
       setSelectedClammStrike(undefined);
     },
-    [setIsPut],
+    [setIsPut, setSelectedClammStrike],
   );
 
   const handleMax = useCallback(() => {

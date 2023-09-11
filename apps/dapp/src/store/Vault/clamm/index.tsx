@@ -5,19 +5,35 @@ import { StateCreator } from 'zustand';
 import { AssetsSlice } from 'store/Assets';
 import { WalletSlice } from 'store/Wallet';
 
+import { TickDataWithPremiums } from 'utils/clamm/getTicksPremiumAndBreakeven';
 import {
   getLiquidityForAmount0,
   getLiquidityForAmount1,
 } from 'utils/clamm/liquidityAmountMath';
 import { OptionsPosition } from 'utils/clamm/parseOptionsPosition';
-import { TickData } from 'utils/clamm/parseTickData';
 import { WritePosition } from 'utils/clamm/parseWritePosition';
 
 import { VALID_CLAMM_PAIRS } from 'constants/clamm';
 
 import { CommonSlice } from '../common';
 
-export type TickerStats = {};
+export type Strikes = {
+  callPurchaseStrikes: PurchaseStrike[];
+  putPurchaseStrikes: PurchaseStrike[];
+  callDepositStrikes: DepositStrike[];
+  putDepositStrikes: DepositStrike[];
+};
+
+export type DepositStrike = {
+  tickLower: number;
+  tickUpper: number;
+  tickLowerPrice: number;
+  tickUpperPrice: number;
+};
+
+export type PurchaseStrike = DepositStrike & {
+  optionsAvailable: number;
+};
 
 type OptionsPoolPairWithSymbolsOnly = {
   joined: string;
@@ -67,20 +83,16 @@ export type ClammSlice = {
   selectedClammExpiry: number;
   updateSelectedExpiry: (expiry: number) => void;
 
-  selectedClammStrike: {
-    tickLower: number;
-    tickUpper: number;
-  };
-  setSelectedClammStrike: (selectedStrike: {
-    tickLower: number;
-    tickUpper: number;
-  }) => void;
+  selectedClammStrike: DepositStrike | PurchaseStrike | undefined;
+  setSelectedClammStrike: (
+    selectedStrike: DepositStrike | PurchaseStrike | undefined,
+  ) => void;
 
   markPrice: number;
   setMarkPrice: (price: number) => void;
 
-  ticksData: TickData[];
-  setTicksData: (ticksData: TickData[]) => void;
+  ticksData: TickDataWithPremiums[];
+  setTicksData: (ticksData: TickDataWithPremiums[]) => void;
 
   // Pairs
   setSelectedOptionsPoolPair: Function;
@@ -212,7 +224,7 @@ export const createClammSlice: StateCreator<
     }));
   },
   ticksData: [],
-  setTicksData: (ticksData: TickData[]) => {
+  setTicksData: (ticksData: TickDataWithPremiums[]) => {
     set((prev) => ({
       ...prev,
       ticksData: ticksData,
@@ -275,15 +287,10 @@ export const createClammSlice: StateCreator<
       optionsPool,
     }));
   },
-  selectedClammStrike: {
-    tickLower: 0,
-    tickUpper: 0,
-  },
-  setSelectedClammStrike: (selected: {
-    tickLower: number;
-    tickUpper: number;
-  }) => {
-    console.log('set', selected);
+  selectedClammStrike: undefined,
+  setSelectedClammStrike: (
+    selected: DepositStrike | PurchaseStrike | undefined,
+  ) => {
     set((prev) => ({
       ...prev,
       selectedClammStrike: selected,
