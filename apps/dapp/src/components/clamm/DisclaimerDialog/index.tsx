@@ -20,8 +20,8 @@ const DisclaimerDialog = (props: any) => {
         <div>
           <div className="p-3">
             <p className="text-stieglitz">
-              By using the Dopex CLAMM Beta product, I agree to the following
-              terms and conditions:
+              By using the Dopex CLAMM Alpha MVP product, I agree to the
+              following terms and conditions:
             </p>
           </div>
           <div className="p-3 bg-umbra rounded-lg">
