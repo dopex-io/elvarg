@@ -74,12 +74,24 @@ function parseTickData(
     tickLower: tickLower,
     tickUpper: tickUpper,
     liquidityAvailable: {
-      token0Amount: availableLiquidityToAmounts.amount0,
-      token1Amount: availableLiquidityToAmounts.amount1,
+      token0Amount:
+        availableLiquidityToAmounts.amount0 < 0n
+          ? 0n
+          : availableLiquidityToAmounts.amount0,
+      token1Amount:
+        availableLiquidityToAmounts.amount1 < 0n
+          ? 0n
+          : availableLiquidityToAmounts.amount1,
     },
     liquidityCompounded: {
-      token0Amount: liquidityCompoundedToAmounts.amount0,
-      token1Amount: liquidityCompoundedToAmounts.amount1,
+      token0Amount:
+        liquidityCompoundedToAmounts.amount0 < 0n
+          ? 0n
+          : liquidityCompoundedToAmounts.amount0,
+      token1Amount:
+        liquidityCompoundedToAmounts.amount1 < 0n
+          ? 0n
+          : liquidityCompoundedToAmounts.amount1,
     },
     availableShares: availableShares,
   };
