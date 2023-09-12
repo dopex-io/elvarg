@@ -37,9 +37,7 @@ const columns = [
       return (
         <span className="text-left flex">
           <p className="text-stieglitz pr-1">$</p>
-          <p className="pr-1">
-            {formatAmount(info.getValue().amount, 5, true)}
-          </p>
+          <p className="pr-1">{info.getValue().amount.toFixed(5)}</p>
         </span>
       );
     },
@@ -49,7 +47,7 @@ const columns = [
     cell: (info) => {
       return (
         <span className="text-left flex">
-          <p className="pr-1">{formatAmount(info.getValue(), 5, true)}</p>
+          <p className="pr-1">{info.getValue().toFixed(5)}</p>
         </span>
       );
     },
@@ -203,6 +201,7 @@ const StrikesTable = () => {
                   tickUpper: tickUpper,
                   tickLowerPrice,
                   tickUpperPrice,
+                  optionsAvailable,
                 });
               },
               premium: _premium,
@@ -216,7 +215,9 @@ const StrikesTable = () => {
           };
         },
       )
-      .filter(({ liquidityAvailable }) => liquidityAvailable.amount !== 0);
+      .filter(({ liquidityAvailable }) => {
+        return liquidityAvailable.amount !== 0;
+      });
   }, [
     selectedClammExpiry,
     setSelectedClammStrike,
@@ -241,7 +242,7 @@ const StrikesTable = () => {
             <Skeleton
               key={index}
               width="fitContent"
-              height={70}
+              height={20}
               color="carbon"
               variant="rounded"
             />
