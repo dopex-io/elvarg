@@ -85,8 +85,24 @@ const PriceChart = ({
       {query.isFetched ? (
         <div
           ref={chartContainerRef}
-          className={cx('m-3 rounded-xl h-full w-full')}
-        />
+          className="m-3 rounded-xl h-full w-full relative"
+        >
+          <a
+            href="https://www.tradingview.com/"
+            target="_blank"
+            className="absolute z-10 p-2 bottom-8 left-2 flex text-xs rounded-full bg-[#2196f3] bg-opacity-50 text-white hover:bg-opacity-40 ease-in duration-200"
+            rel="noopener noreferrer"
+          >
+            Powered by
+            <img
+              src="/images/brand/trading-view.svg"
+              alt="trading-view"
+              height="18"
+              width="18"
+              className="m-1"
+            />
+          </a>
+        </div>
       ) : (
         <Skeleton width={'100%'} height={'100%'} />
       )}
