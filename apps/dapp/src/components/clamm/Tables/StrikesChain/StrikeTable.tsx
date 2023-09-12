@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { formatUnits } from 'viem';
 
 import { Button, Skeleton } from '@dopex-io/ui';
@@ -110,15 +110,35 @@ const StrikesTable = () => {
     keys,
     selectedClammExpiry,
     setSelectedClammStrike,
+    selectedClammStrike,
   } = useBoundStore();
 
-  const [selectedStrikeIndex, setSelectedStrkikeIndex] = useState<
-    number | null
-  >(null);
-  const setActiveStrikeIndex = useCallback(
-    (index: number) => setSelectedStrkikeIndex(index),
-    [],
+  const [selectedStrikeIndex, setSelectedStrikeIndex] = useState<number | null>(
+    null,
   );
+  const setActiveStrikeIndex = useCallback((index: number) => {
+    setSelectedStrikeIndex(index);
+  }, []);
+
+  useEffect(() => {
+    ticksData.map((tick, i) => {
+      if (selectedClammStrike === undefined) return;
+      const currentTick = isPut ? tick.tickLowerPrice : tick.tickUpperPrice;
+      const selectedTick = isPut
+        ? selectedClammStrike.tickLowerPrice
+        : selectedClammStrike.tickUpperPrice;
+      if (currentTick === selectedTick) {
+        setSelectedStrikeIndex(i);
+        return;
+      }
+    });
+  }, [
+    setActiveStrikeIndex,
+    selectedClammExpiry,
+    ticksData,
+    selectedClammStrike,
+    isPut,
+  ]);
 
   const strikeData = useMemo(() => {
     if (!optionsPool) return [];
