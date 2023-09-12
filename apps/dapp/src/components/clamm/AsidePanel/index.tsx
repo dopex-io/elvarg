@@ -269,8 +269,9 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
     ).toFixed(5);
 
     const selectedStrike = selectedClammStrike as PurchaseStrike;
+
     if (tradeOrLpIndex === 0) {
-      if (!selectedStrike.optionsAvailable) return '0';
+      if (!selectedClammStrike && !selectedStrike.optionsAvailable) return '0';
       return selectedStrike.optionsAvailable.toFixed(5);
     } else {
       return balance;
