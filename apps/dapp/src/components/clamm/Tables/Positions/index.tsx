@@ -264,9 +264,16 @@ const Positions = ({ loadPositions }: { loadPositions: Function }) => {
       </div>,
       <div className="flex space-x-2 my-auto" key="buy-positions">
         <span>Trade History</span>
+        <div className="rounded-full bg-carbon w-5 h-auto flex items-center justify-center">
+          <span>{tradeHistory.length}</span>
+        </div>
       </div>,
     ];
-  }, [filteredOptionsPositions, filteredWritePositions]);
+  }, [
+    filteredOptionsPositions.length,
+    filteredWritePositions.length,
+    tradeHistory.length,
+  ]);
 
   const handleClick = (index: number) => {
     setActiveIndex(index);
