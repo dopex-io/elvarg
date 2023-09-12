@@ -26,6 +26,7 @@ export type OptionsPositionRaw = {
   tickLower: number;
   tickUpper: number;
   profit: bigint;
+  premium: bigint;
 };
 
 async function getUserPositions(
@@ -75,7 +76,16 @@ async function getUserPositions(
   );
 
   const optionsPositionsWithTypes = optionsPositions.map(
-    ({ exercised, expiry, isPut, options, tickLower, tickUpper, profit }) => ({
+    ({
+      exercised,
+      expiry,
+      isPut,
+      options,
+      tickLower,
+      tickUpper,
+      profit,
+      premium,
+    }) => ({
       exercised: BigInt(exercised),
       expiry: BigInt(expiry),
       isPut,
@@ -83,6 +93,7 @@ async function getUserPositions(
       tickLower: Number(tickLower),
       tickUpper: Number(tickUpper),
       profit: BigInt(profit),
+      premium: BigInt(premium),
     }),
   );
 

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { UniswapV3Pool__factory } from '@dopex-io/sdk';
 import { NextSeo } from 'next-seo';
-import { Address, useAccount } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { readContract } from 'wagmi/actions';
 
 import { useBoundStore } from 'store';

@@ -85,6 +85,18 @@ const columns = [
       );
     },
   }),
+  columnHelper.accessor('premium', {
+    header: 'premium',
+    cell: (info) => {
+      const { amount, symbol } = info.getValue();
+      return (
+        <p>
+          {Number(amount).toFixed(5)}{' '}
+          <span className="text-stieglitz">{symbol}</span>
+        </p>
+      );
+    },
+  }),
   columnHelper.accessor('status', {
     header: 'Status',
     cell: ({ getValue }) => (

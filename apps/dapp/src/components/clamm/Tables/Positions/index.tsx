@@ -38,6 +38,7 @@ const Positions = ({ loadPositions }: { loadPositions: Function }) => {
         tickLower,
         tickUpper,
         profit,
+        premium,
       }) => {
         const sizeAmount = formatUnits(
           amounts[callOrPut ? keys.callAssetAmountKey : keys.putAssetAmountKey],
@@ -96,6 +97,18 @@ const Positions = ({ loadPositions }: { loadPositions: Function }) => {
             symbol:
               optionsPool[
                 callOrPut ? keys.putAssetSymbolKey : keys.callAssetSymbolKey
+              ],
+          },
+          premium: {
+            amount: formatUnits(
+              premium,
+              optionsPool[
+                callOrPut ? keys.callAssetDecimalsKey : keys.putAssetDecimalsKey
+              ],
+            ),
+            symbol:
+              optionsPool[
+                callOrPut ? keys.callAssetSymbolKey : keys.putAssetSymbolKey
               ],
           },
         };

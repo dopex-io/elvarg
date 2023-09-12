@@ -26,6 +26,10 @@ interface OptionsPositionTablesData {
     symbol: string;
     usdValue: number;
   };
+  premium: {
+    amount: string;
+    symbol: string;
+  };
   side: string;
   exercisableAmount: bigint;
   expiry: number;
@@ -70,6 +74,18 @@ const columns = [
   columnHelper.accessor('side', {
     header: 'Side',
     cell: (info) => <p>{info.getValue()}</p>,
+  }),
+  columnHelper.accessor('premium', {
+    header: 'premium',
+    cell: (info) => {
+      const { amount, symbol } = info.getValue();
+      return (
+        <p>
+          {Number(amount).toFixed(5)}{' '}
+          <span className="text-stieglitz">{symbol}</span>
+        </p>
+      );
+    },
   }),
   columnHelper.accessor('pnl', {
     header: 'PnL',

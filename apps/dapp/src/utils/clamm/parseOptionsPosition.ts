@@ -21,6 +21,7 @@ export type OptionsPosition = {
   expiry: number;
   exercised: boolean;
   profit: bigint;
+  premium: bigint;
 };
 function parseOptionsPosition(
   priceSqrtX96: bigint,
@@ -31,8 +32,16 @@ function parseOptionsPosition(
   inversePrice: boolean,
   position: OptionsPositionRaw,
 ): OptionsPosition {
-  const { exercised, expiry, isPut, options, tickLower, tickUpper, profit } =
-    position;
+  const {
+    exercised,
+    expiry,
+    isPut,
+    options,
+    tickLower,
+    tickUpper,
+    profit,
+    premium,
+  } = position;
 
   const tickLowerPrice = parsePriceFromTick(
     tickLower,
@@ -71,6 +80,7 @@ function parseOptionsPosition(
     expiry: Number(expiry.toString()),
     exercised: exercisableAmount === 0n,
     profit,
+    premium,
   };
 }
 
