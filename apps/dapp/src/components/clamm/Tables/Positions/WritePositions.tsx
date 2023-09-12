@@ -95,14 +95,12 @@ const columns = [
       } = info.getValue();
       return (
         <div className="flex flex-col items-start justify-center">
-          {
-            <span>
-              {callAssetAmount}{' '}
-              <span className="text-stieglitz">{callAssetSymbol}</span>
-            </span>
-          }
           <span>
-            {putAssetAmount}{' '}
+            {formatAmount(callAssetAmount, 5)}{' '}
+            <span className="text-stieglitz">{callAssetSymbol}</span>
+          </span>
+          <span>
+            {formatAmount(putAssetAmount, 5)}{' '}
             <span className="text-stieglitz">{putAssetSymbol}</span>
           </span>
         </div>
