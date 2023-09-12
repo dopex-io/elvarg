@@ -949,7 +949,7 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
                   </div>
                 }
               />
-              {userAddress === undefined ? (
+              {userAddress === undefined || userAddress === zeroAddress ? (
                 <ConnectButton className="w-full" />
               ) : (
                 <Button
