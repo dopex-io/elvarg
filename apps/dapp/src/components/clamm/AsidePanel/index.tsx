@@ -965,7 +965,7 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
             </>
           ) : (
             <>
-              <RowItem
+              {/* <RowItem
                 label="Balance"
                 content={
                   <div className="flex">
@@ -988,7 +988,7 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
                     </p>
                   </div>
                 }
-              />
+              /> */}
               {userAddress === undefined ? (
                 <ConnectButton className="w-full" />
               ) : (
