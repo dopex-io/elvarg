@@ -258,6 +258,32 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
     }
   }, [strikes, isPut, tradeOrLpIndex, strikeElement]);
 
+  const balanceOrOptionsAmount = useMemo(() => {
+    const balance = Number(
+      formatUnits(
+        isPut
+          ? userTokenBalances.collateralTokenBalance
+          : userTokenBalances.underlyingTokenBalance,
+        selectedToken.decimals,
+      ),
+    ).toFixed(5);
+
+    const selectedStrike = selectedClammStrike as PurchaseStrike;
+    if (tradeOrLpIndex === 0) {
+      if (!selectedStrike.optionsAvailable) return '0';
+      return selectedStrike.optionsAvailable.toFixed(5);
+    } else {
+      return balance;
+    }
+  }, [
+    isPut,
+    selectedClammStrike,
+    selectedToken.decimals,
+    tradeOrLpIndex,
+    userTokenBalances.collateralTokenBalance,
+    userTokenBalances.underlyingTokenBalance,
+  ]);
+
   const parametersForMint: MintPostionOrOptionsParams | undefined =
     useMemo(() => {
       if (!optionsPool || !selectedClammStrike)
@@ -860,20 +886,7 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
             <CustomBottomElement
               symbol={selectedToken.symbol}
               label={tradeOrLpIndex === 0 ? 'Options' : 'Deposit amount'}
-              value={formatAmount(
-                tradeOrLpIndex === 0
-                  ? selectedClammStrike
-                    ? (selectedClammStrike as PurchaseStrike).optionsAvailable
-                    : 0
-                  : formatUnits(
-                      isPut
-                        ? userTokenBalances.collateralTokenBalance
-                        : userTokenBalances.underlyingTokenBalance,
-                      selectedToken.decimals,
-                    ),
-
-                5,
-              )}
+              value={balanceOrOptionsAmount}
               role="button"
               onClick={handleMax}
             />
