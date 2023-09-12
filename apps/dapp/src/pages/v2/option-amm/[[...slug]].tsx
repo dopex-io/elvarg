@@ -1,8 +1,10 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
 import { NextSeo } from 'next-seo';
 import optionAmmInfo from 'public/locales/en/optionAmm.json';
+
+import useVaultStore from 'hooks/option-amm/useVaultStore';
 
 import InfoBox from 'components/common/InfoBox';
 import PageLayout from 'components/common/PageLayout';
@@ -13,12 +15,17 @@ import Positions from 'components/option-amm/Tables/Positions';
 import StrikesChain from 'components/option-amm/Tables/StrikesChain';
 import TitleBar from 'components/option-amm/TitleBar';
 
+import findVault from 'utils/optionAmm/findVault';
+
+import { vaultZeroState } from 'constants/optionAmm/markets';
 import seo from 'constants/seo';
 
 const DEFAULT_MARKET = 'ARB-USDC';
 
 const OptionsAmm = () => {
   const router = useRouter();
+
+  const update = useVaultStore((store) => store.update);
 
   const [selectedMarket, setSelectedMarket] = useState<string>(DEFAULT_MARKET);
 
@@ -29,6 +36,26 @@ const OptionsAmm = () => {
     },
     [router],
   );
+
+  useEffect(() => {
+    const _vault = findVault(selectedMarket);
+    if (!_vault) {
+      update({ ...vaultZeroState });
+    } else
+      update({
+        symbol: selectedMarket,
+        address: _vault.address,
+        duration: 'DAILY',
+        underlyingSymbol: _vault.underlyingSymbol,
+        underlyingTokenAddress: _vault.underlyingTokenAddress,
+        isPut: false,
+        lp: _vault.lp,
+        collateralTokenAddress: _vault.collateralTokenAddress,
+        collateralSymbol: _vault.collateralSymbol,
+        portfolioManager: _vault.portfolioManager,
+        positionMinter: _vault.positionMinter,
+      });
+  }, [selectedMarket, update]);
 
   return (
     <>

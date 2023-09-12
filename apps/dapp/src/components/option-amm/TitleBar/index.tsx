@@ -38,7 +38,6 @@ const TitleBar = (props: Props) => {
             handleSelection={handleSelectMarket}
             selection={market}
             data={MARKETS_MENU}
-            className="z-20"
             showArrow
           />
         </div>

@@ -39,16 +39,19 @@ const Dialog = (props: DialogProps) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <HeadlessDialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-cod-gray p-6 text-left align-middle shadow-xl transition-all">
+              <HeadlessDialog.Panel
+                className={`w-[341px] max-w-md transform overflow-hidden rounded-2xl bg-cod-gray divide-carbon p-3 text-left align-middle shadow-xl transition-all space-y-3`}
+              >
                 <HeadlessDialog.Title className="text-lg font-medium flex justify-between">
-                  <span className="text-white">{title}</span>
+                  <span className="text-white text-xs my-auto">{title}</span>
                   {showCloseIcon ? (
                     <XMarkIcon
                       onClick={handleClose}
-                      className="text-white cursor-pointer w-6"
+                      className="text-white cursor-pointer w-5"
                     />
                   ) : null}
                 </HeadlessDialog.Title>
+                <hr className="border-carbon" />
                 {children}
               </HeadlessDialog.Panel>
             </Transition.Child>

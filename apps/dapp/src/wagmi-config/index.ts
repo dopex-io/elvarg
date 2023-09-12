@@ -1,11 +1,18 @@
 import { configureChains, createConfig } from 'wagmi';
-import { arbitrum, mainnet, polygon } from 'wagmi/chains';
+import {
+  arbitrum,
+  arbitrumGoerli,
+  localhost,
+  mainnet,
+  polygon,
+} from 'wagmi/chains';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import { LedgerConnector } from 'wagmi/connectors/ledger';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 import { infuraProvider } from 'wagmi/providers/infura';
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 
 import { INFURA_PROJECT_ID, WALLETCONNECT_PROJECT_ID } from 'constants/env';
 
@@ -13,8 +20,15 @@ import { BitKeepConnector } from './BitKeepConnector';
 import { RabbyConnector } from './RabbyConnector';
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [arbitrum, polygon, mainnet],
-  [infuraProvider({ apiKey: INFURA_PROJECT_ID || '' })]
+  [arbitrum, polygon, mainnet, localhost, arbitrumGoerli],
+  [
+    jsonRpcProvider({
+      rpc: () => ({
+        http: `http://localhost:8545`,
+      }),
+    }),
+    infuraProvider({ apiKey: INFURA_PROJECT_ID || '' }),
+  ],
 );
 
 const wagmiConfig = createConfig({

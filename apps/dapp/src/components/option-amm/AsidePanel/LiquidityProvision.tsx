@@ -17,10 +17,6 @@ const LiquidityProvision = (props: Props) => {
     <div className="space-y-3">
       <div className="bg-umbra rounded-xl divide-y divide-cod-gray">
         {inputPanel}
-        <div className="flex flex-col p-3">
-          <p className="text-xs text-stieglitz">Expiry</p>
-          <p className="text-lg self-center">Dropdown</p>
-        </div>
       </div>
       <div className="border border-carbon rounded-lg divide-y divide-carbon">
         {data.map((item, idx) => {
@@ -38,7 +34,7 @@ const LiquidityProvision = (props: Props) => {
           <p>-</p>
         </div>
         <Button
-          className="flex-grow text-sm justify-center font-normal transition ease-in-out duration-200 bg-carbon"
+          className="flex-grow text-sm justify-center font-normal transition ease-in-out duration-200"
           onClick={button.handler}
           disabled={button.disabled}
           size="small"

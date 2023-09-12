@@ -100,7 +100,7 @@ const useStrikesData = (props: Props) => {
   }, [duration]);
 
   const updateExpiryStrikes = useCallback(async () => {
-    if (!_expiryData) return;
+    if (!_expiryData || !ammAddress) return;
 
     const strikes = _expiryData.strikes;
 
@@ -121,7 +121,7 @@ const useStrikesData = (props: Props) => {
 
     const res = await Promise.all(promises);
     setExpiryStrikeData(res);
-  }, [_expiryData]);
+  }, [_expiryData, ammAddress]);
 
   const strikeData = useMemo(() => {
     if (!expiryStrikeData) return [];

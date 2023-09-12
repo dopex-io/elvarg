@@ -45,26 +45,24 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
   } = props;
 
   return (
-    <HeadlessMenu as="div" className={cx('inline-block text-left', className)}>
-      <div>
-        <HeadlessMenu.Button
-          as={Button}
-          className="flex justify-between bg-carbon"
-          color={color}
-          size="medium"
-        >
-          {({ open }: { open: boolean }) => (
-            <div className="flex justify-between">
-              {selection}
-              {showArrow ? (
-                <ChevronDownIcon
-                  className={cx('ml-2 w-4', open ? `transform rotate-180` : '')}
-                />
-              ) : null}
-            </div>
-          )}
-        </HeadlessMenu.Button>
-      </div>
+    <HeadlessMenu as="div" className={'inline-block text-left z-20'}>
+      <HeadlessMenu.Button
+        as={Button}
+        className={cx('flex justify-between align-middle bg-carbon', className)}
+        color={color}
+        size="medium"
+      >
+        {({ open }: { open: boolean }) => (
+          <div className="flex justify-between">
+            {selection}
+            {showArrow ? (
+              <ChevronDownIcon
+                className={cx('ml-2 w-4', open ? `transform rotate-180` : '')}
+              />
+            ) : null}
+          </div>
+        )}
+      </HeadlessMenu.Button>
       <Transition
         as="div"
         enter="transition ease-out duration-100"

@@ -58,6 +58,23 @@ export const shorts = [
   })),
 ];
 
+export const mockOptionPositions = [
+  ...Array.from(Array(51)).map((_, idx) => ({
+    _id: BigInt(idx),
+    isPut: idx % 2 === 0,
+    isShort: idx % 3 === 0,
+    strike: 10_000_000n,
+    premium: 100_000n,
+    marginToLock: 100_000n,
+    amount: 10_000_000_000_000_000_000n, // 1e18
+    exercised: 0n,
+    markPrice: 10_000_000n,
+    fees: 100_000n,
+    openedAt: 0n,
+    expiry: 86400n,
+  })),
+];
+
 export const mockExpiryData: DurationToExpiryData = {
   DAILY: {
     active: true,

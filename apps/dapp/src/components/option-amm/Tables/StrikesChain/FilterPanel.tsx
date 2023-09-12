@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { addDays } from 'date-fns';
 import format from 'date-fns/format';
 
 import useVaultStore from 'hooks/option-amm/useVaultStore';
 
 import Pill from 'components/ssov-beta/Tables/Pill';
 
-import getWeeklyExpiry from 'utils/date/getWeeklyExpiry';
+import getExpiry from 'utils/date/getExpiry';
+import findVault from 'utils/optionAmm/findVault';
 
 import {
   AmmDuration,
@@ -15,31 +15,6 @@ import {
   MARKETS,
   vaultZeroState,
 } from 'constants/optionAmm/markets';
-
-const getDailyExpiry = () => {
-  return addDays(new Date().setUTCHours(8, 0, 0), 1);
-};
-
-const getExpiry = (duration: AmmDuration) => {
-  switch (duration) {
-    case 'WEEKLY':
-      return getWeeklyExpiry();
-    case 'MONTHLY':
-      return getWeeklyExpiry();
-    default:
-      return getDailyExpiry();
-  }
-};
-
-const findVault = (marketName: string) => {
-  const market = MARKETS[marketName.split('-')[0]].vaults.find(
-    (vault) => vault.symbol === marketName,
-  );
-
-  if (!market) return;
-
-  return market;
-};
 
 const getMarketDurations = (marketName: string) => {
   const market = MARKETS[marketName.split('-')[0]];
@@ -71,10 +46,15 @@ const FilterPanel = (props: Props) => {
     [update, vault],
   );
 
+  useEffect(() => {
+    setDuration(vault.duration);
+    setIsPut(vault.isPut);
+  }, [vault.duration, vault.isPut]);
+
   const handleSelectSide = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (!duration) return;
-      const _isPut = e.currentTarget.value === 'PUT';
+      const _isPut = e.currentTarget.value === 'Put';
       let _duration = duration;
 
       setIsPut(_isPut);
@@ -87,19 +67,18 @@ const FilterPanel = (props: Props) => {
       }
       if (_vault) {
         update({
+          ...vault,
           symbol: market,
-          address: _vault.address,
           duration: _duration,
           underlyingSymbol: market.split('-')[0],
-          underlyingAddress: _vault.underlyingTokenAddress,
+          underlyingTokenAddress: _vault.underlyingTokenAddress,
           isPut: _isPut,
-          lp: '0x',
           collateralTokenAddress: _vault.collateralTokenAddress,
           collateralSymbol: market.split('-')[1],
         });
       }
     },
-    [update, duration, market],
+    [duration, market, update, vault],
   );
 
   // updates default selection of duration/side if the market has been changed
@@ -113,12 +92,12 @@ const FilterPanel = (props: Props) => {
   return (
     <div className="flex space-x-2 z-10">
       <Pill
-        buttons={['CALL', 'PUT'].map((side) => ({
+        buttons={['Call', 'Put'].map((side) => ({
           textContent: side,
           value: side,
           handleClick: handleSelectSide,
         }))}
-        active={isPut ? 'PUT' : 'CALL'}
+        active={isPut ? 'Put' : 'Call'}
       />
       <Pill
         buttons={getMarketDurations(market).map((duration) => {

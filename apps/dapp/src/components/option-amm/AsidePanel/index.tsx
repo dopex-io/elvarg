@@ -1,8 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { formatUnits } from 'viem';
+import { formatUnits, parseUnits, zeroAddress } from 'viem';
 
+import {
+  OptionAmm__factory,
+  OptionAmmPortfolioManager__factory,
+} from '@dopex-io/sdk';
 import { Button, Input } from '@dopex-io/ui';
+import { debounce } from 'lodash';
 import { useAccount } from 'wagmi';
+import { readContract } from 'wagmi/actions';
+
+import useAmmUserData from 'hooks/option-amm/useAmmUserData';
+import useStrikesData from 'hooks/option-amm/useStrikesData';
+import useVaultStore from 'hooks/option-amm/useVaultStore';
 
 import PnlChart from 'components/common/PnlChart';
 import LiquidityProvision from 'components/option-amm/AsidePanel/LiquidityProvision';
@@ -58,10 +68,25 @@ const buttonSubGroupLabels = [
 const AsidePanel = ({ market }: { market: string }) => {
   const { address } = useAccount();
 
+  const vault = useVaultStore((store) => store.vault);
+  const activeStrikeIndex = useVaultStore((store) => store.activeStrikeIndex);
+  const { strikeData, expiryData } = useStrikesData({
+    ammAddress: vault.address,
+    duration: vault.duration,
+    isPut: vault.isPut,
+  });
+  const { portfolioData } = useAmmUserData({
+    ammAddress: vault.address,
+    portfolioManager: vault.portfolioManager,
+    positionMinter: vault.positionMinter,
+    accountAddress: address || zeroAddress,
+  });
+
   const [activeIndexSub, setActiveIndexSub] = useState<number>(0);
   const [panelState, setPanelState] = useState<PanelStates>(PanelStates.Trade);
   const [amount, setAmount] = useState<string>('');
   const [userBalance, setUserBalance] = useState<bigint>(0n);
+  const [newMaintenanceMargin, setNewMaintenanceMargin] = useState<bigint>(0n);
 
   const handleClickButtonGroup = (index: number) => {
     setPanelState(index);
@@ -80,15 +105,55 @@ const AsidePanel = ({ market }: { market: string }) => {
     setAmount(panelState === 0 ? '' : formatUnits(userBalance, DECIMALS_TOKEN));
   }, [panelState, userBalance]);
 
+  const updatePortfolioMMFromInput = useCallback(async () => {
+    if (!address || !expiryData) return;
+    const isShort = activeIndexSub === 0 && panelState === 0;
+    const marginToLock = await readContract({
+      abi: OptionAmm__factory.abi,
+      address: vault.address,
+      functionName: 'calculateMarginRequirement',
+      args: [
+        vault.isPut,
+        strikeData[activeStrikeIndex].strike,
+        BigInt(expiryData.expiry),
+        parseUnits(amount, DECIMALS_TOKEN),
+      ],
+    });
+    const _newMaintenanceMargin = await readContract({
+      abi: OptionAmmPortfolioManager__factory.abi,
+      address: vault.portfolioManager,
+      functionName: 'getPortfolioHealthFromAddedMargin',
+      args: [address, marginToLock, isShort],
+    });
+
+    setNewMaintenanceMargin(_newMaintenanceMargin);
+  }, [
+    activeIndexSub,
+    activeStrikeIndex,
+    address,
+    amount,
+    expiryData,
+    panelState,
+    strikeData,
+    vault.address,
+    vault.isPut,
+    vault.portfolioManager,
+  ]);
+
   useEffect(() => {
-    async () => {
+    debounce(async () => await updatePortfolioMMFromInput(), 500);
+  }, [updatePortfolioMMFromInput]);
+
+  useEffect(() => {
+    (async () => {
+      if (!address || vault.underlyingAddress === '0x') return;
       const _balance = await getUserBalance({
         owner: address,
-        tokenAddress: '0x',
+        tokenAddress: vault.underlyingAddress,
       });
       setUserBalance(_balance || 0n);
-    };
-  }, [address]);
+    })();
+  }, [address, vault.underlyingAddress]);
 
   const memoizedInputPanel = useMemo(() => {
     return (
@@ -109,7 +174,9 @@ const AsidePanel = ({ market }: { market: string }) => {
             symbol={''}
             label={panelState === 0 ? 'Options' : 'Balance'}
             value={formatAmount(
-              panelState === 0 ? 0 : Number(userBalance),
+              panelState === 0
+                ? 0
+                : Number(formatUnits(userBalance, DECIMALS_TOKEN)),
               3,
               true,
             )}
@@ -140,24 +207,12 @@ const AsidePanel = ({ market }: { market: string }) => {
         {panelState === PanelStates.Trade ? (
           <Trade
             inputPanel={memoizedInputPanel}
-            data={[
-              {
-                label: 'New Health Factor',
-                value: <p className="text-jaffa text-xs">-</p>,
-              },
-              {
-                label: 'Margin Required',
-                value: <p className="text-xs">-</p>,
-              },
-              {
-                label: 'Available Margin',
-                value: <p className="text-xs">-</p>,
-              },
-              {
-                label: 'Fees',
-                value: <p className="text-xs">-</p>,
-              },
-            ]}
+            data={{
+              strike: strikeData[activeStrikeIndex]?.strike || 0n,
+              health: portfolioData?.health || 0n,
+              newMaintenanceMargin: newMaintenanceMargin,
+              availableCollateral: portfolioData?.availableCollateral || 0n,
+            }}
             button={{
               handler: () => {},
               disabled: false,

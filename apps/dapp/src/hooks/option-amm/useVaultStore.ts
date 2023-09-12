@@ -3,18 +3,20 @@ import { Address } from 'viem';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
-import { AmmDuration } from 'constants/optionAmm/markets';
+import { AmmDuration, vaultZeroState } from 'constants/optionAmm/markets';
 
 export interface VaultState {
+  isPut: boolean;
+  duration: AmmDuration;
   symbol: string;
   address: Address;
-  underlyingSymbol: string;
-  underlyingAddress: Address;
-  duration: AmmDuration;
-  isPut: boolean;
   lp: Address;
-  collateralTokenAddress: Address;
+  underlyingSymbol: string;
+  underlyingTokenAddress: Address;
   collateralSymbol: string;
+  collateralTokenAddress: Address;
+  portfolioManager: Address;
+  positionMinter: Address;
 }
 
 interface Props {
@@ -26,17 +28,7 @@ interface Props {
 
 const useVaultStore = create<Props>()(
   devtools((set) => ({
-    vault: {
-      symbol: '',
-      address: '0x',
-      lp: '0x',
-      underlyingAddress: '0x',
-      underlyingSymbol: 'UNKNOWN',
-      duration: 'WEEKLY',
-      isPut: false,
-      collateralTokenAddress: '0x',
-      collateralSymbol: '0x',
-    },
+    vault: vaultZeroState,
     update: (vault: VaultState) => set({ vault }),
     activeStrikeIndex: 2,
     setActiveStrikeIndex: (index: number) =>
