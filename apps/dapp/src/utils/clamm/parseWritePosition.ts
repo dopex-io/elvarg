@@ -32,15 +32,15 @@ function parseWritePosition(
   const { liquidityCompounded, totalLiquidity, availableShares } = tickData;
   const { liquidity, tickLower, tickUpper, shares } = position;
 
-  const liquidityCompoundedAmount0 =
-    totalLiquidity === 0n
-      ? 0n
-      : (shares * liquidityCompounded.token0Amount) / availableShares;
+  // const liquidityCompoundedAmount0 =
+  //   totalLiquidity === 0n
+  //     ? 0n
+  //     : (shares * liquidityCompounded.token0Amount) / availableShares;
 
-  const liquidityCompoundedAmount1 =
-    totalLiquidity === 0n
-      ? 0n
-      : (shares * liquidityCompounded.token1Amount) / availableShares;
+  // const liquidityCompoundedAmount1 =
+  //   totalLiquidity === 0n
+  //     ? 0n
+  //     : (shares * liquidityCompounded.token1Amount) / availableShares;
 
   const liquidityAmounts = getAmountsForLiquidity(
     priceSqrtX96,
@@ -78,8 +78,8 @@ function parseWritePosition(
       token1Amount: liquidityAmounts.amount1,
     },
     earned: {
-      token0Amount: liquidityCompoundedAmount0,
-      token1Amount: liquidityCompoundedAmount1,
+      token0Amount: 0n,
+      token1Amount: 0n,
     },
   };
 }
