@@ -14,12 +14,6 @@ export const aggregatedStats: AggregatedStats = {
   volume: 0,
 };
 
-export const columnLabels = [
-  'Health Factor',
-  'Margin Balance',
-  'Available Margin',
-];
-
 export const longs = [
   ...Array.from(Array(53)).map((_, idx) => ({
     strike: idx + 1,

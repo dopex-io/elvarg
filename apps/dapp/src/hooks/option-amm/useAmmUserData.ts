@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Address } from 'viem';
 
 import {
+  OptionAmm__factory,
   OptionAmmLp__factory,
   OptionAmmPortfolioManager__factory,
 } from '@dopex-io/sdk';
@@ -36,6 +37,7 @@ export interface Portfolio {
   health: bigint;
   positions: bigint[];
   closedPositions: bigint[];
+  liquidationThreshold: bigint;
 }
 
 export interface AmmLpData {
@@ -137,6 +139,7 @@ const useAmmUserData = (props: Props) => {
       health,
       [longMargin, shortMargin, longPnl, shortPnl],
       totalPortfolioCollateral,
+      liquidationThreshold,
     ] = await Promise.all([
       readContract({
         ...config,
@@ -152,6 +155,11 @@ const useAmmUserData = (props: Props) => {
         ...config,
         functionName: 'getPortfolioCollateralAmount',
         args: [account],
+      }),
+      readContract({
+        address: ammAddress,
+        abi: OptionAmm__factory.abi,
+        functionName: 'MM_LIQUIDATION_THRESHOLD',
       }),
     ]); // todo: replace with wagmi multicall on mainnet
 
@@ -176,8 +184,9 @@ const useAmmUserData = (props: Props) => {
       activeCollateral: netActiveCollateral,
       availableCollateral,
       totalCollateral: collateralAmount,
+      liquidationThreshold,
     });
-  }, [account, optionPositions, portfolioManager, positionMinter]);
+  }, [account, ammAddress, optionPositions, portfolioManager, positionMinter]);
 
   const updateLpData = useCallback(async () => {
     if (lpAddress === '0x' || !account) return;
