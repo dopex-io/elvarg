@@ -303,7 +303,6 @@ const ClammPage = () => {
           ],
         }}
       />
-      <AppBar />
       <PageLayout>
         <DisclaimerDialog
           isOpen={isOpen}
@@ -311,26 +310,22 @@ const ClammPage = () => {
           isAgree={isAgree}
           handleAgree={handleAgree}
         />
-        {/* <TitleBar /> */}
-        <PairSelector />
         <div className="flex space-x-0 lg:space-x-8 flex-col sm:flex-col md:flex-col lg:flex-row space-y-4 md:space-y-0 justify-center">
-          {/* <PriceChartRangeSelectorWrapper /> */}
-          <div className="flex flex-col space-y-3 sm:w-full lg:w-3/4 h-full">
+          <div className="flex flex-col space-y-3 sm:w-full h-full max-w-[1920px] flex-1">
+            <PairSelector />
             <PriceChart
               market={selectedOptionsPoolPair.underlyingTokenSymbol}
             />
-
             <div className="space-y-4">
               <StrikesChain reload={loadTicksData} />
               <Positions loadPositions={loadPositions} />
             </div>
           </div>
-          <div className="flex flex-col w-full lg:w-1/3 h-full space-y-4 sticky top-20">
+          <div className="flex flex-col h-full space-y-4 sticky top-20 min-w-[366px] max-w-[366px]">
             <AsidePanel
               loadOptionsPool={loadOptionsPool}
               loadPositions={loadPositions}
             />
-            {/* <InfoBox /> */}
           </div>
         </div>
       </PageLayout>
