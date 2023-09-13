@@ -1,17 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { formatUnits, parseUnits, zeroAddress } from 'viem';
 
-import {
-  OptionAmm__factory,
-  OptionAmmPortfolioManager__factory,
-} from '@dopex-io/sdk';
+import { OptionAmmLp__factory } from '@dopex-io/sdk';
 import { Button, Input } from '@dopex-io/ui';
-import { debounce } from 'lodash';
-import { useAccount } from 'wagmi';
-import { readContract } from 'wagmi/actions';
+import { erc20ABI, useAccount, useContractWrite } from 'wagmi';
 
 import useAmmUserData from 'hooks/option-amm/useAmmUserData';
-import useStrikesData from 'hooks/option-amm/useStrikesData';
 import useVaultStore from 'hooks/option-amm/useVaultStore';
 
 import PnlChart from 'components/common/PnlChart';
@@ -22,10 +16,10 @@ import {
   CustomBottomElement,
 } from 'components/ssov-beta/AsidePanel';
 
-import { getUserBalance } from 'utils/contracts/getERC20Info';
+import { getAllowance, getUserBalance } from 'utils/contracts/getERC20Info';
 import formatAmount from 'utils/general/formatAmount';
 
-import { DECIMALS_TOKEN } from 'constants/index';
+import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
 export const ButtonGroupSub = ({
   active,
@@ -66,27 +60,44 @@ const buttonSubGroupLabels = [
 ];
 
 const AsidePanel = ({ market }: { market: string }) => {
-  const { address } = useAccount();
-
-  const vault = useVaultStore((store) => store.vault);
-  const activeStrikeIndex = useVaultStore((store) => store.activeStrikeIndex);
-  const { strikeData, expiryData } = useStrikesData({
-    ammAddress: vault.address,
-    duration: vault.duration,
-    isPut: vault.isPut,
-  });
-  const { portfolioData } = useAmmUserData({
-    ammAddress: vault.address,
-    portfolioManager: vault.portfolioManager,
-    positionMinter: vault.positionMinter,
-    accountAddress: address || zeroAddress,
-  });
-
   const [activeIndexSub, setActiveIndexSub] = useState<number>(0);
   const [panelState, setPanelState] = useState<PanelStates>(PanelStates.Trade);
   const [amount, setAmount] = useState<string>('');
   const [userBalance, setUserBalance] = useState<bigint>(0n);
-  const [newMaintenanceMargin, setNewMaintenanceMargin] = useState<bigint>(0n);
+  const [approved, setApproved] = useState<boolean>(false);
+
+  const { address } = useAccount();
+  const vault = useVaultStore((store) => store.vault);
+  const { updateLpData } = useAmmUserData({
+    ammAddress: vault.address,
+    lpAddress: vault.lp,
+    positionMinter: vault.positionMinter,
+    portfolioManager: vault.portfolioManager,
+    account: address || zeroAddress,
+  });
+  const { write: approve } = useContractWrite({
+    address: vault.collateralTokenAddress,
+    abi: erc20ABI,
+    functionName: 'approve',
+    args: [
+      panelState === PanelStates['Liquidity Provision']
+        ? vault.lp
+        : vault.address,
+      parseUnits(amount, DECIMALS_USD),
+    ],
+  });
+  const { write: deposit } = useContractWrite({
+    address: vault.lp,
+    abi: OptionAmmLp__factory.abi,
+    functionName: 'deposit',
+    args: [parseUnits(amount, DECIMALS_USD), address || '0x'],
+  });
+  const { write: withdraw } = useContractWrite({
+    address: vault.lp,
+    abi: OptionAmmLp__factory.abi,
+    functionName: 'withdraw',
+    args: [parseUnits(amount, DECIMALS_USD), address || '0x', address || '0x'],
+  });
 
   const handleClickButtonGroup = (index: number) => {
     setPanelState(index);
@@ -105,55 +116,38 @@ const AsidePanel = ({ market }: { market: string }) => {
     setAmount(panelState === 0 ? '' : formatUnits(userBalance, DECIMALS_TOKEN));
   }, [panelState, userBalance]);
 
-  const updatePortfolioMMFromInput = useCallback(async () => {
-    if (!address || !expiryData) return;
-    const isShort = activeIndexSub === 0 && panelState === 0;
-    const marginToLock = await readContract({
-      abi: OptionAmm__factory.abi,
-      address: vault.address,
-      functionName: 'calculateMarginRequirement',
-      args: [
-        vault.isPut,
-        strikeData[activeStrikeIndex].strike,
-        BigInt(expiryData.expiry),
-        parseUnits(amount, DECIMALS_TOKEN),
-      ],
-    });
-    const _newMaintenanceMargin = await readContract({
-      abi: OptionAmmPortfolioManager__factory.abi,
-      address: vault.portfolioManager,
-      functionName: 'getPortfolioHealthFromAddedMargin',
-      args: [address, marginToLock, isShort],
-    });
-
-    setNewMaintenanceMargin(_newMaintenanceMargin);
-  }, [
-    activeIndexSub,
-    activeStrikeIndex,
-    address,
-    amount,
-    expiryData,
-    panelState,
-    strikeData,
-    vault.address,
-    vault.isPut,
-    vault.portfolioManager,
-  ]);
-
-  useEffect(() => {
-    debounce(async () => await updatePortfolioMMFromInput(), 500);
-  }, [updatePortfolioMMFromInput]);
+  const handleLpAction = useCallback(async () => {
+    if (activeIndexSub === 0) deposit();
+    else withdraw();
+    updateLpData();
+  }, [activeIndexSub, deposit, updateLpData, withdraw]);
 
   useEffect(() => {
     (async () => {
-      if (!address || vault.underlyingAddress === '0x') return;
+      if (!address || vault.underlyingTokenAddress === '0x') return;
       const _balance = await getUserBalance({
         owner: address,
-        tokenAddress: vault.underlyingAddress,
+        tokenAddress: vault.underlyingTokenAddress,
       });
       setUserBalance(_balance || 0n);
     })();
-  }, [address, vault.underlyingAddress]);
+  }, [address, vault.underlyingTokenAddress]);
+
+  useEffect(() => {
+    (async () => {
+      if (!address || vault.collateralTokenAddress === '0x') return;
+
+      const allowance = await getAllowance({
+        owner: address,
+        spender:
+          panelState === PanelStates['Liquidity Provision']
+            ? vault.lp
+            : vault.address,
+        tokenAddress: vault.collateralTokenAddress,
+      });
+      setApproved(allowance >= parseUnits(amount, DECIMALS_USD));
+    })();
+  }, [address, amount, panelState, vault]);
 
   const memoizedInputPanel = useMemo(() => {
     return (
@@ -165,7 +159,7 @@ const AsidePanel = ({ market }: { market: string }) => {
         leftElement={
           <img
             src={`/images/tokens/${market.split('-')[1].toLowerCase()}.svg`}
-            alt={''.toLowerCase()}
+            alt={market.split('-')[1].toLowerCase()}
             className="w-[30px] h-[30px] border border-mineshaft rounded-full ring-4 ring-cod-gray"
           />
         }
@@ -189,6 +183,39 @@ const AsidePanel = ({ market }: { market: string }) => {
     );
   }, [panelState, amount, handleMax, market, userBalance]);
 
+  const contractTxButton = useMemo(() => {
+    if (amount === '0' || amount === '') {
+      return {
+        disabled: true,
+        label: 'Enter Amount',
+        handler: () => null,
+      };
+    } else if (
+      !approved &&
+      !(panelState !== PanelStates.Trade && activeIndexSub !== 0) // if not approved, and not in withdraw panel
+    ) {
+      return {
+        disabled: false,
+        label: 'Approve',
+        handler: () => {
+          approve();
+        },
+      };
+    } else if (panelState === PanelStates['Liquidity Provision']) {
+      return {
+        disabled: false,
+        label: activeIndexSub === 0 ? 'Deposit' : 'Withdraw',
+        handler: handleLpAction,
+      };
+    } else {
+      return {
+        disabled: true,
+        label: activeIndexSub === 0 ? 'Long' : 'Short',
+        handler: () => {}, // todo: implement
+      };
+    }
+  }, [activeIndexSub, amount, approve, approved, handleLpAction, panelState]);
+
   return (
     <div className="flex flex-col space-y-3">
       <div className="flex flex-col bg-cod-gray rounded-xl p-3 space-y-3">
@@ -208,35 +235,15 @@ const AsidePanel = ({ market }: { market: string }) => {
           <Trade
             inputPanel={memoizedInputPanel}
             data={{
-              strike: strikeData[activeStrikeIndex]?.strike || 0n,
-              health: portfolioData?.health || 0n,
-              newMaintenanceMargin: newMaintenanceMargin,
-              availableCollateral: portfolioData?.availableCollateral || 0n,
+              isShort: activeIndexSub === 0,
+              amount,
             }}
-            button={{
-              handler: () => {},
-              disabled: false,
-              label: buttonSubGroupLabels[panelState][activeIndexSub],
-            }}
+            button={contractTxButton}
           />
         ) : (
           <LiquidityProvision
             inputPanel={memoizedInputPanel}
-            data={[
-              {
-                label: 'TVL',
-                value: <p className="text-xs">-</p>,
-              },
-              {
-                label: 'APR',
-                value: <p className="text-xs">-</p>,
-              },
-            ]}
-            button={{
-              handler: () => {},
-              disabled: false,
-              label: buttonSubGroupLabels[panelState][activeIndexSub],
-            }}
+            button={contractTxButton}
           />
         )}
       </div>

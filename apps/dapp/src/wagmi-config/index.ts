@@ -2,7 +2,7 @@ import { configureChains, createConfig } from 'wagmi';
 import {
   arbitrum,
   arbitrumGoerli,
-  localhost,
+  hardhat,
   mainnet,
   polygon,
 } from 'wagmi/chains';
@@ -20,7 +20,7 @@ import { BitKeepConnector } from './BitKeepConnector';
 import { RabbyConnector } from './RabbyConnector';
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [arbitrum, polygon, mainnet, localhost, arbitrumGoerli],
+  [arbitrum, polygon, mainnet, hardhat, arbitrumGoerli],
   [
     jsonRpcProvider({
       rpc: () => ({

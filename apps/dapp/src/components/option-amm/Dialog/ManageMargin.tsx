@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { formatUnits, parseUnits } from 'viem';
+import { formatUnits, parseUnits, zeroAddress } from 'viem';
 
 import { OptionAmmPortfolioManager__factory } from '@dopex-io/sdk';
 import { Button, Dialog, Input } from '@dopex-io/ui';
 import { erc20ABI, useAccount, useContractWrite } from 'wagmi';
 
+import useAmmUserData from 'hooks/option-amm/useAmmUserData';
 import useVaultStore from 'hooks/option-amm/useVaultStore';
 
 import { ButtonGroupSub } from 'components/option-amm/AsidePanel';
@@ -12,15 +13,11 @@ import { CustomBottomElement } from 'components/ssov-beta/AsidePanel';
 
 import { getAllowance, getUserBalance } from 'utils/contracts/getERC20Info';
 
-import { DECIMALS_STRIKE } from 'constants/index';
+import { DECIMALS_USD } from 'constants/index';
 
 interface Props {
   open: boolean;
   handleClose: () => void;
-  data: {
-    health: bigint;
-    availableCollateral: bigint;
-  };
 }
 
 enum PanelState {
@@ -31,9 +28,23 @@ enum PanelState {
 const buttonLabels = ['Deposit', 'Withdraw'];
 
 const ManageMargin = (props: Props) => {
-  const { open, handleClose, data } = props;
+  const { open, handleClose } = props;
 
   const vault = useVaultStore((store) => store.vault);
+  const { address } = useAccount();
+  const collateralSymbol = useVaultStore(
+    (store) => store.vault.collateralSymbol,
+  );
+  const collateralToken = useVaultStore(
+    (store) => store.vault.collateralTokenAddress,
+  );
+  const { portfolioData, updatePortfolio } = useAmmUserData({
+    ammAddress: vault.address,
+    portfolioManager: vault.portfolioManager,
+    positionMinter: vault.positionMinter,
+    lpAddress: vault.lp,
+    account: address || zeroAddress,
+  });
 
   const [activeState, setActiveState] = useState<PanelState>(
     PanelState.Deposit,
@@ -42,30 +53,23 @@ const ManageMargin = (props: Props) => {
   const [amount, setAmount] = useState<string>('');
   const [approved, setApproved] = useState<boolean>(false);
 
-  const { address } = useAccount();
-  const collateralSymbol = useVaultStore(
-    (store) => store.vault.collateralSymbol,
-  );
-  const collateralToken = useVaultStore(
-    (store) => store.vault.collateralTokenAddress,
-  );
   const { write: deposit } = useContractWrite({
     abi: OptionAmmPortfolioManager__factory.abi,
     address: vault.portfolioManager,
     functionName: 'depositPortfolioCollateral',
-    args: [address!, parseUnits(amount, DECIMALS_STRIKE)],
+    args: [address!, parseUnits(amount, DECIMALS_USD)],
   });
   const { write: withdraw } = useContractWrite({
     abi: OptionAmmPortfolioManager__factory.abi,
     address: vault.portfolioManager,
     functionName: 'withdrawPortfolioCollateral',
-    args: [parseUnits(amount, DECIMALS_STRIKE)],
+    args: [parseUnits(amount, DECIMALS_USD)],
   });
   const { write: approve } = useContractWrite({
     abi: erc20ABI,
     address: vault.collateralTokenAddress,
     functionName: 'approve',
-    args: [vault.portfolioManager, parseUnits(amount, DECIMALS_STRIKE)],
+    args: [vault.portfolioManager, parseUnits(amount, DECIMALS_USD)],
   });
 
   const handleClickState = (index: number) => {
@@ -73,7 +77,7 @@ const ManageMargin = (props: Props) => {
   };
 
   const handleMax = useCallback(() => {
-    setAmount(formatUnits(balance, DECIMALS_STRIKE));
+    setAmount(formatUnits(balance, DECIMALS_USD));
   }, [balance]);
 
   const handleChange = (e: {
@@ -83,7 +87,7 @@ const ManageMargin = (props: Props) => {
   };
 
   const handleClick = useCallback(() => {
-    if (!approved) approve?.();
+    if (!approved && activeState === PanelState.Deposit) approve?.();
     else activeState === PanelState.Deposit ? deposit?.() : withdraw?.();
   }, [activeState, approve, approved, deposit, withdraw]);
 
@@ -98,11 +102,18 @@ const ManageMargin = (props: Props) => {
         });
         setBalance(_balance || 0n);
       } else {
-        const _balance = data.availableCollateral;
+        await updatePortfolio();
+        const _balance = portfolioData?.collateralAmount;
         setBalance(_balance || 0n);
       }
     })();
-  }, [activeState, address, data.availableCollateral, collateralToken]);
+  }, [
+    activeState,
+    address,
+    collateralToken,
+    portfolioData?.collateralAmount,
+    updatePortfolio,
+  ]);
 
   useEffect(() => {
     (async () => {
@@ -118,7 +129,7 @@ const ManageMargin = (props: Props) => {
         spender: vault.portfolioManager,
         tokenAddress: vault.collateralTokenAddress,
       });
-      setApproved(allowance > parseUnits(amount, DECIMALS_STRIKE));
+      setApproved(allowance >= parseUnits(amount, DECIMALS_USD));
     })();
   }, [address, amount, vault.collateralTokenAddress, vault.portfolioManager]);
 
@@ -131,7 +142,7 @@ const ManageMargin = (props: Props) => {
         disabled: true,
         textContent: 'Enter an amount',
       };
-    else if (!approved)
+    else if (!approved && activeState === PanelState.Deposit)
       return { ...defaultState, disabled: false, textContent: 'Approve' };
     else {
       return {
@@ -170,7 +181,7 @@ const ManageMargin = (props: Props) => {
             <CustomBottomElement
               symbol={collateralSymbol}
               label="Balance"
-              value={formatUnits(balance, DECIMALS_STRIKE)}
+              value={formatUnits(balance, DECIMALS_USD)}
               role="button"
               onClick={handleMax}
             />
@@ -180,11 +191,16 @@ const ManageMargin = (props: Props) => {
         <div className="border border-carbon rounded-lg divide-y divide-carbon">
           <div className="flex justify-between text-xs p-3">
             <p className="text-stieglitz">Health Factor</p>
-            <p>{formatUnits(data.health, 4)}</p>
+            <p>{formatUnits(portfolioData?.health || 0n, 4)}</p>
           </div>
           <div className="flex justify-between text-xs p-3">
             <p className="text-stieglitz">Margin Balance</p>
-            <p>{formatUnits(data.availableCollateral, DECIMALS_STRIKE)}</p>
+            <p>
+              {formatUnits(
+                portfolioData?.availableCollateral || 0n,
+                DECIMALS_USD,
+              )}
+            </p>
           </div>
           <div className="flex justify-between text-xs p-3">
             <p className="text-stieglitz">Margin Required</p>

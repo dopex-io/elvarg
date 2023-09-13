@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Address } from 'viem';
 
-import { OptionAmmPortfolioManager__factory } from '@dopex-io/sdk';
+import {
+  OptionAmmLp__factory,
+  OptionAmmPortfolioManager__factory,
+} from '@dopex-io/sdk';
 import { readContract } from 'wagmi/actions';
 
 import getOptionPosition from 'utils/optionAmm/getOptionPosition';
@@ -29,32 +32,41 @@ export interface Portfolio {
   collateralAmount: bigint;
   activeCollateral: bigint;
   availableCollateral: bigint;
+  totalCollateral: bigint;
   health: bigint;
   positions: bigint[];
   closedPositions: bigint[];
 }
 
+export interface AmmLpData {
+  totalSupply: bigint;
+  userUnlockTime: bigint;
+  userShares: bigint;
+}
+
 interface Props {
   ammAddress: Address;
+  lpAddress: Address;
   portfolioManager: Address;
   positionMinter: Address;
-  accountAddress: Address;
+  account: Address;
 }
 
 const useAmmUserData = (props: Props) => {
-  const { ammAddress, portfolioManager, positionMinter, accountAddress } =
+  const { ammAddress, lpAddress, portfolioManager, positionMinter, account } =
     props;
 
   const [optionPositions, setOptionPositions] = useState<OptionPosition[]>([]);
   const [portfolioData, setPortfolioData] = useState<Portfolio>();
+  const [lpData, setLpData] = useState<AmmLpData>();
   const [loading, setLoading] = useState<boolean>(false);
 
   const updateUserOptionPositions = useCallback(async () => {
-    if (!positionMinter || !accountAddress) return;
+    if (positionMinter === '0x' || !account) return;
     setLoading(true);
     const positionIds = await getPositionIds({
       positionMinter,
-      owner: accountAddress,
+      owner: account,
     });
 
     const optionPositionPromises = [];
@@ -90,15 +102,14 @@ const useAmmUserData = (props: Props) => {
     // setOptionPositions(_optionPositions);
     setOptionPositions(mockOptionPositions);
     setLoading(false);
-  }, [accountAddress, ammAddress, positionMinter]);
+  }, [account, ammAddress, positionMinter]);
 
   const updatePortfolio = useCallback(async () => {
-    if (portfolioManager === '0x' || !accountAddress || accountAddress === '0x')
-      return;
+    if (portfolioManager === '0x' || !account || account === '0x') return;
 
     const [collateralAmount, borrowedAmount] = await getPortfolio({
       portfolioManager,
-      accountAddress,
+      accountAddress: account,
     });
 
     const _portfolioData = {
@@ -108,7 +119,7 @@ const useAmmUserData = (props: Props) => {
 
     const positionIds = await getPositionIds({
       positionMinter,
-      owner: accountAddress,
+      owner: account,
     });
 
     const filteredClosedPositions = optionPositions.filter(
@@ -122,22 +133,27 @@ const useAmmUserData = (props: Props) => {
       address: portfolioManager,
     };
 
-    const health = await readContract({
-      ...config,
-      functionName: 'getPortfolioHealth',
-      args: [accountAddress],
-    });
-
-    let activeCollateral = await readContract({
-      ...config,
-      functionName: 'getPortfolioActiveCollateral',
-      args: [accountAddress],
-    });
-    let totalPortfolioCollateral = await readContract({
-      ...config,
-      functionName: 'getPortfolioCollateralAmount',
-      args: [accountAddress],
-    });
+    const [
+      health,
+      [longMargin, shortMargin, longPnl, shortPnl],
+      totalPortfolioCollateral,
+    ] = await Promise.all([
+      readContract({
+        ...config,
+        functionName: 'getPortfolioHealth',
+        args: [account],
+      }),
+      readContract({
+        ...config,
+        functionName: 'getPortfolioActiveCollateral',
+        args: [account],
+      }),
+      readContract({
+        ...config,
+        functionName: 'getPortfolioCollateralAmount',
+        args: [account],
+      }),
+    ]); // todo: replace with wagmi multicall on mainnet
 
     /**
      * 0: activeShorts
@@ -148,8 +164,7 @@ const useAmmUserData = (props: Props) => {
      */
     const abs = (n: bigint) => (n === -0n || n < 0n ? -n : n);
     let netActiveCollateral =
-      abs(activeCollateral[0] - activeCollateral[1]) +
-      (activeCollateral[2] + activeCollateral[3]);
+      abs(longMargin - shortMargin) + (longPnl + shortPnl);
 
     const availableCollateral = totalPortfolioCollateral - netActiveCollateral;
 
@@ -160,8 +175,41 @@ const useAmmUserData = (props: Props) => {
       health,
       activeCollateral: netActiveCollateral,
       availableCollateral,
+      totalCollateral: collateralAmount,
     });
-  }, [accountAddress, optionPositions, portfolioManager, positionMinter]);
+  }, [account, optionPositions, portfolioManager, positionMinter]);
+
+  const updateLpData = useCallback(async () => {
+    if (lpAddress === '0x' || !account) return;
+
+    const config = {
+      abi: OptionAmmLp__factory.abi,
+      address: lpAddress,
+    };
+
+    const [totalSupply, userUnlockTime, userShares] = await Promise.all([
+      readContract({
+        ...config,
+        functionName: 'totalSupply',
+      }),
+      readContract({
+        ...config,
+        functionName: 'lockedUsers',
+        args: [account],
+      }),
+      readContract({
+        ...config,
+        functionName: 'balanceOf',
+        args: [account],
+      }),
+    ]); // todo: replace with wagmi multicall on mainnet
+
+    setLpData({
+      totalSupply,
+      userUnlockTime,
+      userShares,
+    });
+  }, [account, lpAddress]);
 
   useEffect(() => {
     updateUserOptionPositions();
@@ -171,11 +219,18 @@ const useAmmUserData = (props: Props) => {
     updatePortfolio();
   }, [updatePortfolio]);
 
+  useEffect(() => {
+    updateLpData();
+  }, [updateLpData]);
+
   return {
-    updateUserOptionPositions,
     optionPositions,
-    loading,
+    updateUserOptionPositions,
     portfolioData,
+    updatePortfolio,
+    lpData,
+    updateLpData,
+    loading,
   };
 };
 

@@ -1,17 +1,35 @@
+import { formatUnits, zeroAddress } from 'viem';
+
 import { Button } from '@dopex-io/ui';
+import { formatDistanceToNow } from 'date-fns';
+import { useAccount } from 'wagmi';
+
+import useAmmUserData from 'hooks/option-amm/useAmmUserData';
+import useVaultStore from 'hooks/option-amm/useVaultStore';
+
+import { DECIMALS_USD } from 'constants/index';
 
 interface Props {
   inputPanel: React.ReactNode;
-  data: { label: string; value: string | React.ReactNode }[];
   button: {
     label: string;
     disabled: boolean;
-    handler: (e: any) => void;
+    handler: () => void;
   };
 }
 
 const LiquidityProvision = (props: Props) => {
-  const { inputPanel, data, button } = props;
+  const { inputPanel, button } = props;
+
+  const { address } = useAccount();
+  const vault = useVaultStore((store) => store.vault);
+  const { lpData } = useAmmUserData({
+    ammAddress: vault.address,
+    lpAddress: vault.lp,
+    portfolioManager: vault.portfolioManager,
+    positionMinter: vault.positionMinter,
+    account: address || zeroAddress,
+  });
 
   return (
     <div className="space-y-3">
@@ -19,19 +37,40 @@ const LiquidityProvision = (props: Props) => {
         {inputPanel}
       </div>
       <div className="border border-carbon rounded-lg divide-y divide-carbon">
-        {data.map((item, idx) => {
-          return (
-            <div key={idx} className="flex justify-between text-xs p-3">
-              <p className="text-stieglitz">{item.label}</p>
-              <p>{item.value}</p>
-            </div>
-          );
-        })}
+        <div className="flex justify-between text-xs p-3">
+          <p className="text-stieglitz">TVL</p>
+          <span className="flex space-x-1 text-stieglitz">
+            <p className="text-white">
+              {formatUnits(lpData?.totalSupply || 0n, DECIMALS_USD)}
+            </p>
+            <p>{vault.collateralSymbol}</p>
+          </span>
+        </div>
+        <div className="flex justify-between text-xs p-3">
+          <p className="text-stieglitz">APR</p>
+          <p>-</p>
+        </div>
       </div>
       <div className="flex flex-col bg-umbra p-3 rounded-xl space-y-3">
         <div className="flex justify-between text-xs">
-          <p className="text-stieglitz">You will get</p>
-          <p>-</p>
+          <p className="text-stieglitz">Withdrawable</p>
+          <p>
+            {formatDistanceToNow(
+              Number(lpData?.userUnlockTime || new Date()) * 1000,
+              {
+                includeSeconds: true,
+              },
+            )}
+          </p>
+        </div>
+        <div className="flex justify-between text-xs text-stieglitz">
+          <p>Your Shares</p>
+          <span className="flex space-x-1">
+            <p className="text-white">
+              {formatUnits(lpData?.userShares || 0n, DECIMALS_USD)}
+            </p>
+            <p>{vault.collateralSymbol}</p>
+          </span>
         </div>
         <Button
           className="flex-grow text-sm justify-center font-normal transition ease-in-out duration-200"

@@ -1,22 +1,31 @@
-import { useState } from 'react';
-import { formatUnits } from 'viem';
+import { useCallback, useEffect, useState } from 'react';
+import { formatUnits, parseUnits, zeroAddress } from 'viem';
 
+import {
+  OptionAmm__factory,
+  OptionAmmPortfolioManager__factory,
+} from '@dopex-io/sdk';
 import { Button } from '@dopex-io/ui';
+import { debounce } from 'lodash';
+import { useAccount } from 'wagmi';
+import { readContract } from 'wagmi/actions';
+
+import useAmmUserData from 'hooks/option-amm/useAmmUserData';
+import useStrikesData from 'hooks/option-amm/useStrikesData';
+import useVaultStore from 'hooks/option-amm/useVaultStore';
 
 import ExpirySelector from 'components/option-amm/AsidePanel/Dropdowns/ExpirySelector';
 import OptionTypeSelector from 'components/option-amm/AsidePanel/Dropdowns/OptionTypeSelector';
 import ManageMargin from 'components/option-amm/Dialog/ManageMargin';
 import RowItem from 'components/ssov-beta/AsidePanel/RowItem';
 
-import { DECIMALS_STRIKE } from 'constants/index';
+import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
 interface Props {
   inputPanel: React.ReactNode;
   data: {
-    strike: bigint;
-    health: bigint;
-    availableCollateral: bigint;
-    newMaintenanceMargin: bigint;
+    isShort: boolean;
+    amount: string;
   };
   button: {
     label: string;
@@ -26,9 +35,26 @@ interface Props {
 }
 
 const Trade = (props: Props) => {
-  const { inputPanel, data, button } = props;
+  const { inputPanel, button, data } = props;
+
+  const { address } = useAccount();
+  const vault = useVaultStore((store) => store.vault);
+  const activeStrikeIndex = useVaultStore((store) => store.activeStrikeIndex);
+  const { strikeData, expiryData } = useStrikesData({
+    ammAddress: vault.address,
+    duration: vault.duration,
+    isPut: vault.isPut,
+  });
+  const { portfolioData } = useAmmUserData({
+    ammAddress: vault.address,
+    portfolioManager: vault.portfolioManager,
+    account: address || zeroAddress,
+    positionMinter: vault.positionMinter,
+    lpAddress: vault.lp,
+  });
 
   const [open, setOpen] = useState<boolean>(false);
+  const [newMaintenanceMargin, setNewMaintenanceMargin] = useState<bigint>(0n);
 
   const handleClose = () => {
     setOpen(false);
@@ -37,6 +63,34 @@ const Trade = (props: Props) => {
   const handleClick = () => {
     setOpen(true);
   };
+
+  const updatePortfolioMMFromInput = useCallback(async () => {
+    if (!address || !expiryData) return;
+    const isShort = data.isShort;
+    const marginToLock = await readContract({
+      abi: OptionAmm__factory.abi,
+      address: vault.address,
+      functionName: 'calculateMarginRequirement',
+      args: [
+        vault.isPut,
+        strikeData[activeStrikeIndex].strike,
+        BigInt(expiryData.expiry),
+        parseUnits(data.amount, DECIMALS_TOKEN),
+      ],
+    });
+    const _newMaintenanceMargin = await readContract({
+      abi: OptionAmmPortfolioManager__factory.abi,
+      address: vault.portfolioManager,
+      functionName: 'getPortfolioHealthFromAddedMargin',
+      args: [address, marginToLock, isShort],
+    });
+
+    setNewMaintenanceMargin(_newMaintenanceMargin);
+  }, [activeStrikeIndex, address, data, expiryData, strikeData, vault]);
+
+  useEffect(() => {
+    debounce(async () => await updatePortfolioMMFromInput(), 500);
+  }, [updatePortfolioMMFromInput]);
 
   return (
     <div className="space-y-3">
@@ -55,20 +109,24 @@ const Trade = (props: Props) => {
       </div>
       <div className="flex flex-col bg-umbra rounded-xl p-3 space-y-2">
         <RowItem
-          label="Health Factor"
-          content={<p>{formatUnits(data.health || 0n, 4)}</p>}
+          label="Current Health"
+          content={<p>{formatUnits(portfolioData?.health || 0n, 4)}</p>}
+        />
+        <RowItem
+          label="New Health"
+          content={<p>{formatUnits(newMaintenanceMargin || 0n, 4)}</p>}
         />
         <RowItem
           label="Available Margin"
           content={
             <p>
-              ${formatUnits(data.availableCollateral || 0n, DECIMALS_STRIKE)}
+              $
+              {formatUnits(
+                portfolioData?.availableCollateral || 0n,
+                DECIMALS_USD,
+              )}
             </p>
           }
-        />
-        <RowItem
-          label="Health Factor"
-          content={<p>{formatUnits(data.health || 0n, 4)}</p>}
         />
         <RowItem label="Fees" content={<p>-</p>} />
         <Button
@@ -88,14 +146,7 @@ const Trade = (props: Props) => {
           {button.label}
         </Button>
       </div>
-      <ManageMargin
-        open={open}
-        handleClose={handleClose}
-        data={{
-          health: data.health,
-          availableCollateral: data.availableCollateral,
-        }}
-      />
+      <ManageMargin open={open} handleClose={handleClose} />
     </div>
   );
 };
