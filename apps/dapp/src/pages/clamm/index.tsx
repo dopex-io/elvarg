@@ -104,7 +104,7 @@ const ClammPage = () => {
       CLAMM_PAIRS_TO_ADDRESSES[selectedOptionsPoolPair.joined];
 
     // @TODO: load from sdk
-    const positionManagerAddress = '0x2a9a9f63F13dD70816C456B2f2553bb648EE0F8F';
+    const positionManagerAddress = '0x16594f1C98dC142aBccfA3D07FB0d8A6aa0992A0';
 
     setPositionManagerAddress(positionManagerAddress);
 

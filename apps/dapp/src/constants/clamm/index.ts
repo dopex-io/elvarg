@@ -26,7 +26,7 @@ export const CLAMM_PAIRS_TO_ADDRESSES: Record<string, PairToAddress> = {
   'ARB-USDC': {
     underlyingTokenAddress: '0x912CE59144191C1204E64559FE8253a0e49E6548',
     collateralTokenAddress: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
-    optionsPoolAddress: '0x63CdE7A53b903e02bAe7e62E6b0fc45252bbb27A',
+    optionsPoolAddress: '0x88C78f6F674Ed711EEbDE15d8b090dec44C590b4',
     uniswapV3PoolAddress: '0xcDa53B1F66614552F834cEeF361A8D12a0B8DaD8',
   },
 };
