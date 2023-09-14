@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Address } from 'viem';
+import { Address, zeroAddress } from 'viem';
 
 import {
   OptionAmm__factory,
@@ -107,7 +107,14 @@ const useAmmUserData = (props: Props) => {
   }, [account, ammAddress, positionMinter]);
 
   const updatePortfolio = useCallback(async () => {
-    if (portfolioManager === '0x' || !account || account === '0x') return;
+    if (
+      portfolioManager === '0x' ||
+      account === zeroAddress ||
+      positionMinter === '0x'
+    )
+      return;
+
+    console.log(account);
 
     const [collateralAmount, borrowedAmount] = await getPortfolio({
       portfolioManager,
@@ -189,7 +196,7 @@ const useAmmUserData = (props: Props) => {
   }, [account, ammAddress, optionPositions, portfolioManager, positionMinter]);
 
   const updateLpData = useCallback(async () => {
-    if (lpAddress === '0x' || !account) return;
+    if (lpAddress === '0x' || !account || account === zeroAddress) return;
 
     const config = {
       abi: OptionAmmLp__factory.abi,

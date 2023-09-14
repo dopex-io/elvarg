@@ -162,13 +162,16 @@ const StrikesTable = (props: Props) => {
   );
 
   const { strikeData, greeks, loading } = useStrikesData({
-    ammAddress: '0x',
+    ammAddress: vault.address,
     duration: vault.duration,
     isPut: vault.isPut,
   });
 
   const data = useMemo(() => {
+    // todo: fix bug updating strikeData in useStrikesData()
+    console.log(strikeData);
     if (!strikeData || !greeks) return [];
+    console.log(strikeData);
     return strikeData.map((sd, index) => {
       return {
         strike: Number(formatUnits(sd.strike || 0n, DECIMALS_STRIKE)),

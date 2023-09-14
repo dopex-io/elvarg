@@ -61,17 +61,21 @@ const TableLayout = <T extends object>({
   } = table;
 
   if (isContentLoading)
-    return Array.from(Array(4)).map((_, index) => {
-      return (
-        <Skeleton
-          key={index}
-          width="fitContent"
-          height={70}
-          color="carbon"
-          variant="rounded"
-        />
-      );
-    });
+    return (
+      <div className="flex flex-col space-y-3 w-full p-2">
+        {Array.from(Array(4)).map((_, index) => {
+          return (
+            <Skeleton
+              key={index}
+              width="fitContent"
+              height={70}
+              color="carbon"
+              variant="rounded"
+            />
+          );
+        })}
+      </div>
+    );
 
   return data.length > 0 ? (
     <div className="bg-cod-gray rounded-lg">

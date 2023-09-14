@@ -3,7 +3,9 @@ import { formatUnits, parseUnits, zeroAddress } from 'viem';
 
 import { OptionAmmPortfolioManager__factory } from '@dopex-io/sdk';
 import { Button, Dialog, Input } from '@dopex-io/ui';
+import { useDebounce } from 'use-debounce';
 import { erc20ABI, useAccount, useContractWrite } from 'wagmi';
+import { readContract } from 'wagmi/actions';
 
 import useAmmUserData from 'hooks/option-amm/useAmmUserData';
 import useVaultStore from 'hooks/option-amm/useVaultStore';
@@ -12,6 +14,9 @@ import { ButtonGroupSub } from 'components/option-amm/AsidePanel';
 import { CustomBottomElement } from 'components/ssov-beta/AsidePanel';
 
 import { getAllowance, getUserBalance } from 'utils/contracts/getERC20Info';
+import { formatAmount } from 'utils/general';
+import getHighlightingFromRisk from 'utils/optionAmm/getHighlightingFromRisk';
+import getMMSeverity from 'utils/optionAmm/getMMSeverity';
 
 import { DECIMALS_USD } from 'constants/index';
 
@@ -52,6 +57,8 @@ const ManageMargin = (props: Props) => {
   const [balance, setBalance] = useState<bigint>(0n);
   const [amount, setAmount] = useState<string>('');
   const [approved, setApproved] = useState<boolean>(false);
+  const [portfolioHealth, setPortfolioHealth] = useState<bigint>(0n);
+  const [debouncedHealth] = useDebounce(portfolioHealth, 1000);
 
   const { write: deposit } = useContractWrite({
     abi: OptionAmmPortfolioManager__factory.abi,
@@ -90,6 +97,24 @@ const ManageMargin = (props: Props) => {
     if (!approved && activeState === PanelState.Deposit) approve?.();
     else activeState === PanelState.Deposit ? deposit?.() : withdraw?.();
   }, [activeState, approve, approved, deposit, withdraw]);
+
+  const updatePortfolioHealth = useCallback(async () => {
+    const config = {
+      abi: OptionAmmPortfolioManager__factory.abi,
+      address: vault.portfolioManager,
+    };
+
+    const _newHealth = await readContract({
+      ...config,
+      functionName: 'getPortfolioHealthFromAddedCollateral',
+      args: [address || zeroAddress, parseUnits(amount, DECIMALS_USD)],
+    });
+    setPortfolioHealth(_newHealth);
+  }, [address, amount, vault.portfolioManager]);
+
+  useEffect(() => {
+    updatePortfolioHealth();
+  }, [updatePortfolioHealth]);
 
   useEffect(() => {
     (async () => {
@@ -152,6 +177,23 @@ const ManageMargin = (props: Props) => {
     }
   }, [activeState, amount, approved, handleClick]);
 
+  const riskHighlighting = useMemo(() => {
+    if (!portfolioData)
+      return { current: 'text-stieglitz', new: 'text-stieglitz' };
+    const currentRisk = getMMSeverity(
+      portfolioData.health,
+      portfolioData.liquidationThreshold,
+    );
+    const newRisk = getMMSeverity(
+      debouncedHealth,
+      portfolioData.liquidationThreshold,
+    );
+    return {
+      current: getHighlightingFromRisk(currentRisk),
+      new: getHighlightingFromRisk(newRisk),
+    };
+  }, [debouncedHealth, portfolioData]);
+
   return (
     <Dialog
       isOpen={open}
@@ -181,7 +223,7 @@ const ManageMargin = (props: Props) => {
             <CustomBottomElement
               symbol={collateralSymbol}
               label="Balance"
-              value={formatUnits(balance, DECIMALS_USD)}
+              value={formatAmount(formatUnits(balance, DECIMALS_USD), 3)}
               role="button"
               onClick={handleMax}
             />
@@ -190,21 +232,30 @@ const ManageMargin = (props: Props) => {
         />
         <div className="border border-carbon rounded-lg divide-y divide-carbon">
           <div className="flex justify-between text-xs p-3">
-            <p className="text-stieglitz">Health Factor</p>
-            <p>{formatUnits(portfolioData?.health || 0n, 4)}</p>
+            <p className="text-stieglitz">Portfolio Health</p>
+            <span className="flex space-x-2">
+              <p className={`text-${riskHighlighting.current}`}>
+                {formatUnits(portfolioData?.health || 0n, 4)}%
+              </p>
+              {amount !== '' && amount !== '0' ? (
+                <>
+                  <p>→</p>
+                  <p className={`text-${riskHighlighting.new}`}>
+                    {formatUnits(debouncedHealth || 0n, 4)}%
+                  </p>
+                </>
+              ) : null}
+            </span>
           </div>
           <div className="flex justify-between text-xs p-3">
             <p className="text-stieglitz">Margin Balance</p>
             <p>
+              $
               {formatUnits(
                 portfolioData?.availableCollateral || 0n,
                 DECIMALS_USD,
               )}
             </p>
-          </div>
-          <div className="flex justify-between text-xs p-3">
-            <p className="text-stieglitz">Margin Required</p>
-            <p>0</p>
           </div>
         </div>
         <Button

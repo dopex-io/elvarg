@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Address, formatUnits } from 'viem';
 
+import { OptionAmm__factory } from '@dopex-io/sdk';
+import { readContract } from 'wagmi/actions';
+
 import getTimeToExpirationInYears from 'utils/date/getTimeToExpirationInYears';
 import computeOptionGreeks from 'utils/ssov/computeOptionGreeks';
 
@@ -47,10 +50,10 @@ interface ExpiryStrike {
   strike: bigint;
   iv: bigint;
   // from struct
-  longs: [bigint, bigint]; // [calls, puts]
-  activeLongs: [bigint, bigint];
-  shorts: [bigint, bigint];
-  activeShorts: [bigint, bigint];
+  longs: readonly [bigint, bigint]; // [calls, puts]
+  activeLongs: readonly [bigint, bigint];
+  shorts: readonly [bigint, bigint];
+  activeShorts: readonly [bigint, bigint];
   premium: bigint;
   fees: bigint;
 }
@@ -63,8 +66,14 @@ interface Props {
 
 const NON_ZERO_DENOMINATOR = 1n;
 
+const durationToExpiryMapping = {
+  DAILY: 1694764801n,
+  WEEKLY: 1695369601n,
+  MONTHLY: 1695974400n,
+};
+
 const useStrikesData = (props: Props) => {
-  const { ammAddress = '0x', duration, isPut } = props;
+  const { ammAddress = '0x', duration = 'DAILY', isPut } = props;
 
   const [_expiryData, setExpiryData] = useState<ExpiryData>();
   const [expiryStrikeData, setExpiryStrikeData] = useState<ExpiryStrike[]>();
@@ -74,13 +83,36 @@ const useStrikesData = (props: Props) => {
     // contract call via duration
     // @dev expiry data
     // mapping(uint256 => ExpiryData) public expiryData;  // @ref: OptionAMMState.sol:L78
-    if (!mockExpiryData[duration]) return;
+    if (!mockExpiryData[duration] || ammAddress === '0x') return;
+
+    const selectedExpiryTimestamp = durationToExpiryMapping[duration];
+
+    const [
+      active,
+      expired,
+      strikeIncrement,
+      maxOtmPercentage,
+      premium,
+      fees,
+      expiry,
+    ] = await readContract({
+      abi: OptionAmm__factory.abi,
+      address: ammAddress,
+      functionName: 'getExpiryData',
+      args: [selectedExpiryTimestamp],
+    });
+
+    const markPrice = await readContract({
+      abi: OptionAmm__factory.abi,
+      address: ammAddress,
+      functionName: 'getMarkPrice',
+    });
 
     const expiryData = mockExpiryData[duration];
 
     const strikeRange = [
-      ((100n + expiryData.maxOtmPercentage) * 123400000n) / 100n,
-      ((100n - expiryData.maxOtmPercentage) * 123400000n) / 100n,
+      ((100n + maxOtmPercentage) * markPrice) / 100n,
+      ((100n - maxOtmPercentage) * markPrice) / 100n,
     ];
 
     const upperBound =
@@ -91,40 +123,71 @@ const useStrikesData = (props: Props) => {
     let strikes = [];
 
     while (nextLowerTick > strikeRange[1]) {
-      nextLowerTick = upperBound - BigInt(i + 1) * expiryData.strikeIncrement;
+      nextLowerTick = upperBound - BigInt(i + 1) * strikeIncrement;
       strikes.push(nextLowerTick);
       i++;
     }
 
-    setExpiryData({ ...mockExpiryData[duration], strikes });
-  }, [duration]);
+    setExpiryData({
+      ...mockExpiryData[duration],
+      strikes,
+      premium,
+      fees,
+      expiry: Number(expiry),
+      expired,
+      active,
+    });
+  }, [ammAddress, duration]);
 
   const updateExpiryStrikes = useCallback(async () => {
     if (!_expiryData || !ammAddress) return;
 
     const strikes = _expiryData.strikes;
 
-    let promises: ExpiryStrike[] = [];
+    const config = { abi: OptionAmm__factory.abi, address: ammAddress };
+
+    let ivPromises = [];
+    let strikeDataPromises = [];
     for (let i = 0; i < strikes.length; i++) {
-      // store promise
-      promises.push({
+      const [iv, strikeData] = [
+        readContract({
+          ...config,
+          functionName: 'getVolatility',
+          args: [strikes[i], BigInt(_expiryData.expiry)],
+        }),
+        readContract({
+          ...config,
+          functionName: 'getExpiryStrikeData',
+          args: [strikes[i], BigInt(_expiryData.expiry)],
+        }),
+      ];
+      ivPromises.push(iv);
+      strikeDataPromises.push(strikeData);
+    }
+
+    const ivs = await Promise.all(ivPromises);
+    const strikeData = await Promise.all(strikeDataPromises);
+    const expiryStrikeData = [];
+    for (let i = 0; i < strikes.length; i++) {
+      expiryStrikeData.push({
         strike: strikes[i],
-        iv: 25n + 5n * BigInt(i),
-        longs: [0n, 0n],
-        activeLongs: [0n, 0n],
-        shorts: [0n, 0n],
-        activeShorts: [0n, 0n],
-        premium: 0n,
-        fees: 0n,
+        iv: ivs[i],
+        longs: strikeData[i][0],
+        activeLongs: strikeData[i][1],
+        shorts: strikeData[i][2],
+        activeShorts: strikeData[i][3],
+        premium: strikeData[i][4],
+        fees: strikeData[i][5],
       });
     }
 
-    const res = await Promise.all(promises);
-    setExpiryStrikeData(res);
+    setExpiryStrikeData(expiryStrikeData);
   }, [_expiryData, ammAddress]);
 
   const strikeData = useMemo(() => {
     if (!expiryStrikeData) return [];
+
+    // todo: fix, failing to update
 
     let totalAvailableCollateral = 0n;
 

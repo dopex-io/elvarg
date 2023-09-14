@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { formatUnits, parseUnits, zeroAddress } from 'viem';
 
-import { OptionAmmLp__factory } from '@dopex-io/sdk';
+import { OptionAmm__factory, OptionAmmLp__factory } from '@dopex-io/sdk';
 import { Button, Input } from '@dopex-io/ui';
 import { erc20ABI, useAccount, useContractWrite } from 'wagmi';
 
@@ -98,6 +98,20 @@ const AsidePanel = ({ market }: { market: string }) => {
     functionName: 'withdraw',
     args: [parseUnits(amount, DECIMALS_USD), address || '0x', address || '0x'],
   });
+  const { write: longOrShort } = useContractWrite({
+    address: vault.address,
+    abi: OptionAmm__factory.abi,
+    functionName:
+      panelState === PanelStates.Trade && activeIndexSub === 0
+        ? 'longOption'
+        : 'shortOption',
+    args: [
+      vault.isPut,
+      80000000n, // $0.75
+      1694764801n,
+      parseUnits(amount, DECIMALS_TOKEN),
+    ],
+  });
 
   const handleClickButtonGroup = (index: number) => {
     setPanelState(index);
@@ -122,9 +136,40 @@ const AsidePanel = ({ market }: { market: string }) => {
     updateLpData();
   }, [activeIndexSub, deposit, updateLpData, withdraw]);
 
+  const handleUpdateAllowance = useCallback(async () => {
+    if (
+      !address ||
+      address === zeroAddress ||
+      vault.collateralTokenAddress === '0x'
+    )
+      return;
+
+    const allowance = await getAllowance({
+      owner: address,
+      spender:
+        panelState === PanelStates['Liquidity Provision']
+          ? vault.lp
+          : vault.address,
+      tokenAddress: vault.collateralTokenAddress,
+    });
+    setApproved(allowance >= parseUnits(amount, DECIMALS_USD));
+  }, [
+    address,
+    amount,
+    panelState,
+    vault.address,
+    vault.collateralTokenAddress,
+    vault.lp,
+  ]);
+
+  useEffect(() => {
+    handleUpdateAllowance();
+  }, [handleUpdateAllowance]);
+
   useEffect(() => {
     (async () => {
-      if (!address || vault.underlyingTokenAddress === '0x') return;
+      if (address === zeroAddress || vault.underlyingTokenAddress === '0x')
+        return;
       const _balance = await getUserBalance({
         owner: address,
         tokenAddress: vault.underlyingTokenAddress,
@@ -132,22 +177,6 @@ const AsidePanel = ({ market }: { market: string }) => {
       setUserBalance(_balance || 0n);
     })();
   }, [address, vault.underlyingTokenAddress]);
-
-  useEffect(() => {
-    (async () => {
-      if (!address || vault.collateralTokenAddress === '0x') return;
-
-      const allowance = await getAllowance({
-        owner: address,
-        spender:
-          panelState === PanelStates['Liquidity Provision']
-            ? vault.lp
-            : vault.address,
-        tokenAddress: vault.collateralTokenAddress,
-      });
-      setApproved(allowance >= parseUnits(amount, DECIMALS_USD));
-    })();
-  }, [address, amount, panelState, vault]);
 
   const memoizedInputPanel = useMemo(() => {
     return (
@@ -199,6 +228,7 @@ const AsidePanel = ({ market }: { market: string }) => {
         label: 'Approve',
         handler: () => {
           approve();
+          handleUpdateAllowance();
         },
       };
     } else if (panelState === PanelStates['Liquidity Provision']) {
@@ -209,12 +239,21 @@ const AsidePanel = ({ market }: { market: string }) => {
       };
     } else {
       return {
-        disabled: true,
+        disabled: false,
         label: activeIndexSub === 0 ? 'Long' : 'Short',
-        handler: () => {}, // todo: implement
+        handler: () => longOrShort(), // todo: implement
       };
     }
-  }, [activeIndexSub, amount, approve, approved, handleLpAction, panelState]);
+  }, [
+    activeIndexSub,
+    amount,
+    approve,
+    approved,
+    handleLpAction,
+    handleUpdateAllowance,
+    longOrShort,
+    panelState,
+  ]);
 
   return (
     <div className="flex flex-col space-y-3">
