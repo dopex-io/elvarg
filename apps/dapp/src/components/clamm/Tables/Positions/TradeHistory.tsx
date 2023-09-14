@@ -23,6 +23,10 @@ type TradeHistoryData = {
     amount: string;
     symbol: string;
   };
+  premium: {
+    amount: string;
+    symbol: string;
+  };
   expiry: number;
   exercisableAmount: bigint;
   profit: {
@@ -59,6 +63,12 @@ const columns = [
         {Number(info.getValue()) * 1000 < new Date().getTime() && 'ago'}
       </p>
     ),
+  }),
+  columnHelper.accessor('side', {
+    header: 'side',
+    cell: (info) => {
+      return <p>{info.getValue()}</p>;
+    },
   }),
   columnHelper.accessor('profit', {
     header: 'PnL',
