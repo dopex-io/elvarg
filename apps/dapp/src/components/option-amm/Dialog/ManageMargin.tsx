@@ -235,17 +235,21 @@ const ManageMargin = (props: Props) => {
             <p className="text-stieglitz">Portfolio Health</p>
             <span className="flex space-x-2">
               <p className={`text-${riskHighlighting.current}`}>
-                {formatUnits(portfolioData?.health || 0n, 4)}%
+                {formatUnits(portfolioData?.health || 0n, 2)}%
               </p>
               {amount !== '' && amount !== '0' ? (
                 <>
                   <p>→</p>
                   <p className={`text-${riskHighlighting.new}`}>
-                    {formatUnits(debouncedHealth || 0n, 4)}%
+                    {formatUnits(debouncedHealth || 0n, 2)}%
                   </p>
                 </>
               ) : null}
             </span>
+          </div>
+          <div className="flex justify-between text-xs p-3">
+            <p className="text-stieglitz">Liquidation Threshold</p>
+            <p>{formatUnits(portfolioData?.liquidationThreshold || 0n, 2)}%</p>
           </div>
           <div className="flex justify-between text-xs p-3">
             <p className="text-stieglitz">Margin Balance</p>

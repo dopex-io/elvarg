@@ -32,14 +32,14 @@ export const MARKETS: { [key: string]: OptionAmmMarket } = {
     vaults: [
       {
         symbol: 'ARB-USDC',
-        address: '0xd038A2EE73b64F30d65802Ad188F27921656f28F',
-        lp: '0x666432Ccb747B2220875cE185f487Ed53677faC9',
+        address: '0x1eB5C49630E08e95Ba7f139BcF4B9BA171C9a8C7',
+        lp: '0x6e0a5725dD4071e46356bD974E13F35DbF9ef367',
         underlyingSymbol: 'ARB',
-        underlyingTokenAddress: '0x398E4948e373Db819606A459456176D31C3B1F91',
+        underlyingTokenAddress: '0x40A633EeF249F21D95C8803b7144f19AAfeEF7ae',
         collateralSymbol: 'USDC',
-        collateralTokenAddress: '0xFCFE742e19790Dd67a627875ef8b45F17DB1DaC6',
-        portfolioManager: '0xeC1BB74f5799811c0c1Bff94Ef76Fb40abccbE4a',
-        positionMinter: '0xF6a8aD553b265405526030c2102fda2bDcdDC177',
+        collateralTokenAddress: '0x52173b6ac069619c206b9A0e75609fC92860AB2A',
+        portfolioManager: '0xA9d0Fb5837f9c42c874e16da96094b14Af0e2784',
+        positionMinter: '0x6B21b3ae41f818Fc91e322b53f8D0773d31eCB75',
       },
       // {
       //   symbol: 'ARB-ETH',

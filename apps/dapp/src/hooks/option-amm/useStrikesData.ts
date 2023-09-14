@@ -66,7 +66,7 @@ interface Props {
 
 const NON_ZERO_DENOMINATOR = 1n;
 
-const durationToExpiryMapping = {
+export const durationToExpiryMapping = {
   DAILY: 1694764801n,
   WEEKLY: 1695369601n,
   MONTHLY: 1695974400n,
@@ -188,6 +188,8 @@ const useStrikesData = (props: Props) => {
     if (!expiryStrikeData) return [];
 
     // todo: fix, failing to update
+
+    console.log('fail');
 
     let totalAvailableCollateral = 0n;
 
