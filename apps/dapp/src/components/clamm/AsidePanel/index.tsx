@@ -472,7 +472,7 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
         pool: parametersForMint.pool,
         tickLower: parametersForMint.tickLower,
         tickUpper: parametersForMint.tickUpper,
-        liquidityToUse: parametersForMint.liquidityToUse,
+        liquidityToUse: parametersForMint.liquidityToUse - 1n,
         ttl: parametersForMint.ttl,
       },
     ],
@@ -540,8 +540,7 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
   );
 
   const handleMax = useCallback(() => {
-    if (!selectedClammStrike || !!(selectedClammStrike as PurchaseStrike))
-      return;
+    if (!selectedClammStrike) return;
     setInputAmount(
       tradeOrLpIndex === 0
         ? (selectedClammStrike as PurchaseStrike).optionsAvailable.toString()
