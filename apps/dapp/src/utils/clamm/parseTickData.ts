@@ -9,7 +9,10 @@ export type TickData = {
   tickUpperPrice: number;
   tickLower: number;
   tickUpper: number;
-  totalLiquidity: bigint;
+  totalLiquidity: {
+    token0Amount: bigint;
+    token1Amount: bigint;
+  };
   liquidityAvailable: {
     token0Amount: bigint;
     token1Amount: bigint;
@@ -41,18 +44,28 @@ function parseTickData(
   } = data;
 
   const netLiquidity = liquidity - liquidityWithdrawn;
-  const netUsedLiquidity = liquidityUsed - liquidityUnused;
+  const netUsedLiquidity =
+    liquidityUnused > liquidityUsed ? 0n : liquidityUsed - liquidityUnused;
   const availableLiquidity = netLiquidity - netUsedLiquidity;
   const availableShares =
     availableLiquidity === 0n || netLiquidity === 0n
       ? 0n
       : (availableLiquidity * totalShares) / netLiquidity;
+
+  const totalLiquidityAmounts = getAmountsForLiquidity(
+    uniswapPoolSqrtX96,
+    getSqrtRatioAtTick(BigInt(tickLower)),
+    getSqrtRatioAtTick(BigInt(tickUpper)),
+    netLiquidity,
+  );
+
   const availableLiquidityToAmounts = getAmountsForLiquidity(
     uniswapPoolSqrtX96,
     getSqrtRatioAtTick(BigInt(tickLower)),
     getSqrtRatioAtTick(BigInt(tickUpper)),
     availableLiquidity,
   );
+
   const liquidityCompoundedToAmounts = getAmountsForLiquidity(
     uniswapPoolSqrtX96,
     getSqrtRatioAtTick(BigInt(tickLower)),
@@ -66,7 +79,10 @@ function parseTickData(
   ];
 
   return {
-    totalLiquidity: netLiquidity,
+    totalLiquidity: {
+      token0Amount: totalLiquidityAmounts.amount0,
+      token1Amount: totalLiquidityAmounts.amount1,
+    },
     // tickLowerPrice: inversePrice ? 1 / tickLowerPrice : tickLowerPrice,
     // tickUpperPrice: inversePrice ? 1 / tickUpperPrice : tickUpperPrice,
     tickLowerPrice: tickLowerPrice,

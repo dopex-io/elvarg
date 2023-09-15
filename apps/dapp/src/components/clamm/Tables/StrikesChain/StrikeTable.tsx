@@ -31,23 +31,34 @@ const columns = [
       </span>
     ),
   }),
-  columnHelper.accessor('liquidityAvailable', {
-    header: 'Liquidity',
+  columnHelper.accessor('totalLiquidity', {
+    header: 'Total liquidity',
     cell: (info) => {
+      const { amount, symbol } = info.getValue();
       return (
         <span className="text-left flex">
-          <p className="text-stieglitz pr-1">$</p>
-          <p className="pr-1">{info.getValue().amount.toFixed(5)}</p>
+          <p className="pr-1">{formatAmount(amount, 6)} </p>
+        </span>
+      );
+    },
+  }),
+  columnHelper.accessor('liquidityAvailable', {
+    header: 'Liquidity Available',
+    cell: (info) => {
+      const { amount, symbol } = info.getValue();
+      return (
+        <span className="text-left flex">
+          <p className="pr-1">{formatAmount(amount, 6)} </p>
         </span>
       );
     },
   }),
   columnHelper.accessor('optionsAvailable', {
-    header: 'Available',
+    header: 'Options Available',
     cell: (info) => {
       return (
         <span className="text-left flex">
-          <p className="pr-1">{info.getValue().toFixed(5)}</p>
+          <p className="pr-1">{formatAmount(info.getValue(), 6)}</p>
         </span>
       );
     },
@@ -152,9 +163,18 @@ const StrikesTable = () => {
             tickUpper,
             callPremiums,
             putPremiums,
+            totalLiquidity,
           },
           index,
         ) => {
+          const _totalLiquidity = formatUnits(
+            totalLiquidity[
+              isPut ? keys.putAssetAmountKey : keys.callAssetAmountKey
+            ],
+            optionsPool[
+              isPut ? keys.putAssetDecimalsKey : keys.callAssetDecimalsKey
+            ],
+          );
           const liquidityAvailableAtTick = formatUnits(
             liquidityAvailable[
               isPut ? keys.putAssetAmountKey : keys.callAssetAmountKey
@@ -183,6 +203,13 @@ const StrikesTable = () => {
 
           return {
             strike: isPut ? tickLowerPrice : tickUpperPrice,
+            totalLiquidity: {
+              amount: _totalLiquidity,
+              symbol:
+                optionsPool[
+                  isPut ? keys.putAssetSymbolKey : keys.callAssetSymbolKey
+                ],
+            },
             liquidityAvailable: {
               amount: Number(liquidityAvailableAtTick),
               symbol:
@@ -190,7 +217,6 @@ const StrikesTable = () => {
                   isPut ? keys.putAssetSymbolKey : keys.callAssetSymbolKey
                 ],
             },
-
             breakeven,
             optionsAvailable,
             button: {
@@ -215,9 +241,7 @@ const StrikesTable = () => {
           };
         },
       )
-      .filter(({ liquidityAvailable }) => {
-        return liquidityAvailable.amount !== 0;
-      });
+      .filter(({ totalLiquidity }) => Number(totalLiquidity.amount) > 0);
   }, [
     selectedClammExpiry,
     setSelectedClammStrike,
