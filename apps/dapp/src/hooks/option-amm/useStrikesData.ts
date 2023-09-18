@@ -54,6 +54,7 @@ interface StrikeDataForExpiry {
   shorts: readonly [bigint, bigint];
   activeShorts: readonly [bigint, bigint];
   premium: bigint;
+  feePerOption: bigint;
   fees: bigint;
 }
 
@@ -140,11 +141,12 @@ const useStrikesData = (props: Props) => {
     const config = { abi: OptionAmm__factory.abi, address: ammAddress };
 
     let ivPromises = [];
+    let feePromises = [];
     let ppoPromises = []; // premium per option
     let strikeDataPromises = [];
     try {
       for (let i = 0; i < strikes.length; i++) {
-        const [iv, premiumPerOption, strikeData] = [
+        const [iv, premiumPerOption, feePerOption, strikeData] = [
           readContract({
             ...config,
             functionName: 'getVolatility',
@@ -162,11 +164,17 @@ const useStrikesData = (props: Props) => {
           }),
           readContract({
             ...config,
+            functionName: 'calcOpeningFees',
+            args: [strikes[i] * BigInt(_expiryData.expiry)],
+          }),
+          readContract({
+            ...config,
             functionName: 'getExpiryStrikeData',
             args: [strikes[i], BigInt(_expiryData.expiry)],
           }),
         ];
         ivPromises.push(iv);
+        feePromises.push(feePerOption);
         ppoPromises.push(premiumPerOption);
         strikeDataPromises.push(strikeData);
       }
@@ -174,12 +182,15 @@ const useStrikesData = (props: Props) => {
       const ivs = await Promise.all(ivPromises);
       const strikeData = await Promise.all(strikeDataPromises);
       const ppos = await Promise.all(ppoPromises);
+      const feePerOption = await Promise.all(feePromises);
+
       const _strikeDataForExpiry = [];
       for (let i = 0; i < strikes.length; i++) {
         _strikeDataForExpiry.push({
           strike: strikes[i],
           iv: ivs[i],
           premiumPerOption: ppos[i],
+          feePerOption: feePerOption[i],
           longs: strikeData[i][0],
           activeLongs: strikeData[i][1],
           shorts: strikeData[i][2],

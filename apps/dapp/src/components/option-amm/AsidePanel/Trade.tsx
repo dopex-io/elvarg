@@ -103,8 +103,12 @@ const Trade = (props: Props) => {
     }
     const premiumPerOption =
       strikeDataForExpiry[activeStrikeIndex]?.premiumPerOption || 0n;
+    const feePerOption =
+      strikeDataForExpiry[activeStrikeIndex]?.feePerOption || 0n;
+
     const netCost =
-      (parseUnits(data.amount, DECIMALS_TOKEN) * premiumPerOption) /
+      (parseUnits(data.amount, DECIMALS_TOKEN) *
+        (premiumPerOption + feePerOption)) /
       parseUnits('1', DECIMALS_TOKEN);
     setCost(netCost);
   }, [activeStrikeIndex, data.amount, strikeDataForExpiry]);

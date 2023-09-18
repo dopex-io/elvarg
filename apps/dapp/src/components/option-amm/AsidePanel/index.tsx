@@ -68,6 +68,7 @@ const AsidePanel = ({ market }: { market: string }) => {
   const [amount, setAmount] = useState<string>('');
   const [maxAmount, setMaxAmount] = useState<bigint>(0n);
   const [approved, setApproved] = useState<boolean>(false);
+  const [netCost, setNetCost] = useState<bigint>(0n);
 
   const { address } = useAccount();
   const vault = useVaultStore((store) => store.vault);
@@ -92,7 +93,7 @@ const AsidePanel = ({ market }: { market: string }) => {
       panelState === PanelStates['Liquidity Provision']
         ? vault.lp
         : vault.address,
-      parseUnits(amount, DECIMALS_USD),
+      netCost,
     ],
   });
   const { write: deposit } = useContractWrite({
@@ -149,9 +150,19 @@ const AsidePanel = ({ market }: { market: string }) => {
     if (
       !address ||
       address === zeroAddress ||
-      vault.collateralTokenAddress === '0x'
+      vault.collateralTokenAddress === '0x' ||
+      !strikeDataForExpiry
     )
       return;
+
+    const premiumPerOption =
+      strikeDataForExpiry[activeStrikeIndex]?.premiumPerOption || 0n;
+    const feePerOption =
+      strikeDataForExpiry[activeStrikeIndex]?.feePerOption || 0n;
+
+    const _netCost =
+      (parseUnits(amount, DECIMALS_TOKEN) * (premiumPerOption + feePerOption)) /
+      parseUnits('1', DECIMALS_TOKEN);
 
     const allowance = await getAllowance({
       owner: address,
@@ -161,11 +172,16 @@ const AsidePanel = ({ market }: { market: string }) => {
           : vault.address,
       tokenAddress: vault.collateralTokenAddress,
     });
-    setApproved(allowance >= parseUnits(amount, DECIMALS_USD));
+
+    setNetCost(_netCost);
+    setApproved(allowance >= netCost);
   }, [
+    activeStrikeIndex,
     address,
     amount,
+    netCost,
     panelState,
+    strikeDataForExpiry,
     vault.address,
     vault.collateralTokenAddress,
     vault.lp,
