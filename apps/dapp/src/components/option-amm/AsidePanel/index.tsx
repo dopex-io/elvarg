@@ -93,7 +93,9 @@ const AsidePanel = ({ market }: { market: string }) => {
       panelState === PanelStates['Liquidity Provision']
         ? vault.lp
         : vault.address,
-      netCost,
+      panelState === PanelStates['Liquidity Provision']
+        ? parseUnits(amount, DECIMALS_USD)
+        : netCost,
     ],
   });
   const { write: deposit } = useContractWrite({
@@ -173,7 +175,11 @@ const AsidePanel = ({ market }: { market: string }) => {
       tokenAddress: vault.collateralTokenAddress,
     });
 
-    setNetCost(_netCost);
+    setNetCost(
+      panelState === PanelStates['Liquidity Provision']
+        ? parseUnits(amount, DECIMALS_USD)
+        : _netCost,
+    );
     setApproved(allowance >= netCost);
   }, [
     activeStrikeIndex,
