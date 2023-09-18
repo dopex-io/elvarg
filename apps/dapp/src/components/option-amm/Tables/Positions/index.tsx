@@ -1,42 +1,52 @@
 import { useMemo, useState } from 'react';
+import { zeroAddress } from 'viem';
 
 import { Skeleton } from '@dopex-io/ui';
+import { useAccount } from 'wagmi';
 
-import LongPositions from 'components/option-amm/Tables/Positions/LongPositions';
-import ShortPositions from 'components/option-amm/Tables/Positions/ShortPositions';
+import useAmmUserData from 'hooks/option-amm/useAmmUserData';
+import useVaultStore from 'hooks/option-amm/useVaultStore';
+
+import LongOrShortPositions from 'components/option-amm/Tables/Positions/LongOrShortPositions';
 import { ButtonGroup } from 'components/ssov-beta/AsidePanel';
-
-import { longs, shorts } from 'constants/optionAmm/placeholders';
 
 const Positions = () => {
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
-  const isLoading = false;
+  const { address } = useAccount();
+  const vault = useVaultStore((store) => store.vault);
+  const { optionPositions, loading } = useAmmUserData({
+    ammAddress: vault.address,
+    portfolioManager: vault.portfolioManager,
+    positionMinter: vault.positionMinter,
+    lpAddress: vault.lp,
+    account: address || zeroAddress,
+  });
 
   const handleClick = (index: number) => {
     setActiveIndex(index);
   };
 
   const buttonLabels = useMemo(() => {
-    if (!longs || !longs) return [null, null];
+    if (!optionPositions || optionPositions.length === 0) return [null, null];
     return [
       <div className="flex space-x-2 my-auto" key="buy-positions">
         <span>Long Positions</span>
         <div className="rounded-full bg-carbon w-5 h-auto flex items-center justify-center">
-          <span>{longs.length}</span>
+          <span>{optionPositions.filter((op) => !op.isShort).length}</span>
         </div>
       </div>,
       <div className="flex space-x-2 my-auto" key="buy-positions">
         <span>Short Positions</span>
         <div className="rounded-full bg-carbon w-5 h-auto flex items-center justify-center">
-          <span>{shorts.length}</span>
+          <span>{optionPositions.filter((op) => op.isShort).length}</span>
         </div>
       </div>,
     ];
-  }, []);
+  }, [optionPositions]);
 
   const renderComponent = useMemo(() => {
-    if (isLoading)
+    if (loading)
       return (
         <div className="bg-cod-gray rounded-lg pt-3">
           <div className="grid grid-cols-1 gap-4 p-2">
@@ -55,12 +65,16 @@ const Positions = () => {
         </div>
       );
     else {
-      if (activeIndex === 0) return <LongPositions data={longs} />;
-      else {
-        return <ShortPositions data={shorts} />;
-      }
+      return (
+        <LongOrShortPositions
+          positions={optionPositions.filter((op) =>
+            activeIndex === 0 ? !op.isShort : op.isShort,
+          )}
+          isLoading={loading}
+        />
+      );
     }
-  }, [activeIndex, isLoading]);
+  }, [activeIndex, loading, optionPositions]);
 
   return (
     <div className="space-y-2">

@@ -12,9 +12,7 @@ import getOptionPosition from 'utils/optionAmm/getOptionPosition';
 import getPortfolio from 'utils/optionAmm/getPortfolio';
 import getPositionIds from 'utils/optionAmm/getPositionIds';
 
-import { mockOptionPositions } from 'constants/optionAmm/placeholders';
-
-interface OptionPosition {
+export interface OptionPosition {
   _id: bigint;
   isPut: boolean;
   isShort: boolean;
@@ -101,8 +99,7 @@ const useAmmUserData = (props: Props) => {
       };
       _optionPositions.push(optionPosition);
     }
-    // setOptionPositions(_optionPositions);
-    setOptionPositions(mockOptionPositions);
+    setOptionPositions(_optionPositions);
     setLoading(false);
   }, [account, ammAddress, positionMinter]);
 
@@ -113,8 +110,6 @@ const useAmmUserData = (props: Props) => {
       positionMinter === '0x'
     )
       return;
-
-    console.log(account);
 
     const [collateralAmount, borrowedAmount] = await getPortfolio({
       portfolioManager,

@@ -72,7 +72,7 @@ const AsidePanel = ({ market }: { market: string }) => {
   const { address } = useAccount();
   const vault = useVaultStore((store) => store.vault);
   const activeStrikeIndex = useVaultStore((store) => store.activeStrikeIndex);
-  const { updateLpData, lpData } = useAmmUserData({
+  const { updateLpData, lpData, updateUserOptionPositions } = useAmmUserData({
     ammAddress: vault.address,
     lpAddress: vault.lp,
     positionMinter: vault.positionMinter,
@@ -267,7 +267,10 @@ const AsidePanel = ({ market }: { market: string }) => {
       return {
         disabled: false,
         label: activeIndexSub === 0 ? 'Long' : 'Short',
-        handler: () => longOrShort(), // todo: implement
+        handler: () => {
+          longOrShort();
+          updateUserOptionPositions();
+        },
       };
     }
   }, [
@@ -279,6 +282,7 @@ const AsidePanel = ({ market }: { market: string }) => {
     handleUpdateAllowance,
     longOrShort,
     panelState,
+    updateUserOptionPositions,
   ]);
 
   return (
