@@ -88,7 +88,7 @@ const columns = [
         size="small"
         variant="contained"
       >
-        Exercise
+        Settle
       </Button>
     ),
   }),

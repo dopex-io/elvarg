@@ -44,7 +44,7 @@ const Trade = (props: Props) => {
   const { address } = useAccount();
   const vault = useVaultStore((store) => store.vault);
   const activeStrikeIndex = useVaultStore((store) => store.activeStrikeIndex);
-  const { strikeData, expiryData, expiryStrikeData } = useStrikesData({
+  const { strikeData, expiryData, strikeDataForExpiry } = useStrikesData({
     ammAddress: vault.address,
     duration: vault.duration,
     isPut: vault.isPut,
@@ -72,7 +72,7 @@ const Trade = (props: Props) => {
   };
 
   const updatePortfolioMMFromInput = useCallback(async () => {
-    if (!address || !expiryData) return;
+    if (!address || !expiryData || !strikeData) return;
     const isShort = data.isShort;
     const marginToLock = await readContract({
       abi: OptionAmm__factory.abi,
@@ -97,17 +97,17 @@ const Trade = (props: Props) => {
 
   // @todo: add fees
   const updateTotalCost = useCallback(async () => {
-    if (!expiryStrikeData) {
+    if (!strikeDataForExpiry) {
       setCost(0n);
       return;
     }
     const premiumPerOption =
-      expiryStrikeData[activeStrikeIndex]?.premiumPerOption || 0n;
+      strikeDataForExpiry[activeStrikeIndex]?.premiumPerOption || 0n;
     const netCost =
       (parseUnits(data.amount, DECIMALS_TOKEN) * premiumPerOption) /
       parseUnits('1', DECIMALS_TOKEN);
     setCost(netCost);
-  }, [activeStrikeIndex, data.amount, expiryStrikeData]);
+  }, [activeStrikeIndex, data.amount, strikeDataForExpiry]);
 
   useEffect(() => {
     updatePortfolioMMFromInput();
@@ -157,9 +157,12 @@ const Trade = (props: Props) => {
           content={
             <p>
               $
-              {formatUnits(
-                portfolioData?.availableCollateral || 0n,
-                DECIMALS_USD,
+              {formatAmount(
+                formatUnits(
+                  portfolioData?.availableCollateral || 0n,
+                  DECIMALS_USD,
+                ),
+                3,
               )}
             </p>
           }

@@ -7,6 +7,8 @@ import { useAccount } from 'wagmi';
 import useAmmUserData from 'hooks/option-amm/useAmmUserData';
 import useVaultStore from 'hooks/option-amm/useVaultStore';
 
+import formatAmount from 'utils/general/formatAmount';
+
 import { DECIMALS_USD } from 'constants/index';
 
 interface Props {
@@ -41,7 +43,10 @@ const LiquidityProvision = (props: Props) => {
           <p className="text-stieglitz">TVL</p>
           <span className="flex space-x-1 text-stieglitz">
             <p className="text-white">
-              {formatUnits(lpData?.totalSupply || 0n, DECIMALS_USD)}
+              {formatAmount(
+                formatUnits(lpData?.totalSupply || 0n, DECIMALS_USD),
+                3,
+              )}
             </p>
             <p>{vault.collateralSymbol}</p>
           </span>

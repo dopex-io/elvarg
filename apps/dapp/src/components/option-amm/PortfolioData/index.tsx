@@ -71,7 +71,7 @@ const PortfolioInfo = () => {
         label="Health:"
         data={
           <p className={`${riskHighlighting} text-xs`}>
-            {formatAmount(formatUnits(portfolioData?.health || 0n, 4))}
+            {formatUnits(portfolioData?.health || 0n, 2)}%
           </p>
         }
       />

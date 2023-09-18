@@ -7,7 +7,7 @@ const StrikesChain = ({ market }: { market: string }) => {
       <div className="relative h-12 mx-3">
         <FilterPanel market={market} />
       </div>
-      <StrikesTable market={market} />
+      <StrikesTable />
     </div>
   );
 };

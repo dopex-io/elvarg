@@ -79,7 +79,7 @@ const AsidePanel = ({ market }: { market: string }) => {
     portfolioManager: vault.portfolioManager,
     account: address || zeroAddress,
   });
-  const { expiryData, expiryStrikeData } = useStrikesData({
+  const { expiryData, strikeDataForExpiry } = useStrikesData({
     ammAddress: vault.address,
     duration: vault.duration,
     isPut: vault.isPut,
@@ -180,11 +180,11 @@ const AsidePanel = ({ market }: { market: string }) => {
       if (
         address === zeroAddress ||
         vault.collateralTokenAddress === '0x' ||
-        !expiryStrikeData ||
+        !strikeDataForExpiry ||
         !lpData
       )
         return;
-      const ppo = expiryStrikeData[activeStrikeIndex]?.premiumPerOption;
+      const ppo = strikeDataForExpiry[activeStrikeIndex]?.premiumPerOption;
 
       const totalPurchaseable =
         (lpData.totalSupply * parseUnits('1', DECIMALS_USD)) / ppo;
@@ -200,7 +200,7 @@ const AsidePanel = ({ market }: { market: string }) => {
   }, [
     activeStrikeIndex,
     address,
-    expiryStrikeData,
+    strikeDataForExpiry,
     lpData,
     panelState,
     vault.collateralTokenAddress,

@@ -86,7 +86,7 @@ export const CHAINS: {
     name: 'Testnet',
     rpc: `https://arbitrum-goerli.infura.io/v3/${INFURA_PROJECT_ID}`,
     publicRpc: 'https://arbitrum-goerli.infura.io/v3',
-    explorer: 'https://testnet.arbiscan.io/',
+    explorer: 'https://goerli.arbiscan.io/',
     nativeToken: 'ETH',
     icon: '/images/networks/arbitrum.svg',
     tokenDecimals: {
@@ -94,7 +94,7 @@ export const CHAINS: {
       USDC: 6,
       WETH: 18,
     },
-    displayTokens: ['ETH'],
+    displayTokens: ['ETH', 'ARB', 'USDC'],
   },
 };
 

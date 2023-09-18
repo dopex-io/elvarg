@@ -27,19 +27,20 @@ export interface OptionAmmMarket {
   };
 }
 
+// arbitrum goerli
 export const MARKETS: { [key: string]: OptionAmmMarket } = {
   ARB: {
     vaults: [
       {
         symbol: 'ARB-USDC',
-        address: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
-        lp: '0x0165878A594ca255338adfa4d48449f69242Eb8F',
+        address: '0x7A443B3b8C6b017fC9Fa0Dcfa315566B48DeD2B7',
+        lp: '0x24641718B39Ed76C22BfbA1eC3Aa9fE1621b8c41',
         underlyingSymbol: 'ARB',
-        underlyingTokenAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
+        underlyingTokenAddress: '0x8Db611597A39075518583775f98cc389b5a11953',
         collateralSymbol: 'USDC',
-        collateralTokenAddress: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
-        portfolioManager: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853',
-        positionMinter: '0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6',
+        collateralTokenAddress: '0x806A5893CC00Ad8655237700a5A86D45788c2b98',
+        portfolioManager: '0xFCC8528f29E74941175b1269f3707f3F8CA78031',
+        positionMinter: '0x72e1699F44B8Cb04f381e791e76927b3AeEAeeA7',
       },
     ],
     default: {

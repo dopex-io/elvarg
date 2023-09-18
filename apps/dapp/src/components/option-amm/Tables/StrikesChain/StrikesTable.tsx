@@ -148,13 +148,7 @@ const TableDisclosure = (props: DisclosureStrikeItem) => {
   );
 };
 
-interface Props {
-  market: string;
-}
-
-const StrikesTable = (props: Props) => {
-  const { market } = props;
-
+const StrikesTable = () => {
   const activeStrikeIndex = useVaultStore((store) => store.activeStrikeIndex);
   const vault = useVaultStore((store) => store.vault);
   const setActiveStrikeIndex = useVaultStore(

@@ -9,7 +9,6 @@ import computeOptionGreeks from 'utils/ssov/computeOptionGreeks';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 import { AmmDuration } from 'constants/optionAmm/markets';
-import { mockExpiryData } from 'constants/optionAmm/placeholders';
 
 interface ExpiryData {
   active: boolean;
@@ -46,11 +45,10 @@ export interface StrikeData {
   purchaseFeePerOption: bigint;
 }
 
-interface ExpiryStrike {
+interface StrikeDataForExpiry {
   strike: bigint;
   iv: bigint;
   premiumPerOption: bigint;
-  // from struct
   longs: readonly [bigint, bigint]; // [calls, puts]
   activeLongs: readonly [bigint, bigint];
   shorts: readonly [bigint, bigint];
@@ -71,23 +69,21 @@ export const durationToExpiryMapping = {
   DAILY: 1695110401n,
   WEEKLY: 1695974401n,
   MONTHLY: 1695974400n,
-};
+}; // todo: automate this instead of repeatedly updating after every bootstrap
 
 const useStrikesData = (props: Props) => {
   const { ammAddress = '0x', duration = 'DAILY', isPut } = props;
 
   const [_expiryData, setExpiryData] = useState<ExpiryData>();
-  const [expiryStrikeData, setExpiryStrikeData] = useState<ExpiryStrike[]>();
+  const [strikeData, setStrikeData] = useState<StrikeData[]>();
+  const [strikeDataForExpiry, setStrikeDataForExpiry] =
+    useState<StrikeDataForExpiry[]>();
   const [loading, setLoading] = useState<boolean>(true);
 
   const updateExpiryData = useCallback(async () => {
-    // contract call via duration
-    // @dev expiry data
-    // mapping(uint256 => ExpiryData) public expiryData;  // @ref: OptionAMMState.sol:L78
-    if (!mockExpiryData[duration] || ammAddress === '0x') return;
+    if (ammAddress === '0x') return;
 
     const selectedExpiryTimestamp = durationToExpiryMapping[duration];
-
     const [
       active,
       expired,
@@ -102,22 +98,16 @@ const useStrikesData = (props: Props) => {
       functionName: 'getExpiryData',
       args: [selectedExpiryTimestamp],
     });
-
     const markPrice = await readContract({
       abi: OptionAmm__factory.abi,
       address: ammAddress,
       functionName: 'getMarkPrice',
     });
-
-    const expiryData = mockExpiryData[duration];
-
     const strikeRange = [
       ((100n + maxOtmPercentage) * markPrice) / 100n,
       ((100n - maxOtmPercentage) * markPrice) / 100n,
     ];
-
-    const upperBound =
-      strikeRange[0] - (strikeRange[0] % expiryData.strikeIncrement);
+    const upperBound = strikeRange[0] - (strikeRange[0] % strikeIncrement);
 
     let i = 0;
     let nextLowerTick = upperBound;
@@ -130,7 +120,9 @@ const useStrikesData = (props: Props) => {
     }
 
     setExpiryData({
-      ...mockExpiryData[duration],
+      strikeIncrement,
+      maxOtmPercentage,
+      strikeDeltas: [],
       strikes,
       premium,
       fees,
@@ -140,7 +132,7 @@ const useStrikesData = (props: Props) => {
     });
   }, [ammAddress, duration]);
 
-  const updateExpiryStrikes = useCallback(async () => {
+  const updateStrikeDataForExpiry = useCallback(async () => {
     if (!_expiryData || !ammAddress) return;
 
     const strikes = _expiryData.strikes;
@@ -178,54 +170,52 @@ const useStrikesData = (props: Props) => {
         ppoPromises.push(premiumPerOption);
         strikeDataPromises.push(strikeData);
       }
+
+      const ivs = await Promise.all(ivPromises);
+      const strikeData = await Promise.all(strikeDataPromises);
+      const ppos = await Promise.all(ppoPromises);
+      const _strikeDataForExpiry = [];
+      for (let i = 0; i < strikes.length; i++) {
+        _strikeDataForExpiry.push({
+          strike: strikes[i],
+          iv: ivs[i],
+          premiumPerOption: ppos[i],
+          longs: strikeData[i][0],
+          activeLongs: strikeData[i][1],
+          shorts: strikeData[i][2],
+          activeShorts: strikeData[i][3],
+          premium: strikeData[i][4],
+          fees: strikeData[i][5],
+        });
+      }
+
+      setStrikeDataForExpiry(_strikeDataForExpiry);
     } catch (e) {
-      console.log('error');
+      console.error('Error mounting strike data for expiry...', e);
     }
-
-    const ivs = await Promise.all(ivPromises);
-    const strikeData = await Promise.all(strikeDataPromises);
-    const ppos = await Promise.all(ppoPromises);
-    const expiryStrikeData = [];
-    for (let i = 0; i < strikes.length; i++) {
-      expiryStrikeData.push({
-        strike: strikes[i],
-        iv: ivs[i],
-        premiumPerOption: ppos[i],
-        longs: strikeData[i][0],
-        activeLongs: strikeData[i][1],
-        shorts: strikeData[i][2],
-        activeShorts: strikeData[i][3],
-        premium: strikeData[i][4],
-        fees: strikeData[i][5],
-      });
-    }
-
-    setExpiryStrikeData(expiryStrikeData);
   }, [_expiryData, ammAddress, isPut]);
 
-  const strikeData = useMemo(() => {
-    if (!expiryStrikeData) return [];
-
-    // todo: fix, failing to update
+  const updateStrikeData = useCallback(async () => {
+    if (!strikeDataForExpiry) return [];
 
     let totalAvailableCollateral = 0n;
 
     let _strikeData: StrikeData[] = [];
-    for (let i = 0; i < expiryStrikeData.length; i++) {
-      const iv = expiryStrikeData[i].iv;
-      const strike = expiryStrikeData[i].strike;
+    for (let i = 0; i < strikeDataForExpiry.length; i++) {
+      const iv = strikeDataForExpiry[i].iv;
+      const strike = strikeDataForExpiry[i].strike;
       const totalPurchased =
-        expiryStrikeData[i].longs[0] + expiryStrikeData[i].longs[1];
+        strikeDataForExpiry[i].longs[0] + strikeDataForExpiry[i].longs[1];
       const activeCollateral =
-        expiryStrikeData[i].activeLongs[0] +
-        expiryStrikeData[i].activeLongs[1] +
-        expiryStrikeData[i].activeShorts[0] +
-        expiryStrikeData[i].activeShorts[1];
+        strikeDataForExpiry[i].activeLongs[0] +
+        strikeDataForExpiry[i].activeLongs[1] +
+        strikeDataForExpiry[i].activeShorts[0] +
+        strikeDataForExpiry[i].activeShorts[1];
       const totalCollateral =
-        expiryStrikeData[i].longs[0] +
-        expiryStrikeData[i].longs[1] +
-        expiryStrikeData[i].shorts[0] +
-        expiryStrikeData[i].shorts[1];
+        strikeDataForExpiry[i].longs[0] +
+        strikeDataForExpiry[i].longs[1] +
+        strikeDataForExpiry[i].shorts[0] +
+        strikeDataForExpiry[i].shorts[1];
       const utilization =
         (Number(formatUnits(activeCollateral, DECIMALS_TOKEN)) /
           Number(
@@ -233,8 +223,8 @@ const useStrikesData = (props: Props) => {
           )) *
         100;
       const availableCollateral = totalCollateral - activeCollateral;
-      const premiumAccrued = expiryStrikeData[i].premium;
-      const premiumPerOption = expiryStrikeData[i].premiumPerOption;
+      const premiumAccrued = strikeDataForExpiry[i].premium;
+      const premiumPerOption = strikeDataForExpiry[i].premiumPerOption;
       const purchaseFeePerOption = 0n; // todo: get fees
 
       totalAvailableCollateral += availableCollateral;
@@ -252,9 +242,8 @@ const useStrikesData = (props: Props) => {
         purchaseFeePerOption,
       });
     }
-
-    return _strikeData;
-  }, [expiryStrikeData]);
+    setStrikeData(_strikeData);
+  }, [strikeDataForExpiry]);
 
   const greeks = useMemo(() => {
     if (!strikeData) return [];
@@ -295,16 +284,21 @@ const useStrikesData = (props: Props) => {
   }, [updateExpiryData]);
 
   useEffect(() => {
-    updateExpiryStrikes();
-  }, [updateExpiryStrikes]);
+    updateStrikeDataForExpiry();
+  }, [updateStrikeDataForExpiry]);
 
   useEffect(() => {
-    if (!expiryStrikeData || !_expiryData) return;
+    updateStrikeData();
+  }, [updateStrikeData, strikeDataForExpiry]);
+
+  useEffect(() => {
+    if (!strikeDataForExpiry || !_expiryData || !strikeData) return;
     setLoading(false);
-  }, [_expiryData, expiryStrikeData]);
+  }, [_expiryData, strikeData, strikeDataForExpiry, updateStrikeData]);
 
   return {
-    expiryStrikeData,
+    strikeDataForExpiry,
+    updateStrikeData,
     expiryData: _expiryData,
     strikeData,
     greeks,
