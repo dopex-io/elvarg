@@ -66,20 +66,20 @@ const AsidePanel = ({ market }: { market: string }) => {
   const [activeIndexSub, setActiveIndexSub] = useState<number>(0);
   const [panelState, setPanelState] = useState<PanelStates>(PanelStates.Trade);
   const [amount, setAmount] = useState<string>('');
-  const [userBalance, setUserBalance] = useState<bigint>(0n);
+  const [maxAmount, setMaxAmount] = useState<bigint>(0n);
   const [approved, setApproved] = useState<boolean>(false);
 
   const { address } = useAccount();
   const vault = useVaultStore((store) => store.vault);
   const activeStrikeIndex = useVaultStore((store) => store.activeStrikeIndex);
-  const { updateLpData } = useAmmUserData({
+  const { updateLpData, lpData } = useAmmUserData({
     ammAddress: vault.address,
     lpAddress: vault.lp,
     positionMinter: vault.positionMinter,
     portfolioManager: vault.portfolioManager,
     account: address || zeroAddress,
   });
-  const { expiryData } = useStrikesData({
+  const { expiryData, expiryStrikeData } = useStrikesData({
     ammAddress: vault.address,
     duration: vault.duration,
     isPut: vault.isPut,
@@ -136,8 +136,8 @@ const AsidePanel = ({ market }: { market: string }) => {
   };
 
   const handleMax = useCallback(() => {
-    setAmount(panelState === 0 ? '' : formatUnits(userBalance, DECIMALS_TOKEN));
-  }, [panelState, userBalance]);
+    setAmount(panelState === 0 ? '' : formatUnits(maxAmount, DECIMALS_TOKEN));
+  }, [panelState, maxAmount]);
 
   const handleLpAction = useCallback(async () => {
     if (activeIndexSub === 0) deposit();
@@ -177,15 +177,34 @@ const AsidePanel = ({ market }: { market: string }) => {
 
   useEffect(() => {
     (async () => {
-      if (address === zeroAddress || vault.underlyingTokenAddress === '0x')
+      if (
+        address === zeroAddress ||
+        vault.collateralTokenAddress === '0x' ||
+        !expiryStrikeData ||
+        !lpData
+      )
         return;
+      const ppo = expiryStrikeData[activeStrikeIndex]?.premiumPerOption;
+
+      const totalPurchaseable =
+        (lpData.totalSupply * parseUnits('1', DECIMALS_USD)) / ppo;
+
       const _balance = await getUserBalance({
         owner: address,
-        tokenAddress: vault.underlyingTokenAddress,
+        tokenAddress: vault.collateralTokenAddress,
       });
-      setUserBalance(_balance || 0n);
+      setMaxAmount(
+        panelState === PanelStates.Trade ? totalPurchaseable : _balance || 0n,
+      );
     })();
-  }, [address, vault.underlyingTokenAddress]);
+  }, [
+    activeStrikeIndex,
+    address,
+    expiryStrikeData,
+    lpData,
+    panelState,
+    vault.collateralTokenAddress,
+  ]);
 
   const memoizedInputPanel = useMemo(() => {
     return (
@@ -206,9 +225,7 @@ const AsidePanel = ({ market }: { market: string }) => {
             symbol={''}
             label={panelState === 0 ? 'Options' : 'Balance'}
             value={formatAmount(
-              panelState === 0
-                ? 0
-                : Number(formatUnits(userBalance, DECIMALS_TOKEN)),
+              Number(formatUnits(maxAmount, DECIMALS_USD)),
               3,
               true,
             )}
@@ -219,7 +236,7 @@ const AsidePanel = ({ market }: { market: string }) => {
         placeholder="0.0"
       />
     );
-  }, [panelState, amount, handleMax, market, userBalance]);
+  }, [panelState, amount, handleMax, market, maxAmount]);
 
   const contractTxButton = useMemo(() => {
     if (amount === '0' || amount === '') {
