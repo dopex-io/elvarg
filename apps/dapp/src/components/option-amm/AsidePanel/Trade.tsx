@@ -6,7 +6,7 @@ import {
   OptionAmmPortfolioManager__factory,
 } from '@dopex-io/sdk';
 import { Button } from '@dopex-io/ui';
-import { debounce } from 'lodash';
+import { useDebounce } from 'use-debounce';
 import { useAccount } from 'wagmi';
 import { readContract } from 'wagmi/actions';
 
@@ -18,6 +18,10 @@ import ExpirySelector from 'components/option-amm/AsidePanel/Dropdowns/ExpirySel
 import OptionTypeSelector from 'components/option-amm/AsidePanel/Dropdowns/OptionTypeSelector';
 import ManageMargin from 'components/option-amm/Dialog/ManageMargin';
 import RowItem from 'components/ssov-beta/AsidePanel/RowItem';
+
+import { formatAmount } from 'utils/general';
+import getHighlightingFromRisk from 'utils/optionAmm/getHighlightingFromRisk';
+import getMMSeverity from 'utils/optionAmm/getMMSeverity';
 
 import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
@@ -40,7 +44,7 @@ const Trade = (props: Props) => {
   const { address } = useAccount();
   const vault = useVaultStore((store) => store.vault);
   const activeStrikeIndex = useVaultStore((store) => store.activeStrikeIndex);
-  const { strikeData, expiryData } = useStrikesData({
+  const { strikeData, expiryData, expiryStrikeData } = useStrikesData({
     ammAddress: vault.address,
     duration: vault.duration,
     isPut: vault.isPut,
@@ -55,6 +59,9 @@ const Trade = (props: Props) => {
 
   const [open, setOpen] = useState<boolean>(false);
   const [newMaintenanceMargin, setNewMaintenanceMargin] = useState<bigint>(0n);
+  const [cost, setCost] = useState<bigint>(0n);
+  const [debouncedMM] = useDebounce(newMaintenanceMargin, 1000);
+  const [debouncedPremium] = useDebounce(cost, 1000);
 
   const handleClose = () => {
     setOpen(false);
@@ -73,7 +80,7 @@ const Trade = (props: Props) => {
       functionName: 'calculateMarginRequirement',
       args: [
         vault.isPut,
-        strikeData[activeStrikeIndex].strike,
+        strikeData[activeStrikeIndex]?.strike || 0n,
         BigInt(expiryData.expiry),
         parseUnits(data.amount, DECIMALS_TOKEN),
       ],
@@ -88,9 +95,27 @@ const Trade = (props: Props) => {
     setNewMaintenanceMargin(_newMaintenanceMargin);
   }, [activeStrikeIndex, address, data, expiryData, strikeData, vault]);
 
+  // @todo: add fees
+  const updateTotalCost = useCallback(async () => {
+    if (!expiryStrikeData) {
+      setCost(0n);
+      return;
+    }
+    const premiumPerOption =
+      expiryStrikeData[activeStrikeIndex]?.premiumPerOption || 0n;
+    const netCost =
+      (parseUnits(data.amount, DECIMALS_TOKEN) * premiumPerOption) /
+      parseUnits('1', DECIMALS_TOKEN);
+    setCost(netCost);
+  }, [activeStrikeIndex, data.amount, expiryStrikeData]);
+
   useEffect(() => {
-    debounce(async () => await updatePortfolioMMFromInput(), 500);
+    updatePortfolioMMFromInput();
   }, [updatePortfolioMMFromInput]);
+
+  useEffect(() => {
+    updateTotalCost();
+  }, [updateTotalCost]);
 
   return (
     <div className="space-y-3">
@@ -110,11 +135,22 @@ const Trade = (props: Props) => {
       <div className="flex flex-col bg-umbra rounded-xl p-3 space-y-2">
         <RowItem
           label="Current Health"
-          content={<p>{formatUnits(portfolioData?.health || 0n, 4)}</p>}
+          content={<p>{formatUnits(portfolioData?.health || 0n, 2)}%</p>}
         />
         <RowItem
           label="New Health"
-          content={<p>{formatUnits(newMaintenanceMargin || 0n, 4)}</p>}
+          content={
+            <p
+              className={`text-${getHighlightingFromRisk(
+                getMMSeverity(
+                  debouncedMM || 0n,
+                  portfolioData?.liquidationThreshold || 0n,
+                ),
+              )}`}
+            >
+              {formatUnits(debouncedMM, 2)}%
+            </p>
+          }
         />
         <RowItem
           label="Available Margin"
@@ -128,7 +164,14 @@ const Trade = (props: Props) => {
             </p>
           }
         />
-        <RowItem label="Fees" content={<p>-</p>} />
+        <RowItem
+          label="Total Cost" // todo: add fee
+          content={
+            <p>
+              ${formatAmount(formatUnits(debouncedPremium, DECIMALS_USD), 3)}
+            </p>
+          }
+        />
         <Button
           className="flex-grow text-sm justify-center font-normal transition ease-in-out duration-200 bg-carbon"
           onClick={handleClick}

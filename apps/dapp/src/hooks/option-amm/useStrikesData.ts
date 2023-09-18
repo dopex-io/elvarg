@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Address, formatUnits } from 'viem';
+import { Address, formatUnits, parseUnits } from 'viem';
 
 import { OptionAmm__factory } from '@dopex-io/sdk';
 import { readContract } from 'wagmi/actions';
@@ -49,6 +49,7 @@ export interface StrikeData {
 interface ExpiryStrike {
   strike: bigint;
   iv: bigint;
+  premiumPerOption: bigint;
   // from struct
   longs: readonly [bigint, bigint]; // [calls, puts]
   activeLongs: readonly [bigint, bigint];
@@ -67,8 +68,8 @@ interface Props {
 const NON_ZERO_DENOMINATOR = 1n;
 
 export const durationToExpiryMapping = {
-  DAILY: 1694764801n,
-  WEEKLY: 1695369601n,
+  DAILY: 1695110401n,
+  WEEKLY: 1695974401n,
   MONTHLY: 1695974400n,
 };
 
@@ -147,31 +148,49 @@ const useStrikesData = (props: Props) => {
     const config = { abi: OptionAmm__factory.abi, address: ammAddress };
 
     let ivPromises = [];
+    let ppoPromises = []; // premium per option
     let strikeDataPromises = [];
-    for (let i = 0; i < strikes.length; i++) {
-      const [iv, strikeData] = [
-        readContract({
-          ...config,
-          functionName: 'getVolatility',
-          args: [strikes[i], BigInt(_expiryData.expiry)],
-        }),
-        readContract({
-          ...config,
-          functionName: 'getExpiryStrikeData',
-          args: [strikes[i], BigInt(_expiryData.expiry)],
-        }),
-      ];
-      ivPromises.push(iv);
-      strikeDataPromises.push(strikeData);
+    try {
+      for (let i = 0; i < strikes.length; i++) {
+        const [iv, premiumPerOption, strikeData] = [
+          readContract({
+            ...config,
+            functionName: 'getVolatility',
+            args: [strikes[i], BigInt(_expiryData.expiry)],
+          }),
+          readContract({
+            ...config,
+            functionName: 'calcPremium',
+            args: [
+              isPut,
+              strikes[i],
+              BigInt(_expiryData.expiry),
+              parseUnits('1', DECIMALS_TOKEN),
+            ],
+          }),
+          readContract({
+            ...config,
+            functionName: 'getExpiryStrikeData',
+            args: [strikes[i], BigInt(_expiryData.expiry)],
+          }),
+        ];
+        ivPromises.push(iv);
+        ppoPromises.push(premiumPerOption);
+        strikeDataPromises.push(strikeData);
+      }
+    } catch (e) {
+      console.log('error');
     }
 
     const ivs = await Promise.all(ivPromises);
     const strikeData = await Promise.all(strikeDataPromises);
+    const ppos = await Promise.all(ppoPromises);
     const expiryStrikeData = [];
     for (let i = 0; i < strikes.length; i++) {
       expiryStrikeData.push({
         strike: strikes[i],
         iv: ivs[i],
+        premiumPerOption: ppos[i],
         longs: strikeData[i][0],
         activeLongs: strikeData[i][1],
         shorts: strikeData[i][2],
@@ -182,14 +201,12 @@ const useStrikesData = (props: Props) => {
     }
 
     setExpiryStrikeData(expiryStrikeData);
-  }, [_expiryData, ammAddress]);
+  }, [_expiryData, ammAddress, isPut]);
 
   const strikeData = useMemo(() => {
     if (!expiryStrikeData) return [];
 
     // todo: fix, failing to update
-
-    console.log('fail');
 
     let totalAvailableCollateral = 0n;
 
@@ -217,10 +234,8 @@ const useStrikesData = (props: Props) => {
         100;
       const availableCollateral = totalCollateral - activeCollateral;
       const premiumAccrued = expiryStrikeData[i].premium;
-      // calcPremium(bool isPut, uint256 strike, uint256 expiry, uint256 amount);
-      const premiumPerOption = 10000000000000000n; // 0.01 of underlying
-      // calcOpeningFees(uint256 amount); // amount in quote decimals
-      const purchaseFeePerOption = 100000000000000n; // fees for open; not settlement fee which is charged separately
+      const premiumPerOption = expiryStrikeData[i].premiumPerOption;
+      const purchaseFeePerOption = 0n; // todo: get fees
 
       totalAvailableCollateral += availableCollateral;
       _strikeData.push({

@@ -14,7 +14,7 @@ import TableLayout from 'components/common/TableLayout';
 
 import formatAmount from 'utils/general/formatAmount';
 
-import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
+import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
 interface DisclosureStrikeItem {
   iv: number;
@@ -99,7 +99,7 @@ const columns = [
               <span>
                 {approximationSymbol}
                 {formatAmount(
-                  formatUnits(value.premiumPerOption || 0n, DECIMALS_TOKEN),
+                  formatUnits(value.premiumPerOption || 0n, DECIMALS_USD),
                   3,
                 )}{' '}
                 {value.base}
@@ -169,13 +169,14 @@ const StrikesTable = (props: Props) => {
 
   const data = useMemo(() => {
     // todo: fix bug updating strikeData in useStrikesData()
-    console.log(strikeData);
     if (!strikeData || !greeks) return [];
-    console.log(strikeData);
     return strikeData.map((sd, index) => {
       return {
         strike: Number(formatUnits(sd.strike || 0n, DECIMALS_STRIKE)),
-        breakeven: '1',
+        breakeven: formatUnits(
+          sd.strike || 0n + sd.premiumPerOption || 0n,
+          DECIMALS_STRIKE,
+        ),
         availableCollateral: {
           strike: Number(
             formatUnits(sd.availableCollateral || 0n, DECIMALS_TOKEN),
@@ -184,7 +185,8 @@ const StrikesTable = (props: Props) => {
         },
         button: {
           index,
-          base: market.split('-')[0],
+          base: vault.collateralSymbol,
+          quote: vault.underlyingSymbol,
           premiumPerOption: sd.premiumPerOption || 0n,
           activeStrikeIndex: activeStrikeIndex,
           setActiveStrikeIndex: () => setActiveStrikeIndex(index),
@@ -201,7 +203,14 @@ const StrikesTable = (props: Props) => {
         },
       };
     });
-  }, [activeStrikeIndex, greeks, market, setActiveStrikeIndex, strikeData]);
+  }, [
+    activeStrikeIndex,
+    greeks,
+    setActiveStrikeIndex,
+    strikeData,
+    vault.collateralSymbol,
+    vault.underlyingSymbol,
+  ]);
 
   return (
     <TableLayout<StrikeItem>

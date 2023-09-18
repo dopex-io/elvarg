@@ -57,8 +57,10 @@ const ManageMargin = (props: Props) => {
   const [balance, setBalance] = useState<bigint>(0n);
   const [amount, setAmount] = useState<string>('');
   const [approved, setApproved] = useState<boolean>(false);
-  const [portfolioHealth, setPortfolioHealth] = useState<bigint>(0n);
-  const [debouncedHealth] = useDebounce(portfolioHealth, 1000);
+  const [newPortfolioHealth, setNewPortfolioHealth] = useState<bigint | null>(
+    0n,
+  );
+  const [debouncedHealth] = useDebounce(newPortfolioHealth, 1000);
 
   const { write: deposit } = useContractWrite({
     abi: OptionAmmPortfolioManager__factory.abi,
@@ -98,7 +100,12 @@ const ManageMargin = (props: Props) => {
     else activeState === PanelState.Deposit ? deposit?.() : withdraw?.();
   }, [activeState, approve, approved, deposit, withdraw]);
 
-  const updatePortfolioHealth = useCallback(async () => {
+  const updatePortfolioHealthFromAddedCollateral = useCallback(async () => {
+    const parsedAmount = parseUnits(amount, DECIMALS_USD);
+    if (parsedAmount < 0n || activeState !== 0 || !address) {
+      setNewPortfolioHealth(null);
+      return;
+    }
     const config = {
       abi: OptionAmmPortfolioManager__factory.abi,
       address: vault.portfolioManager,
@@ -107,14 +114,14 @@ const ManageMargin = (props: Props) => {
     const _newHealth = await readContract({
       ...config,
       functionName: 'getPortfolioHealthFromAddedCollateral',
-      args: [address || zeroAddress, parseUnits(amount, DECIMALS_USD)],
+      args: [address, parsedAmount],
     });
-    setPortfolioHealth(_newHealth);
-  }, [address, amount, vault.portfolioManager]);
+    setNewPortfolioHealth(_newHealth);
+  }, [activeState, address, amount, vault.portfolioManager]);
 
   useEffect(() => {
-    updatePortfolioHealth();
-  }, [updatePortfolioHealth]);
+    updatePortfolioHealthFromAddedCollateral();
+  }, [updatePortfolioHealthFromAddedCollateral]);
 
   useEffect(() => {
     (async () => {
@@ -177,23 +184,6 @@ const ManageMargin = (props: Props) => {
     }
   }, [activeState, amount, approved, handleClick]);
 
-  const riskHighlighting = useMemo(() => {
-    if (!portfolioData)
-      return { current: 'text-stieglitz', new: 'text-stieglitz' };
-    const currentRisk = getMMSeverity(
-      portfolioData.health,
-      portfolioData.liquidationThreshold,
-    );
-    const newRisk = getMMSeverity(
-      debouncedHealth,
-      portfolioData.liquidationThreshold,
-    );
-    return {
-      current: getHighlightingFromRisk(currentRisk),
-      new: getHighlightingFromRisk(newRisk),
-    };
-  }, [debouncedHealth, portfolioData]);
-
   return (
     <Dialog
       isOpen={open}
@@ -234,14 +224,34 @@ const ManageMargin = (props: Props) => {
           <div className="flex justify-between text-xs p-3">
             <p className="text-stieglitz">Portfolio Health</p>
             <span className="flex space-x-2">
-              <p className={`text-${riskHighlighting.current}`}>
+              <p
+                className={`text-${getHighlightingFromRisk(
+                  getMMSeverity(
+                    portfolioData?.health || 0n,
+                    portfolioData?.liquidationThreshold || 0n,
+                  ),
+                )}`}
+              >
                 {formatUnits(portfolioData?.health || 0n, 2)}%
               </p>
               {amount !== '' && amount !== '0' ? (
                 <>
                   <p>→</p>
-                  <p className={`text-${riskHighlighting.new}`}>
-                    {formatUnits(debouncedHealth || 0n, 2)}%
+                  <p
+                    className={`text-${
+                      debouncedHealth === null
+                        ? 'stieglitz'
+                        : getHighlightingFromRisk(
+                            getMMSeverity(
+                              debouncedHealth || 0n,
+                              portfolioData?.liquidationThreshold || 0n,
+                            ),
+                          )
+                    }`}
+                  >
+                    {debouncedHealth === null
+                      ? 'N/A'
+                      : `${formatUnits(debouncedHealth, 2)}%`}
                   </p>
                 </>
               ) : null}

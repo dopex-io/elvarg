@@ -30,7 +30,7 @@ const useVaultStore = create<Props>()(
   devtools((set) => ({
     vault: vaultZeroState,
     update: (vault: VaultState) => set({ vault }),
-    activeStrikeIndex: 2,
+    activeStrikeIndex: 0,
     setActiveStrikeIndex: (index: number) =>
       set((prevState) => ({ ...prevState, activeStrikeIndex: index })),
   })),
