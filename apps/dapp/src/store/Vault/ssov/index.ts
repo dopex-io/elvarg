@@ -372,7 +372,7 @@ export const createSsovV3Slice: StateCreator<
                 optionsToken.symbol(),
               ]);
 
-              if (strike.lt(1e8)) {
+              if (strike.lt(10e8)) {
                 const readableStrike = formatAmount(
                   formatUnits(strike.toBigInt(), 8),
                   5,
