@@ -11,6 +11,7 @@ import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 import { AmmDuration } from 'constants/optionAmm/markets';
 
 interface ExpiryData {
+  markPrice: bigint;
   active: boolean;
   expired: boolean;
   strikeIncrement: bigint;
@@ -67,7 +68,7 @@ interface Props {
 const NON_ZERO_DENOMINATOR = 1n;
 
 export const durationToExpiryMapping = {
-  DAILY: 1695110401n,
+  DAILY: 1695196801n,
   WEEKLY: 1695974401n,
   MONTHLY: 1695974400n,
 }; // todo: automate this instead of repeatedly updating after every bootstrap
@@ -84,7 +85,7 @@ const useStrikesData = (props: Props) => {
   const updateExpiryData = useCallback(async () => {
     if (ammAddress === '0x') return;
 
-    const selectedExpiryTimestamp = durationToExpiryMapping[duration];
+    const selectedExpiryTimestamp: bigint = durationToExpiryMapping[duration];
     const [
       active,
       expired,
@@ -121,6 +122,7 @@ const useStrikesData = (props: Props) => {
     }
 
     setExpiryData({
+      markPrice,
       strikeIncrement,
       maxOtmPercentage,
       strikeDeltas: [],
@@ -133,83 +135,10 @@ const useStrikesData = (props: Props) => {
     });
   }, [ammAddress, duration]);
 
-  const updateStrikeDataForExpiry = useCallback(async () => {
-    if (!_expiryData || !ammAddress) return;
-
-    const strikes = _expiryData.strikes;
-
-    const config = { abi: OptionAmm__factory.abi, address: ammAddress };
-
-    let ivPromises = [];
-    let feePromises = [];
-    let ppoPromises = []; // premium per option
-    let strikeDataPromises = [];
-    try {
-      for (let i = 0; i < strikes.length; i++) {
-        const [iv, premiumPerOption, feePerOption, strikeData] = [
-          readContract({
-            ...config,
-            functionName: 'getVolatility',
-            args: [strikes[i], BigInt(_expiryData.expiry)],
-          }),
-          readContract({
-            ...config,
-            functionName: 'calcPremium',
-            args: [
-              isPut,
-              strikes[i],
-              BigInt(_expiryData.expiry),
-              parseUnits('1', DECIMALS_TOKEN),
-            ],
-          }),
-          readContract({
-            ...config,
-            functionName: 'calcOpeningFees',
-            args: [strikes[i] * BigInt(_expiryData.expiry)],
-          }),
-          readContract({
-            ...config,
-            functionName: 'getExpiryStrikeData',
-            args: [strikes[i], BigInt(_expiryData.expiry)],
-          }),
-        ];
-        ivPromises.push(iv);
-        feePromises.push(feePerOption);
-        ppoPromises.push(premiumPerOption);
-        strikeDataPromises.push(strikeData);
-      }
-
-      const ivs = await Promise.all(ivPromises);
-      const strikeData = await Promise.all(strikeDataPromises);
-      const ppos = await Promise.all(ppoPromises);
-      const feePerOption = await Promise.all(feePromises);
-
-      const _strikeDataForExpiry = [];
-      for (let i = 0; i < strikes.length; i++) {
-        _strikeDataForExpiry.push({
-          strike: strikes[i],
-          iv: ivs[i],
-          premiumPerOption: ppos[i],
-          feePerOption: feePerOption[i],
-          longs: strikeData[i][0],
-          activeLongs: strikeData[i][1],
-          shorts: strikeData[i][2],
-          activeShorts: strikeData[i][3],
-          premium: strikeData[i][4],
-          fees: strikeData[i][5],
-        });
-      }
-
-      setStrikeDataForExpiry(_strikeDataForExpiry);
-    } catch (e) {
-      console.error('Error mounting strike data for expiry...', e);
-    }
-  }, [_expiryData, ammAddress, isPut]);
-
-  const updateStrikeData = useCallback(async () => {
-    if (!strikeDataForExpiry) return [];
-
+  const updateStrikeData = useCallback(() => {
     let totalAvailableCollateral = 0n;
+
+    if (!strikeDataForExpiry) return;
 
     let _strikeData: StrikeData[] = [];
     for (let i = 0; i < strikeDataForExpiry.length; i++) {
@@ -256,25 +185,90 @@ const useStrikesData = (props: Props) => {
     setStrikeData(_strikeData);
   }, [strikeDataForExpiry]);
 
-  const greeks = useMemo(() => {
-    if (!strikeData) return [];
+  const updateStrikeDataForExpiry = useCallback(async () => {
+    if (!_expiryData || !ammAddress) return;
 
-    // mock expiries
-    let durationInSeconds;
-    if (duration === 'DAILY') {
-      durationInSeconds = Math.ceil(new Date().getTime() / 1000) + 86400;
-    } else if (duration === 'WEEKLY') {
-      durationInSeconds = Math.ceil(new Date().getTime() / 1000) + 7 * 86400;
-    } else {
-      durationInSeconds = Math.ceil(new Date().getTime() / 1000) + 30 * 86400;
+    const strikes = _expiryData.strikes;
+
+    const config = { abi: OptionAmm__factory.abi, address: ammAddress };
+
+    let ivPromises = [];
+    let feePromises = [];
+    let ppoPromises = []; // premium per option
+    let strikeDataPromises = [];
+    try {
+      for (let i = 0; i < strikes.length; i++) {
+        const [iv, premiumPerOption, feePerOption, strikeData] = [
+          readContract({
+            ...config,
+            functionName: 'getVolatility',
+            args: [strikes[i], BigInt(_expiryData.expiry)],
+          }),
+          readContract({
+            ...config,
+            functionName: 'calcPremium',
+            args: [
+              isPut,
+              strikes[i],
+              BigInt(_expiryData.expiry),
+              parseUnits('1', DECIMALS_TOKEN),
+            ],
+          }),
+          readContract({
+            ...config,
+            functionName: 'calcOpeningFees',
+            args: [strikes[i] * parseUnits('1', DECIMALS_TOKEN)],
+          }),
+          readContract({
+            ...config,
+            functionName: 'getExpiryStrikeData',
+            args: [strikes[i], BigInt(_expiryData.expiry)],
+          }),
+        ];
+        ivPromises.push(iv);
+        feePromises.push(feePerOption);
+        ppoPromises.push(premiumPerOption);
+        strikeDataPromises.push(strikeData);
+      }
+
+      const ivs = await Promise.all(ivPromises);
+      const strikeData = await Promise.all(strikeDataPromises);
+      const ppos = await Promise.all(ppoPromises);
+      const feePerOption = await Promise.all(feePromises);
+
+      const _strikeDataForExpiry = [];
+      for (let i = 0; i < strikes.length; i++) {
+        _strikeDataForExpiry.push({
+          strike: strikes[i],
+          iv: ivs[i],
+          premiumPerOption: ppos[i],
+          feePerOption: feePerOption[i],
+          longs: strikeData[i][0],
+          activeLongs: strikeData[i][1],
+          shorts: strikeData[i][2],
+          activeShorts: strikeData[i][3],
+          premium: strikeData[i][4],
+          fees: strikeData[i][5],
+        });
+      }
+
+      setStrikeDataForExpiry(_strikeDataForExpiry);
+    } catch (e) {
+      console.error('Error mounting strike data for expiry...', e);
     }
+  }, [_expiryData, ammAddress, isPut]);
+
+  const greeks = useMemo(() => {
+    if (!strikeData || !_expiryData) return [];
+
+    let durationInSeconds = durationToExpiryMapping[duration];
 
     const greeksData = [];
     for (let i = 0; i < strikeData.length; i++) {
       const { delta, gamma, theta, vega } = computeOptionGreeks({
-        spot: 1,
+        spot: Number(formatUnits(_expiryData.markPrice, DECIMALS_STRIKE)),
         strike: Number(formatUnits(strikeData[i].strike, DECIMALS_STRIKE)),
-        expiryInYears: getTimeToExpirationInYears(durationInSeconds),
+        expiryInYears: getTimeToExpirationInYears(Number(durationInSeconds)),
         ivInDecimals: Number(strikeData[i].iv) / 100,
         isPut,
       });
@@ -288,7 +282,7 @@ const useStrikesData = (props: Props) => {
     }
 
     return greeksData;
-  }, [duration, isPut, strikeData]);
+  }, [_expiryData, duration, isPut, strikeData]);
 
   useEffect(() => {
     updateExpiryData();

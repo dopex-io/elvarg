@@ -212,6 +212,7 @@ const StrikesTable = () => {
       columns={columns}
       data={data}
       rowSpacing={3}
+      pageSize={20}
       disclosure={greeks.map((s, index) => (
         <TableDisclosure key={index} {...s} />
       ))}
