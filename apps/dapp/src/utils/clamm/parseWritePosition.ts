@@ -48,7 +48,9 @@ function parseWritePosition(
   }
 
   const earnedLiquidity =
-    (shares * (totalLiquidityToL - liquidity)) / totalLiquidityToL;
+    totalLiquidityToL === 0n
+      ? 0n
+      : (shares * (totalLiquidityToL - liquidity)) / totalLiquidityToL;
 
   const earnedAmounts = getAmountsForLiquidity(
     priceSqrtX96,
