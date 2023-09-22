@@ -51,7 +51,6 @@ const ClammPage = () => {
 
   const { address: userAddress } = useAccount();
 
-  // const userAddress = '0x5f774bfca7aacab1d30401d0675c5d03e0601944';
   const [isAgree, setIsAgree] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
   const handleClose = () => setIsOpen(false);
@@ -314,7 +313,7 @@ const ClammPage = () => {
   }, [updateUserAddress, userAddress]);
 
   return (
-    <div className="overflow-x-hidden bg-black h-screen">
+    <div className="bg-black h-screen w-screen">
       <NextSeo
         title={`${seo.clamm.title}`}
         description={seo.clamm.description}
@@ -341,10 +340,11 @@ const ClammPage = () => {
           isAgree={isAgree}
           handleAgree={handleAgree}
         />
-        <div className="flex space-x-0 lg:space-x-8 flex-col sm:flex-col md:flex-col lg:flex-row space-y-4 md:space-y-0 justify-center">
+        <div className="flex space-x-0 lg:space-x-8 flex-col sm:flex-col md:flex-col lg:flex-row space-y-4 md:space-y-4 justify-center">
           <div className="flex flex-col space-y-3 sm:w-full h-full max-w-[1920px] flex-1">
             <PairSelector />
             <PriceChart
+              className="rounded-lg text-center flex flex-col justify-center text-stieglitz"
               market={selectedOptionsPoolPair.underlyingTokenSymbol}
             />
             <div className="space-y-4">
@@ -352,7 +352,7 @@ const ClammPage = () => {
               <Positions />
             </div>
           </div>
-          <div className="flex flex-col h-full space-y-4 sticky top-20 min-w-[366px] max-w-[366px]">
+          <div className="flex flex-col h-full space-y-4 sticky top-20 min-w-[366px] lg:max-w-[366px] md:w-full">
             <AsidePanel />
           </div>
         </div>
