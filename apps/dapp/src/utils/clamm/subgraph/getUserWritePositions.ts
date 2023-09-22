@@ -22,6 +22,7 @@ async function getUserWritePositions(
 ) {
   try {
     const { writePositions } = await queryClient.fetchQuery({
+      queryKey: ['clamm-write' + uniswapV3PoolAddress + '#' + userAddress],
       queryFn: async () =>
         request(
           DOPEX_CLAMM_SUBGRAPH_API_URL,

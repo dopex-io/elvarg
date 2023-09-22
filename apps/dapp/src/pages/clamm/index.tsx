@@ -20,7 +20,15 @@ import {
   getLiquidityForAmount0,
   getLiquidityForAmount1,
 } from 'utils/clamm/liquidityAmountMath';
+import parseOptionsPosition from 'utils/clamm/parseOptionsPosition';
 import parsePriceFromTick from 'utils/clamm/parsePriceFromTick';
+import parseWritePosition, {
+  WritePosition,
+} from 'utils/clamm/parseWritePosition';
+import getUserOptionsExercises from 'utils/clamm/subgraph/getUserOptionsExercises';
+import getUserOptionsPositions from 'utils/clamm/subgraph/getUserOptionsPositions';
+import getUserOptionsPurchases from 'utils/clamm/subgraph/getUserOptionsPurchases';
+import getUserWritePositions from 'utils/clamm/subgraph/getUserWritePositions';
 
 import { CLAMM_PAIRS_TO_ADDRESSES } from 'constants/clamm';
 import seo from 'constants/seo';
@@ -36,6 +44,9 @@ const ClammPage = () => {
     setKeys,
     setPositionManagerAddress,
     updateUserAddress,
+    ticksData,
+    optionsPool,
+    setUserClammPositions,
   } = useBoundStore();
 
   const { address: userAddress } = useAccount();
@@ -147,9 +158,156 @@ const ClammPage = () => {
     setOptionsPool,
   ]);
 
+  const updateUserWritePositions = useCallback(async () => {
+    if (!optionsPool) return;
+    if (!userAddress) return;
+    if (ticksData.length === 0) return;
+
+    const {
+      uniswapV3PoolAddress,
+      inversePrice,
+      token0Decimals,
+      token1Decimals,
+      sqrtX96Price,
+    } = optionsPool;
+
+    setLoading('writePositions', true);
+    const positions = await getUserWritePositions(
+      uniswapV3PoolAddress,
+      userAddress,
+    );
+
+    const parsedPositions = positions
+      .map((position) => {
+        const tickData = ticksData.find((data) => {
+          return (
+            position.tickLower === data.tickLower &&
+            position.tickUpper === data.tickUpper
+          );
+        });
+
+        if (!tickData) return;
+        return parseWritePosition(
+          sqrtX96Price,
+          10 ** token0Decimals,
+          10 ** token1Decimals,
+          inversePrice,
+          tickData,
+          position,
+        );
+      })
+      .filter((position): position is WritePosition => position !== undefined);
+
+    setUserClammPositions('writePositions', parsedPositions);
+    setLoading('writePositions', false);
+  }, [optionsPool, ticksData, setUserClammPositions, setLoading, userAddress]);
+
+  const updateUserOptionsPositions = useCallback(async () => {
+    if (!optionsPool) return;
+    if (!userAddress) return;
+
+    const {
+      uniswapV3PoolAddress,
+      inversePrice,
+      token0Decimals,
+      token1Decimals,
+    } = optionsPool;
+
+    setLoading('optionsPositions', true);
+    const positions = await getUserOptionsPositions(
+      uniswapV3PoolAddress,
+      userAddress,
+    );
+
+    const parsedPositions = positions
+      .map((position) => {
+        return parseOptionsPosition(
+          10 ** token0Decimals,
+          10 ** token1Decimals,
+          inversePrice,
+          position,
+        );
+      })
+      .filter(
+        (position) =>
+          position.expiry > BigInt((new Date().getTime() / 1000).toFixed(0)),
+      );
+
+    setUserClammPositions('optionsPositions', parsedPositions);
+    setLoading('optionsPositions', false);
+  }, [optionsPool, setUserClammPositions, setLoading, userAddress]);
+
+  const updateUserPositionsHistory = useCallback(async () => {
+    if (!optionsPool) return;
+    if (!userAddress) return;
+
+    const {
+      uniswapV3PoolAddress,
+      inversePrice,
+      token0Decimals,
+      token1Decimals,
+    } = optionsPool;
+
+    setLoading('positionsHistory', true);
+
+    const optionsPurchased = await getUserOptionsPurchases(
+      uniswapV3PoolAddress,
+      userAddress,
+    );
+
+    const optionsExercised = await getUserOptionsExercises(
+      uniswapV3PoolAddress,
+      userAddress,
+    );
+
+    const parsedOptionsPurchased = optionsPurchased.map((position) => {
+      const parsed = parseOptionsPosition(
+        10 ** token0Decimals,
+        10 ** token1Decimals,
+        inversePrice,
+        position,
+      );
+
+      return {
+        ...parsed,
+        timestamp: position.timestamp,
+      };
+    });
+
+    const parsedOptionsExercised = optionsExercised.map((position) => {
+      const parsed = parseOptionsPosition(
+        10 ** token0Decimals,
+        10 ** token1Decimals,
+        inversePrice,
+        position,
+      );
+
+      return {
+        ...parsed,
+        timestamp: position.timestamp,
+      };
+    });
+
+    setUserClammPositions('optionsExercises', parsedOptionsExercised);
+    setUserClammPositions('optionsPurchases', parsedOptionsPurchased);
+    setLoading('positionsHistory', false);
+  }, [optionsPool, setUserClammPositions, setLoading, userAddress]);
+
   useEffect(() => {
     loadOptionsPool();
   }, [loadOptionsPool]);
+
+  useEffect(() => {
+    updateUserWritePositions();
+  }, [updateUserWritePositions]);
+
+  useEffect(() => {
+    updateUserOptionsPositions();
+  }, [updateUserOptionsPositions]);
+
+  useEffect(() => {
+    updateUserPositionsHistory();
+  }, [updateUserPositionsHistory]);
 
   useEffect(() => {
     updateUserAddress(userAddress);

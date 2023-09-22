@@ -43,6 +43,10 @@ function parseWritePosition(
     totalLiquidity.token1Amount,
   );
 
+  if (liquidity < 0n) {
+    liquidity = 0n;
+  }
+
   const earnedLiquidity =
     (shares * (totalLiquidityToL - liquidity)) / totalLiquidityToL;
 

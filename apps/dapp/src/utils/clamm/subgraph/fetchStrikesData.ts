@@ -22,6 +22,7 @@ async function fetchStrikesData(
 ): Promise<StrikesDataRaw[]> {
   try {
     const response = await queryClient.fetchQuery({
+      queryKey: ['clammPositionsStrikesData'],
       queryFn: async () =>
         request(DOPEX_CLAMM_SUBGRAPH_API_URL, getStrikeDataDocument, {
           poolAddress: uniswapV3PoolAddress.toLowerCase(),

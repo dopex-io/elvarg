@@ -8,13 +8,23 @@ import { getOptionsPositionsForUserDocument } from 'graphql/clamm';
 
 import { DOPEX_CLAMM_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
+export type OptionsPositionRaw = {
+  expiry: bigint;
+  isPut: boolean;
+  options: bigint;
+  tickLower: number;
+  tickUpper: number;
+  premium: bigint;
+};
+
 async function getUserOptionsPositions(
   uniswapV3PoolAddress: Address,
   userAddress: Address,
   first: number = 1000,
-) {
+): Promise<OptionsPositionRaw[]> {
   try {
     const { optionsPositions } = await queryClient.fetchQuery({
+      queryKey: ['clamm-options' + uniswapV3PoolAddress + '#' + userAddress],
       queryFn: async () =>
         request(
           DOPEX_CLAMM_SUBGRAPH_API_URL,

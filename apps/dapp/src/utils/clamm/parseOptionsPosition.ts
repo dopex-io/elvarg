@@ -5,7 +5,7 @@ import {
 import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
 
 import parsePriceFromTick from './parsePriceFromTick';
-import { OptionsPositionRaw } from './subgraph/getUserPositions';
+import { OptionsPositionRaw } from './subgraph/getUserOptionsPositions';
 
 export type OptionsPosition = {
   tickLower: number;

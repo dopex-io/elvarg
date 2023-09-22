@@ -26,6 +26,7 @@ async function getUserOptionsPurchases(
 ): Promise<OptionsPurchasesRaw[]> {
   try {
     const { optionsPositionPurchases } = await queryClient.fetchQuery({
+      queryKey: ['clamm-purchases' + uniswapV3PoolAddress + '#' + userAddress],
       queryFn: async () =>
         request(
           DOPEX_CLAMM_SUBGRAPH_API_URL,
@@ -60,7 +61,6 @@ async function getUserOptionsPurchases(
       }),
     );
   } catch (err) {
-    console.log('THROWING ERROR', err);
     console.error('[getUserWritePositions] ', err);
     return [];
   }

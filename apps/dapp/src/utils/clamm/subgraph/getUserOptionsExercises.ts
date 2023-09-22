@@ -15,9 +15,9 @@ async function getUserOptionsExercises(
   userAddress: Address,
   first: number = 1000,
 ): Promise<OptionsPurchasesRaw[]> {
-  console.log('PARAMs', uniswapV3PoolAddress, userAddress);
   try {
     const { optionsPositionExercises } = await queryClient.fetchQuery({
+      queryKey: ['clamm-exercises' + uniswapV3PoolAddress + '#' + userAddress],
       queryFn: async () =>
         request(
           DOPEX_CLAMM_SUBGRAPH_API_URL,
