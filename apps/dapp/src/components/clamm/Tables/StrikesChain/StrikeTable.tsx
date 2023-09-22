@@ -40,7 +40,7 @@ const columns = [
   columnHelper.accessor('strike', {
     header: 'Strike',
     cell: (info) => (
-      <span className="space-x-1 text-left">
+      <span className="flex space-x-1 text-left">
         <p className="text-stieglitz inline-block">$</p>
         <p className="inline-block">{info.getValue().toFixed(5)}</p>
       </span>
