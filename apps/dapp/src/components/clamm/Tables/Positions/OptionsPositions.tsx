@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
-import { zeroAddress } from 'viem';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Address, formatUnits, zeroAddress } from 'viem';
 
 import { OptionPools__factory } from '@dopex-io/sdk';
 import { Button } from '@dopex-io/ui';
@@ -11,6 +11,8 @@ import { useBoundStore } from 'store';
 
 import TableLayout from 'components/common/TableLayout';
 
+import parseOptionsPosition from 'utils/clamm/parseOptionsPosition';
+import getUserOptionsPositions from 'utils/clamm/subgraph/getUserOptionsPositions';
 import { formatAmount } from 'utils/general';
 
 interface OptionsPositionTablesData {
@@ -33,13 +35,21 @@ interface OptionsPositionTablesData {
   side: string;
   exercisableAmount: bigint;
   expiry: number;
-  exercised: boolean;
   button: {
     handleExercise: (index: number) => void;
     id: number;
     disabled: boolean;
   };
 }
+
+type ExercisePositionProps = {
+  pool: Address;
+  tickLower: number;
+  tickUpper: number;
+  expiry: bigint;
+  callOrPut: boolean;
+  amountToExercise: bigint;
+};
 
 const columnHelper = createColumnHelper<OptionsPositionTablesData>();
 
@@ -131,97 +141,146 @@ const columns = [
   }),
 ];
 
-type ExercisePositionProps = {
-  tickLower: number;
-  tickUpper: number;
-  expiry: bigint;
-  callOrPut: boolean;
-  amountToExercise: bigint;
-};
+const OptionsPositions = () => {
+  const { optionsPool, loading, keys, userClammPositions, markPrice } =
+    useBoundStore();
 
-type OptionsPositionsForTable = {
-  tickLower: number;
-  tickUpper: number;
-  strike: number;
-  size: {
-    amount: string;
-    symbol: string;
-  };
-  pnl: {
-    amount: string;
-    symbol: string;
-    usdValue: number;
-  };
-  side: string;
-  exercisableAmount: bigint;
-  expiry: number;
-  exercised: boolean;
-};
+  const [exerciseParams, setExerciseParams] = useState<ExercisePositionProps>({
+    pool: zeroAddress,
+    tickLower: 0,
+    tickUpper: 0,
+    amountToExercise: 0n,
+    callOrPut: false,
+    expiry: 0n,
+  });
 
-const OptionsPositions = ({
-  optionsPositions,
-}: {
-  optionsPositions: OptionsPositionsForTable[];
-}) => {
-  const { optionsPool } = useBoundStore();
-
-  const [selectedPosition, setSelectedPosition] =
-    useState<ExercisePositionProps>();
-
-  const { config: exerciseOptionConfig } = usePrepareContractWrite({
+  const { config } = usePrepareContractWrite({
     abi: OptionPools__factory.abi,
     address: optionsPool?.address ?? zeroAddress,
     functionName: 'exerciseOptionRoll',
-    args: [
-      {
-        pool: optionsPool?.uniswapV3PoolAddress ?? zeroAddress,
-        tickLower: selectedPosition?.tickLower || 0,
-        tickUpper: selectedPosition?.tickUpper || 0,
-        expiry: selectedPosition?.expiry || 0n,
-        callOrPut: selectedPosition?.callOrPut || false,
-        amountToExercise: selectedPosition?.amountToExercise || 0n,
-      },
-    ],
+    args: [exerciseParams],
   });
-  const { write: exerciseOption } = useContractWrite(exerciseOptionConfig);
 
-  const handleExercise = useCallback(
-    (index: number) => {
-      if (!optionsPositions) return;
+  const { write } = useContractWrite(config);
 
-      setSelectedPosition({
-        tickLower: optionsPositions[index].tickLower,
-        tickUpper: optionsPositions[index].tickUpper,
-        expiry: BigInt(optionsPositions[index].expiry),
-        callOrPut: optionsPositions[index].side === 'Call' ? true : false,
-        amountToExercise: optionsPositions[index].exercisableAmount - 1n,
-      });
+  const positions = useMemo(() => {
+    if (!optionsPool) return [];
 
-      exerciseOption?.();
-    },
-    [exerciseOption, optionsPositions],
-  );
+    return userClammPositions.optionsPositions.map(
+      (
+        {
+          amounts,
+          callOrPut,
+          exercisableAmount,
+          expiry,
+          premium,
+          tickLower,
+          tickLowerPrice,
+          tickUpper,
+          tickUpperPrice,
+        },
+        index,
+      ) => {
+        const sizeAmount = formatUnits(
+          amounts[callOrPut ? keys.callAssetAmountKey : keys.putAssetAmountKey],
+          optionsPool[
+            callOrPut ? keys.callAssetDecimalsKey : keys.putAssetDecimalsKey
+          ],
+        );
+        let size = {
+          amount: sizeAmount,
+          symbol:
+            optionsPool[
+              callOrPut ? keys.callAssetSymbolKey : keys.putAssetSymbolKey
+            ],
+        };
 
-  const positions: OptionsPositionTablesData[] = useMemo(() => {
-    return optionsPositions.map((position, index) => ({
-      ...position,
-      button: {
-        handleExercise,
-        id: index,
-        disabled:
-          position.expiry < Number(new Date().getTime()) / 1000 ||
-          position.pnl.usdValue === 0,
+        let _pnl =
+          (callOrPut
+            ? markPrice - tickUpperPrice
+            : tickLowerPrice - markPrice) * Number(sizeAmount);
+
+        let usdValue = _pnl;
+        _pnl = callOrPut ? _pnl : _pnl / markPrice;
+
+        if (_pnl < 0) {
+          _pnl = 0;
+          usdValue = 0;
+        }
+
+        const pnl = {
+          amount: _pnl.toString(),
+          symbol:
+            optionsPool[
+              callOrPut ? keys.putAssetSymbolKey : keys.callAssetSymbolKey
+            ],
+          usdValue: usdValue,
+        };
+
+        return {
+          tickLower,
+          tickUpper,
+          pnl,
+          strike: callOrPut ? tickUpperPrice : tickLowerPrice,
+          side: callOrPut ? 'Call' : 'Put',
+          size,
+          expiry,
+          exercisableAmount,
+          premium: {
+            amount: formatUnits(
+              premium,
+              optionsPool[
+                callOrPut ? keys.callAssetDecimalsKey : keys.putAssetDecimalsKey
+              ],
+            ),
+            symbol:
+              optionsPool[
+                callOrPut ? keys.callAssetSymbolKey : keys.putAssetSymbolKey
+              ],
+          },
+          button: {
+            handleExercise: () => {
+              setExerciseParams({
+                pool: optionsPool.uniswapV3PoolAddress,
+                tickLower,
+                tickUpper,
+                callOrPut,
+                amountToExercise: exercisableAmount,
+                expiry: BigInt(expiry),
+              });
+
+              if (write) {
+                write();
+              }
+            },
+            id: index,
+            disabled:
+              expiry < Number(new Date().getTime()) / 1000 ||
+              pnl.usdValue === 0,
+          },
+        };
       },
-    }));
-  }, [handleExercise, optionsPositions]);
+    );
+  }, [
+    write,
+    markPrice,
+    keys.callAssetAmountKey,
+    keys.callAssetDecimalsKey,
+    keys.callAssetSymbolKey,
+    keys.putAssetAmountKey,
+    keys.putAssetDecimalsKey,
+    keys.putAssetSymbolKey,
+    optionsPool,
+    userClammPositions.optionsPositions,
+  ]);
 
   return (
     <div className="space-y-2">
       <TableLayout<OptionsPositionTablesData>
         data={positions}
         columns={columns}
-        rowSpacing={2}
-        isContentLoading={false}
+        rowSpacing={3}
+        isContentLoading={loading.optionsPositions}
       />
     </div>
   );

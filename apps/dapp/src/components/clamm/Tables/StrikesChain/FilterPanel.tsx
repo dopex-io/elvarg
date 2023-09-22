@@ -1,14 +1,16 @@
+import { useCallback } from 'react';
+
 import { useBoundStore } from 'store';
 
-import RefreshIcon from '../Positions/components/RefreshIcon';
-
-const FilterPanel = ({ reload }: { reload: any }) => {
+const FilterPanel = () => {
   const { isPut, setIsPut } = useBoundStore();
 
-  const handleIsPut = (isPut: boolean) => {
-    setIsPut(isPut);
-  };
-
+  const handleIsPut = useCallback(
+    (setAs: boolean) => {
+      setIsPut(setAs);
+    },
+    [setIsPut],
+  );
   return (
     <div className="flex space-x-2 z-10 items-center justify-between">
       <div className="bg-mineshaft rounded-md p-1 relative flex text-xs">
@@ -42,9 +44,6 @@ const FilterPanel = ({ reload }: { reload: any }) => {
             Put
           </button>
         </div>
-      </div>
-      <div className="pr-4 text-stieglitz" onClick={reload}>
-        <RefreshIcon />
       </div>
     </div>
   );

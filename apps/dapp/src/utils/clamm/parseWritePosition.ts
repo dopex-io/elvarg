@@ -1,9 +1,12 @@
-import { getAmountsForLiquidity } from 'utils/clamm/liquidityAmountMath';
+import {
+  getAmountsForLiquidity,
+  getLiquidityForAmounts,
+} from 'utils/clamm/liquidityAmountMath';
 import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
 
 import parsePriceFromTick from './parsePriceFromTick';
 import { TickData } from './parseTickData';
-import { WritePositionRaw } from './subgraph/getUserPositions';
+import { WritePositionRaw } from './subgraph/getUserWritePositions';
 
 export type WritePosition = {
   tickLower: number;
@@ -29,18 +32,26 @@ function parseWritePosition(
   tickData: TickData,
   position: WritePositionRaw,
 ): WritePosition {
-  const { liquidityCompounded, totalLiquidity, availableShares } = tickData;
-  const { liquidity, tickLower, tickUpper, shares } = position;
+  const { totalLiquidity, availableShares } = tickData;
+  let { liquidity, tickLower, tickUpper, shares } = position;
 
-  // const liquidityCompoundedAmount0 =
-  //   totalLiquidity === 0n
-  //     ? 0n
-  //     : (shares * liquidityCompounded.token0Amount) / availableShares;
+  const totalLiquidityToL = getLiquidityForAmounts(
+    priceSqrtX96,
+    getSqrtRatioAtTick(BigInt(tickLower)),
+    getSqrtRatioAtTick(BigInt(tickUpper)),
+    totalLiquidity.token0Amount,
+    totalLiquidity.token1Amount,
+  );
 
-  // const liquidityCompoundedAmount1 =
-  //   totalLiquidity === 0n
-  //     ? 0n
-  //     : (shares * liquidityCompounded.token1Amount) / availableShares;
+  const earnedLiquidity =
+    (shares * (totalLiquidityToL - liquidity)) / totalLiquidityToL;
+
+  const earnedAmounts = getAmountsForLiquidity(
+    priceSqrtX96,
+    getSqrtRatioAtTick(BigInt(tickLower)),
+    getSqrtRatioAtTick(BigInt(tickUpper)),
+    earnedLiquidity,
+  );
 
   const liquidityAmounts = getAmountsForLiquidity(
     priceSqrtX96,
@@ -78,8 +89,8 @@ function parseWritePosition(
       token1Amount: liquidityAmounts.amount1,
     },
     earned: {
-      token0Amount: 0n,
-      token1Amount: 0n,
+      token0Amount: earnedAmounts.amount0 < 0n ? 0n : earnedAmounts.amount0,
+      token1Amount: earnedAmounts.amount1 < 0n ? 0n : earnedAmounts.amount1,
     },
   };
 }

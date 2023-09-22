@@ -11,72 +11,55 @@ import AsidePanel from 'components/clamm/AsidePanel';
 import DisclaimerDialog from 'components/clamm/DisclaimerDialog';
 import Positions from 'components/clamm/Tables/Positions';
 import StrikesChain from 'components/clamm/Tables/StrikesChain';
-import AppBar from 'components/common/AppBar';
 import PageLayout from 'components/common/PageLayout';
 import PriceChart from 'components/common/PriceChart';
 
-import getTicksPremiumAndBreakeven from 'utils/clamm/getTicksPremiumAndBreakeven';
 import getTokensData from 'utils/clamm/getTokensData';
 import getUniswapPoolData from 'utils/clamm/getUniswapPoolData';
 import {
   getLiquidityForAmount0,
   getLiquidityForAmount1,
 } from 'utils/clamm/liquidityAmountMath';
-import parseOptionsPosition from 'utils/clamm/parseOptionsPosition';
 import parsePriceFromTick from 'utils/clamm/parsePriceFromTick';
-import parseTickData from 'utils/clamm/parseTickData';
-import parseWritePosition, {
-  WritePosition,
-} from 'utils/clamm/parseWritePosition';
 
 import { CLAMM_PAIRS_TO_ADDRESSES } from 'constants/clamm';
 import seo from 'constants/seo';
 
 import { PairSelector } from '../../components/clamm/TitleBar/PairSelector';
-import fetchTicksdata from '../../utils/clamm/subgraph/fetchTicksData';
-import getUserPositions from '../../utils/clamm/subgraph/getUserPositions';
 
 const ClammPage = () => {
   const {
-    updateUserAddress,
     selectedOptionsPoolPair,
     setLoading,
-    loading,
     setOptionsPool,
-    setTicksData,
     setMarkPrice,
     setKeys,
-    setUserClammPositions,
-    updateOptionsPoolTickAndSqrtX96Price,
-    optionsPool,
-    ticksData,
     setPositionManagerAddress,
-    keys,
+    updateUserAddress,
   } = useBoundStore();
+
   const { address: userAddress } = useAccount();
+
+  // const userAddress = '0x5f774bfca7aacab1d30401d0675c5d03e0601944';
   const [isAgree, setIsAgree] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
   const handleClose = () => setIsOpen(false);
 
-  useEffect(() => {
-    updateUserAddress(userAddress);
-  }, [updateUserAddress, userAddress]);
+  // const updateOptionsPoolTick = useCallback(async () => {
+  //   const { collateralTokenAddress, optionsPoolAddress, uniswapV3PoolAddress } =
+  //     CLAMM_PAIRS_TO_ADDRESSES[selectedOptionsPoolPair.joined];
 
-  const updateOptionsPoolTick = useCallback(async () => {
-    const { collateralTokenAddress, optionsPoolAddress, uniswapV3PoolAddress } =
-      CLAMM_PAIRS_TO_ADDRESSES[selectedOptionsPoolPair.joined];
+  //   const data = await readContract({
+  //     address: uniswapV3PoolAddress,
+  //     abi: UniswapV3Pool__factory.abi,
+  //     functionName: 'slot0',
+  //   });
 
-    const data = await readContract({
-      address: uniswapV3PoolAddress,
-      abi: UniswapV3Pool__factory.abi,
-      functionName: 'slot0',
-    });
+  //   const sqrtX96Price = data[0];
+  //   const tick = data[1];
 
-    const sqrtX96Price = data[0];
-    const tick = data[1];
-
-    updateOptionsPoolTickAndSqrtX96Price(tick, sqrtX96Price);
-  }, [selectedOptionsPoolPair.joined, updateOptionsPoolTickAndSqrtX96Price]);
+  //   updateOptionsPoolTickAndSqrtX96Price(tick, sqrtX96Price);
+  // }, [selectedOptionsPoolPair.joined, updateOptionsPoolTickAndSqrtX96Price]);
 
   const handleAgree = useCallback(async () => {
     if (!userAddress) return;
@@ -164,123 +147,13 @@ const ClammPage = () => {
     setOptionsPool,
   ]);
 
-  const loadTicksData = useCallback(async () => {
-    if (!optionsPool) return;
-    setLoading('ticksData', true);
-    try {
-      const {
-        uniswapV3PoolAddress,
-        sqrtX96Price,
-        token0Decimals,
-        token1Decimals,
-        inversePrice,
-        address,
-      } = optionsPool;
-
-      const rawTickData = await fetchTicksdata(uniswapV3PoolAddress);
-      if (rawTickData) {
-        const parsedTicksData = rawTickData.map((data) =>
-          parseTickData(
-            sqrtX96Price,
-            10 ** token0Decimals,
-            10 ** token1Decimals,
-            inversePrice,
-            data,
-          ),
-        );
-
-        const ticksWithPremiums = await getTicksPremiumAndBreakeven(
-          address,
-          uniswapV3PoolAddress,
-          optionsPool[keys.callAssetDecimalsKey],
-          optionsPool[keys.putAssetDecimalsKey],
-          parsedTicksData,
-        );
-        setTicksData(ticksWithPremiums);
-      }
-    } catch (err) {
-      console.error(err);
-      setLoading('ticksData', false);
-    }
-    setLoading('ticksData', false);
-  }, [
-    setLoading,
-    setTicksData,
-    optionsPool,
-    keys.callAssetDecimalsKey,
-    keys.putAssetDecimalsKey,
-  ]);
-
-  const loadPositions = useCallback(async () => {
-    if (loading.optionsPool) return;
-    if (!optionsPool) return;
-    if (!userAddress) return;
-
-    setLoading('positions', true);
-    const userPositions = await getUserPositions(
-      userAddress,
-      optionsPool.uniswapV3PoolAddress,
-    );
-
-    const { optionsPositions, writePositions } = userPositions;
-    const { inversePrice, token0Decimals, token1Decimals, sqrtX96Price } =
-      optionsPool;
-
-    const parsedWritePositions = writePositions
-      .map((writePosition) => {
-        const tickData = ticksData.find((data) => {
-          return (
-            writePosition.tickLower === data.tickLower &&
-            writePosition.tickUpper === data.tickUpper
-          );
-        });
-
-        if (!tickData) return;
-
-        return parseWritePosition(
-          sqrtX96Price,
-          10 ** token0Decimals,
-          10 ** token1Decimals,
-          inversePrice,
-          tickData,
-          writePosition,
-        );
-      })
-      .filter((position): position is WritePosition => position !== undefined);
-
-    const parsedOptionsPositions = optionsPositions.map((position) => {
-      return parseOptionsPosition(
-        sqrtX96Price,
-        optionsPool.tick,
-        optionsPool.tickSpacing,
-        10 ** token0Decimals,
-        10 ** token1Decimals,
-        inversePrice,
-        position,
-      );
-    }, []);
-    setUserClammPositions(parsedWritePositions, parsedOptionsPositions);
-    setLoading('positions', false);
-  }, [
-    loading.optionsPool,
-    optionsPool,
-    userAddress,
-    ticksData,
-    setUserClammPositions,
-    setLoading,
-  ]);
-
   useEffect(() => {
     loadOptionsPool();
   }, [loadOptionsPool]);
 
   useEffect(() => {
-    loadTicksData();
-  }, [loadTicksData]);
-
-  useEffect(() => {
-    loadPositions();
-  }, [loadPositions]);
+    updateUserAddress(userAddress);
+  }, [updateUserAddress, userAddress]);
 
   return (
     <div className="overflow-x-hidden bg-black h-screen">
@@ -317,15 +190,12 @@ const ClammPage = () => {
               market={selectedOptionsPoolPair.underlyingTokenSymbol}
             />
             <div className="space-y-4">
-              <StrikesChain reload={loadTicksData} />
-              <Positions loadPositions={loadPositions} />
+              <StrikesChain />
+              <Positions />
             </div>
           </div>
           <div className="flex flex-col h-full space-y-4 sticky top-20 min-w-[366px] max-w-[366px]">
-            <AsidePanel
-              loadOptionsPool={loadOptionsPool}
-              loadPositions={loadPositions}
-            />
+            <AsidePanel />
           </div>
         </div>
       </PageLayout>

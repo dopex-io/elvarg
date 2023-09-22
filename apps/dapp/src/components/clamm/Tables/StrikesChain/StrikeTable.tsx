@@ -8,9 +8,33 @@ import { useBoundStore } from 'store';
 
 import TableLayout from 'components/common/TableLayout';
 
+import getTicksPremiumAndBreakeven from 'utils/clamm/getTicksPremiumAndBreakeven';
+import parseTickData from 'utils/clamm/parseTickData';
+import fetchStrikesData from 'utils/clamm/subgraph/fetchStrikesData';
 import formatAmount from 'utils/general/formatAmount';
 
-const columnHelper = createColumnHelper<any>();
+type StrikeDataForTable = {
+  strike: number;
+  totalLiquidity: {
+    amount: string;
+    symbol: string;
+  };
+  liquidityAvailable: {
+    amount: number;
+    symbol: string;
+  };
+  breakeven: number;
+  optionsAvailable: number;
+  button: {
+    onClick: () => void;
+    premium: number;
+    symbol: string;
+    isSelected: boolean;
+    disabled: boolean;
+  };
+};
+
+const columnHelper = createColumnHelper<StrikeDataForTable>();
 
 const columns = [
   columnHelper.accessor('strike', {
@@ -97,19 +121,6 @@ const columns = [
   }),
 ];
 
-const Table = ({ strikeData }: any) => {
-  return (
-    <div>
-      <TableLayout<any>
-        data={strikeData}
-        columns={columns}
-        rowSpacing={3}
-        isContentLoading={false}
-      />
-    </div>
-  );
-};
-
 const StrikesTable = () => {
   const {
     isPut,
@@ -119,7 +130,8 @@ const StrikesTable = () => {
     keys,
     selectedClammExpiry,
     setSelectedClammStrike,
-    selectedClammStrike,
+    setTicksData,
+    setLoading,
   } = useBoundStore();
 
   const [selectedStrikeIndex, setSelectedStrikeIndex] = useState<number | null>(
@@ -129,29 +141,58 @@ const StrikesTable = () => {
     setSelectedStrikeIndex(index);
   }, []);
 
-  useEffect(() => {
-    ticksData.map((tick, i) => {
-      if (selectedClammStrike === undefined) return;
-      const currentTick = isPut ? tick.tickLowerPrice : tick.tickUpperPrice;
-      const selectedTick = isPut
-        ? selectedClammStrike.tickLowerPrice
-        : selectedClammStrike.tickUpperPrice;
-      if (currentTick === selectedTick) {
-        setSelectedStrikeIndex(i);
-        return;
+  const updateStrikesData = useCallback(async () => {
+    if (!optionsPool) return;
+    setLoading('ticksData', true);
+    try {
+      const {
+        uniswapV3PoolAddress,
+        sqrtX96Price,
+        token0Decimals,
+        token1Decimals,
+        inversePrice,
+        address,
+      } = optionsPool;
+
+      const rawTickData = (await fetchStrikesData(uniswapV3PoolAddress)).filter(
+        ({ totalLiquidity }) => totalLiquidity > 1n,
+      );
+
+      if (rawTickData) {
+        const parsedTicksData = rawTickData.map((data) =>
+          parseTickData(
+            sqrtX96Price,
+            10 ** token0Decimals,
+            10 ** token1Decimals,
+            inversePrice,
+            data,
+          ),
+        );
+
+        const ticksWithPremiums = await getTicksPremiumAndBreakeven(
+          address,
+          uniswapV3PoolAddress,
+          optionsPool[keys.callAssetDecimalsKey],
+          optionsPool[keys.putAssetDecimalsKey],
+          parsedTicksData,
+        );
+
+        setTicksData(ticksWithPremiums);
       }
-    });
+    } catch (err) {
+      console.error(err);
+    }
+    setLoading('ticksData', false);
   }, [
-    setActiveStrikeIndex,
-    selectedClammExpiry,
-    ticksData,
-    selectedClammStrike,
-    isPut,
+    setLoading,
+    setTicksData,
+    optionsPool,
+    keys.callAssetDecimalsKey,
+    keys.putAssetDecimalsKey,
   ]);
 
   const strikeData = useMemo(() => {
     if (!optionsPool) return [];
-
     return ticksData
       .map(
         (
@@ -190,8 +231,8 @@ const StrikesTable = () => {
           const _premium = Number(
             formatUnits(
               isPut
-                ? putPremiums[selectedClammExpiry.toString()]
-                : callPremiums[selectedClammExpiry.toString()],
+                ? putPremiums[selectedClammExpiry.toString()] ?? 0
+                : callPremiums[selectedClammExpiry.toString()] ?? 0,
               optionsPool[
                 isPut ? keys.putAssetDecimalsKey : keys.callAssetDecimalsKey
               ],
@@ -258,24 +299,20 @@ const StrikesTable = () => {
     setActiveStrikeIndex,
   ]);
 
-  if (loading.ticksData)
-    return (
-      <div className="grid grid-cols-1 gap-4 p-2">
-        {Array.from(Array(4)).map((_, index) => {
-          return (
-            <Skeleton
-              key={index}
-              width="fitContent"
-              height={20}
-              color="carbon"
-              variant="rounded"
-            />
-          );
-        })}
-      </div>
-    );
+  useEffect(() => {
+    updateStrikesData();
+  }, [updateStrikesData]);
 
-  return <Table strikeData={strikeData} />;
+  return (
+    <div className="space-y-2">
+      <TableLayout<StrikeDataForTable>
+        data={strikeData}
+        columns={columns}
+        rowSpacing={3}
+        isContentLoading={loading.ticksData}
+      />
+    </div>
+  );
 };
 
 export default StrikesTable;

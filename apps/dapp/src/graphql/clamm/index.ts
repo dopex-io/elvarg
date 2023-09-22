@@ -1,50 +1,21 @@
 import { graphql } from 'gql/clamm';
 
-export const getTickerLiquiditiesDocument = graphql(`
-  query getTickerLiquidities($pool: String!, $first: Int!, $skip: Int) {
-    tickerLiquidities(
-      first: $first
-      skip: $skip
-      where: { poolAddress: $pool }
-    ) {
-      poolAddress
+export const getStrikeDataDocument = graphql(`
+  query getStrikeDatas($poolAddress: String!, $first: Int!, $skip: Int) {
+    strikeDatas(first: $first, skip: $skip, where: { pool: $poolAddress }) {
+      pool
       tickLower
       tickUpper
-      liquidity
-      liquidityUsed
-      liquidityUnused
-      liquidityCompounded
-      liquidityWithdrawn
-      totalEarningsWithdrawn
+      totalLiquidity
+      usedLiquidity
       totalShares
-      totalCallAssetsEarned
-      totalPutAssetsEarned
-    }
-  }
-`);
-
-export const getTickerLiquidityDocument = graphql(`
-  query getTickerLiquidity($tickLower: Int!, $tickUpper: Int!) {
-    tickerLiquidities(where: { tickLower: $tickLower, tickUpper: $tickUpper }) {
-      poolAddress
-      tickLower
-      tickUpper
-      liquidity
-      liquidityUsed
-      liquidityUnused
-      liquidityCompounded
-      liquidityWithdrawn
-      totalEarningsWithdrawn
-      totalShares
-      totalCallAssetsEarned
-      totalPutAssetsEarned
     }
   }
 `);
 
 export const getOptionsPositionsForUserDocument = graphql(`
   query getOptionsPositionsForUser(
-    $user: String!
+    $userAddress: String!
     $poolAddress: String!
     $first: Int!
     $skip: Int
@@ -52,25 +23,128 @@ export const getOptionsPositionsForUserDocument = graphql(`
     optionsPositions(
       first: $first
       skip: $skip
-      where: { user: $user, poolAddress: $poolAddress }
+      where: { user: $userAddress, pool: $poolAddress }
     ) {
       user
-      poolAddress
-      tickUpper
+      pool
+      isPut
       tickLower
+      tickUpper
       options
-      exercised
+      expiry
+      premium
+      count
+    }
+  }
+`);
+
+export const getOptionsPositionPurchasesForUserDocument = graphql(`
+  query getOptionsPositionPurchasesForUser(
+    $userAddress: String!
+    $poolAddress: String!
+    $first: Int!
+    $skip: Int
+  ) {
+    optionsPositionPurchases(
+      first: $first
+      skip: $skip
+      where: { user: $userAddress, pool: $poolAddress }
+    ) {
+      user
+      pool
+      tickLower
+      tickUpper
+      options
       premium
       expiry
       isPut
+      blockNumber
+      timestamp
+      count
+    }
+  }
+`);
+
+export const getOptionsPositionExercisesForUserDocument = graphql(`
+  query getOptionsPositionExercisesForUser(
+    $userAddress: String!
+    $poolAddress: String!
+    $first: Int!
+    $skip: Int
+  ) {
+    optionsPositionExercises(
+      first: $first
+      skip: $skip
+      where: { user: $userAddress, pool: $poolAddress }
+    ) {
+      user
+      pool
+      tickLower
+      tickUpper
+      isPut
       profit
+      options
+      expiry
+      blockNumber
+      timestamp
+      count
+    }
+  }
+`);
+
+export const getWritePositionsMintsForUserDocument = graphql(`
+  query getWritePositionsMintsForUser(
+    $userAddress: String!
+    $poolAddress: String!
+    $first: Int!
+    $skip: Int
+  ) {
+    writePositionMints(
+      first: $first
+      skip: $skip
+      where: { user: $userAddress, pool: $poolAddress }
+    ) {
+      pool
+      tickLower
+      tickUpper
+      user
+      liquidity
+      shares
+      blockNumber
+      timestamp
+      count
+    }
+  }
+`);
+
+export const getWritePositionsBurnsForUserDocument = graphql(`
+  query getWritePositionsBurnsForUser(
+    $userAddress: String!
+    $poolAddress: String!
+    $first: Int!
+    $skip: Int
+  ) {
+    writePositionBurns(
+      first: $first
+      skip: $skip
+      where: { user: $userAddress, pool: $poolAddress }
+    ) {
+      pool
+      tickLower
+      tickUpper
+      user
+      liquidity
+      shares
+      blockNumber
+      timestamp
+      count
     }
   }
 `);
 
 export const getWritePositionsForUserDocument = graphql(`
   query getWritePositionsForUser(
-    $user: String!
+    $userAddress: String!
     $poolAddress: String!
     $first: Int!
     $skip: Int
@@ -78,15 +152,29 @@ export const getWritePositionsForUserDocument = graphql(`
     writePositions(
       first: $first
       skip: $skip
-      where: { user: $user, poolAddress: $poolAddress }
+      where: { user: $userAddress, pool: $poolAddress }
     ) {
-      poolAddress
+      pool
+      tickLower
+      tickUpper
+      user
       liquidity
       shares
-      tickUpper
+      count
+    }
+  }
+`);
+
+export const getOptionsTokensDocument = graphql(`
+  query getOptionsTokens($first: Int!, $skip: Int) {
+    optionsTokens(first: $first, skip: $skip) {
+      pool
       tickLower
-      user
-      earned
+      tickUpper
+      callOrPut
+      expiry
+      totalSupply
+      totalSettled
     }
   }
 `);

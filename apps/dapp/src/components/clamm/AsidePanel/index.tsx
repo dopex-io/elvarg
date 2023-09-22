@@ -36,12 +36,6 @@ import { getUserBalance } from 'utils/contracts/getERC20Info';
 import formatAmount from 'utils/general/formatAmount';
 
 import { EXPIRIES_BY_INDEX, EXPIRIES_MENU } from 'constants/clamm';
-import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
-
-type AsidePanelProps = {
-  loadOptionsPool: Function;
-  loadPositions: Function;
-};
 
 type MintPostionOrOptionsParams = {
   to: Address;
@@ -145,7 +139,7 @@ const DEFAULT_CLAMM_STRIKE_DATA = {
   putDepositStrikes: [],
 };
 
-const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
+const AsidePanel = () => {
   const {
     isPut,
     provider,
@@ -161,6 +155,7 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
     setLoading,
     selectedClammStrike,
     setSelectedClammStrike,
+    markPrice,
   } = useBoundStore();
 
   const [strikes, setStrikes] = useState<Strikes>(DEFAULT_CLAMM_STRIKE_DATA);
@@ -501,18 +496,14 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
     if (!writeAsync) return;
 
     await writeAsync();
-    await loadOptionsPool();
-    await loadPositions();
-  }, [loadOptionsPool, loadPositions, writeMintOptions]);
+  }, [writeMintOptions]);
 
   const handleMintPosition = useCallback(async () => {
     const { writeAsync } = writeMintPosition;
     if (!writeAsync) return;
 
     await writeAsync();
-    await loadOptionsPool();
-    await loadPositions();
-  }, [loadOptionsPool, loadPositions, writeMintPosition]);
+  }, [writeMintPosition]);
 
   const handleSelectExpiry = useCallback(
     (index: number) => {
@@ -1033,28 +1024,31 @@ const AsidePanel = ({ loadOptionsPool, loadPositions }: AsidePanelProps) => {
         {/* remove for MVP */}
         {/* <StrikeRangeSelectorWrapper /> */}
       </div>
-      {/* {tradeOrLpIndex === 0 ? (
+      {tradeOrLpIndex === 0 ? (
         <div className="bg-cod-gray p-3 rounded-lg">
           <PnlChart
             breakEven={
               isPut
-                ? selectedStrike -
-                  Number(formatUnits(tokenAmountToSpend, DECIMALS_USD))
-                : selectedStrike +
-                  Number(formatUnits(tokenAmountToSpend, DECIMALS_TOKEN))
+                ? markPrice -
+                  Number(
+                    formatUnits(tokenAmountToSpend, selectedToken.decimals),
+                  )
+                : markPrice +
+                  Number(
+                    formatUnits(tokenAmountToSpend, selectedToken.decimals),
+                  ) *
+                    markPrice
             }
             optionPrice={Number(
-              isPut
-                ? formatUnits(tokenAmountToSpend, DECIMALS_USD)
-                : formatUnits(tokenAmountToSpend, DECIMALS_TOKEN),
+              formatUnits(tokenAmountToSpend, selectedToken.decimals),
             )}
             amount={Number(amountDebounced)}
             isPut={isPut}
             price={markPrice}
-            symbol={underlyingTokenSymbol}
+            symbol={'Mark'}
           />
         </div>
-      ) : null} */}
+      ) : null}
     </div>
   );
 };

@@ -1,38 +1,31 @@
-import React from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { formatUnits } from 'viem';
 
 import { createColumnHelper } from '@tanstack/react-table';
-import { formatDistance } from 'date-fns';
+import { format } from 'date-fns';
+
+import { useBoundStore } from 'store';
 
 import TableLayout from 'components/common/TableLayout';
 
+import parseOptionsPosition from 'utils/clamm/parseOptionsPosition';
+import getUserOptionsExercises from 'utils/clamm/subgraph/getUserOptionsExercises';
+import getUserOptionsPurchases from 'utils/clamm/subgraph/getUserOptionsPurchases';
 import { formatAmount } from 'utils/general';
 
 type TradeHistoryData = {
-  status: string;
-  tickLower: number;
-  tickUpper: number;
-  exercised: boolean;
-  pnl: {
-    amount: string;
-    symbol: string;
-    usdValue: number;
-  };
   strike: number;
   side: string;
   size: {
     amount: string;
     symbol: string;
   };
-  premium: {
+  pnlOrPremium: {
     amount: string;
     symbol: string;
   };
-  expiry: number;
-  exercisableAmount: bigint;
-  profit: {
-    amount: string;
-    symbol: string;
-  };
+  action: string;
+  timestamp: number;
 };
 
 const columnHelper = createColumnHelper<TradeHistoryData>();
@@ -40,28 +33,19 @@ const columns = [
   columnHelper.accessor('strike', {
     header: 'Strike Price',
     cell: ({ getValue }) => (
-      <span className="space-x-2 text-left">
+      <div className="space-x-2 text-left flex items-center">
         <p className="text-stieglitz inline-block">$</p>
         <p className="inline-block">{getValue().toFixed(5)}</p>
-      </span>
+      </div>
     ),
   }),
   columnHelper.accessor('size', {
     header: 'Size',
     cell: ({ getValue }) => (
-      <p>
-        {formatAmount(getValue().amount, 5)}{' '}
+      <div className="flex items-center space-x-2">
+        <span>{formatAmount(getValue().amount, 5)} </span>
         <span className="text-stieglitz">{getValue().symbol}</span>
-      </p>
-    ),
-  }),
-  columnHelper.accessor('expiry', {
-    header: 'Expiry',
-    cell: (info) => (
-      <p className="overflow-hidden whitespace-nowrap">
-        {formatDistance(Number(info.getValue()) * 1000, new Date())}{' '}
-        {Number(info.getValue()) * 1000 < new Date().getTime() && 'ago'}
-      </p>
+      </div>
     ),
   }),
   columnHelper.accessor('side', {
@@ -70,65 +54,157 @@ const columns = [
       return <p>{info.getValue()}</p>;
     },
   }),
-  columnHelper.accessor('profit', {
-    header: 'PnL',
+  columnHelper.accessor('action', {
+    header: 'Action',
     cell: (info) => {
-      const { amount, symbol } = info.getValue();
-      const amountInNumber = Number(amount);
-      return (
-        <>
-          <span className="space-x-2">
-            {Number(amountInNumber) === 0 && (
-              <p className="text-stieglitz inline-block">
-                {formatAmount(amountInNumber, 5)}
-              </p>
-            )}
-            {Number(amountInNumber) > 0 && (
-              <p className="text-up-only inline-block">
-                {formatAmount(amountInNumber, 5)}
-              </p>
-            )}
-            <p className="text-stieglitz inline-block">{symbol}</p>
-          </span>
-          {/* <p className="text-stieglitz">${formatAmount(usdValue, 5)}</p> */}
-        </>
-      );
+      return <p>{info.getValue()}</p>;
     },
   }),
-  columnHelper.accessor('premium', {
-    header: 'premium',
-    cell: (info) => {
-      const { amount, symbol } = info.getValue();
-      return (
-        <p>
-          {Number(amount).toFixed(5)}{' '}
-          <span className="text-stieglitz">{symbol}</span>
-        </p>
-      );
-    },
-  }),
-  columnHelper.accessor('status', {
-    header: 'Status',
+  columnHelper.accessor('pnlOrPremium', {
+    header: 'Pnl / Premium',
     cell: ({ getValue }) => (
-      <p>
-        <span className="text-stieglitz">{getValue()}</span>
+      <div className="flex items-center space-x-2">
+        <span>{formatAmount(getValue().amount, 5)} </span>
+        <span className="text-stieglitz">{getValue().symbol}</span>
+      </div>
+    ),
+  }),
+  columnHelper.accessor('timestamp', {
+    header: 'Date',
+    cell: (info) => (
+      <p className="overflow-hidden whitespace-nowrap">
+        {format(info.getValue() * 1000, 'dd LLL yyyy hh:mm:ss a')}
       </p>
     ),
   }),
 ];
 
-const TradeHistory = ({
-  tradeHistory,
-}: {
-  tradeHistory: TradeHistoryData[];
-}) => {
+const TradeHistory = () => {
+  const { userClammPositions, loading, keys, optionsPool } = useBoundStore();
+
+  const history = useMemo(() => {
+    if (!optionsPool) return [];
+
+    const purchases = userClammPositions.optionsPurchases;
+    const exercises = userClammPositions.optionsExercises;
+
+    const exercisesParsed = exercises.map(
+      ({
+        amounts,
+        callOrPut,
+        premium,
+        tickLowerPrice,
+        tickUpperPrice,
+        timestamp,
+      }) => {
+        const amount = formatUnits(
+          amounts[callOrPut ? keys.callAssetAmountKey : keys.putAssetAmountKey],
+          optionsPool[
+            callOrPut ? keys.callAssetDecimalsKey : keys.putAssetDecimalsKey
+          ],
+        );
+
+        const symbol =
+          optionsPool[
+            callOrPut ? keys.callAssetSymbolKey : keys.putAssetSymbolKey
+          ];
+
+        const premiumParsed = formatUnits(
+          premium,
+          optionsPool[
+            callOrPut ? keys.putAssetDecimalsKey : keys.callAssetDecimalsKey
+          ],
+        );
+
+        return {
+          strike: callOrPut ? tickUpperPrice : tickLowerPrice,
+          side: callOrPut ? 'Call' : 'Put',
+          size: {
+            amount: amount,
+            symbol: symbol,
+          },
+          pnlOrPremium: {
+            amount: premiumParsed,
+            symbol:
+              optionsPool[
+                callOrPut ? keys.putAssetSymbolKey : keys.callAssetSymbolKey
+              ],
+          },
+          action: 'Exercise',
+          timestamp,
+        };
+      },
+    );
+
+    const purchasesParsed = purchases.map(
+      ({
+        amounts,
+        callOrPut,
+        premium,
+        tickLowerPrice,
+        tickUpperPrice,
+        timestamp,
+      }) => {
+        const amount = formatUnits(
+          amounts[callOrPut ? keys.callAssetAmountKey : keys.putAssetAmountKey],
+          optionsPool[
+            callOrPut ? keys.callAssetDecimalsKey : keys.putAssetDecimalsKey
+          ],
+        );
+
+        const symbol =
+          optionsPool[
+            callOrPut ? keys.callAssetSymbolKey : keys.putAssetSymbolKey
+          ];
+
+        const premiumParsed = formatUnits(
+          premium,
+          optionsPool[
+            callOrPut ? keys.callAssetDecimalsKey : keys.putAssetDecimalsKey
+          ],
+        );
+
+        return {
+          strike: callOrPut ? tickUpperPrice : tickLowerPrice,
+          side: callOrPut ? 'Call' : 'Put',
+          size: {
+            amount: amount,
+            symbol: symbol,
+          },
+          pnlOrPremium: {
+            amount: premiumParsed,
+            symbol: symbol,
+          },
+          action: 'Purchase',
+          timestamp,
+        };
+      },
+    );
+
+    const history = exercisesParsed
+      .concat(purchasesParsed)
+      .sort((a, b) => b.timestamp - a.timestamp);
+
+    return history;
+  }, [
+    keys.callAssetAmountKey,
+    keys.callAssetDecimalsKey,
+    keys.callAssetSymbolKey,
+    keys.putAssetAmountKey,
+    keys.putAssetDecimalsKey,
+    keys.putAssetSymbolKey,
+    optionsPool,
+    userClammPositions.optionsExercises,
+    userClammPositions.optionsPurchases,
+  ]);
+
   return (
-    <div>
+    <div className="space-y-2">
       <TableLayout<TradeHistoryData>
-        data={tradeHistory}
+        data={history}
         columns={columns}
         rowSpacing={3}
-        isContentLoading={false}
+        isContentLoading={loading.positionsHistory}
       />
     </div>
   );

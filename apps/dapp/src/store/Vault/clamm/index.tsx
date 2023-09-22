@@ -41,10 +41,25 @@ type OptionsPoolPairWithSymbolsOnly = {
   collateralTokenSymbol: string;
 };
 
+export type OptionsPositionWithTimestamp = OptionsPosition & {
+  timestamp: number;
+};
+
 const DEFAULT_CLAMM_OPTIONS_POOL_PAIR = {
   joined: 'ARB-USDC',
   underlyingTokenSymbol: 'ARB',
   collateralTokenSymbol: 'USDC',
+};
+
+const DEFAULT_CLAMM_LOADING_STATES = {
+  optionsPool: false,
+  ticksData: false,
+  positions: false,
+  asidePanelButton: false,
+  tokenAmountsToSpend: false,
+  writePositions: false,
+  optionsPositions: false,
+  positionsHistory: false,
 };
 
 type OptionsPool = {
@@ -105,18 +120,18 @@ export type ClammSlice = {
   keys: Keys;
   setKeys: (keys: typeof DEFAULT_CLAMM_KEYS) => void;
 
-  userClammPositions: {
-    writePositions: WritePosition[];
-    optionsPositions: OptionsPosition[];
-  };
-  setUserClammPositions: (
-    writePositions: WritePosition[],
-    optionsPositions: OptionsPosition[],
+  userClammPositions: PositionTypes;
+  setUserClammPositions: <T extends keyof PositionTypes>(
+    positionType: T,
+    positions: PositionTypes[T],
   ) => void;
 
   // Loading
-  loading: CLAMM_LOADING;
-  setLoading: (key: CLAMM_LOADING_KEYS, setAs: boolean) => void;
+  loading: typeof DEFAULT_CLAMM_LOADING_STATES;
+  setLoading: (
+    key: keyof typeof DEFAULT_CLAMM_LOADING_STATES,
+    setAs: boolean,
+  ) => void;
 
   isPut: boolean;
   setIsPut: (isPut: boolean) => void;
@@ -125,22 +140,12 @@ export type ClammSlice = {
   updateUserAddress: Function;
 };
 
-const DEFAULT_CLAMM_LOADING_STATES = {
-  optionsPool: false,
-  ticksData: false,
-  positions: false,
-  asidePanelButton: false,
-  tokenAmountsToSpend: false,
+type PositionTypes = {
+  writePositions: WritePosition[];
+  optionsPositions: OptionsPosition[];
+  optionsPurchases: OptionsPositionWithTimestamp[];
+  optionsExercises: OptionsPositionWithTimestamp[];
 };
-
-type CLAMM_LOADING_KEYS =
-  | 'optionsPool'
-  | 'ticksData'
-  | 'positions'
-  | 'asidePanelButton'
-  | 'tokenAmountsToSpend';
-
-type CLAMM_LOADING = Record<CLAMM_LOADING_KEYS, boolean>;
 
 const DEFAULT_CLAMM_KEYS: Keys = {
   putAssetAmountKey: 'token1Amount',
@@ -259,19 +264,21 @@ export const createClammSlice: StateCreator<
     }));
   },
   userClammPositions: {
-    optionsPositions: [],
     writePositions: [],
+    optionsPositions: [],
+    optionsPurchases: [],
+    optionsExercises: [],
   },
-  setUserClammPositions: (
-    writePositions: WritePosition[],
-    optionsPositions: OptionsPosition[],
-  ) => {
+  setUserClammPositions: (positionType, positions) => {
+    const { userClammPositions } = get();
+    const withNewPositions = {
+      ...userClammPositions,
+      [positionType]: positions,
+    };
+
     set((prev) => ({
       ...prev,
-      userClammPositions: {
-        writePositions,
-        optionsPositions,
-      },
+      userClammPositions: withNewPositions,
     }));
   },
   updateOptionsPoolTickAndSqrtX96Price: (

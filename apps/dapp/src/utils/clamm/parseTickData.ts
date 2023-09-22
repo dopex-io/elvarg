@@ -2,7 +2,7 @@ import { getAmountsForLiquidity } from 'utils/clamm/liquidityAmountMath';
 import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
 
 import parsePriceFromTick from './parsePriceFromTick';
-import { TickDataRaw } from './subgraph/fetchTicksData';
+import { StrikesDataRaw } from './subgraph/fetchStrikesData';
 
 export type TickData = {
   tickLowerPrice: number;
@@ -17,10 +17,6 @@ export type TickData = {
     token0Amount: bigint;
     token1Amount: bigint;
   };
-  liquidityCompounded: {
-    token0Amount: bigint;
-    token1Amount: bigint;
-  };
   availableShares: bigint;
 };
 
@@ -29,48 +25,22 @@ function parseTickData(
   precision0: number,
   precision1: number,
   inversePrice: boolean,
-  data: TickDataRaw,
+  data: StrikesDataRaw,
 ): TickData {
-  const {
-    tickLower,
-    tickUpper,
-    liquidity,
-    liquidityUsed,
-    liquidityUnused,
-    liquidityCompounded,
-    liquidityWithdrawn,
-    totalEarningsWithdrawn,
-    totalShares,
-  } = data;
-
-  const netLiquidity = liquidity - liquidityWithdrawn;
-  const netUsedLiquidity =
-    liquidityUnused > liquidityUsed ? 0n : liquidityUsed - liquidityUnused;
-  const availableLiquidity = netLiquidity - netUsedLiquidity;
-  const availableShares =
-    availableLiquidity === 0n || netLiquidity === 0n
-      ? 0n
-      : (availableLiquidity * totalShares) / netLiquidity;
+  const { tickLower, tickUpper, liquidityUsed, totalShares, totalLiquidity } =
+    data;
 
   const totalLiquidityAmounts = getAmountsForLiquidity(
     uniswapPoolSqrtX96,
     getSqrtRatioAtTick(BigInt(tickLower)),
     getSqrtRatioAtTick(BigInt(tickUpper)),
-    netLiquidity,
+    totalLiquidity,
   );
-
   const availableLiquidityToAmounts = getAmountsForLiquidity(
     uniswapPoolSqrtX96,
     getSqrtRatioAtTick(BigInt(tickLower)),
     getSqrtRatioAtTick(BigInt(tickUpper)),
-    availableLiquidity,
-  );
-
-  const liquidityCompoundedToAmounts = getAmountsForLiquidity(
-    uniswapPoolSqrtX96,
-    getSqrtRatioAtTick(BigInt(tickLower)),
-    getSqrtRatioAtTick(BigInt(tickUpper)),
-    liquidityCompounded - totalEarningsWithdrawn,
+    totalLiquidity - liquidityUsed,
   );
 
   const [tickLowerPrice, tickUpperPrice] = [
@@ -83,8 +53,6 @@ function parseTickData(
       token0Amount: totalLiquidityAmounts.amount0,
       token1Amount: totalLiquidityAmounts.amount1,
     },
-    // tickLowerPrice: inversePrice ? 1 / tickLowerPrice : tickLowerPrice,
-    // tickUpperPrice: inversePrice ? 1 / tickUpperPrice : tickUpperPrice,
     tickLowerPrice: tickLowerPrice,
     tickUpperPrice: tickUpperPrice,
     tickLower: tickLower,
@@ -99,17 +67,7 @@ function parseTickData(
           ? 0n
           : availableLiquidityToAmounts.amount1,
     },
-    liquidityCompounded: {
-      token0Amount:
-        liquidityCompoundedToAmounts.amount0 < 0n
-          ? 0n
-          : liquidityCompoundedToAmounts.amount0,
-      token1Amount:
-        liquidityCompoundedToAmounts.amount1 < 0n
-          ? 0n
-          : liquidityCompoundedToAmounts.amount1,
-    },
-    availableShares: availableShares,
+    availableShares: totalShares,
   };
 }
 

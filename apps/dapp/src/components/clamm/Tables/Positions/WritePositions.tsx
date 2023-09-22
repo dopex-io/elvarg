@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
-import { zeroAddress } from 'viem';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Address, formatUnits, zeroAddress } from 'viem';
 
 import { PositionsManager__factory } from '@dopex-io/sdk';
 import { Button } from '@dopex-io/ui';
@@ -10,6 +10,10 @@ import { useBoundStore } from 'store';
 
 import TableLayout from 'components/common/TableLayout';
 
+import parseWritePosition, {
+  WritePosition,
+} from 'utils/clamm/parseWritePosition';
+import getUserWritePositions from 'utils/clamm/subgraph/getUserWritePositions';
 import { formatAmount } from 'utils/general';
 
 type WritePositionData = {
@@ -46,7 +50,7 @@ const columns = [
   columnHelper.accessor('strike', {
     header: 'Strike Price',
     cell: (info) => (
-      <span className="space-x-2 text-left">
+      <span className="flex space-x-2 text-left">
         <p className="text-stieglitz inline-block">$</p>
         <p className="inline-block">{info.getValue().toFixed(5)}</p>
       </span>
@@ -95,14 +99,14 @@ const columns = [
       } = info.getValue();
       return (
         <div className="flex flex-col items-start justify-center">
-          <span>
-            {formatAmount(callAssetAmount, 5)}{' '}
+          <div className="flex space-x-1">
+            <span>{formatAmount(callAssetAmount, 5)}</span>
             <span className="text-stieglitz">{callAssetSymbol}</span>
-          </span>
-          <span>
-            {formatAmount(putAssetAmount, 5)}{' '}
+          </div>
+          <div className="flex space-x-1">
+            <span>{formatAmount(putAssetAmount, 5)}</span>
             <span className="text-stieglitz">{putAssetSymbol}</span>
-          </span>
+          </div>
         </div>
       );
     },
@@ -125,67 +129,147 @@ const columns = [
 ];
 
 type BurnPositionProps = {
+  pool: Address;
   tickLower: number;
   tickUpper: number;
   shares: bigint;
 };
 
-const WritePositions = ({
-  writePositions,
-}: {
-  writePositions: WritePositionForTable[];
-}) => {
-  const { positionManagerAddress, optionsPool } = useBoundStore();
-  const [selectedPosition, setSelectedPosition] = useState<BurnPositionProps>();
+const WritePositions = () => {
+  const {
+    positionManagerAddress,
+    optionsPool,
+    loading,
+    userClammPositions,
+    keys,
+  } = useBoundStore();
 
-  const { config: burnPositionConfig } = usePrepareContractWrite({
+  const [burnParams, setBurnParams] = useState<BurnPositionProps>({
+    pool: zeroAddress,
+    tickLower: 0,
+    tickUpper: 0,
+    shares: 0n,
+  });
+
+  const { config, isLoading } = usePrepareContractWrite({
     abi: PositionsManager__factory.abi,
     address: positionManagerAddress,
     functionName: 'burnPosition',
-    args: [
-      {
-        pool: optionsPool?.uniswapV3PoolAddress ?? zeroAddress,
-        tickLower: selectedPosition?.tickLower || 0,
-        tickUpper: selectedPosition?.tickUpper || 0,
-        shares: selectedPosition?.shares || 0n,
-      },
-    ],
+    args: [burnParams],
   });
-  const { write: burnPosition } = useContractWrite(burnPositionConfig);
 
-  const handleBurn = useCallback(
-    (index: number) => {
-      if (!writePositions) return;
-      setSelectedPosition({
-        tickLower: writePositions[index].tickLower,
-        tickUpper: writePositions[index].tickUpper,
-        shares: BigInt(writePositions[index].shares),
-      });
-      burnPosition?.();
-    },
-    [burnPosition, writePositions],
-  );
+  const { write } = useContractWrite(config);
 
   const positions = useMemo(() => {
-    return writePositions.map((position, index) => {
-      return {
-        ...position,
-        button: {
-          handleBurn,
-          id: index,
-          disabled: position.shares === 0n,
+    if (!optionsPool) return [];
+
+    return userClammPositions.writePositions
+      .map(
+        (
+          {
+            shares,
+            earned,
+            size,
+            tickLower,
+            tickUpper,
+            tickLowerPrice,
+            tickUpperPrice,
+          },
+          index,
+        ) => {
+          const sizeAmounts = {
+            callAssetAmount: formatUnits(
+              size[keys.callAssetAmountKey],
+              optionsPool[keys.callAssetDecimalsKey],
+            ),
+            putAssetAmount: formatUnits(
+              size[keys.putAssetAmountKey],
+              optionsPool[keys.putAssetDecimalsKey],
+            ),
+            callAssetSymbol: optionsPool[keys.callAssetSymbolKey],
+            putAssetSymbol: optionsPool[keys.putAssetSymbolKey],
+          };
+
+          const earnedAmounts = {
+            callAssetAmount: formatUnits(
+              earned[keys.callAssetAmountKey],
+              optionsPool[keys.callAssetDecimalsKey],
+            ),
+            putAssetAmount: formatUnits(
+              earned[keys.putAssetAmountKey],
+              optionsPool[keys.putAssetDecimalsKey],
+            ),
+            callAssetSymbol: optionsPool[keys.callAssetSymbolKey],
+            putAssetSymbol: optionsPool[keys.putAssetSymbolKey],
+          };
+
+          let side = '';
+          if (optionsPool.inversePrice) {
+            if (optionsPool.tick <= tickLower) {
+              side = 'Put';
+            } else if (optionsPool.tick >= tickUpper) {
+              side = 'Call';
+            } else {
+              side = 'Neutral';
+            }
+          } else {
+            if (optionsPool.tick <= tickLower) {
+              side = 'Call';
+            } else if (optionsPool.tick >= tickUpper) {
+              side = 'Put';
+            } else {
+              side = 'Neutral';
+            }
+          }
+
+          return {
+            tickLower,
+            tickUpper,
+            side,
+            shares,
+            size: sizeAmounts,
+            earned: earnedAmounts,
+            strike: side == 'Put' ? tickLowerPrice : tickUpperPrice,
+            button: {
+              handleBurn: () => {
+                setBurnParams({
+                  pool: optionsPool.uniswapV3PoolAddress,
+                  tickLower,
+                  tickUpper,
+                  shares: shares - 1n,
+                });
+
+                if (write) {
+                  write();
+                }
+              },
+              id: index,
+              disabled: shares < 2n || isLoading,
+            },
+          };
         },
-      };
-    });
-  }, [writePositions, handleBurn]);
+      )
+      .filter((position) => position.shares > 1n);
+  }, [
+    isLoading,
+    write,
+    optionsPool,
+    userClammPositions.writePositions,
+    keys.callAssetAmountKey,
+    keys.callAssetDecimalsKey,
+    keys.callAssetSymbolKey,
+    keys.putAssetAmountKey,
+    keys.putAssetDecimalsKey,
+    keys.putAssetSymbolKey,
+  ]);
 
   return (
-    <div>
+    <div className="space-y-2">
       <TableLayout<WritePositionData>
         data={positions}
         columns={columns}
-        rowSpacing={2}
-        isContentLoading={false}
+        rowSpacing={3}
+        isContentLoading={loading.writePositions}
       />
     </div>
   );

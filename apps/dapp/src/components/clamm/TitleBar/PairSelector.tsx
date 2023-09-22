@@ -1,12 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Menu } from '@dopex-io/ui';
 
 import { useBoundStore } from 'store';
 
 import TitleItem from 'components/ssov-beta/TitleBar/TitleItem';
-
-import { formatAmount } from 'utils/general';
 
 import {
   CLAMM_COLLATERAL_TOKENS_LIST,
