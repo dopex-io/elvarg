@@ -1,17 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { useBoundStore } from 'store';
 
-import { ButtonGroup } from 'components/clamm/AsidePanel';
-
-import parseOptionsPosition from 'utils/clamm/parseOptionsPosition';
-import parseWritePosition, {
-  WritePosition,
-} from 'utils/clamm/parseWritePosition';
-import getUserOptionsExercises from 'utils/clamm/subgraph/getUserOptionsExercises';
-import getUserOptionsPositions from 'utils/clamm/subgraph/getUserOptionsPositions';
-import getUserOptionsPurchases from 'utils/clamm/subgraph/getUserOptionsPurchases';
-import getUserWritePositions from 'utils/clamm/subgraph/getUserWritePositions';
+import ButtonGroup from 'components/clamm/AsidePanel/components/ButtonGroup';
 
 import OptionsPositions from './OptionsPositions';
 import TradeHistory from './TradeHistory';
