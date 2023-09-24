@@ -37,6 +37,9 @@ import formatAmount from 'utils/general/formatAmount';
 
 import { EXPIRIES_BY_INDEX, EXPIRIES_MENU } from 'constants/clamm';
 
+import BgButtonGroup from './components/BgButtonGroup';
+import ButtonGroup from './components/ButtonGroup';
+
 type MintPostionOrOptionsParams = {
   to: Address;
   tickLower: number;
@@ -47,89 +50,6 @@ type MintPostionOrOptionsParams = {
   ttl: bigint;
   liquidity: bigint;
   liquidityToUse: bigint;
-};
-
-const CustomBottomElement = ({
-  symbol,
-  value,
-  label,
-  ...rest
-}: React.DetailedHTMLProps<
-  React.HTMLAttributes<HTMLDivElement>,
-  HTMLDivElement
-> & {
-  symbol: string | undefined;
-  label: string;
-  value: string;
-}) => (
-  <div className="flex justify-between text-xs text-stieglitz" {...rest}>
-    <p>{label}</p>
-    <span className="flex">
-      <img
-        src="/assets/max.svg"
-        className="hover:bg-silver rounded-[4px]"
-        alt="max"
-      />
-      <p className="text-white px-1">{value}</p>
-      {symbol || ''}
-    </span>
-  </div>
-);
-
-export const ButtonGroup = ({
-  active,
-  labels,
-  handleClick,
-}: {
-  active: number;
-  labels: (React.ReactNode | string)[];
-  handleClick: (i: number) => void;
-}) => {
-  return (
-    <div className="flex space-x-2">
-      {labels.map((label, i: number) => (
-        <span
-          key={i}
-          role="button"
-          className={`text-sm font-normal transition ease-in-out duration-200 ${
-            active === i ? 'text-white' : 'text-stieglitz'
-          }`}
-          onClick={() => handleClick(i)}
-        >
-          {label}
-        </span>
-      ))}
-    </div>
-  );
-};
-
-export const BgButtonGroup = ({
-  active,
-  labels,
-  handleClick,
-}: {
-  active: number;
-  labels: (React.ReactNode | string)[];
-  handleClick: (i: number) => void;
-}) => {
-  return (
-    <div className="flex justify-between bg-carbon border border-carbon rounded-md">
-      {labels.map((label, i: number) => (
-        <span
-          key={i}
-          role="button"
-          className={`p-0.5 py-1 text-sm text-white flex items-center justify-center border-0 hover:border-0 w-full m-1 transition ease-in-out duration-500 rounded-sm ${
-            active === i
-              ? 'bg-umbra hover:bg-umbra'
-              : 'bg-carbon hover:bg-carbon'
-          }`}
-          onClick={() => handleClick(i)}
-        >
-          {label}
-        </span>
-      ))}
-    </div>
-  );
 };
 
 const DEFAULT_CLAMM_STRIKE_DATA = {
@@ -212,9 +132,9 @@ const AsidePanel = () => {
         <div
           key={key}
           onClick={() => handleStrikeSelected(strike)}
-          className="text-sm text-white flex w-full items-center justify-center overflow-x-hidden"
+          className="text-sm text-white flex w-full items-center justify-center"
         >
-          <span className="w-full pr-[25rem] py-1">
+          <span className="w-full h-full pr-[15rem]">
             {(isPut ? strike.tickLowerPrice : strike.tickUpperPrice).toFixed(5)}
           </span>
         </div>
@@ -778,8 +698,8 @@ const AsidePanel = () => {
   }, [updateTokenAmountsToSpend]);
 
   return (
-    <div className="flex flex-col space-y-4">
-      <div className="flex flex-col bg-cod-gray rounded-lg p-3 space-y-1">
+    <div className="flex flex-col space-y-2">
+      <div className="flex flex-col bg-cod-gray rounded-lg p-3 space-y-4">
         <ButtonGroup
           active={tradeOrLpIndex}
           labels={['Trade', 'Liquidity Provision']}
@@ -828,37 +748,33 @@ const AsidePanel = () => {
               />
             </div>
           ) : ( */}
-          <>
-            <Menu
-              color="mineshaft"
-              dropdownVariant="icon"
-              handleSelection={() => {}}
-              selection={
-                <span className="text-sm text-white flex">
-                  {readableStrikes.length === 0 ? (
-                    <span>No Strikes Available</span>
-                  ) : !selectedClammStrike ? (
-                    'Select strike'
-                  ) : (
-                    <>
-                      <p className="text-stieglitz inline mr-1">$</p>
-                      {(isPut
-                        ? selectedClammStrike?.tickLowerPrice
-                        : selectedClammStrike?.tickUpperPrice
-                      )?.toFixed(5)}
-                    </>
-                  )}
-                  {}
-                </span>
-              }
-              data={readableStrikes}
-              className="w-full"
-              showArrow={readableStrikes.length !== 0}
-            />
-          </>
-          {/* )} */}
+          <Menu
+            color="mineshaft"
+            dropdownVariant="icon"
+            handleSelection={() => {}}
+            selection={
+              <span className="text-sm text-white flex">
+                {readableStrikes.length === 0 ? (
+                  <span>No Strikes Available</span>
+                ) : !selectedClammStrike ? (
+                  'Select strike'
+                ) : (
+                  <>
+                    <p className="text-stieglitz inline mr-1">$</p>
+                    {(isPut
+                      ? selectedClammStrike?.tickLowerPrice
+                      : selectedClammStrike?.tickUpperPrice
+                    )?.toFixed(5)}
+                  </>
+                )}
+                {}
+              </span>
+            }
+            data={readableStrikes}
+            className="w-full my-5"
+            showArrow={readableStrikes.length !== 0}
+          />
         </div>
-
         <Input
           variant="xl"
           type="number"
@@ -874,17 +790,25 @@ const AsidePanel = () => {
             />
           }
           bottomElement={
-            <CustomBottomElement
-              symbol={selectedToken.symbol}
-              label={tradeOrLpIndex === 0 ? 'Options' : 'Deposit amount'}
-              value={balanceOrOptionsAmount}
+            <div
+              className="flex justify-between text-xs text-stieglitz"
               role="button"
               onClick={handleMax}
-            />
+            >
+              <p>{tradeOrLpIndex === 0 ? 'Options' : 'Deposit amount'}</p>
+              <span className="flex">
+                <img
+                  src="/assets/max.svg"
+                  className="hover:bg-silver rounded-[4px]"
+                  alt="max"
+                />
+                <p className="text-white px-1">{balanceOrOptionsAmount}</p>
+                {selectedToken.symbol || ''}
+              </span>
+            </div>
           }
           placeholder="0.0"
         />
-
         {tradeOrLpIndex === 0 ? (
           <div className="flex border border-[#1E1E1E] bg-[#1E1E1E] rounded-md p-2 gap-3">
             <div className="w-full">
@@ -897,8 +821,7 @@ const AsidePanel = () => {
             </div>
           </div>
         ) : null}
-
-        <div className="border border-[#1E1E1E] bg-[#1E1E1E] rounded-md p-2 space-y-2">
+        <div className="border border-[#1E1E1E] bg-[#1E1E1E] rounded-md p-2">
           {tradeOrLpIndex === 0 ? (
             <>
               <RowItem
@@ -961,7 +884,7 @@ const AsidePanel = () => {
                   onClick={buttonProps.action}
                   disabled={buttonProps.disabled}
                   color={buttonProps.color}
-                  className="w-full"
+                  className="w-full mt-2"
                 >
                   {buttonProps.text}
                 </Button>
