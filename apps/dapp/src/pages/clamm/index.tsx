@@ -355,7 +355,7 @@ const ClammPage = () => {
               <Positions />
             </div>
           </div>
-          <div className="flex flex-col h-full space-y-4 sticky top-20 min-w-[366px] lg:max-w-[366px] md:w-full">
+          <div className="flex flex-col h-full space-y-4 sticky top-40 min-w-[366px] lg:max-w-[366px] md:w-full">
             <AsidePanel />
           </div>
         </div>
