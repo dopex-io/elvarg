@@ -63,8 +63,6 @@ export function PairSelector() {
         (data) => data.name.toLowerCase() === callAssetSymbol.toLowerCase(),
       )?.price ?? 0;
 
-    console.log(tokenPrices);
-
     let TVL = 0;
     let openInterest = 0;
 
