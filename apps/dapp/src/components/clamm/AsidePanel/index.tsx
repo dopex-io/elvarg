@@ -304,6 +304,7 @@ const AsidePanel = () => {
 
     const amountToSpend = tradeOrLpIndex === 0 ? premium : depositAmount;
     const allowance = await token.allowance(userAddress, spender);
+
     if (BigNumber.from(amountToSpend.toString()).gt(allowance)) {
       setApproved(false);
     } else {
@@ -759,7 +760,7 @@ const AsidePanel = () => {
 
     setLoading('tokenAmountsToSpend', true);
     const blockTimestamp = Number(await getBlockTime(provider));
-    const { tickLower, tickUpper, tickLowerPrice } = selectedClammStrike;
+    const { tickLower, tickUpper } = selectedClammStrike;
 
     const { iv, currentPrice, strike } = (await getPrices(
       optionsPool.address,
@@ -775,13 +776,9 @@ const AsidePanel = () => {
     };
 
     let amount = parseUnits(amountDebounced, selectedToken.decimals);
-
     try {
       const collateralAmount = isPut
-        ? parseUnits(
-            (Number(amountDebounced) * tickLowerPrice).toString(),
-            selectedToken.decimals,
-          )
+        ? (amount * parseUnits('10', selectedToken.decimals)) / strike
         : amount;
       amount =
         tradeOrLpIndex === 0
@@ -795,6 +792,7 @@ const AsidePanel = () => {
               collateralAmount,
             )) as bigint)
           : amount;
+
       setPremium(amount);
     } catch {
       setPremium(0n);
@@ -857,10 +855,6 @@ const AsidePanel = () => {
   useEffect(() => {
     checkApproved();
   }, [checkApproved]);
-
-  // useEffect(() => {
-  //   updateTokenAmountsToSpend();
-  // }, [updateTokenAmountsToSpend]);
 
   return (
     <div className="flex flex-col space-y-2">
