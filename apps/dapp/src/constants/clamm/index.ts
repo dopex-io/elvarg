@@ -31,13 +31,22 @@ export const CLAMM_PAIRS_TO_ADDRESSES: Record<string, PairToAddress> = {
   },
 };
 
-const EXPIRIES: { [key: string]: number } = {
+export const EXPIRIES: { [key: string]: number } = {
   '20m': 20 * 60,
   '1h': 60 * 60,
   '2h': 2 * 60 * 60,
   '6h': 6 * 60 * 60,
   '12h': 12 * 60 * 60,
   '24h': 24 * 60 * 60,
+};
+
+export const EXPIRIES_TO_KEY: { [key: number]: string } = {
+  [20 * 60]: '20m',
+  [60 * 60]: '1h',
+  [2 * 60 * 60]: '2h',
+  [6 * 60 * 60]: '6h',
+  [12 * 60 * 60]: '12h',
+  [24 * 60 * 60]: '24h',
 };
 
 export const EXPIRIES_MENU = Object.keys(EXPIRIES);

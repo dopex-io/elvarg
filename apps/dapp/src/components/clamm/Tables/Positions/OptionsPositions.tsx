@@ -1,18 +1,17 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Address, formatUnits, zeroAddress } from 'viem';
+import { useCallback, useMemo } from 'react';
+import { Address, formatUnits } from 'viem';
 
 import { OptionPools__factory } from '@dopex-io/sdk';
 import { Button } from '@dopex-io/ui';
 import { createColumnHelper } from '@tanstack/react-table';
 import { formatDistance } from 'date-fns';
-import { useContractWrite, usePrepareContractWrite } from 'wagmi';
+import wagmiConfig from 'wagmi-config';
+import { writeContract } from 'wagmi/actions';
 
 import { useBoundStore } from 'store';
 
 import TableLayout from 'components/common/TableLayout';
 
-import parseOptionsPosition from 'utils/clamm/parseOptionsPosition';
-import getUserOptionsPositions from 'utils/clamm/subgraph/getUserOptionsPositions';
 import { formatAmount } from 'utils/general';
 
 interface OptionsPositionTablesData {
@@ -41,15 +40,6 @@ interface OptionsPositionTablesData {
     disabled: boolean;
   };
 }
-
-type ExercisePositionProps = {
-  pool: Address;
-  tickLower: number;
-  tickUpper: number;
-  expiry: bigint;
-  callOrPut: boolean;
-  amountToExercise: bigint;
-};
 
 const columnHelper = createColumnHelper<OptionsPositionTablesData>();
 
@@ -142,26 +132,46 @@ const columns = [
 ];
 
 const OptionsPositions = () => {
-  const { optionsPool, loading, keys, userClammPositions, markPrice } =
-    useBoundStore();
+  const {
+    optionsPool,
+    loading,
+    keys,
+    userClammPositions,
+    markPrice,
+    userAddress,
+    fullReload,
+  } = useBoundStore();
 
-  const [exerciseParams, setExerciseParams] = useState<ExercisePositionProps>({
-    pool: zeroAddress,
-    tickLower: 0,
-    tickUpper: 0,
-    amountToExercise: 0n,
-    callOrPut: false,
-    expiry: 0n,
-  });
-
-  const { config } = usePrepareContractWrite({
-    abi: OptionPools__factory.abi,
-    address: optionsPool?.address ?? zeroAddress,
-    functionName: 'exerciseOptionRoll',
-    args: [exerciseParams],
-  });
-
-  const { write } = useContractWrite(config);
+  const exercisePosition = useCallback(
+    async (
+      tickLower: number,
+      tickUpper: number,
+      amountToExercise: bigint,
+      callOrPut: boolean,
+      expiry: bigint,
+    ) => {
+      if (!optionsPool || !userAddress) return;
+      const { request } = await wagmiConfig.publicClient.simulateContract({
+        address: optionsPool.address,
+        abi: OptionPools__factory.abi,
+        functionName: 'exerciseOptionRoll',
+        args: [
+          {
+            pool: optionsPool.uniswapV3PoolAddress,
+            tickLower: tickLower,
+            tickUpper: tickUpper,
+            amountToExercise: amountToExercise,
+            callOrPut,
+            expiry,
+          },
+        ],
+        account: userAddress,
+      });
+      await writeContract(request);
+      await fullReload();
+    },
+    [optionsPool, userAddress, fullReload],
+  );
 
   const positions = useMemo(() => {
     if (!optionsPool) return [];
@@ -240,18 +250,13 @@ const OptionsPositions = () => {
           },
           button: {
             handleExercise: () => {
-              setExerciseParams({
-                pool: optionsPool.uniswapV3PoolAddress,
+              exercisePosition(
                 tickLower,
                 tickUpper,
+                exercisableAmount,
                 callOrPut,
-                amountToExercise: exercisableAmount,
-                expiry: BigInt(expiry),
-              });
-
-              if (write) {
-                write();
-              }
+                BigInt(expiry),
+              );
             },
             id: index,
             disabled:
@@ -262,7 +267,7 @@ const OptionsPositions = () => {
       },
     );
   }, [
-    write,
+    exercisePosition,
     markPrice,
     keys.callAssetAmountKey,
     keys.callAssetDecimalsKey,

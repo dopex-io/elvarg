@@ -4,16 +4,13 @@ import { Address, formatUnits, zeroAddress } from 'viem';
 import { PositionsManager__factory } from '@dopex-io/sdk';
 import { Button } from '@dopex-io/ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { useContractWrite, usePrepareContractWrite } from 'wagmi';
+import wagmiConfig from 'wagmi-config';
+import { writeContract } from 'wagmi/actions';
 
 import { useBoundStore } from 'store';
 
 import TableLayout from 'components/common/TableLayout';
 
-import parseWritePosition, {
-  WritePosition,
-} from 'utils/clamm/parseWritePosition';
-import getUserWritePositions from 'utils/clamm/subgraph/getUserWritePositions';
 import { formatAmount } from 'utils/general';
 
 type WritePositionData = {
@@ -50,7 +47,7 @@ const columns = [
   columnHelper.accessor('strike', {
     header: 'Strike Price',
     cell: (info) => (
-      <span className="flex space-x-2 text-left">
+      <span className="flex space-x-2 text-left items-start justify-start">
         <p className="text-stieglitz inline-block">$</p>
         <p className="inline-block">{info.getValue().toFixed(5)}</p>
       </span>
@@ -128,37 +125,39 @@ const columns = [
   }),
 ];
 
-type BurnPositionProps = {
-  pool: Address;
-  tickLower: number;
-  tickUpper: number;
-  shares: bigint;
-};
-
 const WritePositions = () => {
   const {
+    userAddress,
     positionManagerAddress,
     optionsPool,
     loading,
     userClammPositions,
     keys,
+    fullReload,
   } = useBoundStore();
 
-  const [burnParams, setBurnParams] = useState<BurnPositionProps>({
-    pool: zeroAddress,
-    tickLower: 0,
-    tickUpper: 0,
-    shares: 0n,
-  });
-
-  const { config, isLoading } = usePrepareContractWrite({
-    abi: PositionsManager__factory.abi,
-    address: positionManagerAddress,
-    functionName: 'burnPosition',
-    args: [burnParams],
-  });
-
-  const { write } = useContractWrite(config);
+  const handleBurn = useCallback(
+    async (tickLower: number, tickUpper: number, shares: bigint) => {
+      if (!optionsPool) return;
+      const { request } = await wagmiConfig.publicClient.simulateContract({
+        address: positionManagerAddress,
+        abi: PositionsManager__factory.abi,
+        functionName: 'burnPosition',
+        args: [
+          {
+            pool: optionsPool.uniswapV3PoolAddress,
+            tickLower: tickLower,
+            tickUpper: tickUpper,
+            shares: shares,
+          },
+        ],
+        account: userAddress,
+      });
+      await writeContract(request);
+      await fullReload();
+    },
+    [optionsPool, userAddress, positionManagerAddress, fullReload],
+  );
 
   const positions = useMemo(() => {
     if (!optionsPool) return [];
@@ -232,27 +231,17 @@ const WritePositions = () => {
             strike: side == 'Put' ? tickLowerPrice : tickUpperPrice,
             button: {
               handleBurn: () => {
-                setBurnParams({
-                  pool: optionsPool.uniswapV3PoolAddress,
-                  tickLower,
-                  tickUpper,
-                  shares: shares - 1n,
-                });
-
-                if (write) {
-                  write();
-                }
+                handleBurn(tickLower, tickUpper, shares - 1n);
               },
               id: index,
-              disabled: shares < 2n || isLoading,
+              disabled: shares < 2n,
             },
           };
         },
       )
       .filter((position) => position.shares > 1n);
   }, [
-    isLoading,
-    write,
+    handleBurn,
     optionsPool,
     userClammPositions.writePositions,
     keys.callAssetAmountKey,

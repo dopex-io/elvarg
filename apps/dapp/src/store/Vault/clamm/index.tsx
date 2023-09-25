@@ -86,6 +86,8 @@ type OptionsPool = {
 };
 
 export type ClammSlice = {
+  fullReload: Function;
+  setFullReload: (fn: Function) => void;
   positionManagerAddress: Address;
   setPositionManagerAddress: (address: Address) => void;
 
@@ -316,6 +318,13 @@ export const createClammSlice: StateCreator<
     set((prev) => ({
       ...prev,
       userAddress: address,
+    }));
+  },
+  fullReload: async () => {},
+  setFullReload: (fn: Function) => {
+    set((prev) => ({
+      ...prev,
+      fullReload: fn,
     }));
   },
 });

@@ -14,6 +14,7 @@ import StrikesChain from 'components/clamm/Tables/StrikesChain';
 import PageLayout from 'components/common/PageLayout';
 import PriceChart from 'components/common/PriceChart';
 
+import getTicksPremiumAndBreakeven from 'utils/clamm/getTicksPremiumAndBreakeven';
 import getTokensData from 'utils/clamm/getTokensData';
 import getUniswapPoolData from 'utils/clamm/getUniswapPoolData';
 import {
@@ -22,9 +23,11 @@ import {
 } from 'utils/clamm/liquidityAmountMath';
 import parseOptionsPosition from 'utils/clamm/parseOptionsPosition';
 import parsePriceFromTick from 'utils/clamm/parsePriceFromTick';
+import parseTickData from 'utils/clamm/parseTickData';
 import parseWritePosition, {
   WritePosition,
 } from 'utils/clamm/parseWritePosition';
+import fetchStrikesData from 'utils/clamm/subgraph/fetchStrikesData';
 import getUserOptionsExercises from 'utils/clamm/subgraph/getUserOptionsExercises';
 import getUserOptionsPositions from 'utils/clamm/subgraph/getUserOptionsPositions';
 import getUserOptionsPurchases from 'utils/clamm/subgraph/getUserOptionsPurchases';
@@ -47,6 +50,10 @@ const ClammPage = () => {
     ticksData,
     optionsPool,
     setUserClammPositions,
+    setTicksData,
+    keys,
+    setFullReload,
+    updateOptionsPoolTickAndSqrtX96Price,
   } = useBoundStore();
 
   const { address: userAddress } = useAccount();
@@ -55,21 +62,37 @@ const ClammPage = () => {
   const [isOpen, setIsOpen] = useState(true);
   const handleClose = () => setIsOpen(false);
 
-  // const updateOptionsPoolTick = useCallback(async () => {
-  //   const { collateralTokenAddress, optionsPoolAddress, uniswapV3PoolAddress } =
-  //     CLAMM_PAIRS_TO_ADDRESSES[selectedOptionsPoolPair.joined];
+  const updateOptionsPoolTick = useCallback(async () => {
+    const { uniswapV3PoolAddress } =
+      CLAMM_PAIRS_TO_ADDRESSES[selectedOptionsPoolPair.joined];
 
-  //   const data = await readContract({
-  //     address: uniswapV3PoolAddress,
-  //     abi: UniswapV3Pool__factory.abi,
-  //     functionName: 'slot0',
-  //   });
+    const data = await readContract({
+      address: uniswapV3PoolAddress,
+      abi: UniswapV3Pool__factory.abi,
+      functionName: 'slot0',
+    });
 
-  //   const sqrtX96Price = data[0];
-  //   const tick = data[1];
+    const sqrtX96Price = data[0];
+    const tick = data[1];
 
-  //   updateOptionsPoolTickAndSqrtX96Price(tick, sqrtX96Price);
-  // }, [selectedOptionsPoolPair.joined, updateOptionsPoolTickAndSqrtX96Price]);
+    if (optionsPool) {
+      setMarkPrice(
+        parsePriceFromTick(
+          tick,
+          10 ** optionsPool.token0Decimals,
+          10 ** optionsPool.token1Decimals,
+          optionsPool.inversePrice,
+        ),
+      );
+    }
+
+    updateOptionsPoolTickAndSqrtX96Price(tick, sqrtX96Price);
+  }, [
+    setMarkPrice,
+    selectedOptionsPoolPair.joined,
+    updateOptionsPoolTickAndSqrtX96Price,
+    optionsPool,
+  ]);
 
   const handleAgree = useCallback(async () => {
     if (!userAddress) return;
@@ -295,9 +318,101 @@ const ClammPage = () => {
     setLoading('positionsHistory', false);
   }, [optionsPool, setUserClammPositions, setLoading, userAddress]);
 
+  const updateStrikesData = useCallback(async () => {
+    if (!optionsPool) return;
+    setLoading('ticksData', true);
+    try {
+      const {
+        uniswapV3PoolAddress,
+        sqrtX96Price,
+        token0Decimals,
+        token1Decimals,
+        inversePrice,
+        address,
+      } = optionsPool;
+
+      const rawTickData = (await fetchStrikesData(uniswapV3PoolAddress)).filter(
+        ({ totalLiquidity }) => totalLiquidity > 1n,
+      );
+
+      if (rawTickData) {
+        const parsedTicksData = rawTickData.map((data) =>
+          parseTickData(
+            sqrtX96Price,
+            10 ** token0Decimals,
+            10 ** token1Decimals,
+            inversePrice,
+            data,
+          ),
+        );
+
+        const ticksWithPremiums = await getTicksPremiumAndBreakeven(
+          address,
+          uniswapV3PoolAddress,
+          optionsPool[keys.callAssetDecimalsKey],
+          optionsPool[keys.putAssetDecimalsKey],
+          parsedTicksData,
+        );
+
+        setTicksData(ticksWithPremiums);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setLoading('ticksData', false);
+  }, [
+    setLoading,
+    setTicksData,
+    optionsPool,
+    keys.callAssetDecimalsKey,
+    keys.putAssetDecimalsKey,
+  ]);
+
+  const fullReload = useCallback(async () => {
+    const timeout = setTimeout(async () => {
+      await loadOptionsPool();
+      await updateStrikesData();
+      await updateUserWritePositions();
+      await updateUserOptionsPositions();
+      await updateUserPositionsHistory();
+    }, 3000);
+
+    return () => clearTimeout(timeout);
+  }, [
+    updateStrikesData,
+    loadOptionsPool,
+    updateUserOptionsPositions,
+    updateUserPositionsHistory,
+    updateUserWritePositions,
+  ]);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      await updateOptionsPoolTick();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [updateOptionsPoolTick]);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      await fullReload();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [fullReload]);
+
+  useEffect(() => {
+    setFullReload(fullReload);
+  }, [fullReload, setFullReload]);
+
   useEffect(() => {
     loadOptionsPool();
   }, [loadOptionsPool]);
+
+  useEffect(() => {
+    updateStrikesData();
+  }, [updateStrikesData]);
 
   useEffect(() => {
     updateUserWritePositions();
@@ -343,8 +458,8 @@ const ClammPage = () => {
           isAgree={isAgree}
           handleAgree={handleAgree}
         />
-        <div className="flex space-x-0 lg:space-x-8 flex-col sm:flex-col md:flex-col lg:flex-row space-y-4 md:space-y-4 justify-center">
-          <div className="flex flex-col space-y-3 sm:w-full h-full max-w-[1920px] flex-1">
+        <div className="flex space-x-0 lg:space-x-8 flex-col sm:flex-col md:flex-col lg:flex-row space-y-4 justify-center">
+          <div className="flex flex-col space-y-3 sm:w-full h-full w-full flex-1">
             <PairSelector />
             <PriceChart
               className="rounded-lg text-center flex flex-col justify-center text-stieglitz"

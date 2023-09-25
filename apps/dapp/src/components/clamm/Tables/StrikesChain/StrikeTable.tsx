@@ -141,56 +141,6 @@ const StrikesTable = () => {
     setSelectedStrikeIndex(index);
   }, []);
 
-  const updateStrikesData = useCallback(async () => {
-    if (!optionsPool) return;
-    setLoading('ticksData', true);
-    try {
-      const {
-        uniswapV3PoolAddress,
-        sqrtX96Price,
-        token0Decimals,
-        token1Decimals,
-        inversePrice,
-        address,
-      } = optionsPool;
-
-      const rawTickData = (await fetchStrikesData(uniswapV3PoolAddress)).filter(
-        ({ totalLiquidity }) => totalLiquidity > 1n,
-      );
-
-      if (rawTickData) {
-        const parsedTicksData = rawTickData.map((data) =>
-          parseTickData(
-            sqrtX96Price,
-            10 ** token0Decimals,
-            10 ** token1Decimals,
-            inversePrice,
-            data,
-          ),
-        );
-
-        const ticksWithPremiums = await getTicksPremiumAndBreakeven(
-          address,
-          uniswapV3PoolAddress,
-          optionsPool[keys.callAssetDecimalsKey],
-          optionsPool[keys.putAssetDecimalsKey],
-          parsedTicksData,
-        );
-
-        setTicksData(ticksWithPremiums);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-    setLoading('ticksData', false);
-  }, [
-    setLoading,
-    setTicksData,
-    optionsPool,
-    keys.callAssetDecimalsKey,
-    keys.putAssetDecimalsKey,
-  ]);
-
   const strikeData = useMemo(() => {
     if (!optionsPool) return [];
     return ticksData
@@ -282,7 +232,7 @@ const StrikesTable = () => {
           };
         },
       )
-      .filter(({ totalLiquidity }) => Number(totalLiquidity.amount) > 0);
+      .filter(({ totalLiquidity }) => Number(totalLiquidity.amount) > 0.001);
   }, [
     selectedClammExpiry,
     setSelectedClammStrike,
@@ -299,12 +249,8 @@ const StrikesTable = () => {
     setActiveStrikeIndex,
   ]);
 
-  useEffect(() => {
-    updateStrikesData();
-  }, [updateStrikesData]);
-
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 p-4">
       <TableLayout<StrikeDataForTable>
         data={strikeData}
         columns={columns}
