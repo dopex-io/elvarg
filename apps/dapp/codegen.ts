@@ -16,7 +16,7 @@ const DOPEX_ZDTE_SUBGRAPH_API_URL =
   'https://api.thegraph.com/subgraphs/name/garyunwin42/zdte';
 
 const DOPEX_CLAMM_SUBGRAPH_API_URL =
-  'https://api.thegraph.com/subgraphs/name/aercwarden/clamm-subgraph-debug';
+  'https://api.thegraph.com/subgraphs/name/aercwarden/dopex-v2-clamm';
 
 const config: CodegenConfig = {
   generates: {
