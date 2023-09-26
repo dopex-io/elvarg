@@ -389,7 +389,7 @@ const ClammPage = () => {
   useEffect(() => {
     const interval = setInterval(async () => {
       await updateOptionsPoolTick();
-    }, 10000);
+    }, 15000);
 
     return () => clearInterval(interval);
   }, [updateOptionsPoolTick]);
@@ -397,7 +397,7 @@ const ClammPage = () => {
   useEffect(() => {
     const interval = setInterval(async () => {
       await fullReload();
-    }, 30000);
+    }, 60000);
 
     return () => clearInterval(interval);
   }, [fullReload]);
