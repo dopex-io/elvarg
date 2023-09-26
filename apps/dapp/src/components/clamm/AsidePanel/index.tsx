@@ -207,8 +207,11 @@ const AsidePanel = () => {
     return {
       amount: formatUnits(premium, selectedToken.decimals),
       symbol: selectedToken.symbol,
+      perOption:
+        Number(formatUnits(premium, selectedToken.decimals)) /
+        Number(amountDebounced),
     };
-  }, [premium, selectedToken.decimals, selectedToken.symbol]);
+  }, [premium, selectedToken.decimals, selectedToken.symbol, amountDebounced]);
 
   const parametersForMint: MintPostionOrOptionsParams | undefined =
     useMemo(() => {
@@ -633,7 +636,9 @@ const AsidePanel = () => {
       : clammStrikeData.callPremiums;
 
     return defaultExpires.map(({ expiry }) => {
-      const premiumToNumber = Number(premiums[EXPIRIES[expiry]].toString());
+      const premiumToNumber = Number(
+        (premiums[EXPIRIES[expiry]] ?? 0).toString(),
+      );
       return {
         expiry: expiry,
         disabled: premiumToNumber === 0,
@@ -1033,14 +1038,14 @@ const AsidePanel = () => {
           <PnlChart
             breakEven={
               isPut
-                ? markPrice - Number(readablePremium.amount)
-                : markPrice + Number(readablePremium.amount) * markPrice
+                ? markPrice - Number(readablePremium.perOption)
+                : markPrice + Number(readablePremium.perOption) * markPrice
             }
-            optionPrice={Number(readablePremium.amount)}
+            optionPrice={Number(readablePremium.perOption)}
             amount={Number(amountDebounced)}
             isPut={isPut}
             price={markPrice}
-            symbol={'Mark'}
+            symbol={readablePremium.symbol}
           />
         </div>
       ) : null}
