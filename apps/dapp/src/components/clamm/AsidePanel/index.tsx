@@ -176,29 +176,22 @@ const AsidePanel = () => {
     }
   }, [strikes, isPut, tradeOrLpIndex, strikeElement]);
 
-  const balanceOrOptionsAmount = useMemo(() => {
-    const balance = Number(
-      formatUnits(
-        isPut
-          ? userTokenBalances.collateralTokenBalance
-          : userTokenBalances.underlyingTokenBalance,
-        selectedToken.decimals,
-      ),
-    ).toFixed(5);
-
+  const optionsAvailableReadable = useMemo(() => {
     const selectedStrike = selectedClammStrike as PurchaseStrike;
+    if (!selectedStrike || !selectedStrike.optionsAvailable) return '0';
+    return selectedStrike.optionsAvailable.toString();
+  }, [selectedClammStrike]);
 
-    if (tradeOrLpIndex === 0) {
-      if (!selectedStrike || !selectedStrike.optionsAvailable) return '0';
-      return selectedStrike.optionsAvailable.toFixed(5);
-    } else {
-      return balance;
-    }
+  const selectedTokenBalanceReadable = useMemo(() => {
+    return formatUnits(
+      isPut
+        ? userTokenBalances.collateralTokenBalance
+        : userTokenBalances.underlyingTokenBalance,
+      selectedToken.decimals,
+    );
   }, [
     isPut,
-    selectedClammStrike,
     selectedToken.decimals,
-    tradeOrLpIndex,
     userTokenBalances.collateralTokenBalance,
     userTokenBalances.underlyingTokenBalance,
   ]);
@@ -453,20 +446,12 @@ const AsidePanel = () => {
     userAddress,
   ]);
 
-  const handleSelectExpiry = useCallback(
-    (index: number) => {
-      setSelectedExpiry(index);
-      updateSelectedExpiry(EXPIRIES_BY_INDEX[index]);
-    },
-    [updateSelectedExpiry],
-  );
-
   const handleTradeOrLp = useCallback(
     (index: number) => {
       setTradeOrLpIndex(index);
       setSelectedClammStrike(undefined);
       setPremium(0n);
-      setInputAmount('0');
+      setInputAmount('1');
     },
     [setSelectedClammStrike],
   );
@@ -476,6 +461,7 @@ const AsidePanel = () => {
       setIsPut(index === 1);
       setSelectedClammStrike(undefined);
       setPremium(0n);
+      setInputAmount('1');
     },
     [setIsPut, setSelectedClammStrike],
   );
@@ -567,18 +553,20 @@ const AsidePanel = () => {
 
     if (Number(amountDebounced) === 0) {
       disabled = true;
+      color = 'mineshaft';
       text = 'Enter amount';
     }
-
     if (tradeOrLpIndex === 0) {
       if (Number(amountDebounced) !== 0 && premium === 0n) {
         disabled = true;
-        text = 'Premium is zero, Try a different expiry or strike.';
+        color = 'mineshaft';
+        text = 'Premium is zero, Try a different expiry or strike';
       }
     }
 
     if (!selectedClammStrike) {
       text = 'Select a strike';
+      color = 'mineshaft';
       disabled = true;
     }
 
@@ -594,6 +582,16 @@ const AsidePanel = () => {
       disabled = true;
     }
 
+    if (
+      tradeOrLpIndex === 0 &&
+      Number(optionsAvailableReadable) > 0 &&
+      Number(amountDebounced) > Number(optionsAvailableReadable)
+    ) {
+      disabled = true;
+      text = 'Amount exceeds available options';
+      color = 'mineshaft';
+    }
+
     return {
       text,
       action,
@@ -601,6 +599,7 @@ const AsidePanel = () => {
       disabled,
     };
   }, [
+    optionsAvailableReadable,
     depositAmount,
     premium,
     selectedClammStrike,
@@ -640,6 +639,7 @@ const AsidePanel = () => {
       const premiumToNumber = Number(
         (premiums[EXPIRIES[expiry]] ?? 0).toString(),
       );
+
       return {
         expiry: expiry,
         disabled: premiumToNumber === 0,
@@ -835,12 +835,14 @@ const AsidePanel = () => {
     selectedToken.decimals,
   ]);
 
-  // const readableDepositAmount = useMemo(() => {
-  //   return {
-  //     amount: formatUnits(depositAmount, selectedToken.decimals),
-  //     symbol: selectedToken.symbol,
-  //   };
-  // }, [depositAmount, selectedToken.decimals, selectedToken.symbol]);
+  const handleSelectExpiry = useCallback(
+    (index: number) => {
+      setSelectedExpiry(index);
+      updateSelectedExpiry(EXPIRIES_BY_INDEX[index]);
+      updatePremium();
+    },
+    [updateSelectedExpiry, updatePremium],
+  );
 
   useEffect(() => {
     loadStrikes();
@@ -907,8 +909,8 @@ const AsidePanel = () => {
           handleInputAmountChange={handleInputAmount}
           handleMax={handleMax}
           selectedTokenSymbol={selectedToken.symbol}
-          optionsAvailable={balanceOrOptionsAmount}
-          depositBalance={balanceOrOptionsAmount}
+          optionsAvailable={formatAmount(optionsAvailableReadable, 5)}
+          depositBalance={formatAmount(selectedTokenBalanceReadable, 5)}
           isTrade={tradeOrLpIndex === 0}
         />
         <div className="border border-[#1E1E1E] bg-[#1E1E1E] rounded-md p-2">
