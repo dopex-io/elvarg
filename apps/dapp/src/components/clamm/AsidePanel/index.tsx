@@ -783,7 +783,7 @@ const AsidePanel = () => {
     let amount = parseUnits(amountDebounced, selectedToken.decimals);
     try {
       const collateralAmount = isPut
-        ? (amount * parseUnits('10', selectedToken.decimals)) / strike
+        ? (amount * parseUnits('1', selectedToken.decimals)) / strike
         : amount;
       amount =
         tradeOrLpIndex === 0
