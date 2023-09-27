@@ -204,12 +204,13 @@ const AsidePanel = () => {
   ]);
 
   const readablePremium = useMemo(() => {
+    const premiumPerOption =
+      Number(formatUnits(premium, selectedToken.decimals)) /
+      Number(amountDebounced);
     return {
       amount: formatUnits(premium, selectedToken.decimals),
       symbol: selectedToken.symbol,
-      perOption:
-        Number(formatUnits(premium, selectedToken.decimals)) /
-        Number(amountDebounced),
+      perOption: isNaN(premiumPerOption) ? 0 : premiumPerOption,
     };
   }, [premium, selectedToken.decimals, selectedToken.symbol, amountDebounced]);
 
