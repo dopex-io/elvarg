@@ -1,16 +1,14 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { formatUnits } from 'viem';
 
-import { Button, Skeleton } from '@dopex-io/ui';
+import { Button } from '@dopex-io/ui';
+import { MinusCircleIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
 import { createColumnHelper } from '@tanstack/react-table';
 
 import { useBoundStore } from 'store';
 
 import TableLayout from 'components/common/TableLayout';
 
-import getTicksPremiumAndBreakeven from 'utils/clamm/getTicksPremiumAndBreakeven';
-import parseTickData from 'utils/clamm/parseTickData';
-import fetchStrikesData from 'utils/clamm/subgraph/fetchStrikesData';
 import formatAmount from 'utils/general/formatAmount';
 
 type StrikeDataForTable = {
@@ -106,13 +104,13 @@ const columns = [
             <span className="flex items-center space-x-1">
               <span>
                 {approximationSymbol}
-                {premium === 0 ? 0 : premium.toFixed(6)} {symbol}
+                {premium === 0 ? 0 : premium.toFixed(6)}
               </span>
-              {/* {isActive ? (
+              {isSelected ? (
                 <MinusCircleIcon className="w-[14px]" />
               ) : (
                 <PlusCircleIcon className="w-[14px]" />
-              )} */}
+              )}
             </span>
           </Button>
         </div>
@@ -130,8 +128,6 @@ const StrikesTable = () => {
     keys,
     selectedClammExpiry,
     setSelectedClammStrike,
-    setTicksData,
-    setLoading,
   } = useBoundStore();
 
   const [selectedStrikeIndex, setSelectedStrikeIndex] = useState<number | null>(
