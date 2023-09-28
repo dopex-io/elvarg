@@ -20,3 +20,8 @@ export interface SsovMarket {
     duration: SsovDuration;
   };
 }
+
+export type SsovMenuItem = {
+  textContent: string;
+  disabled: boolean;
+};

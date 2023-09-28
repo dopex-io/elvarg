@@ -17,10 +17,7 @@ export { default as TabHeader } from './TabHeader';
 export type { TabHeaderProps } from './TabHeader';
 
 export { default as Menu } from './Menu';
-export type { MenuProps } from './Menu';
-
-export { default as MenuItems } from './MenuItems';
-export type { MenuItemsProps, ItemType } from './MenuItems';
+export type { MenuProps, ItemType } from './Menu';
 
 export { default as Input } from './Input';
 export type { InputProps } from './Input';

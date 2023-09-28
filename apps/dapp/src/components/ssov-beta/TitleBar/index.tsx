@@ -1,38 +1,47 @@
+import { useRouter } from 'next/router';
+
 import { Menu } from '@dopex-io/ui';
 
 import useVaultsData from 'hooks/ssov/useVaultsData';
 
 import TitleItem from 'components/ssov-beta/TitleBar/TitleItem';
 
-import { formatAmount } from 'utils/general';
+import formatAmount from 'utils/general/formatAmount';
 
 import { MARKETS_MENU } from 'constants/ssov/markets';
 
+import { SsovMenuItem } from 'types/ssov';
+
 interface Props {
-  market: string;
-  handleSelectMarket: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  market: SsovMenuItem;
+  setSelection: (value: SsovMenuItem) => void;
 }
 
 const TitleBar = (props: Props) => {
-  const { market, handleSelectMarket } = props;
+  const { market, setSelection } = props;
 
-  const { aggregatedStats } = useVaultsData({ market });
+  const router = useRouter();
+
+  const { aggregatedStats } = useVaultsData({ market: market.textContent });
 
   return (
-    <div className="flex space-x-4 mb-4">
+    <div className="flex space-x-4 mb-4 relative z-10">
       <img
-        src={`/images/tokens/${market.toLowerCase()}.svg`}
+        src={`/images/tokens/${market.textContent.toLowerCase()}.svg`}
         className="w-[32px] h-[32px] my-auto border rounded-full border-carbon"
-        alt={market}
+        alt={market.textContent}
       />
       <Menu
         color="mineshaft"
         dropdownVariant="icon"
-        handleSelection={handleSelectMarket}
+        setSelection={(v: SsovMenuItem) => {
+          setSelection(v);
+          router.push(`/ssov-beta/${v.textContent}`);
+        }}
         selection={market}
         data={MARKETS_MENU}
-        className="z-20"
         showArrow
+        className="bg-umbra rounded-[10px] w-[100px] h-[200px] overflow-auto"
       />
       <div className="flex space-x-6">
         <TitleItem
