@@ -116,7 +116,7 @@ const seo = {
       'https://res.cloudinary.com/dxitdndu3/image/upload/v1684326255/dopex_images/preview_images/default_qfq5rc.png',
     alt: 'CLAMM',
     title: 'CLAMM | Dopex',
-    description: 'Buy/Sell vanilla options from the SSOVs',
+    description: 'Options pools powered by CLAMM liquidity',
   },
   default: {
     url: HOST_URL,
