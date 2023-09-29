@@ -157,11 +157,12 @@ const StrikesTable = () => {
     (store) => store.setActiveStrikeIndex,
   );
 
-  const { expiryData, strikeData, greeks, loading } = useStrikesData({
-    ammAddress: vault.address,
-    duration: vault.duration,
-    isPut: vault.isPut,
-  });
+  const { expiryData, updateExpiryData, strikeData, greeks, loading } =
+    useStrikesData({
+      ammAddress: vault.address,
+      duration: vault.duration,
+      isPut: vault.isPut,
+    });
 
   const data = useMemo(() => {
     if (!strikeData || !greeks || !expiryData) return [];

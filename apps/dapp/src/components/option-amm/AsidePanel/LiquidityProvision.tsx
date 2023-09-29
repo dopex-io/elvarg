@@ -60,12 +60,11 @@ const LiquidityProvision = (props: Props) => {
         <div className="flex justify-between text-xs">
           <p className="text-stieglitz">Withdrawable</p>
           <p>
-            {formatDistanceToNow(
-              Number(lpData?.userUnlockTime || new Date()) * 1000,
-              {
-                includeSeconds: true,
-              },
-            )}
+            {lpData?.userUnlockTime
+              ? formatDistanceToNow(Number(lpData?.userUnlockTime) * 1000, {
+                  includeSeconds: true,
+                })
+              : '-'}
           </p>
         </div>
         <div className="flex justify-between text-xs text-stieglitz">

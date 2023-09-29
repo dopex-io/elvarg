@@ -68,9 +68,9 @@ interface Props {
 const NON_ZERO_DENOMINATOR = 1n;
 
 export const durationToExpiryMapping = {
-  DAILY: 1695196801n,
-  WEEKLY: 1695974401n,
-  MONTHLY: 1695974400n,
+  DAILY: 1696060801n,
+  WEEKLY: 1696579201n,
+  MONTHLY: 1698048001n,
 };
 
 const useStrikesData = (props: Props) => {
@@ -305,6 +305,7 @@ const useStrikesData = (props: Props) => {
   return {
     updateStrikesData,
     updateExpiryData,
+    strikeDataForExpiry,
     expiryData: _expiryData,
     strikeData,
     greeks,

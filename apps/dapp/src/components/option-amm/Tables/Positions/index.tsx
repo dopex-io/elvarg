@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { zeroAddress } from 'viem';
 
 import { Skeleton } from '@dopex-io/ui';
@@ -15,17 +15,22 @@ const Positions = () => {
 
   const { address } = useAccount();
   const vault = useVaultStore((store) => store.vault);
-  const { optionPositions, loading } = useAmmUserData({
-    ammAddress: vault.address,
-    portfolioManager: vault.portfolioManager,
-    positionMinter: vault.positionMinter,
-    lpAddress: vault.lp,
-    account: address || zeroAddress,
-  });
+  const { optionPositions, updateUserOptionPositions, loading } =
+    useAmmUserData({
+      ammAddress: vault.address,
+      portfolioManager: vault.portfolioManager,
+      positionMinter: vault.positionMinter,
+      lpAddress: vault.lp,
+      account: address || zeroAddress,
+    });
 
   const handleClick = (index: number) => {
     setActiveIndex(index);
   };
+
+  useEffect(() => {
+    updateUserOptionPositions();
+  }, [updateUserOptionPositions]);
 
   const buttonLabels = useMemo(() => {
     if (!optionPositions || optionPositions.length === 0) return [null, null];
@@ -70,6 +75,7 @@ const Positions = () => {
           positions={optionPositions.filter((op) =>
             activeIndex === 0 ? !op.isShort : op.isShort,
           )}
+          isShort={activeIndex === 1}
           isLoading={loading}
         />
       );

@@ -119,6 +119,6 @@ export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/ssov': { default: 42161, all: [42161, 137, 1] },
   '/portfolio': { default: 42161, all: [42161, 137] },
   '/ssov/MATIC-WEEKLY-CALLS-SSOV-V3': { default: 137, all: [137] },
-  '/v2/option-amm/ARB-USDC': { default: 31337, all: [421613, 31337] },
+  '/v2/option-amm/ARB-USDC': { default: 42161, all: [42161, 421613, 31337] },
   '/v2/clamm/ARB-USDC': { default: 421613, all: [421613] },
 };

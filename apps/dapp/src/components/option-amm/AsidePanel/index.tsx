@@ -193,40 +193,42 @@ const AsidePanel = ({ market }: { market: string }) => {
     vault.lp,
   ]);
 
+  const updateMaxAmount = useCallback(async () => {
+    if (
+      address === zeroAddress ||
+      vault.collateralTokenAddress === '0x' ||
+      !strikeDataForExpiry ||
+      !lpData
+    )
+      return;
+    const ppo = strikeDataForExpiry[activeStrikeIndex]?.premiumPerOption;
+
+    const totalPurchaseable =
+      (lpData.totalSupply * parseUnits('1', DECIMALS_USD)) / ppo;
+
+    const _balance = await getUserBalance({
+      owner: address,
+      tokenAddress: vault.collateralTokenAddress,
+    });
+    setMaxAmount(
+      panelState === PanelStates.Trade ? totalPurchaseable : _balance || 0n,
+    );
+  }, [
+    activeStrikeIndex,
+    address,
+    lpData,
+    panelState,
+    strikeDataForExpiry,
+    vault.collateralTokenAddress,
+  ]);
+
   useEffect(() => {
     handleUpdateAllowance();
   }, [handleUpdateAllowance]);
 
   useEffect(() => {
-    (async () => {
-      if (
-        address === zeroAddress ||
-        vault.collateralTokenAddress === '0x' ||
-        !strikeDataForExpiry ||
-        !lpData
-      )
-        return;
-      const ppo = strikeDataForExpiry[activeStrikeIndex]?.premiumPerOption;
-
-      const totalPurchaseable =
-        (lpData.totalSupply * parseUnits('1', DECIMALS_USD)) / ppo;
-
-      const _balance = await getUserBalance({
-        owner: address,
-        tokenAddress: vault.collateralTokenAddress,
-      });
-      setMaxAmount(
-        panelState === PanelStates.Trade ? totalPurchaseable : _balance || 0n,
-      );
-    })();
-  }, [
-    activeStrikeIndex,
-    address,
-    strikeDataForExpiry,
-    lpData,
-    panelState,
-    vault.collateralTokenAddress,
-  ]);
+    updateMaxAmount();
+  }, [updateMaxAmount]);
 
   const memoizedInputPanel = useMemo(() => {
     return (
@@ -261,6 +263,8 @@ const AsidePanel = ({ market }: { market: string }) => {
   }, [panelState, amount, handleMax, market, maxAmount]);
 
   const contractTxButton = useMemo(() => {
+    handleUpdateAllowance();
+    updateMaxAmount();
     if (amount === '0' || amount === '') {
       return {
         disabled: true,
@@ -276,7 +280,6 @@ const AsidePanel = ({ market }: { market: string }) => {
         label: 'Approve',
         handler: () => {
           approve();
-          handleUpdateAllowance();
         },
       };
     } else if (panelState === PanelStates['Liquidity Provision']) {
@@ -291,7 +294,6 @@ const AsidePanel = ({ market }: { market: string }) => {
         label: activeIndexSub === 0 ? 'Long' : 'Short',
         handler: () => {
           longOrShort();
-          updateUserOptionPositions();
         },
       };
     }
@@ -302,9 +304,9 @@ const AsidePanel = ({ market }: { market: string }) => {
     approved,
     handleLpAction,
     handleUpdateAllowance,
+    updateMaxAmount,
     longOrShort,
     panelState,
-    updateUserOptionPositions,
   ]);
 
   return (
@@ -338,7 +340,8 @@ const AsidePanel = ({ market }: { market: string }) => {
           />
         )}
       </div>
-      <div className="bg-cod-gray p-3 rounded-lg">
+      <div className="bg-cod-gray p-3 rounded-lg relative">
+        <div className="left-0 top-0 absolute backdrop-blur-lg w-full h-full rounded-lg z-10" />
         {/* @todo: replace mock data */}
         <PnlChart
           breakEven={1.2}

@@ -6,7 +6,7 @@ import {
   OptionAmmLp__factory,
   OptionAmmPortfolioManager__factory,
 } from '@dopex-io/sdk';
-import { readContract } from 'wagmi/actions';
+import { multicall, readContract } from 'wagmi/actions';
 
 import getOptionPosition from 'utils/optionAmm/getOptionPosition';
 import getPortfolio from 'utils/optionAmm/getPortfolio';
@@ -53,8 +53,13 @@ interface Props {
 }
 
 const useAmmUserData = (props: Props) => {
-  const { ammAddress, lpAddress, portfolioManager, positionMinter, account } =
-    props;
+  const {
+    ammAddress,
+    lpAddress,
+    portfolioManager,
+    positionMinter,
+    account = '0x',
+  } = props;
 
   const [optionPositions, setOptionPositions] = useState<OptionPosition[]>([]);
   const [portfolioData, setPortfolioData] = useState<Portfolio>();
@@ -115,120 +120,129 @@ const useAmmUserData = (props: Props) => {
     )
       return;
 
-    const [collateralAmount, borrowedAmount] = await getPortfolio({
-      portfolioManager,
-      accountAddress: account,
-    });
+    try {
+      const [collateralAmount, borrowedAmount] = await getPortfolio({
+        portfolioManager,
+        accountAddress: account,
+      });
 
-    const _portfolioData = {
-      collateralAmount,
-      borrowedAmount,
-    };
+      const _portfolioData = {
+        collateralAmount,
+        borrowedAmount,
+      };
 
-    const positionIds = await getPositionIds({
-      positionMinter,
-      owner: account,
-    });
+      const positionIds = await getPositionIds({
+        positionMinter,
+        owner: account,
+      });
 
-    const filteredClosedPositions = optionPositions.filter(
-      (p) => p.exercised === p.amount,
-    );
+      const filteredClosedPositions = optionPositions.filter(
+        (p) => p.exercised === p.amount,
+      );
 
-    const closedPositions = filteredClosedPositions.map((p) => p._id);
+      const closedPositions = filteredClosedPositions.map((p) => p._id);
 
-    const config = {
-      abi: OptionAmmPortfolioManager__factory.abi,
-      address: portfolioManager,
-    };
+      const config = {
+        abi: OptionAmmPortfolioManager__factory.abi,
+        address: portfolioManager,
+      };
 
-    const [
-      health,
-      [longMargin, shortMargin, longPnl, shortPnl],
-      totalPortfolioCollateral,
-      liquidationThreshold,
-    ] = await Promise.all([
-      readContract({
-        ...config,
-        functionName: 'getPortfolioHealth',
-        args: [account],
-      }),
-      readContract({
-        ...config,
-        functionName: 'getPortfolioActiveCollateral',
-        args: [account],
-      }),
-      readContract({
-        ...config,
-        functionName: 'getPortfolioCollateralAmount',
-        args: [account],
-      }),
-      readContract({
-        address: ammAddress,
-        abi: OptionAmm__factory.abi,
-        functionName: 'MM_LIQUIDATION_THRESHOLD',
-      }),
-    ]); // todo: replace with wagmi multicall on mainnet
+      const [
+        health,
+        [longMargin, shortMargin, longPnl, shortPnl],
+        totalPortfolioCollateral,
+        liquidationThreshold,
+      ] = await Promise.all([
+        readContract({
+          ...config,
+          functionName: 'getPortfolioHealth',
+          args: [account],
+        }),
+        readContract({
+          ...config,
+          functionName: 'getPortfolioActiveCollateral',
+          args: [account],
+        }),
+        readContract({
+          ...config,
+          functionName: 'getPortfolioCollateralAmount',
+          args: [account],
+        }),
+        readContract({
+          address: ammAddress,
+          abi: OptionAmm__factory.abi,
+          functionName: 'MM_LIQUIDATION_THRESHOLD',
+        }),
+      ]); // todo: replace with wagmi multicall on mainnet
 
-    /**
-     * 0: activeShorts
-     * 1: activeLongs
-     * 2: shortPnl
-     * 3: longPnl
-     * activeCollateral = Math.abs(activeShorts - activeLongs) + shortPnl + longPnl
-     */
-    const abs = (n: bigint) => (n === -0n || n < 0n ? -n : n);
-    let netActiveCollateral =
-      abs(longMargin - shortMargin) + (longPnl + shortPnl);
+      /**
+       * 0: activeShorts
+       * 1: activeLongs
+       * 2: shortPnl
+       * 3: longPnl
+       * activeCollateral = Math.abs(activeShorts - activeLongs) + shortPnl + longPnl
+       */
+      const abs = (n: bigint) => (n === -0n || n < 0n ? -n : n);
+      let netActiveCollateral =
+        abs(longMargin - shortMargin) + (longPnl + shortPnl);
 
-    const availableCollateral = totalPortfolioCollateral - netActiveCollateral;
+      const availableCollateral =
+        totalPortfolioCollateral - netActiveCollateral;
 
-    setPortfolioData({
-      ..._portfolioData,
-      positions: positionIds,
-      closedPositions: closedPositions,
-      health,
-      activeCollateral: netActiveCollateral,
-      availableCollateral,
-      totalCollateral: collateralAmount,
-      liquidationThreshold,
-    });
+      setPortfolioData({
+        ..._portfolioData,
+        positions: positionIds,
+        closedPositions: closedPositions,
+        health,
+        activeCollateral: netActiveCollateral,
+        availableCollateral,
+        totalCollateral: collateralAmount,
+        liquidationThreshold,
+      });
+    } catch (e) {
+      console.error(e);
+    }
   }, [account, ammAddress, optionPositions, portfolioManager, positionMinter]);
 
   const updateLpData = useCallback(async () => {
-    if (lpAddress === '0x' || !account || account === zeroAddress) return;
+    if (lpAddress === '0x' || account === '0x') return;
 
     const config = {
       abi: OptionAmmLp__factory.abi,
       address: lpAddress,
     };
 
-    const [totalSupply, userUnlockTime, userShares] = await Promise.all([
-      readContract({
-        ...config,
-        functionName: 'totalSupply',
-      }),
-      readContract({
-        ...config,
-        functionName: 'lockedUsers',
-        args: [account],
-      }),
-      readContract({
-        ...config,
-        functionName: 'balanceOf',
-        args: [account],
-      }),
-    ]); // todo: replace with wagmi multicall on mainnet
+    try {
+      const data = await multicall({
+        contracts: [
+          {
+            ...config,
+            functionName: 'totalSupply',
+          },
+          {
+            ...config,
+            functionName: 'lockedUsers',
+            args: [account],
+          },
+          {
+            ...config,
+            functionName: 'balanceOf',
+            args: [account],
+          },
+        ],
+      });
 
-    setLpData({
-      totalSupply,
-      userUnlockTime,
-      userShares,
-    });
+      if (data[0].error || data[1].error || data[2].error) return;
+
+      setLpData({
+        totalSupply: data[0].result,
+        userUnlockTime: data[1].result,
+        userShares: data[2].result,
+      });
+    } catch (e) {
+      console.error(e);
+    }
   }, [account, lpAddress]);
-
-  useEffect(() => {
-    updateUserOptionPositions();
-  }, [updateUserOptionPositions]);
 
   useEffect(() => {
     updatePortfolio();
