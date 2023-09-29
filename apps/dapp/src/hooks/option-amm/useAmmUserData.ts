@@ -64,43 +64,47 @@ const useAmmUserData = (props: Props) => {
   const updateUserOptionPositions = useCallback(async () => {
     if (positionMinter === '0x' || !account) return;
     setLoading(true);
-    const positionIds = await getPositionIds({
-      positionMinter,
-      owner: account,
-    });
-
-    const optionPositionPromises = [];
-
-    for (let i = 0; i < positionIds.length; i++) {
-      const promise = getOptionPosition({
-        optionAmm: ammAddress,
-        tokenId: positionIds[i],
+    try {
+      const positionIds = await getPositionIds({
+        positionMinter,
+        owner: account,
       });
-      optionPositionPromises.push(promise);
-    }
-    const result = await Promise.all(optionPositionPromises); // multicall
 
-    const _optionPositions: OptionPosition[] = [];
+      const optionPositionPromises = [];
 
-    for (let i = 0; i < result.length; i++) {
-      const optionPosition: OptionPosition = {
-        _id: positionIds[i],
-        isPut: result[i][0],
-        isShort: result[i][1],
-        strike: result[i][2],
-        premium: result[i][3],
-        marginToLock: result[i][4],
-        amount: result[i][5],
-        exercised: result[i][6],
-        markPrice: result[i][7],
-        fees: result[i][8],
-        openedAt: result[i][9],
-        expiry: result[i][10],
-      };
-      _optionPositions.push(optionPosition);
+      for (let i = 0; i < positionIds.length; i++) {
+        const promise = getOptionPosition({
+          optionAmm: ammAddress,
+          tokenId: positionIds[i],
+        });
+        optionPositionPromises.push(promise);
+      }
+      const result = await Promise.all(optionPositionPromises); // multicall
+
+      const _optionPositions: OptionPosition[] = [];
+
+      for (let i = 0; i < result.length; i++) {
+        const optionPosition: OptionPosition = {
+          _id: positionIds[i],
+          isPut: result[i][0],
+          isShort: result[i][1],
+          strike: result[i][2],
+          premium: result[i][3],
+          marginToLock: result[i][4],
+          amount: result[i][5],
+          exercised: result[i][6],
+          markPrice: result[i][7],
+          fees: result[i][8],
+          openedAt: result[i][9],
+          expiry: result[i][10],
+        };
+        _optionPositions.push(optionPosition);
+      }
+      setOptionPositions(_optionPositions);
+      setLoading(false);
+    } catch (e) {
+      console.error(e);
     }
-    setOptionPositions(_optionPositions);
-    setLoading(false);
   }, [account, ammAddress, positionMinter]);
 
   const updatePortfolio = useCallback(async () => {

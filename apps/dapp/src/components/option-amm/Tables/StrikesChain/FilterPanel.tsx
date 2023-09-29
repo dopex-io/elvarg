@@ -35,7 +35,7 @@ const FilterPanel = (props: Props) => {
   const update = useVaultStore((vault) => vault.update);
 
   const [isPut, setIsPut] = useState(false);
-  const [duration, setDuration] = useState<AmmDuration>('WEEKLY');
+  const [duration, setDuration] = useState<AmmDuration>('DAILY');
 
   const handleSelectDuration = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,7 +107,7 @@ const FilterPanel = (props: Props) => {
             handleClick: handleSelectDuration,
           };
         })}
-        active={duration || 'WEEKLY'}
+        active={duration || 'DAILY'}
       />
     </div>
   );

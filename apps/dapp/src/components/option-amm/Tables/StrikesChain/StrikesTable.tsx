@@ -204,14 +204,14 @@ const StrikesTable = () => {
       };
     });
   }, [
-    activeStrikeIndex,
-    greeks,
-    setActiveStrikeIndex,
     strikeData,
-    vault.collateralSymbol,
-    vault.underlyingSymbol,
+    greeks,
     expiryData,
     vault.isPut,
+    vault.collateralSymbol,
+    vault.underlyingSymbol,
+    activeStrikeIndex,
+    setActiveStrikeIndex,
   ]);
 
   return (

@@ -52,7 +52,7 @@ export const MARKETS: { [key: string]: OptionAmmMarket } = {
 
 export const vaultZeroState: VaultState = {
   isPut: false,
-  duration: 'WEEKLY',
+  duration: 'DAILY',
   symbol: '',
   address: '0x',
   lp: '0x',
