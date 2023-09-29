@@ -43,6 +43,8 @@ function parseWritePosition(
     totalLiquidity.token1Amount,
   );
 
+  const totalUserLiquidity = (shares * totalLiquidityToL) / availableShares;
+
   if (liquidity < 0n) {
     liquidity = 0n;
   }
@@ -50,7 +52,7 @@ function parseWritePosition(
   const earnedLiquidity =
     totalLiquidityToL === 0n
       ? 0n
-      : (shares * (totalLiquidityToL - liquidity)) / totalLiquidityToL;
+      : (shares * (totalUserLiquidity - liquidity)) / totalLiquidityToL;
 
   const earnedAmounts = getAmountsForLiquidity(
     priceSqrtX96,
