@@ -72,7 +72,9 @@ const LiquidityProvision = (props: Props) => {
           <p>Your Shares</p>
           <span className="flex space-x-1">
             <p className="text-white">
-              {formatUnits(lpData?.userShares || 0n, DECIMALS_USD)}
+              {formatAmount(
+                formatUnits(lpData?.userShares || 0n, DECIMALS_USD),
+              )}
             </p>
             <p>{vault.collateralSymbol}</p>
           </span>

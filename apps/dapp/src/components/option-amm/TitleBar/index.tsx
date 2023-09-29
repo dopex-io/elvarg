@@ -1,9 +1,15 @@
+import { formatUnits } from 'viem';
+
 import { Menu } from '@dopex-io/ui';
+
+import useStrikesData from 'hooks/option-amm/useStrikesData';
+import useVaultStore from 'hooks/option-amm/useVaultStore';
 
 import TitleItem from 'components/ssov-beta/TitleBar/TitleItem';
 
 import formatAmount from 'utils/general/formatAmount';
 
+import { DECIMALS_STRIKE } from 'constants/index';
 import { MARKETS_MENU } from 'constants/optionAmm/markets';
 import { aggregatedStats } from 'constants/optionAmm/placeholders';
 
@@ -14,6 +20,14 @@ interface Props {
 
 const TitleBar = (props: Props) => {
   const { market, handleSelectMarket } = props;
+
+  const vault = useVaultStore((store) => store.vault);
+
+  const { expiryData } = useStrikesData({
+    ammAddress: vault.address,
+    isPut: vault.isPut,
+    duration: vault.duration,
+  });
 
   return (
     <div className="flex flex-grow flex-col space-y-3 md:flex-row md:space-y-0 space-x-0 md:space-x-4 my-auto">
@@ -47,7 +61,10 @@ const TitleBar = (props: Props) => {
           symbol="$"
           symbolPrefixed
           label="Mark Price"
-          value={formatAmount(aggregatedStats.currentPrice, 3)}
+          value={formatAmount(
+            formatUnits(expiryData?.markPrice || 0n, DECIMALS_STRIKE),
+            3,
+          )}
         />
         <TitleItem
           symbol="$"

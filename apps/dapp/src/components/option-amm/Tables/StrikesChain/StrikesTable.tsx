@@ -33,6 +33,7 @@ interface StrikeItem {
   };
   button: {
     index: number;
+    disabled: boolean;
     base: string;
     premiumPerOption: bigint;
     activeStrikeIndex: number;
@@ -89,6 +90,7 @@ const columns = [
         <div className="flex space-x-2 justify-end">
           <Button
             id={`strike-chain-button-${value.index}`}
+            disabled={value.disabled}
             color={
               value.activeStrikeIndex === value.index ? 'primary' : 'mineshaft'
             }
@@ -155,16 +157,19 @@ const StrikesTable = () => {
     (store) => store.setActiveStrikeIndex,
   );
 
-  const { strikeData, greeks, loading } = useStrikesData({
+  const { expiryData, strikeData, greeks, loading } = useStrikesData({
     ammAddress: vault.address,
     duration: vault.duration,
     isPut: vault.isPut,
   });
 
   const data = useMemo(() => {
-    // todo: fix bug updating strikeData in useStrikesData()
-    if (!strikeData || !greeks) return [];
+    if (!strikeData || !greeks || !expiryData) return [];
+
     return strikeData.map((sd, index) => {
+      const isITM: boolean = vault.isPut
+        ? sd.strike > expiryData.markPrice
+        : sd.strike < expiryData.markPrice;
       return {
         strike: Number(formatUnits(sd.strike || 0n, DECIMALS_STRIKE)),
         breakeven: formatUnits(
@@ -179,6 +184,7 @@ const StrikesTable = () => {
         },
         button: {
           index,
+          disabled: isITM,
           base: vault.collateralSymbol,
           quote: vault.underlyingSymbol,
           premiumPerOption: sd.premiumPerOption || 0n,
@@ -204,6 +210,8 @@ const StrikesTable = () => {
     strikeData,
     vault.collateralSymbol,
     vault.underlyingSymbol,
+    expiryData,
+    vault.isPut,
   ]);
 
   return (
