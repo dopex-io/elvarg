@@ -222,7 +222,7 @@ const AsidePanel = () => {
           liquidityToUse: 0n,
         };
 
-      const { tickLower, tickUpper } = selectedClammStrike;
+      const { tickLower, tickUpper, tickLowerPrice } = selectedClammStrike;
       const amount = parseUnits(amountDebounced, selectedToken.decimals);
 
       let to =
@@ -236,15 +236,17 @@ const AsidePanel = () => {
 
       if (tradeOrLpIndex === 0) {
         functionName = isPut ? 'mintPutOptionRoll' : 'mintCallOptionRoll';
-
-        const _amount = parseUnits(amountDebounced, selectedToken.decimals);
+        const optionsAmount = isPut
+          ? (Number(amountDebounced) * tickLowerPrice).toString()
+          : amountDebounced;
+        const amountToUse = parseUnits(optionsAmount, selectedToken.decimals);
 
         liquidityToUse = optionsPool[
           isPut ? keys.putAssetGetLiquidity : keys.callAssetGetLiquidity
         ](
           getSqrtRatioAtTick(BigInt(tickLower)),
           getSqrtRatioAtTick(BigInt(tickUpper)),
-          _amount,
+          amountToUse,
         );
       } else {
         functionName = 'mintPosition';
