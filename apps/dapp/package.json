@@ -11,7 +11,7 @@
     "generate": "graphql-codegen"
   },
   "dependencies": {
-    "@0xsequence/multicall": "^0.43.34",
+    "@0xsequence/multicall": "^1.2.4",
     "@dopex-io/sdk": "workspace:*",
     "@dopex-io/ui": "workspace:*",
     "@emotion/react": "^11.11.1",
