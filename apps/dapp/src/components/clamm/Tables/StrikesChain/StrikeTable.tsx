@@ -22,7 +22,7 @@ type StrikeDataForTable = {
     symbol: string;
   };
   breakeven: number;
-  optionsAvailable: number;
+  optionsAvailable: string;
   button: {
     onClick: () => void;
     premium: number;
@@ -162,17 +162,21 @@ const StrikesTable = () => {
               isPut ? keys.putAssetDecimalsKey : keys.callAssetDecimalsKey
             ],
           );
-          const liquidityAvailableAtTick = formatUnits(
+
+          const priceBI = BigInt((tickLowerPrice * 1e8).toFixed(0));
+          const availableLiquidity =
             liquidityAvailable[
               isPut ? keys.putAssetAmountKey : keys.callAssetAmountKey
-            ],
+            ];
+
+          const liquidityAvailableAtTick = formatUnits(
+            isPut
+              ? (availableLiquidity * BigInt(1e8)) / priceBI
+              : availableLiquidity,
             optionsPool[
               isPut ? keys.putAssetDecimalsKey : keys.callAssetDecimalsKey
             ],
           );
-          const optionsAvailable = isPut
-            ? Number(liquidityAvailableAtTick) / tickLowerPrice
-            : Number(liquidityAvailableAtTick);
 
           const _premium = Number(
             formatUnits(
@@ -205,7 +209,7 @@ const StrikesTable = () => {
                 ],
             },
             breakeven,
-            optionsAvailable,
+            optionsAvailable: liquidityAvailableAtTick,
             button: {
               onClick: () => {
                 setActiveStrikeIndex(index);
@@ -214,7 +218,7 @@ const StrikesTable = () => {
                   tickUpper: tickUpper,
                   tickLowerPrice,
                   tickUpperPrice,
-                  optionsAvailable,
+                  optionsAvailable: liquidityAvailableAtTick,
                 });
               },
               premium: _premium,

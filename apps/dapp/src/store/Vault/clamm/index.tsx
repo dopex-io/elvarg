@@ -32,7 +32,7 @@ export type DepositStrike = {
 };
 
 export type PurchaseStrike = DepositStrike & {
-  optionsAvailable: number;
+  optionsAvailable: string;
 };
 
 type OptionsPoolPairWithSymbolsOnly = {

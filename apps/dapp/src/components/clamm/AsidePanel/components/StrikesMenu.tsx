@@ -9,7 +9,7 @@ export type Strike = {
   tickUpper: number;
   tickLowerPrice: number;
   tickUpperPrice: number;
-  optionsAvailable: number;
+  optionsAvailable?: string;
 };
 
 type StrikesMenuProps = {

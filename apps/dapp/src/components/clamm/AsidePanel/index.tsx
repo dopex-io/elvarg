@@ -667,18 +667,17 @@ const AsidePanel = () => {
             liquidityAvailable[keys.callAssetAmountKey],
             optionsPool[keys.callAssetDecimalsKey],
           );
-          const optionsAvailable = Number(liquidityAvailableAtTick);
 
           return {
             tickLower,
             tickUpper,
             tickLowerPrice,
             tickUpperPrice,
-            optionsAvailable,
+            optionsAvailable: liquidityAvailableAtTick,
           };
         },
       )
-      .filter(({ optionsAvailable }) => optionsAvailable > 0);
+      .filter(({ optionsAvailable }) => Number(optionsAvailable) > 0);
 
     const putPurchaseStrikes = ticksData
       .map(
@@ -689,23 +688,23 @@ const AsidePanel = () => {
           tickLower,
           tickUpper,
         }) => {
+          const priceBI = BigInt((tickLowerPrice * 1e8).toFixed(0));
           const liquidityAvailableAtTick = formatUnits(
-            liquidityAvailable[keys.putAssetAmountKey],
+            (liquidityAvailable[keys.putAssetAmountKey] * BigInt(1e8)) /
+              priceBI,
             optionsPool[keys.putAssetDecimalsKey],
           );
-          const optionsAvailable =
-            Number(liquidityAvailableAtTick) / tickLowerPrice;
 
           return {
             tickLower,
             tickUpper,
             tickLowerPrice,
             tickUpperPrice,
-            optionsAvailable,
+            optionsAvailable: liquidityAvailableAtTick,
           };
         },
       )
-      .filter(({ optionsAvailable }) => optionsAvailable > 0);
+      .filter(({ optionsAvailable }) => Number(optionsAvailable) > 0);
 
     const generatedStrikes = generateStrikes(
       tick,
