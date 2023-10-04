@@ -151,8 +151,8 @@ const StatItem = ({ name, value }: { name: string; value: string }) => (
 const TableDisclosure = (props: DisclosureStrikeItem) => {
   return (
     <Disclosure.Panel as="tr" className="bg-umbra">
-      <td colSpan={4}>
-        <div className="grid grid-cols-4 gap-6 p-3">
+      <td colSpan={5}>
+        <div className="grid grid-cols-5 gap-6 p-3">
           <StatItem name="IV" value={String(props.iv)} />
           <StatItem name="Delta" value={formatAmount(props.delta, 5)} />
           <StatItem name="Vega" value={formatAmount(props.vega, 5)} />

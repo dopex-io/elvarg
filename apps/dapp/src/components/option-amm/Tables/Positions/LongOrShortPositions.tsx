@@ -161,7 +161,7 @@ const LongOrShortPositions = (props: Props) => {
         position.strike +
         ((position.isPut ? -1n : 1n) *
           (position.premium * parseUnits('1', DECIMALS_TOKEN + 2))) /
-          position.amount;
+          (position.amount || 1n);
 
       const expiryElapsed = position.expiry < new Date().getTime() / 1000;
 
