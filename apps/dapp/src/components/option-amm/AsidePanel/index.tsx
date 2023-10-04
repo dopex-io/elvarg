@@ -239,7 +239,9 @@ const AsidePanel = ({ market }: { market: string }) => {
         onChange={handleChange}
         leftElement={
           <img
-            src={`/images/tokens/${market.split('-')[0].toLowerCase()}.svg`}
+            src={`/images/tokens/${market
+              .split('-')
+              [panelState === PanelStates.Trade ? 0 : 1].toLowerCase()}.svg`}
             alt={market.split('-')[0].toLowerCase()}
             className="w-[30px] h-[30px] border border-mineshaft rounded-full ring-4 ring-cod-gray"
           />
