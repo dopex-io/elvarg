@@ -1,11 +1,14 @@
 import { ReactNode, useCallback } from 'react';
 
-import IosShare from '@mui/icons-material/IosShare';
 import { IconButton, TableRow } from '@mui/material';
+
+import IosShare from '@mui/icons-material/IosShare';
+
 import { formatDistance } from 'date-fns';
-import useShare from 'hooks/useShare';
 
 import { IZdteClosedPositions, IZdteOpenPositions } from 'store/Vault/zdte';
+
+import useShare from 'hooks/useShare';
 
 import {
   StyleCell,
@@ -21,7 +24,7 @@ import { formatAmount } from 'utils/general';
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
 
 function getStrikeDisplay(
-  position: IZdteOpenPositions | IZdteClosedPositions
+  position: IZdteOpenPositions | IZdteClosedPositions,
 ): ReactNode {
   const longStrike = roundOrPad(position.longStrike);
   const shortStrike = roundOrPad(position.shortStrike);
@@ -51,12 +54,12 @@ function getClosedPutPnl(position: IZdteClosedPositions) {
     Math.max(
       getUserReadableAmount(position.longStrike, DECIMALS_STRIKE) -
         getUserReadableAmount(position.settlementPrice, DECIMALS_STRIKE),
-      0
+      0,
     ) -
     Math.max(
       getUserReadableAmount(position.longStrike, DECIMALS_STRIKE) -
         getUserReadableAmount(position.settlementPrice, DECIMALS_STRIKE),
-      0
+      0,
     )
   );
 }
@@ -66,12 +69,12 @@ function getClosedCallPnl(position: IZdteClosedPositions) {
     Math.max(
       getUserReadableAmount(position.settlementPrice, DECIMALS_STRIKE) -
         getUserReadableAmount(position.longStrike, DECIMALS_STRIKE),
-      0
+      0,
     ) -
     Math.max(
       getUserReadableAmount(position.settlementPrice, DECIMALS_STRIKE) -
         getUserReadableAmount(position.longStrike, DECIMALS_STRIKE),
-      0
+      0,
     )
   );
 }
@@ -119,12 +122,12 @@ export const ClosedPositionsRow = ({
           },
           {
             name: 'Current Price',
-            value: `$${roundOrPad(zdteData!.tokenPrice)}`,
+            value: `$${formatAmount(zdteData!.tokenPrice, 2)}`,
           },
         ],
       });
     },
-    [share, zdteData, staticZdteData]
+    [share, zdteData, staticZdteData],
   );
 
   return (
@@ -136,7 +139,7 @@ export const ClosedPositionsRow = ({
         <h6 className="text-white">
           {`${formatAmount(
             getUserReadableAmount(position.positions, DECIMALS_TOKEN),
-            2
+            2,
           )}`}
         </h6>
       </StyleCell>
@@ -144,7 +147,7 @@ export const ClosedPositionsRow = ({
         <h6 className="text-white">
           {`$${formatAmount(
             getUserReadableAmount(position.settlementPrice, DECIMALS_STRIKE),
-            2
+            2,
           )}`}
         </h6>
       </StyleCell>
@@ -152,7 +155,7 @@ export const ClosedPositionsRow = ({
         <FormatDollarColor
           value={getUserReadableAmount(
             position.pnl.sub(position.cost),
-            DECIMALS_USD
+            DECIMALS_USD,
           )}
         />
       </StyleCell>
@@ -161,7 +164,7 @@ export const ClosedPositionsRow = ({
           <span>
             {formatDistance(
               position.expiry.toNumber() * 1000,
-              Number(new Date())
+              Number(new Date()),
             ) + ' ago'}
           </span>
         </h6>
