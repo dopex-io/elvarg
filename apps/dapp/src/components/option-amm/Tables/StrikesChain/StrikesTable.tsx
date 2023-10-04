@@ -174,7 +174,9 @@ const StrikesTable = () => {
       return {
         strike: Number(formatUnits(sd.strike || 0n, DECIMALS_STRIKE)),
         breakeven: formatUnits(
-          sd.strike || 0n + sd.premiumPerOption || 0n,
+          vault.isPut
+            ? sd.strike || 0n - sd.premiumPerOption || 0n
+            : sd.strike || 0n + sd.premiumPerOption || 0n,
           DECIMALS_STRIKE,
         ),
         availableCollateral: {

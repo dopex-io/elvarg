@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Address, formatUnits, parseUnits } from 'viem';
 
 import { OptionAmm__factory } from '@dopex-io/sdk';
+import { useAccount } from 'wagmi';
 import { readContract } from 'wagmi/actions';
 
 import getTimeToExpirationInYears from 'utils/date/getTimeToExpirationInYears';
@@ -68,13 +69,15 @@ interface Props {
 const NON_ZERO_DENOMINATOR = 1n;
 
 export const durationToExpiryMapping = {
-  DAILY: 1696060801n,
+  DAILY: 1696492801n,
   WEEKLY: 1696579201n,
   MONTHLY: 1698048001n,
 };
 
 const useStrikesData = (props: Props) => {
   const { ammAddress = '0x', duration = 'DAILY', isPut } = props;
+
+  const { address } = useAccount();
 
   const [_expiryData, setExpiryData] = useState<ExpiryData>();
   const [strikeData, setStrikeData] = useState<StrikeData[]>();
@@ -110,6 +113,7 @@ const useStrikesData = (props: Props) => {
         ((100n + maxOtmPercentage) * markPrice) / 100n,
         ((100n - maxOtmPercentage) * markPrice) / 100n,
       ];
+
       const upperBound = strikeRange[0] - (strikeRange[0] % strikeIncrement);
 
       let i = 0;
@@ -117,8 +121,8 @@ const useStrikesData = (props: Props) => {
       let strikes = [];
 
       while (nextLowerTick > strikeRange[1]) {
-        nextLowerTick = upperBound - BigInt(i + 1) * strikeIncrement;
         strikes.push(nextLowerTick);
+        nextLowerTick = upperBound - BigInt(i + 1) * strikeIncrement;
         ++i;
       }
 
@@ -299,8 +303,9 @@ const useStrikesData = (props: Props) => {
   }, [updateExpiryData]);
 
   useEffect(() => {
+    if (!address) return;
     updateStrikesData();
-  }, [updateStrikesData]);
+  }, [address, updateStrikesData]);
 
   return {
     updateStrikesData,
