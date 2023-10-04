@@ -118,7 +118,7 @@ const SettleConfirmation = (props: Props) => {
                   data.pnl > 0n ? 'text-up-only' : 'text-down-bad'
                 }`}
               >
-                ${formatAmount(formatUnits(data.pnl, DECIMALS_STRIKE))}
+                ${formatAmount(formatUnits(data.pnl, DECIMALS_STRIKE), 3)}
               </p>
             </div>
           ) : null}

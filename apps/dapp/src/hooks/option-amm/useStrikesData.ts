@@ -180,7 +180,7 @@ const useStrikesData = (props: Props) => {
           readContract({
             ...config,
             functionName: 'getExpiryStrikeData',
-            args: [strikes[i], BigInt(_expiryData.expiry)],
+            args: [BigInt(_expiryData.expiry), strikes[i]],
           }),
         ];
         ivPromises.push(iv);
@@ -247,6 +247,7 @@ const useStrikesData = (props: Props) => {
         const purchaseFeePerOption = 0n; // todo: get fees
 
         totalAvailableCollateral += availableCollateral;
+
         _strikeData.push({
           iv,
           strike,

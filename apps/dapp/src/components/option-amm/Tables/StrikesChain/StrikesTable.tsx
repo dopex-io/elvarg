@@ -29,8 +29,10 @@ interface StrikeItem {
   breakeven: string;
   availableCollateral: {
     strike: number;
+    totalCollateral: number;
     totalAvailableCollateral: number;
   };
+  premiumAccrued: number;
   button: {
     index: number;
     disabled: boolean;
@@ -65,13 +67,25 @@ const columns = [
     ),
   }),
   columnHelper.accessor('availableCollateral', {
-    header: 'Total Available',
+    header: 'Active Collateral',
     cell: (info) => {
       const value = info.getValue();
 
       return (
-        <span className="text-sm">
-          {formatAmount(value.totalAvailableCollateral, 3)}
+        <span className="text-left flex">
+          <p className="text-stieglitz pr-1">$</p>
+          <p className="pr-1">{formatAmount(value.totalCollateral, 3)}</p>
+        </span>
+      );
+    },
+  }),
+  columnHelper.accessor('premiumAccrued', {
+    header: 'Premiums Accrued',
+    cell: (info) => {
+      return (
+        <span className="text-left flex">
+          <p className="text-stieglitz pr-1">$</p>
+          <p className="text-sm">{formatAmount(info.getValue(), 3)}</p>
         </span>
       );
     },
@@ -157,12 +171,11 @@ const StrikesTable = () => {
     (store) => store.setActiveStrikeIndex,
   );
 
-  const { expiryData, updateExpiryData, strikeData, greeks, loading } =
-    useStrikesData({
-      ammAddress: vault.address,
-      duration: vault.duration,
-      isPut: vault.isPut,
-    });
+  const { expiryData, strikeData, greeks, loading } = useStrikesData({
+    ammAddress: vault.address,
+    duration: vault.duration,
+    isPut: vault.isPut,
+  });
 
   const data = useMemo(() => {
     if (!strikeData || !greeks || !expiryData) return [];
@@ -183,8 +196,14 @@ const StrikesTable = () => {
           strike: Number(
             formatUnits(sd.availableCollateral || 0n, DECIMALS_TOKEN),
           ),
-          totalAvailableCollateral: Number(sd.availableCollateral),
+          totalCollateral: Number(
+            formatUnits(sd.totalCollateral, DECIMALS_TOKEN),
+          ),
+          totalAvailableCollateral: Number(
+            formatUnits(sd.totalAvailableCollateral, DECIMALS_TOKEN),
+          ),
         },
+        premiumAccrued: Number(formatUnits(sd.premiumsAccrued, DECIMALS_USD)),
         button: {
           index,
           disabled: isITM,

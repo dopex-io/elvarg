@@ -97,7 +97,7 @@ const columns = [
         className="inline-block"
         onClick={info.getValue().handleSettle}
         color="primary"
-        disabled={info.getValue().canItBeSettled}
+        disabled={!info.getValue().canItBeSettled}
         size="small"
         variant="contained"
       >
@@ -166,12 +166,16 @@ const LongOrShortPositions = (props: Props) => {
       const expiryElapsed = position.expiry < new Date().getTime() / 1000;
 
       let pnl: bigint = 0n;
-      if (!isShort && expiryData.markPrice > breakeven)
-        pnl = expiryData.markPrice - breakeven;
-      else if (isShort) pnl = -position.premium; // @todo: calculate premium accrued minus total collateral
+      if (!isShort && expiryData.markPrice > breakeven) {
+        pnl = position.isPut
+          ? breakeven - expiryData.markPrice
+          : expiryData.markPrice - breakeven;
+      } else if (isShort) pnl = -position.premium; // @todo: calculate premium accrued minus total collateral
+
+      if (pnl < 0) pnl = 0n;
 
       const canItBeSettled =
-        expiryElapsed && ((!isShort && pnl > 0n) || (isShort && true));
+        expiryElapsed && ((!isShort && pnl > 0n) || (isShort && true)); // replace true with
 
       return {
         id,

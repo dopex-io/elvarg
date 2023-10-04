@@ -201,7 +201,7 @@ const AsidePanel = ({ market }: { market: string }) => {
       !lpData
     )
       return;
-    const ppo = strikeDataForExpiry[activeStrikeIndex]?.premiumPerOption;
+    const ppo = strikeDataForExpiry[activeStrikeIndex]?.premiumPerOption || 1n;
 
     const totalPurchaseable =
       (lpData.totalSupply * parseUnits('1', DECIMALS_USD)) / ppo;
@@ -239,8 +239,8 @@ const AsidePanel = ({ market }: { market: string }) => {
         onChange={handleChange}
         leftElement={
           <img
-            src={`/images/tokens/${market.split('-')[1].toLowerCase()}.svg`}
-            alt={market.split('-')[1].toLowerCase()}
+            src={`/images/tokens/${market.split('-')[0].toLowerCase()}.svg`}
+            alt={market.split('-')[0].toLowerCase()}
             className="w-[30px] h-[30px] border border-mineshaft rounded-full ring-4 ring-cod-gray"
           />
         }
