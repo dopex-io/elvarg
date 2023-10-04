@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { UniswapV3Pool__factory } from '@dopex-io/sdk';
 import { NextSeo } from 'next-seo';
 import { useAccount } from 'wagmi';
-import { readContract } from 'wagmi/actions';
+import { readContract, watchReadContract } from 'wagmi/actions';
 
 import { useBoundStore } from 'store';
 
@@ -62,37 +62,37 @@ const ClammPage = () => {
   const [isOpen, setIsOpen] = useState(true);
   const handleClose = () => setIsOpen(false);
 
-  const updateOptionsPoolTick = useCallback(async () => {
-    const { uniswapV3PoolAddress } =
-      CLAMM_PAIRS_TO_ADDRESSES[selectedOptionsPoolPair.joined];
+  // const updateOptionsPoolTick = useCallback(async () => {
+  //   const { uniswapV3PoolAddress } =
+  //     CLAMM_PAIRS_TO_ADDRESSES[selectedOptionsPoolPair.joined];
 
-    const data = await readContract({
-      address: uniswapV3PoolAddress,
-      abi: UniswapV3Pool__factory.abi,
-      functionName: 'slot0',
-    });
+  //   const data = await readContract({
+  //     address: uniswapV3PoolAddress,
+  //     abi: UniswapV3Pool__factory.abi,
+  //     functionName: 'slot0',
+  //   });
 
-    const sqrtX96Price = data[0];
-    const tick = data[1];
+  //   const sqrtX96Price = data[0];
+  //   const tick = data[1];
 
-    if (optionsPool) {
-      setMarkPrice(
-        parsePriceFromTick(
-          tick,
-          10 ** optionsPool.token0Decimals,
-          10 ** optionsPool.token1Decimals,
-          optionsPool.inversePrice,
-        ),
-      );
-    }
+  //   if (optionsPool) {
+  //     setMarkPrice(
+  //       parsePriceFromTick(
+  //         tick,
+  //         10 ** optionsPool.token0Decimals,
+  //         10 ** optionsPool.token1Decimals,
+  //         optionsPool.inversePrice,
+  //       ),
+  //     );
+  //   }
 
-    updateOptionsPoolTickAndSqrtX96Price(tick, sqrtX96Price);
-  }, [
-    setMarkPrice,
-    selectedOptionsPoolPair.joined,
-    updateOptionsPoolTickAndSqrtX96Price,
-    optionsPool,
-  ]);
+  //   updateOptionsPoolTickAndSqrtX96Price(tick, sqrtX96Price);
+  // }, [
+  //   setMarkPrice,
+  //   selectedOptionsPoolPair.joined,
+  //   updateOptionsPoolTickAndSqrtX96Price,
+  //   optionsPool,
+  // ]);
 
   const handleAgree = useCallback(async () => {
     if (!userAddress) return;
@@ -386,13 +386,47 @@ const ClammPage = () => {
     updateUserWritePositions,
   ]);
 
+  // Updates mark price and tick
   useEffect(() => {
-    const interval = setInterval(async () => {
-      await updateOptionsPoolTick();
-    }, 15000);
+    if (!optionsPool) return;
+    const {
+      uniswapV3PoolAddress,
+      token0Decimals,
+      token1Decimals,
+      inversePrice,
+    } = optionsPool;
 
-    return () => clearInterval(interval);
-  }, [updateOptionsPoolTick]);
+    console.info('Tick updated');
+
+    let unwatch;
+    (async () => {
+      unwatch = watchReadContract(
+        {
+          address: uniswapV3PoolAddress,
+          abi: UniswapV3Pool__factory.abi,
+          functionName: 'slot0',
+          listenToBlock: true,
+        },
+        (data) => {
+          if (!data) return;
+          const sqrtX96Price = data[0];
+          const tick = data[1];
+
+          setMarkPrice(
+            parsePriceFromTick(
+              tick,
+              10 ** token0Decimals,
+              10 ** token1Decimals,
+              inversePrice,
+            ),
+          );
+          updateOptionsPoolTickAndSqrtX96Price(tick, sqrtX96Price);
+        },
+      );
+    })();
+
+    return unwatch;
+  }, [optionsPool, setMarkPrice, updateOptionsPoolTickAndSqrtX96Price]);
 
   useEffect(() => {
     const interval = setInterval(async () => {
