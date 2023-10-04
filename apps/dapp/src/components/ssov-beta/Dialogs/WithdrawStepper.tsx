@@ -34,7 +34,7 @@ interface Props {
 }
 
 const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
-  const [step, setStep] = useState<number>(data.canStake ? 0 : 1);
+  const [step, setStep] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [staked, setStaked] = useState<boolean>(false);
 
@@ -75,21 +75,12 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
   };
 
   const handleWithdraw = useCallback(() => {
+    if (staked) claim?.();
     withdraw?.();
     if (withdrawSuccess) {
       handleNext();
     }
-  }, [withdraw, withdrawSuccess]);
-
-  const handleClaim = useCallback(async () => {
-    if (!staked) handleNext();
-    else {
-      claim?.();
-      if (claimSuccess) {
-        handleNext();
-      }
-    }
-  }, [claim, claimSuccess, staked]);
+  }, [claim, staked, withdraw, withdrawSuccess]);
 
   const handleStake = useCallback(async () => {
     stake?.();
@@ -100,50 +91,27 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
 
   const steps = [
     {
-      ...(data.canStake
-        ? {
-            label: 'Stake',
-            description:
-              'This transaction will stake your deposit to accrue rewards from now.',
-            disabled: loading,
-          }
-        : {
-            label: 'Staked / Can not stake',
-            description: 'Can not stake your deposit at this time.',
-            disabled: true,
-          }),
+      label: 'Stake',
+      description: 'Stake your deposit to accrue rewards.',
+      disabled: loading,
       buttonLabel: 'Stake',
       action: handleStake,
     },
     {
-      ...(staked
+      ...(staked && data.expiry > new Date().getTime() / 1000
         ? {
             label: 'Claim',
-            description:
-              "This transaction will claim accrued rewards for this deposit. Rewards in the form of option tokens will be displayed under your 'Buy Positions'. Do not attempt to withdraw before claiming rewards to avoid losing them!",
+            description: 'Claim rewards.',
+            disabled: !stakeSuccess && !staked,
+            buttonLabel: 'Claim',
           }
         : {
-            label: 'Not Staked',
-            description:
-              'You have not staked your SSOV deposit to accrue rewards.',
-          }),
-      buttonLabel: 'Claim',
-      disabled: !staked,
-      action: handleClaim,
-    },
-    {
-      ...(data.expiry < new Date().getTime() / 1000
-        ? {
             label: 'Withdraw',
             description:
-              'This transaction will withdraw your deposits from the SSOV.',
-          }
-        : {
-            label: 'Not Yet Withdrawable',
-            description: 'The epoch for this deposit has not expired yet.',
+              'Claim rewards & withdraw your deposits from the SSOV.',
+            disabled: data.expiry > new Date().getTime() / 1000,
+            buttonLabel: 'Withdraw',
           }),
-      disabled: step == 2 && data.expiry > new Date().getTime() / 1000,
-      buttonLabel: 'Withdraw',
       action: handleWithdraw,
     },
   ];
@@ -158,10 +126,8 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
       setStaked(!data.canStake || userPosition.staked);
       if (data.canStake && !userPosition.staked) {
         setStep(0);
-      } else if (!!userPosition.stakeAmount) {
-        setStep(1);
       } else {
-        setStep(2);
+        setStep(1);
       }
     })();
   }, [
@@ -177,11 +143,8 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
     if (stakeSuccess) {
       setStep(1);
     }
-    if (claimSuccess) {
+    if (claimSuccess || withdrawSuccess) {
       setStep(2);
-    }
-    if (withdrawSuccess) {
-      setStep(3);
     }
   }, [claimSuccess, stakeSuccess, staked, withdrawSuccess]);
 
@@ -191,7 +154,7 @@ const WithdrawStepper = ({ isOpen = false, handleClose, data }: Props) => {
 
   return (
     <Dialog
-      title="Claim & Withdraw"
+      title="Withdraw"
       isOpen={isOpen}
       handleClose={handleClose}
       showCloseIcon

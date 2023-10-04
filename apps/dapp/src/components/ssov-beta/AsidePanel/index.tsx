@@ -371,14 +371,14 @@ const AsidePanel = ({ market }: { market: string }) => {
   };
 
   const transact = useCallback(() => {
-    if (infoPopover.body?.includes('allowance')) {
+    if (infoPopover.buttonContent?.includes('Approve')) {
       approve?.();
     } else if (activeIndex === 0) {
       purchase?.();
     } else {
       setIsOpen((prevState) => !prevState);
     }
-  }, [activeIndex, approve, infoPopover.body, purchase]);
+  }, [activeIndex, approve, infoPopover.buttonContent, purchase]);
 
   useEffect(() => {
     if (vault.address === '0x' || !address) return;
