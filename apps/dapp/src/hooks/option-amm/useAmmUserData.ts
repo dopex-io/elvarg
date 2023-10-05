@@ -42,6 +42,7 @@ export interface AmmLpData {
   totalSupply: bigint;
   userUnlockTime: bigint;
   userShares: bigint;
+  totalAvailableAssets: bigint;
 }
 
 interface Props {
@@ -229,15 +230,21 @@ const useAmmUserData = (props: Props) => {
             functionName: 'balanceOf',
             args: [account],
           },
+          {
+            ...config,
+            functionName: 'totalAvailableAssets',
+          },
         ],
       });
 
-      if (data[0].error || data[1].error || data[2].error) return;
+      if (data[0].error || data[1].error || data[2].error || data[3].error)
+        return;
 
       setLpData({
         totalSupply: data[0].result,
         userUnlockTime: data[1].result,
         userShares: data[2].result,
+        totalAvailableAssets: data[3].result,
       });
     } catch (e) {
       console.error(e);

@@ -78,6 +78,17 @@ const LiquidityProvision = (props: Props) => {
             <p>{vault.collateralSymbol}</p>
           </span>
         </div>
+        <div className="flex justify-between text-xs text-stieglitz">
+          <p>Available Liquidity</p>
+          <span className="flex space-x-1">
+            <p className="text-white">
+              {formatAmount(
+                formatUnits(lpData?.totalAvailableAssets || 0n, DECIMALS_USD),
+              )}
+            </p>
+            <p>{vault.collateralSymbol}</p>
+          </span>
+        </div>
         <Button
           className="flex-grow text-sm justify-center font-normal transition ease-in-out duration-200"
           onClick={button.handler}

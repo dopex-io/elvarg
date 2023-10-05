@@ -67,6 +67,7 @@ const AsidePanel = ({ market }: { market: string }) => {
   const [panelState, setPanelState] = useState<PanelStates>(PanelStates.Trade);
   const [amount, setAmount] = useState<string>('');
   const [maxAmount, setMaxAmount] = useState<bigint>(0n);
+  const [userBalance, setUserBalance] = useState<bigint>(0n);
   const [approved, setApproved] = useState<boolean>(false);
   const [netCost, setNetCost] = useState<bigint>(0n);
 
@@ -139,8 +140,13 @@ const AsidePanel = ({ market }: { market: string }) => {
   };
 
   const handleMax = useCallback(() => {
-    setAmount(panelState === 0 ? '' : formatUnits(maxAmount, DECIMALS_TOKEN));
-  }, [panelState, maxAmount]);
+    setAmount(
+      formatUnits(
+        panelState === PanelStates.Trade ? maxAmount : userBalance,
+        DECIMALS_USD,
+      ),
+    );
+  }, [maxAmount, panelState, userBalance]);
 
   const handleLpAction = useCallback(async () => {
     if (activeIndexSub === 0) deposit();
@@ -204,20 +210,18 @@ const AsidePanel = ({ market }: { market: string }) => {
     const ppo = strikeDataForExpiry[activeStrikeIndex]?.premiumPerOption || 1n;
 
     const totalPurchaseable =
-      (lpData.totalSupply * parseUnits('1', DECIMALS_USD)) / ppo;
+      (lpData.totalSupply * parseUnits('1', DECIMALS_USD)) / (ppo + 1n);
 
     const _balance = await getUserBalance({
       owner: address,
       tokenAddress: vault.collateralTokenAddress,
     });
-    setMaxAmount(
-      panelState === PanelStates.Trade ? totalPurchaseable : _balance || 0n,
-    );
+    setMaxAmount(totalPurchaseable || 0n);
+    setUserBalance(_balance || 0n);
   }, [
     activeStrikeIndex,
     address,
     lpData,
-    panelState,
     strikeDataForExpiry,
     vault.collateralTokenAddress,
   ]);
@@ -251,7 +255,12 @@ const AsidePanel = ({ market }: { market: string }) => {
             symbol={''}
             label={panelState === 0 ? 'Options' : 'Balance'}
             value={formatAmount(
-              Number(formatUnits(maxAmount, DECIMALS_USD)),
+              Number(
+                formatUnits(
+                  panelState === 0 ? maxAmount : userBalance,
+                  DECIMALS_USD,
+                ),
+              ),
               3,
               true,
             )}
@@ -262,7 +271,7 @@ const AsidePanel = ({ market }: { market: string }) => {
         placeholder="0.0"
       />
     );
-  }, [panelState, amount, handleMax, market, maxAmount]);
+  }, [amount, market, panelState, maxAmount, userBalance, handleMax]);
 
   const contractTxButton = useMemo(() => {
     handleUpdateAllowance();
@@ -284,6 +293,12 @@ const AsidePanel = ({ market }: { market: string }) => {
           approve();
         },
       };
+    } else if (netCost > userBalance) {
+      return {
+        disabled: true,
+        label: 'Insufficient Balance',
+        handler: () => {},
+      };
     } else if (panelState === PanelStates['Liquidity Provision']) {
       return {
         disabled: false,
@@ -300,15 +315,17 @@ const AsidePanel = ({ market }: { market: string }) => {
       };
     }
   }, [
-    activeIndexSub,
-    amount,
-    approve,
-    approved,
-    handleLpAction,
     handleUpdateAllowance,
     updateMaxAmount,
-    longOrShort,
+    amount,
+    approved,
     panelState,
+    activeIndexSub,
+    netCost,
+    userBalance,
+    approve,
+    handleLpAction,
+    longOrShort,
   ]);
 
   return (
