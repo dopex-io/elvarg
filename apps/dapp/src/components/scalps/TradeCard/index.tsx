@@ -422,11 +422,26 @@ const TradeCard = () => {
       }
     } else if (orderType === 'Limit') {
       try {
-        const limitPrice =
-          Number(rawLimitPrice) *
-          10 **
-            (optionScalpData?.quoteDecimals?.toNumber() -
-              optionScalpData?.baseDecimals!.toNumber());
+        let limitPrice;
+
+        if (rawLimitPrice === '') {
+          limitPrice =
+            Number(
+              utils.formatUnits(
+                markPrice,
+                optionScalpData?.quoteDecimals?.toNumber()!,
+              ),
+            ) *
+            10 **
+              (optionScalpData?.quoteDecimals?.toNumber() -
+                optionScalpData?.baseDecimals?.toNumber());
+        } else {
+          limitPrice =
+            Number(rawLimitPrice) *
+            10 **
+              (optionScalpData?.quoteDecimals?.toNumber() -
+                optionScalpData?.baseDecimals?.toNumber());
+        }
 
         const spacing = 10;
 
@@ -582,7 +597,7 @@ const TradeCard = () => {
   return (
     <div className="flex flex-col space-y-4 bg-cod-gray rounded-b-md">
       <div className="flex items-center justify-end p-2 pb-0">
-        <p className="text-xs text-stieglitz">Open with a limit order</p>
+        <p className="text-xs text-stieglitz mr-2">Open with a limit order</p>
         <Checkbox
           // @ts-ignore
           size="xs"
