@@ -133,7 +133,7 @@ const ExerciseHistory = () => {
               height={'20px'}
             />
           </button>
-          <a href={info.getValue().txHash} role="link">
+          <a href={info.getValue().txHash} role="link" target="_blank">
             <ArrowTopRightOnSquareIcon
               className="text-stieglitz hover:text-white"
               height={'20px'}

@@ -92,7 +92,7 @@ const WithdrawHistory = () => {
       header: 'Transaction',
       cell: (info) => (
         <span className="flex items-center justify-end space-x-2 text-right text-sm">
-          <a href={info.getValue()} role="link">
+          <a href={info.getValue()} role="link" target="_blank">
             <ArrowTopRightOnSquareIcon
               className="text-stieglitz hover:text-white"
               height={'20px'}

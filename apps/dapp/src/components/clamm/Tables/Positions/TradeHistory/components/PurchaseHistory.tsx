@@ -9,7 +9,6 @@ import { useBoundStore } from 'store';
 
 import TableLayout from 'components/common/TableLayout';
 
-import parseOptionsPosition from 'utils/clamm/parseOptionsPosition';
 import parseOptionsPurchase from 'utils/clamm/parseOptionsPurchase';
 import getUserOptionsPurchases from 'utils/clamm/subgraph/getUserOptionsPurchases';
 import { formatAmount, getExplorerTxURL } from 'utils/general';
@@ -92,7 +91,7 @@ const PurchaseHistory = () => {
       header: 'Transaction',
       cell: (info) => (
         <span className="flex items-center justify-end space-x-2 text-right text-sm">
-          <a href={info.getValue()} role="link">
+          <a href={info.getValue()} role="link" target="_blank">
             <ArrowTopRightOnSquareIcon
               className="text-stieglitz hover:text-white"
               height={'20px'}
