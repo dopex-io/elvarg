@@ -661,7 +661,7 @@ const AsidePanel = () => {
       100,
     );
     setStrikes({
-      callPurchaseStrikes,
+      callPurchaseStrikes: callPurchaseStrikes.reverse(),
       putPurchaseStrikes,
       putDepositStrikes: inversePrice
         ? generatedStrikes.token1Strikes
