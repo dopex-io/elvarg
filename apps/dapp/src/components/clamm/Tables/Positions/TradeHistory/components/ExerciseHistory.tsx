@@ -224,7 +224,7 @@ const ExerciseHistory = () => {
                   ),
                   strikePrice: strike,
                   exercisePrice,
-                  side: isPut ? 'Puts' : 'Calls',
+                  side: isPut ? 'Put' : 'Call',
                   options: {
                     amount: formatAmount(optionsAmount, 5),
                     symbol: optionsPool[keys.callAssetSymbolKey],
