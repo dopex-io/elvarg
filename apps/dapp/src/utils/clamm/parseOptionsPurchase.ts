@@ -12,7 +12,7 @@ function parseOptionsPurchase(
   inversePrice: boolean,
   position: OptionsPurchasesRaw,
 ) {
-  const { expiry, isPut, options, tickLower, tickUpper, premium, txHash } =
+  const { isPut, options, tickLower, tickUpper, premium, txHash, timestamp } =
     position;
 
   const tickLowerPrice = parsePriceFromTick(
@@ -43,7 +43,7 @@ function parseOptionsPurchase(
       ),
     },
     isPut,
-    timestamp: Number(expiry.toString()),
+    timestamp: Number(timestamp.toString()),
     premium,
     txHash,
   };

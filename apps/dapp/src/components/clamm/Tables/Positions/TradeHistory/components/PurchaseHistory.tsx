@@ -162,7 +162,9 @@ const PurchaseHistory = () => {
           };
         },
       );
-      setHistory(readablePurchaseHistory);
+      setHistory(
+        readablePurchaseHistory.sort((a, b) => b.timestamp - a.timestamp),
+      );
     } catch (err) {
       console.error(err);
     }

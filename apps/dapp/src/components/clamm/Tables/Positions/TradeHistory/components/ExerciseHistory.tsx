@@ -237,7 +237,7 @@ const ExerciseHistory = () => {
         },
       );
 
-      setHistory(readableHistory);
+      setHistory(readableHistory.sort((a, b) => b.timestamp - a.timestamp));
     } catch (err) {
       console.error(err);
     }
