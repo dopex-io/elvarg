@@ -32,20 +32,20 @@ const TableLayout = <T extends object>({
   columns,
   disclosure,
   rowSpacing = 1,
+  pageSize = 5,
   isContentLoading = true,
-} // pageSize = 5,
-: Props<T>) => {
+}: Props<T>) => {
   const table = useReactTable({
     columns,
     data,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    // getPaginationRowModel: getPaginationRowModel(),
-    // initialState: {
-    //   pagination: {
-    //     pageSize: pageSize,
-    //   },
-    // },
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: pageSize,
+      },
+    },
   });
 
   const {
@@ -108,7 +108,7 @@ const TableLayout = <T extends object>({
               </tr>
             ))}
           </thead>
-          <tbody className="max-h-32 overflow-y-auto divide-y divide-umbra">
+          <tbody className="max-h-32 overflow-y-auto divide-y divide-umbra rounded-md">
             {getRowModel().rows.map((row, index) => {
               return (
                 <Disclosure key={row.id}>
@@ -150,7 +150,7 @@ const TableLayout = <T extends object>({
           </tbody>
         </table>
       </div>
-      {/* {data.length > getState().pagination.pageSize ? (
+      {data.length > getState().pagination.pageSize ? (
         <div className="sticky flex flex-wrap justify-center sm:justify-end border-t border-umbra py-3 px-3 text-xs text-stieglitz space-x-3">
           <div className="flex space-x-2">
             <span className="flex my-auto text-center space-x-1">
@@ -216,7 +216,7 @@ const TableLayout = <T extends object>({
             </button>
           </div>
         </div>
-      ) : null} */}
+      ) : null}
     </div>
   ) : (
     <Placeholder />

@@ -2,6 +2,8 @@ import React from 'react';
 
 import Tooltip from '@mui/material/Tooltip';
 
+import { EXPIRIES_BY_INDEX } from 'constants/clamm';
+
 type ExpiriesMenuProps = {
   selectedExpiry: number;
   handleSelectExpiry: (i: number) => void;
@@ -29,7 +31,7 @@ const ExpiriesMenu = ({
               <span
                 role="button"
                 className={`p-0.5 py-1 text-sm flex items-center justify-center border-0 hover:border-0 w-full m-1 transition ease-in-out duration-500 rounded-sm ${
-                  selectedExpiry === i
+                  selectedExpiry === EXPIRIES_BY_INDEX[i]
                     ? 'bg-mineshaft hover:bg-mineshaf'
                     : 'bg-umbra hover:bg-umbra'
                 } ${disabled && 'cursor-not-allowed text-mineshaft bg-umbra'}`}

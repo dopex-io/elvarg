@@ -153,7 +153,12 @@ const WritePositions = () => {
         ],
         account: userAddress,
       });
-      await writeContract(request);
+
+      const { hash } = await writeContract(request);
+
+      await wagmiConfig.publicClient.waitForTransactionReceipt({
+        hash,
+      });
       await fullReload();
     },
     [optionsPool, userAddress, positionManagerAddress, fullReload],
@@ -220,6 +225,8 @@ const WritePositions = () => {
               side = 'Neutral';
             }
           }
+
+          console.log(shares);
 
           return {
             tickLower,

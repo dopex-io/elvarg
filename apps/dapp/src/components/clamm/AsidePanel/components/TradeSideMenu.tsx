@@ -1,5 +1,8 @@
 import React from 'react';
 
+import ArrowDownRightIcon from '@heroicons/react/24/solid/ArrowDownRightIcon';
+import ArrowUpRightIcon from '@heroicons/react/24/solid/ArrowUpRightIcon';
+
 type TradeSideMenuProps = {
   activeIndex: number;
   setActiveIndex: Function;
@@ -14,14 +17,29 @@ const TradeSideMenu = ({ activeIndex, setActiveIndex }: TradeSideMenuProps) => {
             <span
               key={i}
               role="button"
-              className={`p-0.5 py-1 text-sm text-white flex items-center justify-center border-0 hover:border-0 w-full m-1 transition ease-in-out duration-500 rounded-md ${
+              className={`p-0.5 py-1 text-sm text-white flex items-center justify-center border-0 hover:border-0 w-full m-1 transition ease-in-out duration-500 rounded-md space-x-2 ${
                 activeIndex === i
                   ? 'bg-carbon hover:bg-carbon'
                   : 'bg-mineshaft hover:bg-mineshaft'
               }`}
               onClick={() => setActiveIndex(i)}
             >
-              {label}
+              <span>{label}</span>
+              {i === 0 ? (
+                <ArrowUpRightIcon
+                  height={'1rem'}
+                  className={`${
+                    activeIndex === 0 ? 'text-up-only' : 'text-stieglitz'
+                  }`}
+                />
+              ) : (
+                <ArrowDownRightIcon
+                  height={'1rem'}
+                  className={`${
+                    activeIndex === 1 ? 'text-down-bad' : 'text-stieglitz'
+                  }`}
+                />
+              )}
             </span>
           ))}
         </div>

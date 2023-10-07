@@ -167,8 +167,13 @@ const OptionsPositions = () => {
         ],
         account: userAddress,
       });
-      await writeContract(request);
-      await fullReload();
+      const { hash } = await writeContract(request);
+
+      await wagmiConfig.publicClient
+        .waitForTransactionReceipt({
+          hash,
+        })
+        .then(async () => await fullReload());
     },
     [optionsPool, userAddress, fullReload],
   );

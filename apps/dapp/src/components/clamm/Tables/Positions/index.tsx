@@ -27,20 +27,12 @@ const Positions = () => {
         </div>
       </div>,
       <div className="flex space-x-2 my-auto" key="buy-positions">
-        <span>Trade History</span>
-        <div className="rounded-full bg-carbon w-5 h-auto flex items-center justify-center">
-          <span>
-            {userClammPositions.optionsExercises.length +
-              userClammPositions.optionsPurchases.length}
-          </span>
-        </div>
+        <span>History</span>
       </div>,
     ];
   }, [
     userClammPositions.writePositions.length,
     userClammPositions.optionsPositions.length,
-    userClammPositions.optionsExercises.length,
-    userClammPositions.optionsPurchases.length,
   ]);
 
   const handleClick = (index: number) => {

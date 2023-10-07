@@ -8,19 +8,23 @@ const BgButtonGroup = ({
   handleClick: (i: number) => void;
 }) => {
   return (
-    <div className="flex justify-between bg-carbon border border-carbon rounded-md">
+    <div className="flex justify-between bg-cod-gray border border-umbra rounded-md w-full">
       {labels.map((label, i: number) => (
         <div
           key={i}
           role="button"
-          className={`p-0.5 py-1 text-sm text-white flex-row flex items-center justify-center border-0 hover:border-0 w-full m-1 transition ease-in-out duration-500 rounded-sm ${
-            active === i
-              ? 'bg-umbra hover:bg-umbra'
-              : 'bg-carbon hover:bg-carbon'
+          className={`p-2 text-sm flex-row flex items-center justify-center border-0 hover:border-0 w-full m-1 transition ease-in-out duration-500 rounded-md ${
+            active === i ? 'bg-umbra' : 'bg-cod-gray'
           }`}
           onClick={() => handleClick(i)}
         >
-          <span>{label}</span>
+          <span
+            className={`${
+              active === i ? 'text-white' : 'text-stieglitz hover:text-white'
+            }`}
+          >
+            {label}
+          </span>
         </div>
       ))}
     </div>

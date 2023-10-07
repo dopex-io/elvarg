@@ -4,68 +4,67 @@ import request from 'graphql-request';
 
 import queryClient from 'queryClient';
 
-import { getOptionsPositionPurchasesForUserDocument } from 'graphql/clamm';
+import { getWritePositionsBurnsForUserDocument } from 'graphql/clamm';
 
 import { DOPEX_CLAMM_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
-export type OptionsPurchasesRaw = {
+export type WritePositionBurnRaw = {
+  sqrtx96Price: bigint;
   tickLower: number;
   tickUpper: number;
-  options: bigint;
-  premium: bigint;
-  expiry: bigint;
-  isPut: boolean;
+  liquidity: bigint;
+  shares: bigint;
   blockNumber: bigint;
   timestamp: number;
   txHash: string;
 };
 
-async function getUserOptionsPurchases(
+async function getUserWritePositionBurns(
   uniswapV3PoolAddress: Address,
   userAddress: Address,
-  first: number = 1000,
-): Promise<OptionsPurchasesRaw[]> {
+): Promise<WritePositionBurnRaw[]> {
   try {
-    const { optionsPositionPurchases } = await queryClient.fetchQuery({
-      queryKey: ['clamm-purchases' + uniswapV3PoolAddress + '#' + userAddress],
+    const { writePositionBurns } = await queryClient.fetchQuery({
+      queryKey: [
+        'clamm-write-burns' + uniswapV3PoolAddress + '#' + userAddress,
+      ],
       queryFn: async () =>
         request(
           DOPEX_CLAMM_SUBGRAPH_API_URL,
-          getOptionsPositionPurchasesForUserDocument,
+          getWritePositionsBurnsForUserDocument,
           {
             userAddress: userAddress.toLowerCase(),
             poolAddress: uniswapV3PoolAddress.toLowerCase(),
-            first: first,
+            first: 1000,
           },
         ),
     });
 
-    return optionsPositionPurchases.map(
+    return writePositionBurns.map(
       ({
         tickLower,
         tickUpper,
-        options,
-        premium,
-        expiry,
-        isPut,
+        liquidity,
+        shares,
         blockNumber,
         timestamp,
+        sqrtx96Price,
         txHash,
       }) => ({
+        sqrtx96Price: BigInt(sqrtx96Price),
         tickLower: Number(tickLower),
         tickUpper: Number(tickUpper),
-        options: BigInt(options),
-        premium: BigInt(premium),
-        expiry: BigInt(expiry),
-        isPut: isPut,
+        liquidity: BigInt(liquidity),
+        shares: BigInt(shares),
         blockNumber: BigInt(blockNumber),
         timestamp: Number(timestamp),
         txHash: String(txHash),
       }),
     );
   } catch (err) {
-    console.error('[getUserWritePositions] ', err);
+    console.error(err);
     return [];
   }
 }
-export default getUserOptionsPurchases;
+
+export default getUserWritePositionBurns;

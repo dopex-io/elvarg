@@ -84,7 +84,6 @@ const AsidePanel = () => {
   const [strikes, setStrikes] = useState<Strikes>(DEFAULT_CLAMM_STRIKE_DATA);
   const [inputAmount, setInputAmount] = useState<string>('1');
   const [tradeOrLpIndex, setTradeOrLpIndex] = useState<number>(0);
-  const [selectedExpiry, setSelectedExpiry] = useState<number>(0);
   const [approved, setApproved] = useState<boolean>(false);
   const [amountDebounced] = useDebounce(inputAmount, 1000);
   const [premium, setPremium] = useState<bigint>(0n);
@@ -320,71 +319,6 @@ const AsidePanel = () => {
     premium,
   ]);
 
-  // const updateTokenAmountsToSpend = useCallback(async () => {
-  //   if (!provider) return;
-  //   if (!optionsPool) return;
-  //   if (!selectedClammStrike) return;
-  //   setLoading('asidePanelButton', true);
-
-  //   const blockTimestamp = Number(await getBlockTime(provider));
-  //   const { tickLower, tickUpper, tickLowerPrice } = selectedClammStrike;
-
-  //   const { iv, currentPrice, strike } = (await getPrices(
-  //     optionsPool.address,
-  //     optionsPool.uniswapV3PoolAddress,
-  //     tickLower,
-  //     tickUpper,
-  //     BigInt(selectedClammExpiry),
-  //     isPut,
-  //   )) as {
-  //     currentPrice: bigint;
-  //     strike: bigint;
-  //     iv: any;
-  //   };
-
-  //   let amount = parseUnits(amountDebounced, selectedToken.decimals);
-
-  //   if (tradeOrLpIndex === 0) {
-  //     try {
-  //       const collateralAmount = isPut
-  //         ? parseUnits(
-  //             (Number(amountDebounced) * tickLowerPrice).toString(),
-  //             selectedToken.decimals,
-  //           )
-  //         : amount;
-  //       amount =
-  //         tradeOrLpIndex === 0
-  //           ? ((await getPremium(
-  //               optionsPool.address,
-  //               isPut,
-  //               blockTimestamp + selectedClammExpiry,
-  //               strike,
-  //               currentPrice,
-  //               BigInt(iv),
-  //               collateralAmount,
-  //             )) as bigint)
-  //           : amount;
-  //       setTokenAmountToSpend(amount);
-  //     } catch {
-  //       setLoading('asidePanelButton', false);
-  //       setTokenAmountToSpend(0n);
-  //     }
-  //   } else {
-  //     setTokenAmountToSpend(amount);
-  //   }
-  //   setLoading('asidePanelButton', false);
-  // }, [
-  //   selectedClammStrike,
-  //   selectedToken.decimals,
-  //   optionsPool,
-  //   amountDebounced,
-  //   isPut,
-  //   tradeOrLpIndex,
-  //   provider,
-  //   selectedClammExpiry,
-  //   setLoading,
-  // ]);
-
   const handleMintOptions = useCallback(async () => {
     if (!optionsPool) return;
     const { request } = await wagmiConfig.publicClient.simulateContract({
@@ -403,9 +337,15 @@ const AsidePanel = () => {
       account: userAddress,
     });
 
-    await writeContract(request);
-    await checkApproved();
-    await fullReload();
+    const { hash } = await writeContract(request);
+    await wagmiConfig.publicClient
+      .waitForTransactionReceipt({
+        hash,
+      })
+      .then(async () => {
+        await checkApproved();
+        await fullReload();
+      });
   }, [
     optionsPool,
     fullReload,
@@ -434,9 +374,15 @@ const AsidePanel = () => {
       account: userAddress,
     });
 
-    await writeContract(request);
-    await checkApproved();
-    await fullReload();
+    const { hash } = await writeContract(request);
+    await wagmiConfig.publicClient
+      .waitForTransactionReceipt({
+        hash,
+      })
+      .then(async () => {
+        await checkApproved();
+        await fullReload();
+      });
   }, [
     fullReload,
     checkApproved,
@@ -838,7 +784,7 @@ const AsidePanel = () => {
 
   const handleSelectExpiry = useCallback(
     (index: number) => {
-      setSelectedExpiry(index);
+      // setSelectedExpiry(index);
       updateSelectedExpiry(EXPIRIES_BY_INDEX[index]);
       updatePremium();
     },
@@ -889,10 +835,6 @@ const AsidePanel = () => {
             selectedStrike={selectedClammStrike as PurchaseStrike}
             strikes={readableStrikes}
           />
-          {/* <ExpiriesMenu
-            updateSelectedExpiry={updateSelectedExpiry}
-            expiries={validExpiries}
-          /> */}
           <TradeSideMenu
             activeIndex={isPut ? 1 : 0}
             setActiveIndex={handleIsPut}
@@ -901,7 +843,7 @@ const AsidePanel = () => {
         {tradeOrLpIndex === 0 ? (
           <ExpiriesMenu
             expiries={validExpiries}
-            selectedExpiry={selectedExpiry}
+            selectedExpiry={selectedClammExpiry}
             handleSelectExpiry={handleSelectExpiry}
           />
         ) : null}
@@ -920,8 +862,7 @@ const AsidePanel = () => {
               <RowItem
                 label="Time to expiry"
                 content={formatDistance(
-                  new Date().getTime() +
-                    EXPIRIES_BY_INDEX[selectedExpiry] * 1000,
+                  new Date().getTime() + selectedClammExpiry * 1000,
                   new Date(),
                 )}
               />

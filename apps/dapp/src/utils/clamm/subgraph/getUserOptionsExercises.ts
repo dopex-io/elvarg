@@ -8,13 +8,24 @@ import { getOptionsPositionExercisesForUserDocument } from 'graphql/clamm';
 
 import { DOPEX_CLAMM_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
-import { OptionsPurchasesRaw } from './getUserOptionsPurchases';
+export type OptionsExercisesRaw = {
+  tickLower: number;
+  tickUpper: number;
+  options: bigint;
+  sqrtx96Price: bigint;
+  profit: bigint;
+  expiry: bigint;
+  isPut: boolean;
+  blockNumber: bigint;
+  timestamp: number;
+  txHash: string;
+};
 
 async function getUserOptionsExercises(
   uniswapV3PoolAddress: Address,
   userAddress: Address,
   first: number = 1000,
-): Promise<OptionsPurchasesRaw[]> {
+): Promise<OptionsExercisesRaw[]> {
   try {
     const { optionsPositionExercises } = await queryClient.fetchQuery({
       queryKey: ['clamm-exercises' + uniswapV3PoolAddress + '#' + userAddress],
@@ -40,15 +51,19 @@ async function getUserOptionsExercises(
         isPut,
         blockNumber,
         timestamp,
+        txHash,
+        sqrtx96Price,
       }) => ({
         tickLower: Number(tickLower),
         tickUpper: Number(tickUpper),
         options: BigInt(options),
-        premium: BigInt(profit),
+        profit: BigInt(profit),
         expiry: BigInt(expiry),
         isPut: isPut,
         blockNumber: BigInt(blockNumber),
         timestamp: Number(timestamp),
+        txHash: String(txHash),
+        sqrtx96Price: BigInt(sqrtx96Price),
       }),
     );
   } catch (err) {

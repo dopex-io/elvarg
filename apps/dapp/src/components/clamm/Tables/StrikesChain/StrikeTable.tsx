@@ -86,13 +86,11 @@ const columns = [
     },
   }),
   columnHelper.accessor('button', {
-    header: () => null,
+    header: 'Premiums',
     cell: (info) => {
       const { onClick, premium, symbol, isSelected, disabled } =
         info.getValue();
-
       const approximationSymbol = premium < 1 ? '~' : null;
-
       return (
         <div className="flex space-x-2 justify-end">
           <Button
@@ -139,7 +137,7 @@ const StrikesTable = () => {
 
   const strikeData = useMemo(() => {
     if (!optionsPool) return [];
-    return ticksData
+    const strikes = ticksData
       .map(
         (
           {
@@ -233,6 +231,8 @@ const StrikesTable = () => {
         },
       )
       .filter(({ totalLiquidity }) => Number(totalLiquidity.amount) > 0.001);
+
+    return isPut ? strikes : strikes.reverse();
   }, [
     selectedClammExpiry,
     setSelectedClammStrike,
@@ -256,6 +256,7 @@ const StrikesTable = () => {
         columns={columns}
         rowSpacing={3}
         isContentLoading={loading.ticksData}
+        pageSize={10}
       />
     </div>
   );

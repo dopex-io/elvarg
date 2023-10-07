@@ -61,6 +61,7 @@ export const getOptionsPositionPurchasesForUserDocument = graphql(`
       blockNumber
       timestamp
       count
+      txHash
     }
   }
 `);
@@ -88,6 +89,8 @@ export const getOptionsPositionExercisesForUserDocument = graphql(`
       blockNumber
       timestamp
       count
+      txHash
+      sqrtx96Price
     }
   }
 `);
@@ -111,8 +114,10 @@ export const getWritePositionsMintsForUserDocument = graphql(`
       liquidity
       shares
       blockNumber
+      sqrtx96Price
       timestamp
       count
+      txHash
     }
   }
 `);
@@ -133,11 +138,13 @@ export const getWritePositionsBurnsForUserDocument = graphql(`
       tickLower
       tickUpper
       user
+      sqrtx96Price
       liquidity
       shares
       blockNumber
       timestamp
       count
+      txHash
     }
   }
 `);
