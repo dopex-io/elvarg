@@ -146,7 +146,7 @@ const TradeCard = () => {
 
     let tick = Math.round(Math.log(_markPrice) / Math.log(1.0001) / 10) * 10;
 
-    tick += isShort ? 10 : -10;
+    tick += isShort ? 20 : -20;
 
     return (1.0001 ** tick).toFixed(4);
   }, [optionScalpData, isShort]);
@@ -422,26 +422,11 @@ const TradeCard = () => {
       }
     } else if (orderType === 'Limit') {
       try {
-        let limitPrice;
-
-        if (rawLimitPrice === '') {
-          limitPrice =
-            Number(
-              utils.formatUnits(
-                markPrice,
-                optionScalpData?.quoteDecimals?.toNumber()!,
-              ),
-            ) *
-            10 **
-              (optionScalpData?.quoteDecimals?.toNumber() -
-                optionScalpData?.baseDecimals?.toNumber());
-        } else {
-          limitPrice =
-            Number(rawLimitPrice) *
-            10 **
-              (optionScalpData?.quoteDecimals?.toNumber() -
-                optionScalpData?.baseDecimals?.toNumber());
-        }
+        const limitPrice =
+          Number(rawLimitPrice) *
+          10 **
+            (optionScalpData?.quoteDecimals?.toNumber() -
+              optionScalpData?.baseDecimals?.toNumber());
 
         const spacing = 10;
 
@@ -536,6 +521,10 @@ const TradeCard = () => {
 
   const handleOrderTypeToggle = useCallback(() => {
     setOrderType(orderType === 'Market' ? 'Limit' : 'Market');
+  }, [setOrderType]);
+
+  useEffect(() => {
+    setMaximumTick();
   }, [orderType]);
 
   const setSelectedMargin = useCallback(
@@ -662,14 +651,7 @@ const TradeCard = () => {
             </p>
             <Input
               color="cod-gray"
-              placeholder={String(
-                Number(
-                  utils.formatUnits(
-                    markPrice,
-                    optionScalpData?.quoteDecimals?.toNumber()!,
-                  ),
-                ),
-              )}
+              placeholder={rawLimitPrice}
               value={rawLimitPrice}
               onChange={(e: {
                 target: { value: React.SetStateAction<string | number> };
