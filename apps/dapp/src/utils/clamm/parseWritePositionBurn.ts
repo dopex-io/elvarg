@@ -42,12 +42,22 @@ function parseWritePositionBurn(
 
   let side = 'Neutral';
   let strikePrice = price;
-  if (price < tickLowerPrice) {
-    side = 'Put';
-    strikePrice = tickLowerPrice;
-  } else if (price > tickUpperPrice) {
-    side = 'Call';
-    strikePrice = tickUpperPrice;
+  if (inversePrice) {
+    if (price < tickLowerPrice) {
+      side = 'Put';
+      strikePrice = tickLowerPrice;
+    } else if (price > tickUpperPrice) {
+      side = 'Call';
+      strikePrice = tickUpperPrice;
+    }
+  } else {
+    if (price < tickLowerPrice) {
+      side = 'Call';
+      strikePrice = tickUpperPrice;
+    } else if (price > tickUpperPrice) {
+      side = 'Put';
+      strikePrice = tickUpperPrice;
+    }
   }
 
   return {
