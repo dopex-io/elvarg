@@ -6,9 +6,7 @@ import { Button, Input } from '@dopex-io/ui';
 import { erc20ABI, useAccount, useContractWrite } from 'wagmi';
 
 import useAmmUserData from 'hooks/option-amm/useAmmUserData';
-import useStrikesData, {
-  durationToExpiryMapping,
-} from 'hooks/option-amm/useStrikesData';
+import useStrikesData from 'hooks/option-amm/useStrikesData';
 import useVaultStore from 'hooks/option-amm/useVaultStore';
 
 import PnlChart from 'components/common/PnlChart';
@@ -81,7 +79,7 @@ const AsidePanel = ({ market }: { market: string }) => {
     portfolioManager: vault.portfolioManager,
     account: address || zeroAddress,
   });
-  const { expiryData, strikeDataForExpiry } = useStrikesData({
+  const { expiryData, activeExpiry, strikeDataForExpiry } = useStrikesData({
     ammAddress: vault.address,
     duration: vault.duration,
     isPut: vault.isPut,
@@ -121,7 +119,7 @@ const AsidePanel = ({ market }: { market: string }) => {
     args: [
       vault.isPut,
       expiryData?.strikes[activeStrikeIndex] || 0n,
-      durationToExpiryMapping[vault.duration],
+      activeExpiry,
       parseUnits(amount, DECIMALS_TOKEN),
     ],
   });

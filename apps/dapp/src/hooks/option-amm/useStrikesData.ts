@@ -2,14 +2,21 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Address, formatUnits, parseUnits } from 'viem';
 
 import { OptionAmm__factory } from '@dopex-io/sdk';
+import { useQuery } from '@tanstack/react-query';
+import request from 'graphql-request';
 import { useAccount } from 'wagmi';
 import { readContract } from 'wagmi/actions';
+
+import queryClient from 'queryClient';
+
+import { getActiveExpiries } from 'graphql/oamm';
 
 import getTimeToExpirationInYears from 'utils/date/getTimeToExpirationInYears';
 import computeOptionGreeks from 'utils/ssov/computeOptionGreeks';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 import { AmmDuration } from 'constants/optionAmm/markets';
+import { DOPEX_OAMM_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
 interface ExpiryData {
   markPrice: bigint;
@@ -68,25 +75,33 @@ interface Props {
 
 const NON_ZERO_DENOMINATOR = 1n;
 
-export const durationToExpiryMapping = {
-  DAILY: 1696492801n,
-  WEEKLY: 1696579201n,
-  MONTHLY: 1698048001n,
-};
-
 const useStrikesData = (props: Props) => {
   const { ammAddress = '0x', duration = 'DAILY', isPut } = props;
 
   const { address } = useAccount();
+  const { data } = useQuery(['getSsovPurchasesFromTimestamp'], async () =>
+    queryClient.fetchQuery({
+      queryKey: ['activeExpiries'],
+      queryFn: async () =>
+        request(DOPEX_OAMM_SUBGRAPH_API_URL, getActiveExpiries),
+    }),
+  );
 
   const [_expiryData, setExpiryData] = useState<ExpiryData>();
   const [strikeData, setStrikeData] = useState<StrikeData[]>();
+  const [activeExpiry, setActiveExpiry] = useState<bigint>(0n);
   const [strikeDataForExpiry, setStrikeDataForExpiry] =
     useState<StrikeDataForExpiry[]>();
   const [loading, setLoading] = useState<boolean>(true);
 
   const updateExpiryData = useCallback(async () => {
-    const selectedExpiryTimestamp: bigint = durationToExpiryMapping[duration];
+    if (!data) return;
+
+    const _activeExpiry = data.activeExpiries.find(
+      (exp) => exp.id.toUpperCase() === duration,
+    ) || { expiry: 0n, id: 0 };
+    setActiveExpiry(_activeExpiry.expiry);
+    const selectedExpiryTimestamp: bigint = BigInt(_activeExpiry.expiry);
     if (ammAddress === '0x') return;
 
     try {
@@ -141,7 +156,7 @@ const useStrikesData = (props: Props) => {
     } catch (e) {
       console.error(e);
     }
-  }, [ammAddress, duration]);
+  }, [data, ammAddress, duration]);
 
   const updateStrikesData = useCallback(async () => {
     if (!_expiryData || !ammAddress) return;
@@ -269,9 +284,11 @@ const useStrikesData = (props: Props) => {
   }, [_expiryData, ammAddress, isPut]);
 
   const greeks = useMemo(() => {
-    if (!strikeData || !_expiryData) return [];
+    if (!strikeData || !_expiryData || !data) return [];
 
-    let durationInSeconds = durationToExpiryMapping[duration];
+    let durationInSeconds = data.activeExpiries.find(
+      (exp) => exp.id.toUpperCase() === duration,
+    );
 
     const greeksData = [];
     for (let i = 0; i < strikeData.length; i++) {
@@ -292,7 +309,7 @@ const useStrikesData = (props: Props) => {
     }
 
     return greeksData;
-  }, [_expiryData, duration, isPut, strikeData]);
+  }, [_expiryData, data, duration, isPut, strikeData]);
 
   useEffect(() => {
     if (!strikeDataForExpiry || !_expiryData || !strikeData) return;
@@ -315,6 +332,7 @@ const useStrikesData = (props: Props) => {
     expiryData: _expiryData,
     strikeData,
     greeks,
+    activeExpiry,
     loading,
   };
 };
