@@ -19,6 +19,7 @@ export type OptionsExercisesRaw = {
   blockNumber: bigint;
   timestamp: number;
   txHash: string;
+  premium: bigint;
 };
 
 async function getUserOptionsExercises(
@@ -53,6 +54,7 @@ async function getUserOptionsExercises(
         timestamp,
         txHash,
         sqrtx96Price,
+        premium,
       }) => ({
         tickLower: Number(tickLower),
         tickUpper: Number(tickUpper),
@@ -64,6 +66,7 @@ async function getUserOptionsExercises(
         timestamp: Number(timestamp),
         txHash: String(txHash),
         sqrtx96Price: BigInt(sqrtx96Price),
+        premium: BigInt(premium),
       }),
     );
   } catch (err) {

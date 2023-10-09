@@ -136,8 +136,6 @@ const WithdrawHistory = () => {
             optionsPool[keys.putAssetDecimalsKey],
           );
 
-          console.log(timestamp);
-
           let side = 'Neutral';
           if (Number(callAssetAmount) > 0 && Number(putAssetAmount) === 0) {
             side = 'Call';

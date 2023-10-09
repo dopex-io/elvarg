@@ -85,6 +85,7 @@ export const getOptionsPositionExercisesForUserDocument = graphql(`
       isPut
       profit
       options
+      premium
       expiry
       blockNumber
       timestamp

@@ -31,6 +31,10 @@ type ExerciseHistory = {
     amount: string;
     symbol: string;
   };
+  premium: {
+    amount: string;
+    symbol: string;
+  };
   actions: {
     txHash: string;
     share: {
@@ -41,7 +45,8 @@ type ExerciseHistory = {
 };
 
 const ExerciseHistory = () => {
-  const { userAddress, optionsPool, chainId, keys } = useBoundStore();
+  const { userAddress, optionsPool, chainId, keys, tokenPrices } =
+    useBoundStore();
   const [loading, setLoading] = useState<boolean>(false);
   const [history, setHistory] = useState<ExerciseHistory[]>([]);
   const share = useShare((state) => state.open);
@@ -101,6 +106,17 @@ const ExerciseHistory = () => {
       cell: (info) => (
         <span className="flex space-x-2 text-left">
           <p className="text-up-only inline-block">{info.getValue().amount}</p>
+          <p className="text-stieglitz inline-block">
+            {info.getValue().symbol}
+          </p>
+        </span>
+      ),
+    }),
+    columnHelper.accessor('premium', {
+      header: 'Premium',
+      cell: (info) => (
+        <span className="flex space-x-2 text-left">
+          <p className="text-white inline-block">{info.getValue().amount}</p>
           <p className="text-stieglitz inline-block">
             {info.getValue().symbol}
           </p>
@@ -179,6 +195,7 @@ const ExerciseHistory = () => {
           timestamp,
           txHash,
           exercisePrice,
+          premium,
         }) => {
           const decimals =
             optionsPool[
@@ -195,6 +212,35 @@ const ExerciseHistory = () => {
               isPut ? keys.callAssetDecimalsKey : keys.putAssetDecimalsKey
             ],
           );
+
+          const premiumParsed = formatUnits(
+            premium,
+            optionsPool[
+              isPut ? keys.putAssetDecimalsKey : keys.callAssetDecimalsKey
+            ],
+          );
+
+          const callTokenInfo = tokenPrices.find(
+            ({ name }) =>
+              name.toLowerCase() ===
+              optionsPool[keys.callAssetSymbolKey].toLowerCase(),
+          );
+
+          const putTokenInfo = tokenPrices.find(
+            ({ name }) =>
+              name.toLowerCase() ===
+              optionsPool[keys.putAssetSymbolKey].toLowerCase(),
+          );
+
+          let putTokenPrice = 1;
+          let callTokenPrice = 1;
+          if (callTokenInfo) callTokenPrice = callTokenInfo.price;
+          if (putTokenInfo) putTokenPrice = putTokenInfo.price;
+
+          const pnlUsd =
+            Number(pnlParsed) * (isPut ? callTokenPrice : putTokenPrice);
+          const premiumUsd =
+            Number(premiumParsed) * (isPut ? putTokenPrice : callTokenPrice);
 
           return {
             timestamp,
@@ -214,14 +260,21 @@ const ExerciseHistory = () => {
                   isPut ? keys.callAssetSymbolKey : keys.putAssetSymbolKey
                 ],
             },
+            premium: {
+              amount: Number(premiumParsed).toFixed(5),
+              symbol:
+                optionsPool[
+                  isPut ? keys.putAssetSymbolKey : keys.callAssetSymbolKey
+                ],
+            },
             actions: {
               txHash: getExplorerTxURL(chainId, txHash),
               share: {
                 shareDetails: {
-                  percentageDifference: getPercentageDifference(
-                    isPut ? strike : exercisePrice,
-                    isPut ? exercisePrice : strike,
-                  ),
+                  percentageDifference:
+                    (pnlUsd < premiumUsd ? -1 : 1) *
+                    (pnlUsd / premiumUsd) *
+                    100,
                   strikePrice: strike,
                   exercisePrice,
                   side: isPut ? 'Put' : 'Call',

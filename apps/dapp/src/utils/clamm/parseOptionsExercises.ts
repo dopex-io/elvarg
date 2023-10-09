@@ -22,6 +22,7 @@ function parseOptionsExercises(
     profit,
     txHash,
     sqrtx96Price,
+    premium,
   } = position;
 
   const tickLowerPrice = parsePriceFromTick(
@@ -61,6 +62,7 @@ function parseOptionsExercises(
     isPut,
     timestamp: Number(expiry.toString()),
     profit,
+    premium,
     txHash,
     exercisePrice,
   };
