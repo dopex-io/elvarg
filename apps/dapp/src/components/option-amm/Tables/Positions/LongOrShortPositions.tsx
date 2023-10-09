@@ -1,9 +1,6 @@
 import { useMemo, useState } from 'react';
 import { formatUnits, parseUnits } from 'viem';
 
-import { Button } from '@dopex-io/ui';
-import { createColumnHelper } from '@tanstack/react-table';
-import format from 'date-fns/format';
 import { useAccount } from 'wagmi';
 
 import useAmmUserData, {
@@ -14,98 +11,11 @@ import useVaultStore from 'hooks/option-amm/useVaultStore';
 
 import TableLayout from 'components/common/TableLayout';
 import SettleConfirmation from 'components/option-amm/Dialog/SettleConfirmation';
-
-import formatAmount from 'utils/general/formatAmount';
+import columns, {
+  ColumnDef,
+} from 'components/option-amm/Tables/Positions/ColumnHelper';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
-
-interface ColumnDef {
-  id: bigint;
-  side: string;
-  strike: string;
-  premium: string;
-  pnl: bigint;
-  amount: string;
-  expiry: bigint;
-  button: {
-    id: number;
-    isShort: boolean;
-    handleSettle: () => void;
-    expiry: number;
-    canItBeSettled: boolean;
-  };
-}
-
-const columnHelper = createColumnHelper<ColumnDef>();
-
-const columns = [
-  columnHelper.accessor('strike', {
-    header: 'Strike Price',
-    cell: (info) => (
-      <span className="space-x-2 text-left">
-        <p className="text-stieglitz inline-block">$</p>
-        <p className="inline-block">{info.getValue()}</p>
-      </span>
-    ),
-  }),
-  columnHelper.accessor('side', {
-    header: 'Side',
-    cell: (info) => <p className="text-stieglitz">{info.getValue()}</p>,
-  }),
-  columnHelper.accessor('amount', {
-    header: 'Size',
-    cell: (info) => (
-      <span className="space-x-2">
-        <p className="inline-block">{info.getValue()}</p>
-      </span>
-    ),
-  }),
-  columnHelper.accessor('premium', {
-    header: 'Premium',
-    cell: (info) => (
-      <span className="space-x-1">
-        <p className="text-stieglitz inline-block">$</p>
-        <p className="inline-block">{info.getValue()}</p>
-      </span>
-    ),
-  }),
-  columnHelper.accessor('pnl', {
-    header: 'Profit/Loss',
-    cell: (info) => (
-      <span className="space-x-1">
-        <p className="text-stieglitz inline-block">$</p>
-        <p className="inline-block">
-          {formatAmount(formatUnits(info.getValue(), DECIMALS_STRIKE), 3)}
-        </p>
-      </span>
-    ),
-  }),
-  columnHelper.accessor('expiry', {
-    header: 'Expiry',
-    cell: (info) => (
-      <span className="space-x-2">
-        <p className="inline-block">
-          {format(Number(info.getValue()) * 1000, 'dd LLL yyyy')}
-        </p>
-      </span>
-    ),
-  }),
-  columnHelper.accessor('button', {
-    header: '',
-    cell: (info) => (
-      <Button
-        className="inline-block"
-        onClick={info.getValue().handleSettle}
-        color="primary"
-        disabled={!info.getValue().canItBeSettled}
-        size="small"
-        variant="contained"
-      >
-        {info.getValue().isShort ? 'Cover' : 'Exercise'}
-      </Button>
-    ),
-  }),
-];
 
 interface Props {
   positions?: OptionPosition[];
@@ -119,7 +29,7 @@ interface ClosePositionParams {
 }
 
 const LongOrShortPositions = (props: Props) => {
-  const { positions: _positions, isLoading = false, isShort } = props;
+  const { positions, isLoading = false, isShort } = props;
 
   const { address } = useAccount();
   const vault = useVaultStore((store) => store.vault);
@@ -149,9 +59,9 @@ const LongOrShortPositions = (props: Props) => {
     setOpen(false);
   };
 
-  const positions = useMemo(() => {
-    if (!_positions || !expiryData || !portfolioData) return [];
-    return _positions.map((position, index: number) => {
+  const memoizedPositions = useMemo(() => {
+    if (!positions || !expiryData || !portfolioData) return [];
+    return positions.map((position, index: number) => {
       const size = position.amount;
 
       let premium = formatUnits(position.premium, DECIMALS_USD);
@@ -200,12 +110,12 @@ const LongOrShortPositions = (props: Props) => {
         },
       };
     });
-  }, [_positions, expiryData, isShort, portfolioData]);
+  }, [positions, expiryData, isShort, portfolioData]);
 
   return (
     <>
       <TableLayout<ColumnDef>
-        data={positions}
+        data={memoizedPositions}
         columns={columns}
         isContentLoading={isLoading}
         rowSpacing={2}
@@ -216,13 +126,13 @@ const LongOrShortPositions = (props: Props) => {
         data={{
           tokenId: closePositionParams.id,
           amount: closePositionParams.amount,
-          expiry: positions[activeIndex]?.expiry || 0n,
-          side: positions[activeIndex]?.side || '-',
+          expiry: memoizedPositions[activeIndex]?.expiry || 0n,
+          side: memoizedPositions[activeIndex]?.side || '-',
           isShort: isShort,
           title: isShort
             ? 'Closing Short Position...'
             : 'Exercising Long Position...',
-          pnl: positions[activeIndex]?.pnl,
+          pnl: memoizedPositions[activeIndex]?.pnl,
         }}
       />
     </>

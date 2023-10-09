@@ -185,7 +185,7 @@ const Trade = (props: Props) => {
           color="mineshaft"
           size="small"
         >
-          Add Margin
+          Manage Margin
         </Button>
         <Button
           className="flex-grow text-sm justify-center font-normal transition ease-in-out duration-200 bg-carbon"

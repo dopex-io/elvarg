@@ -72,7 +72,7 @@ const AsidePanel = ({ market }: { market: string }) => {
   const { address } = useAccount();
   const vault = useVaultStore((store) => store.vault);
   const activeStrikeIndex = useVaultStore((store) => store.activeStrikeIndex);
-  const { updateLpData, lpData, updateUserOptionPositions } = useAmmUserData({
+  const { updateLpData, lpData } = useAmmUserData({
     ammAddress: vault.address,
     lpAddress: vault.lp,
     positionMinter: vault.positionMinter,
