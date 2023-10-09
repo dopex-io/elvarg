@@ -17,9 +17,9 @@ import TableLayout from 'components/common/TableLayout';
 import parseOptionsExercises from 'utils/clamm/parseOptionsExercises';
 import getUserOptionsExercises from 'utils/clamm/subgraph/getUserOptionsExercises';
 import { formatAmount, getExplorerTxURL } from 'utils/general';
-import getPercentageDifference from 'utils/math/getPercentageDifference';
 
 type ExerciseHistory = {
+  exercisePrice: number;
   timestamp: number;
   side: string;
   strike: string;
@@ -80,6 +80,15 @@ const ExerciseHistory = () => {
         </span>
       ),
     }),
+    columnHelper.accessor('exercisePrice', {
+      header: 'Exercise Strike',
+      cell: (info) => (
+        <span className="space-x-2 text-left">
+          <p className="text-stieglitz inline-block">$</p>
+          <p className="inline-block">{info.getValue().toFixed(5)}</p>
+        </span>
+      ),
+    }),
     columnHelper.accessor('options', {
       header: 'Options',
       cell: (info) => {
@@ -101,17 +110,6 @@ const ExerciseHistory = () => {
         </span>
       ),
     }),
-    columnHelper.accessor('profit', {
-      header: 'Profit',
-      cell: (info) => (
-        <span className="flex space-x-2 text-left">
-          <p className="text-up-only inline-block">{info.getValue().amount}</p>
-          <p className="text-stieglitz inline-block">
-            {info.getValue().symbol}
-          </p>
-        </span>
-      ),
-    }),
     columnHelper.accessor('premium', {
       header: 'Premium',
       cell: (info) => (
@@ -123,6 +121,18 @@ const ExerciseHistory = () => {
         </span>
       ),
     }),
+    columnHelper.accessor('profit', {
+      header: 'Profit',
+      cell: (info) => (
+        <span className="flex space-x-2 text-left">
+          <p className="text-up-only inline-block">{info.getValue().amount}</p>
+          <p className="text-stieglitz inline-block">
+            {info.getValue().symbol}
+          </p>
+        </span>
+      ),
+    }),
+
     columnHelper.accessor('timestamp', {
       header: 'Exercised',
       cell: (info) => (
@@ -243,6 +253,7 @@ const ExerciseHistory = () => {
             Number(premiumParsed) * (isPut ? putTokenPrice : callTokenPrice);
 
           return {
+            exercisePrice,
             timestamp,
             side: isPut ? 'Put' : 'Call',
             strike: strike.toFixed(5),
