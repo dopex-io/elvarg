@@ -18,13 +18,7 @@ const BgButtonGroup = ({
           }`}
           onClick={() => handleClick(i)}
         >
-          <span
-            className={`${
-              active === i ? 'text-stieglitz' : 'text-white hover:stieglitz'
-            }`}
-          >
-            {label}
-          </span>
+          <span className="hover:stieglitz">{label}</span>
         </div>
       ))}
     </div>

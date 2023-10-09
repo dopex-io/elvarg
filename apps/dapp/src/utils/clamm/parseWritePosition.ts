@@ -22,6 +22,10 @@ export type WritePosition = {
     token0Amount: bigint;
     token1Amount: bigint;
   };
+  withdrawableLiquidity: {
+    token0Amount: bigint;
+    token1Amount: bigint;
+  };
 };
 
 function parseWritePosition(
@@ -32,7 +36,7 @@ function parseWritePosition(
   tickData: TickData,
   position: WritePositionRaw,
 ): WritePosition {
-  const { totalLiquidity, availableShares } = tickData;
+  const { totalLiquidity, availableShares, liquidityAvailable } = tickData;
   let { liquidity, tickLower, tickUpper, shares } = position;
 
   const totalLiquidityToL = getLiquidityForAmounts(
@@ -52,7 +56,7 @@ function parseWritePosition(
   const earnedLiquidity =
     totalLiquidityToL === 0n
       ? 0n
-      : (shares * (totalUserLiquidity - liquidity)) / totalLiquidityToL;
+      : (shares * (totalUserLiquidity - liquidity)) / availableShares;
 
   const earnedAmounts = getAmountsForLiquidity(
     priceSqrtX96,
@@ -86,7 +90,22 @@ function parseWritePosition(
     inversePrice,
   );
 
+  const availableUserLiquidity = {
+    token0Amount:
+      (userShares * liquidityAvailable.token0Amount) / availableShares,
+    token1Amount:
+      (userShares * liquidityAvailable.token1Amount) / availableShares,
+  };
+
+  const withdrawableLiquidity = {
+    token0Amount:
+      (userShares * availableUserLiquidity.token0Amount) / availableShares,
+    token1Amount:
+      (userShares * availableUserLiquidity.token1Amount) / availableShares,
+  };
+
   return {
+    withdrawableLiquidity: withdrawableLiquidity,
     tickLower,
     tickUpper,
     shares: userShares > 0n ? userShares - 1n : 0n,

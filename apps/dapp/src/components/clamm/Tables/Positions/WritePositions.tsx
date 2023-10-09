@@ -32,6 +32,12 @@ type WritePositionForTable = {
     callAssetSymbol: string;
     putAssetSymbol: string;
   };
+  withdrawable: {
+    callAssetAmount: string;
+    putAssetAmount: string;
+    callAssetSymbol: string;
+    putAssetSymbol: string;
+  };
   earned: {
     callAssetAmount: string;
     putAssetAmount: string;
@@ -87,6 +93,29 @@ const columns = [
 
   columnHelper.accessor('earned', {
     header: 'Earned',
+    cell: (info) => {
+      const {
+        callAssetAmount,
+        putAssetAmount,
+        callAssetSymbol,
+        putAssetSymbol,
+      } = info.getValue();
+      return (
+        <div className="flex flex-col items-start justify-center">
+          <div className="flex space-x-1">
+            <span>{formatAmount(callAssetAmount, 5)}</span>
+            <span className="text-stieglitz">{callAssetSymbol}</span>
+          </div>
+          <div className="flex space-x-1">
+            <span>{formatAmount(putAssetAmount, 5)}</span>
+            <span className="text-stieglitz">{putAssetSymbol}</span>
+          </div>
+        </div>
+      );
+    },
+  }),
+  columnHelper.accessor('withdrawable', {
+    header: 'Withdrawable',
     cell: (info) => {
       const {
         callAssetAmount,
@@ -178,6 +207,7 @@ const WritePositions = () => {
             tickUpper,
             tickLowerPrice,
             tickUpperPrice,
+            withdrawableLiquidity,
           },
           index,
         ) => {
@@ -207,6 +237,19 @@ const WritePositions = () => {
             putAssetSymbol: optionsPool[keys.putAssetSymbolKey],
           };
 
+          const withdrawable = {
+            callAssetAmount: formatUnits(
+              withdrawableLiquidity[keys.callAssetAmountKey],
+              optionsPool[keys.callAssetDecimalsKey],
+            ),
+            putAssetAmount: formatUnits(
+              withdrawableLiquidity[keys.putAssetAmountKey],
+              optionsPool[keys.putAssetDecimalsKey],
+            ),
+            callAssetSymbol: optionsPool[keys.callAssetSymbolKey],
+            putAssetSymbol: optionsPool[keys.putAssetSymbolKey],
+          };
+
           let side = '';
           if (optionsPool.inversePrice) {
             if (optionsPool.tick <= tickLower) {
@@ -226,9 +269,8 @@ const WritePositions = () => {
             }
           }
 
-          console.log(shares);
-
           return {
+            withdrawable,
             tickLower,
             tickUpper,
             side,
