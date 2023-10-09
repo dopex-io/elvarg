@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { UniswapV3Pool__factory } from '@dopex-io/sdk';
-import { gql } from 'graphql-request';
 import { NextSeo } from 'next-seo';
 import { useAccount } from 'wagmi';
-import { readContract, watchReadContract } from 'wagmi/actions';
+import { watchReadContract } from 'wagmi/actions';
 
 import { useBoundStore } from 'store';
 

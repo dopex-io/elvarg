@@ -100,7 +100,7 @@ const ExerciseHistory = () => {
       header: 'Profit',
       cell: (info) => (
         <span className="flex space-x-2 text-left">
-          <p className="text-white inline-block">{info.getValue().amount}</p>
+          <p className="text-up-only inline-block">{info.getValue().amount}</p>
           <p className="text-stieglitz inline-block">
             {info.getValue().symbol}
           </p>
