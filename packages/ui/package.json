@@ -42,7 +42,7 @@
     "@storybook/testing-library": "^0.2.1",
     "@types/node": "^18.18.1",
     "@types/react": "^18.2.24",
-    "@types/react-dom": "^18.2.8",
+    "@types/react-dom": "^18.2.11",
     "concurrently": "^8.2.1",
     "esbuild": "^0.19.4",
     "react": "^18.2.0",
