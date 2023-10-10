@@ -246,7 +246,7 @@ const ClammPage = () => {
         fetchStrikesData(uniswapV3PoolAddress),
         getEarningsCheckpoints(
           uniswapV3PoolAddress,
-          ((new Date().getTime() - 86400000) / 1000).toFixed(0),
+          ((new Date().getTime() - 86400000 * 30) / 1000).toFixed(0),
         ),
       ]);
       rawTickData = rawTickData.filter(

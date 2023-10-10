@@ -92,7 +92,7 @@ const columns = [
     },
   }),
   columnHelper.accessor('earnings24h', {
-    header: 'Earnings (24h)',
+    header: 'Earnings (30 days)',
     cell: (info) => {
       const { amount, symbol, usd } = info.getValue();
       return (
@@ -104,7 +104,7 @@ const columns = [
     },
   }),
   columnHelper.accessor('apy', {
-    header: 'APY',
+    header: 'APR',
     cell: (info) => {
       return (
         <span className="text-left flex flex-col justify-center">
@@ -253,7 +253,7 @@ const StrikesTable = () => {
           const liquidityUsd =
             Number(_totalLiquidity) * (isPut ? putTokenPrice : callTokenPrice);
 
-          const apy = (earningsUsd / liquidityUsd) * 36400;
+          const apy = (earningsUsd / liquidityUsd) * 1100;
 
           return {
             apy,
