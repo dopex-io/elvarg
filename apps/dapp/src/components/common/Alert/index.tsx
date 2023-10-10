@@ -4,7 +4,7 @@ import {
   CheckCircleIcon,
   ExclamationCircleIcon,
   ExclamationTriangleIcon,
-} from '@heroicons/react/24/outline';
+} from '@heroicons/react/24/solid';
 import cx from 'classnames';
 
 export enum AlertSeverity {
