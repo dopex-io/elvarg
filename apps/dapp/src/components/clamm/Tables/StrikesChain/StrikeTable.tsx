@@ -253,7 +253,7 @@ const StrikesTable = () => {
           const liquidityUsd =
             Number(_totalLiquidity) * (isPut ? putTokenPrice : callTokenPrice);
 
-          const apy = (earningsUsd / liquidityUsd) * 1100;
+          const apy = (earningsUsd / liquidityUsd) * 1200;
 
           return {
             apy,
