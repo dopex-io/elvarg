@@ -27,14 +27,6 @@ const seo = {
     title: 'veDPX | Escrowed DPX',
     description: 'Lock $DPX to earn yield, fees, and vote',
   },
-  zdte: {
-    url: `${HOST_URL}/ztde`,
-    banner:
-      'https://res.cloudinary.com/dxitdndu3/image/upload/v1684326258/dopex_images/preview_images/zdte_vano5r.png',
-    alt: '0DTE',
-    title: '0dte | Dopex Zero Day-to-Expiry options',
-    description: 'Trade options spreads that expire on the day of purchase',
-  },
   insuredPerpsLP: {
     url: `${HOST_URL}/atlantics`,
     banner:
