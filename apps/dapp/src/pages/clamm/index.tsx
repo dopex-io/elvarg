@@ -28,6 +28,7 @@ import parseWritePosition, {
   WritePosition,
 } from 'utils/clamm/parseWritePosition';
 import fetchStrikesData from 'utils/clamm/subgraph/fetchStrikesData';
+import getEarningsCheckpoints from 'utils/clamm/subgraph/getEarningsCheckpoints';
 import getUserOptionsPositions from 'utils/clamm/subgraph/getUserOptionsPositions';
 import getUserWritePositions from 'utils/clamm/subgraph/getUserWritePositions';
 
@@ -241,20 +242,41 @@ const ClammPage = () => {
         address,
       } = optionsPool;
 
-      const rawTickData = (await fetchStrikesData(uniswapV3PoolAddress)).filter(
+      let [rawTickData, earningsCheckpoints] = await Promise.all([
+        fetchStrikesData(uniswapV3PoolAddress),
+        getEarningsCheckpoints(
+          uniswapV3PoolAddress,
+          ((new Date().getTime() - 86400000) / 1000).toFixed(0),
+        ),
+      ]);
+      rawTickData = rawTickData.filter(
         ({ totalLiquidity }) => totalLiquidity > 1n,
       );
 
       if (rawTickData) {
-        const parsedTicksData = rawTickData.map((data) =>
-          parseTickData(
+        const parsedTicksData = rawTickData.map((data) => {
+          const earningsCheckpoint = earningsCheckpoints.filter(
+            ({ tickLower, tickUpper }) => {
+              return (
+                data.tickLower === tickLower && data.tickUpper === tickUpper
+              );
+            },
+          );
+
+          let earnings = 0n;
+          earningsCheckpoint.forEach(({ liquidity }) => {
+            earnings += liquidity;
+          });
+
+          return parseTickData(
             sqrtX96Price,
             10 ** token0Decimals,
             10 ** token1Decimals,
             inversePrice,
             data,
-          ),
-        );
+            earnings,
+          );
+        });
 
         const ticksWithPremiums = await getTicksPremiumAndBreakeven(
           address,

@@ -18,6 +18,10 @@ export type TickData = {
     token1Amount: bigint;
   };
   availableShares: bigint;
+  earnings24h: {
+    token0Amount: bigint;
+    token1Amount: bigint;
+  };
 };
 
 function parseTickData(
@@ -26,6 +30,7 @@ function parseTickData(
   precision1: number,
   inversePrice: boolean,
   data: StrikesDataRaw,
+  earnings: bigint,
 ): TickData {
   const { tickLower, tickUpper, liquidityUsed, totalShares, totalLiquidity } =
     data;
@@ -43,12 +48,23 @@ function parseTickData(
     totalLiquidity - liquidityUsed,
   );
 
+  const earningsAmounts = getAmountsForLiquidity(
+    uniswapPoolSqrtX96,
+    getSqrtRatioAtTick(BigInt(tickLower)),
+    getSqrtRatioAtTick(BigInt(tickUpper)),
+    earnings,
+  );
+
   const [tickLowerPrice, tickUpperPrice] = [
     parsePriceFromTick(tickLower, precision0, precision1, inversePrice),
     parsePriceFromTick(tickUpper, precision0, precision1, inversePrice),
   ];
 
   return {
+    earnings24h: {
+      token0Amount: earningsAmounts.amount0,
+      token1Amount: earningsAmounts.amount1,
+    },
     totalLiquidity: {
       token0Amount: totalLiquidityAmounts.amount0,
       token1Amount: totalLiquidityAmounts.amount1,

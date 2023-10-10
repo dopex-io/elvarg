@@ -308,6 +308,7 @@ const ExerciseHistory = () => {
 
     setLoading(false);
   }, [
+    tokenPrices,
     handleShare,
     optionsPool,
     userAddress,

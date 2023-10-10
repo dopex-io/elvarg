@@ -21,6 +21,7 @@ type StrikeDataForTable = {
     amount: number;
     symbol: string;
   };
+  apy: number;
   breakeven: number;
   optionsAvailable: string;
   button: {
@@ -29,6 +30,11 @@ type StrikeDataForTable = {
     symbol: string;
     isSelected: boolean;
     disabled: boolean;
+  };
+  earnings24h: {
+    amount: number;
+    symbol: string;
+    usd: number;
   };
 };
 
@@ -85,6 +91,28 @@ const columns = [
       );
     },
   }),
+  columnHelper.accessor('earnings24h', {
+    header: 'Earnings (24h)',
+    cell: (info) => {
+      const { amount, symbol, usd } = info.getValue();
+      return (
+        <span className="text-left flex">
+          <p className="text-stieglitz pr-1">$</p>
+          <p className="pr-1 text-white">{formatAmount(usd, 5)}</p>
+        </span>
+      );
+    },
+  }),
+  columnHelper.accessor('apy', {
+    header: 'APY',
+    cell: (info) => {
+      return (
+        <span className="text-left flex flex-col justify-center">
+          <span>{formatAmount(info.getValue(), 5)}%</span>
+        </span>
+      );
+    },
+  }),
   columnHelper.accessor('button', {
     header: 'Premiums',
     cell: (info) => {
@@ -126,6 +154,7 @@ const StrikesTable = () => {
     keys,
     selectedClammExpiry,
     setSelectedClammStrike,
+    tokenPrices,
   } = useBoundStore();
 
   const [selectedStrikeIndex, setSelectedStrikeIndex] = useState<number | null>(
@@ -149,6 +178,7 @@ const StrikesTable = () => {
             callPremiums,
             putPremiums,
             totalLiquidity,
+            earnings24h,
           },
           index,
         ) => {
@@ -190,7 +220,51 @@ const StrikesTable = () => {
             ? tickLowerPrice - _premium
             : tickUpperPrice + _premium;
 
+          const _earnings = Number(
+            formatUnits(
+              earnings24h[
+                isPut ? keys.putAssetAmountKey : keys.callAssetAmountKey
+              ],
+              optionsPool[
+                isPut ? keys.putAssetDecimalsKey : keys.callAssetDecimalsKey
+              ],
+            ),
+          );
+
+          const callTokenInfo = tokenPrices.find(
+            ({ name }) =>
+              name.toLowerCase() ===
+              optionsPool[keys.callAssetSymbolKey].toLowerCase(),
+          );
+
+          const putTokenInfo = tokenPrices.find(
+            ({ name }) =>
+              name.toLowerCase() ===
+              optionsPool[keys.putAssetSymbolKey].toLowerCase(),
+          );
+
+          let putTokenPrice = 1;
+          let callTokenPrice = 1;
+          if (callTokenInfo) callTokenPrice = callTokenInfo.price;
+          if (putTokenInfo) putTokenPrice = putTokenInfo.price;
+
+          const earningsUsd =
+            _earnings * (isPut ? putTokenPrice : callTokenPrice);
+          const liquidityUsd =
+            Number(_totalLiquidity) * (isPut ? putTokenPrice : callTokenPrice);
+
+          const apy = (earningsUsd / liquidityUsd) * 36400;
+
           return {
+            apy,
+            earnings24h: {
+              amount: _earnings,
+              symbol:
+                optionsPool[
+                  isPut ? keys.putAssetSymbolKey : keys.callAssetSymbolKey
+                ],
+              usd: earningsUsd,
+            },
             strike: isPut ? tickLowerPrice : tickUpperPrice,
             totalLiquidity: {
               amount: _totalLiquidity,
@@ -200,7 +274,14 @@ const StrikesTable = () => {
                 ],
             },
             liquidityAvailable: {
-              amount: Number(liquidityAvailableAtTick),
+              amount: Number(
+                formatUnits(
+                  availableLiquidity,
+                  optionsPool[
+                    isPut ? keys.putAssetDecimalsKey : keys.callAssetDecimalsKey
+                  ],
+                ),
+              ),
               symbol:
                 optionsPool[
                   isPut ? keys.putAssetSymbolKey : keys.callAssetSymbolKey
@@ -234,6 +315,7 @@ const StrikesTable = () => {
 
     return isPut ? strikes : strikes.reverse();
   }, [
+    tokenPrices,
     selectedClammExpiry,
     setSelectedClammStrike,
     keys.callAssetAmountKey,

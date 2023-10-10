@@ -173,16 +173,22 @@ export const getWritePositionsForUserDocument = graphql(`
   }
 `);
 
-export const getOptionsTokensDocument = graphql(`
-  query getOptionsTokens($first: Int!, $skip: Int) {
-    optionsTokens(first: $first, skip: $skip) {
-      pool
+export const getEarningsCheckpointsDocument = graphql(`
+  query getEarningsCheckpoints(
+    $poolAddress: String!
+    $timestampGt: BigInt!
+    $first: Int!
+    $skip: Int
+  ) {
+    earningsCheckpoints(
+      first: $first
+      skip: $skip
+      where: { timestamp_gt: $timestampGt, pool: $poolAddress }
+    ) {
       tickLower
       tickUpper
-      callOrPut
-      expiry
-      totalSupply
-      totalSettled
+      liquidity
+      timestamp
     }
   }
 `);
