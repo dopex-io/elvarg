@@ -162,7 +162,7 @@ const DEFAULT_CLAMM_KEYS: Keys = {
   callAssetGetLiquidity: 'getLiquidityForAmounts0',
 };
 
-type TokenAmountKeysToData = 'token0Amount' | 'token1Amount';
+export type TokenAmountKeysToData = 'token0Amount' | 'token1Amount';
 type TokenDecimalKeysToData = 'token0Decimals' | 'token1Decimals';
 type TokenSymbolKeysToData = 'token0Symbol' | 'token1Symbol';
 type TokenAddressKeysToData = 'token0Address' | 'token1Address';
@@ -170,7 +170,7 @@ type TokenGetAmountsForLiquidity =
   | 'getLiquidityForAmounts0'
   | 'getLiquidityForAmounts1';
 
-type Keys = {
+export type Keys = {
   callAssetAmountKey: TokenAmountKeysToData;
   callAssetSymbolKey: TokenSymbolKeysToData;
   callAssetDecimalsKey: TokenDecimalKeysToData;

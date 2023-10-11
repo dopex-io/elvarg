@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { formatUnits } from 'viem';
 
 import { Menu } from '@dopex-io/ui';
@@ -7,6 +7,7 @@ import { useBoundStore } from 'store';
 
 import TitleItem from 'components/ssov-beta/TitleBar/TitleItem';
 
+import getStats from 'utils/clamm/getCumulativeVolume';
 import { formatAmount } from 'utils/general';
 
 import {
@@ -26,6 +27,44 @@ export function PairSelector() {
 
   const [underlyingToken, setUnderlyingToken] = useState<string>('ARB');
   const [collateralToken, setCollateralToken] = useState<string>('USDC');
+  const [_stats, _setStats] = useState<{ totalVolumeUsd: number }>({
+    totalVolumeUsd: 0,
+  });
+
+  const updateCumulativeVolume = useCallback(async () => {
+    if (!optionsPool) return;
+    const {
+      token0Decimals,
+      token1Decimals,
+      uniswapV3PoolAddress,
+      inversePrice,
+    } = optionsPool;
+    getStats(
+      uniswapV3PoolAddress,
+      keys.callAssetAmountKey,
+      keys.putAssetAmountKey,
+      optionsPool[keys.callAssetDecimalsKey],
+      optionsPool[keys.putAssetDecimalsKey],
+      token0Decimals,
+      token1Decimals,
+      inversePrice,
+      (totalVolumeUsd) => {
+        _setStats({
+          totalVolumeUsd,
+        });
+      },
+    );
+  }, [
+    keys.callAssetAmountKey,
+    keys.callAssetDecimalsKey,
+    keys.putAssetAmountKey,
+    keys.putAssetDecimalsKey,
+    optionsPool,
+  ]);
+
+  useEffect(() => {
+    updateCumulativeVolume();
+  }, [updateCumulativeVolume]);
 
   const handleSelectedUnderlyingToken = useCallback(
     (e: any) => {
@@ -176,6 +215,12 @@ export function PairSelector() {
           symbolPrefixed
           label="Total Deposits"
           value={formatAmount(stats.TVL, 3, true)}
+        />
+        <TitleItem
+          symbol="$"
+          symbolPrefixed
+          label="Cumulative Volume"
+          value={formatAmount(_stats.totalVolumeUsd, 3, true)}
         />
       </div>
     </>
