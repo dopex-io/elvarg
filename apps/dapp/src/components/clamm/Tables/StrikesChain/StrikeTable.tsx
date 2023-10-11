@@ -104,7 +104,7 @@ const columns = [
     },
   }),
   columnHelper.accessor('apy', {
-    header: 'APR',
+    header: 'LP APR',
     cell: (info) => {
       return (
         <span className="text-left flex flex-col justify-center">
