@@ -59,16 +59,12 @@ async function getStats(
       const amountFromAsset =
         optionsAmounts[isPut ? putAssetAmountKey : callAssetAmountKey];
 
-      console.log('AMOUNT', amountFromAsset);
-
       const optionsAmountNumber = Number(
         formatUnits(
           amountFromAsset,
           isPut ? putAssetDecimals : callAssetDecimals,
         ),
       );
-
-      // console.log("options amount %s underliyngPrice %s", optionsAmountNumber, underlyingPriceAtPoint)
 
       totalVolumeUsd +=
         (isPut
