@@ -36,6 +36,10 @@ export interface Portfolio {
   positions: bigint[];
   closedPositions: bigint[];
   liquidationThreshold: bigint;
+  longPnl: bigint;
+  shortPnl: bigint;
+  longMargin: bigint;
+  shortMargin: bigint;
 }
 
 export interface AmmLpData {
@@ -198,6 +202,10 @@ const useAmmUserData = (props: Props) => {
         activeCollateral: netActiveCollateral,
         availableCollateral,
         totalCollateral: collateralAmount,
+        longPnl,
+        shortPnl,
+        longMargin,
+        shortMargin,
         liquidationThreshold,
       });
     } catch (e) {
