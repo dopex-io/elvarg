@@ -192,3 +192,38 @@ export const getEarningsCheckpointsDocument = graphql(`
     }
   }
 `);
+
+export const getOptionsExercisedProfitsDocument = graphql(`
+  query getOptionsExercisedProfits(
+    $poolAddress: String!
+    $first: Int!
+    $skip: Int
+  ) {
+    optionsPositionExercises(
+      first: $first
+      skip: $skip
+      where: { pool: $poolAddress }
+    ) {
+      sqrtx96Price
+      profit
+    }
+  }
+`);
+
+export const getOptionsPurchasedPremiumsDocument = graphql(`
+  query getOptionsPurchasedPremiums(
+    $poolAddress: String!
+    $first: Int!
+    $skip: Int
+  ) {
+    optionsPositionPurchases(
+      first: $first
+      skip: $skip
+      where: { pool: $poolAddress }
+    ) {
+      sqrtx96Price
+      premium
+      options
+    }
+  }
+`);
