@@ -76,7 +76,7 @@ const PortfolioInfo = () => {
         }
       />
       <InfoColumn
-        label="Margin Balance:"
+        label="Total Margin:"
         data={
           <span className="flex text-xs space-x-1">
             <p>

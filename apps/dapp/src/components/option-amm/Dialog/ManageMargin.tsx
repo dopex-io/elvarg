@@ -135,7 +135,7 @@ const ManageMargin = (props: Props) => {
         setBalance(_balance || 0n);
       } else {
         await updatePortfolio();
-        const _balance = portfolioData?.collateralAmount;
+        const _balance = portfolioData?.availableCollateral;
         setBalance(_balance || 0n);
       }
     })();
@@ -143,7 +143,7 @@ const ManageMargin = (props: Props) => {
     activeState,
     address,
     collateralToken,
-    portfolioData?.collateralAmount,
+    portfolioData?.availableCollateral,
     updatePortfolio,
   ]);
 
