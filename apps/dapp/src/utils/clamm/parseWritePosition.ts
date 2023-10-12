@@ -97,15 +97,8 @@ function parseWritePosition(
       (userShares * liquidityAvailable.token1Amount) / availableShares,
   };
 
-  const withdrawableLiquidity = {
-    token0Amount:
-      (userShares * availableUserLiquidity.token0Amount) / availableShares,
-    token1Amount:
-      (userShares * availableUserLiquidity.token1Amount) / availableShares,
-  };
-
   return {
-    withdrawableLiquidity: withdrawableLiquidity,
+    withdrawableLiquidity: availableUserLiquidity,
     tickLower,
     tickUpper,
     shares: userShares > 0n ? userShares - 1n : 0n,
