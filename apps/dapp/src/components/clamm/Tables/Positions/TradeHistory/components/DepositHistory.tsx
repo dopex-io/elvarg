@@ -79,7 +79,7 @@ const DepositHistory = () => {
       ),
     }),
     columnHelper.accessor('timestamp', {
-      header: 'Withdrawn',
+      header: 'Deposited',
       cell: (info) => (
         <span className="space-x-2 text-left">
           <p className="text-stieglitz inline-block">
