@@ -1,209 +1,49 @@
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import {
-  Key,
-  ReactNode,
-  SetStateAction,
-  useCallback,
-  useMemo,
-  useState,
-  useEffect,
-} from 'react';
 import { ethers } from 'ethers';
-import { useNetwork } from 'wagmi';
-import axios from 'axios';
-import cx from 'classnames';
 
-import MenuIcon from '@mui/icons-material/Menu';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import Modal from '@mui/material/Modal';
 
-import ClaimRdpxDialog from './ClaimRdpxDialog';
-import NetworkButton from './NetworkButton';
-import Typography from 'components/UI/Typography';
-import PriceCarousel from 'components/common/AppBar/PriceCarousel';
-import DisclaimerDialog from 'components/common/DisclaimerDialog';
-import ConnectButton from '../ConnectButton';
+import MenuIcon from '@mui/icons-material/Menu';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+
+import axios from 'axios';
+import { useNetwork } from 'wagmi';
 
 import { useBoundStore } from 'store';
 
+import DisclaimerDialog from 'components/common/DisclaimerDialog';
+
+import { DEFAULT_CHAIN_ID } from 'constants/env';
 import {
   DISCLAIMER_MESSAGE,
   OFAC_COMPLIANCE_LOCAL_STORAGE_KEY,
 } from 'constants/index';
 
-const AppLink = ({
-  name,
-  to,
-  active,
-  children,
-}: {
-  name: Key | null | undefined;
-  to: string;
-  active?: boolean;
-  children?: ReactNode;
-}) => {
-  const linkClassName = cx(
-    'hover:no-underline hover:text-white cursor-pointer',
-    active ? 'text-white' : 'text-stieglitz'
-  );
+import ConnectButton from '../ConnectButton';
+import AppLink from './AppLink';
+import AppSubMenu from './AppSubMenu';
+import NetworkButton from './NetworkButton';
+import NftClaims from './NftClaims';
+import RdpxAirdropButton from './RdpxAirdropButton';
+import { LinkType } from './types';
 
-  if (to.startsWith('http')) {
-    return (
-      <a
-        href={to}
-        className={children ? '' : linkClassName}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {children ? children : name}
-      </a>
-    );
-  } else {
-    return (
-      <Link href={to} passHref>
-        <Box className={children ? '' : linkClassName}>
-          {children ? children : name}
-        </Box>
-      </Link>
-    );
-  }
-};
-
-type LinkType = {
-  name: string;
-  to?: string;
-  description: string;
-  subLinks?: LinkType[];
-};
-
-const AppSubMenu = ({
-  menuName,
-  links,
-}: {
-  menuName: Key | null | undefined;
-  links: LinkType[];
-}) => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
-  const handleClick = useCallback(
-    (event: { currentTarget: SetStateAction<HTMLElement | null> }) =>
-      setAnchorEl(event.currentTarget),
-    []
-  );
-
-  const handleClose = useCallback(() => setAnchorEl(null), []);
-
-  return (
-    <>
-      <Typography
-        variant="h5"
-        onClick={handleClick}
-        color="stieglitz"
-        className="cursor-pointer"
-      >
-        {menuName}
-      </Typography>
-      <Menu
-        anchorEl={anchorEl}
-        keepMounted
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-        classes={{ paper: 'bg-cod-gray' }}
-      >
-        {links.map((link) => {
-          return (
-            <MenuItem onClick={handleClose} key={link.name}>
-              <Box className="flex flex-col">
-                <AppLink
-                  to={link.to || ''}
-                  name={link.name}
-                  active={link.name === menuName}
-                >
-                  <Typography variant="h6">{link.name}</Typography>
-                  <Typography variant="caption" color="stieglitz">
-                    {link.description}
-                  </Typography>
-                </AppLink>
-              </Box>
-            </MenuItem>
-          );
-        })}
-      </Menu>
-    </>
-  );
-};
+const NotifiCard = lazy(() =>
+  import('components/NotifiCard').then((module) => ({
+    default: module.NotifiCard,
+  }))
+);
 
 const appLinks: {
-  [key: number]: {
-    name: string;
-    to?: string;
-    subLinks?: { name: string; to: string; description: string }[];
-  }[];
+  [key: number]: LinkType[];
 } = {
   1: [
     { name: 'Farms', to: '/farms' },
     { name: 'Sale', to: '/sale' },
-  ],
-  56: [{ name: 'SSOV', to: '/ssov' }],
-  1337: [
-    { name: 'options', to: '/' },
-    { name: 'pools', to: '/pools' },
-    { name: 'portfolio', to: '/portfolio' },
-    { name: 'faucet', to: '/faucet' },
-    { name: 'Atlantics', to: '/atlantics' },
-    {
-      name: 'rDPX',
-      subLinks: [
-        {
-          name: 'Atlantic Perpetual Pools',
-          to: '/rdpx-v2/perpetual-pools',
-          description:
-            'Write perpetual puts, receive funding till settlement by our treasury',
-        },
-        {
-          name: 'Mint',
-          to: '/rdpx-v2/mint',
-          description: 'Bond rDPX, mint $dpxETH',
-        },
-      ],
-    },
-  ],
-  421613: [
-    // {
-    //   name: 'rDPX',
-    //   subLinks: [
-    {
-      name: 'Bond',
-      to: '/rdpx-v2/mint',
-      // description: 'Bond rDPX, mint $dpxETH',
-    },
-    {
-      name: 'Swap',
-      to: '/rdpx-v2/swap',
-      // description: 'Swap between $dpxETH & WETH',
-    },
-    {
-      name: 'Perpetual Pool',
-      to: '/rdpx-v2/perpetual-pools',
-      // description:
-      //   'Write perpetual puts, receive funding till settlement by our treasury',
-    },
-    // ],
-    // },
-  ],
-  421611: [
-    // { name: 'options', to: '/' },
-    // { name: 'pools', to: '/pools' },
-    // { name: 'portfolio', to: '/portfolio' },
-    // { name: 'faucet', to: '/faucet' },
-    // { name: 'swap', to: '/swap' },
-    // { name: 'SSOV', to: '/ssov' },
-    { name: 'Atlantics', to: '/atlantics' },
-    { name: 'veDPX', to: '/governance/vedpx' },
   ],
   42161: [
     { name: 'Portfolio', to: '/portfolio' },
@@ -252,6 +92,12 @@ const appLinks: {
           description: 'Write weekly atlantic puts to earn premium + funding',
         },
         {
+          name: 'Scalps',
+          to: '/scalps/ETH',
+          description:
+            'Scalp market moves with short term positions & high leverage',
+        },
+        {
           name: 'DPX Bonds',
           to: '/dpx-bonds',
           description: 'Commit stables upfront to receive DPX at a discount',
@@ -263,59 +109,34 @@ const appLinks: {
         },
       ],
     },
-    { name: 'Scalps', to: '/scalps/ETH' },
-  ],
-  43114: [{ name: 'SSOV', to: '/ssov' }],
-  1088: [{ name: 'SSOV', to: '/ssov' }],
-  5: [
-    { name: 'faucet', to: '/faucet' },
-    { name: 'OLP', to: '/olp' },
   ],
   137: [
+    { name: 'Portfolio', to: '/portfolio' },
     { name: 'SSOV', to: '/ssov' },
     { name: 'Straddles', to: '/straddles' },
   ],
 };
+
+const baseAppLinks: LinkType[] = [
+  {
+    name: 'Analytics',
+    to: 'https://dune.com/rebeca/dopex',
+  },
+];
 
 const menuLinks = [
   { name: 'Home', to: 'https://dopex.io' },
   { name: 'Docs', to: 'https://docs.dopex.io/' },
   { name: 'Discord', to: 'https://discord.gg/dopex' },
   { name: 'Github', to: 'https://github.com/dopex-io' },
+  { name: 'Bug Bounty', to: 'https://github.com/dopex-io/bug-bounty' },
   { name: 'Price Oracles', to: '/oracles' },
   { name: 'Diamond Pepe NFTs', to: '/nfts/diamondpepes' },
   { name: 'Dopex NFTs', to: '/nfts/dopex' },
   { name: 'Community NFTs', to: '/nfts/community' },
 ];
 
-interface AppBarProps {
-  active?:
-    | 'options'
-    | 'pools'
-    | 'rewards'
-    | 'Stake'
-    | 'Governance'
-    | 'volume pool'
-    | 'Portfolio'
-    | 'token sale'
-    | 'faucet'
-    | 'Rate Vaults'
-    | 'Straddles'
-    | 'Scalps'
-    | 'OLPs'
-    | 'SSOV'
-    | 'leaderboard'
-    | 'swap'
-    | 'DPX Bonds'
-    | 'vaults'
-    | 'Perpetual Pool'
-    | 'Bond'
-    | 'Swap'
-    | 'Atlantics';
-}
-
-export default function AppBar(props: AppBarProps) {
-  const { active } = props;
+export default function AppBar() {
   const {
     accountAddress,
     tokenPrices,
@@ -335,11 +156,11 @@ export default function AppBar(props: AppBarProps) {
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [anchorElSmall, setAnchorElSmall] = useState<null | HTMLElement>(null);
-  const [claimRdpxDialog, setClaimRdpxDialog] = useState(false);
+  const [isNotifiCardOpen, setIsNotifiCardOpen] = useState(false);
 
-  const links = appLinks[chain?.id || 42161];
-
-  const handleRdpxDialogClose = () => setClaimRdpxDialog(false);
+  const links = (appLinks[chain?.id! || DEFAULT_CHAIN_ID] || []).concat(
+    baseAppLinks
+  );
 
   const handleClose = useCallback(() => setAnchorEl(null), []);
   const handleCloseSmall = useCallback(() => setAnchorElSmall(null), []);
@@ -353,10 +174,6 @@ export default function AppBar(props: AppBarProps) {
     (event: any) => setAnchorElSmall(event.currentTarget),
     []
   );
-
-  const handleClaimRdpx = () => {
-    setClaimRdpxDialog(true);
-  };
 
   const userComplianceCheck = useCallback(async () => {
     if (!accountAddress) return;
@@ -405,25 +222,6 @@ export default function AppBar(props: AppBarProps) {
     updateAssetBalances();
   }, [updateAssetBalances]);
 
-  const menuItems = useMemo(() => {
-    return [
-      ...menuLinks,
-      chain?.id === 1 && {
-        name: 'Claim',
-        children: (
-          <Button
-            variant="contained"
-            color="primary"
-            size="medium"
-            onClick={handleClaimRdpx}
-          >
-            Claim rDPX
-          </Button>
-        ),
-      },
-    ].filter((i) => i);
-  }, [chain]);
-
   useEffect(() => {
     updateTokenPrices();
     const intervalId = setInterval(updateTokenPrices, 60000);
@@ -435,19 +233,13 @@ export default function AppBar(props: AppBarProps) {
 
   return (
     <>
-      <ClaimRdpxDialog
-        open={claimRdpxDialog}
-        handleClose={handleRdpxDialogClose}
-      />
       <DisclaimerDialog
         open={openComplianceDialog}
         handleClose={setOpenComplianceDialog}
       />
-
       <nav className="fixed top-0 w-full text-gray-600 z-50 backdrop-blur-sm h-[74px]">
-        <PriceCarousel tokenPrices={tokenPrices} />
-        <Box className="flex w-full items-center container pl-5 pr-5 lg:pl-10 lg:pr-10 p-4 justify-between mx-auto max-w-full">
-          <Box className="flex items-center">
+        <div className="flex w-full items-center container pl-5 pr-5 lg:pl-10 lg:pr-10 p-4 justify-between mx-auto max-w-full">
+          <div className="flex items-center">
             <Link
               className="flex items-center mr-10 cursor-pointer hover:no-underline"
               href="/"
@@ -458,7 +250,7 @@ export default function AppBar(props: AppBarProps) {
                 alt="logo"
               />
             </Link>
-            <Box className="space-x-10 mr-10 hidden lg:flex">
+            <div className="space-x-10 mr-10 hidden lg:flex">
               {links?.map((link) => {
                 if (link.subLinks) {
                   return (
@@ -473,48 +265,71 @@ export default function AppBar(props: AppBarProps) {
                   <AppLink
                     to={link.to || ''}
                     name={link.name}
-                    active={link.name === active}
                     key={link.name}
                   />
                 );
               })}
-            </Box>
-          </Box>
-          <Box className="flex items-center">
-            <NetworkButton className="lg:inline-flex hidden mr-2" />
+            </div>
+          </div>
+          <div className="flex items-center">
+            {accountAddress && chain?.network === 'arbitrum' ? (
+              <IconButton
+                sx={{ mr: 1 }}
+                onClick={() => setIsNotifiCardOpen(!isNotifiCardOpen)}
+                className="text-white border-cod-gray bg-carbon rounded-md hover:bg-carbon hover:opacity-80"
+              >
+                <NotificationsIcon />
+              </IconButton>
+            ) : null}
+            <Modal
+              sx={{
+                marginTop: '80px',
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'end',
+                right: '165px',
+                height: 'fit-content',
+              }}
+              open={isNotifiCardOpen}
+              onClose={() => setIsNotifiCardOpen(false)}
+              className="bg-opacity-10"
+            >
+              <Suspense fallback={<div>Loading...</div>}>
+                <NotifiCard />
+              </Suspense>
+            </Modal>
+            {accountAddress ? <NftClaims account={accountAddress} /> : null}
+            {accountAddress ? (
+              <RdpxAirdropButton account={accountAddress} />
+            ) : null}
+            <NetworkButton className="inline-flex mr-2" />
             <ConnectButton />
-            <Box>
-              <IconButton
-                aria-label="more"
-                aria-controls="long-menu"
-                aria-haspopup="true"
-                onClick={handleClickMenu}
-                style={{ height: 38 }}
-                className="w-9 long-menu ml-2 rounded-md bg-carbon hover:bg-carbon hidden lg:flex"
-                size="large"
-              >
-                <MoreVertIcon className="text-silver" />
-              </IconButton>
-            </Box>
-            <Box>
-              <IconButton
-                onClick={handleClickMenuSmall}
-                className="lg:hidden"
-                size="large"
-              >
-                <MenuIcon className="text-white" />
-              </IconButton>
-            </Box>
-            <Box className="flex flex-row">
+            <IconButton
+              aria-label="more"
+              aria-controls="long-menu"
+              aria-haspopup="true"
+              onClick={handleClickMenu}
+              style={{ height: 38 }}
+              className="w-9 long-menu ml-2 rounded-md bg-carbon hover:bg-carbon hidden lg:flex"
+              size="large"
+            >
+              <MoreVertIcon className="text-silver" />
+            </IconButton>
+            <IconButton
+              onClick={handleClickMenuSmall}
+              className="lg:hidden"
+              size="large"
+            >
+              <MenuIcon className="text-white" />
+            </IconButton>
+            <div className="flex flex-row">
               <Menu
                 anchorEl={anchorElSmall}
                 open={Boolean(anchorElSmall)}
                 onClose={handleCloseSmall}
                 classes={{ paper: 'bg-cod-gray' }}
               >
-                <Typography variant="h5" className="font-bold ml-4 my-2">
-                  App
-                </Typography>
+                <div className="font-bold ml-4 my-2 text-white">App</div>
                 {links?.map(({ to, name, subLinks }) => {
                   if (to)
                     return (
@@ -543,67 +358,9 @@ export default function AppBar(props: AppBarProps) {
                     );
                   }
                 })}
-                <Box>
-                  <Typography variant="h5" className="font-bold ml-4 my-2">
-                    Links
-                  </Typography>
-                  {menuItems.map(
-                    // TODO: FIX
-                    // @ts-ignore
-                    (item: {
-                      name: string;
-                      to: string;
-                      children: ReactNode;
-                    }) => {
-                      if (item.children) {
-                        return (
-                          <MenuItem
-                            onClick={handleClose}
-                            className="ml-2"
-                            key={item.name}
-                          >
-                            {item.children}
-                          </MenuItem>
-                        );
-                      }
-                      return (
-                        <MenuItem
-                          onClick={handleClose}
-                          className="ml-2 text-white"
-                          key={item.name}
-                        >
-                          <AppLink to={item.to} name={item.name} />
-                        </MenuItem>
-                      );
-                    }
-                  )}
-                </Box>
-                <Box className="border border-stieglitz" />
-                <NetworkButton className="mx-3" />
-              </Menu>
-            </Box>
-            <Box className="flex flex-row">
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-                classes={{ paper: 'bg-cod-gray' }}
-              >
-                {menuItems.map(
-                  // TODO: FIX
-                  // @ts-ignore
-                  (item: { name: string; to: string; children: ReactNode }) => {
-                    if (item.children) {
-                      return (
-                        <MenuItem
-                          onClick={handleClose}
-                          className="ml-2"
-                          key={item.name}
-                        >
-                          {item.children}
-                        </MenuItem>
-                      );
-                    }
+                <div>
+                  <div className="font-bold ml-4 my-2 text-white">Links</div>
+                  {menuLinks.map((item) => {
                     return (
                       <MenuItem
                         onClick={handleClose}
@@ -613,12 +370,34 @@ export default function AppBar(props: AppBarProps) {
                         <AppLink to={item.to} name={item.name} />
                       </MenuItem>
                     );
-                  }
-                )}
+                  })}
+                </div>
+                <div className="border border-stieglitz" />
+                <NetworkButton className="mx-3" />
               </Menu>
-            </Box>
-          </Box>
-        </Box>
+            </div>
+            <div className="flex flex-row">
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+                classes={{ paper: 'bg-cod-gray' }}
+              >
+                {menuLinks.map((item) => {
+                  return (
+                    <MenuItem
+                      onClick={handleClose}
+                      className="ml-2 text-white"
+                      key={item.name}
+                    >
+                      <AppLink to={item.to} name={item.name} />
+                    </MenuItem>
+                  );
+                })}
+              </Menu>
+            </div>
+          </div>
+        </div>
       </nav>
     </>
   );
