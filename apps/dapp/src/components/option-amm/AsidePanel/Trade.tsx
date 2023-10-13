@@ -74,25 +74,29 @@ const Trade = (props: Props) => {
   const updatePortfolioMMFromInput = useCallback(async () => {
     if (!address || !expiryData || !strikeData) return;
     const isShort = data.isShort;
-    const marginToLock = await readContract({
-      abi: OptionAmm__factory.abi,
-      address: vault.address,
-      functionName: 'calculateMarginRequirement',
-      args: [
-        vault.isPut,
-        strikeData[activeStrikeIndex]?.strike || 0n,
-        BigInt(expiryData.expiry),
-        parseUnits(data.amount, DECIMALS_TOKEN),
-      ],
-    });
-    const _newMaintenanceMargin = await readContract({
-      abi: OptionAmmPortfolioManager__factory.abi,
-      address: vault.portfolioManager,
-      functionName: 'getPortfolioHealthFromAddedMargin',
-      args: [address, marginToLock, isShort],
-    });
-
-    setNewMaintenanceMargin(_newMaintenanceMargin);
+    try {
+      const marginToLock = await readContract({
+        abi: OptionAmm__factory.abi,
+        address: vault.address,
+        functionName: 'calculateMarginRequirement',
+        args: [
+          vault.isPut,
+          strikeData[activeStrikeIndex]?.strike || 0n,
+          BigInt(expiryData.expiry),
+          parseUnits(data.amount, DECIMALS_TOKEN),
+        ],
+      });
+      const _newMaintenanceMargin =
+        (await readContract({
+          abi: OptionAmmPortfolioManager__factory.abi,
+          address: vault.portfolioManager,
+          functionName: 'getPortfolioHealthFromAddedMargin',
+          args: [address, marginToLock, isShort],
+        })) || 0n;
+      setNewMaintenanceMargin(_newMaintenanceMargin);
+    } catch (e) {
+      console.error('Reverted in Trade panel... ', e);
+    }
   }, [activeStrikeIndex, address, data, expiryData, strikeData, vault]);
 
   // @todo: add fees

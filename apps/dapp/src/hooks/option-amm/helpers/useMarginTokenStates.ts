@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Address, parseUnits } from 'viem';
+import { Address, parseUnits, zeroAddress } from 'viem';
 
 import { ManageMarginAction } from 'hooks/option-amm/helpers/useMarginCalculator';
 import { Portfolio } from 'hooks/option-amm/useAmmUserData';
@@ -43,7 +43,8 @@ const useMarginTokenStates = (props: Props) => {
 
   useEffect(() => {
     (async () => {
-      if (!portfolio || !address || !vault.collateralTokenAddress) return;
+      if (!address || address === zeroAddress || !vault.collateralTokenAddress)
+        return;
 
       if (action === ManageMarginAction.AddCollateral) {
         const _balance = await getUserBalance({
@@ -52,8 +53,8 @@ const useMarginTokenStates = (props: Props) => {
         });
         setBalance(_balance || 0n);
       } else {
-        const _balance = portfolio.availableCollateral;
-        setBalance(_balance || 0n);
+        const _balance = portfolio?.availableCollateral || 0n;
+        setBalance(_balance);
       }
     })();
   }, [action, address, portfolio, vault.collateralTokenAddress]);
