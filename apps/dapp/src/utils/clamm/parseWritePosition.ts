@@ -47,6 +47,14 @@ function parseWritePosition(
     totalLiquidity.token1Amount,
   );
 
+  const availableLiquidity = getLiquidityForAmounts(
+    priceSqrtX96,
+    getSqrtRatioAtTick(BigInt(tickLower)),
+    getSqrtRatioAtTick(BigInt(tickUpper)),
+    liquidityAvailable.token0Amount,
+    liquidityAvailable.token1Amount,
+  );
+
   const totalUserLiquidity = (shares * totalLiquidityToL) / availableShares;
 
   if (liquidity < 0n) {
@@ -90,18 +98,34 @@ function parseWritePosition(
     inversePrice,
   );
 
-  const availableUserLiquidity = {
+  let withdrawableLiquidity = {
     token0Amount:
       (userShares * liquidityAvailable.token0Amount) / availableShares,
     token1Amount:
       (userShares * liquidityAvailable.token1Amount) / availableShares,
   };
 
+  let withdrawableShares =
+    (userShares * availableLiquidity) / totalLiquidityToL;
+
+  if (availableLiquidity >= totalUserLiquidity) {
+    withdrawableLiquidity = {
+      token0Amount: liquidityAmounts.amount0,
+      token1Amount: liquidityAmounts.amount1,
+    };
+
+    withdrawableShares = userShares;
+  }
+
+  if (availableShares - withdrawableShares === 0n) {
+    withdrawableShares = withdrawableShares - 1n;
+  }
+
   return {
-    withdrawableLiquidity: availableUserLiquidity,
+    withdrawableLiquidity: withdrawableLiquidity,
     tickLower,
     tickUpper,
-    shares: userShares > 0n ? userShares - 1n : 0n,
+    shares: withdrawableShares > 0n ? withdrawableShares : 0n,
     tickLowerPrice,
     tickUpperPrice,
     size: {

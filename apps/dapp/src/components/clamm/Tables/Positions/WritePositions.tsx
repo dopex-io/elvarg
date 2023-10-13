@@ -280,7 +280,7 @@ const WritePositions = () => {
             strike: side == 'Put' ? tickLowerPrice : tickUpperPrice,
             button: {
               handleBurn: () => {
-                handleBurn(tickLower, tickUpper, shares - 1n);
+                handleBurn(tickLower, tickUpper, shares);
               },
               id: index,
               disabled: shares < 2n,
@@ -288,7 +288,11 @@ const WritePositions = () => {
           };
         },
       )
-      .filter((position) => position.shares > 1n);
+      .filter(
+        (position) =>
+          Number(position.withdrawable.callAssetAmount) > 0 ||
+          Number(position.withdrawable.putAssetAmount) > 0,
+      );
   }, [
     handleBurn,
     optionsPool,
