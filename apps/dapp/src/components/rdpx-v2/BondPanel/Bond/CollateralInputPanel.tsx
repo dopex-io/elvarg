@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+
 import { MockToken__factory } from '@dopex-io/sdk';
 
 import { useBoundStore } from 'store';
@@ -50,18 +51,18 @@ const CollateralInputPanel = (props: Props) => {
       const [rdpxAllowance, wethAllowance] = await Promise.all([
         MockToken__factory.connect(
           treasuryData.tokenA.address, // rdpx
-          provider
+          provider,
         ).allowance(accountAddress, treasury),
         MockToken__factory.connect(
           treasuryData.tokenB.address, // weth
-          provider
+          provider,
         ).allowance(accountAddress, treasury),
       ]);
 
       setApproved(
         rdpxAllowance.gte(getContractReadableAmount(amounts[0] || 0, 18)) &&
           (delegated ||
-            wethAllowance.gte(getContractReadableAmount(amounts[1] || 0, 18)))
+            wethAllowance.gte(getContractReadableAmount(amounts[1] || 0, 18))),
       );
     })();
   }, [
@@ -76,26 +77,26 @@ const CollateralInputPanel = (props: Props) => {
 
   return (
     <div className="bg-umbra rounded-b-xl">
-      <div className="divide-y-2 divide-cod-gray">
-        {amounts.map((_, index) => {
-          let symbol = (
-            index === 0
-              ? treasuryData.tokenA.symbol
-              : treasuryData.tokenB.symbol
-          ).toUpperCase();
-          return (
-            <InputRow
-              key={index}
-              index={index}
-              tokenSymbol={symbol}
-              amounts={amounts}
-              setAmounts={setAmounts}
-              setBonds={setInputAmount}
-              rounded={index === amounts.length - 1}
-              disabled={symbol === 'WETH' && delegated}
-            />
-          );
-        })}
+      <div className="flex flex-col p-2 bg-umbra">
+        <span className="text-sm text-stieglitz">Collateral Required</span>
+
+        <div className="flex space-x-2 mt-2">
+          {amounts.map((_, index) => {
+            let symbol = (index === 0 ? 'ETH' : 'RDPX').toUpperCase();
+            return (
+              <InputRow
+                key={index}
+                index={index}
+                tokenSymbol={symbol}
+                amounts={amounts}
+                setAmounts={setAmounts}
+                setBonds={setInputAmount}
+                rounded={index === amounts.length - 1}
+                disabled={symbol === 'WETH' && delegated}
+              />
+            );
+          })}
+        </div>
       </div>
     </div>
   );

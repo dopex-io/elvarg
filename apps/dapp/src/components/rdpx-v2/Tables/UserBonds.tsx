@@ -1,20 +1,23 @@
 import { useCallback, useMemo } from 'react';
-import { Column, useTable } from 'react-table';
-import { RdpxV2Bond__factory, RdpxV2Treasury__factory } from '@dopex-io/sdk';
-import Countdown from 'react-countdown';
-import format from 'date-fns/format';
-import Tooltip from '@mui/material/Tooltip';
-import CheckCircleRounded from '@mui/icons-material/CheckCircleRounded';
-import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
-import { Button } from '@dopex-io/ui';
 
-import Placeholder from 'components/rdpx-v2/Tables/Placeholder';
+import Tooltip from '@mui/material/Tooltip';
+
+import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
+import CheckCircleRounded from '@mui/icons-material/CheckCircleRounded';
+
+import { RdpxV2Bond__factory, RdpxV2Treasury__factory } from '@dopex-io/sdk';
+import { Button } from '@dopex-io/ui';
+import format from 'date-fns/format';
+import Countdown from 'react-countdown';
+import { Column, useTable } from 'react-table';
 
 import { useBoundStore } from 'store';
 
-import { getUserReadableAmount } from 'utils/contracts';
-
 import useSendTx from 'hooks/useSendTx';
+
+import Placeholder from 'components/rdpx-v2/Tables/Placeholder';
+
+import { getUserReadableAmount } from 'utils/contracts';
 
 const UserBonds = () => {
   const sendTx = useSendTx();
@@ -37,12 +40,12 @@ const UserBonds = () => {
 
       const bond = RdpxV2Bond__factory.connect(
         treasuryContractState.contracts.bond.address,
-        signer
+        signer,
       );
 
       const treasury = RdpxV2Treasury__factory.connect(
         treasuryContractState.contracts.treasury.address,
-        signer
+        signer,
       );
 
       const isApproved = (await bond.getApproved(tokenId))
@@ -68,7 +71,7 @@ const UserBonds = () => {
       treasuryContractState.contracts,
       updateUserDscBondsData,
       updateTreasuryData,
-    ]
+    ],
   );
 
   const userBonds = useMemo(() => {
@@ -153,7 +156,6 @@ const UserBonds = () => {
 
   return (
     <div className="space-y-2">
-      <h6 className="mx-2">Bonds</h6>
       <div className="overflow-x-auto">
         {userBonds.length > 0 ? (
           <table {...getTableProps()} className="bg-cod-gray rounded-lg w-full">

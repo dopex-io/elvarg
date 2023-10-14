@@ -1,15 +1,17 @@
-import { useMemo, useState, useCallback, useEffect } from 'react';
-import { Column, useTable } from 'react-table';
-import { RdpxV2Treasury__factory } from '@dopex-io/sdk';
-import { Button } from '@dopex-io/ui';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
 import Tooltip from '@mui/material/Tooltip';
 
-import Placeholder from 'components/rdpx-v2/Tables/Placeholder';
+import { RdpxV2Treasury__factory } from '@dopex-io/sdk';
+import { Button } from '@dopex-io/ui';
+import { Column, useTable } from 'react-table';
 
 import { useBoundStore } from 'store';
 import { DelegateType } from 'store/RdpxV2/dpxeth-bonding';
 
 import useSendTx from 'hooks/useSendTx';
+
+import Placeholder from 'components/rdpx-v2/Tables/Placeholder';
 
 import { getUserReadableAmount } from 'utils/contracts';
 
@@ -34,7 +36,7 @@ const DelegatePositions = () => {
 
       const treasury = RdpxV2Treasury__factory.connect(
         treasuryContractState.contracts.treasury.address,
-        signer
+        signer,
       );
 
       try {
@@ -45,7 +47,7 @@ const DelegatePositions = () => {
         console.log(e);
       }
     },
-    [accountAddress, sendTx, signer, treasuryContractState.contracts]
+    [accountAddress, sendTx, signer, treasuryContractState.contracts],
   );
 
   const delegatePositions = useMemo(() => {
@@ -71,13 +73,13 @@ const DelegatePositions = () => {
         <Tooltip
           title={getUserReadableAmount(
             position.amount.sub(position.activeCollateral),
-            18
+            18,
           )}
         >
           <p className="text-sm">
             {getUserReadableAmount(
               position.amount.sub(position.activeCollateral),
-              18
+              18,
             ).toFixed(3)}{' '}
             <span className="text-stieglitz">WETH</span>
           </p>
@@ -102,7 +104,7 @@ const DelegatePositions = () => {
         treasuryData.availableDelegates.filter(
           (delegate: DelegateType) =>
             delegate.owner === accountAddress &&
-            delegate.amount.sub(delegate.activeCollateral).gt('10') // **note**: 1e2 accounts for dust
+            delegate.amount.sub(delegate.activeCollateral).gt('10'), // **note**: 1e2 accounts for dust
         );
       setUserPositions(_userPositions);
     })();
@@ -140,7 +142,6 @@ const DelegatePositions = () => {
 
   return (
     <div className="space-y-2">
-      <h6 className="mx-2">Delegated Positions</h6>
       <div className="overflow-x-auto">
         {delegatePositions.length > 0 ? (
           <table {...getTableProps()} className="bg-cod-gray rounded-lg w-full">

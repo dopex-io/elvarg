@@ -15,16 +15,13 @@ const BondPanel = () => {
   }, []);
 
   return (
-    <div className="p-3 bg-cod-gray rounded-xl space-y-3">
-      <span className="text-base">Mint</span>
-      <ButtonGroup className="flex w-full justify-between bg-cod-gray border border-umbra rounded-lg">
+    <div className="p-1 bg-cod-gray rounded-xl space-y-1 px-2 pb-2">
+      <ButtonGroup className="flex w-full">
         {BUTTON_LABELS.map((label, index) => (
           <button
             key={index}
-            className={`border-0 hover:border-0 w-full m-1 pb-1 transition ease-in-out duration-500 rounded-md ${
-              active === label
-                ? 'text-white bg-carbon hover:bg-carbon'
-                : 'text-stieglitz bg-transparent hover:bg-transparent'
+            className={`border-0 m-1 mr-2 pb-0 transition ease-in-out duration-500 rounded-md bg-transparent hover:bg-transparent ${
+              active === label ? 'text-white' : 'text-stieglitz'
             } hover:text-white`}
             onClick={handleClick}
           >

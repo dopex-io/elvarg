@@ -1,6 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { BigNumber } from 'ethers';
+
 import Tooltip from '@mui/material/Tooltip';
+
 import { styled } from '@mui/styles';
 
 import { useBoundStore } from 'store';
@@ -64,11 +66,11 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
         .div(one_ether)
         .sub(requiredWethNoDiscount)
         .mul(-1),
-      18
+      18,
     );
     const totalPremium = getUserReadableAmount(
       treasuryData.premiumPerDsc.mul(_amount).div(one_ether),
-      18
+      18,
     );
 
     // Calculate average fee across delegates based on weight of delegates' collateral used
@@ -82,7 +84,7 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
     const { ids, amounts } = squeezeTreasuryDelegates(
       availableDelegates,
       totalWethRequired,
-      bonds
+      bonds,
     ) || {
       wethAvailable: BigNumber.from(0),
       ids: [0],
@@ -94,13 +96,13 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
     const weights = amounts.map((_amount) =>
       getUserReadableAmount(
         _amount.mul(getContractReadableAmount(1, 10)).div(bonds),
-        10
-      )
+        10,
+      ),
     );
     const _avgFee =
       activeDelegatesFees.reduce(
         (prev, curr, i) => curr + prev * (weights[i] ?? 0),
-        0
+        0,
       ) / activeDelegatesFees.length;
 
     // Calculate delegatee's share; 25% of bonds - (discount - discount * fee_percentage)
@@ -115,8 +117,8 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
           .sub(requiredWethNoDiscount)
           .mul(getContractReadableAmount(1, 18))
           .div(totalWethRequired.gt(0) ? totalWethRequired : '1'),
-        18
-      ) * 100
+        18,
+      ) * 100,
     );
 
     // Calculate total WETH available from delegates
@@ -124,14 +126,14 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
       treasuryData.availableDelegates.reduce((prev: BigNumber, curr: any) => {
         return prev.add(curr.amount.sub(curr.activeCollateral));
       }, BigNumber.from(0)),
-      18
+      18,
     );
 
     const availablePutsLiquidity = getUserReadableAmount(
       appContractData.vaultData.totalCollateral.sub(
-        appContractData.vaultData.activeCollateral
+        appContractData.vaultData.activeCollateral,
       ),
-      18
+      18,
     );
 
     setPutsBalance(availablePutsLiquidity);
@@ -158,63 +160,41 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
   }, [calculateDelegateData]);
 
   return (
-    <div className="flex flex-col border border-carbon rounded-xl divide-y divide-carbon">
+    <div className="flex flex-col border border-carbon rounded-xl">
       <div className="flex divide-x divide-carbon">
-        <div className="flex flex-col w-1/2 p-2 text-start space-y-1">
-          <p className="text-xs">
-            {premium > 0 ? '~' : null}
-            {formatAmount(premium, 3)} WETH
-          </p>
-          <p className="text-xs text-stieglitz">Premium</p>
-        </div>
         <StyledTooltip
           followCursor
           arrow={true}
           color="transparent"
           title={
-            <div className="flex flex-col p-2 bg-carbon rounded-lg border border-mineshaft w-fit space-y-2 bg-opacity-50 backdrop-blur-md">
+            <div className="flex flex-col p-2 pb-1 bg-carbon rounded-lg border border-mineshaft w-fit space-y-2 bg-opacity-50 backdrop-blur-md">
               <p className={`text-xs ${discount > 0 ? 'text-up-only' : null}`}>
                 {formatAmount(discount, 3)} WETH
               </p>
             </div>
           }
         >
-          <div className="flex flex-col w-1/2 p-2 space-y-1">
+          <div className="flex w-full p-2">
+            <p className="text-xs text-stieglitz mr-auto">Discount</p>
             <p
-              className={`text-xs ${
+              className={`text-xs ml-auto${
                 discountPercent > 0 ? 'text-up-only' : null
               } underline decoration-dashed`}
             >
               {formatAmount(discountPercent, 3)}%
             </p>
-            <p className="text-xs text-stieglitz">Discount</p>
           </div>
         </StyledTooltip>
       </div>
       <div className="flex divide-x divide-carbon">
-        <div className="flex flex-col w-full p-2 text-start space-y-1">
-          <p className="text-xs">{formatAmount(putsBalance, 3)} WETH</p>
-          <p className="text-xs text-stieglitz">Perp. Pool Liquidity</p>
+        <div className="flex w-full p-2 pt-1 text-start space-y-1">
+          <p className="text-xs text-stieglitz mr-auto">Cap</p>
+          <span className="text-xs ml-auto text-white">
+            931.41 <span className="text-stieglitz">/</span> 1341.21{' '}
+            <span className="text-stieglitz">DPXETH</span>
+          </span>
         </div>
-        {delegated ? (
-          <div className="flex flex-col w-full p-2 text-start space-y-1">
-            <p className="text-xs">{formatAmount(wethAvailable, 3)} WETH</p>
-            <p className="text-xs text-stieglitz">Delegate Liquidity</p>
-          </div>
-        ) : null}
       </div>
-      {delegated ? (
-        <div className="flex divide-x divide-carbon">
-          <div className="flex flex-col w-full p-2 text-start space-y-1">
-            <p className="text-xs">{formatAmount(avgFee, 3)}%</p>
-            <p className="text-xs text-stieglitz">Avg. Delegate Fee</p>
-          </div>
-          <div className="flex flex-col w-full p-2 text-start space-y-1">
-            <p className="text-xs">{share.toFixed(3)} dpxETH</p>
-            <p className="text-xs text-stieglitz">You Receive</p>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 };

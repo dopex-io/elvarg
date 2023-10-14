@@ -1,27 +1,31 @@
-import { useCallback, useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import Tooltip from '@mui/material/Tooltip';
+
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import LaunchOutlinedIcon from '@mui/icons-material/LaunchOutlined';
 
 import {
   DPXVotingEscrow__factory,
   MockToken__factory,
   RdpxV2Treasury__factory,
 } from '@dopex-io/sdk';
-import LaunchOutlinedIcon from '@mui/icons-material/LaunchOutlined';
-import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
-import { Switch } from '@dopex-io/ui';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import Tooltip from '@mui/material/Tooltip';
-
-import CustomButton from 'components/UI/Button';
-import Input from 'components/UI/Input';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import CollateralInputPanel from 'components/rdpx-v2/BondPanel/Bond/CollateralInputPanel';
-import DisabledPanel from 'components/rdpx-v2/BondPanel/DisabledPanel';
-import InfoBox from 'components/rdpx-v2/BondPanel/Bond/InfoBox';
-import Error from 'components/rdpx-v2/BondPanel/Error';
 import Caution from 'svgs/icons/Caution';
 
+import { useBoundStore } from 'store';
 import { BondingState } from 'store/RdpxV2/dpxeth-bonding';
+
+import useSendTx from 'hooks/useSendTx';
+
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import CollateralInputPanel from 'components/rdpx-v2/BondPanel/Bond/CollateralInputPanel';
+import InfoBox from 'components/rdpx-v2/BondPanel/Bond/InfoBox';
+import DisabledPanel from 'components/rdpx-v2/BondPanel/DisabledPanel';
+import Error from 'components/rdpx-v2/BondPanel/Error';
+import CustomButton from 'components/UI/Button';
+import Input from 'components/UI/Input';
 
 import { getContractReadableAmount } from 'utils/contracts';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -65,7 +69,7 @@ const Bond = () => {
   } = useBoundStore();
 
   const sendTx = useSendTx();
-
+  const [section, setSection] = useState<string>('rDPX + ETH');
   const [value, setValue] = useState<number | string>('');
   const [approved, setApproved] = useState<boolean>(false);
   const [mintDisabled, setMintDisabled] = useState<boolean>(false);
@@ -76,7 +80,7 @@ const Bond = () => {
     (e: { target: { value: React.SetStateAction<string | number> } }) => {
       setValue(Number(e.target.value) < 0 ? '' : e.target.value);
     },
-    []
+    [],
   );
 
   const handleApprove = useCallback(async () => {
@@ -93,12 +97,12 @@ const Bond = () => {
 
     const weth = MockToken__factory.connect(
       treasuryData.tokenB.address,
-      signer
+      signer,
     );
 
     const rdpx = MockToken__factory.connect(
       treasuryData.tokenA.address,
-      signer
+      signer,
     );
 
     try {
@@ -131,7 +135,7 @@ const Bond = () => {
 
     const treasury = RdpxV2Treasury__factory.connect(
       contractAddresses['RDPX-V2']['Treasury'],
-      signer
+      signer,
     );
     try {
       if (!delegated)
@@ -141,7 +145,7 @@ const Bond = () => {
           0,
         ]).then(() => {
           updateAssetBalances().then(() =>
-            updateTreasuryData().then(() => updateUserDscBondsData())
+            updateTreasuryData().then(() => updateUserDscBondsData()),
           );
         });
       else {
@@ -157,7 +161,7 @@ const Bond = () => {
         let { amounts, ids } = squeezeTreasuryDelegates(
           availableDelegates,
           totalWethRequired,
-          getContractReadableAmount(value, 18)
+          getContractReadableAmount(value, 18),
         ) || {
           amounts: [getContractReadableAmount(0, 18)],
           ids: [0],
@@ -170,7 +174,7 @@ const Bond = () => {
           0,
         ]).then(() => {
           updateAssetBalances().then(() =>
-            updateTreasuryData().then(() => updateUserDscBondsData())
+            updateTreasuryData().then(() => updateUserDscBondsData()),
           );
         });
       }
@@ -207,21 +211,21 @@ const Bond = () => {
 
       const _weth = MockToken__factory.connect(
         treasuryData.tokenB.address,
-        provider
+        provider,
       );
       const _rdpx = MockToken__factory.connect(
         treasuryData.tokenA.address,
-        provider
+        provider,
       );
 
       const allowances = await Promise.all([
         _rdpx.allowance(
           accountAddress,
-          treasuryContractState.contracts.treasury.address
+          treasuryContractState.contracts.treasury.address,
         ),
         _weth.allowance(
           accountAddress,
-          treasuryContractState.contracts.treasury.address
+          treasuryContractState.contracts.treasury.address,
         ),
       ]);
 
@@ -245,23 +249,23 @@ const Bond = () => {
       if (treasuryData.dscPrice.lt(second_lower)) {
         const veDpx = DPXVotingEscrow__factory.connect(
           '0x37b2786EAfD3EC4794A1863B4A11C0B7EA03F78b',
-          provider
+          provider,
         );
         const userVeDpxBalance = await veDpx.balanceOf(accountAddress);
         eligibleUser = userVeDpxBalance.gte(
-          getContractReadableAmount(1000, 18)
+          getContractReadableAmount(1000, 18),
         );
       }
 
       setMintDisabled(
         treasuryData.dscPrice.gte(upper) ||
           treasuryData.dscPrice.lte(lower) ||
-          !eligibleUser
+          !eligibleUser,
       );
 
       setApproved(
         allowances[0].gte(rdpxReq.sub(1e4)) &&
-          (allowances[1].gte(wethReq.sub(1e4)) || delegated) // **note**: account for dust
+          (allowances[1].gte(wethReq.sub(1e4)) || delegated), // **note**: account for dust
       );
     })();
   }, [
@@ -299,7 +303,7 @@ const Bond = () => {
       let { wethAvailable } = squeezeTreasuryDelegates(
         availableDelegates,
         totalWethRequired,
-        getContractReadableAmount(value, 18)
+        getContractReadableAmount(value, 18),
       ) || {
         amounts: [getContractReadableAmount(0, 18)],
         ids: [0],
@@ -333,7 +337,7 @@ const Bond = () => {
 
     const treasury = RdpxV2Treasury__factory.connect(
       contractAddresses['RDPX-V2']['Treasury'],
-      signer
+      signer,
     );
 
     try {
@@ -361,7 +365,7 @@ const Bond = () => {
 
     const treasury = RdpxV2Treasury__factory.connect(
       contractAddresses['RDPX-V2']['Treasury'],
-      signer
+      signer,
     );
 
     try {
@@ -428,7 +432,7 @@ const Bond = () => {
             <>
               <div className="flex justify-between">
                 <span className="text-sm text-stieglitz">
-                  {treasuryData.tokenB.symbol} Balance
+                  {treasuryData.tokenB.symbol} Bond Amount
                 </span>
                 <span className="text-sm">
                   {formatAmount(
@@ -438,37 +442,20 @@ const Bond = () => {
                       ] ?? '0',
                       TOKEN_DECIMALS[chainId]?.[
                         treasuryData.tokenB.symbol.toUpperCase()
-                      ]
+                      ],
                     ),
-                    3
+                    3,
                   )}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-stieglitz">
-                  {treasuryData.tokenA.symbol.toUpperCase()} Balance
-                </span>
-                <span className="text-sm">
-                  {formatAmount(
-                    getUserReadableAmount(
-                      userAssetBalances[
-                        treasuryData.tokenA.symbol.toUpperCase()
-                      ] ?? '0',
-                      TOKEN_DECIMALS[chainId]?.[
-                        treasuryData.tokenA.symbol.toUpperCase()
-                      ]
-                    ),
-                    3
-                  )}{' '}
+                  <span className="text-sm text-stieglitz">{' DPXETH'}</span>
                 </span>
               </div>
             </>
           }
         />
         <div className="flex flex-col p-2 bg-umbra">
-          <div className="flex justify-between h-fit">
-            <div>
-              <span className="text-sm text-stieglitz">Use Delegate</span>
+          <div className="justify-between h-fit">
+            <div className="flex">
+              <span className="text-sm text-stieglitz">Bonding Method</span>
               <Tooltip
                 title="Spend only rDPX by using WETH from delegating users to cover 75% of the bonds and receive 25% share of dpxETH minus a small percentage in delegation fee."
                 enterTouchDelay={0}
@@ -477,14 +464,22 @@ const Bond = () => {
                 <InfoOutlinedIcon className="fill-current text-stieglitz p-1" />
               </Tooltip>
             </div>
-            <div className="pt-1">
-              <Switch
-                size="medium"
-                checked={Boolean(delegated)}
-                onChange={() => setDelegated(!delegated)}
-                color="jaffa"
-              />
-            </div>
+
+            <ButtonGroup className="flex justify-between border border-carbon bg-carbon rounded-top-lg p-0.5">
+              {['rDPX + ETH', 'rDPX'].map((label, index) => (
+                <Button
+                  key={index}
+                  className={`text-white border-0 hover:border-0 w-full m-0 p-0 transition ease-in-out duration-500 ${
+                    section === label
+                      ? 'bg-umbra hover:bg-umbra'
+                      : 'bg-transparent hover:bg-transparent'
+                  } hover:text-white`}
+                  onClick={() => setSection(label)}
+                >
+                  <p className="text-xs py-1">{label}</p>
+                </Button>
+              ))}
+            </ButtonGroup>
           </div>
         </div>
         <CollateralInputPanel
@@ -503,13 +498,42 @@ const Bond = () => {
         </div>
       ) : null}
       <div className="rounded-xl p-4 w-full bg-umbra">
-        <div className="rounded-md flex flex-col mb-2.5 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800 space-y-2">
+        <div className="bg-umbra rounded-2xl">
+          <div className="flex flex-col p-0 w-full">
+            <div className="flex mb-2">
+              <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
+                Balance
+              </h6>
+              <div className="text-right">
+                <h6 className="text-white mr-auto ml-0 text-[0.8rem]">13.11</h6>
+              </div>
+            </div>
+            <div className={'flex mb-2'}>
+              <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
+                Fees
+              </h6>
+              <div className={'text-right'}>
+                <h6 className="text-white mr-auto ml-0 text-[0.8rem]">1.1</h6>
+              </div>
+            </div>
+            <div className={'flex mb-2'}>
+              <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
+                Receipt tokens to be received
+              </h6>
+              <div className={'text-right'}>
+                <h6 className="text-white mr-auto ml-0 text-[0.8rem]">13.13</h6>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-md flex flex-col mb-0 p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800 space-y-2">
           <EstimatedGasCostButton gas={500000} chainId={chainId} />
         </div>
         {userDscBondsData.state === BondingState.open || isLoading ? (
           <CustomButton
             size="medium"
-            className="w-full mt-4 rounded-md"
+            className="w-full mt-2.5 rounded-md"
             color="primary"
             disabled={
               userDscBondsData.state !== BondingState.open ||
@@ -519,7 +543,7 @@ const Bond = () => {
             }
             onClick={approved ? buttonProps.action : handleApprove}
           >
-            {approved ? buttonProps.label : 'Approve'}
+            {approved ? buttonProps.label : 'Approve rDPX'}
           </CustomButton>
         ) : (
           <a

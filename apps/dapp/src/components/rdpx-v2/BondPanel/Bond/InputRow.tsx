@@ -1,6 +1,7 @@
 import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+
 // import formatAmount from 'utils/general/formatAmount';
 
 interface Props {
@@ -50,23 +51,23 @@ const InputRow = (props: Props) => {
   };
 
   return (
-    <div className="flex justify-end space-x-3 divide-x-2 divide-cod-gray">
+    <div className="!border-[0.05px] flex justify-end space-x-3 divide-x-2 divide-cod-gray border-mineshaft rounded-md">
+      <div
+        className={`flex justify-center w-1/2 px-2 py-1 my-auto text-stieglitz ${
+          rounded ? 'rounded-br-xl' : null
+        }`}
+      >
+        <p className="text-sm my-1">{tokenSymbol}</p>
+      </div>
       <input
         type="number"
-        className={`text-sm my-auto bg-umbra border-none outline-none text-end ${
+        className={`text-sm my-auto bg-umbra border-none outline-none text-end w-full pr-3 ${
           disabled ? 'text-mineshaft cursor-not-allowed' : null
         }`}
         value={amounts[index]}
         onChange={(e) => handleChange(e)}
         disabled={disabled}
       />
-      <div
-        className={`flex justify-center bg-mineshaft w-1/4 px-2 py-1 my-auto ${
-          rounded ? 'rounded-br-xl' : null
-        }`}
-      >
-        <p className="text-sm my-1">{tokenSymbol}</p>
-      </div>
     </div>
   );
 };
