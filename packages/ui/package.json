@@ -1,14 +1,9 @@
 {
   "name": "@dopex-io/ui",
   "author": "dopex",
-  "source": "./src/index.ts",
-  "exports": {
-    "require": "./dist/index.js",
-    "default": "./dist/index.modern.mjs"
-  },
-  "main": "./dist/index.cjs",
-  "unpkg": "./dist/index.umd.js",
-  "types": "./dist/types/index.d.ts",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/types/index.d.ts",
   "version": "0.1.0",
   "description": "Dopex UI",
   "files": [
@@ -16,15 +11,15 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "microbundle --jsx React.createElement --jsxFragment React.Fragment --jsxImportSource react",
+    "build": "pnpm clean && node build.js && tsc --emitDeclarationOnly --outDir dist",
+    "clean": "rimraf dist",
     "storybook": "concurrently \"pnpm:watch:*\"",
-    "build-storybook": "concurrently \"pnpm:build:*\"",
-    "build:css": "npx tailwindcss -i ./styles/tailwind.css -o ./storybook-static/tailwind.css",
-    "build:storybook": "build-storybook",
+    "build-storybook": "storybook build && npx tailwindcss -i ./styles/tailwind.css -o ./storybook-static/tailwind.css",
     "watch:css": "npx tailwindcss -i ./styles/tailwind.css -o ./public/tailwind.css --watch",
-    "watch:storybook": "start-storybook -p 6006"
+    "watch:storybook": "storybook dev -p 6006"
   },
   "peerDependencies": {
+    "@heroicons/react": "^2.0.18",
     "react": ">=17",
     "react-dom": ">=17"
   },
@@ -34,27 +29,34 @@
     }
   },
   "devDependencies": {
-    "@storybook/addon-actions": "^6.5.15",
-    "@storybook/addon-essentials": "^6.5.15",
-    "@storybook/addon-interactions": "^6.5.15",
-    "@storybook/addon-links": "^6.5.15",
-    "@storybook/builder-webpack4": "^6.5.15",
-    "@storybook/manager-webpack4": "^6.5.15",
-    "@storybook/react": "^6.5.15",
-    "@storybook/testing-library": "^0.0.13",
-    "@types/node": "^18.11.18",
-    "@types/react": "^18.0.27",
-    "@types/react-dom": "^18.0.10",
-    "concurrently": "^7.6.0",
-    "microbundle": "^0.15.1",
+    "@babel/preset-env": "^7.22.20",
+    "@babel/preset-react": "^7.22.15",
+    "@babel/preset-typescript": "^7.23.0",
+    "@heroicons/react": "^2.0.18",
+    "@storybook/addon-actions": "^7.4.5",
+    "@storybook/addon-essentials": "^7.4.6",
+    "@storybook/addon-interactions": "^7.4.5",
+    "@storybook/addon-links": "^7.4.6",
+    "@storybook/react": "^7.4.5",
+    "@storybook/react-webpack5": "^7.4.5",
+    "@storybook/testing-library": "^0.2.1",
+    "@types/node": "^18.18.1",
+    "@types/react": "^18.2.24",
+    "@types/react-dom": "^18.2.11",
+    "concurrently": "^8.2.1",
+    "esbuild": "^0.19.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "storybook-dark-mode": "^2.0.5",
-    "tailwindcss": "^3.2.4",
-    "tslib": "^2.5.0",
-    "typescript": "^4.9.4"
+    "rimraf": "^5.0.5",
+    "storybook": "^7.4.5",
+    "storybook-dark-mode": "^3.0.1",
+    "tailwind-config": "workspace:*",
+    "tailwindcss": "^3.3.3",
+    "tsconfig": "workspace:*",
+    "tslib": "^2.6.2",
+    "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@headlessui/react": "^1.7.7"
+    "@headlessui/react": "^1.7.17"
   }
 }

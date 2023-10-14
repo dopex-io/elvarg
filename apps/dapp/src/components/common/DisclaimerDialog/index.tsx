@@ -1,16 +1,19 @@
-import { Box, Typography } from '@mui/material';
 import { useCallback, useState } from 'react';
-import { useBoundStore } from 'store';
-import axios from 'axios';
+
+import { Box, Typography } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
+
+import axios from 'axios';
+
+import { useBoundStore } from 'store';
+
+import CustomButton from 'components/UI/Button';
+import Dialog from 'components/UI/Dialog';
 
 import {
   DISCLAIMER_MESSAGE,
   OFAC_COMPLIANCE_LOCAL_STORAGE_KEY,
 } from 'constants/index';
-
-import Dialog from 'components/UI/Dialog';
-import CustomButton from 'components/UI/Button';
 
 const DisclaimerDialog = (props: any) => {
   const { open, handleClose } = props;
@@ -36,7 +39,7 @@ const DisclaimerDialog = (props: any) => {
     try {
       await axios
         .get(
-          `https://soa242vijmzlx3iaazdzwd5wxi0mdlif.lambda-url.us-east-1.on.aws/?address=${accountAddress}&signature=${signature}`
+          `https://soa242vijmzlx3iaazdzwd5wxi0mdlif.lambda-url.us-east-1.on.aws/?address=${accountAddress}&signature=${signature}`,
         )
         .then(() => {
           localStorage.setItem(accountAddress, JSON.stringify(toStore));

@@ -1,38 +1,32 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ERC20__factory } from '@dopex-io/sdk';
-import format from 'date-fns/format';
-import { BigNumber } from 'ethers';
+import { BigNumber, utils as ethersUtils } from 'ethers';
+
+import { CircularProgress } from '@mui/material';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
-import { CircularProgress } from '@mui/material';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+
+import { ERC20__factory, SsovV3Viewer__factory } from '@dopex-io/sdk';
+import format from 'date-fns/format';
+import LockerIcon from 'svgs/icons/LockerIcon';
 import { useDebounce } from 'use-debounce';
 
 import { useBoundStore } from 'store';
 import { SsovV3EpochData } from 'store/Vault/ssov';
 
+import useSendTx from 'hooks/useSendTx';
+
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import InputWithTokenSelector from 'components/common/InputWithTokenSelector';
+import Wrapper from 'components/ssov/Wrapper';
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import Wrapper from 'components/ssov/Wrapper';
-import InputWithTokenSelector from 'components/common/InputWithTokenSelector';
-
-import LockerIcon from 'svgs/icons/LockerIcon';
-
-import useSendTx from 'hooks/useSendTx';
-
-import formatAmount from 'utils/general/formatAmount';
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import { defaultQuoteData, get1inchQuote, get1inchSwap } from 'utils/1inch';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-
-import { MAX_VALUE } from 'constants/index';
-
-import get1inchQuote, { defaultQuoteData } from 'utils/general/get1inchQuote';
-import get1inchSwap from 'utils/general/get1inchSwap';
-
 import { getTokenDecimals } from 'utils/general';
+import formatAmount from 'utils/general/formatAmount';
 import isNativeToken from 'utils/general/isNativeToken';
 
 const SelectMenuProps = {
@@ -52,40 +46,30 @@ const DepositPanel = () => {
     accountAddress,
     chainId,
     signer,
-    updateAssetBalances,
     updateSsovV3EpochData: updateSsovEpochData,
     updateSsovV3UserData: updateSsovUserData,
     ssovData,
     ssovEpochData,
     ssovSigner,
     selectedEpoch,
-    userAssetBalances,
     getContractAddress,
+    getSsovViewerAddress,
   } = useBoundStore();
 
   const sendTx = useSendTx();
 
   const [wrapOpen, setWrapOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [quote, setQuote] = useState({
-    quoteData: defaultQuoteData,
-    swapData: '',
-  });
-
+  const [quote, setQuote] = useState(defaultQuoteData);
   const [debouncedQuote] = useDebounce(quote, 1000);
-
-  const [strikeDepositAmount, setStrikeDepositAmount] = useState<
-    number | string
-  >(0);
+  const [strikeDepositAmount, setStrikeDepositAmount] = useState<string>('0');
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
-    BigNumber.from('0')
+    BigNumber.from('0'),
   );
-
-  const [fromTokenSymbol, setFromTokenSymbol] = useState(
-    ssovData?.collateralSymbol ?? ''
-  );
-
   const [isTokenSelectorOpen, setTokenSelectorOpen] = useState(false);
+  const [fromTokenSymbol, setFromTokenSymbol] = useState(
+    ssovData?.collateralSymbol ?? '',
+  );
 
   const { ssovContractWithSigner } = ssovSigner;
 
@@ -108,8 +92,8 @@ const DepositPanel = () => {
     ssovSigner?.ssovContractWithSigner?.address,
   ]);
 
-  const strikes = epochStrikes.map((strike: string | number | BigNumber) =>
-    getUserReadableAmount(strike, 8).toString()
+  const strikes = epochStrikes.map((strike: BigNumber) =>
+    getUserReadableAmount(strike, 8).toString(),
   );
 
   const handleSelectStrike = useCallback((event: SelectChangeEvent<number>) => {
@@ -117,10 +101,10 @@ const DepositPanel = () => {
   }, []);
 
   const handleDepositAmount = useCallback(
-    (e: { target: { value: React.SetStateAction<string | number> } }) => {
+    (e: { target: { value: React.SetStateAction<string> } }) => {
       setStrikeDepositAmount(e.target.value);
     },
-    []
+    [],
   );
 
   const hasExpiryElapsed = useMemo(() => {
@@ -135,52 +119,99 @@ const DepositPanel = () => {
       await sendTx(
         ERC20__factory.connect(getContractAddress(fromTokenSymbol), signer),
         'approve',
-        [spender, MAX_VALUE]
+        [spender, ethersUtils.parseEther(strikeDepositAmount)],
       );
       setApproved(true);
     } catch (err) {
       console.log(err);
     }
-  }, [sendTx, signer, spender, ssovData, fromTokenSymbol, getContractAddress]);
+  }, [
+    ssovData,
+    signer,
+    spender,
+    sendTx,
+    getContractAddress,
+    fromTokenSymbol,
+    strikeDepositAmount,
+  ]);
+
+  const handleStake = useCallback(async () => {
+    if (!signer || !accountAddress || !ssovSigner) {
+      return;
+    }
+
+    const { ssovContractWithSigner, ssovStakingRewardsWithSigner } = ssovSigner;
+
+    if (!ssovContractWithSigner || !ssovStakingRewardsWithSigner) return;
+
+    const positions = await SsovV3Viewer__factory.connect(
+      getSsovViewerAddress(),
+      signer,
+    ).walletOfOwner(accountAddress, ssovContractWithSigner.address);
+    try {
+      await sendTx(ssovStakingRewardsWithSigner, 'stake', [
+        ssovContractWithSigner.address,
+        positions[positions.length - 1],
+      ]);
+    } catch (err) {
+      console.log(err);
+    }
+  }, [ssovSigner, signer, getSsovViewerAddress, accountAddress, sendTx]);
+
+  const updateUserTokenBalance = useCallback(async () => {
+    if (!accountAddress || !signer) return;
+
+    const tokenAddress = getContractAddress(fromTokenSymbol);
+
+    if (!tokenAddress) return;
+
+    setUserTokenBalance(
+      await ERC20__factory.connect(tokenAddress, signer).balanceOf(
+        accountAddress,
+      ),
+    );
+  }, [accountAddress, fromTokenSymbol, getContractAddress, signer]);
 
   const depositButtonProps = useMemo(() => {
     let disable = false;
     let text = 'Deposit';
     let color = 'primary';
+    let error = false;
 
-    if (Number(strikeDepositAmount) === 0) {
+    if (isNaN(parseFloat(strikeDepositAmount))) {
+      error = true;
+      disable = true;
+      text = 'Not a valid amount';
+      color = 'mineshaft';
+    } else if (Number(strikeDepositAmount) === 0) {
       disable = true;
       text = 'Insert an amount';
       color = 'mineshaft';
-    }
-
-    if (!approved) {
-      disable = false;
-      text = 'Approve';
-      color = 'primary';
-    }
-    if (
+    } else if (hasExpiryElapsed) {
+      disable = true;
+      text = 'Pool expired';
+      color = 'mineshaft';
+    } else if (
       Number(strikeDepositAmount) >
       getUserReadableAmount(
         userTokenBalance,
-        getTokenDecimals(fromTokenSymbol, chainId)
+        getTokenDecimals(fromTokenSymbol, chainId),
       )
     ) {
       disable = true;
       text = 'Insufficient Balance';
       color = 'mineshaft';
-    }
-
-    if (hasExpiryElapsed) {
-      disable = true;
-      text = 'Pool expired';
-      color = 'mineshaft';
+    } else if (!approved) {
+      disable = false;
+      text = 'Approve';
+      color = 'primary';
     }
 
     return {
       disable,
       text,
       color,
+      error,
     };
   }, [
     approved,
@@ -205,16 +236,27 @@ const DepositPanel = () => {
       depositButtonProps.disable
     )
       return;
-    const depositAmount = getContractReadableAmount(
-      strikeDepositAmount,
-      getTokenDecimals(fromTokenSymbol, chainId)
-    );
 
     const toTokenAddress = ssovData.isPut
       ? fromTokenSymbol === 'USDC'
         ? getContractAddress('USDT')
         : getContractAddress('USDC')
       : ssovData.collateralAddress;
+
+    const fromTokenAddress = getContractAddress(fromTokenSymbol);
+    let swapData;
+
+    const depositAmount = ethersUtils.parseEther(strikeDepositAmount);
+
+    if (routerMode) {
+      swapData = await get1inchSwap({
+        chainId,
+        src: fromTokenAddress,
+        dst: toTokenAddress,
+        amount: depositAmount.toString(),
+        from: ssovSigner.ssovRouterWithSigner?.address!,
+      });
+    }
 
     const params = routerMode
       ? [
@@ -226,8 +268,8 @@ const DepositPanel = () => {
           accountAddress,
           strike,
           depositAmount,
-          debouncedQuote.quoteData.toTokenAmount,
-          debouncedQuote.swapData,
+          swapData.toTokenAmount,
+          swapData.tx.data,
         ]
       : [strike, depositAmount, accountAddress];
     const contractWithSigner = routerMode
@@ -238,23 +280,27 @@ const DepositPanel = () => {
 
     isNativeToken(fromTokenSymbol)
       ? params.push({
-          value: getContractReadableAmount(strikeDepositAmount, 18),
+          value: depositAmount,
         })
       : 0;
 
     const method = routerMode ? 'swapAndDeposit' : ('deposit' as any);
 
     try {
-      await sendTx(contractWithSigner, method, params).then(() => {
-        setStrikeDepositAmount(0);
-        updateAssetBalances();
-        updateSsovEpochData();
-        updateSsovUserData();
-      });
+      await sendTx(contractWithSigner, method, params)
+        .then(async () => await handleStake())
+        .then(() => {
+          setStrikeDepositAmount('0');
+          updateUserTokenBalance();
+          updateSsovEpochData();
+          updateSsovUserData();
+        });
     } catch (err) {
       console.log(err);
     }
   }, [
+    handleStake,
+    updateUserTokenBalance,
     getContractAddress,
     sendTx,
     routerMode,
@@ -262,49 +308,38 @@ const DepositPanel = () => {
     ssovContractWithSigner,
     strike,
     strikeDepositAmount,
-    updateAssetBalances,
     updateSsovEpochData,
     updateSsovUserData,
     fromTokenSymbol,
     ssovData,
     ssovSigner.ssovContractWithSigner,
     ssovSigner.ssovRouterWithSigner,
-    debouncedQuote.quoteData.toTokenAmount,
-    debouncedQuote.swapData,
     chainId,
     depositButtonProps.disable,
     loading,
   ]);
 
   const handleMax = useCallback(() => {
-    setStrikeDepositAmount(
-      getUserReadableAmount(
-        userTokenBalance,
-        getTokenDecimals(fromTokenSymbol, chainId)
-      )
-    );
+    setStrikeDepositAmount(ethersUtils.formatEther(userTokenBalance));
   }, [userTokenBalance]);
 
   const checkApproved = useCallback(async () => {
     if (!signer || !accountAddress || !spender || !chainId || !fromTokenSymbol)
       return;
 
-    if (!isNativeToken(fromTokenSymbol)) {
-      const finalAmount: BigNumber = getContractReadableAmount(
-        strikeDepositAmount.toString(),
-        getTokenDecimals(fromTokenSymbol, chainId)
-      );
+    if (depositButtonProps.error) return;
 
+    if (!isNativeToken(fromTokenSymbol)) {
       const tokenAddress = getContractAddress(fromTokenSymbol);
 
       if (!tokenAddress) return;
 
       const allowance: BigNumber = await ERC20__factory.connect(
         tokenAddress,
-        signer
+        signer,
       ).allowance(accountAddress, spender);
 
-      setApproved(allowance.gte(finalAmount));
+      setApproved(allowance.gte(ethersUtils.parseEther(strikeDepositAmount)));
     } else {
       setApproved(true);
     }
@@ -316,6 +351,7 @@ const DepositPanel = () => {
     signer,
     spender,
     strikeDepositAmount,
+    depositButtonProps,
   ]);
 
   // Updates approved state
@@ -325,27 +361,14 @@ const DepositPanel = () => {
 
   // Updates user token balance
   useEffect(() => {
-    (async () => {
-      if (!accountAddress || !signer) return;
+    updateUserTokenBalance();
+  }, [updateUserTokenBalance]);
 
-      const tokenAddress = getContractAddress(fromTokenSymbol);
-
-      if (!tokenAddress) return;
-
-      setUserTokenBalance(
-        await ERC20__factory.connect(tokenAddress, signer).balanceOf(
-          accountAddress
-        )
-      );
-    })();
-  }, [
-    accountAddress,
-    signer,
-    ssovData,
-    userAssetBalances,
-    getContractAddress,
-    fromTokenSymbol,
-  ]);
+  // @todo remove this useEffect once router is enabled
+  useEffect(() => {
+    if (!ssovData || !ssovData.collateralSymbol) return;
+    setFromTokenSymbol(ssovData.collateralSymbol);
+  }, [ssovData]);
 
   const updateQuote = useCallback(async () => {
     if (!ssovData || fromTokenSymbol === ssovData?.collateralSymbol) return;
@@ -366,36 +389,16 @@ const DepositPanel = () => {
       !ssovSigner.ssovRouterWithSigner
     )
       return;
-
     setLoading(true);
 
-    await Promise.all([
-      get1inchQuote(
-        fromTokenAddress,
-        toTokenAddress,
-        getContractReadableAmount(
-          strikeDepositAmount,
-          getTokenDecimals(fromTokenSymbol, chainId)
-        ).toString(),
-        chainId,
-        accountAddress,
-        '3'
-      ),
-      get1inchSwap({
-        fromTokenAddress,
-        toTokenAddress,
-        amount: getContractReadableAmount(
-          strikeDepositAmount,
-          getTokenDecimals(fromTokenSymbol, chainId)
-        ),
-        chainId,
-        accountAddress: ssovSigner.ssovRouterWithSigner.address,
-      }),
-    ]).then((res) => {
-      setQuote({
-        quoteData: res[0],
-        swapData: res[1].tx.data,
-      });
+    await get1inchQuote({
+      chainId,
+      src: fromTokenAddress,
+      dst: toTokenAddress,
+      amount: ethersUtils.parseEther(strikeDepositAmount).toString(),
+      from: accountAddress,
+    }).then((res) => {
+      setQuote(res);
       setLoading(false);
       return res;
     });
@@ -472,14 +475,15 @@ const DepositPanel = () => {
           setSelectedToken={setFromTokenSymbol}
           handleMax={handleMax}
           inputAmount={strikeDepositAmount}
+          userTokenBalance={userTokenBalance}
           handleInputAmountChange={handleDepositAmount}
           overrides={{ setTokenSelectorOpen }}
         />
       </Box>
       {!isTokenSelectorOpen && (
         <Box>
-          <Box className="rounded-lg p-3 pt-2.5 pb-0 border border-neutral-800 w-full">
-            <Box className="mt-2 flex">
+          <Box className="rounded-lg p-0 mt-4 border border-neutral-800 w-full">
+            <Box className="flex">
               <Box className={'w-full'}>
                 <Select
                   className="bg-mineshaft hover:bg-mineshaft hover:opacity-80 rounded-md px-2 text-white"
@@ -538,7 +542,7 @@ const DepositPanel = () => {
                     {epochTimes[1]
                       ? format(
                           new Date(epochTimes[1].toNumber() * 1000),
-                          'd LLL yyyy'
+                          'd LLL yyyy',
                         )
                       : '-'}
                   </Typography>
@@ -559,10 +563,10 @@ const DepositPanel = () => {
                     >
                       {formatAmount(
                         getUserReadableAmount(
-                          debouncedQuote.quoteData.toTokenAmount,
-                          debouncedQuote.quoteData.toToken.decimals
+                          BigNumber.from(debouncedQuote.toTokenAmount),
+                          debouncedQuote.toToken.decimals,
                         ),
-                        3
+                        3,
                       )}{' '}
                       {ssovData?.collateralSymbol}~
                     </Typography>
@@ -587,7 +591,7 @@ const DepositPanel = () => {
                   {epochTimes[1]
                     ? format(
                         new Date(epochTimes[1].toNumber() * 1000),
-                        'd MMM yyyy HH:mm'
+                        'd MMM yyyy HH:mm',
                       )
                     : '-'}
                   )

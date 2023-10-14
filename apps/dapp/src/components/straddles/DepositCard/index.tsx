@@ -1,24 +1,26 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
-import { format } from 'date-fns';
-import { ERC20__factory } from '@dopex-io/sdk';
+
 import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Input from '@mui/material/Input';
 import Switch from '@mui/material/Switch';
 
-import useSendTx from 'hooks/useSendTx';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
-import CustomButton from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import { ERC20__factory } from '@dopex-io/sdk';
+import { format } from 'date-fns';
 
 import { useBoundStore } from 'store';
 
-import formatAmount from 'utils/general/formatAmount';
+import useSendTx from 'hooks/useSendTx';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
+
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE } from 'constants/index';
 
@@ -40,7 +42,7 @@ const DepositCard = () => {
   const sendTx = useSendTx();
 
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
-    BigNumber.from('0')
+    BigNumber.from('0'),
   );
 
   const [approved, setApproved] = useState(false);
@@ -71,7 +73,7 @@ const DepositCard = () => {
     return straddlesData?.currentExpiry?.gt(0)
       ? format(
           new Date(straddlesData.currentExpiry?.toNumber() * 1000),
-          'd LLL yyyy'
+          'd LLL yyyy',
         )
       : '-';
   }, [straddlesData]);
@@ -82,9 +84,9 @@ const DepositCard = () => {
           new Date(
             straddlesData.currentExpiry
               .add(BigNumber.from(THREE_DAYS))
-              .toNumber() * 1000
+              .toNumber() * 1000,
           ),
-          'd LLL yyyy'
+          'd LLL yyyy',
         )
       : '-';
   }, [straddlesData]);
@@ -103,13 +105,13 @@ const DepositCard = () => {
     let share =
       (getUserReadableAmount(
         totalUSDDeposit.add(getContractReadableAmount(amount, 6)),
-        6
+        6,
       ) /
         getUserReadableAmount(
           straddlesEpochData.usdDeposits.add(
-            getContractReadableAmount(amount, 6)
+            getContractReadableAmount(amount, 6),
           ),
-          6
+          6,
         )) *
       100;
 
@@ -155,7 +157,7 @@ const DepositCard = () => {
       await sendTx(
         ERC20__factory.connect(straddlesData.usd, signer),
         'approve',
-        [straddlesData?.straddlesContract?.address, MAX_VALUE]
+        [straddlesData?.straddlesContract?.address, MAX_VALUE],
       );
       setApproved(true);
     } catch (err) {
@@ -181,7 +183,7 @@ const DepositCard = () => {
       const token = ERC20__factory.connect(straddlesData.usd, signer);
       const allowance: BigNumber = await token.allowance(
         accountAddress,
-        straddlesData?.straddlesContract?.address
+        straddlesData?.straddlesContract?.address,
       );
       const balance: BigNumber = await token.balanceOf(accountAddress);
       setApproved(allowance.gte(finalAmount));
@@ -212,7 +214,7 @@ const DepositCard = () => {
                 variant="h6"
                 className="text-stieglitz text-md font-medium pl-1 pt-1.5 ml-1.5"
               >
-                <span className="text-white">USDC</span>
+                <span className="text-white">USDC.e</span>
               </Typography>
             </Box>
           </Box>
@@ -239,7 +241,8 @@ const DepositCard = () => {
               variant="h6"
               className="text-stieglitz text-sm pl-1 pt-2 pr-3"
             >
-              {formatAmount(getUserReadableAmount(userTokenBalance, 6), 2)} USDC
+              {formatAmount(getUserReadableAmount(userTokenBalance, 6), 2)}{' '}
+              USDC.e
             </Typography>
           </Box>
         </Box>
@@ -250,7 +253,7 @@ const DepositCard = () => {
             {formatAmount(getUserReadableAmount(totalUSDDeposit, 6), 2)} {'->'}{' '}
             {formatAmount(
               getUserReadableAmount(totalUSDDeposit, 6) + amount,
-              2
+              2,
             )}
           </Typography>
           <Typography variant="h6" className="mx-2 text-neutral-400">

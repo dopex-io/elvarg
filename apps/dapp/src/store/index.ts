@@ -2,27 +2,27 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
 import { AssetsSlice, createAssetsSlice } from './Assets';
-import { DpxBondsSlice, createDpxBondsSlice } from './Bonds';
-import { FarmingSlice, createFarmingSlice } from './Farming';
-import { NftsSlice, createNftsSlice } from './Nfts';
-import { DuelSlice, createDuelSlice } from './Duel';
-import { PortfolioSlice, createPortfolioSlice } from './Portfolio';
-import { TokenSaleSlice, createTokenSaleSlice } from './TokenSale';
-import { AtlanticPoolsSlice, createAtlanticsSlice } from './Vault/atlantics';
-import { GmxSlice, createGmxSlice } from './Vault/atlantics/gmx';
-import { CommonSlice, createCommonSlice } from './Vault/common';
-import { RateVaultSlice, createRateVaultSlice } from './Vault/ir';
-import { OlpSlice, createOlpSlice } from './Vault/olp';
+import { createDpxBondsSlice, DpxBondsSlice } from './Bonds';
+import { createDuelSlice, DuelSlice } from './Duel';
+import { createFarmingSlice, FarmingSlice } from './Farming';
+import { createNftsSlice, NftsSlice } from './Nfts';
+import { createPortfolioSlice, PortfolioSlice } from './Portfolio';
 import {
-  DpxusdBondingSlice,
   createDpxusdBondingSlice,
+  DpxusdBondingSlice,
 } from './RdpxV2/dpxeth-bonding';
 import { APPSlice, createAppSlice } from './RdpxV2/perpetual-pools';
-import { OptionScalpSlice, createOptionScalpSlice } from './Vault/scalps';
-import { SsovV3Slice, createSsovV3Slice } from './Vault/ssov';
-import { StraddlesSlice, createStraddlesSlice } from './Vault/straddles';
-import { VeDPXSlice, createVedpxSlice } from './VeDPX';
-import { WalletSlice, createWalletSlice } from './Wallet';
+import { createTokenSaleSlice, TokenSaleSlice } from './TokenSale';
+import { AtlanticPoolsSlice, createAtlanticsSlice } from './Vault/atlantics';
+import { createGmxSlice, GmxSlice } from './Vault/atlantics/gmx';
+import { CommonSlice, createCommonSlice } from './Vault/common';
+import { createRateVaultSlice, RateVaultSlice } from './Vault/ir';
+import { createOlpSlice, OlpSlice } from './Vault/olp';
+import { createOptionScalpSlice, OptionScalpSlice } from './Vault/scalps';
+import { createSsovV3Slice, SsovV3Slice } from './Vault/ssov';
+import { createStraddlesSlice, StraddlesSlice } from './Vault/straddles';
+import { createVedpxSlice, VeDPXSlice } from './VeDPX';
+import { createWalletSlice, WalletSlice } from './Wallet';
 
 type T = WalletSlice &
   TokenSaleSlice &
@@ -65,5 +65,5 @@ export const useBoundStore = create<T>()(
     ...createOlpSlice(...a),
     ...createAtlanticsSlice(...a),
     ...createGmxSlice(...a),
-  }))
+  })),
 );

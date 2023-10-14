@@ -1,14 +1,14 @@
 import { useCallback, useMemo } from 'react';
-
-import { BigNumber } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 
 import { IconButton } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
+
 import IosShare from '@mui/icons-material/IosShare';
-import { formatDistance } from 'date-fns';
 
+import { Button } from '@dopex-io/ui';
 import cx from 'classnames';
-
+import { formatDistance } from 'date-fns';
 import Countdown from 'react-countdown';
 
 import { useBoundStore } from 'store';
@@ -16,10 +16,8 @@ import { useBoundStore } from 'store';
 import useSendTx from 'hooks/useSendTx';
 import useShare from 'hooks/useShare';
 
-import CustomButton from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
+import LimitOrderPopover from 'components/scalps/LimitOrderPopover';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 const PositionsTable = ({ tab }: { tab: string }) => {
@@ -48,21 +46,32 @@ const PositionsTable = ({ tab }: { tab: string }) => {
     (position: any) => {
       if (!optionScalpData) return;
 
-      const { entry, pnl, margin, size, isShort, closePrice, isOpen } =
-        position;
+      const {
+        entry,
+        pnl,
+        margin,
+        size,
+        isShort,
+        closePrice,
+        isOpen,
+        premium,
+        fees,
+      } = position;
 
       const leverage =
         size /
-        getUserReadableAmount(
-          position.margin,
-          optionScalpData?.quoteDecimals.toNumber()
+        Number(
+          utils.formatUnits(
+            position.margin,
+            optionScalpData?.quoteDecimals.toNumber(),
+          ),
         );
 
       const _markPrice: any = formatAmount(
         isOpen
-          ? getUserReadableAmount(isOpen ? markPrice : closePrice, 6)
+          ? Number(utils.formatUnits(isOpen ? markPrice : closePrice, 6))
           : closePrice,
-        4
+        4,
       );
 
       const { baseSymbol, quoteSymbol } = optionScalpData;
@@ -70,21 +79,25 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       if (!baseSymbol || !quoteSymbol || !markPrice) return;
       share({
         title: (
-          <Typography variant="h5" className="font-bold shadow-2xl">
+          <h5 className="font-bold shadow-2xl">
             <span className={cx(isShort ? 'text-red-500' : 'text-green-500')}>
               {isShort ? 'Short' : 'Long'}
             </span>
             {' | '}
             <span>{formatAmount(leverage, 1)}x</span>
             {' | '}
-            <span>{`${baseSymbol}${quoteSymbol}`}</span>
-          </Typography>
+            <span>{`${baseSymbol}${
+              quoteSymbol === 'USDC' ? 'USDC.e' : quoteSymbol
+            }`}</span>
+          </h5>
         ),
         percentage:
           (pnl /
-            getUserReadableAmount(
-              margin,
-              optionScalpData?.quoteDecimals.toNumber()
+            Number(
+              utils.formatUnits(
+                margin.add(premium).add(fees),
+                optionScalpData?.quoteDecimals.toNumber(),
+              ),
             )) *
           100,
         customPath: `/scalps/${selectedPoolName}`,
@@ -97,7 +110,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         ],
       });
     },
-    [share, optionScalpData, markPrice, selectedPoolName]
+    [share, optionScalpData, markPrice, selectedPoolName],
   );
 
   const handleClose = useCallback(
@@ -106,7 +119,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         await sendTx(
           optionScalpData?.optionScalpContract.connect(signer),
           'closePosition',
-          [id]
+          [id],
         );
       } catch (e) {}
       await updateOptionScalp();
@@ -118,7 +131,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
       sendTx,
       updateOptionScalp,
       updateOptionScalpUserData,
-    ]
+    ],
   );
 
   const positions = useMemo(() => {
@@ -136,38 +149,46 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         const entry = formatAmount(
           inverted
             ? 1 /
-                getUserReadableAmount(position.entry, quoteDecimals.toNumber())
-            : getUserReadableAmount(position.entry, quoteDecimals.toNumber()),
-          4
+                Number(
+                  utils.formatUnits(position.entry, quoteDecimals.toNumber()),
+                )
+            : Number(
+                utils.formatUnits(position.entry, quoteDecimals.toNumber()),
+              ),
+          4,
         );
 
-        const size = getUserReadableAmount(
-          position.size,
-          quoteDecimals.toNumber()
+        const size = Number(
+          utils.formatUnits(position.size, quoteDecimals.toNumber()),
         );
 
         const liquidationPrice = formatAmount(
           inverted
             ? 1 /
-                getUserReadableAmount(
-                  position.liquidationPrice,
-                  quoteDecimals.toNumber()
+                Number(
+                  utils.formatUnits(
+                    position.liquidationPrice,
+                    quoteDecimals.toNumber(),
+                  ),
                 )
-            : getUserReadableAmount(
-                position.liquidationPrice,
-                quoteDecimals.toNumber()
+            : Number(
+                utils.formatUnits(
+                  position.liquidationPrice,
+                  quoteDecimals.toNumber(),
+                ),
               ),
-          4
+          4,
         );
 
         const positions = formatAmount(
-          getUserReadableAmount(position.positions, quoteDecimals.toNumber()),
-          5
+          Number(
+            utils.formatUnits(position.positions, quoteDecimals.toNumber()),
+          ),
+          5,
         );
 
-        const pnl = getUserReadableAmount(
-          position.pnl,
-          quoteDecimals.toNumber()
+        const pnl = Number(
+          utils.formatUnits(position.pnl, quoteDecimals.toNumber()),
         );
 
         const variation = position.pnl
@@ -176,11 +197,13 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           .mul(10 ** optionScalpData!.quoteDecimals!.toNumber())
           .div(position.positions.abs());
 
-        const closePrice = getUserReadableAmount(
-          position.isShort
-            ? position.entry.sub(variation)
-            : position.entry.add(variation),
-          optionScalpData?.quoteDecimals!.toNumber()!
+        const closePrice = Number(
+          utils.formatUnits(
+            position.isShort
+              ? position.entry.sub(variation)
+              : position.entry.add(variation),
+            optionScalpData?.quoteDecimals?.toNumber()!,
+          ),
         );
 
         const openedAt = position.openedAt.toNumber();
@@ -228,7 +251,6 @@ const PositionsTable = ({ tab }: { tab: string }) => {
   const getCellComponent = useCallback(
     (key: string, position: any) => {
       if (!optionScalpData) return null;
-      // if (key === 'positions');
       let rightContent: string | null = null;
       let styles = '';
       let data = position[key];
@@ -258,30 +280,36 @@ const PositionsTable = ({ tab }: { tab: string }) => {
             title={
               <div>
                 <div>{`Fees ${formatAmount(
-                  getUserReadableAmount(
-                    position.fees,
-                    optionScalpData?.quoteDecimals.toNumber()
+                  Number(
+                    utils.formatUnits(
+                      position.fees,
+                      optionScalpData?.quoteDecimals.toNumber(),
+                    ),
                   ),
-                  4
+                  4,
                 )}`}</div>
                 <div>{`Premium ${formatAmount(
-                  getUserReadableAmount(
-                    position.premium,
-                    optionScalpData?.quoteDecimals.toNumber()
+                  Number(
+                    utils.formatUnits(
+                      position.premium,
+                      optionScalpData?.quoteDecimals.toNumber(),
+                    ),
                   ),
-                  4
+                  4,
                 )}`}</div>
               </div>
             }
           >
             <span>{`${formatAmount(data.toFixed(4), 2)} (${formatAmount(
               (position.pnl /
-                getUserReadableAmount(
-                  position.margin.add(position.premium).add(position.fees),
-                  optionScalpData?.quoteDecimals.toNumber()
+                Number(
+                  utils.formatUnits(
+                    position.margin.add(position.premium).add(position.fees),
+                    optionScalpData?.quoteDecimals.toNumber(),
+                  ),
                 )) *
                 100,
-              2
+              2,
             )}%)`}</span>
           </Tooltip>
         );
@@ -293,13 +321,13 @@ const PositionsTable = ({ tab }: { tab: string }) => {
 
       if (key === 'margin' || key === 'premium') {
         data = formatAmount(
-          getUserReadableAmount(
-            data,
-            optionScalpData?.quoteDecimals.toNumber()
+          Number(
+            utils.formatUnits(data, optionScalpData?.quoteDecimals.toNumber()),
           ),
-          4
+          4,
         );
-        rightContent = optionScalpData.quoteSymbol;
+        rightContent =
+          optionScalpData.quoteSymbol === 'USDC' ? 'USDC.e' : 'USDC';
         rightContentStyle += ' text-xs hidden md:inline-block';
       }
 
@@ -308,18 +336,15 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         data = (
           <Countdown
             date={new Date((position.openedAt + position.timeframe) * 1000)}
-            renderer={({ minutes, seconds }) => {
+            renderer={({ hours, minutes, seconds }) => {
               return (
                 <span className="text-xs md:text-sm text-white pt-1">
-                  {minutes}m {seconds}s
+                  {hours}h {minutes}m {seconds}s
                 </span>
               );
             }}
           />
         );
-
-        rightContent = `(${position.timeframe / 60}m)`;
-        rightContentStyle += ' text-xs mt-1';
       }
 
       if (key === 'closePrice') {
@@ -330,7 +355,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         <span
           className={cx(
             styles,
-            'text-xs md:text-sm text-left w-full text-white space-x-2 md:space-x-1'
+            'text-xs md:text-sm text-left w-full text-white space-x-2 md:space-x-1',
           )}
         >
           <span className={dataStyle}>{data}</span>
@@ -338,11 +363,11 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         </span>
       );
     },
-    [optionScalpData]
+    [optionScalpData],
   );
 
   return (
-    <div className="rounded-lg bg-inherit w-fit-content h-fit-content px-5 flex flex-row">
+    <div className="rounded-lg bg-inherit h-fit-content px-5 flex flex-row">
       {positions.length !== 0 ? (
         <div className="w-full h-full mb-4">
           <div className="flex flex-col space-y-4 py-2">
@@ -362,19 +387,27 @@ const PositionsTable = ({ tab }: { tab: string }) => {
                 {positionKeys.map((info) => getCellComponent(info, position))}
                 <div className="flex flex-row justify-end w-full">
                   {position.isOpen && (
-                    <CustomButton
-                      className="cursor-pointer text-white w-2"
+                    <Button
+                      variant="contained"
                       color={'primary'}
                       onClick={() => handleClose(position.id)}
                     >
                       <span className="text-xs md:sm">Close</span>
-                    </CustomButton>
+                    </Button>
+                  )}
+                  {position.isOpen && (
+                    <div className="mx-2">
+                      <LimitOrderPopover
+                        id={position.id}
+                        isShort={position.isShort}
+                      />
+                    </div>
                   )}
                   <IconButton
                     aria-label="share"
                     aria-haspopup="true"
                     onClick={() => handleShare(position)}
-                    className="flex"
+                    className="flex ml-1"
                     size="small"
                   >
                     <IosShare className="fill-current text-white opacity-90 hover:opacity-100 text-lg" />
@@ -385,7 +418,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
           </div>
         </div>
       ) : (
-        <span className="ml-auto mr-auto text-[0.8rem] h-full mb-10">
+        <span className="ml-auto mr-auto text-[0.8rem] h-full my-5">
           Your {tab === 'Open' ? 'active' : 'closed'} positions will appear here
         </span>
       )}

@@ -1,10 +1,11 @@
-import { Tab as HeadlessTab } from "@headlessui/react";
-import React, { FC, ReactNode } from "react";
+import { FC, ReactNode } from 'react';
+
+import { Tab as HeadlessTab } from '@headlessui/react';
 
 const SIZES: { [key: string]: string } = {
-  small: "h-[1.875rem] w-[41.625rem]",
-  medium: "h-[2.375rem] w-[46.375rem]",
-  large: "h-[3.625rem] w-[50.5rem]",
+  small: 'h-[1.875rem] w-[41.625rem]',
+  medium: 'h-[2.375rem] w-[46.375rem]',
+  large: 'h-[3.625rem] w-[50.5rem]',
 };
 
 export interface TabProps {
@@ -14,7 +15,7 @@ export interface TabProps {
 }
 
 const Tab: FC<TabProps> = (props: TabProps) => {
-  const { children, className = "", size = "medium" } = props;
+  const { children, className = '', size = 'medium' } = props;
 
   return (
     <HeadlessTab.Group>
@@ -32,6 +33,6 @@ const Tab: FC<TabProps> = (props: TabProps) => {
   );
 };
 
-Tab.displayName = "Tab";
+Tab.displayName = 'Tab';
 
 export default Tab;

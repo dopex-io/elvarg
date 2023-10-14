@@ -1,28 +1,33 @@
-import React, { ReactEventHandler } from "react";
-import { Menu as HeadlessMenu, Transition } from "@headlessui/react";
+import React, { ReactEventHandler } from 'react';
 
-import Button from "../src/Button";
-import MenuItems, { dropdownVariants } from "../src/MenuItems";
-import { ItemType } from "../src/MenuItems";
+import { Menu as HeadlessMenu, Transition } from '@headlessui/react';
+import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
-import DropdownArrowIcon from "./icons/DropdownArrowIcon";
+import Button from '../src/Button';
+import MenuItems, { dropdownVariants, ItemType } from '../src/MenuItems';
+import cx from './utils/cx';
 
 type colors =
-  | "primary"
-  | "mineshaft"
-  | "carbon"
-  | "umbra"
-  | "success"
-  | "error";
+  | 'primary'
+  | 'mineshaft'
+  | 'carbon'
+  | 'umbra'
+  | 'success'
+  | 'error';
 
-interface MenuProps<T> {
+export interface MenuProps<T>
+  extends React.DetailedHTMLProps<
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    HTMLButtonElement
+  > {
   data: T[];
-  selection?: string;
+  selection?: string | React.ReactNode;
   handleSelection: ReactEventHandler;
   dropdownVariant?: dropdownVariants;
   scrollable?: boolean;
   topElement?: React.ReactNode;
   color?: colors;
+  showArrow?: boolean;
 }
 
 const Menu = <T extends ItemType>(props: MenuProps<T>) => {
@@ -30,15 +35,17 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
     data,
     selection,
     handleSelection,
-    dropdownVariant = "basic",
+    dropdownVariant = 'basic',
     scrollable = false,
     topElement = null,
-    color = "carbon",
+    color = 'carbon',
+    showArrow = false,
+    className,
     ...rest
   } = props;
 
   return (
-    <HeadlessMenu as="div" className="inline-block text-left">
+    <HeadlessMenu as="div" className={cx('inline-block text-left', className)}>
       <div>
         <HeadlessMenu.Button
           as={Button}
@@ -49,9 +56,11 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
           {({ open }: { open: boolean }) => (
             <div className="flex justify-between">
               {selection}
-              <DropdownArrowIcon
-                className={open ? `transform rotate-180` : ""}
-              />
+              {showArrow ? (
+                <ChevronDownIcon
+                  className={cx('ml-2 w-4', open ? `transform rotate-180` : '')}
+                />
+              ) : null}
             </div>
           )}
         </HeadlessMenu.Button>
@@ -78,6 +87,6 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
   );
 };
 
-Menu.displayName = "Menu";
+Menu.displayName = 'Menu';
 
 export default Menu;

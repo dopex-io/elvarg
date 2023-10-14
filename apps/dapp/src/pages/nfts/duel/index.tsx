@@ -1,32 +1,31 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
-import { useCallback, useMemo, useState, useEffect } from 'react';
-
 import { BigNumber } from 'ethers';
 
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
-import AppBar from 'components/common/AppBar';
-import Typography from 'components/UI/Typography';
-
-import {
-  BackgroundBox,
-  MobileBackgroundOverlay,
-  BackgroundOverlay,
-} from 'components/nfts/components/PepeBackground';
-import PepeLink from 'components/nfts/components/PepeLink';
-import PepeText from 'components/nfts/components/PepeText';
-import { PepeButton } from 'components/nfts/components/PepeButton';
-import ActiveDuel from 'components/nfts/duel/ActiveDuel';
-import Duels from 'components/nfts/duel/Duels';
-import CreateDuel from 'components/nfts/duel/Dialogs/CreateDuel';
-import FindDuel from 'components/nfts/duel/Dialogs/FindDuel';
-import RevealDuel from 'components/nfts/duel/Dialogs/RevealDuel';
-
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
 
 import { useBoundStore } from 'store';
 import { Duel } from 'store/Duel';
+
+import AppBar from 'components/common/AppBar';
+import {
+  BackgroundBox,
+  BackgroundOverlay,
+  MobileBackgroundOverlay,
+} from 'components/nfts/components/PepeBackground';
+import { PepeButton } from 'components/nfts/components/PepeButton';
+import PepeLink from 'components/nfts/components/PepeLink';
+import PepeText from 'components/nfts/components/PepeText';
+import ActiveDuel from 'components/nfts/duel/ActiveDuel';
+import CreateDuel from 'components/nfts/duel/Dialogs/CreateDuel';
+import FindDuel from 'components/nfts/duel/Dialogs/FindDuel';
+import RevealDuel from 'components/nfts/duel/Dialogs/RevealDuel';
+import Duels from 'components/nfts/duel/Duels';
+import Typography from 'components/UI/Typography';
+
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 const DuelPepes = () => {
   const {
@@ -56,7 +55,7 @@ const DuelPepes = () => {
 
       await updateDuels();
     },
-    [duelContract, signer, updateDuels]
+    [duelContract, signer, updateDuels],
   );
 
   const handleClaimForfeit = useCallback(
@@ -67,7 +66,7 @@ const DuelPepes = () => {
 
       await updateDuels();
     },
-    [duelContract, signer, updateDuels]
+    [duelContract, signer, updateDuels],
   );
 
   const findDuel = (duel: Duel) => {
@@ -124,8 +123,10 @@ const DuelPepes = () => {
         ? [
             {
               title: Math.max(
-                BigNumber.from(1111).sub(pepesData?.nextMintId)?.toNumber(),
-                0
+                BigNumber.from(1111)
+                  .sub(pepesData?.nextMintId)
+                  ?.toNumber(),
+                0,
               ),
               subTitle: 'PEPES REMAINING',
             },
@@ -136,7 +137,7 @@ const DuelPepes = () => {
             },
           ]
         : [],
-    [pepesData]
+    [pepesData],
   );
 
   useEffect(() => {
@@ -220,7 +221,7 @@ const DuelPepes = () => {
               onClick={() =>
                 window.open(
                   'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-how-to-mint',
-                  '_blank'
+                  '_blank',
                 )
               }
             />
@@ -239,7 +240,7 @@ const DuelPepes = () => {
               onClick={() =>
                 window.open(
                   'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-mint-ui-walkthrough',
-                  '_blank'
+                  '_blank',
                 )
               }
             />
@@ -258,7 +259,7 @@ const DuelPepes = () => {
               onClick={() =>
                 window.open(
                   'https://blog.dopex.io/articles/diamond-pepe/gen-2-mint-claiming-your-lootbox',
-                  '_blank'
+                  '_blank',
                 )
               }
             />

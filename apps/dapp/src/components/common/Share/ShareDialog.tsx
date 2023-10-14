@@ -1,23 +1,22 @@
 import { useCallback, useRef, useState } from 'react';
-import { toPng } from 'html-to-image';
-import { Button } from '@dopex-io/ui';
-import { toast } from 'react-hot-toast';
 
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DownloadIcon from '@mui/icons-material/Download';
 import TwitterIcon from '@mui/icons-material/Twitter';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+
+import { Button } from '@dopex-io/ui';
+import { toPng } from 'html-to-image';
+import { toast } from 'react-hot-toast';
+
+import useShare from 'hooks/useShare';
 
 import Dialog from 'components/UI/Dialog';
 
-import ShareImage from './ShareImage';
-
-import imageUpload from 'utils/general/imageUpload';
-import getTwitterIntentURL from 'utils/general/getTwitterIntentURL';
-import getShareURL from 'utils/general/getShareURL';
+import { getShareURL, getTwitterIntentURL, imageUpload } from 'utils/share';
 
 import { CLOUDINARY_API_KEY } from 'constants/env';
 
-import useShare from 'hooks/useShare';
+import ShareImage from './ShareImage';
 
 const ShareDialog = () => {
   const open = useShare((state) => state.isOpen);
@@ -58,9 +57,9 @@ const ShareDialog = () => {
     window.open(
       getTwitterIntentURL(
         'Latest trade on @dopex_io ',
-        getShareURL(_imageID, shareImageProps.customPath || '/')
+        getShareURL(_imageID, shareImageProps.customPath || '/'),
       ),
-      '_blank'
+      '_blank',
     );
   }, [imageID, uploadImage, shareImageProps.customPath]);
 
@@ -88,7 +87,7 @@ const ShareDialog = () => {
       _imageID = await uploadImage();
     }
     navigator.clipboard.writeText(
-      getShareURL(_imageID, shareImageProps.customPath || '/')
+      getShareURL(_imageID, shareImageProps.customPath || '/'),
     );
     toast.success('Copied!!! ');
   }, [imageID, uploadImage, shareImageProps.customPath]);

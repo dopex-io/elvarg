@@ -1,23 +1,22 @@
 import { useEffect, useState } from 'react';
-import { Button } from '@dopex-io/ui';
-import {
-  useAccount,
-  useProvider,
-  useSigner,
-  useNetwork,
-  useEnsAvatar,
-} from 'wagmi';
 
-import { DEFAULT_CHAIN_ID } from 'constants/env';
+import { Button } from '@dopex-io/ui';
+import cx from 'classnames';
+import { useAccount, useEnsAvatar, useEnsName, useNetwork } from 'wagmi';
 
 import { useBoundStore } from 'store';
 
+import { useEthersProvider } from 'hooks/useEthersProvider';
+import { useEthersSigner } from 'hooks/useEthersSigners';
+
 import { smartTrim } from 'utils/general';
 
-import WalletDialog from '../WalletDialog';
-import { useConnectDialog } from '../ConnectDialog';
+import { DEFAULT_CHAIN_ID } from 'constants/env';
 
-export function ConnectButton() {
+import { useConnectDialog } from '../ConnectDialog';
+import WalletDialog from '../WalletDialog';
+
+export function ConnectButton({ className }: { className?: string }) {
   const [walletDialog, setWalletDialog] = useState(false);
 
   const { updateState, userAssetBalances } = useBoundStore();
@@ -26,9 +25,10 @@ export function ConnectButton() {
 
   const { address } = useAccount();
   const { chain } = useNetwork();
-  const provider = useProvider();
-  const { data: signer } = useSigner();
-  const { data } = useEnsAvatar(address ? { address, chainId: 1 } : {});
+  const provider = useEthersProvider({ chainId: chain?.id });
+  const signer = useEthersSigner({ chainId: chain?.id });
+  const { data: ensName } = useEnsName(address ? { address, chainId: 1 } : {});
+  const { data } = useEnsAvatar({ name: ensName, chainId: 1 });
 
   useEffect(() => {
     updateState({
@@ -56,7 +56,10 @@ export function ConnectButton() {
       />
       {address ? (
         <Button
-          className="text-white border-cod-gray flex items-center"
+          className={cx(
+            'text-white border-cod-gray flex items-center',
+            className,
+          )}
           color="carbon"
           onClick={handleClick}
         >
@@ -69,6 +72,7 @@ export function ConnectButton() {
           onClick={() => {
             open();
           }}
+          className={className}
         >
           Connect Wallet
         </Button>

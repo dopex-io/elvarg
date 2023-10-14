@@ -1,25 +1,29 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
-import Box from '@mui/material/Box';
 import { BigNumber } from 'ethers';
+
+import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
+
+import { NextSeo } from 'next-seo';
+
+import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
 import FarmingMigrationBanner from 'components/common/Banners/FarmingMigrationBanner';
+import SushiMigrationBanner from 'components/common/Banners/SushiMigrationBanner';
+import ClaimCard from 'components/farms/ClaimCard';
 import FarmCard from 'components/farms/FarmCard';
 import ManageDialog, {
   BasicManageDialogProps,
 } from 'components/farms/ManageDialog';
-import Typography from 'components/UI/Typography';
-import ClaimCard from 'components/farms/ClaimCard';
 import QuickLinks from 'components/farms/QuickLinks';
-
-import { useBoundStore } from 'store';
+import Typography from 'components/UI/Typography';
 
 import { FARMS } from 'constants/farms';
+import seo from 'constants/seo';
 
 import { Farm, FarmData, UserData } from 'types/farms';
-import SushiMigrationBanner from 'components/common/Banners/SushiMigrationBanner';
 
 const CustomBox = styled(Box)`
   @media (min-width: 1100px) {
@@ -78,7 +82,7 @@ const Farms = () => {
       const _farms = FARMS[chainId] as Farm[];
       if (_farms) {
         const p = await Promise.all(
-          _farms.map((farm) => getFarmData(farm, lpData))
+          _farms.map((farm) => getFarmData(farm, lpData)),
         );
         setFarmsDataLoading(false);
         setFarmsData(p);
@@ -92,7 +96,7 @@ const Farms = () => {
     (async () => {
       setUserDataLoading(true);
       const p = await Promise.all(
-        FARMS[chainId]?.map((farm) => getUserData(farm)) || []
+        FARMS[chainId]?.map((farm) => getUserData(farm)) || [],
       );
 
       setUserData(p as UserData[]);
@@ -102,11 +106,27 @@ const Farms = () => {
 
   return (
     <Box className="overflow-x-hidden bg-black text-white min-h-screen">
-      <Head>
-        <title>Farms | Dopex</title>
-      </Head>
+      <NextSeo
+        title={seo.farms.title}
+        description={seo.farms.description}
+        canonical={seo.farms.url}
+        openGraph={{
+          url: seo.farms.url,
+          title: seo.farms.title,
+          description: seo.farms.description,
+          images: [
+            {
+              url: seo.farms.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.farms.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
       {chainId !== 42161 ? <FarmingMigrationBanner /> : null}
-      <AppBar active="Stake" />
+      <AppBar />
       <SushiMigrationBanner />
       <Box className="flex mb-32 justify-end lg:mx-6 lg:space-x-reverse lg:flex-row-reverse flex-col">
         <Box className="mb-4 xl:mb-0 mx-4">

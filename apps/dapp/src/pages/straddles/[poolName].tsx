@@ -1,19 +1,23 @@
-import Head from 'next/head';
 import { useEffect } from 'react';
-import Box from '@mui/material/Box';
 import { useRouter } from 'next/router';
 
-import Typography from 'components/UI/Typography';
+import Box from '@mui/material/Box';
+
+import { NextSeo } from 'next-seo';
+
+import { useBoundStore } from 'store';
+
 import AppBar from 'components/common/AppBar';
-import TopBar from 'components/straddles/TopBar';
-import Stats from 'components/straddles/Stats';
 import PoolCard from 'components/straddles/Charts/PoolCard';
 import TVLCard from 'components/straddles/Charts/TVLCard';
 import Deposits from 'components/straddles/Deposits';
-import Positions from 'components/straddles/Positions';
 import Manage from 'components/straddles/Manage';
+import Positions from 'components/straddles/Positions';
+import Stats from 'components/straddles/Stats';
+import TopBar from 'components/straddles/TopBar';
+import Typography from 'components/UI/Typography';
 
-import { useBoundStore } from 'store';
+import seo from 'constants/seo';
 
 const SHOWCHARTS = false;
 
@@ -36,7 +40,7 @@ const Straddles = ({ poolName }: { poolName: string }) => {
           updateStraddlesUserData().then(() => {
             setIsLoading(false);
           });
-        })
+        }),
       );
     }
   }, [
@@ -51,10 +55,7 @@ const Straddles = ({ poolName }: { poolName: string }) => {
 
   return (
     <Box className="bg-black min-h-screen">
-      <Head>
-        <title>Straddles | Dopex</title>
-      </Head>
-      <AppBar active="Straddles" />
+      <AppBar />
       <Box className="md:flex pt-5">
         <Box className="ml-auto lg:w-[45%]">
           <Box className="lg:pt-28 sm:pt-20 pt-20 lg:max-w-4xl md:max-w-3xl sm:max-w-2xl max-w-md mx-auto px-4 lg:px-0">
@@ -123,7 +124,30 @@ const ManagePage = () => {
   const router = useRouter();
   const poolName = router.query['poolName'] as string;
 
-  return <Straddles poolName={poolName} />;
+  return (
+    <>
+      <NextSeo
+        title={seo.straddles.title}
+        description={seo.straddles.description}
+        canonical={seo.straddles.url}
+        openGraph={{
+          url: seo.straddles.url,
+          title: seo.straddles.title,
+          description: seo.straddles.description,
+          images: [
+            {
+              url: seo.straddles.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.straddles.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
+      <Straddles poolName={poolName} />
+    </>
+  );
 };
 
 export default ManagePage;

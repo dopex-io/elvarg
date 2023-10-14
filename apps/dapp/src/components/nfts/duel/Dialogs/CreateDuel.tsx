@@ -1,34 +1,35 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber, ethers } from 'ethers';
-import { ERC20__factory } from '@dopex-io/sdk';
 
 import Box from '@mui/material/Box';
-import MenuItem from '@mui/material/MenuItem';
-import Tooltip from '@mui/material/Tooltip';
-import Select from '@mui/material/Select';
-import IconButton from '@mui/material/IconButton';
 import Checkbox from '@mui/material/Checkbox';
+import IconButton from '@mui/material/IconButton';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import Tooltip from '@mui/material/Tooltip';
+
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
-import { PepeButton } from 'components/nfts/components/PepeButton';
-import Moves from 'components/nfts/duel/Moves';
-import Instructions from 'components/nfts/duel/Instructions';
-import Details from 'components/nfts/duel/Details';
-import DuelExpiry from 'components/nfts/duel/DuelExpiry';
-import Dialog from 'components/UI/Dialog';
-import Typography from 'components/UI/Typography';
-import TokenSelector from 'components/common/TokenSelector';
-
+import { ERC20__factory } from '@dopex-io/sdk';
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
-import formatAmount from 'utils/general/formatAmount';
-import downloadTxt from 'utils/general/downloadTxt';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import { getRandomString } from 'utils/general/getRandomString';
-
 import { useBoundStore } from 'store';
+
+import TokenSelector from 'components/common/TokenSelector';
+import { PepeButton } from 'components/nfts/components/PepeButton';
+import Details from 'components/nfts/duel/Details';
+import DuelExpiry from 'components/nfts/duel/DuelExpiry';
+import Instructions from 'components/nfts/duel/Instructions';
+import Moves from 'components/nfts/duel/Moves';
+import Dialog from 'components/UI/Dialog';
+import Typography from 'components/UI/Typography';
+
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import downloadTxt from 'utils/general/downloadTxt';
+import formatAmount from 'utils/general/formatAmount';
+import { getRandomString } from 'utils/general/getRandomString';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
 
 import { MAX_VALUE } from 'constants/index';
 
@@ -59,7 +60,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
   const [isTokenSelectorVisible, setIsTokenSelectorVisible] =
     useState<boolean>(false);
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
-    BigNumber.from('0')
+    BigNumber.from('0'),
   );
   const [salt, setSalt] = useState<string>(getRandomString(10));
 
@@ -127,7 +128,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
       blockMovesSelected,
       moves,
       kickMovesSelected,
-    ]
+    ],
   );
 
   const atLeastOneBlock = useMemo(() => {
@@ -148,7 +149,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     else
       downloadTxt(
         new Date().toLocaleString() + '.txt',
-        moves.toString() + ',' + salt
+        moves.toString() + ',' + salt,
       );
 
     setIsSelectingMoves(false);
@@ -165,7 +166,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     if (moves.length < 5) return;
 
     const identifier = ethers.utils.formatBytes32String(
-      [...Array(30)].map(() => (~~(Math.random() * 36)).toString(36)).join('')
+      [...Array(30)].map(() => (~~(Math.random() * 36)).toString(36)).join(''),
     );
 
     const encodedSalt = ethers.utils.formatBytes32String(salt);
@@ -205,7 +206,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
         numericMoves[3],
         numericMoves[4],
         encodedSalt,
-      ]
+      ],
     );
 
     let movesSig = await signer.signMessage(ethers.utils.arrayify(hash));
@@ -222,12 +223,12 @@ const CreateDuel = ({ open, handleClose }: Props) => {
     if (tokenName !== 'ETH') {
       const token = ERC20__factory.connect(
         contractAddresses[tokenName],
-        signer
+        signer,
       );
 
       const allowance = await token.allowance(
         accountAddress,
-        duelContract.address
+        duelContract.address,
       );
 
       if (allowance.eq(0)) {
@@ -259,13 +260,13 @@ const CreateDuel = ({ open, handleClose }: Props) => {
           identifier,
           getContractReadableAmount(
             wager,
-            getTokenDecimals(tokenName, chainId)
+            getTokenDecimals(tokenName, chainId),
           ),
           movesSig,
           {
             value:
               tokenName === 'ETH' ? getContractReadableAmount(wager, 18) : 0,
-          }
+          },
         );
     } catch (err) {
       console.log(err);
@@ -304,7 +305,7 @@ const CreateDuel = ({ open, handleClose }: Props) => {
       } else {
         const _token = ERC20__factory.connect(
           contractAddresses[tokenName],
-          provider
+          provider,
         );
 
         userAmount = await _token.balanceOf(accountAddress!);
@@ -324,13 +325,13 @@ const CreateDuel = ({ open, handleClose }: Props) => {
 
   const handleOpenTokenSelector = useCallback(
     () => setIsTokenSelectorVisible(true),
-    []
+    [],
   );
 
   const readableBalance = useMemo(() => {
     return getUserReadableAmount(
       userTokenBalance || BigNumber.from('0'),
-      getTokenDecimals(tokenName, chainId)
+      getTokenDecimals(tokenName, chainId),
     );
   }, [tokenName, chainId, userTokenBalance]);
 

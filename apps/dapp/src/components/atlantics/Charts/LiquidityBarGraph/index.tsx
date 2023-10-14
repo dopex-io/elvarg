@@ -1,23 +1,26 @@
 import { useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
+
 import Box from '@mui/material/Box';
-import {
-  BarChart,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Bar,
-  ResponsiveContainer,
-  Cell,
-} from 'recharts';
+
 import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
 
-import Typography from 'components/UI/Typography';
-import CustomTooltipContent from 'components/atlantics/Charts/LiquidityBarGraph/CustomTooltipContent';
+import {
+  Bar,
+  BarChart,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import CallsIcon from 'svgs/icons/CallsIcon';
 import PutsIcon from 'svgs/icons/PutsIcon';
 
 import { useBoundStore } from 'store';
+
+import CustomTooltipContent from 'components/atlantics/Charts/LiquidityBarGraph/CustomTooltipContent';
+import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
@@ -51,7 +54,7 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
         curr.strike.lte(currentPrice)
           ? [[...prevLeft, curr], prevRight]
           : [prevLeft, [...prevRight, curr]],
-      [[] as IBarData[], [] as IBarData[]]
+      [[] as IBarData[], [] as IBarData[]],
     );
 
     const maxStrikeBelowMarkPrice = barDataLTEMarkPrice[0];
@@ -70,7 +73,7 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
         availableCollateral: 0,
         unlocked: 0,
         activeCollateral: 0,
-      }
+      },
     );
 
     return barDataLTEMarkPrice.map((bar: IBarData) => {
@@ -91,7 +94,7 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
         return {
           availableCollateral: getUserReadableAmount(
             bar.availableCollateral,
-            6
+            6,
           ),
           unlocked: getUserReadableAmount(bar.unlocked, 6),
           activeCollateral: getUserReadableAmount(bar.activeCollateral, 6),
@@ -110,7 +113,8 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
             <PutsIcon className="my-auto" />
           )}
           <Typography variant="h6" className="align-center" color="stieglitz">
-            Collateral Distribution ({header['collateral']})
+            Collateral Distribution (
+            {header['collateral'] === 'USDC' ? 'USDC.e' : header['collateral']})
           </Typography>
         </Box>
         <Box className="flex my-auto">

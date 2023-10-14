@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
+
 import axios from 'axios';
+import { format } from 'date-fns';
 import {
-  AreaChart,
   Area,
+  AreaChart,
   ResponsiveContainer,
   Tooltip,
   TooltipProps,
 } from 'recharts';
-import { format } from 'date-fns';
 
 const CustomTooltip = ({ active, payload }: TooltipProps<any, any>) => {
   if (active && payload && payload.length) {
@@ -34,7 +35,7 @@ const SupplyChart = () => {
 
     axios
       .get(
-        `https://2q7mh3riqd.execute-api.us-east-2.amazonaws.com/default/fetchCirculatingSupply?tokenSymbol=vedpx&from=${from}`
+        `https://2q7mh3riqd.execute-api.us-east-2.amazonaws.com/default/fetchCirculatingSupply?tokenSymbol=vedpx&from=${from}`,
       )
       .then((res) =>
         setData(
@@ -43,15 +44,15 @@ const SupplyChart = () => {
               return {
                 ...item,
                 circulatingSupply: Number(
-                  Number(item.circulatingSupply).toFixed(2)
+                  Number(item.circulatingSupply).toFixed(2),
                 ),
               };
             })
             .filter((_: any, index: number) => {
               if (index % 71 === 1) return true;
               return false;
-            })
-        )
+            }),
+        ),
       );
   }, []);
 

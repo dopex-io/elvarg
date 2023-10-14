@@ -1,12 +1,12 @@
-import React, { FC, ReactNode } from "react";
+import React, { FC, ReactNode } from 'react';
 
 type colors =
-  | "primary"
-  | "mineshaft"
-  | "carbon"
-  | "umbra"
-  | "success"
-  | "error";
+  | 'primary'
+  | 'mineshaft'
+  | 'carbon'
+  | 'umbra'
+  | 'success'
+  | 'error';
 
 export interface ButtonProps
   extends React.DetailedHTMLProps<
@@ -17,41 +17,41 @@ export interface ButtonProps
   className?: string;
   disabled?: boolean;
   color?: colors;
-  size?: "xsmall" | "small" | "medium" | "large";
-  variant?: "contained" | "outlined" | "text";
+  size?: 'xsmall' | 'small' | 'medium' | 'large';
+  variant?: 'contained' | 'outlined' | 'text';
 }
 
 const SIZE_CLASSES = {
-  xsmall: "px-[8px] py-[3px]",
-  small: "px-[8px] py-[7px]",
-  medium: "px-[8px] py-[9px]",
-  large: "p-3",
+  xsmall: 'px-[8px] py-[3px]',
+  small: 'px-[8px] py-[7px]',
+  medium: 'px-[8px] py-[9px]',
+  large: 'p-3',
 };
 
 const BACKGROUND_COLORS: { [key: string]: string } = {
-  primary: "bg-primary",
-  mineshaft: "bg-mineshaft",
-  umbra: "bg-umbra",
-  carbon: "bg-carbon",
-  error: "bg-down-bad !text-black",
-  success: "bg-up-only !text-black",
+  primary: 'bg-primary',
+  mineshaft: 'bg-mineshaft',
+  umbra: 'bg-umbra',
+  carbon: 'bg-carbon',
+  error: 'bg-down-bad !text-black',
+  success: 'bg-up-only !text-black',
 };
 
 const BORDER_COLORS: { [key: string]: string } = {
-  primary: "border-primary",
-  mineshaft: "border-mineshaft",
-  umbra: "border-umbra",
-  error: "border-down-bad",
-  success: "border-up-only",
+  primary: 'border-primary',
+  mineshaft: 'border-mineshaft',
+  umbra: 'border-umbra',
+  error: 'border-down-bad',
+  success: 'border-up-only',
 };
 
 const Button: FC<ButtonProps> = (props) => {
   const {
     children,
-    className = "",
-    variant = "contained",
-    size = "medium",
-    color = "primary",
+    className = '',
+    variant = 'contained',
+    size = 'medium',
+    color = 'primary',
     disabled = false,
     ...otherProps
   } = props;
@@ -60,10 +60,10 @@ const Button: FC<ButtonProps> = (props) => {
     <button
       className={`
         ${className} ${
-        variant === "contained" ? BACKGROUND_COLORS[color] : ""
-      } text-sm rounded-[5px] max-w-fit text-white ${SIZE_CLASSES[size]} ${
-        variant === "outlined" ? `${BORDER_COLORS[color]} border` : ""
-      } ${disabled ? "opacity-50" : "hover:opacity-80"}
+          variant === 'contained' ? BACKGROUND_COLORS[color] : ''
+        } text-sm rounded-[5px] w-max-fit text-white ${SIZE_CLASSES[size]} ${
+          variant === 'outlined' ? `${BORDER_COLORS[color]} border` : ''
+        } ${disabled ? 'opacity-50' : 'hover:opacity-80'}
       `}
       disabled={disabled}
       {...otherProps}
@@ -73,6 +73,6 @@ const Button: FC<ButtonProps> = (props) => {
   );
 };
 
-Button.displayName = "Button";
+Button.displayName = 'Button';
 
 export default Button;

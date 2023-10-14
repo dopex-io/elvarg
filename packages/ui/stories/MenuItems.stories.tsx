@@ -1,14 +1,15 @@
-import React from "react";
-import { ComponentMeta } from "@storybook/react";
-import { Menu as HeadlessMenu } from "@headlessui/react";
+import React from 'react';
 
-import MenuItems, { ItemType } from "../src/MenuItems";
-import PegHedgeIcon from "../src/icons/PegHedgeIcon";
-import InsuredPerpsIcon from "../src/icons/InsuredPerpsIcon";
-import LongStraddleIcon from "../src/icons/LongStraddleIcon";
+import { Menu as HeadlessMenu } from '@headlessui/react';
+import { Meta } from '@storybook/react';
 
-const meta: ComponentMeta<typeof MenuItems> = {
-  title: "MenuItem",
+import InsuredPerpsIcon from '../src/icons/InsuredPerpsIcon';
+import LongStraddleIcon from '../src/icons/LongStraddleIcon';
+import PegHedgeIcon from '../src/icons/PegHedgeIcon';
+import MenuItems, { ItemType } from '../src/MenuItems';
+
+const meta: Meta<typeof MenuItems> = {
+  title: 'MenuItem',
   component: MenuItems,
 };
 
@@ -17,17 +18,17 @@ export default meta;
 export const Variant = () => {
   const data: ItemType[] = [
     {
-      textContent: "Menu Item 1",
+      textContent: 'Menu Item 1',
       icon: <LongStraddleIcon />,
       disabled: false,
     },
     {
-      textContent: "Menu Item 2",
+      textContent: 'Menu Item 2',
       icon: <PegHedgeIcon />,
       disabled: false,
     },
     {
-      textContent: "Menu Item 3",
+      textContent: 'Menu Item 3',
       icon: <InsuredPerpsIcon />,
       disabled: true,
     },
@@ -42,7 +43,6 @@ export const Variant = () => {
             variant="basic"
             data={data}
             handleSelection={(e) => console.log(e.currentTarget.textContent)}
-            static
           />
         </HeadlessMenu>
       </div>
@@ -53,7 +53,6 @@ export const Variant = () => {
             variant="icon"
             data={data}
             handleSelection={(e) => console.log(e.currentTarget.textContent)}
-            static
           />
         </HeadlessMenu>
       </div>
@@ -67,7 +66,6 @@ export const Variant = () => {
             variant="dense"
             data={data}
             handleSelection={(e) => console.log(e.currentTarget.textContent)}
-            static
           />
         </HeadlessMenu>
       </div>
@@ -82,7 +80,6 @@ export const Variant = () => {
             data={data.concat(data)}
             handleSelection={(e) => console.log(e.currentTarget.textContent)}
             scrollable
-            static
           />
         </HeadlessMenu>
       </div>

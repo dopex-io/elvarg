@@ -1,0 +1,8 @@
+{
+  "infoBox": {
+    "header": "What are SSOVs?",
+    "description": "SSOVs enable users to temporarily lock up tokens in order to provide option liquidity and earn a yield on their assets.",
+    "url": "https://docs.dopex.io/products/ssov",
+    "buttonLabel": "Learn More"
+  }
+}

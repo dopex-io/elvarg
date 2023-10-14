@@ -1,14 +1,15 @@
-import Box from '@mui/material/Box';
 import { BigNumber, ethers } from 'ethers';
+
+import Box from '@mui/material/Box';
 
 import { useBoundStore } from 'store';
 
-import Typography from 'components/UI/Typography';
+import useSendTx from 'hooks/useSendTx';
+
 import SignerButton from 'components/common/SignerButton';
+import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-
-import useSendTx from 'hooks/useSendTx';
 
 const SsovV3Deposit = ({
   ssovSymbol,

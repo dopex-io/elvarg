@@ -1,20 +1,26 @@
 import { BigNumber } from 'ethers';
+
 import {
+  OptionScalps__factory,
+  OptionScalpsLimitOrderManager__factory,
   OptionScalpsLp,
   OptionScalpsLp__factory,
-  OptionScalps__factory,
 } from '@dopex-io/sdk';
+import request from 'graphql-request';
+import { StateCreator } from 'zustand';
 
-import graphSdk from 'graphql/graphSdk';
 import queryClient from 'queryClient';
 
-import { StateCreator } from 'zustand';
+import { getTradeStatsDocument } from 'graphql/optionScalps';
 
 import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';
 
+import { DOPEX_OPTION_SCALPS_SUBGRAPH_API_URL } from 'constants/subgraphs';
+
 export interface optionScalpData {
   optionScalpContract: any | undefined;
+  limitOrdersContract: any | undefined;
   quoteLpContract: OptionScalpsLp;
   baseLpContract: OptionScalpsLp;
   minimumMargin: BigNumber;
@@ -57,8 +63,25 @@ export interface ScalpPosition {
   timeframe: BigNumber;
   liquidationPrice: BigNumber;
 }
+
+export interface ScalpOrder {
+  transactionHash: string;
+  id: number;
+  isOpen: boolean;
+  isShort: boolean;
+  size: BigNumber;
+  timeframe: BigNumber;
+  collateral: BigNumber;
+  price: BigNumber;
+  target: BigNumber;
+  expiry: BigNumber | null;
+  filled: boolean;
+  type: string;
+}
+
 export interface optionScalpUserData {
   scalpPositions?: ScalpPosition[];
+  scalpOrders?: ScalpOrder[];
   coolingPeriod: {
     quote: number;
     base: number;
@@ -69,12 +92,17 @@ export interface OptionScalpSlice {
   optionScalpData?: optionScalpData | undefined;
   optionScalpUserData?: optionScalpUserData;
   updateOptionScalpUserData: Function;
+  getScalpPositions: Function;
+  getScalpOrders: Function;
+  getScalpOpenOrder: Function;
+  getScalpCloseOrder: Function;
   updateOptionScalp: Function;
   getUserPositionData: Function;
   setSelectedPoolName?: Function;
+  getLimitOrdersContract: Function;
   getOptionScalpContract: Function;
-  getBaseLpContract: Function;
-  getQuoteLpContract: Function;
+  getOptionScalpsBaseLpContract: Function;
+  getOptionScalpsQuoteLpContract: Function;
   getScalpPosition: Function;
   calcPnl: Function;
   calcLiqPrice: Function;
@@ -108,29 +136,43 @@ export const createOptionScalpSlice: StateCreator<
     const { selectedPoolName, provider, contractAddresses } = get();
 
     if (!selectedPoolName || !provider) return;
-    return OptionScalps__factory.connect(
-      contractAddresses['OPTION-SCALPS'][selectedPoolName],
-      provider
+
+    const optionScalpsAddress =
+      contractAddresses['OPTION-SCALPS'][selectedPoolName];
+
+    return OptionScalps__factory.connect(optionScalpsAddress, provider);
+  },
+  getLimitOrdersContract: () => {
+    const { selectedPoolName, provider, contractAddresses } = get();
+
+    if (!selectedPoolName || !provider) return;
+
+    const optionScalpsAddress =
+      contractAddresses['OPTION-SCALPS']['LIMIT'][selectedPoolName];
+
+    return OptionScalpsLimitOrderManager__factory.connect(
+      optionScalpsAddress,
+      provider,
     );
   },
-  getQuoteLpContract: () => {
+  getOptionScalpsQuoteLpContract: () => {
     const { selectedPoolName, provider, contractAddresses } = get();
 
     if (!selectedPoolName || !provider) return;
 
     return OptionScalpsLp__factory.connect(
       contractAddresses['OPTION-SCALPS']['LP'][selectedPoolName]['QUOTE'],
-      provider
+      provider,
     );
   },
-  getBaseLpContract: () => {
+  getOptionScalpsBaseLpContract: () => {
     const { selectedPoolName, provider, contractAddresses } = get();
 
     if (!selectedPoolName || !provider) return;
 
     return OptionScalpsLp__factory.connect(
       contractAddresses['OPTION-SCALPS']['LP'][selectedPoolName]['BASE'],
-      provider
+      provider,
     );
   },
   getScalpPosition: async (id: BigNumber) => {
@@ -148,13 +190,13 @@ export const createOptionScalpSlice: StateCreator<
     const { optionScalpData } = get();
 
     const divisor: BigNumber = BigNumber.from(
-      10 ** optionScalpData!.quoteDecimals.toNumber()
+      10 ** optionScalpData!.quoteDecimals.toNumber(),
     );
 
     const variation: BigNumber = position.margin
       .mul(divisor)
       .sub(
-        optionScalpData!.minimumAbsoluteLiquidationThreshold.mul(position.size)
+        optionScalpData!.minimumAbsoluteLiquidationThreshold.mul(position.size),
       )
       .div(position.positions);
 
@@ -168,7 +210,7 @@ export const createOptionScalpSlice: StateCreator<
 
     return price;
   },
-  updateOptionScalpUserData: async () => {
+  getScalpPositions: async () => {
     const {
       accountAddress,
       provider,
@@ -176,19 +218,18 @@ export const createOptionScalpSlice: StateCreator<
       getScalpPosition,
       calcPnl,
       calcLiqPrice,
-      getBaseLpContract,
-      getQuoteLpContract,
     } = get();
 
     const optionScalpContract = await getOptionScalpContract();
+
+    if (!optionScalpContract) return;
 
     let scalpPositionsIndexes: any = [];
     let positionsOfOwner: any = [];
 
     try {
-      positionsOfOwner = await optionScalpContract['positionsOfOwner'](
-        accountAddress
-      );
+      positionsOfOwner =
+        await optionScalpContract['positionsOfOwner'](accountAddress);
 
       for (let i in positionsOfOwner) {
         scalpPositionsIndexes.push(positionsOfOwner[i].toNumber());
@@ -204,7 +245,7 @@ export const createOptionScalpSlice: StateCreator<
     const events = await optionScalpContract?.queryFilter(
       optionScalpContract.filters.OpenPosition(null, null, accountAddress),
       72264883,
-      blockNumber
+      blockNumber,
     );
 
     for (let i in events) {
@@ -224,7 +265,7 @@ export const createOptionScalpSlice: StateCreator<
     }
 
     let scalpPositions: ScalpPosition[] = await Promise.all(
-      scalpPositionsPromises
+      scalpPositionsPromises,
     );
 
     let pnls: BigNumber[] = await Promise.all(pnlsPromises);
@@ -232,17 +273,232 @@ export const createOptionScalpSlice: StateCreator<
     scalpPositions = scalpPositions.map((position, index) => ({
       ...position,
       id: scalpPositionsIndexes[index],
-      pnl: position.isOpen
-        ? pnls[index]!.sub(position.premium).sub(position.fees)
-        : position.pnl,
+      pnl: position.isOpen ? pnls[index]! : position.pnl,
       liquidationPrice: calcLiqPrice(position),
     }));
 
     scalpPositions.reverse();
 
+    return scalpPositions;
+  },
+  // @ts-ignore TODO: FIX
+  getScalpOpenOrder: async (id: BigNumber, hash: string) => {
+    const { getLimitOrdersContract, getOptionScalpContract, optionScalpData } =
+      get();
+
+    if (!optionScalpData) return;
+
+    const limitOrdersContract = await getLimitOrdersContract();
+    const optionScalpContract = await getOptionScalpContract();
+
+    try {
+      const openOrder = await limitOrdersContract.callStatic.openOrders(id);
+
+      const ticks = await limitOrdersContract.callStatic.getNFTPositionTicks(
+        openOrder['nftPositionId'],
+      );
+
+      const tick = (ticks[0] + ticks[1]) / 2;
+
+      const price = BigNumber.from(Math.round(1.0001 ** tick * 10 ** 18));
+
+      let target;
+
+      if (openOrder['isShort']) {
+        target = BigNumber.from(Math.round(1.0001 ** ticks[1] * 10 ** 18));
+      } else {
+        target = BigNumber.from(Math.round(1.0001 ** ticks[0] * 10 ** 18));
+      }
+
+      const maxFundingTime = await limitOrdersContract.maxFundingTime();
+
+      const expiry = openOrder['timestamp'].add(maxFundingTime);
+      const timeframe = await optionScalpContract.timeframes(
+        openOrder['timeframeIndex'],
+      );
+
+      const positions = openOrder['size']
+        .mul(BigNumber.from(10 ** optionScalpData?.quoteDecimals.toNumber()))
+        .div(price);
+
+      if (openOrder['cancelled'] === false)
+        return {
+          transactionHash: hash,
+          id: id,
+          isOpen: true,
+          isShort: openOrder['isShort'],
+          size: openOrder['size'],
+          timeframe: timeframe,
+          collateral: openOrder['collateral'],
+          price: price,
+          target: target,
+          expiry: expiry,
+          filled: openOrder['filled'],
+          positions: positions,
+          type: 'open',
+        };
+
+      return;
+    } catch (e) {
+      console.log(e);
+      return;
+    }
+  },
+  // @ts-ignore TODO: FIX
+  getScalpCloseOrder: async (id: BigNumber, hash: string) => {
+    const { getLimitOrdersContract, getOptionScalpContract, optionScalpData } =
+      get();
+
+    if (!optionScalpData) return;
+
+    const limitOrdersContract = await getLimitOrdersContract();
+    const optionScalpContract = await getOptionScalpContract();
+
+    try {
+      const scalpPosition = await optionScalpContract.scalpPositions(id);
+      const closeOrder = await limitOrdersContract.closeOrders(id);
+
+      const ticks = await limitOrdersContract.callStatic.getNFTPositionTicks(
+        closeOrder['nftPositionId'],
+      );
+
+      const tick = (ticks[0] + ticks[1]) / 2;
+
+      const price = BigNumber.from(Math.round(1.0001 ** tick * 10 ** 18));
+
+      let target;
+
+      if (scalpPosition['isShort']) {
+        target = BigNumber.from(Math.round(1.0001 ** ticks[0] * 10 ** 18));
+      } else {
+        target = BigNumber.from(Math.round(1.0001 ** ticks[1] * 10 ** 18));
+      }
+
+      const positions = scalpPosition['size']
+        .mul(BigNumber.from(10 ** optionScalpData.quoteDecimals.toNumber()))
+        .div(price);
+
+      if (scalpPosition['size'].gt(0))
+        return {
+          transactionHash: hash,
+          id: id,
+          isOpen: false,
+          isShort: scalpPosition['isShort'],
+          size: scalpPosition['size'],
+          timeframe: scalpPosition['timeframe'],
+          collateral: scalpPosition['collateral'],
+          price: price,
+          target: target,
+          expiry: null,
+          positions: positions,
+          type: 'close',
+        };
+    } catch (e) {
+      console.log(e);
+      return;
+    }
+  },
+  getScalpOrders: async () => {
+    const {
+      accountAddress,
+      provider,
+      getScalpOpenOrder,
+      getScalpCloseOrder,
+      getLimitOrdersContract,
+    } = get();
+
+    if (!accountAddress) return;
+
+    const limitOrdersContract = await getLimitOrdersContract();
+
+    const openOrdersIndexes: any = [];
+    const openOrdersPromises: any[] = [];
+    const closeOrdersIndexes: any = [];
+    const closeOrdersPromises: any[] = [];
+
+    const blockNumber = await provider.getBlockNumber();
+
+    const openOrdersEvents = await limitOrdersContract?.queryFilter(
+      limitOrdersContract.filters.CreateOpenOrder(null, accountAddress),
+      72264883,
+      blockNumber,
+    );
+
+    const closeOrdersEvents = await limitOrdersContract?.queryFilter(
+      limitOrdersContract.filters.CreateCloseOrder(null, accountAddress),
+      72264883,
+      blockNumber,
+    );
+
+    const openOrdersTransactionsHashes: string[] = [];
+    const closeOrdersTransactionsHashes: string[] = [];
+
+    for (let i in openOrdersEvents) {
+      if (!openOrdersIndexes.includes(Number(openOrdersEvents[i]['args'][0]))) {
+        openOrdersIndexes.push(openOrdersEvents[i]['args'][0]);
+        openOrdersTransactionsHashes.push(
+          openOrdersEvents[i]['transactionHash'],
+        );
+      }
+    }
+
+    for (let i in closeOrdersEvents) {
+      if (
+        !closeOrdersIndexes.includes(Number(closeOrdersEvents[i]['args'][0]))
+      ) {
+        closeOrdersIndexes.push(closeOrdersEvents[i]['args'][0]);
+        closeOrdersTransactionsHashes.push(
+          closeOrdersEvents[i]['transactionHash'],
+        );
+      }
+    }
+
+    for (let i in openOrdersIndexes) {
+      openOrdersPromises.push(
+        // @ts-ignore TODO: FIX
+        getScalpOpenOrder(
+          openOrdersIndexes[i],
+          openOrdersTransactionsHashes[i],
+        ),
+      );
+    }
+
+    for (let i in closeOrdersIndexes) {
+      closeOrdersPromises.push(
+        // @ts-ignore TODO: FIX
+        getScalpCloseOrder(
+          closeOrdersIndexes[i],
+          // @ts-ignore TODO: FIX
+          closeOrdersTransactionsHashes[i],
+        ),
+      );
+    }
+
+    const openOrders: ScalpOrder[] = await Promise.all(openOrdersPromises);
+
+    const closeOrders: ScalpOrder[] = await Promise.all(closeOrdersPromises);
+
+    return openOrders.concat(closeOrders).filter((_) => _); // filter out null
+  },
+  updateOptionScalpUserData: async () => {
+    const {
+      accountAddress,
+      getOptionScalpsBaseLpContract,
+      getOptionScalpsQuoteLpContract,
+      getScalpPositions,
+      getScalpOrders,
+    } = get();
+
+    const scalpPositions = await getScalpPositions();
+    const scalpOrders = await getScalpOrders();
+    const quoteLpContract = await getOptionScalpsQuoteLpContract();
+    const baseLpContract = await getOptionScalpsBaseLpContract();
+
+    if (!quoteLpContract) return;
+
     const [quoteCoolingPeriod, baseCoolingPeriod] = await Promise.all([
-      getQuoteLpContract().lockedUsers(accountAddress),
-      getBaseLpContract().lockedUsers(accountAddress),
+      quoteLpContract.lockedUsers(accountAddress),
+      baseLpContract.lockedUsers(accountAddress),
     ]);
 
     set((prevState) => ({
@@ -250,6 +506,7 @@ export const createOptionScalpSlice: StateCreator<
       optionScalpUserData: {
         ...prevState.optionScalpUserData,
         scalpPositions: scalpPositions,
+        scalpOrders: scalpOrders,
         coolingPeriod: {
           quote: Number(quoteCoolingPeriod),
           base: Number(baseCoolingPeriod),
@@ -260,7 +517,8 @@ export const createOptionScalpSlice: StateCreator<
   getUserPositionData: async () => {
     const userPositionData = await queryClient.fetchQuery({
       queryKey: ['getTraderStats'],
-      queryFn: () => graphSdk.getTraderStats(),
+      queryFn: async () =>
+        request(DOPEX_OPTION_SCALPS_SUBGRAPH_API_URL, getTradeStatsDocument),
     });
 
     if (!userPositionData) return;
@@ -269,14 +527,19 @@ export const createOptionScalpSlice: StateCreator<
   updateOptionScalp: async () => {
     const {
       getOptionScalpContract,
-      getQuoteLpContract,
-      getBaseLpContract,
+      getLimitOrdersContract,
+      getOptionScalpsQuoteLpContract,
+      getOptionScalpsBaseLpContract,
       selectedPoolName,
     } = get();
 
     const optionScalpContract = getOptionScalpContract();
-    const quoteLpContract = getQuoteLpContract();
-    const baseLpContract = getBaseLpContract();
+
+    if (!optionScalpContract) return;
+
+    const limitOrdersContract = getLimitOrdersContract();
+    const quoteLpContract = getOptionScalpsQuoteLpContract();
+    const baseLpContract = getOptionScalpsBaseLpContract();
 
     const [
       minimumMargin,
@@ -289,8 +552,6 @@ export const createOptionScalpSlice: StateCreator<
       markPrice,
       totalQuoteDeposits,
       totalBaseDeposits,
-      totalQuoteAvailable,
-      totalBaseAvailable,
       quoteSupply,
       baseSupply,
     ] = await Promise.all([
@@ -304,11 +565,20 @@ export const createOptionScalpSlice: StateCreator<
       optionScalpContract!['getMarkPrice'](),
       quoteLpContract!['totalAssets'](),
       baseLpContract!['totalAssets'](),
-      quoteLpContract!['totalAvailableAssets'](),
-      baseLpContract!['totalAvailableAssets'](),
       quoteLpContract!['totalSupply'](),
       baseLpContract!['totalSupply'](),
     ]);
+
+    let totalQuoteAvailable = BigNumber.from('0');
+    let totalBaseAvailable = BigNumber.from('0');
+
+    try {
+      totalQuoteAvailable = await quoteLpContract!['totalAvailableAssets']();
+    } catch (e) {}
+
+    try {
+      totalBaseAvailable = await baseLpContract!['totalAvailableAssets']();
+    } catch (e) {}
 
     const quoteDecimals: BigNumber =
       selectedPoolName === 'ETH' || selectedPoolName === 'ARB'
@@ -351,28 +621,33 @@ export const createOptionScalpSlice: StateCreator<
 
     const daysSinceComp = BigNumber.from(
       Math.ceil(
-        (today.getTime() - compStartDate.getTime()) / (1000 * 3600 * 24)
-      )
+        (today.getTime() - compStartDate.getTime()) / (1000 * 3600 * 24),
+      ),
     );
 
-    const baseLpAPR = totalBaseDeposits
-      .sub(baseSupply)
-      .mul(365)
-      .div(daysSinceComp)
-      .mul(100)
-      .div(totalBaseDeposits);
+    const baseLpAPR = totalBaseDeposits.gt(0)
+      ? totalBaseDeposits
+          .sub(baseSupply)
+          .mul(365)
+          .div(daysSinceComp)
+          .mul(100)
+          .div(totalBaseDeposits)
+      : BigNumber.from(0);
 
-    const quoteLpAPR = totalQuoteDeposits
-      .sub(quoteSupply)
-      .mul(365)
-      .div(daysSinceComp)
-      .mul(100)
-      .div(totalQuoteDeposits);
+    const quoteLpAPR = totalQuoteDeposits.gt(0)
+      ? totalQuoteDeposits
+          .sub(quoteSupply)
+          .mul(365)
+          .div(daysSinceComp)
+          .mul(100)
+          .div(totalQuoteDeposits)
+      : BigNumber.from(0);
 
     set((prevState) => ({
       ...prevState,
       optionScalpData: {
         optionScalpContract: optionScalpContract,
+        limitOrdersContract: limitOrdersContract,
         quoteLpContract: quoteLpContract,
         baseLpContract: baseLpContract,
         minimumMargin: minimumMargin,
@@ -394,7 +669,7 @@ export const createOptionScalpSlice: StateCreator<
         baseLpAPR: baseLpAPR,
         quoteDecimals: quoteDecimals,
         baseDecimals: baseDecimals,
-        quoteSymbol: quoteSymbol,
+        quoteSymbol: 'USDC',
         baseSymbol: baseSymbol,
         inverted: selectedPoolName === 'BTC',
       },

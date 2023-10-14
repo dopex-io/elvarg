@@ -1,8 +1,8 @@
 import Box from '@mui/material/Box';
 
-import Typography from 'components/UI/Typography';
-
 import { useBoundStore } from 'store';
+
+import Typography from 'components/UI/Typography';
 
 import smartTrim from 'utils/general/smartTrim';
 
@@ -26,7 +26,7 @@ const ExplorerLink = (props: ExplorerLinkProps) => {
         className="flex space-x-2 bg-[#2D374B] rounded-lg p-2"
       >
         <img
-          src={CHAINS[chainId]?.explorer}
+          src={`/images/networks/${CHAINS[chainId]?.name.toLowerCase()}.svg`}
           alt={CHAINS[chainId]?.name}
           className="h-[1rem] my-auto"
         />

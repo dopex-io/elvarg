@@ -1,21 +1,22 @@
-import { useEffect, useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import Head from 'next/head';
+
+import Box from '@mui/material/Box';
+
 import { TokenSale__factory } from '@dopex-io/sdk';
 import c from 'classnames';
-import Box from '@mui/material/Box';
-import { useFormik } from 'formik';
-
-import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
-import AppBar from 'components/common/AppBar';
-import ClaimSection from 'components/sale/ClaimSection';
-import StatsSection from 'components/sale/StatsSection';
-import InfoSection from 'components/sale/InfoSection';
 
 import { useBoundStore } from 'store';
 
 import useEthPrice from 'hooks/useEthPrice';
 import useSendTx from 'hooks/useSendTx';
+
+import AppBar from 'components/common/AppBar';
+import ClaimSection from 'components/sale/ClaimSection';
+import InfoSection from 'components/sale/InfoSection';
+import StatsSection from 'components/sale/StatsSection';
+import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
 
 import formatAmount from 'utils/general/formatAmount';
 
@@ -39,22 +40,13 @@ const TokenSale = () => {
   const ethPrice = useEthPrice();
   const sendTx = useSendTx();
 
-  const formik = useFormik({
-    initialValues: {
-      amount: '0',
-    },
-    onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
-    },
-  });
-
   const handleClaim = useCallback(async () => {
     if (!signer || !accountAddress || !contractAddresses['TokenSale']) return;
     try {
       await sendTx(
         TokenSale__factory.connect(contractAddresses['TokenSale'], signer),
         'claim',
-        [accountAddress]
+        [accountAddress],
       );
       updateUserData();
     } catch (err) {
@@ -62,9 +54,7 @@ const TokenSale = () => {
     }
   }, [signer, accountAddress, contractAddresses, sendTx, updateUserData]);
 
-  const depositShare = formik.values.amount
-    ? (Number(deposits) / Number(weiDeposited)) * 100 || 0
-    : (Number(deposits) / Number(weiDeposited)) * 100 || 0;
+  const depositShare = (Number(deposits) / Number(weiDeposited)) * 100 || 0;
 
   const dpxEthPrice = Number(weiDeposited)
     ? Number(weiDeposited) / Number(tokensAllocated)
@@ -87,7 +77,7 @@ const TokenSale = () => {
       <Head>
         <title>Token Sale | Dopex</title>
       </Head>
-      <AppBar active="token sale" />
+      <AppBar />
       <Box className="py-32 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
         <Box className="mb-10 text-center rounded-xl">
           <Typography variant="h2" className="mb-4">
@@ -100,7 +90,7 @@ const TokenSale = () => {
             className={c(
               accountAddress
                 ? 'lg:w-5/12 mb-20 lg:mb-0'
-                : 'lg:w-5/12 mb-20 lg:mb-0 opacity-40'
+                : 'lg:w-5/12 mb-20 lg:mb-0 opacity-40',
             )}
           >
             <Box className="bg-cod-gray p-4 rounded-xl">
@@ -112,7 +102,6 @@ const TokenSale = () => {
               <ClaimSection data={{ saleClose, saleClosed }} />
               <StatsSection
                 data={{
-                  formik,
                   deposits,
                   depositShare,
                   claimAmount,

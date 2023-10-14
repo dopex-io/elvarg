@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box';
+
 import LaunchIcon from '@mui/icons-material/Launch';
 
 const QuickLink = ({ text, href }: { text: string; href: string }) => {

@@ -1,6 +1,8 @@
-import cx from "./utils/cx";
-import { Tab as HeadlessTab } from "@headlessui/react";
-import React, { ReactNode, FC } from "react";
+import { FC, ReactNode } from 'react';
+
+import { Tab as HeadlessTab } from '@headlessui/react';
+
+import cx from './utils/cx';
 
 export interface TabHeaderProps {
   children: ReactNode;
@@ -9,21 +11,21 @@ export interface TabHeaderProps {
 }
 
 export const TabHeader: FC<TabHeaderProps> = (props) => {
-  const { children, className = "", disabled = false, ...otherProps } = props;
+  const { children, className = '', disabled = false, ...otherProps } = props;
 
   return (
     <HeadlessTab
       disabled={disabled}
       className={({ selected }: { selected: boolean }) =>
         cx(
-          "w-full rounded-lg text-sm font-medium text-white",
-          "focus:outline-none",
+          'w-full rounded-lg text-sm font-medium text-white',
+          'focus:outline-none',
           otherProps,
           disabled
-            ? "bg-carbon/[0.5] text-stieglitz/[0.5]"
+            ? 'bg-carbon/[0.5] text-stieglitz/[0.5]'
             : selected
-            ? "bg-carbon"
-            : "text-stieglitz hover:bg-carbon hover:text-white"
+            ? 'bg-carbon'
+            : 'text-stieglitz hover:bg-carbon hover:text-white',
         )
       }
     >
@@ -32,6 +34,6 @@ export const TabHeader: FC<TabHeaderProps> = (props) => {
   );
 };
 
-TabHeader.displayName = "TabHeader";
+TabHeader.displayName = 'TabHeader';
 
 export default TabHeader;

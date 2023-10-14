@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box';
+
 import Typography from 'components/UI/Typography';
 
 const movesData: { [key: string]: { textColor: string; value: number } } = {

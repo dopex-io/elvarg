@@ -34,11 +34,17 @@ out
 # Local Vercel folder
 .vercel
 
+# Generated GraphQL
+/src/gql
+
 # Generated GraphQL hooks
 /src/graphql/generated
+
+# Graphclient
+.graphclient
 
 # Local next.js folder
 .next
 
-# Graphclient
-.graphclient
+# Sentry
+.sentryclirc

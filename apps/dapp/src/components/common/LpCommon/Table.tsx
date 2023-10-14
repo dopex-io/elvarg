@@ -1,8 +1,12 @@
+import { ReactNode } from 'react';
 import { BigNumber } from 'ethers';
+
 import Box from '@mui/material/Box';
-import TableContainer from '@mui/material/TableContainer';
-import TableCell from '@mui/material/TableCell';
 import { styled } from '@mui/material/styles';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+
+import { LpPosition } from 'store/Vault/olp';
 
 import Typography from 'components/UI/Typography';
 
@@ -10,8 +14,6 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
-
-import { LpPosition } from 'store/Vault/olp';
 
 export const StyleTable = styled(TableContainer)`
   table {
@@ -96,14 +98,14 @@ export const getLiquidityBodyCell = (
   underlying: string,
   usdValue: BigNumber,
   underlyingValue: BigNumber,
-  showUsd: boolean = true
+  showUsd: boolean = true,
 ) => {
   if (showUsd) {
     return (
       <BodyCell
         data={`$${formatAmount(
           getUserReadableAmount(usdValue, DECIMALS_USD),
-          2
+          2,
         )}`}
       />
     );
@@ -112,7 +114,7 @@ export const getLiquidityBodyCell = (
     <BodyCell
       data={`${formatAmount(
         getUserReadableAmount(underlyingValue, DECIMALS_TOKEN),
-        2
+        2,
       )} ${underlying.toUpperCase()}`}
     />
   );
@@ -136,7 +138,7 @@ export const getStrikeBodyCell = (strike: BigNumber) => {
     <BodyCell
       data={`$${formatAmount(
         getUserReadableAmount(strike, DECIMALS_STRIKE),
-        2
+        2,
       )}`}
     />
   );
@@ -178,8 +180,8 @@ export const LiquidityDialogRow = ({
         data={data}
         value={`${formatAmount(
           getUserReadableAmount(lpPositionSelected?.usdLiquidity, DECIMALS_USD),
-          2
-        )} USDC`}
+          2,
+        )} USDC.e`}
       />
     );
   }
@@ -189,9 +191,9 @@ export const LiquidityDialogRow = ({
       value={`${formatAmount(
         getUserReadableAmount(
           lpPositionSelected?.underlyingLiquidity,
-          DECIMALS_TOKEN
+          DECIMALS_TOKEN,
         ),
-        2
+        2,
       )} ${underlying}`}
     />
   );
@@ -212,7 +214,7 @@ export const NumberLiquidityDialogRow = ({
 }) => {
   if (isUsd) {
     return (
-      <DialogRow data={data} value={`${formatAmount(usdValue, 2)} USDC`} />
+      <DialogRow data={data} value={`${formatAmount(usdValue, 2)} USDC.e`} />
     );
   }
   return (
@@ -220,5 +222,18 @@ export const NumberLiquidityDialogRow = ({
       data={data}
       value={`${formatAmount(underlyingValue, 4)} ${underlying}`}
     />
+  );
+};
+
+interface HeaderCellInterface {
+  children: ReactNode;
+}
+
+export const StyleTableCellHeader = (props: HeaderCellInterface) => {
+  const { children } = props;
+  return (
+    <StyleTableCell align="left" className="flex-1">
+      <span className="text-sm text-stieglitz">{children}</span>
+    </StyleTableCell>
   );
 };

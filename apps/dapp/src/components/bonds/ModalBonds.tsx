@@ -1,30 +1,33 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import axios from 'axios';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
-import { ERC20__factory } from '@dopex-io/sdk';
-import Dialog from '@mui/material/Dialog';
+
 import Box from '@mui/material/Box';
-import LaunchIcon from '@mui/icons-material/Launch';
+import Dialog from '@mui/material/Dialog';
+
 import AccessibleForwardIcon from '@mui/icons-material/AccessibleForward';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import LaunchIcon from '@mui/icons-material/Launch';
 
-import Typography from 'components/UI/Typography';
-import Input from 'components/UI/Input';
-import CustomButton from 'components/UI/Button';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import { ERC20__factory } from '@dopex-io/sdk';
+import axios from 'axios';
 import WhiteLockerIcon from 'svgs/icons/WhiteLockerIcon';
 
 import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import CustomButton from 'components/UI/Button';
+import Input from 'components/UI/Input';
+import Typography from 'components/UI/Typography';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import displayAddress from 'utils/general/displayAddress';
 import formatAmount from 'utils/general/formatAmount';
 
-import { MAX_VALUE } from 'constants/index';
-import { DOPEX_API_BASE_URL } from 'constants/env';
 import { CHAINS } from 'constants/chains';
+import { DOPEX_API_BASE_URL } from 'constants/env';
+import { MAX_VALUE } from 'constants/index';
 
 export interface ModalBondsProps {
   modalOpen: boolean;
@@ -82,7 +85,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
 
   const percentageDiscount = useMemo(() => {
     const priceDiff = Math.abs(
-      getUserReadableAmount(bondPrice, 6) - dpxOraclePrice
+      getUserReadableAmount(bondPrice, 6) - dpxOraclePrice,
     );
     return (priceDiff / dpxOraclePrice) * 100;
   }, [bondPrice, dpxOraclePrice]);
@@ -115,11 +118,11 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
         const _amount = BigNumber.from(amount).mul(depositPerNft);
         const _usdc = ERC20__factory.connect(
           contractAddresses['USDC'],
-          provider
+          provider,
         );
         const allowance = await _usdc.allowance(
           accountAddress,
-          dpxBondsAddress
+          dpxBondsAddress,
         );
         setApproved(_amount.lte(allowance));
       } catch (e) {
@@ -136,7 +139,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
   ]);
 
   useEffect(() => {
-    setErr(usdcBalance.lt(depositPerNft) ? 'Insufficient USDC Balance' : '');
+    setErr(usdcBalance.lt(depositPerNft) ? 'Insufficient USDC.e Balance' : '');
   }, [depositPerNft, usdcBalance]);
 
   useEffect(() => {
@@ -148,7 +151,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
         const allowance = await usdc.allowance(accountAddress, dpxBondsAddress);
 
         setApproved(
-          allowance.gte(depositPerNft.mul(BigNumber.from(amount || '0')))
+          allowance.gte(depositPerNft.mul(BigNumber.from(amount || '0'))),
         );
       } catch (e) {
         console.log(e);
@@ -172,14 +175,14 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
       let value = e.target.value;
       setErr('');
       setAmount(value);
-      if (usdcBalance.lt(depositPerNft)) setErr('Insufficient USDC Balance');
+      if (usdcBalance.lt(depositPerNft)) setErr('Insufficient USDC.e Balance');
       else if (isNaN(Number(value))) {
         setErr('Please only enter numbers');
       } else if (value > usableNfts.length) {
         setErr('Cannot deposit more than wallet limit');
       }
     },
-    [depositPerNft, usableNfts.length, usdcBalance]
+    [depositPerNft, usableNfts.length, usdcBalance],
   );
 
   const handleApprove = useCallback(async () => {
@@ -212,7 +215,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
         console.log(e);
       }
     },
-    [bondsContracts, dpxBondsUserEpochData.usableNfts, sendTx, signer]
+    [bondsContracts, dpxBondsUserEpochData.usableNfts, sendTx, signer],
   );
 
   const handleDeposit = useCallback(async () => {
@@ -281,7 +284,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
           onChange={handleChange}
         />
         <Typography variant="caption" color="wave-blue" className="mt-2">
-          USDC Required: {amount * getUserReadableAmount(depositPerNft, 6)}
+          USDC.e Required: {amount * getUserReadableAmount(depositPerNft, 6)}
         </Typography>
         {err && (
           <Box className="bg-down-bad rounded-xl mt-3 p-2 text-center">
@@ -298,7 +301,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
                 ? formatAmount(
                     (amount * getUserReadableAmount(depositPerNft, 6)) /
                       getUserReadableAmount(bondPrice, 6),
-                    3
+                    3,
                   )
                 : '-'}
             </Typography>
@@ -317,11 +320,11 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
         <Box className="border rounded-b-xl border-umbra p-3 pt-6">
           <BondsInfo
             title="Bonding Price"
-            value={`${getUserReadableAmount(bondPrice, 6)} USDC`}
+            value={`${getUserReadableAmount(bondPrice, 6)} USDC.e`}
           />
           <BondsInfo
             title="Oracle Price"
-            value={`${dpxOraclePrice.toFixed(2)} USDC`}
+            value={`${dpxOraclePrice.toFixed(2)} USDC.e`}
           />
           <BondsInfo title="Vesting Term" value="1 Week" />
         </Box>

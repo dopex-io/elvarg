@@ -1,10 +1,10 @@
 import Box from '@mui/material/Box';
-import Typography from 'components/UI/Typography';
 
 import { useBoundStore } from 'store';
 
-import MaxPayout from 'components/nfts/duel/MaxPayout';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import MaxPayout from 'components/nfts/duel/MaxPayout';
+import Typography from 'components/UI/Typography';
 
 import formatAmount from 'utils/general/formatAmount';
 

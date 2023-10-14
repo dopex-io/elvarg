@@ -8,11 +8,20 @@
     },
     "storybook": { "cache": false, "persistent": true },
     "lint": {},
-    "generate": { "outputs": [".graphclient"] },
+    "generate": {
+      "inputs": ["src/graphql/**"],
+      "outputs": ["src/gql/**"]
+    },
     "build": {
-      "cache": false,
-      "outputs": [".next/**"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
       "dependsOn": ["generate", "^build"]
+    },
+    "export": {},
+    "dev-share": {
+      "persistent": true
+    },
+    "build-share": {
+      "outputs": [".next/**"]
     },
     "build-storybook": {
       "outputs": ["storybook-static/**"]

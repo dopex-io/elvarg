@@ -1,21 +1,25 @@
 import { Dispatch, SetStateAction, useCallback, useState } from 'react';
-import { Addresses } from '@dopex-io/sdk';
+import { BigNumber } from 'ethers';
+
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Input from '@mui/material/Input';
-import SearchIcon from '@mui/icons-material/Search';
 import Slide from '@mui/material/Slide';
 
-import Typography from 'components/UI/Typography';
+import SearchIcon from '@mui/icons-material/Search';
+
+import { Addresses } from '@dopex-io/sdk';
 
 import { useBoundStore } from 'store';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
-import formatAmount from 'utils/general/formatAmount';
+import Typography from 'components/UI/Typography';
 
-import { TOKEN_DATA } from 'constants/tokens';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
+
 import { CHAINS } from 'constants/chains';
+import { TOKEN_DATA } from 'constants/tokens';
 
 export interface Props {
   open: boolean;
@@ -50,7 +54,7 @@ const TokenSelector = ({
       });
       return value;
     },
-    [tokenPrices, userAssetBalances, chainId]
+    [tokenPrices, userAssetBalances, chainId],
   );
 
   const handleClose = useCallback(() => setOpen(false), [setOpen]);
@@ -58,7 +62,7 @@ const TokenSelector = ({
   const handleSearch = useCallback(
     (e: { target: { value: SetStateAction<string> } }) =>
       setSearchTerm(e.target.value),
-    []
+    [],
   );
 
   return open ? (
@@ -125,7 +129,7 @@ const TokenSelector = ({
                         variant="h6"
                         className="text-white font-medium"
                       >
-                        {symbol}
+                        {symbol === 'USDC' ? 'USDC.e' : symbol}
                       </Typography>
                       <Typography variant="caption" className="text-gray-400">
                         {TOKEN_DATA[symbol]?.name}
@@ -136,10 +140,10 @@ const TokenSelector = ({
                     <Typography variant="h5" className="text-white font-medium">
                       {formatAmount(
                         getUserReadableAmount(
-                          userAssetBalances[symbol] ?? '0',
-                          getTokenDecimals(symbol, chainId)
+                          BigNumber.from(userAssetBalances[symbol] ?? '0'),
+                          getTokenDecimals(symbol, chainId),
                         ),
-                        3
+                        3,
                       )}{' '}
                     </Typography>
                     <Typography
@@ -150,7 +154,7 @@ const TokenSelector = ({
                     </Typography>
                   </Box>
                 </Box>
-              ) : null
+              ) : null,
             )}
         </Box>
       </Slide>

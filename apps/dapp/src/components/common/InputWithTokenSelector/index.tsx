@@ -3,23 +3,24 @@ import {
   Dispatch,
   SetStateAction,
   useCallback,
-  useEffect,
   useState,
 } from 'react';
+import { BigNumber } from 'ethers';
+
 import Box from '@mui/material/Box';
+
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { ERC20__factory } from '@dopex-io/sdk';
+
+import { useBoundStore } from 'store';
 
 import Input from 'components/UI/Input';
 import Typography from 'components/UI/Typography';
 
-import TokenSelector from '../TokenSelector';
-
-import { useBoundStore } from 'store';
-
 import { getUserReadableAmount } from 'utils/contracts';
 import { formatAmount, getTokenDecimals } from 'utils/general';
+
+import TokenSelector from '../TokenSelector';
 
 interface IOverrides {
   setTokenSelectorOpen?: Dispatch<React.SetStateAction<boolean>>;
@@ -30,12 +31,13 @@ interface IInputWithTokenSelectorProps {
   setSelectedToken: Dispatch<SetStateAction<string>>;
   handleMax: () => void;
   handleInputAmountChange: (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
   inputAmount: string | number;
   topLeftTag?: string;
   topRightTag?: string;
   overrides?: IOverrides;
+  userTokenBalance: BigNumber;
 }
 
 const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
@@ -44,47 +46,16 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
     handleInputAmountChange,
     setSelectedToken,
     selectedTokenSymbol,
+    userTokenBalance,
     topLeftTag,
     topRightTag,
     overrides,
     handleMax,
   } = props;
 
-  const { chainId, getContractAddress, provider, accountAddress } =
-    useBoundStore();
+  const { chainId } = useBoundStore();
 
   const [tokenSelectorOpen, setTokenSelectorOpen] = useState(false);
-  const [selectedTokenBalance, setSelectedTokenBalance] = useState('0');
-
-  const updateUserBalance = useCallback(async () => {
-    if (!provider || !accountAddress) return;
-
-    const tokenAddress = getContractAddress(selectedTokenSymbol.toUpperCase());
-
-    if (!tokenAddress) return;
-
-    const token = ERC20__factory.connect(tokenAddress, provider);
-
-    setSelectedTokenBalance(
-      formatAmount(
-        getUserReadableAmount(
-          await token.balanceOf(accountAddress),
-          getTokenDecimals(selectedTokenSymbol, chainId)
-        ),
-        3
-      )
-    );
-  }, [
-    accountAddress,
-    chainId,
-    provider,
-    selectedTokenSymbol,
-    getContractAddress,
-  ]);
-
-  useEffect(() => {
-    updateUserBalance();
-  }, [updateUserBalance]);
 
   const handleTokenSelectorClick = useCallback(() => {
     if (chainId === 137) return;
@@ -135,12 +106,15 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
               <Typography variant="h6" className="my-auto">
                 {selectedTokenSymbol}
               </Typography>{' '}
-              {chainId !== 137 &&
+              {/**
+               * Disabling due 1inch API issues
+               */}
+              {/* {chainId !== 137 &&
                 (tokenSelectorOpen ? (
                   <KeyboardArrowUpIcon className="text-white" />
                 ) : (
                   <KeyboardArrowDownIcon className="text-white" />
-                ))}
+                ))} */}
             </Box>
           </Box>
         }
@@ -157,12 +131,21 @@ const InputWithTokenSelector = (props: IInputWithTokenSelectorProps) => {
               variant="h6"
               onClick={handleMax}
             >
-              {selectedTokenBalance}
+              {formatAmount(
+                getUserReadableAmount(
+                  BigNumber.from(userTokenBalance),
+                  getTokenDecimals(selectedTokenSymbol, chainId),
+                ),
+                3,
+              )}
             </Typography>
           </Box>
         }
       />
-      {tokenSelectorOpen && (
+      {/**
+       * Disabling due 1inch API issues
+       */}
+      {false && (
         <TokenSelector
           open={tokenSelectorOpen}
           setOpen={handleTokenSelectorClick}

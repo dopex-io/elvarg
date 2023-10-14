@@ -1,13 +1,16 @@
 import React, { useMemo } from 'react';
-import Box from '@mui/material/Box';
-import Countdown from 'react-countdown';
 
-import { PepeChildrenButton } from 'components/nfts/components/PepeButton';
-import Typography from 'components/UI/Typography';
-import displayAddress from 'utils/general/displayAddress';
+import Box from '@mui/material/Box';
+
+import Countdown from 'react-countdown';
 
 import { useBoundStore } from 'store';
 import { Duel } from 'store/Duel';
+
+import { PepeChildrenButton } from 'components/nfts/components/PepeButton';
+import Typography from 'components/UI/Typography';
+
+import displayAddress from 'utils/general/displayAddress';
 
 const ActiveDuel = ({
   duel,
@@ -52,7 +55,7 @@ const ActiveDuel = ({
   }, [duel, accountAddress]);
 
   const onImgSrcError = (
-    event: React.SyntheticEvent<HTMLImageElement, Event>
+    event: React.SyntheticEvent<HTMLImageElement, Event>,
   ) => {
     event.currentTarget.src =
       'https://img.tofunft.com/v2/42161/0xede855ced3e5a59aaa267abdddb0db21ccfe5072/666/280/static.jpg';
@@ -149,7 +152,7 @@ const ActiveDuel = ({
           className=""
           action={handleClick}
           disabled={['forfeit', 'tie', 'won', 'lost', 'waiting'].includes(
-            duel['status']
+            duel['status'],
           )}
         >
           {message}
@@ -265,7 +268,7 @@ const ActiveDuel = ({
           window.open(
             duel['challengerAddress'] === '?'
               ? '#'
-              : 'https://arbiscan.io/address/' + duel['challengerAddress']
+              : 'https://arbiscan.io/address/' + duel['challengerAddress'],
           )
         }
       />

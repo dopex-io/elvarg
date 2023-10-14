@@ -1,14 +1,17 @@
-import React, { ReactNode, useEffect, useState } from 'react';
-import { useMemo } from 'react';
+import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 import { BigNumber, utils } from 'ethers';
+
+import request from 'graphql-request';
+
+import queryClient from 'queryClient';
+
+import { getTradesFromTimestampDocument } from 'graphql/optionScalps';
 
 import { useBoundStore } from 'store';
 
-import graphSdk from 'graphql/graphSdk';
-import queryClient from 'queryClient';
-
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
+
+import { DOPEX_OPTION_SCALPS_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
 const Stat = ({ name, value }: { name: ReactNode; value: ReactNode }) => (
   <div className="flex flex-col">
@@ -33,15 +36,22 @@ const Stats = () => {
       const payload = await queryClient.fetchQuery({
         queryKey: ['getTradesFromTimestamp'],
         queryFn: () =>
-          graphSdk.getTradesFromTimestamp({
-            fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
-          }),
+          request(
+            DOPEX_OPTION_SCALPS_SUBGRAPH_API_URL,
+            getTradesFromTimestampDocument,
+            {
+              fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
+            },
+          ),
       });
 
       const _twentyFourHourVolume = payload.trades.reduce(
-        (acc, trade, _index) => {
+        (
+          acc: { ETH: BigNumber; ARB: BigNumber },
+          trade: { id: string; size: string },
+        ) => {
           const address = trade.id.split('#')[0]!;
-          if (address === '0xdaf4ffb05bfcb2c328c19135e3e74e1182c88283')
+          if (address === '0xea042b76cb5ac66372867ead8fdafde251026b4e')
             return {
               ARB: acc.ARB.add(BigNumber.from(trade.size)),
               ETH: acc.ETH,
@@ -53,7 +63,7 @@ const Stats = () => {
             };
           }
         },
-        { ETH: BigNumber.from(0), ARB: BigNumber.from(0) }
+        { ETH: BigNumber.from(0), ARB: BigNumber.from(0) },
       );
 
       setTwentyFourHourVolume({
@@ -62,21 +72,39 @@ const Stats = () => {
       });
     }
 
-    getVolume();
+    try {
+      getVolume();
+    } catch (e) {
+      console.log(e);
+    }
   }, []);
 
   const markPrice = useMemo(() => {
     if (
       selectedPoolName.toUpperCase() === 'ETH' ||
       selectedPoolName.toUpperCase() === 'ARB'
-    )
+    ) {
+      if (uniWethPrice.eq(0) || uniArbPrice.eq(0))
+        return formatAmount(
+          Number(
+            utils.formatUnits(
+              optionScalpData?.markPrice || BigNumber.from('0'),
+              optionScalpData?.quoteDecimals.toNumber(),
+            ),
+          ),
+          4,
+        );
+
       return formatAmount(
-        getUserReadableAmount(
-          selectedPoolName === 'ETH' ? uniWethPrice : uniArbPrice,
-          optionScalpData?.quoteDecimals!.toNumber()
+        Number(
+          utils.formatUnits(
+            selectedPoolName === 'ETH' ? uniWethPrice : uniArbPrice,
+            optionScalpData?.quoteDecimals?.toNumber(),
+          ),
         ),
-        4
+        4,
       );
+    }
 
     return '';
   }, [selectedPoolName, optionScalpData, uniWethPrice, uniArbPrice]);
@@ -97,20 +125,22 @@ const Stats = () => {
     const _totalShorts = shortOpenInterest.mul(1e6).div(markPrice);
 
     _stats.openInterest = formatAmount(
-      getUserReadableAmount(
-        _totalLongs.add(_totalShorts),
-        quoteDecimals.toNumber()
+      Number(
+        utils.formatUnits(
+          _totalLongs.add(_totalShorts),
+          quoteDecimals.toNumber(),
+        ),
       ),
-      10
+      10,
     );
 
     _stats.totalLongs = formatAmount(
-      getUserReadableAmount(_totalLongs, quoteDecimals.toNumber()),
-      5
+      Number(utils.formatUnits(_totalLongs, quoteDecimals.toNumber())),
+      5,
     );
     _stats.totalShorts = formatAmount(
-      getUserReadableAmount(_totalShorts, quoteDecimals.toNumber()),
-      5
+      Number(utils.formatUnits(_totalShorts, quoteDecimals.toNumber())),
+      5,
     );
 
     return _stats;
@@ -134,51 +164,62 @@ const Stats = () => {
         />
         <Stat
           name="Total Deposits"
-          value={`${formatAmount(
-            getUserReadableAmount(
-              optionScalpData?.totalBaseDeposits!,
-              optionScalpData?.baseDecimals!.toNumber()
-            ),
-            0,
-            true
-          )}
+          value={`${
+            optionScalpData?.totalQuoteDeposits
+              ? formatAmount(
+                  Number(
+                    utils.formatUnits(
+                      optionScalpData?.totalBaseDeposits!,
+                      optionScalpData?.baseDecimals!.toNumber(),
+                    ),
+                  ),
+                  0,
+                  true,
+                )
+              : null
+          }
           ${optionScalpData?.baseSymbol} / 
-          ${formatAmount(
-            getUserReadableAmount(
-              optionScalpData?.totalQuoteDeposits!,
-              optionScalpData?.quoteDecimals!.toNumber()
-            ),
-            0,
-            true
-          )} 
+          ${
+            optionScalpData?.totalQuoteDeposits
+              ? formatAmount(
+                  Number(
+                    utils.formatUnits(
+                      optionScalpData?.totalQuoteDeposits!,
+                      optionScalpData?.quoteDecimals?.toNumber(),
+                    ),
+                  ),
+                  0,
+                  true,
+                )
+              : null
+          } 
           ${optionScalpData?.quoteSymbol}`}
         />
         <Stat
-          name="24h Volume"
-          value={`${formatAmount(
-            optionScalpData?.baseSymbol === 'ETH'
-              ? twentyFourHourVolume.ETH
-              : twentyFourHourVolume.ARB,
-            0,
-            true
-          )} ${optionScalpData?.quoteSymbol}`}
-        />
-        <Stat
           name={`${optionScalpData?.quoteSymbol} LP APR`}
-          value={`${formatAmount(
-            getUserReadableAmount(optionScalpData?.quoteLpAPR!, 0),
-            0,
-            true
-          )}%`}
+          value={`${
+            optionScalpData?.quoteLpAPR
+              ? formatAmount(
+                  Number(utils.formatUnits(optionScalpData?.quoteLpAPR!, 0)),
+                  0,
+                  true,
+                )
+              : null
+          }%`}
         />
         <Stat
           name={`${optionScalpData?.baseSymbol} LP APR`}
-          value={`${formatAmount(
-            getUserReadableAmount(optionScalpData?.baseLpAPR!, 0),
-            0,
-            true
-          )}%`}
+          value={`${
+            optionScalpData?.baseLpAPR
+              ? formatAmount(
+                  Number(utils.formatUnits(optionScalpData?.baseLpAPR!, 0)),
+                  0,
+                  true,
+                )
+              : null
+          }%`}
         />
+        <Stat name={`FUNDING LP APR`} value={`18.5%`} />
       </div>
     </div>
   );

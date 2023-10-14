@@ -1,10 +1,11 @@
-import React from "react";
-import { ComponentMeta } from "@storybook/react";
+import React from 'react';
 
-import Switch from "../src/Switch";
+import { Meta } from '@storybook/react';
 
-const meta: ComponentMeta<typeof Switch> = {
-  title: "Switch",
+import Switch from '../src/Switch';
+
+const meta: Meta<typeof Switch> = {
+  title: 'Switch',
   component: Switch,
 };
 
@@ -20,8 +21,8 @@ export const Default = () => {
   return (
     <div
       style={{
-        display: "grid",
-        gap: "12px",
+        display: 'grid',
+        gap: '12px',
       }}
     >
       <Switch checked={checked} onChange={onChange} />
@@ -34,8 +35,8 @@ export const Colors = () => {
   return (
     <div
       style={{
-        display: "grid",
-        gap: "12px",
+        display: 'grid',
+        gap: '12px',
       }}
     >
       <Switch checked />
@@ -49,8 +50,8 @@ export const Disabled = () => {
   return (
     <div
       style={{
-        display: "grid",
-        gap: "12px",
+        display: 'grid',
+        gap: '12px',
       }}
     >
       <Switch disabled />

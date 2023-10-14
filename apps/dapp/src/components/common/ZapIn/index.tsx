@@ -7,34 +7,36 @@ import {
   useEffect,
   useState,
 } from 'react';
+import { BigNumber } from 'ethers';
+
 import Box from '@mui/material/Box';
-import Slider from '@mui/material/Slider';
-import Popover from '@mui/material/Popover';
 import IconButton from '@mui/material/IconButton';
 import Input from '@mui/material/Input';
+import Popover from '@mui/material/Popover';
+import Slider from '@mui/material/Slider';
 import Tooltip from '@mui/material/Tooltip';
+
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { BigNumber } from 'ethers';
+
 import { LoaderIcon } from 'react-hot-toast';
+import AlarmIcon from 'svgs/icons/AlarmIcon';
+import ArrowLeftIcon from 'svgs/icons/ArrowLeftIcon';
+import CrossIcon from 'svgs/icons/CrossIcon';
+import SettingsIcon from 'svgs/icons/SettingsIcon';
+import ZapIcon from 'svgs/icons/ZapIcon';
 
 import { useBoundStore } from 'store';
 
-import TokenSelector from '../TokenSelector';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
+import getSymbolFromAddress from 'utils/general/getSymbolFromAddress';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
+
 import CustomButton from '../../UI/Button';
 import Typography from '../../UI/Typography';
-
-import getSymbolFromAddress from 'utils/general/getSymbolFromAddress';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
-import formatAmount from 'utils/general/formatAmount';
-
-import ArrowLeftIcon from 'svgs/icons/ArrowLeftIcon';
-import SettingsIcon from 'svgs/icons/SettingsIcon';
-import CrossIcon from 'svgs/icons/CrossIcon';
-import ZapIcon from 'svgs/icons/ZapIcon';
-import AlarmIcon from 'svgs/icons/AlarmIcon';
-import SwapSymbol from './components/SwapSymbol';
+import TokenSelector from '../TokenSelector';
 import SwapStep from './components/SwapStep';
+import SwapSymbol from './components/SwapSymbol';
 
 export interface Props {
   setOpen: Dispatch<SetStateAction<boolean>>;
@@ -115,19 +117,19 @@ const ZapIn = ({
 
   const handleOpenSettings = useCallback(
     (event) => setAnchorEl(event.currentTarget),
-    []
+    [],
   );
 
   const handleCloseSettings = useCallback(() => setAnchorEl(null), []);
 
   const handleSlippageSlider = useCallback(
     (_e, value: number) => setSlippageTolerance(value),
-    [setSlippageTolerance]
+    [setSlippageTolerance],
   );
 
   const handleOpenTokenSelector = useCallback(
     () => setIsTokenSelectorVisible(true),
-    []
+    [],
   );
 
   return (
@@ -236,7 +238,7 @@ const ZapIn = ({
                 className="h-12 text-2xl text-white ml-2 mr-3 font-mono"
                 value={getUserReadableAmount(
                   userAssetBalances[fromTokenSymbol.toLocaleUpperCase()],
-                  getTokenDecimals(fromTokenSymbol, chainId)
+                  getTokenDecimals(fromTokenSymbol, chainId),
                 ).toFixed(6)}
                 readOnly={true}
                 classes={{ input: 'text-right' }}
@@ -274,14 +276,14 @@ const ZapIn = ({
                         ? formatAmount(
                             getUserReadableAmount(
                               quote['toTokenAmount'],
-                              quote['toToken']['decimals']
+                              quote['toToken']['decimals'],
                             ) /
                               getUserReadableAmount(
                                 quote['fromTokenAmount'],
-                                quote['fromToken']['decimals']
+                                quote['fromToken']['decimals'],
                               ) /
                               lpPrice,
-                            8
+                            8,
                           )
                         : ''}{' '}
                       {isPut ? '2CRV' : toTokenSymbol}{' '}
@@ -308,14 +310,14 @@ const ZapIn = ({
                             ? formatAmount(
                                 getUserReadableAmount(
                                   quote['toTokenAmount'],
-                                  quote['toToken']['decimals']
+                                  quote['toToken']['decimals'],
                                 ) /
                                   getUserReadableAmount(
                                     quote['fromTokenAmount'],
-                                    quote['fromToken']['decimals']
+                                    quote['fromToken']['decimals'],
                                   ) /
                                   lpPrice,
-                                18
+                                18,
                               )
                             : '-'}
                         </Typography>
@@ -337,15 +339,15 @@ const ZapIn = ({
                             ? formatAmount(
                                 getUserReadableAmount(
                                   quote['toTokenAmount'],
-                                  quote['toToken']['decimals']
+                                  quote['toToken']['decimals'],
                                 ) /
                                   getUserReadableAmount(
                                     quote['fromTokenAmount'],
-                                    quote['fromToken']['decimals']
+                                    quote['fromToken']['decimals'],
                                   ) /
                                   lpPrice /
                                   (1 + slippageTolerance / 100),
-                                18
+                                18,
                               )
                             : '-'}
                         </Typography>
@@ -388,7 +390,7 @@ const ZapIn = ({
                               ))}
                               {isPut ? (
                                 <SwapStep
-                                  pair="USDC to 2CRV"
+                                  pair="USDC.e to 2CRV"
                                   dexes={[
                                     {
                                       name: 'ARBITRUM_CURVE',

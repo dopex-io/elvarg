@@ -1,28 +1,30 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import axios from 'axios';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+
 import Box from '@mui/material/Box';
 
-import AppBar from 'components/common/AppBar';
-import SignerButton from 'components/common/SignerButton';
-import Title from 'components/atlantics/InsuredPerps/Title';
-import Tables from 'components/atlantics/InsuredPerps/Tables';
-import ManageCard from 'components/atlantics/InsuredPerps/ManageCard';
+import axios from 'axios';
+import { NextSeo } from 'next-seo';
+import { GmxCandleStick } from 'types';
 
 import { useBoundStore } from 'store';
 
-import { GmxCandleStick } from 'types';
+import ManageCard from 'components/atlantics/InsuredPerps/ManageCard';
+import Tables from 'components/atlantics/InsuredPerps/Tables';
+import Title from 'components/atlantics/InsuredPerps/Title';
+import { Period } from 'components/atlantics/InsuredPerps/TVChart';
+import AppBar from 'components/common/AppBar';
+import SignerButton from 'components/common/SignerButton';
 
-export const periods = ['1D', '4H', '1H', '15M', '5M'] as const;
-export type Period = (typeof periods)[number];
+import seo from 'constants/seo';
 
 const TVChart = dynamic(
   () => import('components/atlantics/InsuredPerps/TVChart'),
   {
     ssr: false,
-  }
+  },
 );
 
 interface TickerProps {
@@ -71,7 +73,7 @@ export const Main = (props: TickerProps) => {
           const res = await fetch(
             `https://stats.gmx.io/api/candles/${'ETH'}?preferableChainId=${chainId}&period=${period}&from=${
               Math.ceil(Number(new Date()) / 1000) - 86400 * 100
-            }&preferableSource=fast`
+            }&preferableSource=fast`,
           );
           resolve(res);
           return;
@@ -96,7 +98,7 @@ export const Main = (props: TickerProps) => {
         open: candleStickData.o,
         close: candleStickData.c,
         time: candleStickData.t,
-      })
+      }),
     );
 
     setGmxChartData(prices);
@@ -108,7 +110,7 @@ export const Main = (props: TickerProps) => {
 
       const { usd } = await axios
         .get(
-          `https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd`
+          `https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd`,
         )
         .then((res) => res.data.ethereum);
 
@@ -151,19 +153,19 @@ export const Main = (props: TickerProps) => {
           <title>... | ... | Insured Perps | Dopex</title>
         ) : (
           <title>
-            ${marketData.latest} | {underlying.concat('/', depositToken)} |
-            Insured Perps | Dopex
+            ${marketData.latest} | {underlying.concat('/', 'USDC.e')} | Insured
+            Perps | Dopex
           </title>
         )}
       </Head>
-      <AppBar active="Atlantics" />
+      <AppBar />
       <Box className="py-12 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         {accountAddress ? (
           <Box className="flex mt-20 space-x-0 lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row">
             <Box className="flex flex-col space-y-2 w-full sm:w-full lg:w-3/4 h-full">
               <Title
                 underlying={underlying}
-                deposit={depositToken}
+                deposit="USDC.e"
                 stats={marketData}
               />
               <Box className="h-[546px] w-full space-y-4 flex flex-col bg-cod-gray rounded-xl text-center">
@@ -206,10 +208,34 @@ const InsuredLongPerps = () => {
   const router = useRouter();
   const ticker = router.query['ticker'] as string;
 
-  if (!ticker) return null;
+  const [underlying, depositToken] = ticker ? ticker.split('-') : ['', ''];
 
-  const [underlying, depositToken] = ticker.split('-');
-  return <Main underlying={underlying} depositToken={depositToken} />;
+  return (
+    <>
+      <NextSeo
+        title={seo.insuredPerps.title}
+        description={seo.insuredPerps.description}
+        canonical={seo.insuredPerps.url}
+        openGraph={{
+          url: seo.insuredPerps.url,
+          title: `${seo.insuredPerps.title}`,
+          description: seo.insuredPerps.description,
+          images: [
+            {
+              url: seo.insuredPerps.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.insuredPerps.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
+      {ticker ? (
+        <Main underlying={underlying} depositToken={depositToken} />
+      ) : null}
+    </>
+  );
 };
 
 export default InsuredLongPerps;

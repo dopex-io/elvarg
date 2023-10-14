@@ -1,15 +1,18 @@
-import { useCallback, useState, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
+
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import Tooltip from '@mui/material/Tooltip';
-import InfoOutlined from '@mui/icons-material/InfoOutlined';
 
-import Typography from 'components/UI/Typography';
+import InfoOutlined from '@mui/icons-material/InfoOutlined';
 
 import { useBoundStore } from 'store';
 
+import Typography from 'components/UI/Typography';
+
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+
 import { CHAINS } from 'constants/chains';
 
 interface MaxStrikeInputProps {
@@ -44,7 +47,7 @@ const MaxStrikeInput = (props: MaxStrikeInputProps) => {
 
       const _input = getContractReadableAmount(
         Number(e.target.value),
-        CHAINS[chainId]?.tokenDecimals[token] ?? 18
+        CHAINS[chainId]?.tokenDecimals[token] ?? 18,
       ).mul(1e2);
       let _mod = _input.mod(tickSize ?? BigNumber.from(0));
       if (_mod.eq('0') && _input.gt('0')) {
@@ -55,7 +58,7 @@ const MaxStrikeInput = (props: MaxStrikeInputProps) => {
         setError('Invalid Strike Price');
       }
     },
-    [tickSize, chainId, token, setMaxStrike]
+    [tickSize, chainId, token, setMaxStrike],
   );
 
   return (

@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
-import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 
 import Typography from 'components/UI/Typography';
 
@@ -26,7 +26,7 @@ const SelectMenuProps = {
 
 const AssetMenuBox = ({ assetIdx, handleSelectAsset, assets }: Props) => {
   return (
-    <Box className="h-[2rem] p-1 w-[7.5rem]">
+    <Box className="h-[2rem] p-1 w-[8rem]">
       <Select
         className="opacity-80 rounded-md text-center bottom-3 -left-2"
         fullWidth
@@ -55,7 +55,9 @@ const AssetMenuBox = ({ assetIdx, handleSelectAsset, assets }: Props) => {
                 color="text-white"
                 className="text-left w-full ml-2 my-auto"
               >
-                <span className="text-white">{asset?.toUpperCase()}</span>
+                <span className="text-white">
+                  {asset === 'usdc' ? 'USDC.e' : asset?.toUpperCase()}
+                </span>
               </Typography>
             </Box>
           </MenuItem>

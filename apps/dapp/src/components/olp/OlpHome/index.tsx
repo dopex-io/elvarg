@@ -1,6 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
+import React, { ReactNode, useCallback, useMemo, useState } from 'react';
 
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import {
   Box,
   Paper,
@@ -13,22 +12,25 @@ import {
   TableRow,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
+
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+
 import isEmpty from 'lodash/isEmpty';
 import sortBy from 'lodash/sortBy';
 import { IOlpApi } from 'pages/olp';
 
-import { TablePaginationActions, Typography } from 'components/UI';
 import {
   StyleLeftTableCell,
   StyleRightTableCell,
   StyleTableCell,
 } from 'components/common/LpCommon/Table';
 import SsovFilter from 'components/ssov/SsovFilter';
+import { TablePaginationActions, Typography } from 'components/UI';
 
 import { getReadableTime } from 'utils/contracts';
 
-import { DEFAULT_CHAIN_ID } from 'constants/env';
 import { CHAINS } from 'constants/chains';
+import { DEFAULT_CHAIN_ID } from 'constants/env';
 
 import { FeaturedOlp } from './FeaturedOlp';
 import { OlpTableRow } from './OlpTableRow';
@@ -50,7 +52,7 @@ const StyleSecondHeaderTable = styled(TableContainer)`
 `;
 
 interface HeaderCellInterface {
-  children: string;
+  children: ReactNode;
 }
 
 const StyleTableCellHeader = (props: HeaderCellInterface) => {
@@ -77,6 +79,7 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
   const [selectedOlpExpiries, setSelectedOlpExpiries] = useState<string[]>([]);
   const [selectedOlpNetworks, setSelectedOlpNetworks] = useState<string[]>([]);
   const [page, setPage] = useState<number>(0);
+  const [sortByTvl, setSortByTvl] = useState<boolean>(true);
 
   const olpMarkets = useMemo(() => {
     if (!olps) return [];
@@ -84,7 +87,7 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
       ...new Set(
         Object.keys(olps)
           .map((chainId) => olps[chainId]?.map((o) => o.underlyingSymbol) ?? '')
-          .flat()
+          .flat(),
       ),
     ];
   }, [olps]);
@@ -112,7 +115,7 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
 
     if (!isEmpty(selectedOlpNetworks)) {
       filtered = filtered.filter((o) =>
-        selectedOlpNetworks.includes(CHAINS[o.chainId!]?.name || '')
+        selectedOlpNetworks.includes(CHAINS[o.chainId!]?.name || ''),
       );
     }
 
@@ -124,18 +127,26 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
 
     if (!isEmpty(selectedOlpMarkets)) {
       filtered = filtered.filter((o) =>
-        selectedOlpMarkets.includes(o.underlyingSymbol)
+        selectedOlpMarkets.includes(o.underlyingSymbol),
       );
     }
 
-    return filtered;
-  }, [olps, selectedOlpMarkets, selectedOlpExpiries, selectedOlpNetworks]);
+    return sortByTvl
+      ? filtered.sort((a: IOlpApi, b: IOlpApi) => (a.tvl < b.tvl ? 1 : -1))
+      : filtered.sort((a: IOlpApi, b: IOlpApi) => (a.tvl > b.tvl ? 1 : -1));
+  }, [
+    olps,
+    selectedOlpMarkets,
+    selectedOlpExpiries,
+    selectedOlpNetworks,
+    sortByTvl,
+  ]);
 
   const handleChangePage = useCallback(
     (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
       setPage(newPage);
     },
-    [setPage]
+    [setPage],
   );
 
   return (
@@ -145,10 +156,8 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
       </Typography>
       <Box className="flex mt-2 flex-col space-x-0 space-y-6 lg:flex-row lg:space-x-6 lg:space-y-0">
         {olps[DEFAULT_CHAIN_ID]?.filter((o) =>
-          FEATURED_OLPS.includes(o.symbol)
-        ).map((o, idx) => (
-          <FeaturedOlp key={idx} olp={o} />
-        ))}
+          FEATURED_OLPS.includes(o.symbol),
+        ).map((o, idx) => <FeaturedOlp key={idx} olp={o} />)}
       </Box>
       <Typography variant="h5" color="white" className="my-3 mt-8">
         All Options LP
@@ -207,7 +216,9 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
                   Market
                 </Typography>
               </StyleLeftTableCell>
-              <StyleTableCellHeader>TVL</StyleTableCellHeader>
+              <StyleTableCellHeader>
+                <button onClick={() => setSortByTvl(!sortByTvl)}>TVL</button>
+              </StyleTableCellHeader>
               <StyleTableCellHeader>Utilization</StyleTableCellHeader>
               <StyleTableCellHeader>Network</StyleTableCellHeader>
               <StyleRightTableCell align="right">
@@ -221,7 +232,7 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
             {filteredMarket
               ?.slice(
                 page * ROWS_PER_PAGE,
-                page * ROWS_PER_PAGE + ROWS_PER_PAGE
+                page * ROWS_PER_PAGE + ROWS_PER_PAGE,
               )
               ?.map((olp, idx) => (
                 <OlpTableRow key={idx} olp={olp} idx={idx} />

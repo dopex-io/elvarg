@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+
 import Box from '@mui/material/Box';
 
-import Typography from 'components/UI/Typography';
 import DepositCard from 'components/straddles/DepositCard';
 import PurchaseCard from 'components/straddles/PurchaseCard';
+import Typography from 'components/UI/Typography';
 
 const Manage = () => {
   const [activeTab, setActiveTab] = useState<string>('Deposit');

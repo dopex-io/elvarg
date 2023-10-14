@@ -9,3 +9,5 @@ export const CLOUDINARY_API_KEY = process.env['NEXT_PUBLIC_CLOUDINARY_API_KEY'];
 
 export const WALLETCONNECT_PROJECT_ID =
   process.env['NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID'];
+
+export const HOST_URL = process.env['NEXT_PUBLIC_HOST_URL'];

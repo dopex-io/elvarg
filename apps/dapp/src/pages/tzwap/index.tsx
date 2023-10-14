@@ -1,12 +1,7 @@
-import Head from 'next/head';
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import Head from 'next/head';
 import { BigNumber } from 'ethers';
-import {
-  Addresses,
-  ERC20__factory,
-  Tzwap1inchRouter__factory,
-} from '@dopex-io/sdk';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
@@ -14,20 +9,30 @@ import Input from '@mui/material/Input';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
-import cx from 'classnames';
-import useSendTx from 'hooks/useSendTx';
-import { LoaderIcon } from 'react-hot-toast';
-import { useBoundStore } from 'store';
-import RedTriangleIcon from 'svgs/icons/RedTriangleIcon';
-import Countdown from 'react-countdown';
 
-import CustomButton from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+
+import {
+  Addresses,
+  ERC20__factory,
+  Tzwap1inchRouter__factory,
+} from '@dopex-io/sdk';
+import { NextSeo } from 'next-seo';
+import Countdown from 'react-countdown';
+import { LoaderIcon } from 'react-hot-toast';
+import RedTriangleIcon from 'svgs/icons/RedTriangleIcon';
+
+import { useBoundStore } from 'store';
+
+import useSendTx from 'hooks/useSendTx';
+
 import AppBar from 'components/common/AppBar';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import TokenSelector from 'components/common/TokenSelector';
 import Kill from 'components/tzwap/Dialogs/Kill';
 import Orders from 'components/tzwap/Orders';
+import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
@@ -37,9 +42,9 @@ import getTokenDecimals from 'utils/general/getTokenDecimals';
 import isNativeToken from 'utils/general/isNativeToken';
 
 import { CURRENCIES_MAP, MAX_VALUE } from 'constants/index';
+import seo from 'constants/seo';
 
 import { Order } from '../../types/tzwap';
-import styles from './styles.module.scss';
 
 function TabPanel(props: {
   children: ReactNode;
@@ -99,7 +104,7 @@ const Tzwap = () => {
   const [isToTokenSelectorVisible, setIsToTokenSelectorVisible] =
     useState<boolean>(false);
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
-    BigNumber.from('0')
+    BigNumber.from('0'),
   );
   const [selectedTickSize, setSelectedTickSize] = useState<number>(3);
   const [selectedInterval, setSelectedInterval] = useState<string>('Min');
@@ -110,7 +115,7 @@ const Tzwap = () => {
       chainId === 1
         ? '0x0989fBCfBDFA3C54B2893fE16AD1E7A8D30C4458'
         : '0x7037cFcbc7807A652aEd2f8B5aB30546E7eF350d',
-    [chainId]
+    [chainId],
   );
 
   const ADDRESS_TO_TOKEN = useMemo(() => {
@@ -161,7 +166,7 @@ const Tzwap = () => {
 
     const tzwapRouter = Tzwap1inchRouter__factory.connect(
       tzwapRouterAddress,
-      signer
+      signer,
     );
 
     setIsFetchingOrders(true);
@@ -206,11 +211,11 @@ const Tzwap = () => {
           total: promise['total'],
           srcTokensSwapped: getUserReadableAmount(
             await tzwapRouter.getSrcTokensSwappedForOrder(i),
-            srcTokenDecimals
+            srcTokenDecimals,
           ),
           dstTokensSwapped: getUserReadableAmount(
             await tzwapRouter.getDstTokensReceivedForOrder(i),
-            dstTokenDecimals
+            dstTokenDecimals,
           ),
         });
       }
@@ -233,7 +238,7 @@ const Tzwap = () => {
     await sendTx(
       ERC20__factory.connect(contractAddresses[fromTokenName], signer),
       'approve',
-      [tzwapRouterAddress, MAX_VALUE]
+      [tzwapRouterAddress, MAX_VALUE],
     );
     setApproved(true);
   }, [sendTx, contractAddresses, fromTokenName, signer, tzwapRouterAddress]);
@@ -243,7 +248,7 @@ const Tzwap = () => {
 
     const tzwapRouter = Tzwap1inchRouter__factory.connect(
       tzwapRouterAddress,
-      signer
+      signer,
     );
 
     await sendTx(tzwapRouter.connect(signer), 'killOrder', [openOrder]);
@@ -277,7 +282,7 @@ const Tzwap = () => {
       (amount * fromTokenValueInUsd) /
       getUserReadableAmount(
         userTokenBalance,
-        getTokenDecimals(fromTokenName, chainId)
+        getTokenDecimals(fromTokenName, chainId),
       )
     );
   }, [amount, fromTokenValueInUsd, userTokenBalance, chainId, fromTokenName]);
@@ -307,7 +312,7 @@ const Tzwap = () => {
           (selectedInterval === 'Min' ? 60 : 60 * 60) *
           1000 *
           100) /
-          selectedTickSize
+          selectedTickSize,
     );
     return now;
   }, [intervalAmount, selectedInterval, selectedTickSize]);
@@ -330,7 +335,7 @@ const Tzwap = () => {
 
     const tzwapRouter = Tzwap1inchRouter__factory.connect(
       tzwapRouterAddress,
-      signer
+      signer,
     );
 
     const seconds =
@@ -353,11 +358,11 @@ const Tzwap = () => {
       interval: seconds,
       tickSize: getContractReadableAmount(
         Math.round(tickSize) / precision,
-        getTokenDecimals(fromTokenName, chainId)
+        getTokenDecimals(fromTokenName, chainId),
       ),
       total: getContractReadableAmount(
         Math.round(total) / precision,
-        getTokenDecimals(fromTokenName, chainId)
+        getTokenDecimals(fromTokenName, chainId),
       ),
       minFees: Math.round(minFees * 10 ** 3),
       maxFees: Math.round(maxFees * 10 ** 3),
@@ -372,7 +377,7 @@ const Tzwap = () => {
           fromTokenName === 'ETH'
             ? getContractReadableAmount(
                 Math.round(total) / precision,
-                getTokenDecimals(fromTokenName, chainId)
+                getTokenDecimals(fromTokenName, chainId),
               )
             : 0,
         gasLimit: chainId === 1 ? 700000 : 1700000,
@@ -408,8 +413,8 @@ const Tzwap = () => {
         amount >=
           getUserReadableAmount(
             userTokenBalance,
-            getTokenDecimals(fromTokenName, chainId)
-          )
+            getTokenDecimals(fromTokenName, chainId),
+          ),
     );
 
     let onClick = () => {};
@@ -423,7 +428,7 @@ const Tzwap = () => {
       amount >=
       getUserReadableAmount(
         userTokenBalance,
-        getTokenDecimals(fromTokenName, chainId)
+        getTokenDecimals(fromTokenName, chainId),
       )
     )
       children = 'Insufficient balance';
@@ -466,14 +471,14 @@ const Tzwap = () => {
 
       const tzwapRouter = Tzwap1inchRouter__factory.connect(
         tzwapRouterAddress,
-        signer
+        signer,
       );
 
       const userAmount = isNativeToken(fromTokenName)
         ? BigNumber.from(userAssetBalances[CURRENCIES_MAP[chainId.toString()]!])
         : await ERC20__factory.connect(
             contractAddresses[fromTokenName],
-            signer
+            signer,
           ).balanceOf(accountAddress);
 
       setUserTokenBalance(userAmount);
@@ -482,7 +487,7 @@ const Tzwap = () => {
         ? BigNumber.from(0)
         : await ERC20__factory.connect(
             contractAddresses[fromTokenName],
-            signer
+            signer,
           ).allowance(accountAddress, tzwapRouter.address);
 
       if (!allowance.eq(0)) {
@@ -508,9 +513,25 @@ const Tzwap = () => {
 
   return (
     <Box className="min-h-screen">
-      <Head>
-        <title>Tzwap | Dopex</title>
-      </Head>
+      <NextSeo
+        title={seo.tzwap.title}
+        description={seo.tzwap.description}
+        canonical={seo.tzwap.url}
+        openGraph={{
+          url: seo.tzwap.url,
+          title: seo.tzwap.title,
+          description: seo.tzwap.description,
+          images: [
+            {
+              url: seo.tzwap.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.tzwap.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
       <AppBar />
       <Kill
         openOrder={openOrder}
@@ -554,7 +575,7 @@ const Tzwap = () => {
                     chainId === 1
                       ? '0x0989fBCfBDFA3C54B2893fE16AD1E7A8D30C4458'
                       : '0x7037cFcbc7807A652aEd2f8B5aB30546E7eF350d',
-                    ''
+                    '',
                   )}
                 </a>{' '}
               </Typography>
@@ -600,12 +621,7 @@ const Tzwap = () => {
           </Box>
         </Box>
         <Box className="flex mx-auto max-w-xl mb-8 mt-8">
-          <Box
-            className={cx(
-              'bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 ml-auto mr-auto',
-              styles['cardWidth']
-            )}
-          >
+          <Box className="bg-cod-gray sm:px-4 px-2 py-4 rounded-xl pt-4 ml-auto mr-auto w-100 md:w-[378px]">
             {!(isFromTokenSelectorVisible || isToTokenSelectorVisible) ? (
               <Box className={''}>
                 <Box className={'w-full'}>
@@ -705,9 +721,9 @@ const Tzwap = () => {
                                 {formatAmount(
                                   getUserReadableAmount(
                                     userTokenBalance,
-                                    getTokenDecimals(fromTokenName, chainId)
+                                    getTokenDecimals(fromTokenName, chainId),
                                   ),
-                                  7
+                                  7,
                                 )}
                               </span>
                             </Typography>
@@ -1105,12 +1121,7 @@ const Tzwap = () => {
             )}
           </Box>
         </Box>
-        <Box
-          className={cx(
-            'flex mx-auto max-w-xl mb-8 mt-32 text-center',
-            styles['cardWidth']
-          )}
-        >
+        <Box className="flex mx-auto max-w-xl mb-8 mt-32 text-center w-100 md:w-[378px]">
           <Typography variant="h5" className="z-1 text-stieglitz">
             <span className={'text-white'}>TZWAP</span> allows anyone to create
             an on-chain TWAP order split by intervals and ticksizes that can be

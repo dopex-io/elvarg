@@ -1,30 +1,29 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { ERC20__factory } from '@dopex-io/sdk';
-
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
 
 import Box from '@mui/material/Box';
-import Tooltip from '@mui/material/Tooltip';
-import IconButton from '@mui/material/IconButton';
 import CircularProgress from '@mui/material/CircularProgress';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+
+import { ERC20__factory } from '@dopex-io/sdk';
+import BigCrossIcon from 'svgs/icons/BigCrossIcon';
+
+import { useBoundStore } from 'store';
 
 import { PepeButton } from 'components/nfts/components/PepeButton';
-import Moves from 'components/nfts/duel/Moves';
 import Details from 'components/nfts/duel/Details';
-import Instructions from 'components/nfts/duel/Instructions';
 import DuelExpiry from 'components/nfts/duel/DuelExpiry';
+import Instructions from 'components/nfts/duel/Instructions';
+import Moves from 'components/nfts/duel/Moves';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
 
-import BigCrossIcon from 'svgs/icons/BigCrossIcon';
-
-import formatAmount from 'utils/general/formatAmount';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE } from 'constants/index';
-
-import { useBoundStore } from 'store';
 
 export interface Props {
   open: boolean;
@@ -50,7 +49,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
   const [isSearchModeActive, setIsSearchModeActive] = useState<boolean>(false);
   const [payWithETH, setPayWithETH] = useState<boolean>(false);
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
-    BigNumber.from('0')
+    BigNumber.from('0'),
   );
 
   const tokenName = useMemo(() => {
@@ -123,7 +122,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
       blockMovesSelected,
       kickMovesSelected,
       moves,
-    ]
+    ],
   );
 
   const atLeastOneBlock = useMemo(() => {
@@ -157,12 +156,12 @@ const FindDuel = ({ open, handleClose }: Props) => {
     if (tokenName !== 'ETH') {
       const token = ERC20__factory.connect(
         contractAddresses[selectedDuel!['tokenName']],
-        signer
+        signer,
       );
 
       const allowance = await token.allowance(
         accountAddress,
-        duelContract.address
+        duelContract.address,
       );
 
       if (allowance.eq(0)) {
@@ -233,7 +232,7 @@ const FindDuel = ({ open, handleClose }: Props) => {
       } else {
         const _token = ERC20__factory.connect(
           contractAddresses[tokenName],
-          provider
+          provider,
         );
 
         userAmount = await _token.balanceOf(accountAddress!);

@@ -1,68 +1,57 @@
-/*
- *   The commented code contains the logic and UI for token selector.
- *   Users can either use underlying or the collateral asset to create
- *   their positions. For our initial rollup, the UI is restricted to
- *   use the collateral asset (USDC).
- */
-
 import React, {
   ChangeEvent,
   SyntheticEvent,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
 } from 'react';
-
 import { BigNumber, ethers } from 'ethers';
+
+import CircularProgress from '@mui/material/CircularProgress';
+import Slider from '@mui/material/Slider';
+
+import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import KeyboardArrowUpRoundedIcon from '@mui/icons-material/KeyboardArrowUpRounded';
 
 import {
   ERC20__factory,
   GmxVault__factory,
   InsuredLongsStrategy__factory,
 } from '@dopex-io/sdk';
-import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
-import KeyboardArrowUpRoundedIcon from '@mui/icons-material/KeyboardArrowUpRounded';
-import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
-import Slider from '@mui/material/Slider';
+import { Button } from '@dopex-io/ui';
 import axios from 'axios';
-import { AtlanticsContext } from 'contexts/Atlantics';
-import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
 import { useDebounce } from 'use-debounce';
 
+import { useBoundStore } from 'store';
 import { IAtlanticPoolEpochStrikeData } from 'store/Vault/atlantics';
 
-import CustomButton from 'components/UI/Button';
-import Input from 'components/UI/Input';
-import Typography from 'components/UI/Typography';
+import useSendTx from 'hooks/useSendTx';
+
 import StrategyDetails from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/StrategyDetails';
 import TokenSelector from 'components/atlantics/TokenSelector';
+import Input from 'components/UI/Input';
+import Typography from 'components/UI/Typography';
 
+import { getBlockTime } from 'utils/contracts';
 import {
   getEligiblePutStrike,
   getStrategyFee,
 } from 'utils/contracts/atlantics/insuredPerps';
 import {
   BLACKOUT_WINDOW,
-  OPTIONS_TOKEN_DECIMALS,
   getFundingFees,
   getPurchaseFees,
+  OPTIONS_TOKEN_DECIMALS,
 } from 'utils/contracts/atlantics/pool';
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import {
-  LIQUIDATION_FEE_USD,
   getPositionFee,
   getSwapFees,
+  LIQUIDATION_FEE_USD,
   tokenToUsdMin,
   usdToTokenMin,
 } from 'utils/contracts/gmx';
-import formatAmount from 'utils/general/formatAmount';
-import { getBlockTime } from 'utils/general/getBlocktime';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
+import { formatAmount, getTokenDecimals } from 'utils/general';
 
 import { CHAINS } from 'constants/chains';
 import { DOPEX_API_BASE_URL } from 'constants/env';
@@ -73,7 +62,7 @@ const steps = 0.1;
 const minMarks = 2;
 const maxMarks = 10;
 
-const INITIAL_LEVERAGE = getContractReadableAmount(2, 30);
+const INITIAL_LEVERAGE = ethers.utils.parseUnits('2', 30);
 
 const customSliderStyle = {
   '.MuiSlider-markLabel': {
@@ -137,7 +126,7 @@ const ManagePosition = () => {
     userAssetBalances,
     setSelectedEpoch,
   } = useBoundStore();
-  const { selectedPool } = useContext(AtlanticsContext);
+
   const [leverage, setLeverage] = useState<BigNumber>(INITIAL_LEVERAGE);
   const [increaseOrderParams, setIncreaseOrderParams] =
     useState<IncreaseOrderParams>({
@@ -157,7 +146,7 @@ const ManagePosition = () => {
   });
   const [openTokenSelector, setOpenTokenSelector] = useState<boolean>(false);
   const [selectedToken, setSelectedToken] = useState<string>('USDC');
-  const [positionBalance, setPositionBalance] = useState<string>('');
+  const [positionBalance, setPositionBalance] = useState<string>('0');
   const [strategyDetails, setStrategyDetails] = useState<IStrategyDetails>({
     positionSize: BigNumber.from(0),
     putOptionsPremium: BigNumber.from(0),
@@ -208,14 +197,14 @@ const ManagePosition = () => {
 
     const collateralRequired = putStrike
       .mul(optionsAmount)
-      .div(getContractReadableAmount(1, 18 + 8 - 6));
+      .div(ethers.utils.parseUnits('1', 18 + 8 - 6));
 
     if (putStrike.isZero()) return errorMessage;
 
     const availableStrikesData = atlanticPoolEpochData.epochStrikeData.filter(
       (data: any) => {
         return data.strike.gte(putStrike);
-      }
+      },
     );
     let availableLiquidity = BigNumber.from(0);
     for (const i in availableStrikesData) {
@@ -225,7 +214,7 @@ const ManagePosition = () => {
           activeCollateral: BigNumber.from(0),
         };
       availableLiquidity = availableLiquidity.add(
-        totalEpochMaxStrikeLiquidity.sub(activeCollateral)
+        totalEpochMaxStrikeLiquidity.sub(activeCollateral),
       );
     }
 
@@ -237,7 +226,7 @@ const ManagePosition = () => {
         increaseOrderParams.collateralDelta
           .add(positionFee)
           .add(strategyFee)
-          .add(swapFees)
+          .add(swapFees),
       );
 
     const [highestStrikeData] = availableStrikesData;
@@ -258,9 +247,9 @@ const ManagePosition = () => {
     } else if (longLimitExceeded) {
       errorMessage = 'Insufficient liquidity to open long positions';
     } else if (unavailableStrike) {
-      errorMessage = `Put Strike exceeds highest strike. Highest strike available: ${getUserReadableAmount(
+      errorMessage = `Put Strike exceeds highest strike. Highest strike available: ${ethers.utils.formatUnits(
         availableStrikesData[0]?.strike ?? 0,
-        8
+        8,
       )} `;
     } else if (Number(positionBalance) <= 0) {
       errorMessage = 'Invalid input amount';
@@ -285,36 +274,19 @@ const ManagePosition = () => {
     deposit: string;
     underlying: string;
   } => {
-    let _tokens = {
-      deposit: '',
-      underlying: '',
-    };
-    if (!selectedPool.tokens) return _tokens;
-    const { deposit, underlying } = selectedPool.tokens;
-    if (!deposit || !underlying) return _tokens;
-    _tokens = {
-      deposit,
-      underlying,
-    };
-    return _tokens;
-  }, [selectedPool.tokens]);
+    const { deposit, underlying } = { deposit: 'USDC', underlying: 'WETH' };
+    return { deposit, underlying };
+  }, []);
 
   const allowedTokens = useMemo(() => {
-    let tokens = [{ symbol: '', address: '' }];
-    if (!selectedPool || !contractAddresses || !selectedPool.tokens) return [];
-    tokens = Object.keys(selectedPool.tokens).map((key: string) => {
-      let symbol = selectedPool.tokens[key];
-      if (symbol !== undefined) {
-        return {
-          symbol: symbol,
-          address: contractAddresses[symbol],
-        };
-      } else {
-        return { symbol: '', address: '' };
-      }
+    let tokenAddresses = [
+      '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8', // USDC.e
+      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1', // WETH
+    ];
+    return Object.values(selectedPoolTokens).map((symbol, i) => {
+      return { symbol, address: tokenAddresses[i] };
     });
-    return tokens;
-  }, [selectedPool, contractAddresses]);
+  }, [selectedPoolTokens]);
 
   const selectToken = (token: string) => {
     setSelectedToken(() => token);
@@ -358,7 +330,7 @@ const ManagePosition = () => {
           liquidityBalance: string;
         }) =>
           Number(strikeData.strike) >=
-          Number(strategyDetails.putStrike.div(1e8))
+          Number(strategyDetails.putStrike.div(1e8)),
       );
 
     let accumulatedOptionsPurchasable = filteredMaxStrikesData.reduce(
@@ -369,7 +341,7 @@ const ManagePosition = () => {
             Number(strategyDetails.putStrike.div(1e8))
         );
       },
-      0
+      0,
     );
 
     setStrategyDetails((prevState) => ({
@@ -406,7 +378,7 @@ const ManagePosition = () => {
         [
           'function maxGlobalLongSizes(address) external view returns (uint256)',
         ],
-        provider
+        provider,
       );
 
       const [
@@ -438,9 +410,9 @@ const ManagePosition = () => {
 
       const selectedTokenDecimals = getTokenDecimals(selectedToken, chainId);
       const collateralTokenDecimals = getTokenDecimals(depositToken, chainId);
-      const selectedTokenInputAmount = getContractReadableAmount(
+      const selectedTokenInputAmount = ethers.utils.parseUnits(
         inputAmount,
-        selectedTokenDecimals
+        selectedTokenDecimals,
       );
 
       if (selectedTokenInputAmount.eq(0)) {
@@ -454,19 +426,19 @@ const ManagePosition = () => {
           underlyingMaxPrice,
           selectedTokenInputAmount,
           selectedTokenDecimals,
-          getTokenDecimals(underlying, chainId)
+          getTokenDecimals(underlying, chainId),
         );
       }
 
       const collateralUsd = tokenToUsdMin(
         selectedTokenMinPrice,
         selectedTokenInputAmount,
-        selectedTokenDecimals
+        selectedTokenDecimals,
       );
 
       let sizeUsd = collateralUsd
         .mul(leverage)
-        .div(getContractReadableAmount(1, 30));
+        .div(ethers.utils.parseUnits('1', 30));
 
       const positionFeeUsd = getPositionFee(sizeUsd);
 
@@ -481,7 +453,7 @@ const ManagePosition = () => {
       const liquidationUsd = underlyingMinPrice.sub(priceDelta);
 
       const liquidationPrice = liquidationUsd.div(
-        getContractReadableAmount(1, 22)
+        ethers.utils.parseUnits('1', 22),
       );
 
       let putStrike = BigNumber.from(1);
@@ -489,7 +461,7 @@ const ManagePosition = () => {
       if (liquidationUsd.lt(underlyingMaxPrice)) {
         putStrike = getEligiblePutStrike(
           liquidationPrice,
-          atlanticPool.vaultConfig.tickSize
+          atlanticPool.vaultConfig.tickSize,
         );
       }
 
@@ -503,11 +475,11 @@ const ManagePosition = () => {
       const collateralAccessInCollateralToken = usdToTokenMin(
         collateralTokenMinPrice,
         sizeUsd.sub(collateralUsd),
-        collateralTokenDecimals
+        collateralTokenDecimals,
       );
 
       const optionsAmount = collateralAccessInCollateralToken
-        .mul(getContractReadableAmount(1, OPTIONS_TOKEN_DECIMALS + 2))
+        .mul(ethers.utils.parseUnits('1', OPTIONS_TOKEN_DECIMALS + 2))
         .div(putStrike);
 
       let putOptionsPremium = BigNumber.from(0);
@@ -516,27 +488,27 @@ const ManagePosition = () => {
         putOptionsPremium =
           await atlanticPool.contracts.atlanticPool.calculatePremium(
             putStrike,
-            optionsAmount
+            optionsAmount,
           );
       }
 
       const purchaseFees = getPurchaseFees(
-        collateralTokenMinPrice.div(getContractReadableAmount(1, 22)),
+        collateralTokenMinPrice.div(ethers.utils.parseUnits('1', 22)),
         putStrike,
         optionsAmount,
-        collateralTokenDecimals
+        collateralTokenDecimals,
       );
 
       const fundingFees = getFundingFees(
         collateralAccessInCollateralToken,
         currentTimestamp,
-        atlanticPoolEpochData.expiry
+        atlanticPoolEpochData.expiry,
       );
 
       const strategyFee = usdToTokenMin(
         selectedTokenMinPrice,
         getStrategyFee(sizeUsd),
-        selectedTokenDecimals
+        selectedTokenDecimals,
       );
 
       setStrategyDetails(() => ({
@@ -547,7 +519,7 @@ const ManagePosition = () => {
         positionFee: usdToTokenMin(
           selectedTokenMinPrice,
           positionFeeUsd,
-          selectedTokenDecimals
+          selectedTokenDecimals,
         ),
         optionsAmount,
         liquidationPrice,
@@ -558,11 +530,13 @@ const ManagePosition = () => {
         strategyFee,
         totalFeesUsd: positionFeeUsd.add(LIQUIDATION_FEE_USD),
         collateralDeltaUsd: collateralUsd,
-        availableLiquidityForLongs: getUserReadableAmount(
-          maxLongsLimit.sub(currentLongsUsd).gt(0)
-            ? maxLongsLimit.sub(currentLongsUsd)
-            : 0,
-          30
+        availableLiquidityForLongs: Number(
+          ethers.utils.formatUnits(
+            maxLongsLimit.sub(currentLongsUsd).gt(0)
+              ? maxLongsLimit.sub(currentLongsUsd)
+              : 0,
+            30,
+          ),
         ),
         optionsPurchasable: 0,
         feesWithoutDiscount: {
@@ -584,7 +558,7 @@ const ManagePosition = () => {
         collateralDelta: usdToTokenMin(
           selectedTokenMaxPrice,
           collateralUsd.add(positionFeeUsd),
-          selectedTokenDecimals
+          selectedTokenDecimals,
         ).add(swapFees),
         positionSizeDelta: sizeUsd,
         acceptablePrice,
@@ -620,13 +594,13 @@ const ManagePosition = () => {
 
     const gmxVault = GmxVault__factory.connect(
       contractAddresses['GMX-VAULT'],
-      signer
+      signer,
     );
 
     const positionRouter = new ethers.Contract(
       '0xb87a436B93fFE9D75c5cFA7bAcFff96430b09868',
       ['function maxGlobalLongSizes(address) external view returns (uint256)'],
-      provider
+      provider,
     );
 
     const underlyingTokenAddress =
@@ -638,11 +612,11 @@ const ManagePosition = () => {
         positionRouter['maxGlobalLongSizes'](underlyingTokenAddress),
         gmxVault.guaranteedUsd(underlyingTokenAddress),
         getBlockTime(provider),
-      ]
+      ],
     );
 
     if (
-      currentTimestamp >
+      currentTimestamp.toNumber() >
       Number(atlanticPoolEpochData.expiry) - BLACKOUT_WINDOW
     ) {
       setIsBlackoutWindow(true);
@@ -657,9 +631,11 @@ const ManagePosition = () => {
     setStrategyDetails((prev) => ({
       ...prev,
       markPrice: price,
-      availableLiquidityForLongs: getUserReadableAmount(
-        maxLongs.sub(currentLongs).gt(0) ? maxLongs.sub(currentLongs) : 0,
-        30
+      availableLiquidityForLongs: Number(
+        ethers.utils.formatUnits(
+          maxLongs.sub(currentLongs).gt(0) ? maxLongs.sub(currentLongs) : 0,
+          30,
+        ),
       ),
     }));
   }, [
@@ -673,19 +649,19 @@ const ManagePosition = () => {
 
   const handleChangeLeverage = useCallback(
     (_: Event | SyntheticEvent<Element, Event>, value: number | number[]) => {
-      setLeverage(() =>
-        getContractReadableAmount(
-          typeof value == 'number' ? value : value.pop() ?? 0,
-          30
-        )
+      setLeverage(
+        ethers.utils.parseUnits(
+          (typeof value == 'number' ? value : value.pop() ?? 0).toString(),
+          30,
+        ),
       );
       handleStrategyCalculations();
     },
-    [handleStrategyCalculations]
+    [handleStrategyCalculations],
   );
 
   const handlePositionBalanceChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { value } = event.target;
     setPositionBalance(value);
@@ -696,13 +672,11 @@ const ManagePosition = () => {
     if (!accountAddress || !selectedToken) return;
     const tokenContract = ERC20__factory.connect(
       contractAddresses[selectedToken],
-      provider
+      provider,
     );
     const balance = await tokenContract.balanceOf(accountAddress);
     const tokenDecimals = getTokenDecimals(selectedToken, chainId);
-    setPositionBalance(() =>
-      getUserReadableAmount(balance, tokenDecimals).toString()
-    );
+    setPositionBalance(ethers.utils.formatUnits(balance, tokenDecimals));
   }, [accountAddress, chainId, contractAddresses, provider, selectedToken]);
 
   const handleApproveQuoteToken = useCallback(async () => {
@@ -715,7 +689,7 @@ const ManagePosition = () => {
     if (!depositToken) return;
     const tokenContract = ERC20__factory.connect(
       contractAddresses[depositToken],
-      signer
+      signer,
     );
 
     try {
@@ -738,7 +712,7 @@ const ManagePosition = () => {
       if (!underlying) return;
       const tokenContract = ERC20__factory.connect(
         contractAddresses[underlying],
-        signer
+        signer,
       );
       await sendTx(tokenContract, 'approve', [
         strategyContractAddress,
@@ -757,11 +731,11 @@ const ManagePosition = () => {
     if (!atlanticPool || !accountAddress) return;
     const quoteToken = ERC20__factory.connect(
       contractAddresses[atlanticPool.tokens.depositToken],
-      provider
+      provider,
     );
     const baseToken = ERC20__factory.connect(
       contractAddresses[atlanticPool.tokens.underlying],
-      provider
+      provider,
     );
 
     const strategyAddress =
@@ -769,21 +743,21 @@ const ManagePosition = () => {
 
     const quoteTokenAllowance = await quoteToken.allowance(
       accountAddress,
-      strategyAddress
+      strategyAddress,
     );
     const baseTokenAllowance = await baseToken.allowance(
       accountAddress,
-      strategyAddress
+      strategyAddress,
     );
 
     setApproved(() => ({
       quote: quoteTokenAllowance.gte(
-        putOptionsPremium.add(putOptionsfees.add(fundingFees))
+        putOptionsPremium.add(putOptionsfees.add(fundingFees)),
       ),
       base:
         increaseOrderParams.path.length === 1
           ? baseTokenAllowance.gte(
-              increaseOrderParams.collateralDelta.add(strategyFee)
+              increaseOrderParams.collateralDelta.add(strategyFee),
             )
           : true,
     }));
@@ -822,7 +796,7 @@ const ManagePosition = () => {
       debouncedStrategyDetails[0].expiry.eq('0') ||
         positionBalance.length === 0 ||
         selectedToken === '' ||
-        !approved.quote
+        !approved.quote,
     );
   }, [debouncedStrategyDetails, approved, positionBalance, selectedToken]);
 
@@ -841,7 +815,7 @@ const ManagePosition = () => {
     }
     const strategyContract = InsuredLongsStrategy__factory.connect(
       contractAddresses['STRATEGIES']['INSURED-PERPS']['STRATEGY'],
-      signer
+      signer,
     );
 
     const { depositToken } = atlanticPool.tokens;
@@ -882,8 +856,8 @@ const ManagePosition = () => {
   }, [atlanticPool, setSelectedEpoch]);
 
   return (
-    <Box>
-      <Box className="bg-umbra rounded-xl space-y-2" ref={containerRef}>
+    <div>
+      <div className="bg-umbra rounded-xl space-y-2" ref={containerRef}>
         <Input
           size="small"
           variant="default"
@@ -892,28 +866,32 @@ const ManagePosition = () => {
           value={positionBalance}
           onChange={handlePositionBalanceChange}
           leftElement={
-            <Box
+            <div
               className="flex my-auto w-full space-x-2 rounded-lg cursor-pointer bg-carbon"
               role="button"
               onClick={() => setOpenTokenSelector((prev) => !prev)}
             >
-              <Box className="flex w-full bg-carbon rounded-full space-x-2 pr-1 items-center justify-center">
+              <div className="flex w-full bg-carbon rounded-full space-x-2 pr-1 items-center justify-center">
                 <img
                   src={`/images/tokens/${selectedToken.toLowerCase()}.svg`}
                   alt={selectedToken}
                   className="w-10"
                 />
-                <h6>{selectedToken}</h6>
+                <h6>
+                  {selectedToken.toUpperCase() === 'USDC'
+                    ? 'USDC.e'
+                    : selectedToken}
+                </h6>
                 {openTokenSelector ? (
                   <KeyboardArrowUpRoundedIcon className="fill-current text-white my-auto" />
                 ) : (
                   <KeyboardArrowDownRoundedIcon className="fill-current text-white my-auto" />
                 )}
-              </Box>
-            </Box>
+              </div>
+            </div>
           }
         />
-        <Box className="flex bg-umbra justify-between px-3 pb-3">
+        <div className="flex bg-umbra justify-between px-3 pb-3">
           <Typography variant="h6" color="stieglitz">
             Balance
           </Typography>
@@ -924,16 +902,16 @@ const ManagePosition = () => {
             onClick={handleMax}
           >
             {formatAmount(
-              getUserReadableAmount(
-                userAssetBalances[selectedToken] ?? '0',
-                CHAINS[chainId]?.tokenDecimals[selectedToken]
+              ethers.utils.formatUnits(
+                BigNumber.from(userAssetBalances[selectedToken] ?? '0'),
+                CHAINS[chainId]?.tokenDecimals[selectedToken],
               ),
               3,
-              true
+              true,
             )}{' '}
-            {selectedToken}
+            {selectedToken.toUpperCase() === 'USDC' ? 'USDC.e' : selectedToken}
           </Typography>
-        </Box>
+        </div>
         <TokenSelector
           setSelection={selectToken}
           open={openTokenSelector}
@@ -941,9 +919,9 @@ const ManagePosition = () => {
           tokens={allowedTokens}
           containerRef={containerRef}
         />
-      </Box>
-      <Box className="w-full flex flex-col border-t-2 border-cod-gray space-y-2">
-        <Box className="flex flex-col items-center p-3 bg-umbra rounded-b-lg">
+      </div>
+      <div className="w-full flex flex-col border-t-2 border-cod-gray space-y-2">
+        <div className="flex flex-col items-center p-3 bg-umbra rounded-b-lg">
           <Typography
             variant="h6"
             className="text-left w-full"
@@ -951,7 +929,7 @@ const ManagePosition = () => {
           >
             Leverage
           </Typography>
-          <Box className="w-full px-5 pt-2">
+          <div className="w-full px-5 pt-2">
             <Slider
               sx={customSliderStyle}
               onChange={handleChangeLeverage}
@@ -964,38 +942,23 @@ const ManagePosition = () => {
               max={maxMarks}
               valueLabelDisplay="auto"
             />
-          </Box>
-        </Box>
-        {/* <Box className="flex w-full bg-umbra justify-between border-t-2 border-cod-gray p-3 mb-2 rounded-b-xl"> */}
-        {/* <Box className="flex">
-            <Typography variant="h6" className="my-auto" color="stieglitz">
-              Deposit underlying
-            </Typography>
-            <Tooltip
-              title="Choose whether to deposit underlying and keep borrowed collateral incase your long position has collateral that was added when trigger price was crossed and would like to keep the position post expiry."
-              enterTouchDelay={0}
-              leaveTouchDelay={1000}
-            >
-              <InfoOutlined className="fill-current text-stieglitz p-1 my-auto" />
-            </Tooltip>
-          </Box> */}
-        {/* <Switch value={depositUnderlying} onChange={handleToggle} /> */}
-        {/* </Box> */}
+          </div>
+        </div>
         <StrategyDetails
           data={debouncedStrategyDetails[0]}
           loading={strategyDetailsLoading}
-          selectedCollateral={'selectedCollateral'}
+          selectedCollateral="selectedCollateral"
           selectedToken={selectedToken}
-          positionCollateral={getContractReadableAmount(
+          positionCollateral={ethers.utils.parseUnits(
             positionBalance,
-            getTokenDecimals(selectedToken, chainId)
+            getTokenDecimals(selectedToken, chainId),
           )}
           quoteToken={selectedPoolTokens.deposit}
           baseToken={selectedPoolTokens.underlying}
         />
-        <Box className="flex flex-col w-full space-y-3 mt-2">
+        <div className="flex flex-col w-full space-y-3 mt-2">
           {approved.quote && approved.base ? (
-            <CustomButton
+            <Button
               disabled={
                 error !== '' ||
                 strategyDetailsLoading ||
@@ -1011,11 +974,11 @@ const ManagePosition = () => {
               ) : (
                 'Long'
               )}
-            </CustomButton>
+            </Button>
           ) : (
-            <Box className="flex space-x-2 items-center justify-content w-full">
+            <div className="flex space-x-2 items-center justify-content w-full">
               {!approved.quote ? (
-                <CustomButton
+                <Button
                   className="flex-1 w-[10rem]"
                   onClick={handleApproveQuoteToken}
                   disabled={
@@ -1023,10 +986,10 @@ const ManagePosition = () => {
                   }
                 >
                   Approve {selectedPoolTokens.deposit}
-                </CustomButton>
+                </Button>
               ) : null}
               {!approved.base ? (
-                <CustomButton
+                <Button
                   className="flex-1 w-[10rem]"
                   onClick={handleApproveBaseToken}
                   disabled={
@@ -1034,13 +997,13 @@ const ManagePosition = () => {
                   }
                 >
                   Approve {selectedPoolTokens.underlying}
-                </CustomButton>
+                </Button>
               ) : null}
-            </Box>
+            </div>
           )}
-        </Box>
-      </Box>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 };
 

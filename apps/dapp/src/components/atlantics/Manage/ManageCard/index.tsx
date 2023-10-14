@@ -1,30 +1,33 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { BigNumber } from 'ethers';
 
-import { ERC20__factory } from '@dopex-io/sdk';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
-import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
+
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
+import { ERC20__factory } from '@dopex-io/sdk';
+import { Switch } from '@dopex-io/ui';
 import LockerIcon from 'svgs/icons/LockerIcon';
 
-import CustomButton from 'components/UI/Button';
-import Input from 'components/UI/Input';
-import Switch from 'components/UI/Switch';
-import Typography from 'components/UI/Typography';
+import { useBoundStore } from 'store';
+
+import useSendTx from 'hooks/useSendTx';
+
 import MaxStrikeInput from 'components/atlantics/Manage/ManageCard/MaxStrikeInput';
 import PoolStats from 'components/atlantics/Manage/ManageCard/PoolStats';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import CustomButton from 'components/UI/Button';
+import Input from 'components/UI/Input';
+import Typography from 'components/UI/Typography';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 import getTokenDecimals from 'utils/general/getTokenDecimals';
 
-import { MAX_VALUE } from 'constants/index';
 import { CHAINS } from 'constants/chains';
+import { MAX_VALUE } from 'constants/index';
 
 interface ManageCardProps {
   tokenId: string;
@@ -42,7 +45,7 @@ const ManageCard = (props: ManageCardProps) => {
   const [rolloverEnabled, setRolloverEnabled] = useState<boolean>(true);
   const [approved, setApproved] = useState<boolean>(false);
   const [currentPrice, setCurrentPrice] = useState<BigNumber>(
-    BigNumber.from(0)
+    BigNumber.from(0),
   );
 
   const sendTx = useSendTx();
@@ -64,7 +67,7 @@ const ManageCard = (props: ManageCardProps) => {
       if (poolType == 'CALLS') {
         return 'WETH';
       } else {
-        return 'USDC';
+        return 'USDC.e';
       }
     }
     const deposit = atlanticPool.tokens.depositToken;
@@ -85,13 +88,11 @@ const ManageCard = (props: ManageCardProps) => {
     (e: { target: { value: React.SetStateAction<string | number> } }) => {
       setValue(e.target.value);
     },
-    []
+    [],
   );
 
-  const handleRolloverEnableCheck = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRolloverEnabled(event.target.checked);
+  const handleRolloverEnableCheck = () => {
+    setRolloverEnabled((c) => !c);
   };
 
   const handleApprove = useCallback(async () => {
@@ -107,12 +108,12 @@ const ManageCard = (props: ManageCardProps) => {
     try {
       const token = ERC20__factory.connect(
         contractAddresses[depositToken],
-        signer
+        signer,
       );
 
       const customApproveAmount = getContractReadableAmount(
         value,
-        CHAINS[chainId]?.tokenDecimals[depositToken] ?? 18
+        CHAINS[chainId]?.tokenDecimals[depositToken] ?? 18,
       );
 
       await sendTx(token, 'approve', [
@@ -150,15 +151,15 @@ const ManageCard = (props: ManageCardProps) => {
     const token = ERC20__factory.connect(contractAddresses[deposit], signer);
     const allowance = await token.allowance(
       accountAddress,
-      atlanticPool.contracts.atlanticPool.address
+      atlanticPool.contracts.atlanticPool.address,
     );
     setApproved(
       allowance.gte(
         getContractReadableAmount(
           value,
-          CHAINS[chainId]?.tokenDecimals[deposit] ?? 18
-        )
-      )
+          CHAINS[chainId]?.tokenDecimals[deposit] ?? 18,
+        ),
+      ),
     );
   }, [accountAddress, chainId, contractAddresses, signer, value, atlanticPool]);
 
@@ -202,9 +203,9 @@ const ManageCard = (props: ManageCardProps) => {
     if (!depositToken) return;
     setValue(
       getUserReadableAmount(
-        userAssetBalances[depositToken || underlying] ?? '0',
-        getTokenDecimals(depositToken, chainId)
-      )
+        BigNumber.from(userAssetBalances[depositToken || underlying] ?? '0'),
+        getTokenDecimals(depositToken, chainId),
+      ),
     );
   }, [chainId, atlanticPool, underlying, userAssetBalances]);
 
@@ -248,16 +249,16 @@ const ManageCard = (props: ManageCardProps) => {
           leftElement={
             <Box className="flex h-full my-auto">
               <Box
-                className="flex w-[6.2rem] mr-3 bg-cod-gray rounded-full space-x-1 p-1 pr-3"
+                className="flex w-[7rem] mr-3 bg-cod-gray rounded-full space-x-1 p-1 pr-3"
                 role="button"
               >
                 <img
-                  src={`/images/tokens/${depositToken?.toLowerCase()}.svg`}
-                  alt={(depositToken || underlying).toLowerCase()}
+                  src={`/images/tokens/usdc.svg`}
+                  alt="usdc"
                   className="w-[2.2rem]"
                 />
                 <Typography variant="h5" className="my-auto">
-                  {depositToken}
+                  USDC.e
                 </Typography>
               </Box>
               <Box
@@ -279,13 +280,13 @@ const ManageCard = (props: ManageCardProps) => {
           <Typography variant="h6">
             {formatAmount(
               getUserReadableAmount(
-                userAssetBalances[depositToken] ?? '0',
-                CHAINS[chainId]?.tokenDecimals[depositToken]
+                BigNumber.from(userAssetBalances[depositToken] ?? '0'),
+                CHAINS[chainId]?.tokenDecimals[depositToken],
               ),
               3,
-              true
+              true,
             )}{' '}
-            {depositToken}
+            USDC.e
           </Typography>
         </Box>
       </Box>
@@ -301,7 +302,6 @@ const ManageCard = (props: ManageCardProps) => {
           <Switch
             checked={rolloverEnabled}
             onChange={handleRolloverEnableCheck}
-            inputProps={{ 'aria-label': 'controlled' }}
           />
           <Typography variant="h6" className="mx-2 py-2">
             Rollover
@@ -328,7 +328,7 @@ const ManageCard = (props: ManageCardProps) => {
               <InfoOutlinedIcon className="fill-current text-stieglitz p-0 w-4 h-4 my-auto" />
             </Tooltip>
           </Box>
-          <Switch value={maxApprove} onChange={handleMaxApprove} />
+          <Switch checked={maxApprove} onChange={handleMaxApprove} />
         </Box>
       ) : null}
       <Box className="rounded-xl bg-umbra p-3 space-y-2">

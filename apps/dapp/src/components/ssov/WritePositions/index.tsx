@@ -1,25 +1,31 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
-import cx from 'classnames';
-import isEmpty from 'lodash/isEmpty';
+
 import Box from '@mui/material/Box';
-import TableHead from '@mui/material/TableHead';
-import TableContainer from '@mui/material/TableContainer';
-import TableRow from '@mui/material/TableRow';
+import { styled } from '@mui/material/styles';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
-import { styled } from '@mui/material/styles';
+import TableRow from '@mui/material/TableRow';
 
-import Typography from 'components/UI/Typography';
+import cx from 'classnames';
+import isEmpty from 'lodash/isEmpty';
+
+import { useBoundStore } from 'store';
+import { SsovV3Data, WritePositionInterface } from 'store/Vault/ssov';
+
+import useSendTx from 'hooks/useSendTx';
+
 import TablePaginationActions from 'components/UI/TablePaginationActions';
-import WritePositionTableData from './WritePositionData';
+import Typography from 'components/UI/Typography';
+
+import ClaimDialog from './Dialogs/ClaimDialog';
 import TransferDialog from './Dialogs/TransferDialog';
 import WithdrawDialog from './Dialogs/WithdrawDialog';
-
-import { SsovV3Data, WritePositionInterface } from 'store/Vault/ssov';
-import { useBoundStore } from 'store';
+import WritePositionTableData from './WritePositionData';
 
 const StyledContainer = styled(TableContainer)`
   td {
@@ -85,24 +91,29 @@ const WritePositions = (props: { className?: string }) => {
     ssovV3UserData: ssovUserData,
     ssovData,
     ssovEpochData,
+    ssovSigner,
   } = useBoundStore();
 
   const { collateralSymbol } = ssovData as SsovV3Data;
 
   const [page, setPage] = useState(0);
 
+  const sendTx = useSendTx();
+
   // Filtered out positions with zero collateral
   const filteredWritePositions = useMemo(() => {
     return (
       ssovUserData?.writePositions.filter(
-        (position) => !position.collateralAmount.isZero()
+        (position) =>
+          !position.collateralAmount.isZero() &&
+          selectedEpoch === position.epoch,
       ) || []
     );
-  }, [ssovUserData]);
+  }, [ssovUserData, selectedEpoch]);
 
   const [dialog, setDialog] = useState<null | {
     open: boolean;
-    type: 'WITHDRAW' | 'TRANSFER';
+    type: 'WITHDRAW' | 'TRANSFER' | 'CLAIM';
     data: WritePositionInterface;
   }>({
     open: false,
@@ -115,6 +126,8 @@ const WritePositions = (props: { className?: string }) => {
       epoch: 0,
       tokenId: BigNumber.from(0),
       utilization: BigNumber.from(0),
+      stakeRewardAmounts: [],
+      stakeRewardTokens: [],
     },
   });
 
@@ -126,18 +139,44 @@ const WritePositions = (props: { className?: string }) => {
     (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
       setPage(newPage);
     },
-    [setPage]
+    [setPage],
+  );
+
+  const handleStake = useCallback(
+    async (tokenId: BigNumber) => {
+      if (
+        ssovSigner?.ssovStakingRewardsWithSigner &&
+        ssovSigner?.ssovContractWithSigner
+      ) {
+        await sendTx(ssovSigner?.ssovStakingRewardsWithSigner, 'stake', [
+          ssovSigner?.ssovContractWithSigner.address,
+          tokenId,
+        ]);
+        try {
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    },
+    [
+      ssovSigner?.ssovStakingRewardsWithSigner,
+      sendTx,
+      ssovSigner?.ssovContractWithSigner,
+    ],
   );
 
   return Number(selectedEpoch) > 0 ? (
     <Box className={cx('bg-cod-gray w-full p-4 rounded-xl', className)}>
-      {dialog ? (
-        dialog.type === 'WITHDRAW' ? (
-          <WithdrawDialog {...dialog} handleClose={handleClose} />
-        ) : (
-          <TransferDialog {...dialog} handleClose={handleClose} />
-        )
-      ) : null}
+      {dialog && dialog.type === 'WITHDRAW' && (
+        <WithdrawDialog {...dialog} handleClose={handleClose} />
+      )}
+      {dialog && dialog.type === 'TRANSFER' && (
+        <TransferDialog {...dialog} handleClose={handleClose} />
+      )}
+      {dialog && dialog.type === 'CLAIM' && (
+        <ClaimDialog {...dialog} handleClose={handleClose} />
+      )}
+
       <Box className="flex flex-row justify-between mb-1">
         <Typography variant="h5" className="text-stieglitz">
           Write Positions
@@ -166,14 +205,30 @@ const WritePositions = (props: { className?: string }) => {
                 {filteredWritePositions
                   .slice(
                     page * ROWS_PER_PAGE,
-                    page * ROWS_PER_PAGE + ROWS_PER_PAGE
+                    page * ROWS_PER_PAGE + ROWS_PER_PAGE,
                   )
                   ?.map((o: WritePositionInterface, i: number) => {
                     const openTransfer = () => {
                       setDialog({ open: true, type: 'TRANSFER', data: o });
                     };
+
+                    const openClaim = () => {
+                      setDialog({ open: true, type: 'CLAIM', data: o });
+                    };
+
                     const openWithdraw = () => {
-                      setDialog({ open: true, type: 'WITHDRAW', data: o });
+                      if (
+                        o.stakingRewardsPosition?.staked &&
+                        ssovEpochData?.isEpochExpired
+                      ) {
+                        openClaim();
+                      } else {
+                        setDialog({ open: true, type: 'WITHDRAW', data: o });
+                      }
+                    };
+
+                    const _handleStake = () => {
+                      handleStake(o.tokenId);
                     };
 
                     // only display positions for selected epoch
@@ -181,9 +236,15 @@ const WritePositions = (props: { className?: string }) => {
                       <WritePositionTableData
                         key={i}
                         {...o}
+                        ssovAddress={ssovData?.ssovContract?.address}
                         collateralSymbol={collateralSymbol || ''}
                         openTransfer={openTransfer}
                         openWithdraw={openWithdraw}
+                        handleStakedPosition={
+                          o.stakingRewardsPosition?.staked
+                            ? openClaim
+                            : _handleStake
+                        }
                         rewardTokens={ssovEpochData?.rewardTokens || []}
                         epochExpired={ssovEpochData?.isEpochExpired || false}
                       />

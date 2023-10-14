@@ -1,14 +1,17 @@
 import { ReactNode } from 'react';
+
 import { styled } from '@mui/material/styles';
 
-import CustomButton from 'components/UI/Button';
 import PepeButtonText from 'components/nfts/components/PepeButtonText';
+import CustomButton from 'components/UI/Button';
 
 const StyledButton = styled(CustomButton)`
   width: 100%;
   padding: 4px 8px;
   background: #43609a !important;
-  box-shadow: inset 2px 2px 0px #3b5280, inset -3px -3px 0px #19243c;
+  box-shadow:
+    inset 2px 2px 0px #3b5280,
+    inset -3px -3px 0px #19243c;
   border: 0.6px solid black;
   border-radius: 0px;
   flex: none;

@@ -1,7 +1,8 @@
-import React, { ReactEventHandler, ReactNode } from "react";
-import cx from "./utils/cx";
+import React, { ReactEventHandler, ReactNode } from 'react';
 
-interface InputProps
+import cx from './utils/cx';
+
+export interface InputProps
   extends React.DetailedHTMLProps<
     React.InputHTMLAttributes<HTMLInputElement>,
     HTMLInputElement
@@ -11,35 +12,41 @@ interface InputProps
   rightElement?: ReactNode;
   variant?: string;
   color?: string;
-  outline?: "mineshaft" | "down-bad" | "umbra";
+  outline?: 'mineshaft' | 'down-bad' | 'umbra';
   placeholder?: string;
-  handleChange: ReactEventHandler;
+  onChange:
+    | ReactEventHandler
+    | ((e: {
+        target: {
+          value: React.SetStateAction<any>;
+        };
+      }) => void);
 }
 
 const variants: Record<string, Record<string, string>> = {
   xl: {
-    box: "flex flex-col w-fit p-3 rounded-xl space-y-2",
-    font: "h-10 text-2xl text-white ml-2 font-mono",
-    textPosition: "text-right",
-    alignment: "flex justify-between items-center",
+    box: 'flex flex-col w-full p-3 rounded-xl space-y-2',
+    font: 'h-10 text-2xl text-white ml-2 font-mono',
+    textPosition: 'text-right',
+    alignment: 'flex justify-between items-center',
   },
   small: {
-    box: "flex flex-col w-fit rounded-md px-2 py-1 content-center",
-    font: "h-auto text-white",
-    textPosition: "text-left text-sm",
-    alignment: "flex justify-between items-center",
+    box: 'flex flex-col w-full rounded-md px-2 py-1 content-center',
+    font: 'h-auto text-white',
+    textPosition: 'text-left text-sm',
+    alignment: 'flex justify-between items-center',
   },
   medium: {
-    box: "flex flex-col w-fit rounded-md p-2 content-center",
-    font: "h-auto text-white",
-    textPosition: "text-left text-sm",
-    alignment: "flex justify-between items-center",
+    box: 'flex flex-col w-full rounded-md p-2 content-center',
+    font: 'h-auto text-white',
+    textPosition: 'text-left text-sm',
+    alignment: 'flex justify-between items-center',
   },
 };
 
 const bgColors: Record<string, string> = {
-  "cod-gray": "bg-cod-gray",
-  umbra: "bg-umbra",
+  'cod-gray': 'bg-cod-gray',
+  umbra: 'bg-umbra',
 };
 
 const Input = (props: InputProps) => {
@@ -47,11 +54,11 @@ const Input = (props: InputProps) => {
     leftElement,
     rightElement,
     bottomElement,
-    color = "umbra",
-    variant = "xl",
-    outline = "umbra",
-    placeholder = "",
-    handleChange,
+    color = 'umbra',
+    variant = 'xl',
+    outline = 'umbra',
+    placeholder = '',
+    onChange,
     ...rest
   } = props;
 
@@ -60,7 +67,7 @@ const Input = (props: InputProps) => {
       className={cx(
         variants[variant].box,
         bgColors[color],
-        `${outline ? `border border-${outline}` : "border-0"}`
+        `${outline ? `border border-${outline}` : 'border-0'}`,
       )}
     >
       <div className="flex justify-between">
@@ -71,9 +78,10 @@ const Input = (props: InputProps) => {
             variants[variant].textPosition,
             variants[variant].font,
             bgColors[color],
-            "text-white text-right focus:outline-none"
+            'text-white text-right w-2/3 focus:outline-none',
           )}
           placeholder={placeholder}
+          onChange={onChange}
           {...rest}
         />
         {rightElement}
@@ -83,6 +91,6 @@ const Input = (props: InputProps) => {
   );
 };
 
-Input.displayName = "Input";
+Input.displayName = 'Input';
 
 export default Input;

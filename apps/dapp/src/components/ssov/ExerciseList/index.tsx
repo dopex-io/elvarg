@@ -1,30 +1,30 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { BigNumber } from 'ethers';
-import cx from 'classnames';
+
 import Box from '@mui/material/Box';
-import TableHead from '@mui/material/TableHead';
-import TableContainer from '@mui/material/TableContainer';
-import TableRow from '@mui/material/TableRow';
+import Skeleton from '@mui/material/Skeleton';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
+import TableRow from '@mui/material/TableRow';
+
+import { ERC20__factory } from '@dopex-io/sdk';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
-import Skeleton from '@mui/material/Skeleton';
-
-import Typography from 'components/UI/Typography';
-import TablePaginationActions from 'components/UI/TablePaginationActions';
-import SignerButton from 'components/common/SignerButton';
-import ExerciseTableData from './ExerciseTableData';
 
 import { useBoundStore } from 'store';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import isZeroAddress from 'utils/contracts/isZeroAddress';
+import SignerButton from 'components/common/SignerButton';
+import TablePaginationActions from 'components/UI/TablePaginationActions';
+import Typography from 'components/UI/Typography';
 
-import styles from './styles.module.scss';
-import { ERC20__factory } from '@dopex-io/sdk';
+import { isZeroAddress } from 'utils/contracts';
+import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+
+import ExerciseTableData from './ExerciseTableData';
 
 interface userExercisableOption {
   strikeIndex: number;
@@ -66,7 +66,7 @@ const ExerciseList = () => {
 
   const handleChangePage = (
     _event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
+    newPage: number,
   ) => setPage(newPage);
 
   useEffect(() => {
@@ -81,7 +81,7 @@ const ExerciseList = () => {
                 if (isZeroAddress(token.address)) return null;
                 return token.balanceOf(accountAddress);
               })
-              .filter((c: any) => c)
+              .filter((c: any) => c),
           )
         : [];
 
@@ -91,7 +91,7 @@ const ExerciseList = () => {
 
           const purchasedAmount = getUserReadableAmount(
             userEpochStrikeTokenBalanceArray[strikeIndex],
-            18
+            18,
           );
           const settleableAmount =
             userEpochStrikeTokenBalanceArray[strikeIndex] || BigNumber.from(0);
@@ -133,7 +133,7 @@ const ExerciseList = () => {
             isSettleable,
             isPastEpoch,
           };
-        }
+        },
       );
 
       setUserExercisableOptions(userExercisableOptions);
@@ -164,7 +164,7 @@ const ExerciseList = () => {
         </Typography>
       </Box>
       <Box className="balances-table text-white pb-4">
-        <TableContainer className={cx(styles['optionsTable'], 'bg-cod-gray')}>
+        <TableContainer className="bg-cod-gray">
           {!accountAddress ? (
             <Box className="p-4 flex items-center justify-center">
               <SignerButton size="medium">Connect a Wallet</SignerButton>
@@ -182,15 +182,9 @@ const ExerciseList = () => {
               ))}
             </Box>
           ) : (
-            <Table>
+            <Table className="border-separate border-spacing-y-2">
               <TableHead className="bg-umbra">
                 <TableRow className="bg-umbra">
-                  <TableCell
-                    align="left"
-                    className="text-stieglitz bg-cod-gray border-0 pb-0"
-                  >
-                    <Typography variant="h6">Option</Typography>
-                  </TableCell>
                   <TableCell
                     align="left"
                     className="text-stieglitz bg-cod-gray border-0 pb-0"
@@ -233,11 +227,11 @@ const ExerciseList = () => {
                   </TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody className={cx('rounded-lg')}>
+              <TableBody className="rounded-lg">
                 {userExercisableOptions
                   .slice(
                     page * ROWS_PER_PAGE,
-                    page * ROWS_PER_PAGE + ROWS_PER_PAGE
+                    page * ROWS_PER_PAGE + ROWS_PER_PAGE,
                   )
                   ?.map(
                     ({
@@ -261,7 +255,7 @@ const ExerciseList = () => {
                           isPastEpoch={isPastEpoch}
                         />
                       );
-                    }
+                    },
                   )}
               </TableBody>
             </Table>

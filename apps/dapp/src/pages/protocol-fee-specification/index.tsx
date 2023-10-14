@@ -1,20 +1,22 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
-import axios from 'axios';
-import {
-  AtlanticStraddleV2__factory,
-  AtlanticStraddle__factory,
-} from '@dopex-io/sdk';
-import Skeleton from '@mui/material/Skeleton';
 import { BigNumber, ethers } from 'ethers';
+
+import Skeleton from '@mui/material/Skeleton';
+
 import { providers } from '@0xsequence/multicall';
+import {
+  AtlanticStraddle__factory,
+  AtlanticStraddleV2__factory,
+} from '@dopex-io/sdk';
+import axios from 'axios';
 
 import AppBar from 'components/common/AppBar';
 
-import { DOPEX_API_BASE_URL } from 'constants/env';
-import { CHAINS } from 'constants/chains';
-
 import createChunks from 'utils/general/createChunks';
+
+import { CHAINS } from 'constants/chains';
+import { DOPEX_API_BASE_URL } from 'constants/env';
 
 interface SsovCardProps {
   name: string;
@@ -117,7 +119,7 @@ const FeeSpecification = () => {
     async function updateSsovsData() {
       setSsovsLoading(true);
       const response = await axios.get(
-        `${DOPEX_API_BASE_URL}/v2/ssov?groupBy=none`
+        `${DOPEX_API_BASE_URL}/v2/ssov?groupBy=none`,
       );
 
       let _ssovs = Object.keys(response.data).map((k) => response.data[k]);
@@ -133,13 +135,13 @@ const FeeSpecification = () => {
             ],
             new providers.MulticallProvider(
               new ethers.providers.StaticJsonRpcProvider(
-                CHAINS[ssov.chainId]?.rpc!
-              )
-            )
+                CHAINS[ssov.chainId]?.rpc!,
+              ),
+            ),
           );
 
           return feeStrategy['getSsovFeeStructure'](ssov.address);
-        })
+        }),
       );
 
       _ssovs = _ssovs.map((s, i) => {
@@ -169,8 +171,8 @@ const FeeSpecification = () => {
             const contract = AtlanticStraddle__factory.connect(
               straddle.address,
               new providers.MulticallProvider(
-                new ethers.providers.StaticJsonRpcProvider(CHAINS[42161]?.rpc!)
-              )
+                new ethers.providers.StaticJsonRpcProvider(CHAINS[42161]?.rpc!),
+              ),
             );
 
             return [
@@ -178,7 +180,7 @@ const FeeSpecification = () => {
               contract.settlementFeePercent(),
             ];
           })
-          .flat()
+          .flat(),
       );
 
       data = createChunks(data, 2);
@@ -195,8 +197,8 @@ const FeeSpecification = () => {
         await AtlanticStraddleV2__factory.connect(
           response.data[137][0].address,
           new providers.MulticallProvider(
-            new ethers.providers.StaticJsonRpcProvider(CHAINS[137]?.rpc!)
-          )
+            new ethers.providers.StaticJsonRpcProvider(CHAINS[137]?.rpc!),
+          ),
         ).vaultVariables();
 
       _straddles.push({

@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { BigNumber } from 'ethers';
 
-import { ERC20__factory } from '@dopex-io/sdk';
+import { CircularProgress } from '@mui/material';
 import Box from '@mui/material/Box';
 import { SelectChangeEvent } from '@mui/material/Select';
-import useSendTx from 'hooks/useSendTx';
+
+import { ERC20__factory } from '@dopex-io/sdk';
+
 import { useBoundStore } from 'store';
 
-import Typography from 'components/UI/Typography';
+import useSendTx from 'hooks/useSendTx';
+
 import ApproveDepositButton from 'components/common/ApproveDepositButton';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButtonV2';
 import DiscountBox from 'components/common/LpCommon/DiscountBox';
@@ -18,6 +20,7 @@ import {
   PutBox,
   StrikeBox,
 } from 'components/olp/ProvideLp/DepositPanel';
+import Typography from 'components/UI/Typography';
 
 import allowanceApproval from 'utils/contracts/allowanceApproval';
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
@@ -45,7 +48,7 @@ const ProvideLp = () => {
   const olpContract = getOlpContract();
   const [usdBalance, setUsdBalance] = useState<BigNumber>(BigNumber.from(0));
   const [underlyingBalance, setUnderlyingBalance] = useState<BigNumber>(
-    BigNumber.from(0)
+    BigNumber.from(0),
   );
   const [rawDepositAmount, setRawDepositAmount] = useState<string>('1');
   const [rawDiscountAmount, setRawDiscountAmount] = useState<string>('1');
@@ -98,7 +101,7 @@ const ProvideLp = () => {
       await sendTx(
         ERC20__factory.connect(olpData.underlying, signer),
         'approve',
-        [olpContract.address, MAX_VALUE]
+        [olpContract.address, MAX_VALUE],
       );
       setUnderlyingApproved(true);
     } catch (err) {
@@ -125,7 +128,7 @@ const ProvideLp = () => {
         olpEpochData.strikes[strikeIdx]!,
         getContractReadableAmount(
           depositAmount,
-          assetIdx === 0 ? DECIMALS_USD : DECIMALS_TOKEN
+          assetIdx === 0 ? DECIMALS_USD : DECIMALS_TOKEN,
         ),
         discountAmount,
         MAX_VALUE,
@@ -174,7 +177,7 @@ const ProvideLp = () => {
             signer,
             getContractReadableAmount(rawDepositAmount, DECIMALS_USD),
             setApproved,
-            setUsdBalance
+            setUsdBalance,
           );
         } else {
           allowanceApproval(
@@ -184,7 +187,7 @@ const ProvideLp = () => {
             signer,
             getContractReadableAmount(rawDepositAmount, DECIMALS_TOKEN),
             setUnderlyingApproved,
-            setUnderlyingBalance
+            setUnderlyingBalance,
           );
         }
       } catch (err) {
@@ -208,7 +211,7 @@ const ProvideLp = () => {
       await updateOlpEpochData();
       await updateOlpUserData();
     },
-    [setSelectedIsPut, updateOlp, updateOlpEpochData, updateOlpUserData]
+    [setSelectedIsPut, updateOlp, updateOlpEpochData, updateOlpUserData],
   );
 
   const depositButtonMessage = getDepositMessage(
@@ -220,8 +223,16 @@ const ProvideLp = () => {
     usdBalance,
     underlyingBalance,
     discountAmount,
-    rawDiscountAmount
+    rawDiscountAmount,
   );
+
+  if (!olpData) {
+    return (
+      <div className="bg-cod-gray p-3 rounded-xl w-full md:w-[350px] flex justify-around">
+        <CircularProgress className="justify-around" />
+      </div>
+    );
+  }
 
   return (
     <Box className="bg-cod-gray p-3 rounded-xl w-full md:w-[350px]">

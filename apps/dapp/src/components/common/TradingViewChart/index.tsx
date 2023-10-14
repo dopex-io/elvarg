@@ -1,4 +1,5 @@
 import dynamic from 'next/dynamic';
+
 import { SingleChartProps } from './SingleChart';
 
 type ChartType = {

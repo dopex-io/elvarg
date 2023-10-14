@@ -5,10 +5,8 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { BigNumber } from 'ethers';
 
-import CheckIcon from '@mui/icons-material/Check';
-import ClearIcon from '@mui/icons-material/Clear';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
@@ -20,14 +18,21 @@ import TableCell, { TableCellProps } from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+
+import CheckIcon from '@mui/icons-material/Check';
+import ClearIcon from '@mui/icons-material/Clear';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+
 import { formatDistance } from 'date-fns';
-import useSendTx from 'hooks/useSendTx';
-import { useBoundStore } from 'store';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
 
+import { useBoundStore } from 'store';
+
+import useSendTx from 'hooks/useSendTx';
+
+import SignerButton from 'components/common/SignerButton';
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import SignerButton from 'components/common/SignerButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -118,7 +123,7 @@ const UserDepositsTable = () => {
 
       const duration = formatDistance(
         epochTimes['expiryTime'].toNumber() * 1000,
-        Number(new Date())
+        Number(new Date()),
       );
 
       setEpochDuration(duration);
@@ -143,7 +148,7 @@ const UserDepositsTable = () => {
   const handleMenuClick = useCallback(
     (event: { currentTarget: SetStateAction<HTMLElement | null> }) =>
       setAnchorEl(event.currentTarget),
-    []
+    [],
   );
   const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
 
@@ -155,7 +160,7 @@ const UserDepositsTable = () => {
         const apContract = atlanticPool.contracts.atlanticPool.connect(signer);
         const { rollover } =
           await atlanticPool.contracts.atlanticPool.getDepositPosition(
-            depositId
+            depositId,
           );
 
         atlanticPool.contracts.atlanticPool.setDepositRollover;
@@ -169,7 +174,7 @@ const UserDepositsTable = () => {
         console.log(err);
       }
     },
-    [accountAddress, atlanticPool, sendTx, signer, updateUserPositions]
+    [accountAddress, atlanticPool, sendTx, signer, updateUserPositions],
   );
 
   const handleWithdraw = useCallback(
@@ -197,7 +202,7 @@ const UserDepositsTable = () => {
       accountAddress,
       sendTx,
       updateUserPositions,
-    ]
+    ],
   );
 
   const userPositionsRenderState = useMemo(() => {
@@ -240,7 +245,11 @@ const UserDepositsTable = () => {
             <TableRow key={index}>
               {
                 <TableBodyCell>
-                  ${getUserReadableAmount(position?.strike ?? 0, 8)}
+                  $
+                  {getUserReadableAmount(
+                    BigNumber.from(position?.strike ?? '0'),
+                    8,
+                  )}
                 </TableBodyCell>
               }
               <TableBodyCell>
@@ -249,10 +258,10 @@ const UserDepositsTable = () => {
                   {formatAmount(
                     getUserReadableAmount(
                       position.liquidity,
-                      tokenDecimals.premium
+                      tokenDecimals.premium,
                     ),
                     3,
-                    true
+                    true,
                   )}
                 </Typography>
               </TableBodyCell>
@@ -262,10 +271,10 @@ const UserDepositsTable = () => {
                   {formatAmount(
                     getUserReadableAmount(
                       position.premiumsEarned,
-                      tokenDecimals.premium
+                      tokenDecimals.premium,
                     ),
                     3,
-                    true
+                    true,
                   )}
                 </Typography>
               </TableBodyCell>
@@ -275,10 +284,10 @@ const UserDepositsTable = () => {
                   {formatAmount(
                     getUserReadableAmount(
                       position.fundingEarned,
-                      tokenDecimals.funding
+                      tokenDecimals.funding,
                     ),
                     3,
-                    true
+                    true,
                   )}
                 </Typography>
               </TableBodyCell>
@@ -286,11 +295,11 @@ const UserDepositsTable = () => {
                 <Typography variant="h6">
                   {formatAmount(
                     getUserReadableAmount(
-                      position?.underlyingEarned ?? 0,
-                      tokenDecimals.underlying
+                      BigNumber.from(position?.underlyingEarned ?? '0'),
+                      tokenDecimals.underlying,
                     ),
                     3,
-                    true
+                    true,
                   )}{' '}
                   {atlanticPool?.tokens.underlying}
                 </Typography>

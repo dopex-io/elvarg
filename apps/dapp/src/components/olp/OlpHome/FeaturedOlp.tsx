@@ -1,11 +1,10 @@
-import Link from 'next/link';
-
 import { useEffect, useState } from 'react';
-
+import Link from 'next/link';
 import { BigNumber } from 'ethers';
 
 import { Divider } from '@mui/material';
 import Box from '@mui/material/Box';
+
 import axios from 'axios';
 import { IOlpApi } from 'pages/olp';
 import {
@@ -21,8 +20,8 @@ import Typography from 'components/UI/Typography';
 
 import { getReadableTime } from 'utils/contracts';
 
-import { DOPEX_API_BASE_URL } from 'constants/env';
 import { CHAINS } from 'constants/chains';
+import { DOPEX_API_BASE_URL } from 'constants/env';
 
 // TODO: remove
 const fakeData = [1, 2, 3, 4, 5, 6, 7, 6, 5, 6, 7, 8, 9, 7, 5, 6, 9];

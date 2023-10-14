@@ -1,22 +1,20 @@
+import { ReactNode, useMemo } from 'react';
 import Link from 'next/link';
 
-import { useMemo } from 'react';
-
 import Box from '@mui/material/Box';
-import Tooltip from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
+import Tooltip from '@mui/material/Tooltip';
+
 import cx from 'classnames';
 import format from 'date-fns/format';
 import Action from 'svgs/icons/Action';
 import Coin from 'svgs/icons/Coin';
 
+import InfoBox from 'components/ssov/InfoBox';
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import InfoBox from 'components/ssov/InfoBox';
 
 import formatAmount from 'utils/general/formatAmount';
-
-import { SSOV_MAP } from 'constants/index';
 
 const nameToSsovStyle: { [key: string]: string } = {
   ETH: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #7818c4 100%)',
@@ -29,6 +27,7 @@ const nameToSsovStyle: { [key: string]: string } = {
   CRV: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #82f004 99.1%)',
   BTC: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #f06a04 99.1%)',
   stETH: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #68ccfc 99.1%)',
+  ARB: 'linear-gradient(359.05deg, #3e3e3e 0.72%, #68ccfc 99.1%)',
 };
 
 const CustomBox = styled(Box)(({ token }: { token: string }) => ({
@@ -49,19 +48,32 @@ function SsovCard(props: any) {
     retired,
     symbol,
     epochTimes,
+    volume,
+    totalEpochPurchases,
+    underlyingPrice,
   } = data;
 
   const name = underlyingSymbol as string;
 
   const info = useMemo(() => {
+    let _apy: ReactNode =
+      apy > 0 && apy !== 'Infinity'
+        ? formatAmount(apy, 0, true).toString() + '%'
+        : '...';
+
+    if (typeof apy !== 'string') {
+      _apy = (
+        <div className="flex flex-col">
+          <span className="text-xs">upto</span>
+          {formatAmount(Math.max(...apy.map((apy: string) => Number(apy))))}%
+        </div>
+      );
+    }
+
     return [
       {
         heading: 'APY',
-        value: `${
-          apy > 0 && apy !== 'Infinity'
-            ? formatAmount(apy, 0, true).toString() + '%'
-            : '...'
-        }`,
+        value: _apy,
         Icon: Action,
       },
       {
@@ -75,9 +87,7 @@ function SsovCard(props: any) {
         imgSrc:
           type === 'put'
             ? '/images/tokens/2crv.svg'
-            : SSOV_MAP[name]
-            ? SSOV_MAP[name]?.imageSrc
-            : '',
+            : `/images/tokens/${name.toLowerCase()}.svg`,
       },
     ];
   }, [apy, totalEpochDeposits, tvl, type, name]);
@@ -87,14 +97,14 @@ function SsovCard(props: any) {
       <Box
         className={cx(
           'flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto',
-          className
+          className,
         )}
       >
         <Box>
           <Box className="flex flex-row mb-4">
-            <Box className="mr-4 h-8 max-w-14 flex flex-row">
+            <Box className="mr-4 max-w-14 flex flex-row">
               <img
-                className="w-9 h-9"
+                className="w-8 h-auto"
                 src={`/images/tokens/${name.toLowerCase()}.svg`}
                 alt={name}
               />
@@ -120,7 +130,7 @@ function SsovCard(props: any) {
               return <InfoBox key={item.heading} {...item} />;
             })}
           </Box>
-          <Link href={`/ssov/${symbol}`}>
+          <Link href={`/ssov/${symbol}`} passHref>
             <CustomButton size="medium" className="my-4" fullWidth>
               Manage
             </CustomButton>
@@ -144,6 +154,19 @@ function SsovCard(props: any) {
               </Tooltip>
             ) : null}
           </Box>
+          <div className="flex justify-between">
+            <h6>
+              <span className="text-sm">
+                24h Volume: ${formatAmount(volume, 2, true)}
+              </span>
+            </h6>
+            <h6>
+              <span className="text-sm">
+                Open Interest: $
+                {formatAmount(totalEpochPurchases * underlyingPrice, 2, true)}
+              </span>
+            </h6>
+          </div>
         </Box>
       </Box>
     </CustomBox>

@@ -1,7 +1,11 @@
+import { ReactNode } from 'react';
+
 import Box from '@mui/material/Box';
-import cx from 'classnames';
 import Tooltip from '@mui/material/Tooltip';
+
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
+import cx from 'classnames';
 
 import Typography from 'components/UI/Typography';
 
@@ -9,7 +13,7 @@ interface InfoBoxProps {
   Icon?: React.FC;
   imgSrc?: string;
   heading: string;
-  value: string;
+  value: ReactNode;
   className?: string;
   tooltip?: string;
 }
@@ -28,7 +32,7 @@ const InfoBox = ({
         {Icon ? (
           <Icon />
         ) : imgSrc ? (
-          <img src={imgSrc} alt="logo" className="w-10 h-10" />
+          <img src={imgSrc} alt="logo" className="w-10 h-auto" />
         ) : null}
       </Box>
       <Box className="flex flex-row">

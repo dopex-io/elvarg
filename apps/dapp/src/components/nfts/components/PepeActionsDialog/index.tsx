@@ -1,27 +1,26 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
-
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
+
 import Box from '@mui/material/Box';
-import Input from '@mui/material/Input';
 import IconButton from '@mui/material/IconButton';
+import Input from '@mui/material/Input';
 
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import formatAmount from 'utils/general/formatAmount';
-
-import Dialog from 'components/UI/Dialog';
-import Typography from 'components/UI/Typography';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import { PepeButton } from 'components/nfts/components/PepeButton';
-import PepeText from 'components/nfts/components/PepeText';
-import PepeButtonSquare from 'components/nfts/components/PepeButtonSquare';
-
-import useSendTx from 'hooks/useSendTx';
-
+import cx from 'classnames';
 import BigCrossIcon from 'svgs/icons/BigCrossIcon';
 
 import { useBoundStore } from 'store';
 
-import cx from 'classnames';
+import useSendTx from 'hooks/useSendTx';
+
+import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import { PepeButton } from 'components/nfts/components/PepeButton';
+import PepeButtonSquare from 'components/nfts/components/PepeButtonSquare';
+import PepeText from 'components/nfts/components/PepeText';
+import Dialog from 'components/UI/Dialog';
+import Typography from 'components/UI/Typography';
+
+import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
+import formatAmount from 'utils/general/formatAmount';
 
 export interface Props {
   open: boolean;
@@ -55,7 +54,7 @@ const Hero = ({
       <Box
         className={cx(
           heroColorToClass,
-          'absolute w-14 text-center rounded-xl left-[1.2rem] top-[4rem] z-50'
+          'absolute w-14 text-center rounded-xl left-[1.2rem] top-[4rem] z-50',
         )}
       >
         <Typography
@@ -123,7 +122,7 @@ const PepeActionsDialog = ({ open, handleClose }: Props) => {
   }, [toMint]);
 
   const [activeQuoteIndex, setActiveQuoteIndex] = useState<number>(
-    Math.floor(Math.random() * quotes.length)
+    Math.floor(Math.random() * quotes.length),
   );
 
   const quote = useMemo(() => {
@@ -161,8 +160,10 @@ const PepeActionsDialog = ({ open, handleClose }: Props) => {
     { title: '0.88 ETH', subTitle: '1 PEPE' },
     {
       title: Math.max(
-        BigNumber.from(1111).sub(pepesData?.nextMintId)?.toNumber(),
-        0
+        BigNumber.from(1111)
+          .sub(pepesData?.nextMintId)
+          ?.toNumber(),
+        0,
       ),
       subTitle: 'REMAINING',
     },

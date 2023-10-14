@@ -30,6 +30,14 @@ export const TOKEN_ADDRESS_TO_DATA: { [key: string]: TokenData } = {
     symbol: 'wMATIC',
     imgSrc: '/images/tokens/matic.svg',
   },
+  '0x912ce59144191c1204e64559fe8253a0e49e6548': {
+    symbol: 'ARB',
+    imgSrc: '/images/tokens/arb.svg',
+  },
+  '0xb952a807345991bd529fdded05009f5e80fe8f45': {
+    symbol: 'CVX',
+    imgSrc: '/images/tokens/cvx.svg',
+  },
 };
 
 export const TOKEN_DATA: {
@@ -45,6 +53,7 @@ export const TOKEN_DATA: {
   BTC: { cgId: 'bitcoin', name: 'Bitcoin' },
   PLS: { cgId: 'plutusdao', name: 'Plutus DAO' },
   BNB: { cgId: 'binancecoin', name: 'Binance Coin' },
+  ARB: { cgId: 'arbitrum', name: 'Arbitrum' },
   MATIC: { cgId: 'matic-network', name: 'Polygon' },
   USDT: { cgId: 'tether', name: 'Tether USD' },
   USDC: { cgId: 'usd-coin', name: 'Circle USD' },

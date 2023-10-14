@@ -1,18 +1,16 @@
 import { MouseEventHandler } from 'react';
-
 import { BigNumber } from 'ethers';
 
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
+import { styled } from '@mui/material/styles';
 import Switch from '@mui/material/Switch';
 import Tooltip from '@mui/material/Tooltip';
-import { styled } from '@mui/material/styles';
+
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import { LpPosition } from 'store/Vault/olp';
 
-import Button from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
 import ApproveDepositButton from 'components/common/ApproveDepositButton';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButtonV2';
 import {
@@ -20,6 +18,8 @@ import {
   LiquidityDialogRow,
   NumberLiquidityDialogRow,
 } from 'components/common/LpCommon/Table';
+import Button from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -92,7 +92,7 @@ const MaterialUISwitch = styled(Switch)(
       backgroundColor: theme.palette.mode === 'dark' ? '#8796A5' : '#aab4be',
       borderRadius: 20 / 2,
     },
-  })
+  }),
 );
 
 export default function FillPositionDialog(props: Props) {
@@ -117,7 +117,7 @@ export default function FillPositionDialog(props: Props) {
   let name: string = underlyingSymbol;
   name += `-${getUserReadableAmount(
     lpPositionSelected?.strike,
-    DECIMALS_STRIKE
+    DECIMALS_STRIKE,
   )}`;
   name += isPut ? '-P' : '-C';
 
@@ -126,7 +126,7 @@ export default function FillPositionDialog(props: Props) {
     const beforeDecimals = strInput.substring(0, strInput.length - decimals);
     const afterDecimals = strInput.substring(
       strInput.length - decimals,
-      strInput.length
+      strInput.length,
     );
     return (beforeDecimals ? beforeDecimals : '0') + ('.' + afterDecimals);
   }
@@ -136,7 +136,7 @@ export default function FillPositionDialog(props: Props) {
     userTokenBalance: BigNumber,
     rawFillAmount: string,
     setRawFillAmount: Function,
-    underlyingSymbol: string
+    underlyingSymbol: string,
   ) {
     return (
       <Box>
@@ -160,7 +160,7 @@ export default function FillPositionDialog(props: Props) {
                 color="mineshaft"
                 onClick={() => {
                   setRawFillAmount(
-                    addDecimals(userTokenBalance, DECIMALS_TOKEN)
+                    addDecimals(userTokenBalance, DECIMALS_TOKEN),
                   );
                 }}
                 className="rounded-md my-auto text-stieglitz h-2/3"
@@ -195,7 +195,7 @@ export default function FillPositionDialog(props: Props) {
               >
                 <span className="text-white">{`${formatAmount(
                   getUserReadableAmount(userTokenBalance, DECIMALS_TOKEN),
-                  2
+                  2,
                 )}`}</span>
                 <span className="text-stieglitz"> tokens</span>
               </Typography>
@@ -213,7 +213,7 @@ export default function FillPositionDialog(props: Props) {
             data={'Premium per token'}
             value={`$${formatAmount(
               getUserReadableAmount(lpPositionSelected.premium, DECIMALS_USD),
-              2
+              2,
             )}`}
           />
           <LiquidityDialogRow
@@ -232,13 +232,13 @@ export default function FillPositionDialog(props: Props) {
         <Box className="flex flex-row">
           <Typography variant="h6" className="mt-2">
             <span className="text-stieglitz">
-              {`Receive ${outUsd ? 'USDC' : underlyingSymbol}`}
+              {`Receive ${outUsd ? 'USDC.e' : underlyingSymbol}`}
             </span>
           </Typography>
           <Tooltip
             placement="top"
             className="h-4 text-stieglitz"
-            title={`If toggled to USDC, the contract will swap the underlying liquidity to USDC before transferring to you`}
+            title={`If toggled to USDC.e, the contract will swap the underlying liquidity to USDC.e before transferring to you`}
             arrow={true}
           >
             <InfoOutlinedIcon className="mt-2" />
@@ -264,7 +264,7 @@ export default function FillPositionDialog(props: Props) {
         userTokenBalance,
         rawFillAmount,
         setRawFillAmount,
-        underlyingSymbol
+        underlyingSymbol,
       )}
 
       <Box className="bg-umbra rounded-xl p-3">

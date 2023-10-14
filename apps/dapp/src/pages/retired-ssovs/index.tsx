@@ -1,25 +1,27 @@
-import { useState, useCallback } from 'react';
-import { BigNumber, ethers, Signer } from 'ethers';
-import axios from 'axios';
+import { useCallback, useState } from 'react';
 import Head from 'next/head';
+import { BigNumber, ethers, Signer } from 'ethers';
+
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
+
 import {
   Addresses,
-  SsovV3Viewer__factory,
   ERC20__factory,
+  SsovV3Viewer__factory,
 } from '@dopex-io/sdk';
+import axios from 'axios';
 
 import { useBoundStore } from 'store';
 
-import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import SignerButton from 'components/common/SignerButton';
 import SsovDepositCard from 'components/retired-ssovs/SsovDepositCard';
 import SsovOption from 'components/retired-ssovs/SsovOption';
+import Typography from 'components/UI/Typography';
 
-import retiredStrikeTokens from 'constants/json/retiredStrikeTokens.json';
 import { DOPEX_API_BASE_URL } from 'constants/env';
+import retiredStrikeTokens from 'constants/json/retiredStrikeTokens.json';
 
 interface Ssov {
   type: string;
@@ -56,7 +58,7 @@ const fetchDepositsForV2 = async (ssovs: Ssov[], signer: Signer) => {
 
         return _calls;
       })
-      .flat()
+      .flat(),
   );
 
   let count = 0;
@@ -64,7 +66,7 @@ const fetchDepositsForV2 = async (ssovs: Ssov[], signer: Signer) => {
   const finalSsovs = ssovs.map((ssov) => {
     const userDeposits: BigNumber[][] = epochDepositCalls.slice(
       count,
-      count + ssov.currentEpoch!
+      count + ssov.currentEpoch!,
     );
 
     count = count + ssov.currentEpoch!;
@@ -78,7 +80,7 @@ const fetchDepositsForV2 = async (ssovs: Ssov[], signer: Signer) => {
 const fetchDepositsForV3 = async (ssovs: Ssov[], signer: Signer) => {
   const viewer = SsovV3Viewer__factory.connect(
     Addresses[42161]['SSOV-V3']['VIEWER'],
-    signer
+    signer,
   );
 
   const userAddress = await signer.getAddress();
@@ -86,7 +88,7 @@ const fetchDepositsForV3 = async (ssovs: Ssov[], signer: Signer) => {
   const userWritePositions = await Promise.all(
     ssovs.map((ssov) => {
       return viewer.walletOfOwner(userAddress, ssov.address);
-    })
+    }),
   );
 
   // Rearrange epoch deposit calls
@@ -118,7 +120,7 @@ const RetiredSsovs = () => {
         const _contract = new ethers.Contract(ssov.address, baseAbi, signer);
 
         return _contract['currentEpoch']();
-      })
+      }),
     );
 
     // Insert data to ssovs
@@ -127,10 +129,10 @@ const RetiredSsovs = () => {
     });
 
     const ssovV2 = _ssovs.filter(
-      (ssov: { version: number }) => ssov.version === 2
+      (ssov: { version: number }) => ssov.version === 2,
     );
     const ssovV3 = _ssovs.filter(
-      (ssov: { version: number }) => ssov.version === 3
+      (ssov: { version: number }) => ssov.version === 3,
     );
 
     const ssovV2WithDeposits = await fetchDepositsForV2(ssovV2, signer);
@@ -181,7 +183,7 @@ const RetiredSsovs = () => {
         const erc20 = ERC20__factory.connect(strikeToken.token, signer);
 
         return erc20.balanceOf(accountAddress);
-      }
+      },
     );
 
     const balances = await Promise.all(balanceCalls);

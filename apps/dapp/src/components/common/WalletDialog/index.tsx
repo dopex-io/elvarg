@@ -1,21 +1,24 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { BigNumber } from 'ethers';
-import Box from '@mui/material/Box';
-import LaunchIcon from '@mui/icons-material/Launch';
-import delay from 'lodash/delay';
 
-import Dialog from 'components/UI/Dialog';
-import Typography from 'components/UI/Typography';
-import BalanceItem from 'components/common/BalanceItem';
+import Box from '@mui/material/Box';
+
+import LaunchIcon from '@mui/icons-material/Launch';
+
+import delay from 'lodash/delay';
+import { useDisconnect } from 'wagmi';
 
 import { useBoundStore } from 'store';
 
-import getExplorerUrl from 'utils/general/getExplorerUrl';
-import displayAddress from 'utils/general/displayAddress';
+import BalanceItem from 'components/common/BalanceItem';
+import Dialog from 'components/UI/Dialog';
+import Typography from 'components/UI/Typography';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import displayAddress from 'utils/general/displayAddress';
+import getExplorerUrl from 'utils/general/getExplorerUrl';
 
 import { CHAINS } from 'constants/chains';
-import { useDisconnect } from 'wagmi';
 
 interface Props {
   open: boolean;
@@ -98,8 +101,8 @@ const WalletDialog = ({ open, handleClose, userBalances }: Props) => {
                 <BalanceItem
                   key={index}
                   balance={getUserReadableAmount(
-                    userBalances[key] ?? '0',
-                    chainId === 56 ? 8 : 18
+                    BigNumber.from(userBalances[key] ?? '0'),
+                    chainId === 56 ? 8 : 18,
                   ).toString()}
                   decimals={18}
                   token={key}

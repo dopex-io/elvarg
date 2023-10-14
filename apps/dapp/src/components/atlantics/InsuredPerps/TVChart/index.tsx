@@ -1,13 +1,14 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import Box from '@mui/material/Box';
-import { createChart, ColorType, IChartApi } from 'lightweight-charts';
-import ButtonGroup from '@mui/material/ButtonGroup';
-import Button from '@mui/material/Button';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
 import CircularProgress from '@mui/material/CircularProgress';
+
+import { ColorType, createChart, IChartApi } from 'lightweight-charts';
 
 import CandleStickData from './CandleStickData';
 
-import { Period, periods } from 'pages/atlantics/manage/insured-perps/[ticker]';
+const periods = ['1D', '4H', '1H', '15M', '5M'] as const;
+
+export type Period = (typeof periods)[number];
 
 interface Props {
   data: any;
@@ -45,7 +46,7 @@ const TVChart = (props: Props) => {
     timestamp: number;
   }>();
 
-  const chartContainerRef = useRef<HTMLElement>();
+  const chartContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!chartContainerRef.current || !data || !triggerMarker) return;
@@ -76,7 +77,7 @@ const TVChart = (props: Props) => {
       (datapoint: { time: number; close: number; open: number }) => ({
         time: datapoint.time,
         value: (datapoint.close + datapoint.open) / 2,
-      })
+      }),
     );
 
     const areaSeries = chart.addAreaSeries({
@@ -96,7 +97,7 @@ const TVChart = (props: Props) => {
     newSeries.setData(data);
 
     chart.subscribeCrosshairMove((e) => {
-      const iter = e.seriesPrices.values();
+      const iter = e.seriesData.values();
       let barData;
       iter.next().value;
       barData = iter.next().value;
@@ -141,37 +142,38 @@ const TVChart = (props: Props) => {
     (e: any) => {
       setPeriod(e.target.innerText);
     },
-    [setPeriod]
+    [setPeriod],
   );
 
   return (
-    <Box className="relative flex flex-col h-full">
+    <div className="relative flex flex-col h-full">
       {data.length === 0 ? (
-        <Box className="my-auto content-center">
+        <div className="my-auto content-center">
           <CircularProgress />
-        </Box>
+        </div>
       ) : (
         <>
           <CandleStickData data={candleStickData} />
-          <ButtonGroup className="absolute right-[4rem] z-10 border border-mineshaft m-3">
+          <div className="absolute right-[5rem] border border-mineshaft m-3 grid grid-cols-5 z-10">
             {periods.map((_period, index) => {
               return (
-                <Button
+                <div
                   key={index}
+                  role="button"
                   onClick={handleChangePeriod}
-                  className={`my-auto border-0 text-stieglitz hover:text-stieglitz hover:border-none ${
+                  className={`py-2 px-3 text-sm my-auto border-0 text-stieglitz hover:text-stieglitz hover:border-none ${
                     period === _period ? 'bg-carbon' : 'bg-none'
                   }`}
                 >
                   {_period}
-                </Button>
+                </div>
               );
             })}
-          </ButtonGroup>
-          <Box ref={chartContainerRef} className="m-3 rounded-xl h-full" />
+          </div>
+          <div ref={chartContainerRef} className="m-3 rounded-xl h-full" />
         </>
       )}
-    </Box>
+    </div>
   );
 };
 

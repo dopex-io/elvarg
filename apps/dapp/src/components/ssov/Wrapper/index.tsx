@@ -1,10 +1,11 @@
 import { useCallback, useState } from 'react';
-
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 
 import Box from '@mui/material/Box';
-import useSendTx from 'hooks/useSendTx';
+
 import { useBoundStore } from 'store';
+
+import useSendTx from 'hooks/useSendTx';
 
 import CustomButton from 'components/UI/Button';
 import Dialog from 'components/UI/Dialog';
@@ -31,7 +32,7 @@ const Wrapper = ({ open, handleClose }: Props) => {
     const weth = new ethers.Contract(
       '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
       ['function deposit() payable external'],
-      signer
+      signer,
     );
 
     await sendTx(weth, 'deposit', [
@@ -57,8 +58,11 @@ const Wrapper = ({ open, handleClose }: Props) => {
           </Typography>
           <Typography variant="h6" color="stieglitz">
             {formatAmount(
-              getUserReadableAmount(Number(userAssetBalances['ETH']), 18),
-              10
+              getUserReadableAmount(
+                BigNumber.from(userAssetBalances['ETH']),
+                18,
+              ),
+              10,
             )}{' '}
             ETH
           </Typography>

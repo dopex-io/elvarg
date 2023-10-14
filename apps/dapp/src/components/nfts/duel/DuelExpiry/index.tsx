@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box';
+
 import Typography from 'components/UI/Typography';
 
 const DuelExpiry = ({ text }: { text: string }) => {

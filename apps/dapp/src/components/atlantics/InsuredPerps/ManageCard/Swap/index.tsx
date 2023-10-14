@@ -1,25 +1,29 @@
-import { useCallback, useState, useMemo, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { BigNumber } from 'ethers';
+
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
-import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
-import { ERC20__factory, GmxRouter__factory } from '@dopex-io/sdk';
 
-import Wrapper from 'components/ssov/Wrapper';
-import Input from 'components/UI/Input';
-import Typography from 'components/UI/Typography';
-import Button from 'components/UI/Button';
-import SwapInfo from 'components/atlantics/InsuredPerps/ManageCard/Swap/SwapInfo';
+import ArrowDownwardRoundedIcon from '@mui/icons-material/ArrowDownwardRounded';
+
+import { ERC20__factory, GmxRouter__factory } from '@dopex-io/sdk';
 
 import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
+import SwapInfo from 'components/atlantics/InsuredPerps/ManageCard/Swap/SwapInfo';
+import Wrapper from 'components/ssov/Wrapper';
+import Button from 'components/UI/Button';
+import Input from 'components/UI/Input';
+import Typography from 'components/UI/Typography';
+
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-import { MAX_VALUE } from 'constants/index';
 import { CHAINS } from 'constants/chains';
+import { MAX_VALUE } from 'constants/index';
 
 interface SwapProps {
   underlying: string;
@@ -61,13 +65,13 @@ const Swap = (props: SwapProps) => {
     if (!chainId || !stable || !underlying || !userAssetBalances) return;
 
     const underlyingBalance = getUserReadableAmount(
-      userAssetBalances[underlying.toUpperCase() ?? ''] ?? '0',
-      CHAINS[chainId]?.tokenDecimals[underlying?.toUpperCase() ?? '']
+      BigNumber.from(userAssetBalances[underlying.toUpperCase() ?? ''] ?? '0'),
+      CHAINS[chainId]?.tokenDecimals[underlying?.toUpperCase() ?? ''],
     );
 
     const stableBalance = getUserReadableAmount(
-      userAssetBalances[stable.toUpperCase() ?? ''] ?? '0',
-      CHAINS[chainId]?.tokenDecimals[stable?.toUpperCase() ?? '']
+      BigNumber.from(userAssetBalances[stable.toUpperCase() ?? ''] ?? '0'),
+      CHAINS[chainId]?.tokenDecimals[stable?.toUpperCase() ?? ''],
     );
 
     return [underlyingBalance, stableBalance];
@@ -81,10 +85,10 @@ const Swap = (props: SwapProps) => {
         (!inverted
           ? Number(e.target.value) * Number(prices[0])
           : Number(e.target.value) / Number(prices[1])
-        ).toString()
+        ).toString(),
       );
     },
-    [inverted, prices]
+    [inverted, prices],
   );
 
   const handleMax = useCallback(() => {
@@ -96,8 +100,8 @@ const Swap = (props: SwapProps) => {
     ).toUpperCase();
 
     const maxValue = getUserReadableAmount(
-      userAssetBalances[inputTokenSymbol] ?? '0',
-      CHAINS[chainId]?.tokenDecimals[inputTokenSymbol]
+      BigNumber.from(userAssetBalances[inputTokenSymbol] ?? '0'),
+      CHAINS[chainId]?.tokenDecimals[inputTokenSymbol],
     ).toString();
 
     setAmountIn(maxValue);
@@ -106,7 +110,7 @@ const Swap = (props: SwapProps) => {
       (inverted
         ? Number(maxValue) / Number(prices[1])
         : Number(maxValue) * Number(prices[0])
-      ).toString()
+      ).toString(),
     );
   }, [userAssetBalances, underlying, chainId, prices, stable, inverted]);
 
@@ -125,7 +129,7 @@ const Swap = (props: SwapProps) => {
 
     const gmxRouter = GmxRouter__factory.connect(
       contractAddresses['GMX-ROUTER'],
-      signer
+      signer,
     );
     const tokenIn = ERC20__factory.connect(path[0], signer);
 
@@ -133,7 +137,7 @@ const Swap = (props: SwapProps) => {
       Number(amountIn),
       CHAINS[chainId]?.tokenDecimals[
         (inverted ? stable : underlying).toUpperCase() ?? ''
-      ] || 18
+      ] || 18,
     );
     const _minOut = getContractReadableAmount(1, 6);
 
@@ -188,19 +192,19 @@ const Swap = (props: SwapProps) => {
       if (!signer || !contractAddresses || !accountAddress || !path[0]) return;
       const gmxRouter = GmxRouter__factory.connect(
         contractAddresses['GMX-ROUTER'],
-        signer
+        signer,
       );
       const _tokenIn = ERC20__factory.connect(path[0], signer);
 
       const allowance = await _tokenIn.allowance(
         accountAddress,
-        gmxRouter.address
+        gmxRouter.address,
       );
 
       setApproved(
         allowance.gte(
-          getContractReadableAmount(String(amountIn).substring(0, 15), 18)
-        )
+          getContractReadableAmount(String(amountIn).substring(0, 15), 18),
+        ),
       );
     })();
   }, [accountAddress, amountIn, contractAddresses, inverted, path, signer]);
@@ -212,7 +216,7 @@ const Swap = (props: SwapProps) => {
       setPath(
         !inverted
           ? [contractAddresses[underlying], contractAddresses[stable]]
-          : [contractAddresses[stable], contractAddresses[underlying]]
+          : [contractAddresses[stable], contractAddresses[underlying]],
       );
     })();
   }, [contractAddresses, inverted, stable, underlying]);
@@ -245,10 +249,10 @@ const Swap = (props: SwapProps) => {
                       inverted ? stable.toLowerCase() : underlying.toLowerCase()
                     }.svg`}
                     alt={inverted ? stable : underlying}
-                    className="w-full"
+                    className="w-8"
                   />
                   <Typography variant="h6" className="my-auto">
-                    {inverted ? stable : underlying}
+                    {inverted ? 'USDC.e' : underlying}
                   </Typography>
                 </Box>
                 <Box
@@ -301,10 +305,10 @@ const Swap = (props: SwapProps) => {
                       inverted ? underlying.toLowerCase() : stable.toLowerCase()
                     }.svg`}
                     alt={stable}
-                    className="w-[1.9rem]"
+                    className="w-8"
                   />
                   <Typography variant="h6" className="my-auto">
-                    {inverted ? underlying : stable}
+                    {inverted ? underlying : 'USDC.e'}
                   </Typography>
                 </Box>
               </Box>
@@ -324,7 +328,7 @@ const Swap = (props: SwapProps) => {
           value={`$${formatAmount(prices?.[!inverted ? 0 : 1] ?? 0, 3)}`}
         />
         <SwapInfo
-          description="USDC Price"
+          description="USDC.e Price"
           value={`$${formatAmount(prices?.[!inverted ? 1 : 0] ?? 0, 3)}`}
         />
       </Box>

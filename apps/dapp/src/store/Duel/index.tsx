@@ -1,21 +1,22 @@
-import { StateCreator } from 'zustand';
 import { BigNumber } from 'ethers';
+
 import {
   Addresses,
-  ERC20__factory,
-  DuelDiamondPepesNFTsDuel__factory,
-  DuelDiamondPepesNFTsMint__factory,
-  DuelDiamondPepesNFTsLeaderboard__factory,
-  DuelDiamondPepesNFTs__factory,
   BaseNFT__factory,
+  DuelDiamondPepesNFTs__factory,
+  DuelDiamondPepesNFTsDuel__factory,
+  DuelDiamondPepesNFTsLeaderboard__factory,
+  DuelDiamondPepesNFTsMint__factory,
+  ERC20__factory,
 } from '@dopex-io/sdk';
+import { StateCreator } from 'zustand';
 
 import { AssetsSlice } from 'store/Assets';
 import { WalletSlice } from 'store/Wallet';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
-import getTokenDecimals from 'utils/general/getTokenDecimals';
 import addHoursToDate from 'utils/date/addHoursToDate';
+import getTokenDecimals from 'utils/general/getTokenDecimals';
 
 export interface Duel {
   id: number;
@@ -96,12 +97,12 @@ export const createDuelSlice: StateCreator<
 
     const nftContract = DuelDiamondPepesNFTs__factory.connect(
       contractAddresses['NFTS']['DuelDiamondPepesNFT'],
-      provider
+      provider,
     );
 
     const publicSaleContract = DuelDiamondPepesNFTsMint__factory.connect(
       contractAddresses['DuelDiamondPepesNFTsMint'],
-      provider
+      provider,
     );
 
     const [publicMints, nextMintId] = await Promise.all([
@@ -139,12 +140,11 @@ export const createDuelSlice: StateCreator<
     const duelLeaderboardContract =
       DuelDiamondPepesNFTsLeaderboard__factory.connect(
         '0x4E31359828F279fa6d748971eE087a6f168c21a2',
-        provider
+        provider,
       );
 
-    const credit = await duelLeaderboardContract!['getCreditForMinting'](
-      accountAddress
-    );
+    const credit =
+      await duelLeaderboardContract!['getCreditForMinting'](accountAddress);
 
     set((prevState) => ({
       ...prevState,
@@ -165,12 +165,12 @@ export const createDuelSlice: StateCreator<
 
     const duelContract = DuelDiamondPepesNFTsDuel__factory.connect(
       contractAddresses['DuelDiamondPepesNFTsDuel'],
-      provider
+      provider,
     );
 
     const mintContract = DuelDiamondPepesNFTsMint__factory.connect(
       contractAddresses['DuelDiamondPepesNFTsMint'],
-      provider
+      provider,
     );
 
     const getDuelData = async (i: number) => {
@@ -222,7 +222,7 @@ export const createDuelSlice: StateCreator<
 
       const token = ERC20__factory.connect(
         Addresses[chainId]['WETH'],
-        provider
+        provider,
       );
 
       const symbol = await token.symbol();
@@ -369,7 +369,7 @@ export const createDuelSlice: StateCreator<
 
     const diamondPepeNfts = BaseNFT__factory.connect(
       contractAddresses['NFTS']['DiamondPepesNFT'],
-      signer
+      signer,
     );
 
     let _nfts: UserNft[] = [];

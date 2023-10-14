@@ -1,7 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
 
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import {
   Avatar,
   Box,
@@ -9,8 +7,13 @@ import {
   MenuItem,
   Menu as MuiMenu,
 } from '@mui/material';
-import { useWindowSize } from 'react-use';
+
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+
 import { useBoundStore } from 'store';
+
+import useWindowSize from 'hooks/useWindowSize';
 
 import Typography from 'components/UI/Typography';
 
@@ -40,7 +43,7 @@ const TopBar = () => {
         await updateOlpUserData();
       }
     },
-    [setSelectedEpoch, updateOlpUserData, updateOlpEpochData]
+    [setSelectedEpoch, updateOlpUserData, updateOlpEpochData],
   );
 
   const underlyingSymbol = olpData?.underlyingSymbol;
@@ -82,7 +85,7 @@ const TopBar = () => {
             <img
               className="w-8 h-8 z-0"
               src="/images/tokens/usdc.svg"
-              alt="USDC"
+              alt="USDC.e"
             />
           </Box>
           <Box className="ml-1">

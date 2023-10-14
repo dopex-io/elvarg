@@ -1,12 +1,13 @@
-import Box from '@mui/material/Box';
 import { BigNumber, ethers } from 'ethers';
 
-import SignerButton from 'components/common/SignerButton';
-import Typography from 'components/UI/Typography';
+import Box from '@mui/material/Box';
+
+import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
-import { useBoundStore } from 'store';
+import SignerButton from 'components/common/SignerButton';
+import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
@@ -36,7 +37,7 @@ const SsovOption = (props: {
       const contract = new ethers.Contract(
         option.ssovAddress,
         ['function settle(uint256, uint256, uint256)'],
-        signer
+        signer,
       );
 
       await sendTx(contract, 'settle', [
@@ -49,7 +50,7 @@ const SsovOption = (props: {
         const optionTokenContract = new ethers.Contract(
           option.token,
           ['function approve(address, uint256)'],
-          signer
+          signer,
         );
 
         await sendTx(optionTokenContract, 'approve', [
@@ -63,7 +64,7 @@ const SsovOption = (props: {
             'function settle(uint256, uint256, uint256, address)',
             'function settle(uint256, uint256, uint256)',
           ],
-          signer
+          signer,
         );
 
         // @ts-ignore

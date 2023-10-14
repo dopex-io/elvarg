@@ -1,13 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { BigNumber, ethers } from 'ethers';
 
-import { BigNumber } from 'ethers';
-
-import {
-  DopexPositionManager__factory,
-  GmxVault__factory,
-  InsuredLongsStrategy__factory,
-  InsuredLongsUtils__factory,
-} from '@dopex-io/sdk';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Menu from '@mui/material/Menu';
@@ -19,12 +12,18 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Tooltip from '@mui/material/Tooltip';
-import { styled } from '@mui/styles';
-import useSendTx from 'hooks/useSendTx';
+
+import {
+  DopexPositionManager__factory,
+  GmxVault__factory,
+  InsuredLongsStrategy__factory,
+  InsuredLongsUtils__factory,
+} from '@dopex-io/sdk';
+
 import { useBoundStore } from 'store';
 
-import CustomButton from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
+import useSendTx from 'hooks/useSendTx';
+
 import ManageModal from 'components/atlantics/InsuredPerps/Dialogs/ManageDialog';
 import ContentRow from 'components/atlantics/InsuredPerps/ManageCard/ManagePosition/ContentRow';
 import {
@@ -32,8 +31,9 @@ import {
   TableHeader,
 } from 'components/atlantics/Manage/UserDepositsTable';
 import SignerButton from 'components/common/SignerButton';
+import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
 import { MIN_EXECUTION_FEE } from 'constants/gmx';
@@ -53,14 +53,6 @@ interface IUserPositionData {
   depositUnderlying: boolean;
   type: 'Long';
 }
-
-const StyledTooltip = styled(({ className, ...props }) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(({ color }) => ({
-  '& .MuiTooltip-tooltip': {
-    background: color,
-  },
-}));
 
 export const ActionState: { [key: string]: string } = {
   '0': 'None', // 0
@@ -135,12 +127,12 @@ const Positions = ({
     const underlyingAddress = contractAddresses[underlying];
     const strategyContract = InsuredLongsStrategy__factory.connect(
       strategyContractAddress,
-      signer
+      signer,
     );
     const gmxVault = GmxVault__factory.connect(gmxVaultAddress, signer);
     const strategyUtils = InsuredLongsUtils__factory.connect(
       strategyUtilsAddress,
-      signer
+      signer,
     );
 
     if (!gmxVault || !strategyContract || !strategyUtils) return;
@@ -149,15 +141,14 @@ const Positions = ({
       strategyContract.userPositionIds(accountAddress),
       strategyContract.userPositionManagers(accountAddress),
     ]);
-    const strategyPosition = await strategyContract.strategyPositions(
-      positionId
-    );
+    const strategyPosition =
+      await strategyContract.strategyPositions(positionId);
 
     const gmxPosition = await gmxVault.getPosition(
       positionManager,
       underlyingAddress,
       underlyingAddress,
-      true
+      true,
     );
 
     let atlanticsPosition: any,
@@ -185,17 +176,17 @@ const Positions = ({
       [atlanticsPosition, positionDelta, liquidationPrice, markPrice] =
         await Promise.all([
           atlanticPool.contracts.atlanticPool.getOptionsPurchase(
-            strategyPosition.atlanticsPurchaseId
+            strategyPosition.atlanticsPurchaseId,
           ),
           gmxVault.getPositionDelta(
             positionManager,
             underlyingAddress,
             underlyingAddress,
-            true
+            true,
           ),
           strategyUtils['getLiquidationPrice(address,address)'](
             positionManager,
-            underlyingAddress
+            underlyingAddress,
           ),
           strategyUtils.getPrice(underlyingAddress),
         ]);
@@ -203,7 +194,7 @@ const Positions = ({
       const positionSize = gmxPosition[0];
       const collateral = gmxPosition[1];
       const collateralAccess = atlanticsPosition.optionStrike.mul(
-        atlanticsPosition.optionsAmount.mul(10000)
+        atlanticsPosition.optionsAmount.mul(10000),
       );
       hasProfit = positionDelta[0];
 
@@ -213,7 +204,9 @@ const Positions = ({
         markPrice: markPrice,
         leverage: positionSize.div(collateral.sub(collateralAccess)),
         putStrike: atlanticsPosition.optionStrike,
-        delta: hasProfit ? positionDelta[1] : -positionDelta[1],
+        delta: hasProfit
+          ? ethers.utils.formatUnits(positionDelta[1], 30)
+          : -ethers.utils.formatUnits(positionDelta[1], 30),
         liquidationPrice: liquidationPrice,
         state: ActionState[String(strategyPosition.state)],
         collateral: gmxPosition[1],
@@ -228,7 +221,9 @@ const Positions = ({
 
     setUserPositionData(() => position);
     setTriggerMarker(() =>
-      getUserReadableAmount(position.putStrike, 8).toString()
+      ethers.utils
+        .formatUnits(BigNumber.from(position.putStrike), 8)
+        .toString(),
     );
     setIsPositionReleased(() => strategyPosition.state === 1);
   }, [
@@ -285,7 +280,7 @@ const Positions = ({
 
     const strategyContract = InsuredLongsStrategy__factory.connect(
       strategyContractAddress,
-      signer
+      signer,
     );
 
     const [positionId] = await Promise.all([
@@ -296,7 +291,7 @@ const Positions = ({
     await sendTx(strategyContract, 'emergencyStrategyExit', [positionId]).then(
       () => {
         getUserPositions();
-      }
+      },
     );
   }, [
     accountAddress,
@@ -312,7 +307,7 @@ const Positions = ({
     (e: { target: { value: string | number } }) => {
       setAction(String(e.target.value));
     },
-    []
+    [],
   );
 
   const handleExitLongPosition = useCallback(async () => {
@@ -335,7 +330,7 @@ const Positions = ({
 
     const strategyContract = InsuredLongsStrategy__factory.connect(
       strategyContractAddress,
-      signer
+      signer,
     );
 
     const indexToken = await strategyContract.strategyIndexToken();
@@ -351,7 +346,7 @@ const Positions = ({
       userPositionManager,
       indexToken,
       indexToken,
-      true
+      true,
     );
 
     const increaseOrderParams = {
@@ -371,7 +366,7 @@ const Positions = ({
 
     const userPositionManagerContract = DopexPositionManager__factory.connect(
       userPositionManager,
-      signer
+      signer,
     );
 
     await sendTx(userPositionManagerContract, 'decreaseOrder', [
@@ -404,7 +399,7 @@ const Positions = ({
 
     const strategyContract = InsuredLongsStrategy__factory.connect(
       strategyContractAddress,
-      signer
+      signer,
     );
 
     const expiry = atlanticPoolEpochData.expiry;
@@ -445,7 +440,7 @@ const Positions = ({
 
     const strategyContract = InsuredLongsStrategy__factory.connect(
       strategyContractAddress,
-      signer
+      signer,
     );
 
     const [positionId] = await Promise.all([
@@ -473,19 +468,39 @@ const Positions = ({
     return formatAmount(
       (Number(userPositionData.delta) / Number(userPositionData.collateral)) *
         100,
-      2
+      2,
     );
   }, [userPositionData]);
 
   const renderButton = useMemo(() => {
-    if (
-      userPositionData.state === ActionState['2'] ||
-      userPositionData.state === ActionState['3']
-    )
+    if (userPositionData.state === ActionState['2'])
       return (
-        <CustomButton onClick={handleIncreaseManagedPosition}>
-          Add Collateral
-        </CustomButton>
+        <Select
+          value={action}
+          onChange={handleActionChange}
+          className="bg-primary rounded-md w-full text-center text-white border border-umbra p-2"
+          MenuProps={{
+            classes: { paper: 'bg-primary' },
+          }}
+          classes={{ icon: 'text-white', select: 'p-0' }}
+          variant="standard"
+          disableUnderline
+        >
+          <MenuItem
+            onClick={handleIncreaseManagedPosition}
+            value={'Add collateral'}
+            className="text-white"
+          >
+            <Typography variant="h6">Add Collateral</Typography>
+          </MenuItem>
+          <MenuItem
+            className="text-white"
+            onClick={handleEmergencyExit}
+            value={'Exit Strategy'}
+          >
+            <Typography variant="h6">Exit strategy</Typography>
+          </MenuItem>
+        </Select>
       );
     else if (userPositionData.state === ActionState['4'])
       return (
@@ -506,6 +521,9 @@ const Positions = ({
     handleManageButtonClick,
     handleReuseStrategy,
     userPositionData.state,
+    action,
+    handleActionChange,
+    handleEmergencyExit,
   ]);
 
   useEffect(() => {
@@ -604,7 +622,7 @@ const Positions = ({
                       </Box>
                     </TableBodyCell>
                     <TableBodyCell>
-                      <StyledTooltip
+                      <Tooltip
                         followCursor
                         arrow={true}
                         color="transparent"
@@ -613,33 +631,30 @@ const Positions = ({
                             <ContentRow
                               title="Initial Collateral:"
                               content={`$${formatAmount(
-                                getUserReadableAmount(
+                                ethers.utils.formatUnits(
                                   userPositionData.initialCollateral,
-                                  30
+                                  30,
                                 ),
-                                2
+                                2,
                               )}`}
                               textSize="caption"
                             />
                             <ContentRow
                               title="Put Strike:"
                               content={`$${formatAmount(
-                                getUserReadableAmount(
+                                ethers.utils.formatUnits(
                                   userPositionData.putStrike,
-                                  8
+                                  8,
                                 ),
-                                3
+                                3,
                               )}`}
                               textSize="caption"
                             />
                             <ContentRow
                               title="PnL:"
                               content={`${formatAmount(
-                                getUserReadableAmount(
-                                  userPositionData.delta,
-                                  30
-                                ),
-                                2
+                                userPositionData.delta.toString(),
+                                2,
                               )}`}
                               textSize="caption"
                               highlightPnl
@@ -647,11 +662,11 @@ const Positions = ({
                             <ContentRow
                               title="Collateral:"
                               content={`$${formatAmount(
-                                getUserReadableAmount(
+                                ethers.utils.formatUnits(
                                   userPositionData.collateral,
-                                  30
+                                  '30',
                                 ),
-                                2
+                                2,
                               )}`}
                               textSize="caption"
                             />
@@ -671,47 +686,38 @@ const Positions = ({
                           >
                             $
                             {formatAmount(
-                              getUserReadableAmount(
-                                userPositionData.collateral,
-                                30
+                              ethers.utils.formatUnits(
+                                BigNumber.from(userPositionData.collateral),
+                                30,
                               ),
-                              2
+                              2,
                             )}
                           </Typography>
                           <Typography
                             className={`${
-                              Number(userPositionData.delta) > 0
+                              Number(userPositionData.delta.toString()) > 0
                                 ? 'text-up-only'
                                 : 'text-down-bad'
                             }`}
                             variant="caption"
                           >
                             {`${formatAmount(
-                              getUserReadableAmount(userPositionData.delta, 30),
-                              2
+                              userPositionData.delta.toString(),
+                              2,
                             )}(${pnlPercentage}%)`}
                           </Typography>
                         </span>
-                      </StyledTooltip>
+                      </Tooltip>
                     </TableBodyCell>
                     <TableBodyCell>
                       <Typography variant="h6">
                         $
                         {formatAmount(
-                          getUserReadableAmount(userPositionData.size, 30),
-                          2
-                        )}
-                      </Typography>
-                    </TableBodyCell>
-                    <TableBodyCell>
-                      <Typography variant="h6">
-                        $
-                        {formatAmount(
-                          getUserReadableAmount(
-                            userPositionData.collateral,
-                            30
+                          ethers.utils.formatUnits(
+                            BigNumber.from(userPositionData.size),
+                            30,
                           ),
-                          2
+                          2,
                         )}
                       </Typography>
                     </TableBodyCell>
@@ -719,20 +725,11 @@ const Positions = ({
                       <Typography variant="h6">
                         $
                         {formatAmount(
-                          getUserReadableAmount(userPositionData.markPrice, 8),
-                          2
-                        )}
-                      </Typography>
-                    </TableBodyCell>
-                    <TableBodyCell>
-                      <Typography variant="h6">
-                        $
-                        {formatAmount(
-                          getUserReadableAmount(
-                            userPositionData.entryPrice,
-                            30
+                          ethers.utils.formatUnits(
+                            BigNumber.from(userPositionData.collateral),
+                            30,
                           ),
-                          3
+                          2,
                         )}
                       </Typography>
                     </TableBodyCell>
@@ -740,11 +737,35 @@ const Positions = ({
                       <Typography variant="h6">
                         $
                         {formatAmount(
-                          getUserReadableAmount(
-                            userPositionData.liquidationPrice,
-                            30
+                          ethers.utils.formatUnits(
+                            BigNumber.from(userPositionData.markPrice),
+                            8,
                           ),
-                          2
+                          2,
+                        )}
+                      </Typography>
+                    </TableBodyCell>
+                    <TableBodyCell>
+                      <Typography variant="h6">
+                        $
+                        {formatAmount(
+                          ethers.utils.formatUnits(
+                            BigNumber.from(userPositionData.entryPrice),
+                            30,
+                          ),
+                          3,
+                        )}
+                      </Typography>
+                    </TableBodyCell>
+                    <TableBodyCell>
+                      <Typography variant="h6">
+                        $
+                        {formatAmount(
+                          ethers.utils.formatUnits(
+                            BigNumber.from(userPositionData.liquidationPrice),
+                            30,
+                          ),
+                          2,
                         )}
                       </Typography>
                     </TableBodyCell>
@@ -781,7 +802,7 @@ const Positions = ({
                             }
                             value={'Close'}
                           >
-                            <Typography variant="h6">Exit strategy</Typography>
+                            <Typography variant="h6">Exit Position</Typography>
                           </MenuItem>
                         </Select>
                       ) : (
