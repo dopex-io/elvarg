@@ -185,10 +185,7 @@ const ClammPage = () => {
           position,
         );
       })
-      .filter((position): position is WritePosition => position !== undefined)
-      .filter((position) => {
-        return position.shares > 1n;
-      });
+      .filter((position): position is WritePosition => position !== undefined);
 
     setUserClammPositions('writePositions', parsedPositions);
   }, [optionsPool, ticksData, setUserClammPositions, userAddress]);
