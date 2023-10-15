@@ -9,15 +9,15 @@ type TradeSideMenuProps = {
 };
 const TradeSideMenu = ({ activeIndex, setActiveIndex }: TradeSideMenuProps) => {
   return (
-    <div className="flex border border-[#1E1E1E] bg-[#1E1E1E] p-2 gap-3 flex-1">
-      <div className="flex-1 space-y-3">
+    <div className="flex border border-[#1E1E1E] bg-[#1E1E1E] p-[12px] flex-1">
+      <div className="flex-1">
         <span className="text-stieglitz text-sm">Side</span>
-        <div className="flex justify-between bg-mineshaft rounded-md">
+        <div className="flex justify-between bg-mineshaft rounded-md mt-[10px] p-1">
           {['Call', 'Put'].map((label, i: number) => (
             <span
               key={i}
               role="button"
-              className={`p-0.5 py-1 text-sm text-white flex items-center justify-center border-0 hover:border-0 w-full m-1 transition ease-in-out duration-500 rounded-md space-x-2 ${
+              className={`text-sm p-1 text-white flex items-center justify-center border-0 hover:border-0 w-full transition ease-in-out duration-500 rounded-md space-x-2 ${
                 activeIndex === i
                   ? 'bg-carbon hover:bg-carbon'
                   : 'bg-mineshaft hover:bg-mineshaft'

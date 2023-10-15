@@ -27,8 +27,8 @@ const StrikesMenu = ({
 }: StrikesMenuProps) => {
   const { isPut } = useBoundStore();
   return (
-    <div className="flex border border-[#1E1E1E] bg-[#1E1E1E] p-2 gap-3 flex-1">
-      <div className="flex-1 space-y-3">
+    <div className="flex border border-[#1E1E1E] bg-[#1E1E1E] p-[12px] flex-1">
+      <div className="flex-1">
         <span className="text-stieglitz text-sm">Strike</span>
         <Menu
           color="mineshaft"
@@ -54,7 +54,7 @@ const StrikesMenu = ({
             </span>
           }
           data={strikes}
-          className="w-full flex-1"
+          className="w-full flex-1 mt-[10px]"
           showArrow={strikes.length !== 0}
         />
       </div>

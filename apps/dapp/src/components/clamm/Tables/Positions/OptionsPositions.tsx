@@ -47,28 +47,28 @@ const columns = [
   columnHelper.accessor('strike', {
     header: 'Strike Price',
     cell: (info) => (
-      <span className="space-x-2 text-left">
-        <p className="text-stieglitz inline-block">$</p>
-        <p className="inline-block">{info.getValue().toFixed(5)}</p>
-      </span>
+      <div className="flex space-x-2 text-left">
+        <span className="text-stieglitz inline-block">$</span>
+        <span className="inline-block">{info.getValue().toFixed(5)}</span>
+      </div>
     ),
   }),
   columnHelper.accessor('size', {
     header: 'Size',
     cell: (info) => (
-      <p>
-        {formatAmount(info.getValue().amount, 5)}{' '}
+      <div className="flex space-x-2 text-left">
+        <span>{formatAmount(info.getValue().amount, 5)}</span>
         <span className="text-stieglitz">{info.getValue().symbol}</span>
-      </p>
+      </div>
     ),
   }),
   columnHelper.accessor('expiry', {
     header: 'Expiry',
     cell: (info) => (
-      <p className="overflow-hidden whitespace-nowrap">
+      <span className=" overflow-hidden whitespace-nowrap">
         {formatDistance(Number(info.getValue()) * 1000, new Date())}{' '}
         {Number(info.getValue()) * 1000 < new Date().getTime() && 'ago'}
-      </p>
+      </span>
     ),
   }),
   columnHelper.accessor('side', {
