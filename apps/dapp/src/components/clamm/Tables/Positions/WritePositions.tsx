@@ -283,7 +283,7 @@ const WritePositions = () => {
                 handleBurn(tickLower, tickUpper, shares);
               },
               id: index,
-              disabled: shares < 2n,
+              disabled: false,
             },
           };
         },
