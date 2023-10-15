@@ -21,6 +21,7 @@ async function getEarningsCheckpoints(
 ): Promise<EarningsCheckpointRaw[]> {
   try {
     const { earningsCheckpoints } = await queryClient.fetchQuery({
+      queryKey: ['earnings-checkpoints'],
       queryFn: async () =>
         request(DOPEX_CLAMM_SUBGRAPH_API_URL, getEarningsCheckpointsDocument, {
           poolAddress: uniswapV3PoolAddress.toLowerCase(),

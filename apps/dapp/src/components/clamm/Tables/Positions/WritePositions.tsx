@@ -14,6 +14,7 @@ import TableLayout from 'components/common/TableLayout';
 import { formatAmount } from 'utils/general';
 
 type WritePositionData = {
+  apr: number;
   button: {
     handleBurn: (index: number) => void;
     id: number;
@@ -90,7 +91,6 @@ const columns = [
     header: 'Side',
     cell: (info) => <p>{info.getValue()}</p>,
   }),
-
   columnHelper.accessor('earned', {
     header: 'Earned',
     cell: (info) => {
@@ -113,6 +113,10 @@ const columns = [
         </div>
       );
     },
+  }),
+  columnHelper.accessor('apr', {
+    header: 'APR',
+    cell: (info) => <p>{formatAmount(info.getValue(), 5)}%</p>,
   }),
   columnHelper.accessor('withdrawable', {
     header: 'Withdrawable',
@@ -163,6 +167,7 @@ const WritePositions = () => {
     userClammPositions,
     keys,
     fullReload,
+    tokenPrices,
   } = useBoundStore();
 
   const handleBurn = useCallback(
@@ -208,6 +213,7 @@ const WritePositions = () => {
             tickLowerPrice,
             tickUpperPrice,
             withdrawableLiquidity,
+            timestamp,
           },
           index,
         ) => {
@@ -269,7 +275,39 @@ const WritePositions = () => {
             }
           }
 
+          const callTokenInfo = tokenPrices.find(
+            ({ name }) =>
+              name.toLowerCase() ===
+              optionsPool[keys.callAssetSymbolKey].toLowerCase(),
+          );
+
+          const putTokenInfo = tokenPrices.find(
+            ({ name }) =>
+              name.toLowerCase() ===
+              optionsPool[keys.putAssetSymbolKey].toLowerCase(),
+          );
+
+          let putTokenPrice = 1;
+          let callTokenPrice = 1;
+          if (callTokenInfo) callTokenPrice = callTokenInfo.price;
+          if (putTokenInfo) putTokenPrice = putTokenInfo.price;
+
+          let earningsUsd =
+            Number(earnedAmounts.callAssetAmount) * callTokenPrice;
+          earningsUsd += Number(earnedAmounts.putAssetAmount) * putTokenPrice;
+
+          let depositsUsd =
+            Number(sizeAmounts.callAssetAmount) * callTokenPrice;
+          depositsUsd += Number(sizeAmounts.putAssetAmount) * putTokenPrice;
+
+          const currentTimestamp = new Date().getTime() / 1000;
+          const depositToDateInMonths =
+            (currentTimestamp - timestamp) / (60 * 60 * 24 * 30);
+          const apr =
+            (earningsUsd * depositToDateInMonths * 1200) / depositsUsd;
+
           return {
+            apr,
             withdrawable,
             tickLower,
             tickUpper,
@@ -303,6 +341,7 @@ const WritePositions = () => {
     keys.putAssetAmountKey,
     keys.putAssetDecimalsKey,
     keys.putAssetSymbolKey,
+    tokenPrices,
   ]);
 
   return (

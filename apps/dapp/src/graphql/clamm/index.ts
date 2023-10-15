@@ -168,6 +168,7 @@ export const getWritePositionsForUserDocument = graphql(`
       user
       liquidity
       shares
+      timestamp
       count
     }
   }

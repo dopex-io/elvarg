@@ -13,6 +13,7 @@ export type WritePositionRaw = {
   shares: bigint;
   tickLower: number;
   tickUpper: number;
+  timestamp: number;
 };
 
 async function getUserWritePositions(
@@ -36,11 +37,12 @@ async function getUserWritePositions(
     });
 
     return writePositions.map(
-      ({ liquidity, shares, tickLower, tickUpper }) => ({
+      ({ liquidity, shares, tickLower, tickUpper, timestamp }) => ({
         liquidity: BigInt(liquidity),
         shares: BigInt(shares),
         tickLower: Number(tickLower),
         tickUpper: Number(tickUpper),
+        timestamp: Number(timestamp),
       }),
     );
   } catch (err) {

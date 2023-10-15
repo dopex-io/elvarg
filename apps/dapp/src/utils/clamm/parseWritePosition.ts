@@ -9,6 +9,7 @@ import { TickData } from './parseTickData';
 import { WritePositionRaw } from './subgraph/getUserWritePositions';
 
 export type WritePosition = {
+  timestamp: number;
   tickLower: number;
   tickUpper: number;
   shares: bigint;
@@ -37,7 +38,7 @@ function parseWritePosition(
   position: WritePositionRaw,
 ): WritePosition {
   const { totalLiquidity, availableShares, liquidityAvailable } = tickData;
-  let { liquidity, tickLower, tickUpper, shares } = position;
+  let { liquidity, tickLower, tickUpper, shares, timestamp } = position;
 
   const totalLiquidityToL = getLiquidityForAmounts(
     priceSqrtX96,
@@ -119,6 +120,7 @@ function parseWritePosition(
   }
 
   return {
+    timestamp,
     withdrawableLiquidity: withdrawableLiquidity,
     tickLower,
     tickUpper,
