@@ -201,136 +201,128 @@ const WritePositions = () => {
   const positions = useMemo(() => {
     if (!optionsPool) return [];
 
-    return userClammPositions.writePositions
-      .map(
-        (
-          {
-            shares,
-            earned,
-            size,
-            tickLower,
-            tickUpper,
-            tickLowerPrice,
-            tickUpperPrice,
-            withdrawableLiquidity,
-            timestamp,
-          },
-          index,
-        ) => {
-          const sizeAmounts = {
-            callAssetAmount: formatUnits(
-              size[keys.callAssetAmountKey],
-              optionsPool[keys.callAssetDecimalsKey],
-            ),
-            putAssetAmount: formatUnits(
-              size[keys.putAssetAmountKey],
-              optionsPool[keys.putAssetDecimalsKey],
-            ),
-            callAssetSymbol: optionsPool[keys.callAssetSymbolKey],
-            putAssetSymbol: optionsPool[keys.putAssetSymbolKey],
-          };
-
-          const earnedAmounts = {
-            callAssetAmount: formatUnits(
-              earned[keys.callAssetAmountKey],
-              optionsPool[keys.callAssetDecimalsKey],
-            ),
-            putAssetAmount: formatUnits(
-              earned[keys.putAssetAmountKey],
-              optionsPool[keys.putAssetDecimalsKey],
-            ),
-            callAssetSymbol: optionsPool[keys.callAssetSymbolKey],
-            putAssetSymbol: optionsPool[keys.putAssetSymbolKey],
-          };
-
-          const withdrawable = {
-            callAssetAmount: formatUnits(
-              withdrawableLiquidity[keys.callAssetAmountKey],
-              optionsPool[keys.callAssetDecimalsKey],
-            ),
-            putAssetAmount: formatUnits(
-              withdrawableLiquidity[keys.putAssetAmountKey],
-              optionsPool[keys.putAssetDecimalsKey],
-            ),
-            callAssetSymbol: optionsPool[keys.callAssetSymbolKey],
-            putAssetSymbol: optionsPool[keys.putAssetSymbolKey],
-          };
-
-          let side = '';
-          if (optionsPool.inversePrice) {
-            if (optionsPool.tick <= tickLower) {
-              side = 'Put';
-            } else if (optionsPool.tick >= tickUpper) {
-              side = 'Call';
-            } else {
-              side = 'Neutral';
-            }
-          } else {
-            if (optionsPool.tick <= tickLower) {
-              side = 'Call';
-            } else if (optionsPool.tick >= tickUpper) {
-              side = 'Put';
-            } else {
-              side = 'Neutral';
-            }
-          }
-
-          const callTokenInfo = tokenPrices.find(
-            ({ name }) =>
-              name.toLowerCase() ===
-              optionsPool[keys.callAssetSymbolKey].toLowerCase(),
-          );
-
-          const putTokenInfo = tokenPrices.find(
-            ({ name }) =>
-              name.toLowerCase() ===
-              optionsPool[keys.putAssetSymbolKey].toLowerCase(),
-          );
-
-          let putTokenPrice = 1;
-          let callTokenPrice = 1;
-          if (callTokenInfo) callTokenPrice = callTokenInfo.price;
-          if (putTokenInfo) putTokenPrice = putTokenInfo.price;
-
-          let earningsUsd =
-            Number(earnedAmounts.callAssetAmount) * callTokenPrice;
-          earningsUsd += Number(earnedAmounts.putAssetAmount) * putTokenPrice;
-
-          let depositsUsd =
-            Number(sizeAmounts.callAssetAmount) * callTokenPrice;
-          depositsUsd += Number(sizeAmounts.putAssetAmount) * putTokenPrice;
-
-          const currentTimestamp = new Date().getTime() / 1000;
-          const depositToDateInMonths =
-            (currentTimestamp - timestamp) / (60 * 60 * 24 * 30);
-          const apr =
-            (earningsUsd * depositToDateInMonths * 1200) / depositsUsd;
-
-          return {
-            apr,
-            withdrawable,
-            tickLower,
-            tickUpper,
-            side,
-            shares,
-            size: sizeAmounts,
-            earned: earnedAmounts,
-            strike: side == 'Put' ? tickLowerPrice : tickUpperPrice,
-            button: {
-              handleBurn: () => {
-                handleBurn(tickLower, tickUpper, shares);
-              },
-              id: index,
-              disabled: false,
-            },
-          };
+    return userClammPositions.writePositions.map(
+      (
+        {
+          shares,
+          earned,
+          size,
+          tickLower,
+          tickUpper,
+          tickLowerPrice,
+          tickUpperPrice,
+          withdrawableLiquidity,
+          timestamp,
         },
-      )
-      .filter(
-        (position) =>
-          Number(position.withdrawable.callAssetAmount) > 0 ||
-          Number(position.withdrawable.putAssetAmount) > 0,
-      );
+        index,
+      ) => {
+        const sizeAmounts = {
+          callAssetAmount: formatUnits(
+            size[keys.callAssetAmountKey],
+            optionsPool[keys.callAssetDecimalsKey],
+          ),
+          putAssetAmount: formatUnits(
+            size[keys.putAssetAmountKey],
+            optionsPool[keys.putAssetDecimalsKey],
+          ),
+          callAssetSymbol: optionsPool[keys.callAssetSymbolKey],
+          putAssetSymbol: optionsPool[keys.putAssetSymbolKey],
+        };
+
+        const earnedAmounts = {
+          callAssetAmount: formatUnits(
+            earned[keys.callAssetAmountKey],
+            optionsPool[keys.callAssetDecimalsKey],
+          ),
+          putAssetAmount: formatUnits(
+            earned[keys.putAssetAmountKey],
+            optionsPool[keys.putAssetDecimalsKey],
+          ),
+          callAssetSymbol: optionsPool[keys.callAssetSymbolKey],
+          putAssetSymbol: optionsPool[keys.putAssetSymbolKey],
+        };
+
+        const withdrawable = {
+          callAssetAmount: formatUnits(
+            withdrawableLiquidity[keys.callAssetAmountKey],
+            optionsPool[keys.callAssetDecimalsKey],
+          ),
+          putAssetAmount: formatUnits(
+            withdrawableLiquidity[keys.putAssetAmountKey],
+            optionsPool[keys.putAssetDecimalsKey],
+          ),
+          callAssetSymbol: optionsPool[keys.callAssetSymbolKey],
+          putAssetSymbol: optionsPool[keys.putAssetSymbolKey],
+        };
+
+        let side = '';
+        if (optionsPool.inversePrice) {
+          if (optionsPool.tick <= tickLower) {
+            side = 'Put';
+          } else if (optionsPool.tick >= tickUpper) {
+            side = 'Call';
+          } else {
+            side = 'Neutral';
+          }
+        } else {
+          if (optionsPool.tick <= tickLower) {
+            side = 'Call';
+          } else if (optionsPool.tick >= tickUpper) {
+            side = 'Put';
+          } else {
+            side = 'Neutral';
+          }
+        }
+
+        const callTokenInfo = tokenPrices.find(
+          ({ name }) =>
+            name.toLowerCase() ===
+            optionsPool[keys.callAssetSymbolKey].toLowerCase(),
+        );
+
+        const putTokenInfo = tokenPrices.find(
+          ({ name }) =>
+            name.toLowerCase() ===
+            optionsPool[keys.putAssetSymbolKey].toLowerCase(),
+        );
+
+        let putTokenPrice = 1;
+        let callTokenPrice = 1;
+        if (callTokenInfo) callTokenPrice = callTokenInfo.price;
+        if (putTokenInfo) putTokenPrice = putTokenInfo.price;
+
+        let earningsUsd =
+          Number(earnedAmounts.callAssetAmount) * callTokenPrice;
+        earningsUsd += Number(earnedAmounts.putAssetAmount) * putTokenPrice;
+
+        let depositsUsd = Number(sizeAmounts.callAssetAmount) * callTokenPrice;
+        depositsUsd += Number(sizeAmounts.putAssetAmount) * putTokenPrice;
+
+        const currentTimestamp = new Date().getTime() / 1000;
+        const depositToDateInMonths =
+          (currentTimestamp - timestamp) / (60 * 60 * 24 * 30);
+        const apr = (earningsUsd * depositToDateInMonths * 1200) / depositsUsd;
+
+        return {
+          apr,
+          withdrawable,
+          tickLower,
+          tickUpper,
+          side,
+          shares,
+          size: sizeAmounts,
+          earned: earnedAmounts,
+          strike: side == 'Put' ? tickLowerPrice : tickUpperPrice,
+          button: {
+            handleBurn: () => {
+              handleBurn(tickLower, tickUpper, shares);
+            },
+            id: index,
+            disabled: false,
+          },
+        };
+      },
+    );
   }, [
     handleBurn,
     optionsPool,
