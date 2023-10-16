@@ -540,6 +540,10 @@ const AsidePanel = () => {
       color = 'mineshaft';
     }
 
+    disabled = true;
+    text = 'Testing Concluced';
+    color = 'mineshaft';
+
     return {
       text,
       action,

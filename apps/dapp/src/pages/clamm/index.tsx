@@ -410,6 +410,14 @@ const ClammPage = () => {
           isAgree={isAgree}
           handleAgree={handleAgree}
         />
+        <div className="w-full bg-primary p-2 mb-4 rounded-lg">
+          <h1 className="text-center font-semibold">MVP TESTING CONCLUDED</h1>
+          <p className="text-md text-center">
+            CLAMM Options Pool testing has concluded. Deposits and purchasing of
+            options have been paused. Withdraw your deposit positions if you
+            have any. Thank you for all the valuable feedback and testing!
+          </p>
+        </div>
         <div className="flex space-x-0 lg:space-x-8 flex-col sm:flex-col md:flex-col lg:flex-row space-y-4 justify-center">
           <div className="flex flex-col space-y-3 sm:w-full h-full w-full flex-1">
             <PairSelector />
