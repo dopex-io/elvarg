@@ -541,7 +541,7 @@ const AsidePanel = () => {
     }
 
     disabled = true;
-    text = 'Testing Concluced';
+    text = 'Testing concluded';
     color = 'mineshaft';
 
     return {
