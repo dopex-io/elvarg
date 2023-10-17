@@ -9,10 +9,10 @@ type TradeSideMenuProps = {
 };
 const TradeSideMenu = ({ activeIndex, setActiveIndex }: TradeSideMenuProps) => {
   return (
-    <div className="flex border border-[#1E1E1E] bg-[#1E1E1E] p-[12px] flex-1">
-      <div className="flex-1">
+    <div className="flex bg-umbra rounded-r-md p-3 w-1/2">
+      <div className="flex flex-col">
         <span className="text-stieglitz text-sm">Side</span>
-        <div className="flex justify-between bg-mineshaft rounded-md mt-[10px] p-1">
+        <div className="flex bg-mineshaft rounded-md p-1 mt-1 h-[40px]">
           {['Call', 'Put'].map((label, i: number) => (
             <span
               key={i}

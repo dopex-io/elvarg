@@ -121,28 +121,15 @@ const AsidePanel = () => {
     keys.putAssetSymbolKey,
   ]);
 
-  const handleStrikeSelected = useCallback(
-    (strike: DepositStrike | PurchaseStrike) => {
-      setSelectedClammStrike(strike);
-    },
-    [setSelectedClammStrike],
-  );
-
   const strikeElement = useCallback(
-    (strike: DepositStrike | PurchaseStrike, key: number) => ({
-      textContent: (
-        <div
-          key={key}
-          onClick={() => handleStrikeSelected(strike)}
-          className="text-sm text-white flex w-full items-center justify-center border]"
-        >
-          <div className="w-full h-full pr-[4rem]">
-            {(isPut ? strike.tickLowerPrice : strike.tickUpperPrice).toFixed(5)}
-          </div>
-        </div>
-      ),
+    (strike: DepositStrike | PurchaseStrike) => ({
+      ...strike,
+      textContent: `$${(isPut
+        ? strike.tickLowerPrice
+        : strike.tickUpperPrice
+      ).toFixed(5)}`,
     }),
-    [handleStrikeSelected, isPut],
+    [isPut],
   );
 
   const readableStrikes = useMemo(() => {
@@ -152,26 +139,14 @@ const AsidePanel = () => {
       putPurchaseStrikes,
       callPurchaseStrikes,
     } = strikes;
-    if (tradeOrLpIndex === 1) {
-      if (isPut) {
-        return putDepositStrikes.map((strike, index) =>
-          strikeElement(strike, index),
-        );
-      } else {
-        return callDepositStrikes.map((strike, index) =>
-          strikeElement(strike, index),
-        );
-      }
+    if (tradeOrLpIndex === 0) {
+      return (isPut ? putPurchaseStrikes : callPurchaseStrikes).map((strike) =>
+        strikeElement(strike),
+      );
     } else {
-      if (isPut) {
-        return putPurchaseStrikes.map((strike, index) =>
-          strikeElement(strike, index),
-        );
-      } else {
-        return callPurchaseStrikes.map((strike, index) =>
-          strikeElement(strike, index),
-        );
-      }
+      return (isPut ? putDepositStrikes : callDepositStrikes).map((strike) =>
+        strikeElement(strike),
+      );
     }
   }, [strikes, isPut, tradeOrLpIndex, strikeElement]);
 
@@ -823,7 +798,7 @@ const AsidePanel = () => {
           labels={['Trade', 'Liquidity Provision']}
           handleClick={handleTradeOrLp}
         />
-        {/* <div className="flex border border-[#1E1E1E] bg-[#1E1E1E] rounded-md p-2 gap-3">
+        {/* <div className="flex border border-umbra bg-umbra rounded-md p-2 gap-3">
           <div className="flex-1">
             <span className="text-stieglitz text-sm">Side</span>
             <BgButtonGroup
@@ -833,10 +808,11 @@ const AsidePanel = () => {
             />
           </div>
         </div> */}
-        <div className="mt-2 flex items-center justify-center space-x-1">
+        <div className="flex justify-center divide-x divide-cod-gray">
           <StrikesMenu
             loading={loading.ticksData}
             selectedStrike={selectedClammStrike as PurchaseStrike}
+            setSelectedStrike={setSelectedClammStrike}
             strikes={readableStrikes}
           />
           <TradeSideMenu
@@ -860,7 +836,7 @@ const AsidePanel = () => {
           depositBalance={formatAmount(selectedTokenBalanceReadable, 5)}
           isTrade={tradeOrLpIndex === 0}
         />
-        <div className="border border-[#1E1E1E] bg-[#1E1E1E] rounded-md p-2">
+        <div className="border border-umbra bg-umbra rounded-md p-2">
           {tradeOrLpIndex === 0 ? (
             <>
               <RowItem

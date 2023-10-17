@@ -1,4 +1,4 @@
-import { SsovMarket } from 'types/ssov';
+import { SsovMarket, SsovMenuItem } from 'types/ssov';
 
 export const MARKETS: { [key: string]: SsovMarket } = {
   ARB: {
@@ -187,7 +187,7 @@ export const MARKETS: { [key: string]: SsovMarket } = {
   },
 };
 
-export const MARKETS_MENU = Object.keys(MARKETS).map((key) => ({
+export const MARKETS_MENU: SsovMenuItem[] = Object.keys(MARKETS).map((key) => ({
   textContent: key,
-  isDisabled: false,
+  disabled: false,
 }));

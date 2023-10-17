@@ -146,7 +146,7 @@ const TradeCard = () => {
 
     let tick = Math.round(Math.log(_markPrice) / Math.log(1.0001) / 10) * 10;
 
-    tick += isShort ? 10 : -10;
+    tick += isShort ? 20 : -20;
 
     return (1.0001 ** tick).toFixed(4);
   }, [optionScalpData, isShort]);
@@ -426,7 +426,7 @@ const TradeCard = () => {
           Number(rawLimitPrice) *
           10 **
             (optionScalpData?.quoteDecimals?.toNumber() -
-              optionScalpData?.baseDecimals!.toNumber());
+              optionScalpData?.baseDecimals?.toNumber());
 
         const spacing = 10;
 
@@ -521,6 +521,10 @@ const TradeCard = () => {
 
   const handleOrderTypeToggle = useCallback(() => {
     setOrderType(orderType === 'Market' ? 'Limit' : 'Market');
+  }, [setOrderType]);
+
+  useEffect(() => {
+    setMaximumTick();
   }, [orderType]);
 
   const setSelectedMargin = useCallback(
@@ -582,7 +586,7 @@ const TradeCard = () => {
   return (
     <div className="flex flex-col space-y-4 bg-cod-gray rounded-b-md">
       <div className="flex items-center justify-end p-2 pb-0">
-        <p className="text-xs text-stieglitz">Open with a limit order</p>
+        <p className="text-xs text-stieglitz mr-2">Open with a limit order</p>
         <Checkbox
           // @ts-ignore
           size="xs"
@@ -647,14 +651,7 @@ const TradeCard = () => {
             </p>
             <Input
               color="cod-gray"
-              placeholder={String(
-                Number(
-                  utils.formatUnits(
-                    markPrice,
-                    optionScalpData?.quoteDecimals?.toNumber()!,
-                  ),
-                ),
-              )}
+              placeholder={rawLimitPrice}
               value={rawLimitPrice}
               onChange={(e: {
                 target: { value: React.SetStateAction<string | number> };

@@ -17,7 +17,6 @@ import { createOlpSlice, OlpSlice } from './Vault/olp';
 import { createOptionScalpSlice, OptionScalpSlice } from './Vault/scalps';
 import { createSsovV3Slice, SsovV3Slice } from './Vault/ssov';
 import { createStraddlesSlice, StraddlesSlice } from './Vault/straddles';
-import { createZdteSlice, ZdteSlice } from './Vault/zdte';
 import { createVedpxSlice, VeDPXSlice } from './VeDPX';
 import { createWalletSlice, WalletSlice } from './Wallet';
 
@@ -38,7 +37,6 @@ type T = WalletSlice &
   OlpSlice &
   GmxSlice &
   AtlanticPoolsSlice &
-  ZdteSlice &
   ClammSlice;
 
 export const useBoundStore = create<T>()(
@@ -60,7 +58,6 @@ export const useBoundStore = create<T>()(
     ...createOlpSlice(...a),
     ...createAtlanticsSlice(...a),
     ...createGmxSlice(...a),
-    ...createZdteSlice(...a),
     ...createClammSlice(...a),
   })),
 );

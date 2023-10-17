@@ -17,31 +17,25 @@ import findDefaultSsov from 'utils/ssov/findDefaultSsov';
 
 import seo from 'constants/seo';
 
-const DEFAULT_MARKET = 'ARB';
+import { SsovMenuItem } from 'types/ssov';
+
+const DEFAULT_MARKET: SsovMenuItem = { textContent: 'ARB', disabled: false };
 
 const SsovBetaMarket = () => {
   const router = useRouter();
 
   const update = useVaultStore((state) => state.update);
 
-  const [selectedMarket, setSelectedMarket] = useState<string>(DEFAULT_MARKET);
-
-  const handleSelectMarket = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      router.push(`/ssov-beta/${e.target.innerText}`);
-    },
-    [router],
-  );
+  const [selectedMarket, setSelectedMarket] =
+    useState<SsovMenuItem>(DEFAULT_MARKET);
 
   useEffect(() => {
     let market = router.query?.slug?.[0];
 
     if (!market) {
-      router.replace(router.asPath, `/ssov-beta/${DEFAULT_MARKET}`);
+      router.replace(router.asPath, `/ssov-beta/${DEFAULT_MARKET.textContent}`);
     } else {
       market = market.toUpperCase();
-
-      setSelectedMarket(market);
 
       const vault = findDefaultSsov(market);
 
@@ -79,23 +73,20 @@ const SsovBetaMarket = () => {
         }}
       />
       <PageLayout>
-        <TitleBar
-          market={selectedMarket}
-          handleSelectMarket={handleSelectMarket}
-        />
+        <TitleBar market={selectedMarket} setSelection={setSelectedMarket} />
         <div className="flex space-x-0 lg:space-x-6 flex-col sm:flex-col md:flex-col lg:flex-row space-y-3 md:space-y-0 justify-center">
           <div className="flex flex-col space-y-3 sm:w-full lg:w-3/4 h-full">
             <PriceChart
               className="rounded-lg text-center flex flex-col justify-center text-stieglitz"
-              market={selectedMarket}
+              market={selectedMarket.textContent.toUpperCase()}
             />
             <div className="space-y-4">
-              <StrikesChain market={selectedMarket} />
+              <StrikesChain market={selectedMarket.textContent.toUpperCase()} />
               <Positions />
             </div>
           </div>
           <div className="flex flex-col w-full lg:w-1/4 h-full space-y-4 sticky top-20">
-            <AsidePanel market={selectedMarket} />
+            <AsidePanel market={selectedMarket.textContent.toUpperCase()} />
             <InfoBox />
           </div>
         </div>

@@ -1,11 +1,14 @@
-import React, { ReactEventHandler } from 'react';
+import React from 'react';
 
-import { Menu as HeadlessMenu, Transition } from '@headlessui/react';
+import { Listbox, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
-import Button from '../src/Button';
-import MenuItems, { dropdownVariants, ItemType } from '../src/MenuItems';
 import cx from './utils/cx';
+
+export type ItemType = Record<
+  symbol | string,
+  string | boolean | number | JSX.Element | undefined
+>;
 
 type colors =
   | 'primary'
@@ -17,85 +20,147 @@ type colors =
 
 export interface MenuProps<T>
   extends React.DetailedHTMLProps<
-    React.ButtonHTMLAttributes<HTMLButtonElement>,
-    HTMLButtonElement
+    React.ButtonHTMLAttributes<HTMLDivElement>,
+    HTMLDivElement
   > {
   data: T[];
-  selection?: string | React.ReactNode;
-  handleSelection: ReactEventHandler;
+  selection: T;
+  setSelection: (value: T) => void;
   dropdownVariant?: dropdownVariants;
   scrollable?: boolean;
   topElement?: React.ReactNode;
   color?: colors;
   showArrow?: boolean;
-  showIcon?: boolean;
+  fullWidth?: boolean;
 }
+
+type dropdownVariants = 'basic' | 'icon' | 'dense';
+
+const COMMON_CLASSES = {
+  button: 'px-3 py-2 text-white rounded-md',
+  dropdownPaper: 'absolute z-20 left-50 mt-2 origin-top-right',
+};
+
+const VARIANT_CLASSES: Record<
+  dropdownVariants,
+  Record<string, string | boolean | null>
+> = {
+  basic: {
+    icons: null,
+    padding: 'p-2',
+    ...COMMON_CLASSES,
+  },
+  icon: {
+    icons: null,
+    padding: 'p-2',
+    ...COMMON_CLASSES,
+  },
+  dense: {
+    icons: 'hidden',
+    padding: 'p-1',
+    ...COMMON_CLASSES,
+  },
+};
 
 const Menu = <T extends ItemType>(props: MenuProps<T>) => {
   const {
     data,
     selection,
-    handleSelection,
+    setSelection,
     dropdownVariant = 'basic',
     scrollable = false,
     topElement = null,
     color = 'carbon',
     showArrow = false,
-    showIcon = false,
+    fullWidth = false,
     className,
     ...rest
   } = props;
 
+  const selectedVariant = VARIANT_CLASSES[dropdownVariant];
+
   return (
-    <HeadlessMenu as="div" className={cx('inline-block text-left', className)}>
-      <div>
-        <HeadlessMenu.Button
-          as={Button}
-          className="flex justify-between bg-carbon w-full"
-          color={color}
-          size="medium"
+    <Listbox value={selection} onChange={setSelection}>
+      <div className="relative mt-1">
+        <Listbox.Button
+          className={cx(
+            `bg-${color}`,
+            selectedVariant['button'],
+            `h-fit ${fullWidth ? 'w-full' : 'w-fit'}`,
+          )}
         >
           {({ open }: { open: boolean }) => (
-            <div className="flex w-full justify-center">
-              {showIcon &&
-              selection !== undefined &&
-              typeof selection === 'string' ? (
-                <img
-                  src={`/images/tokens/${String(selection)?.toLowerCase()}.svg`}
-                  alt={selection.toLowerCase()}
-                  className="w-5 rounded-full mr-2"
-                />
-              ) : null}
-              {selection}
+            <div className="flex justify-center">
+              {selection?.['textContent']}
               {showArrow ? (
                 <ChevronDownIcon
-                  className={cx('ml-2 w-4', open ? `transform rotate-180` : '')}
+                  className={cx(
+                    'ml-2 w-4',
+                    open ? `transform rotate-180` : null,
+                  )}
                 />
               ) : null}
             </div>
           )}
-        </HeadlessMenu.Button>
+        </Listbox.Button>
+        <Transition
+          as="div"
+          enter="transition ease-out duration-100"
+          enterFrom="transform opacity-0 scale-95"
+          enterTo="transform opacity-100 scale-100"
+          leave="transition ease-in duration-75"
+          leaveFrom="transform opacity-100 scale-100"
+          leaveTo="transform opacity-0 scale-95"
+        >
+          <Listbox.Options
+            className={cx(
+              className
+                ? className
+                : `w-fit rounded-[10px] bg-umbra shadow-lg focus:outline-none border border-${color}`,
+              `${selectedVariant['dropdownPaper']}`,
+            )}
+          >
+            {topElement}
+            <div
+              className={`p-1 h-fit ${
+                scrollable ? 'max-h-32 overflow-auto' : null
+              }`}
+            >
+              {data.map((dataItem, index) => (
+                <Listbox.Option
+                  key={index}
+                  value={dataItem}
+                  disabled={Boolean(dataItem['disabled'])}
+                >
+                  {({ active }: { active: boolean }) => (
+                    <div
+                      className={cx(
+                        selectedVariant['padding'],
+                        active ? 'bg-white bg-opacity-10' : null,
+                        `rounded-md w-full text-sm text-white ${
+                          Boolean(dataItem['disabled'])
+                            ? 'opacity-50 text-stieglitz cursor-not-allowed'
+                            : 'cursor-pointer'
+                        }`,
+                      )}
+                      key={index}
+                      {...rest}
+                    >
+                      <span className="flex space-x-2">
+                        {dataItem['icon'] && dropdownVariant === 'icon'
+                          ? dataItem['icon']
+                          : null}
+                        <p>{dataItem['textContent']}</p>
+                      </span>
+                    </div>
+                  )}
+                </Listbox.Option>
+              ))}
+            </div>
+          </Listbox.Options>
+        </Transition>
       </div>
-      <Transition
-        as="div"
-        enter="transition ease-out duration-100"
-        enterFrom="transform opacity-0 scale-95"
-        enterTo="transform opacity-100 scale-100"
-        leave="transition ease-in duration-75"
-        leaveFrom="transform opacity-100 scale-100"
-        leaveTo="transform opacity-0 scale-95"
-      >
-        <MenuItems
-          data={data}
-          handleSelection={handleSelection}
-          variant={dropdownVariant}
-          scrollable
-          topElement={topElement}
-          className="w-full"
-          {...rest}
-        />
-      </Transition>
-    </HeadlessMenu>
+    </Listbox>
   );
 };
 

@@ -12,9 +12,6 @@ const DOPEX_POLYGON_SSOV_SUBGRAPH_API_URL =
 const DOPEX_OPTION_SCALPS_SUBGRAPH_API_URL =
   'https://api.thegraph.com/subgraphs/name/aercwarden/dopex-option-scalps';
 
-const DOPEX_ZDTE_SUBGRAPH_API_URL =
-  'https://api.thegraph.com/subgraphs/name/garyunwin42/zdte';
-
 const DOPEX_CLAMM_SUBGRAPH_API_URL =
   'http://api.0xgraph.xyz/subgraphs/name/dopex-v2-clamm-mvp';
 
@@ -38,11 +35,6 @@ const config: CodegenConfig = {
     './src/gql/optionScalps/': {
       schema: DOPEX_OPTION_SCALPS_SUBGRAPH_API_URL,
       documents: ['src/graphql/optionScalps/*.ts'],
-      preset: 'client',
-    },
-    './src/gql/zdte/': {
-      schema: DOPEX_ZDTE_SUBGRAPH_API_URL,
-      documents: ['src/graphql/zdte/*.ts'],
       preset: 'client',
     },
     './src/gql/clamm/': {

@@ -76,11 +76,6 @@ const appLinks: {
           to: '/straddles',
           description: 'Buy/write straddles for crypto assets',
         },
-        {
-          name: 'Zero Day To Expiry Options',
-          to: '/zdte/eth',
-          description: 'Buy/write ZDTE for crypto assets',
-        },
       ],
     },
     {

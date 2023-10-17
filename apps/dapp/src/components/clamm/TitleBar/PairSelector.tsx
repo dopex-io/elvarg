@@ -15,6 +15,10 @@ import {
   CLAMM_UNDERLYING_TOKENS_LIST,
 } from 'constants/clamm';
 
+type MenuItem = {
+  textContent: string;
+};
+
 export function PairSelector() {
   const {
     setSelectedOptionsPoolPair,
@@ -25,8 +29,12 @@ export function PairSelector() {
     tokenPrices,
   } = useBoundStore();
 
-  const [underlyingToken, setUnderlyingToken] = useState<string>('ARB');
-  const [collateralToken, setCollateralToken] = useState<string>('USDC');
+  const [underlyingToken, setUnderlyingToken] = useState<MenuItem>({
+    textContent: 'ARB',
+  });
+  const [collateralToken, setCollateralToken] = useState<MenuItem>({
+    textContent: 'USDC',
+  });
   const [_stats, _setStats] = useState<{ totalVolumeUsd: number }>({
     totalVolumeUsd: 0,
   });
@@ -65,24 +73,6 @@ export function PairSelector() {
   useEffect(() => {
     updateCumulativeVolume();
   }, [updateCumulativeVolume]);
-
-  const handleSelectedUnderlyingToken = useCallback(
-    (e: any) => {
-      const underlyingTokenSymbol = e.target.innerText;
-      setUnderlyingToken(e.target.innerText);
-      setSelectedOptionsPoolPair(underlyingTokenSymbol, collateralToken);
-    },
-    [collateralToken, setSelectedOptionsPoolPair],
-  );
-
-  const handleSelectedCollateralToken = useCallback(
-    (e: any) => {
-      const collateralTokenSymbol = e.target.innerText;
-      setCollateralToken(collateralTokenSymbol);
-      setSelectedOptionsPoolPair(underlyingToken, collateralTokenSymbol);
-    },
-    [setSelectedOptionsPoolPair, underlyingToken],
-  );
 
   const stats = useMemo(() => {
     if (!optionsPool)
@@ -171,31 +161,36 @@ export function PairSelector() {
         <div className="flex -space-x-4 self-center">
           <img
             className="w-8 h-8 z-10 border border-gray-500 rounded-full"
-            src={`/images/tokens/${underlyingToken.toLowerCase()}.svg`}
-            alt={underlyingToken}
+            src={`/images/tokens/${underlyingToken.textContent.toLowerCase()}.svg`}
+            alt={underlyingToken.textContent}
           />
           <img
             className="w-8 h-8 z-0"
-            src={`/images/tokens/${collateralToken.toLowerCase()}.svg`}
-            alt={collateralToken}
+            src={`/images/tokens/${collateralToken.textContent.toLowerCase()}.svg`}
+            alt={collateralToken.textContent}
           />
         </div>
         <Menu
           color="mineshaft"
           dropdownVariant="icon"
-          handleSelection={handleSelectedUnderlyingToken}
+          setSelection={(T: MenuItem) => {
+            setUnderlyingToken(T);
+            setSelectedOptionsPoolPair(T.textContent, collateralToken);
+          }}
           selection={underlyingToken}
           data={CLAMM_UNDERLYING_TOKENS_LIST}
-          className="z-10"
           showArrow
         />
         <Menu
           color="mineshaft"
           dropdownVariant="icon"
-          handleSelection={handleSelectedCollateralToken}
+          setSelection={(T: MenuItem) => {
+            setCollateralToken(T);
+            setSelectedOptionsPoolPair(underlyingToken, T.textContent);
+          }}
           selection={collateralToken}
           data={CLAMM_COLLATERAL_TOKENS_LIST}
-          className="z-10"
+          scrollable
           showArrow
         />
         <TitleItem

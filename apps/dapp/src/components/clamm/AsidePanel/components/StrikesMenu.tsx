@@ -1,8 +1,6 @@
-import React, { ReactNode } from 'react';
+import { Menu, Skeleton } from '@dopex-io/ui';
 
-import { Menu } from '@dopex-io/ui';
-
-import { useBoundStore } from 'store';
+import { DepositStrike, PurchaseStrike } from 'store/Vault/clamm';
 
 export type Strike = {
   tickLower: number;
@@ -13,10 +11,9 @@ export type Strike = {
 };
 
 type StrikesMenuProps = {
-  strikes: {
-    textContent: JSX.Element;
-  }[];
-  selectedStrike: Strike;
+  strikes: (PurchaseStrike | DepositStrike)[];
+  selectedStrike: PurchaseStrike | DepositStrike;
+  setSelectedStrike: (e: PurchaseStrike | DepositStrike) => void;
   loading: boolean;
 };
 
@@ -24,42 +21,32 @@ const StrikesMenu = ({
   strikes,
   selectedStrike,
   loading,
-}: StrikesMenuProps) => {
-  const { isPut } = useBoundStore();
-  return (
-    <div className="flex border border-[#1E1E1E] bg-[#1E1E1E] p-[12px] flex-1">
-      <div className="flex-1">
-        <span className="text-stieglitz text-sm">Strike</span>
-        <Menu
+  setSelectedStrike,
+}: StrikesMenuProps) => (
+  <div className="flex bg-umbra rounded-l-md p-3 w-1/2">
+    <div className="flex flex-col justify-end">
+      <span className="text-stieglitz text-sm">Strike</span>
+      {loading || strikes.length === 0 ? (
+        <div className="w-full mt-1">
+          <Skeleton
+            width={120}
+            height={40}
+            variant="rounded"
+            color="mineshaft"
+          />
+        </div>
+      ) : (
+        <Menu<DepositStrike | PurchaseStrike>
           color="mineshaft"
+          scrollable
           dropdownVariant="icon"
-          handleSelection={() => {}}
-          selection={
-            <span className="text-sm text-white flex">
-              {loading ? (
-                <span>Strikes Loading...</span>
-              ) : strikes.length === 0 ? (
-                <span>No Strikes</span>
-              ) : !selectedStrike ? (
-                'Select strike'
-              ) : (
-                <>
-                  <p className="text-stieglitz inline mr-1">$</p>
-                  {(isPut
-                    ? selectedStrike?.tickLowerPrice
-                    : selectedStrike?.tickUpperPrice
-                  ).toFixed(5)}
-                </>
-              )}
-            </span>
-          }
+          setSelection={setSelectedStrike}
+          selection={selectedStrike ?? strikes[0]}
           data={strikes}
-          className="w-full flex-1 mt-[10px]"
           showArrow={strikes.length !== 0}
         />
-      </div>
+      )}
     </div>
-  );
-};
-
+  </div>
+);
 export default StrikesMenu;
