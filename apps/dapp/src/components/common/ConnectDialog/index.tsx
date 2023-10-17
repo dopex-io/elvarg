@@ -54,10 +54,6 @@ const ConnectDialog = () => {
       action: () => handleClose('', ''),
     },
     ledger: { icon: 'ledger.svg', action: () => handleClose('', '') },
-    bitKeep: {
-      icon: 'bitkeep.svg',
-      downloadLink: 'https://bitkeep.com/en/download?type=2',
-    },
     rabby: {
       icon: 'rabby.svg',
       downloadLink: 'https://rabby.io',
