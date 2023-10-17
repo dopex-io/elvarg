@@ -8,8 +8,6 @@ import { createFarmingSlice, FarmingSlice } from './Farming';
 import { createNftsSlice, NftsSlice } from './Nfts';
 import { createPortfolioSlice, PortfolioSlice } from './Portfolio';
 import { createTokenSaleSlice, TokenSaleSlice } from './TokenSale';
-import { AtlanticPoolsSlice, createAtlanticsSlice } from './Vault/atlantics';
-import { createGmxSlice, GmxSlice } from './Vault/atlantics/gmx';
 import { CommonSlice, createCommonSlice } from './Vault/common';
 import { createRateVaultSlice, RateVaultSlice } from './Vault/ir';
 import { createOlpSlice, OlpSlice } from './Vault/olp';
@@ -33,9 +31,7 @@ type T = WalletSlice &
   StraddlesSlice &
   OptionScalpSlice &
   DpxBondsSlice &
-  OlpSlice &
-  GmxSlice &
-  AtlanticPoolsSlice;
+  OlpSlice;
 
 export const useBoundStore = create<T>()(
   devtools((...a) => ({
@@ -54,7 +50,5 @@ export const useBoundStore = create<T>()(
     ...createOptionScalpSlice(...a),
     ...createDpxBondsSlice(...a),
     ...createOlpSlice(...a),
-    ...createAtlanticsSlice(...a),
-    ...createGmxSlice(...a),
   })),
 );

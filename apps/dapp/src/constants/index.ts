@@ -12,26 +12,6 @@ export const ZERO_ADDRESS: string =
   '0x0000000000000000000000000000000000000000';
 export const PERCENT: BigNumber = BigNumber.from(100);
 
-export const FEE_BPS_MAP: Record<
-  string,
-  Record<string, Record<string, BigNumberish>>
-> = {
-  ATLANTICS: {
-    PURCHASE_FEES: {
-      fee: BigNumber.from(100000),
-      maxDiscount: BigNumber.from(2500000),
-    },
-    FUNDING_FEES: {
-      fee: BigNumber.from(100000),
-      maxDiscount: BigNumber.from(0),
-    },
-    STRATEGY_FEES: {
-      FEE: BigNumber.from(25000),
-      MAX_DISCOUNT: BigNumber.from(2500000),
-    },
-  },
-};
-
 export const OPTION_TOKEN_DECIMALS = 18;
 
 export const FEE_DISCOUNTS: Record<string, Record<string, BigNumberish>> = {

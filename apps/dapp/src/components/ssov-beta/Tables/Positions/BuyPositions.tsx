@@ -14,9 +14,10 @@ import useVaultStore from 'hooks/ssov/useVaultStore';
 import TableLayout from 'components/common/TableLayout';
 import SettleStepper from 'components/ssov-beta/Dialogs/SettleStepper';
 
-import { STRIKE_DECIMALS } from 'utils/contracts/atlantics/pool';
 import { formatAmount } from 'utils/general';
 import computeOptionPnl from 'utils/math/computeOptionPnl';
+
+const STRIKE_DECIMALS = 8;
 
 interface Props {
   positions?: BuyPosition[];
