@@ -1,4 +1,5 @@
 import CircularProgress from '@mui/material/CircularProgress';
+
 import { useAccount, useConnect } from 'wagmi';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
@@ -22,7 +23,7 @@ export const useConnectDialog = create<ConnectDialogState>()(
       set(() => ({
         isOpen: false,
       })),
-  }))
+  })),
 );
 
 const ConnectDialog = () => {
@@ -60,6 +61,10 @@ const ConnectDialog = () => {
     rabby: {
       icon: 'rabby.svg',
       downloadLink: 'https://rabby.io',
+    },
+    okx: {
+      icon: 'okx.svg',
+      downloadLink: 'https://www.okx.com/web3',
     },
     injected: {
       icon: 'injected.svg',
