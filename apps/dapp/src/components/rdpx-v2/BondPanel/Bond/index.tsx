@@ -69,7 +69,7 @@ const Bond = () => {
   } = useBoundStore();
 
   const sendTx = useSendTx();
-  const [section, setSection] = useState<string>('rDPX + ETH');
+  const [bondingMethod, setBondingMethod] = useState<string>('rDPX + ETH');
   const [value, setValue] = useState<number | string>('');
   const [approved, setApproved] = useState<boolean>(false);
   const [mintDisabled, setMintDisabled] = useState<boolean>(false);
@@ -470,11 +470,11 @@ const Bond = () => {
                 <Button
                   key={index}
                   className={`text-white border-0 hover:border-0 w-full m-0 p-0 transition ease-in-out duration-500 ${
-                    section === label
+                    bondingMethod === label
                       ? 'bg-umbra hover:bg-umbra'
                       : 'bg-transparent hover:bg-transparent'
                   } hover:text-white`}
-                  onClick={() => setSection(label)}
+                  onClick={() => setBondingMethod(label)}
                 >
                   <p className="text-xs py-1">{label}</p>
                 </Button>
@@ -487,6 +487,7 @@ const Bond = () => {
           setInputAmount={setValue}
           setApproved={setApproved}
           delegated={delegated}
+          bondingMethod={bondingMethod}
         />
       </div>
       <InfoBox value={value as string} delegated={delegated} />

@@ -15,10 +15,12 @@ interface Props {
   setApproved: Function;
   delegated: boolean;
   disabled?: boolean;
+  bondingMethod: string;
 }
 
 const CollateralInputPanel = (props: Props) => {
-  const { inputAmount, setInputAmount, setApproved, delegated } = props;
+  const { inputAmount, setInputAmount, setApproved, delegated, bondingMethod } =
+    props;
 
   const { accountAddress, provider, treasuryData, treasuryContractState } =
     useBoundStore();
@@ -81,21 +83,26 @@ const CollateralInputPanel = (props: Props) => {
         <span className="text-sm text-stieglitz">Collateral Required</span>
 
         <div className="flex space-x-2 mt-2">
-          {amounts.map((_, index) => {
-            let symbol = (index === 0 ? 'ETH' : 'RDPX').toUpperCase();
-            return (
-              <InputRow
-                key={index}
-                index={index}
-                tokenSymbol={symbol}
-                amounts={amounts}
-                setAmounts={setAmounts}
-                setBonds={setInputAmount}
-                rounded={index === amounts.length - 1}
-                disabled={symbol === 'WETH' && delegated}
-              />
-            );
-          })}
+          <InputRow
+            key={1}
+            index={1}
+            tokenSymbol={'RDPX'}
+            amounts={amounts}
+            setAmounts={setAmounts}
+            setBonds={setInputAmount}
+            rounded={1 === amounts.length - 1}
+          />
+          {bondingMethod === 'rDPX + ETH' ? (
+            <InputRow
+              key={0}
+              index={0}
+              tokenSymbol={'ETH'}
+              amounts={amounts}
+              setAmounts={setAmounts}
+              setBonds={setInputAmount}
+              rounded={0 === amounts.length - 1}
+            />
+          ) : null}
         </div>
       </div>
     </div>
