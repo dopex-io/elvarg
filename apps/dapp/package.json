@@ -40,7 +40,6 @@
     "react-countdown": "^2.3.5",
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.4.1",
-    "react-tradingview-embed": "^3.0.6",
     "recharts": "^2.9.0",
     "use-debounce": "^9.0.4",
     "viem": "^1.16.5",

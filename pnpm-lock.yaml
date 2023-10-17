@@ -119,9 +119,6 @@ importers:
       react-hot-toast:
         specifier: ^2.4.1
         version: 2.4.1(csstype@3.1.2)(react-dom@18.2.0)(react@18.2.0)
-      react-tradingview-embed:
-        specifier: ^3.0.6
-        version: 3.0.6(react-dom@18.2.0)(react@18.2.0)
       recharts:
         specifier: ^2.9.0
         version: 2.9.0(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0)
@@ -13925,16 +13922,6 @@ packages:
       react: 18.2.0
       tslib: 2.6.2
     dev: true
-
-  /react-tradingview-embed@3.0.6(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-1qClGqBHOi7mvRFvhBxXSoyoPrNR8aPi/yfF/mYt8EWStA8LoWBl9ufemCyG+mc61iPmNGjJla0XB00FPENaPg==}
-    peerDependencies:
-      react: '>= 16.8.0'
-      react-dom: '>= 16.8.0'
-    dependencies:
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-    dev: false
 
   /react-transition-group@2.9.0(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-+HzNTCHpeQyl4MJ/bdE0u6XRMe9+XG/+aL4mCxVN4DnPBQ0/5bfHWPDuOZUzYdMj94daZaZdCCc1Dzt9R/xSSg==}

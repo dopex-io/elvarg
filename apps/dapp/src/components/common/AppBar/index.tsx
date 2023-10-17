@@ -82,16 +82,6 @@ const appLinks: {
       name: 'Trade',
       subLinks: [
         {
-          name: 'Insured Perps',
-          to: '/atlantics/manage/insured-perps/WETH-USDC',
-          description: 'Open liquidation-free longs',
-        },
-        {
-          name: 'Insured Perps LP',
-          to: '/atlantics',
-          description: 'Write weekly atlantic puts to earn premium + funding',
-        },
-        {
           name: 'Scalps',
           to: '/scalps/ETH',
           description:
