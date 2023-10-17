@@ -48,7 +48,7 @@ const ProvideLp = () => {
   const olpContract = getOlpContract();
   const [usdBalance, setUsdBalance] = useState<BigNumber>(BigNumber.from(0));
   const [underlyingBalance, setUnderlyingBalance] = useState<BigNumber>(
-    BigNumber.from(0)
+    BigNumber.from(0),
   );
   const [rawDepositAmount, setRawDepositAmount] = useState<string>('1');
   const [rawDiscountAmount, setRawDiscountAmount] = useState<string>('1');
@@ -101,7 +101,7 @@ const ProvideLp = () => {
       await sendTx(
         ERC20__factory.connect(olpData.underlying, signer),
         'approve',
-        [olpContract.address, MAX_VALUE]
+        [olpContract.address, MAX_VALUE],
       );
       setUnderlyingApproved(true);
     } catch (err) {
@@ -128,7 +128,7 @@ const ProvideLp = () => {
         olpEpochData.strikes[strikeIdx]!,
         getContractReadableAmount(
           depositAmount,
-          assetIdx === 0 ? DECIMALS_USD : DECIMALS_TOKEN
+          assetIdx === 0 ? DECIMALS_USD : DECIMALS_TOKEN,
         ),
         discountAmount,
         MAX_VALUE,
@@ -177,7 +177,7 @@ const ProvideLp = () => {
             signer,
             getContractReadableAmount(rawDepositAmount, DECIMALS_USD),
             setApproved,
-            setUsdBalance
+            setUsdBalance,
           );
         } else {
           allowanceApproval(
@@ -187,7 +187,7 @@ const ProvideLp = () => {
             signer,
             getContractReadableAmount(rawDepositAmount, DECIMALS_TOKEN),
             setUnderlyingApproved,
-            setUnderlyingBalance
+            setUnderlyingBalance,
           );
         }
       } catch (err) {
@@ -211,7 +211,7 @@ const ProvideLp = () => {
       await updateOlpEpochData();
       await updateOlpUserData();
     },
-    [setSelectedIsPut, updateOlp, updateOlpEpochData, updateOlpUserData]
+    [setSelectedIsPut, updateOlp, updateOlpEpochData, updateOlpUserData],
   );
 
   const depositButtonMessage = getDepositMessage(
@@ -223,7 +223,7 @@ const ProvideLp = () => {
     usdBalance,
     underlyingBalance,
     discountAmount,
-    rawDiscountAmount
+    rawDiscountAmount,
   );
 
   if (!olpData) {
@@ -246,7 +246,7 @@ const ProvideLp = () => {
         underlyingBalance={underlyingBalance}
         assetIdx={assetIdx}
         underlyingSymbol={olpData?.underlyingSymbol!}
-        assets={['usdc', olpData?.underlyingSymbol!.toLowerCase()!]}
+        assets={['usdc', olpData?.underlyingSymbol.toLowerCase()]}
         handleSelectAsset={handleSelectAsset}
       />
       <Box className="flex flex-row justify-between bg-umbra pb-2 border-radius rounded-lg mt-1">

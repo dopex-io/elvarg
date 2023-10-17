@@ -1,17 +1,17 @@
 import { useCallback, useState } from 'react';
 
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import useSendTx from 'hooks/useSendTx';
+
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+
 import { useBoundStore } from 'store';
 
-import TablePaginationActions from 'components/UI/TablePaginationActions';
-import Typography from 'components/UI/Typography';
+import useSendTx from 'hooks/useSendTx';
+
 import {
   StyleLeftTableCell,
   StyleRightTableCell,
@@ -19,8 +19,7 @@ import {
   StyleTableCell,
 } from 'components/common/LpCommon/Table';
 import UserPositionsTable from 'components/olp/UserLpPositions/UserPositionsTable';
-
-const ROWS_PER_PAGE = 5;
+import Typography from 'components/UI/Typography';
 
 const UserLpPositions = () => {
   const sendTx = useSendTx();
@@ -34,14 +33,6 @@ const UserLpPositions = () => {
   } = useBoundStore();
 
   const olpContract = getOlpContract();
-  const [page, setPage] = useState<number>(0);
-
-  const handleChangePage = useCallback(
-    (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
-      setPage(newPage);
-    },
-    [setPage]
-  );
 
   const handleKill = useCallback(
     async (selectedIndex: number) => {
@@ -63,7 +54,7 @@ const UserLpPositions = () => {
       const selectedStrikeToken = await olpContract.getSsovOptionToken(
         olpData.ssov,
         selectedPosition.epoch,
-        selectedPosition.strike
+        selectedPosition.strike,
       );
 
       try {
@@ -85,7 +76,7 @@ const UserLpPositions = () => {
       olpUserData,
       updateOlpEpochData,
       updateOlpUserData,
-    ]
+    ],
   );
 
   return (
@@ -93,7 +84,7 @@ const UserLpPositions = () => {
       <Typography variant="h5" className="ml-1">
         User LP Positions
       </Typography>
-      <StyleTable className="bg-cod-gray rounded-t-lg p-2 rounded-md">
+      <StyleTable className="bg-cod-gray rounded-t-lg rounded-md">
         <Table>
           <TableHead className="bg-cod-gray">
             <TableRow>
@@ -142,37 +133,19 @@ const UserLpPositions = () => {
             </TableRow>
           </TableHead>
           <TableBody className="rounded-lg">
-            {olpUserData
-              ?.userPositions!.slice(
-                page * ROWS_PER_PAGE,
-                page * ROWS_PER_PAGE + ROWS_PER_PAGE
-              )
-              .map((p, idx) => {
-                return (
-                  <UserPositionsTable
-                    key={idx}
-                    lpPosition={p}
-                    actions={() => handleKill(idx)}
-                    underlyingSymbol={olpData?.underlyingSymbol!}
-                  />
-                );
-              })}
+            {olpUserData?.userPositions?.map((p, idx) => {
+              return (
+                <UserPositionsTable
+                  key={idx}
+                  lpPosition={p}
+                  actions={() => handleKill(idx)}
+                  underlyingSymbol={olpData?.underlyingSymbol!}
+                />
+              );
+            })}
           </TableBody>
         </Table>
       </StyleTable>
-      {olpUserData!.userPositions!.length > ROWS_PER_PAGE ? (
-        <TablePagination
-          component="div"
-          id="stats"
-          rowsPerPageOptions={[ROWS_PER_PAGE]}
-          count={olpUserData!.userPositions!.length}
-          page={page}
-          onPageChange={handleChangePage}
-          rowsPerPage={ROWS_PER_PAGE}
-          className="text-stieglitz border-0 flex flex-grow justify-center"
-          ActionsComponent={TablePaginationActions}
-        />
-      ) : null}
     </Box>
   );
 };
