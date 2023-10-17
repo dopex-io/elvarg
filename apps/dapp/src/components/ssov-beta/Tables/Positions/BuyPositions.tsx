@@ -17,7 +17,7 @@ import SettleStepper from 'components/ssov-beta/Dialogs/SettleStepper';
 import { formatAmount } from 'utils/general';
 import computeOptionPnl from 'utils/math/computeOptionPnl';
 
-const STRIKE_DECIMALS = 8;
+import { DECIMALS_STRIKE } from 'constants/index';
 
 interface Props {
   positions?: BuyPosition[];
@@ -213,7 +213,7 @@ const BuyPositions = (props: Props) => {
           vault: _positions?.[activeIndex]?.vault as Address,
           strike: parseUnits(
             _positions?.[activeIndex]?.strike.toString() || '0',
-            STRIKE_DECIMALS,
+            DECIMALS_STRIKE,
           ),
           amount: BigInt(_positions?.[activeIndex]?.balance || 0),
           epoch: BigInt(_positions?.[activeIndex]?.epoch || 0),
