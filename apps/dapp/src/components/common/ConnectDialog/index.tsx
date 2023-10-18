@@ -28,7 +28,7 @@ export const useConnectDialog = create<ConnectDialogState>()(
 
 const ConnectDialog = () => {
   const { connect, connectors, error, isLoading, pendingConnector } =
-    useConnect();
+    useConnect({ onSuccess: () => handleClose('', '') });
 
   const open = useConnectDialog((state) => state.isOpen);
   const handleClose = useConnectDialog((state) => state.close);
