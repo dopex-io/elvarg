@@ -49,10 +49,6 @@ const ManageComponent = () => {
       <div className="mt-6 w-auto">
         <div className="flex flex-col space-y-2">
           <QuickLink
-            text="Option Scalps Guide"
-            href="https://blog.dopex.io/articles/product-launches-updates/introducing-option-scalps"
-          />
-          <QuickLink
             text="Trading Competition Explainer"
             href="https://blog.dopex.io/articles/marketing-campaigns/option-scalps-trading-competition"
           />
