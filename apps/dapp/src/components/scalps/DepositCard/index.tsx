@@ -71,8 +71,8 @@ const DepositCard = () => {
       utils.formatUnits(
         userTokenBalance,
         isQuote
-          ? optionScalpData?.quoteDecimals?.toNumber()!
-          : optionScalpData?.baseDecimals!.toNumber()!,
+          ? optionScalpData?.quoteDecimals?.toNumber()
+          : optionScalpData?.baseDecimals.toNumber(),
       ),
     );
   }, [optionScalpData, userTokenBalance, isQuote]);
@@ -130,7 +130,7 @@ const DepositCard = () => {
       rawAmount,
       isQuote
         ? optionScalpData?.quoteDecimals?.toNumber()
-        : optionScalpData?.baseDecimals!.toNumber(),
+        : optionScalpData?.baseDecimals.toNumber(),
     );
 
     if (isQuote) {
@@ -175,7 +175,7 @@ const DepositCard = () => {
           rawAmount,
           isQuote
             ? optionScalpData?.quoteDecimals?.toNumber()
-            : optionScalpData?.baseDecimals!.toNumber(),
+            : optionScalpData?.baseDecimals.toNumber(),
         ),
       ])
         .then(async () => await checkApproved())
@@ -216,7 +216,7 @@ const DepositCard = () => {
             String(amount),
             isQuote
               ? optionScalpData?.quoteDecimals?.toNumber()!
-              : optionScalpData?.baseDecimals!.toNumber()!,
+              : optionScalpData?.baseDecimals.toNumber()!,
           ),
         ],
       );
@@ -248,7 +248,7 @@ const DepositCard = () => {
             String(amount),
             isQuote
               ? optionScalpData?.quoteDecimals?.toNumber()!
-              : optionScalpData?.baseDecimals!.toNumber()!,
+              : optionScalpData?.baseDecimals.toNumber()!,
           ),
         );
       setEstimatedLpTokens(estimatedOutput);
@@ -358,7 +358,7 @@ const DepositCard = () => {
                         estimatedLpTokens,
                         isQuote
                           ? optionScalpData?.quoteDecimals?.toNumber()!
-                          : optionScalpData?.baseDecimals!.toNumber()!,
+                          : optionScalpData?.baseDecimals.toNumber()!,
                       ),
                     ),
                     2,

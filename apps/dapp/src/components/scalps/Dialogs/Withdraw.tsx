@@ -39,7 +39,7 @@ const WithdrawModal = ({
     if (
       straddlesUserData?.writePositions![selectedPositionNftIndex!]![
         'epoch'
-      ]!.toNumber()! < straddlesData!.currentEpoch
+      ].toNumber()! < straddlesData!.currentEpoch
     )
       return true;
     else return false;
