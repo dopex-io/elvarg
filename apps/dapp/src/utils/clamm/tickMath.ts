@@ -1,5 +1,4 @@
-import { BigNumber, utils } from 'ethers';
-import { hexToBigInt, maxUint256 } from 'viem';
+import { maxUint256 } from 'viem';
 
 const MIN_TICK = BigInt(-887272);
 const MAX_TICK = BigInt(-MIN_TICK);
