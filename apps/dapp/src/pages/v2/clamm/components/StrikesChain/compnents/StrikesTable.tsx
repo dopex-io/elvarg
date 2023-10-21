@@ -12,9 +12,6 @@ import TableLayout from 'components/common/TableLayout';
 
 import { formatAmount } from 'utils/general';
 
-const sample_strikes_items = [{}];
-const sample_strikes_disclosure_tiems = [{}];
-
 type StrikeDisclosureItem = {
   iv: number;
   tvl: number;
@@ -94,7 +91,7 @@ type StrikeItem = {
   isSelected: boolean;
 };
 
-const StatItem = ({ name, value }: { name: string; value: string }) => (
+export const StatItem = ({ name, value }: { name: string; value: string }) => (
   <div className="flex flex-col px-1">
     <span className="text-sm font-medium">{value}</span>
     <span className="text-stieglitz text-xs">{name}</span>
