@@ -62,7 +62,7 @@ const PositionsTypeSelector = (props: Props) => {
           {lpPositionsLength}
         </span>
       </div>
-      <div
+      {/* <div
         role="button"
         onClick={() => setSelectedIndex(2)}
         className="flex space-x-[4px] items-center justify-center"
@@ -76,7 +76,7 @@ const PositionsTypeSelector = (props: Props) => {
           History
         </span>
         <span className="bg-cod-gray rounded-3xl text-[12px] px-[6px] text-stieglitz"></span>
-      </div>
+      </div> */}
     </div>
   );
 };

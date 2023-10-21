@@ -1,5 +1,6 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 
+import ActionButton from './components/ActionButton';
 import Positions from './components/Positions';
 import PositionsTypeSelector from './components/PositionsTypeSelector';
 
@@ -29,15 +30,20 @@ const PositionsTable = () => {
     setPositionsTypeIndex(index);
   };
 
-  // Load positions with useEffect using API
   return (
-    <div className="w-full flex flex-row items-center justify-between">
-      <PositionsTypeSelector
-        selectedIndex={positionsTypeIndex}
-        buyPositionsLength={0}
-        lpPositionsLength={0}
-        setSelectedIndex={updatePositionsType}
-      />
+    <div className="w-full flex-col items-center justify-center space-y-[12px]">
+      <div className="w-full flex flex-row items-center justify-between">
+        <PositionsTypeSelector
+          selectedIndex={positionsTypeIndex}
+          buyPositionsLength={0}
+          lpPositionsLength={0}
+          setSelectedIndex={updatePositionsType}
+        />
+        <ActionButton
+          positionsTypeIndex={positionsTypeIndex}
+          selectedPositions={selectedPositions}
+        />
+      </div>
       <Positions
         deselectPosition={deselectposition}
         positionsTypeIndex={positionsTypeIndex}

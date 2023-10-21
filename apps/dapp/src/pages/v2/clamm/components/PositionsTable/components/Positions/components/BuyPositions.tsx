@@ -1,7 +1,13 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+
+import { Checkbox } from '@mui/material';
 
 import { Button } from '@dopex-io/ui';
 import { createColumnHelper } from '@tanstack/react-table';
+import { formatDistance } from 'date-fns';
+import { StatItem } from 'pages/v2/clamm/components/StrikesChain/compnents/StrikesTable';
+
+import TableLayout from 'components/common/TableLayout';
 
 import { formatAmount } from 'utils/general';
 
@@ -12,17 +18,22 @@ type BuyPositionItem = {
     symbol: string;
     usdValue: number;
   };
+  side: string;
   profit: {
     amount: number;
-    symbol: number;
+    symbol: string;
     usdValue: number;
     percentage: number;
   };
   expiry: number;
-  button: {
-    meta: any;
-    loading: boolean;
+  select: {
+    handleSelect: Function;
     disabled: boolean;
+  };
+  premium: {
+    amount: number;
+    symbol: string;
+    usdValue: number;
   };
 };
 
@@ -33,92 +44,151 @@ const columns = [
     cell: (info) => (
       <div className="flex space-x-2 text-left">
         <span className="text-stieglitz inline-block">$</span>
-        <span className="inline-block">{info.getValue().toFixed(5)}</span>
+        <span className="inline-block">{formatAmount(info.getValue(), 5)}</span>
       </div>
     ),
   }),
   columnHelper.accessor('size', {
     header: 'Size',
     cell: (info) => (
-      <div className="flex space-x-2 text-left">
-        <span>{formatAmount(info.getValue().amount, 5)}</span>
-        <span className="text-stieglitz">{info.getValue().symbol}</span>
-      </div>
+      <StatItem
+        value={`${info.getValue().amount} ${info.getValue().symbol}`}
+        name={`$ ${formatAmount(info.getValue().usdValue)}`}
+      />
     ),
   }),
-  //   columnHelper.accessor('expiry', {
-  //     header: 'Expiry',
-  //     cell: (info) => (
-  //       <span className=" overflow-hidden whitespace-nowrap">
-  //         {formatDistance(Number(info.getValue()) * 1000, new Date())}{' '}
-  //         {Number(info.getValue()) * 1000 < new Date().getTime() && 'ago'}
-  //       </span>
-  //     ),
-  //   }),
-  //   columnHelper.accessor('side', {
-  //     header: 'Side',
-  //     cell: (info) => <p>{info.getValue()}</p>,
-  //   }),
-  //   columnHelper.accessor('premium', {
-  //     header: 'premium',
-  //     cell: (info) => {
-  //       const { amount, symbol } = info.getValue();
-  //       return (
-  //         <p>
-  //           {Number(amount).toFixed(5)}{' '}
-  //           <span className="text-stieglitz">{symbol}</span>
-  //         </p>
-  //       );
-  //     },
-  //   }),
-  //   columnHelper.accessor('pnl', {
-  //     header: 'PnL',
-  //     cell: (info) => {
-  //       let { amount, usdValue, symbol } = info.getValue();
-  //       const amountInNumber = Number(amount);
+  columnHelper.accessor('side', {
+    header: 'Side',
+    cell: (info) => <p>{info.getValue()}</p>,
+  }),
+  columnHelper.accessor('expiry', {
+    header: 'Expiry',
+    cell: (info) => (
+      <span className=" overflow-hidden whitespace-nowrap">
+        {formatDistance(Number(info.getValue()) * 1000, new Date())}{' '}
+        {Number(info.getValue()) * 1000 < new Date().getTime() && 'ago'}
+      </span>
+    ),
+  }),
+  columnHelper.accessor('premium', {
+    header: 'premium',
+    cell: (info) => {
+      const { amount, symbol } = info.getValue();
+      return (
+        <StatItem
+          value={`${info.getValue().amount} ${info.getValue().symbol}`}
+          name={`$ ${formatAmount(info.getValue().usdValue)}`}
+        />
+      );
+    },
+  }),
+  columnHelper.accessor('profit', {
+    header: 'Profit',
+    cell: (info) => {
+      let { amount, usdValue, symbol } = info.getValue();
+      const amountInNumber = Number(amount);
 
-  //       return (
-  //         <>
-  //           <span className="space-x-2">
-  //             {Number(amountInNumber) === 0 && (
-  //               <p className="text-stieglitz inline-block">
-  //                 {formatAmount(amountInNumber, 5)}
-  //               </p>
-  //             )}
-  //             {Number(amountInNumber) > 0 && (
-  //               <p className="text-up-only inline-block">
-  //                 {formatAmount(amountInNumber, 5)}
-  //               </p>
-  //             )}
-  //             {Number(amountInNumber) < 0 && (
-  //               <p className="text-down-bad inline-block">
-  //                 {formatAmount(amountInNumber, 5)}
-  //               </p>
-  //             )}
-  //             <p className="text-stieglitz inline-block">{symbol}</p>
-  //           </span>
-  //           {/* <p className="text-stieglitz">${formatAmount(usdValue, 5)}</p> */}
-  //         </>
-  //       );
-  //     },
-  //   }),
-  //   columnHelper.accessor('button', {
-  //     header: '',
-  //     cell: (info) => {
-  //       const { id, handleExercise, disabled } = info.getValue();
-  //       return (
-  //         <Button disabled={disabled} onClick={() => handleExercise(id)}>
-  //           Exercise
-  //         </Button>
-  //       );
-  //     },
-  //   }),
+      return (
+        <>
+          <span className="space-x-2">
+            {Number(amountInNumber) === 0 && (
+              <p className="text-stieglitz inline-block">
+                {formatAmount(amountInNumber, 5)}
+              </p>
+            )}
+            {Number(amountInNumber) > 0 && (
+              <p className="text-up-only inline-block">
+                {formatAmount(amountInNumber, 5)}
+              </p>
+            )}
+            {Number(amountInNumber) < 0 && (
+              <p className="text-down-bad inline-block">
+                {formatAmount(amountInNumber, 5)}
+              </p>
+            )}
+            <p className="text-stieglitz inline-block">{symbol}</p>
+          </span>
+          <p className="text-stieglitz text-left text-[12px]">
+            $ {formatAmount(usdValue, 5)}
+          </p>
+        </>
+      );
+    },
+  }),
+  columnHelper.accessor('select', {
+    header: '',
+    cell: (info) => {
+      return <Checkbox className="text-mineshaft" size="small" />;
+    },
+  }),
 ];
 
 // Calculate PNL Helper
 const BuyPositions = () => {
+  const buyPositions = useMemo(() => {
+    return [
+      {
+        strike: 1000,
+        size: {
+          amount: 100,
+          symbol: 'USDC',
+          usdValue: 200,
+        },
+        side: 'Put',
+        profit: {
+          amount: 100,
+          symbol: 'ARB',
+          usdValue: 5,
+          percentage: 0,
+        },
+        expiry: 200,
+        select: {
+          handleSelect: () => {},
+          disabled: false,
+        },
+        premium: {
+          amount: 123,
+          symbol: 'ARB',
+          usdValue: 5,
+        },
+      },
+      {
+        strike: 1000,
+        size: {
+          amount: 100,
+          symbol: 'USDC',
+          usdValue: 200,
+        },
+        side: 'Call',
+        profit: {
+          amount: 100,
+          symbol: 'ARB',
+          usdValue: 5,
+          percentage: 0,
+        },
+        expiry: 200,
+        select: {
+          handleSelect: () => {},
+          disabled: true,
+        },
+        premium: {
+          amount: 123,
+          symbol: 'USDC',
+          usdValue: 6,
+        },
+      },
+    ];
+  }, []);
   const handleExercise = useCallback(async () => {}, []);
-  return <div>BuyPositions</div>;
+  return (
+    <TableLayout<BuyPositionItem>
+      data={buyPositions}
+      columns={columns}
+      rowSpacing={3}
+      isContentLoading={false}
+      pageSize={10}
+    />
+  );
 };
 
 export default BuyPositions;
