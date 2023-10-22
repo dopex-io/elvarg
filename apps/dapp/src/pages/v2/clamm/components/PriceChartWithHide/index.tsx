@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import ChevronDownIcon from '@heroicons/react/24/solid/ChevronDownIcon';
 import ChevronUpIcon from '@heroicons/react/24/solid/ChevronUpIcon';
 
-import PriceChart from 'components/common/PriceChart';
 import TVChart from 'components/common/TVChart';
 
 // @TODO: Put in constants
