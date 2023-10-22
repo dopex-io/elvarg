@@ -4,6 +4,7 @@ import ChevronDownIcon from '@heroicons/react/24/solid/ChevronDownIcon';
 import ChevronUpIcon from '@heroicons/react/24/solid/ChevronUpIcon';
 
 import PriceChart from 'components/common/PriceChart';
+import TVChart from 'components/common/TVChart';
 
 // @TODO: Put in constants
 const HIDE_CHART_LOCAL_STORAGE_KEY = 'hide_clamm_chart';
@@ -28,12 +29,7 @@ const PriceChartWithHide = () => {
 
   return (
     <div className="w-full flex flex-col">
-      {!hideChart && (
-        <PriceChart
-          className="rounded-lg text-center flex flex-col justify-center text-stieglitz"
-          market={'ARB'}
-        />
-      )}
+      {!hideChart && <TVChart />}
       <div
         role="button"
         onClick={handleToggle}
