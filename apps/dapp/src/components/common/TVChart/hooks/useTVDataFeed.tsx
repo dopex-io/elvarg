@@ -124,16 +124,13 @@ const useTVDataFeed = (dataProvider: TVDataProvider) => {
               });
             }
 
-            console.log('GETTING PRICE CANDLES', bars, firstDataRequest);
             if (firstDataRequest) {
-              console.log(dataProvider);
               dataProvider?.saveBars(bars);
               dataProvider?.setLastBar(bars[bars.length - 1]);
             }
 
             onResult(bars, { noData: !bars || bars.length === 0 });
           } catch (error) {
-            console.log('ERRPRR!!');
             console.log('[getBars]: Get error', error);
             onError(String(error));
           }
