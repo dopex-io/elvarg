@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { Checkbox } from '@mui/material';
 
@@ -7,6 +7,8 @@ import { MinusCircleIcon, PlusCircleIcon } from '@heroicons/react/24/solid';
 import ChevronDownIcon from '@heroicons/react/24/solid/ChevronDownIcon';
 import { createColumnHelper } from '@tanstack/react-table';
 import cx from 'classnames';
+
+import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 
 import TableLayout from 'components/common/TableLayout';
 
@@ -27,9 +29,15 @@ const columns = [
     header: 'Strike',
     cell: (info) => (
       <span className="flex space-x-1 text-left items-center">
-        <Checkbox className="text-mineshaft" size="small" />
+        <Checkbox
+          onChange={info.getValue().handleSelect}
+          className="text-mineshaft"
+          size="small"
+        />
         <p className="text-stieglitz inline-block">$</p>
-        <p className="inline-block">{formatAmount(info.getValue(), 5)}</p>
+        <p className="inline-block">
+          {formatAmount(info.getValue().amount, 5)}
+        </p>
       </span>
     ),
   }),
@@ -79,7 +87,10 @@ const columns = [
 ];
 
 type StrikeItem = {
-  strike: number;
+  strike: {
+    amount: number;
+    handleSelect: (event: any, checked: boolean) => void;
+  };
   breakeven: number;
   liquidity: { symbol: string; amount: number; usd: number };
   button: {
@@ -89,6 +100,13 @@ type StrikeItem = {
     isSelected: boolean;
   };
   isSelected: boolean;
+  disclosure: {
+    iv: number;
+    tvl: number;
+    utilization: number;
+    normalApy: number;
+    rewardsApy: number;
+  };
 };
 
 export const StatItem = ({ name, value }: { name: string; value: string }) => (
@@ -124,10 +142,24 @@ const TableDisclosure = (props: StrikeDisclosureItem) => {
 };
 
 const StrikesTable = () => {
-  const strikesData = useMemo(() => {
-    return [
+  const { selectStrike, deselectStrike, selectedStrikes } =
+    useStrikesChainStore();
+
+  const [strikes, setStrikes] = useState<StrikeItem[]>([]);
+  useEffect(() => {
+    const index = 0;
+    setStrikes([
       {
-        strike: 1000,
+        strike: {
+          amount: 1000,
+          handleSelect: (_: any, checked: boolean) => {
+            if (checked) {
+              selectStrike(index, 1000);
+            } else {
+              deselectStrike(index);
+            }
+          },
+        },
         breakeven: 1200,
         liquidity: {
           amount: 1000,
@@ -136,10 +168,10 @@ const StrikesTable = () => {
         },
         isSelected: false,
         button: {
-          index: 0,
+          index: index,
           premium: 10.23,
           handleSelect: () => {},
-          isSelected: false,
+          isSelected: selectedStrikes.has(index),
         },
         disclosure: {
           iv: 10,
@@ -149,15 +181,54 @@ const StrikesTable = () => {
           rewardsApy: 10,
         },
       },
-    ];
-  }, []);
+    ]);
+  }, [deselectStrike, selectStrike, selectedStrikes]);
+
+  // const strikesData = useMemo(() => {
+  //   const index = 0;
+  //   console.log('IS SELECTED', selectedStrikes.has(index));
+  //   return [
+  //     {
+  //       strike: {
+  //         amount: 1000,
+  //         handleSelect: (_: any, checked: boolean) => {
+  //           if (checked) {
+  //             selectStrike(index, 1000);
+  //           } else {
+  //             deselectStrike(index);
+  //           }
+  //         },
+  //       },
+  //       breakeven: 1200,
+  //       liquidity: {
+  //         amount: 1000,
+  //         usd: 100,
+  //         symbol: 'ETH',
+  //       },
+  //       isSelected: false,
+  //       button: {
+  //         index: index,
+  //         premium: 10.23,
+  //         handleSelect: () => {},
+  //         isSelected: selectedStrikes.has(index),
+  //       },
+  //       disclosure: {
+  //         iv: 10,
+  //         tvl: 10000,
+  //         utilization: 90,
+  //         normalApy: 10,
+  //         rewardsApy: 10,
+  //       },
+  //     },
+  //   ];
+  // }, [selectStrike, selectedStrikes, deselectStrike]);
 
   return (
     <TableLayout<StrikeItem>
-      data={strikesData}
+      data={strikes}
       columns={columns}
       rowSpacing={3}
-      disclosure={strikesData.map((s, index) => (
+      disclosure={strikes.map((s, index) => (
         <TableDisclosure key={index} {...s.disclosure} />
       ))}
       isContentLoading={false}
