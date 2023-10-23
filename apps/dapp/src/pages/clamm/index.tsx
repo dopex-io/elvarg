@@ -11,6 +11,7 @@ import AsidePanel from 'components/clamm/AsidePanel';
 import DisclaimerDialog from 'components/clamm/DisclaimerDialog';
 import Positions from 'components/clamm/Tables/Positions';
 import StrikesChain from 'components/clamm/Tables/StrikesChain';
+import { PairSelector } from 'components/clamm/TitleBar/PairSelector';
 import PageLayout from 'components/common/PageLayout';
 import PriceChart from 'components/common/PriceChart';
 
@@ -34,8 +35,6 @@ import getUserWritePositions from 'utils/clamm/subgraph/getUserWritePositions';
 
 import { CLAMM_PAIRS_TO_ADDRESSES } from 'constants/clamm';
 import seo from 'constants/seo';
-
-import { PairSelector } from '../../components/clamm/TitleBar/PairSelector';
 
 const ClammPage = () => {
   const {

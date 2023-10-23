@@ -39,6 +39,7 @@ import { EXPIRIES, EXPIRIES_BY_INDEX, EXPIRIES_MENU } from 'constants/clamm';
 import ButtonGroup from './components/ButtonGroup';
 import ClammInput from './components/ClammInput';
 import ExpiriesMenu from './components/ExpiriesMenu';
+import RangeSelector from './components/RangeSelector/RangeSelector';
 import StrikesMenu from './components/StrikesMenu';
 import TradeSideMenu from './components/TradeSideMenu';
 
@@ -903,6 +904,7 @@ const AsidePanel = () => {
             </>
           ) : (
             <>
+              <RangeSelector />
               {/* <RowItem
                 label="Balance"
                 content={
@@ -943,7 +945,6 @@ const AsidePanel = () => {
             </>
           )}
         </div>
-
         {/* {!agree && (
           <DisclaimerDialog
             isOpen={showDisclaimer}
