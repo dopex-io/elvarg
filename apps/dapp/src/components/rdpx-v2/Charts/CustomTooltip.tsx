@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
+
 import { TooltipProps } from 'recharts';
 
-import GridItem from 'components/atlantics/Charts/LiquidityBarGraph/CustomTooltipContent/GridItem';
+import GridItem from 'components/rdpx-v2/Charts/GridItem';
 
 interface Props extends TooltipProps<number, string> {
   title?: string;
@@ -53,6 +54,7 @@ const CustomTooltip = (props: Props) => {
           {datapointKeys.map((key) => {
             return (
               <GridItem
+                key={key}
                 label={TITLE_LABELS[key] ?? ''}
                 value={`${
                   isTypePrice

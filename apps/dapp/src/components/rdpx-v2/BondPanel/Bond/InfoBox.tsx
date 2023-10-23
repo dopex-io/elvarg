@@ -3,8 +3,6 @@ import { BigNumber } from 'ethers';
 
 import Tooltip from '@mui/material/Tooltip';
 
-import { styled } from '@mui/styles';
-
 import { useBoundStore } from 'store';
 import { DelegateType } from 'store/RdpxV2/dpxeth-bonding';
 
@@ -13,14 +11,6 @@ import {
   getUserReadableAmount,
 } from 'utils/contracts';
 import formatAmount from 'utils/general/formatAmount';
-
-const StyledTooltip = styled(({ className, ...props }) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(({ color }) => ({
-  '& .MuiTooltip-tooltip': {
-    background: color,
-  },
-}));
 
 const InfoBox = (props: { value: string; delegated?: boolean }) => {
   const { value, delegated = false } = props;
@@ -144,15 +134,17 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
     setDiscountPercent(discountPercentage || 0);
     setAvgFee(_avgFee || 0);
   }, [
-    treasuryContractState,
-    treasuryData,
+    treasuryContractState.alpha_token_ratio_percentage,
+    treasuryContractState.rdpx_reserve,
+    treasuryData.premiumPerDsc,
+    treasuryData.bondCostPerDsc,
+    treasuryData.availableDelegates,
     value,
-    delegated,
-    setShare,
-    setPremium,
-    setDiscount,
-    setAvgFee,
     squeezeTreasuryDelegates,
+    avgFee,
+    appContractData.vaultData.totalCollateral,
+    appContractData.vaultData.activeCollateral,
+    delegated,
   ]);
 
   useEffect(() => {
@@ -162,7 +154,7 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
   return (
     <div className="flex flex-col border border-carbon rounded-xl">
       <div className="flex divide-x divide-carbon">
-        <StyledTooltip
+        <Tooltip
           followCursor
           arrow={true}
           color="transparent"
@@ -184,7 +176,7 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
               {formatAmount(discountPercent, 3)}%
             </p>
           </div>
-        </StyledTooltip>
+        </Tooltip>
       </div>
       <div className="flex divide-x divide-carbon">
         <div className="flex w-full p-2 pt-1 text-start space-y-1">

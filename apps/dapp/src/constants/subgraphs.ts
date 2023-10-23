@@ -12,3 +12,6 @@ export const DOPEX_POLYGON_SSOV_SUBGRAPH_API_URL =
 
 export const DOPEX_OPTION_SCALPS_SUBGRAPH_API_URL =
   'https://api.thegraph.com/subgraphs/name/aercwarden/dopex-option-scalps';
+
+export const DOPEX_RDPX_SUBGRAPH_API_URL =
+  'https://api.thegraph.com/subgraphs/name/psytama/rdpxv2';

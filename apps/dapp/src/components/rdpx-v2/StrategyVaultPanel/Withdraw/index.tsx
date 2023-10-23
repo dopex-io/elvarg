@@ -1,9 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
-import Slider from '@mui/material/Slider';
-import Tooltip from '@mui/material/Tooltip';
-
-import InfoOutlined from '@mui/icons-material/InfoOutlined';
+import { BigNumber } from 'ethers';
 
 import { MockToken__factory, RdpxV2Treasury__factory } from '@dopex-io/sdk';
 
@@ -65,7 +61,7 @@ const Withdraw = () => {
       return 'Insufficient Balance.';
     else if (fee > 100 || fee < 0) return 'Fee must be 0-100%';
     return false;
-  }, [fee, value, approved]);
+  }, [value, userBalance, fee]);
 
   const handleChange = useCallback((e: any) => {
     setValue(Number(e.target.value) < 0 ? '' : e.target.value);
@@ -108,6 +104,19 @@ const Withdraw = () => {
     value,
   ]);
 
+  const updateBalance = useCallback(async () => {
+    if (!provider || !accountAddress || !treasuryData.tokenB.address) return;
+
+    const token = MockToken__factory.connect(
+      treasuryData.tokenB.address,
+      provider,
+    );
+
+    const _balance = await token.balanceOf(accountAddress);
+
+    setUserBalance(_balance.toString());
+  }, [treasuryData, provider, accountAddress]);
+
   const handleDelegate = useCallback(async () => {
     if (
       !treasuryContractState.contracts ||
@@ -133,26 +142,14 @@ const Withdraw = () => {
       console.log(e);
     }
   }, [
-    sendTx,
-    signer,
     treasuryContractState.contracts,
-    fee,
+    signer,
+    sendTx,
     value,
+    fee,
     updateTreasuryData,
+    updateBalance,
   ]);
-
-  const updateBalance = useCallback(async () => {
-    if (!provider || !accountAddress || !treasuryData.tokenB.address) return;
-
-    const token = MockToken__factory.connect(
-      treasuryData.tokenB.address,
-      provider,
-    );
-
-    const _balance = await token.balanceOf(accountAddress);
-
-    setUserBalance(_balance.toString());
-  }, [treasuryData, provider, accountAddress]);
 
   useEffect(() => {
     updateBalance();
@@ -213,7 +210,10 @@ const Withdraw = () => {
               alt="max"
             />
             <span className="text-sm">
-              {formatAmount(getUserReadableAmount(userBalance, 18), 3)}
+              {formatAmount(
+                getUserReadableAmount(BigNumber.from(userBalance), 18),
+                3,
+              )}
             </span>
             <span className="text-sm text-stieglitz">ESV</span>
           </div>

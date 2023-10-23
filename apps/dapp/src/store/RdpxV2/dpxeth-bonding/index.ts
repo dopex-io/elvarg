@@ -1,31 +1,30 @@
-import { StateCreator } from 'zustand';
 import { BigNumber } from 'ethers';
+
 import {
-  CurveStableswapPair,
-  RdpxV2Treasury,
-  RdpxV2Bond,
-  RdpxV2Treasury__factory,
-  ERC20__factory,
-  RdpxV2Bond__factory,
-  DscToken__factory,
+  DopexAMMRouter,
+  DopexAMMRouter__factory,
+  DPXVotingEscrow,
+  DPXVotingEscrow__factory,
   DscToken,
+  DscToken__factory,
+  ERC20__factory,
   MockToken,
   MockToken__factory,
   PerpetualAtlanticVault,
   PerpetualAtlanticVault__factory,
-  CurveStableswapPair__factory,
-  DPXVotingEscrow,
-  DPXVotingEscrow__factory,
   RdpxDecayingBonds,
   RdpxDecayingBonds__factory,
-  DopexAMMRouter,
-  DopexAMMRouter__factory,
+  RdpxV2Bond,
+  RdpxV2Bond__factory,
+  RdpxV2Treasury,
+  RdpxV2Treasury__factory,
   // DopexAMMFactory,
   // DopexAMMFactory__factory,
 } from '@dopex-io/sdk';
+import { StateCreator } from 'zustand';
 
-import { WalletSlice } from 'store/Wallet';
 import { AssetsSlice } from 'store/Assets';
+import { WalletSlice } from 'store/Wallet';
 
 import { getContractReadableAmount } from 'utils/contracts';
 
@@ -33,7 +32,6 @@ interface RdpxV2TreasuryContractState {
   contracts?: {
     bond: RdpxV2Bond;
     treasury: RdpxV2Treasury;
-    curvePool?: CurveStableswapPair;
     ammRouter?: DopexAMMRouter;
     // ammFactory?: DopexAMMFactory;
     dsc: DscToken;
@@ -118,7 +116,7 @@ export interface DpxusdBondingSlice {
   squeezeTreasuryDelegates: (
     delegates: DelegateType[],
     requiredCollateral: BigNumber,
-    bonds: BigNumber
+    bonds: BigNumber,
   ) =>
     | {
         ids: number[];
@@ -157,7 +155,6 @@ export const createDpxusdBondingSlice: StateCreator<
     const treasuryAddress = contractAddresses['RDPX-V2']['Treasury'];
     const bondAddress = contractAddresses['RDPX-V2']['Bond'];
     const dscAddress = contractAddresses['RDPX-V2']['DSC'];
-    const curvePoolAddress = contractAddresses['RDPX-V2']['Curve2Pool'];
     const ammRouterAddress = contractAddresses['RDPX-V2']['DopexAMMRouter'];
     // const ammFactoryAddress = contractAddresses['RDPX-V2']['DopexAMMFactory'];
     const rdpxAddress = contractAddresses['RDPX'];
@@ -167,15 +164,11 @@ export const createDpxusdBondingSlice: StateCreator<
 
     const treasury: RdpxV2Treasury = RdpxV2Treasury__factory.connect(
       treasuryAddress,
-      provider
-    );
-    const curvePool: CurveStableswapPair = CurveStableswapPair__factory.connect(
-      curvePoolAddress,
-      provider
+      provider,
     );
     const ammRouter: DopexAMMRouter = DopexAMMRouter__factory.connect(
       ammRouterAddress,
-      provider
+      provider,
     );
 
     const bond: RdpxV2Bond = RdpxV2Bond__factory.connect(bondAddress, provider);
@@ -183,12 +176,12 @@ export const createDpxusdBondingSlice: StateCreator<
     const vault: PerpetualAtlanticVault =
       PerpetualAtlanticVault__factory.connect(
         perpetualAtlanticVaultAddress,
-        provider
+        provider,
       );
     const rdpx: MockToken = MockToken__factory.connect(rdpxAddress, provider);
     const decayingBondableRdpx = RdpxDecayingBonds__factory.connect(
       dbrAddress,
-      provider
+      provider,
     );
 
     const [
@@ -225,7 +218,6 @@ export const createDpxusdBondingSlice: StateCreator<
           rdpx,
           decayingBondableRdpx,
           vault,
-          curvePool,
           ammRouter,
           // ammFactory,
         },
@@ -297,7 +289,7 @@ export const createDpxusdBondingSlice: StateCreator<
       await treasuryContractState.contracts.vault.nextFundingPaymentTimestamp();
 
     const timeTillExpiry = nextFundingTimestamp.sub(
-      Math.ceil(Number(new Date()) / 1000)
+      Math.ceil(Number(new Date()) / 1000),
     );
 
     const strike = rdpxPriceInAlpha.sub(rdpxPriceInAlpha.div(4));
@@ -306,7 +298,7 @@ export const createDpxusdBondingSlice: StateCreator<
       treasuryContractState.contracts.vault.calculatePremium(
         strike,
         bondCostPerDsc.rdpxRequired, // rdpx options
-        timeTillExpiry
+        timeTillExpiry,
       ),
       treasuryContractState.contracts.dsc.totalSupply(),
       treasuryContractState.contracts.rdpx.totalSupply(),
@@ -380,11 +372,11 @@ export const createDpxusdBondingSlice: StateCreator<
 
     const veDPX: DPXVotingEscrow = DPXVotingEscrow__factory.connect(
       contractAddresses['WETH'], // todo change to veDPX
-      provider
+      provider,
     );
 
     const eligible_second_lower = (await veDPX.balanceOf(accountAddress)).gte(
-      getContractReadableAmount(1000, 18)
+      getContractReadableAmount(1000, 18),
     );
 
     console.log('veDPX eligibility: ', eligible_second_lower);
@@ -431,7 +423,7 @@ export const createDpxusdBondingSlice: StateCreator<
       .sort((a, b) => a.fee.toNumber() - b.fee.toNumber());
 
     const availableDelegates = delegatesResult.filter((val) =>
-      val.amount.sub(val.activeCollateral).gt(0)
+      val.amount.sub(val.activeCollateral).gt(0),
     );
 
     return availableDelegates;
@@ -439,7 +431,7 @@ export const createDpxusdBondingSlice: StateCreator<
   squeezeTreasuryDelegates: (
     delegates: DelegateType[],
     requiredCollateral: BigNumber,
-    bonds: BigNumber
+    bonds: BigNumber,
   ) => {
     const { treasuryContractState, treasuryData } = get();
 
@@ -479,13 +471,13 @@ export const createDpxusdBondingSlice: StateCreator<
 
     const wethAvailable = accumulator.amounts.reduce(
       (prev, curr) => prev.add(curr),
-      BigNumber.from(0)
+      BigNumber.from(0),
     );
 
     accumulator = {
       ...accumulator,
-      ids: accumulator.ids.filter((_, index) =>
-        accumulator.amounts[index]?.gt('100')
+      ids: accumulator.ids.filter(
+        (_, index) => accumulator.amounts[index]?.gt('100'),
       ),
     };
 
@@ -497,20 +489,10 @@ export const createDpxusdBondingSlice: StateCreator<
           (amount) =>
             amount.mul(bonds).div(requiredCollateral.add(1)).sub(1e2).lt(0)
               ? BigNumber.from(0)
-              : amount.mul(bonds).div(requiredCollateral.add(1)).sub(1e2) // todo: some precision is lost; calculateBondCost(A) + cbc(B) + cbc(C) !== cbc(A + B + C)
+              : amount.mul(bonds).div(requiredCollateral.add(1)).sub(1e2), // todo: some precision is lost; calculateBondCost(A) + cbc(B) + cbc(C) !== cbc(A + B + C)
         )
         .filter((amount) => amount.gt(1e2)),
     };
-
-    // console.log(
-    //   'dpxETH breakdown: ',
-    //   accumulator.amounts.map((amount) => amount.toString()),
-    //   accumulator.ids.map((id) => id.toString()),
-    //   delegates.map((delegate) => ({
-    //     id: delegate._id,
-    //     balance: delegate.amount.sub(delegate.activeCollateral).toString(),
-    //   }))
-    // );
 
     return {
       ids: accumulator.ids,

@@ -2,8 +2,6 @@ import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
-// import formatAmount from 'utils/general/formatAmount';
-
 interface Props {
   tokenSymbol: string;
   amounts: number[];

@@ -521,11 +521,11 @@ const TradeCard = () => {
 
   const handleOrderTypeToggle = useCallback(() => {
     setOrderType(orderType === 'Market' ? 'Limit' : 'Market');
-  }, [setOrderType]);
+  }, [orderType]);
 
   useEffect(() => {
     setMaximumTick();
-  }, [orderType]);
+  }, [orderType, setMaximumTick]);
 
   const setSelectedMargin = useCallback(
     async (option: number) => {

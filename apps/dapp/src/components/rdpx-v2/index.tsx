@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
@@ -46,7 +46,7 @@ const Stat = ({
 }: {
   name: ReactNode;
   value: ReactNode;
-  prefix: ReactNode;
+  prefix?: ReactNode;
 }) => (
   <div className="flex flex-col text-center">
     <span className="text-white text-[0.5rem] sm:text-[0.8rem]">
@@ -105,7 +105,7 @@ const RdpxV2Main = () => {
         ) * ethPriceInUsd
       ).toLocaleString()}`,
     ];
-  }, [treasuryContractState, treasuryData]);
+  }, [ethPriceInUsd, treasuryContractState, treasuryData]);
 
   useEffect(() => {
     axios
@@ -120,7 +120,7 @@ const RdpxV2Main = () => {
 
   return (
     <div className="py-12 mt-12">
-      <div className="flex flex-col w-[30rem] h-full mt-4 lg:mt-0 mx-auto">
+      {/* <div className="flex flex-col w-[30rem] h-full mt-4 lg:mt-0 mx-auto">
         <div className="flex justify-between mb-3 bg-umbra rounded">
           {['Bonding', 'Strategy Vault', 'Rewards'].map((label, index) => (
             <Button
@@ -128,7 +128,7 @@ const RdpxV2Main = () => {
               className={`w-full m-1 p-0 transition ease-in-out duration-500 ${
                 section === label
                   ? 'text-white bg-carbon hover:bg-carbon'
-                  : 'text-stieglitz bg-transparent hover:bg-transparent border-gray-200 border-0.5 text-white'
+                  : 'text-stieglitz bg-transparent hover:bg-transparent border-gray-200 border-0.5'
               } hover:text-white`}
               onClick={() => setSection(label)}
             >
@@ -245,7 +245,7 @@ const RdpxV2Main = () => {
             </div>
           </div>
         ) : null}
-      </div>
+      </div> */}
     </div>
   );
 };

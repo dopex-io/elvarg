@@ -1,19 +1,28 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
+import MuiTooltip from '@mui/material/Tooltip';
+
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
+import { format } from 'date-fns';
+import request from 'graphql-request';
 import {
-  AreaChart,
   Area,
+  AreaChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  Tooltip,
-  ResponsiveContainer,
 } from 'recharts';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import MuiTooltip from '@mui/material/Tooltip';
-import { format } from 'date-fns';
-import graphSdk from 'graphql/graphSdk';
+
 import queryClient from 'queryClient';
 
+import { getSuppliesDocument } from 'graphql/rdpx';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+
+import { DOPEX_RDPX_SUBGRAPH_API_URL } from 'constants/subgraphs';
+
 import CustomTooltip from './CustomTooltip';
 
 interface LiquidityLineChartProps {
@@ -38,23 +47,24 @@ const PriceChart = (props: LiquidityLineChartProps) => {
       const dscSupplies = await queryClient
         .fetchQuery({
           queryKey: ['getSupplies'],
-          queryFn: () => graphSdk.getSupplies(),
+          queryFn: () =>
+            request(DOPEX_RDPX_SUBGRAPH_API_URL, getSuppliesDocument),
         })
         .then((res) => [res.rdpxSupplies, res.dscSupplies]);
 
       const formatted = dscSupplies[1]?.map((obj, i) => ({
         time: format(new Date(Number(obj.id) * 1000), 'dd LLL YYY'),
         rdpxTotalSupplies: Number(
-          getUserReadableAmount(dscSupplies[0]?.[i]?.totalSupply, 18).toFixed(3)
+          getUserReadableAmount(dscSupplies[0]?.[i]?.totalSupply, 18).toFixed(
+            3,
+          ),
         ),
         dscTotalSupplies: Number(
-          getUserReadableAmount(dscSupplies[1]?.[i]?.totalSupply, 18).toFixed(3)
+          getUserReadableAmount(dscSupplies[1]?.[i]?.totalSupply, 18).toFixed(
+            3,
+          ),
         ),
       }));
-      // .filter(
-      //   (curr: any, prev: any) =>
-      //     Number(curr.time.slice(2)) > Number(prev.time.slice(2))
-      // );
 
       setData(formatted);
     })();

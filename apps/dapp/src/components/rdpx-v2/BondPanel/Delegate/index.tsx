@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { BigNumber } from 'ethers';
 
 import Slider from '@mui/material/Slider';
 import Tooltip from '@mui/material/Tooltip';
@@ -6,6 +7,7 @@ import Tooltip from '@mui/material/Tooltip';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 
 import { MockToken__factory, RdpxV2Treasury__factory } from '@dopex-io/sdk';
+import { Button } from '@dopex-io/ui';
 
 import { useBoundStore } from 'store';
 
@@ -65,7 +67,7 @@ const Delegate = () => {
       return 'Insufficient Balance.';
     else if (fee > 100 || fee < 0) return 'Fee must be 0-100%';
     return false;
-  }, [fee, value, approved]);
+  }, [value, userBalance, fee]);
 
   const handleChange = useCallback((e: any) => {
     setValue(Number(e.target.value) < 0 ? '' : e.target.value);
@@ -108,6 +110,19 @@ const Delegate = () => {
     value,
   ]);
 
+  const updateBalance = useCallback(async () => {
+    if (!provider || !accountAddress || !treasuryData.tokenB.address) return;
+
+    const token = MockToken__factory.connect(
+      treasuryData.tokenB.address,
+      provider,
+    );
+
+    const _balance = await token.balanceOf(accountAddress);
+
+    setUserBalance(_balance.toString());
+  }, [treasuryData, provider, accountAddress]);
+
   const handleDelegate = useCallback(async () => {
     if (
       !treasuryContractState.contracts ||
@@ -133,26 +148,14 @@ const Delegate = () => {
       console.log(e);
     }
   }, [
-    sendTx,
-    signer,
     treasuryContractState.contracts,
-    fee,
+    signer,
+    sendTx,
     value,
+    fee,
     updateTreasuryData,
+    updateBalance,
   ]);
-
-  const updateBalance = useCallback(async () => {
-    if (!provider || !accountAddress || !treasuryData.tokenB.address) return;
-
-    const token = MockToken__factory.connect(
-      treasuryData.tokenB.address,
-      provider,
-    );
-
-    const _balance = await token.balanceOf(accountAddress);
-
-    setUserBalance(_balance.toString());
-  }, [treasuryData, provider, accountAddress]);
 
   useEffect(() => {
     updateBalance();
@@ -213,7 +216,10 @@ const Delegate = () => {
               alt="max"
             />
             <span className="text-sm">
-              {formatAmount(getUserReadableAmount(userBalance, 18), 3)}
+              {formatAmount(
+                getUserReadableAmount(BigNumber.from(userBalance), 18),
+                3,
+              )}
             </span>
             <span className="text-sm text-stieglitz">ETH</span>
           </div>
@@ -269,7 +275,7 @@ const Delegate = () => {
         <div className="rounded-md flex flex-col p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800 space-y-2">
           <EstimatedGasCostButton gas={500000} chainId={chainId} />
         </div>
-        <CustomButton
+        <Button
           size="medium"
           className="w-full mt-2 rounded-md"
           color="primary"
@@ -277,7 +283,7 @@ const Delegate = () => {
           disabled={!Number(value) || Boolean(errorMsg)}
         >
           {approved ? 'Delegate' : 'Approve'}
-        </CustomButton>
+        </Button>
       </div>
     </div>
   );

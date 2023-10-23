@@ -1,22 +1,30 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import graphSdk from 'graphql/graphSdk';
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip as RechartsTooltip,
-  ResponsiveContainer,
-} from 'recharts';
-import queryClient from 'queryClient';
-import { format } from 'date-fns';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { useEffect, useState } from 'react';
+
 import Tooltip from '@mui/material/Tooltip';
 
-import CustomTooltip from './CustomTooltip';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
+import axios from 'axios';
+import { format } from 'date-fns';
+import request from 'graphql-request';
+import {
+  Area,
+  AreaChart,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+} from 'recharts';
+
+import queryClient from 'queryClient';
+
+import { getPricesDocument } from 'graphql/rdpx';
 
 import { getUserReadableAmount } from 'utils/contracts';
+
+import { DOPEX_RDPX_SUBGRAPH_API_URL } from 'constants/subgraphs';
+
+import CustomTooltip from './CustomTooltip';
 
 interface LiquidityBarGraphProps {
   data: any[];
@@ -42,7 +50,8 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
       const prices = await queryClient
         .fetchQuery({
           queryKey: ['getPrices'],
-          queryFn: () => graphSdk.getPrices(),
+          queryFn: () =>
+            request(DOPEX_RDPX_SUBGRAPH_API_URL, getPricesDocument),
         })
         .then((res) => [res.rdpxPrices, res.dscPrices]);
 
@@ -51,12 +60,12 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
         rdpxPrices: Number(
           (
             getUserReadableAmount(prices[0]?.[i]?.price, 8) * ethPriceInUsd
-          ).toFixed(3)
+          ).toFixed(3),
         ),
         dscPrices: Number(
           (
             getUserReadableAmount(prices[1]?.[i]?.price, 8) * ethPriceInUsd
-          ).toFixed(3)
+          ).toFixed(3),
         ),
       }));
 
@@ -67,7 +76,7 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
   useEffect(() => {
     axios
       .get(
-        'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd'
+        'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd',
       )
       .then((payload) => {
         const _ethPriceInUsd = Number(payload.data.ethereum.usd);

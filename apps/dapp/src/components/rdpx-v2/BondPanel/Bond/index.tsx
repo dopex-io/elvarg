@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { BigNumber } from 'ethers';
 
-import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import Tooltip from '@mui/material/Tooltip';
 
@@ -12,6 +12,7 @@ import {
   MockToken__factory,
   RdpxV2Treasury__factory,
 } from '@dopex-io/sdk';
+import { Button } from '@dopex-io/ui';
 import Caution from 'svgs/icons/Caution';
 
 import { useBoundStore } from 'store';
@@ -24,7 +25,6 @@ import CollateralInputPanel from 'components/rdpx-v2/BondPanel/Bond/CollateralIn
 import InfoBox from 'components/rdpx-v2/BondPanel/Bond/InfoBox';
 import DisabledPanel from 'components/rdpx-v2/BondPanel/DisabledPanel';
 import Error from 'components/rdpx-v2/BondPanel/Error';
-import CustomButton from 'components/UI/Button';
 import Input from 'components/UI/Input';
 
 import { getContractReadableAmount } from 'utils/contracts';
@@ -350,7 +350,16 @@ const Bond = () => {
     } catch (e) {
       console.error(e);
     }
-  }, [treasuryContractState.contracts, treasuryData, signer]);
+  }, [
+    treasuryContractState.contracts,
+    treasuryData,
+    signer,
+    accountAddress,
+    contractAddresses,
+    sendTx,
+    value,
+    updateTreasuryData,
+  ]);
 
   const handleRepeg = useCallback(async () => {
     console.log('Repeg');
@@ -377,7 +386,16 @@ const Bond = () => {
     } catch (e) {
       console.error(e);
     }
-  }, []);
+  }, [
+    accountAddress,
+    contractAddresses,
+    sendTx,
+    signer,
+    treasuryContractState.contracts,
+    treasuryData,
+    updateTreasuryData,
+    value,
+  ]);
 
   const buttonProps = useMemo(() => {
     if (userDscBondsData.state === BondingState.open) {
@@ -402,7 +420,7 @@ const Bond = () => {
       };
     }
     return { action: handleBond, label: 'Bond' };
-  }, [userDscBondsData.state, value, delegated]);
+  }, [userDscBondsData.state, handleBond, handleMint, handleRepeg]);
 
   return (
     <div className="space-y-3 relative">
@@ -437,9 +455,11 @@ const Bond = () => {
                 <span className="text-sm">
                   {formatAmount(
                     getUserReadableAmount(
-                      userAssetBalances[
-                        treasuryData.tokenB.symbol.toUpperCase()
-                      ] ?? '0',
+                      BigNumber.from(
+                        userAssetBalances[
+                          treasuryData.tokenB.symbol.toUpperCase()
+                        ] ?? '0',
+                      ),
                       TOKEN_DECIMALS[chainId]?.[
                         treasuryData.tokenB.symbol.toUpperCase()
                       ],
@@ -464,7 +484,6 @@ const Bond = () => {
                 <InfoOutlinedIcon className="fill-current text-stieglitz p-1" />
               </Tooltip>
             </div>
-
             <ButtonGroup className="flex justify-between border border-carbon bg-carbon rounded-top-lg p-0.5">
               {['rDPX + ETH', 'rDPX'].map((label, index) => (
                 <Button
@@ -476,7 +495,7 @@ const Bond = () => {
                   } hover:text-white`}
                   onClick={() => setBondingMethod(label)}
                 >
-                  <p className="text-xs py-1">{label}</p>
+                  {label}
                 </Button>
               ))}
             </ButtonGroup>
@@ -532,9 +551,9 @@ const Bond = () => {
           <EstimatedGasCostButton gas={500000} chainId={chainId} />
         </div>
         {userDscBondsData.state === BondingState.open || isLoading ? (
-          <CustomButton
+          <Button
             size="medium"
-            className="w-full mt-2.5 rounded-md"
+            className="w-full mt-2 rounded-md"
             color="primary"
             disabled={
               userDscBondsData.state !== BondingState.open ||
@@ -545,7 +564,7 @@ const Bond = () => {
             onClick={approved ? buttonProps.action : handleApprove}
           >
             {approved ? buttonProps.label : 'Approve rDPX'}
-          </CustomButton>
+          </Button>
         ) : (
           <a
             className="flex space-x-2 w-full mt-4 rounded-md bg-[#3966A0] justify-between p-2"

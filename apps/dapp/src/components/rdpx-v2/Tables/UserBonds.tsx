@@ -1,23 +1,15 @@
 import { useCallback, useMemo } from 'react';
-
-import Tooltip from '@mui/material/Tooltip';
-
-import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
-import CheckCircleRounded from '@mui/icons-material/CheckCircleRounded';
+import { BigNumber } from 'ethers';
 
 import { RdpxV2Bond__factory, RdpxV2Treasury__factory } from '@dopex-io/sdk';
-import { Button } from '@dopex-io/ui';
-import format from 'date-fns/format';
-import Countdown from 'react-countdown';
-import { Column, useTable } from 'react-table';
 
 import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
-import Placeholder from 'components/rdpx-v2/Tables/Placeholder';
+import TableLayout from 'components/common/TableLayout';
 
-import { getUserReadableAmount } from 'utils/contracts';
+import columns, { UserBonds as UserBondsType } from './ColumnDefs/BondsColumn';
 
 const UserBonds = () => {
   const sendTx = useSendTx();
@@ -74,149 +66,35 @@ const UserBonds = () => {
     ],
   );
 
-  const userBonds = useMemo(() => {
+  const userBonds: UserBondsType[] = useMemo(() => {
     if (userDscBondsData.bonds.length === 0 || !treasuryData) return [];
 
     return userDscBondsData.bonds.map((bond) => {
       const redeemable =
         Number(bond.maturity) * 1000 < Math.ceil(Number(new Date()));
+
       return {
-        tokenId: '#' + Number(bond.tokenId),
-        amount: (
-          <Tooltip title={getUserReadableAmount(bond.amount, 18)}>
-            <p className="text-sm">
-              {getUserReadableAmount(bond.amount, 18).toFixed(3)}{' '}
-              <span className="text-stieglitz">dpxETH</span>
-            </p>
-          </Tooltip>
-        ),
-        redeemable: redeemable ? (
-          <CheckCircleRounded className="fill-current text-up-only" />
-        ) : (
-          <CancelRoundedIcon className="fill-current text-down-bad" />
-        ),
-        timeLeft: (
-          <span>
-            <Countdown
-              date={Number(bond.maturity) * 1000}
-              renderer={({ days, hours, minutes }) => {
-                return (
-                  <p className="ml-auto my-auto text-sm">
-                    {days}d {hours}h {minutes}m
-                  </p>
-                );
-              }}
-            />
-            <p className="text-stieglitz">
-              {format(Number(bond.timestamp) * 1000, 'd LLL yyy')}
-            </p>
-          </span>
-        ),
-        redeemButton: (
-          <Button
-            disabled={!redeemable}
-            onClick={() => handleRedeem(bond.tokenId)}
-          >
-            Redeem
-          </Button>
-        ),
+        tokenId: Number(bond.tokenId),
+        amount: BigNumber.from(bond.amount),
+        redeemable,
+        maturity: bond.maturity,
+        timestamp: Number(bond.timestamp),
+        button: {
+          handleRedeem: () => handleRedeem(bond.tokenId),
+          redeemable,
+          id: bond.tokenId,
+        },
       };
     });
   }, [handleRedeem, treasuryData, userDscBondsData.bonds]);
 
-  const columns: Array<Column> = useMemo(() => {
-    return [
-      {
-        Header: 'Token ID',
-        accessor: 'tokenId',
-      },
-      {
-        Header: 'Amount',
-        accessor: 'amount',
-      },
-      {
-        Header: 'Time Remaining',
-        accessor: 'timeLeft',
-      },
-      {
-        Header: 'Redeemable',
-        accessor: 'redeemable',
-      },
-      {
-        Header: 'Action',
-        accessor: 'redeemButton',
-      },
-    ];
-  }, []);
-
-  const tableInstance = useTable({ columns, data: userBonds });
-
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    tableInstance;
-
   return (
-    <div className="space-y-2">
-      <div className="overflow-x-auto">
-        {userBonds.length > 0 ? (
-          <table {...getTableProps()} className="bg-cod-gray rounded-lg w-full">
-            <thead className="border-b border-umbra sticky">
-              {headerGroups.map((headerGroup: any, index: number) => (
-                <tr {...headerGroup.getHeaderGroupProps()} key={index}>
-                  {headerGroup.headers.map((column: any, index: number) => {
-                    const textAlignment =
-                      index === headerGroup.headers.length - 1 ||
-                      index === headerGroup.headers.length - 2
-                        ? 'text-right'
-                        : 'text-left';
-                    return (
-                      <th
-                        {...column.getHeaderProps()}
-                        key={index}
-                        className={`m-3 py-3 px-3 ${textAlignment} w-1/${columns.length}`}
-                      >
-                        <span className="text-sm text-stieglitz font-normal">
-                          {column.render('Header')}
-                        </span>
-                      </th>
-                    );
-                  })}
-                </tr>
-              ))}
-            </thead>
-            <tbody
-              {...getTableBodyProps()}
-              className="max-h-32 overflow-y-auto"
-            >
-              {rows.map((row, index) => {
-                prepareRow(row);
-                return (
-                  <tr {...row.getRowProps()} key={index}>
-                    {row.cells.map((cell, index) => {
-                      const textAlignment =
-                        index === row.cells.length - 1 ||
-                        index === row.cells.length - 2
-                          ? 'text-right'
-                          : 'text-left';
-                      return (
-                        <td
-                          {...cell.getCellProps()}
-                          key={index}
-                          className={`m-3 py-2 px-3 ${textAlignment}`}
-                        >
-                          <span className="text-sm">{cell.render('Cell')}</span>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        ) : (
-          <Placeholder isLoading={isLoading} />
-        )}
-      </div>
-    </div>
+    <TableLayout<UserBondsType>
+      data={userBonds}
+      columns={columns}
+      rowSpacing={2}
+      isContentLoading={isLoading}
+    />
   );
 };
 
