@@ -28,7 +28,7 @@ export const useConnectDialog = create<ConnectDialogState>()(
 
 const ConnectDialog = () => {
   const { connect, connectors, error, isLoading, pendingConnector } =
-    useConnect();
+    useConnect({ onSuccess: () => handleClose('', '') });
 
   const open = useConnectDialog((state) => state.isOpen);
   const handleClose = useConnectDialog((state) => state.close);
@@ -54,13 +54,13 @@ const ConnectDialog = () => {
       action: () => handleClose('', ''),
     },
     ledger: { icon: 'ledger.svg', action: () => handleClose('', '') },
-    bitKeep: {
-      icon: 'bitkeep.svg',
-      downloadLink: 'https://bitkeep.com/en/download?type=2',
-    },
     rabby: {
       icon: 'rabby.svg',
       downloadLink: 'https://rabby.io',
+    },
+    okx: {
+      icon: 'okx.svg',
+      downloadLink: 'https://www.okx.com/web3',
     },
     injected: {
       icon: 'injected.svg',

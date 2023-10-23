@@ -246,7 +246,7 @@ const ProvideLp = () => {
         underlyingBalance={underlyingBalance}
         assetIdx={assetIdx}
         underlyingSymbol={olpData?.underlyingSymbol!}
-        assets={['usdc', olpData?.underlyingSymbol!.toLowerCase()!]}
+        assets={['usdc', olpData?.underlyingSymbol.toLowerCase()]}
         handleSelectAsset={handleSelectAsset}
       />
       <Box className="flex flex-row justify-between bg-umbra pb-2 border-radius rounded-lg mt-1">

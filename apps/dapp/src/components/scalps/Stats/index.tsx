@@ -169,8 +169,8 @@ const Stats = () => {
               ? formatAmount(
                   Number(
                     utils.formatUnits(
-                      optionScalpData?.totalBaseDeposits!,
-                      optionScalpData?.baseDecimals!.toNumber(),
+                      optionScalpData?.totalBaseDeposits,
+                      optionScalpData?.baseDecimals.toNumber(),
                     ),
                   ),
                   0,

@@ -23,10 +23,6 @@ type ItemType = {
 };
 
 export const Variant = () => {
-  const handleSelection = (e: any) => {
-    setSelection(e.target.textContent);
-  };
-
   const data: ItemType[] = [
     {
       textContent: 'Menu Item 1',
@@ -45,7 +41,7 @@ export const Variant = () => {
     },
   ];
 
-  const [selection, setSelection] = React.useState<any>(data[0].textContent);
+  const [selection, setSelection] = React.useState<ItemType>(data[0]);
   const [copy, setCopy] = React.useState<boolean>(false);
 
   const copyText = 'Lorem Ipsum';
@@ -58,13 +54,13 @@ export const Variant = () => {
 
   const topElement = React.useMemo(() => {
     return (
-      <div className="flex justify-between bg-umbra rounded-t-md border-b border-carbon p-2">
-        <div className="p-1 rounded-md bg-mineshaft">
+      <div className="flex justify-between bg-inherit rounded-t-md border-b border-red-800 p-2">
+        <div className="p-1 rounded-md bg-black bg-opacity-20">
           <span className="text-xs text-white">{copyText}</span>
         </div>
         <button
           onClick={handleCopy}
-          className="py-1 px-2 rounded-md bg-mineshaft hover:bg-opacity-70 text-white"
+          className="py-1 px-2 rounded-md bg-black bg-opacity-20 hover:bg-opacity-75 text-white"
         >
           {copy ? (
             <CheckIcon className="w-[12px] text-green-500" />
@@ -78,37 +74,46 @@ export const Variant = () => {
 
   return (
     <div className="grid grid-flow-row grid-cols-2 text-left min-w-screen w-1/2 h-[450px] bg-black">
-      <div className="m-3">
+      <div className="m-3 flex flex-col text-white">
+        Full height
         <Menu<ItemType>
-          data={data}
+          data={data.concat(data)}
           selection={selection}
-          handleSelection={handleSelection}
+          setSelection={setSelection}
+          showArrow
         />
       </div>
-      <div className="m-3">
+      <div className="m-3 flex flex-col text-white">
+        Icon
         <Menu
           data={data}
           selection={selection}
+          setSelection={setSelection}
           dropdownVariant="icon"
-          handleSelection={handleSelection}
         />
       </div>
-      <div className="m-3">
+      <div className="m-3 flex flex-col text-white">
+        Dense
         <Menu
           data={data.concat(data)}
           selection={selection}
           dropdownVariant="dense"
-          handleSelection={handleSelection}
+          setSelection={setSelection}
           scrollable
         />
       </div>
-      <div className="m-3">
+      <div className="m-3 flex flex-col text-white">
+        Custom
         <Menu
           topElement={topElement}
           data={data.concat(data)}
           selection={selection}
-          handleSelection={handleSelection}
+          setSelection={setSelection}
+          color="primary"
+          fullWidth
           scrollable
+          showArrow
+          className="bg-primary rounded-[10px] w-full"
         />
       </div>
     </div>

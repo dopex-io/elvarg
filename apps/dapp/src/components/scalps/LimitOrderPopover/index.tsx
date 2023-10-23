@@ -62,7 +62,7 @@ const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
       Number(rawLimitPrice) *
       10 **
         (optionScalpData?.quoteDecimals?.toNumber() -
-          optionScalpData?.baseDecimals!.toNumber());
+          optionScalpData?.baseDecimals.toNumber());
 
     const spacing = 10;
     const tick0 = Math.round(Math.log(limitPrice) / Math.log(1.0001) / 10) * 10;

@@ -66,11 +66,7 @@ const StyleTableCellHeader = (props: HeaderCellInterface) => {
   );
 };
 
-const FEATURED_OLPS: string[] = [
-  'DPX-MONTHLY',
-  'RDPX-MONTHLY',
-  'STETH-MONTHLY',
-];
+const FEATURED_OLPS: string[] = ['DPX-MONTHLY', 'ARB-MONTHLY', 'DPX-WEEKLY'];
 
 export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
   const chainIds: string[] = Object.keys(olps ?? []);
