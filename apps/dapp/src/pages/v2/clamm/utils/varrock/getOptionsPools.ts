@@ -24,7 +24,7 @@ export type OptionsPoolsAPIResponse = {
   }[];
 }[];
 
-async function getOptionsPools(
+function getOptionsPools(
   chainId: number,
   onSuccessCallback: (response: OptionsPoolsAPIResponse) => void,
   onErrorCallback?: (error: string) => void,
@@ -35,9 +35,7 @@ async function getOptionsPools(
         chainId,
       },
     })
-    .then(({ data }) => {
-      onSuccessCallback(data as OptionsPoolsAPIResponse);
-    })
+    .then(({ data }) => onSuccessCallback(data as OptionsPoolsAPIResponse))
     .catch((err) => {
       if (
         !err ||
