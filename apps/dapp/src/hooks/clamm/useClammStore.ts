@@ -28,9 +28,39 @@ type ClammStore = {
   setSelectedOptionsPool: any;
   optionsPools: Map<string, OptionsPool>;
   initialize: (response: OptionsPoolsAPIResponse) => void;
+
+  isPut: boolean;
+  setIsPut: (setAs: boolean) => void;
+
+  isTrade: boolean;
+  setIsTrade: (setAs: boolean) => void;
+
+  selectedTTL: number;
+  setSelectedTTL: (TTL: number) => void;
 };
 const useClammStore = create<ClammStore>((set, get) => ({
+  isPut: false,
+  isTrade: true,
+  selectedTTL: 1200,
+  setSelectedTTL: (TTL: number) => {
+    set((prev) => ({
+      ...prev,
+      selectedTTL: TTL,
+    }));
+  },
   optionsPools: new Map<string, OptionsPool>(),
+  setIsTrade: (setAs: boolean) => {
+    set((prev) => ({
+      ...prev,
+      isTrade: setAs,
+    }));
+  },
+  setIsPut: (setAs: boolean) => {
+    set((prev) => ({
+      ...prev,
+      isPut: setAs,
+    }));
+  },
   selectedOptionsPool: null,
   setSelectedOptionsPool: (pairName: string) => {
     const poolToSelect = get().optionsPools.get(pairName);
@@ -72,7 +102,7 @@ const useClammStore = create<ClammStore>((set, get) => ({
     set((prev) => ({
       ...prev,
       optionsPools: poolsMapping,
-      selectedOptionsPool: poolsMapping.entries().next().value ?? null,
+      selectedOptionsPool: poolsMapping.entries().next().value[1] ?? null,
     }));
   },
 }));
