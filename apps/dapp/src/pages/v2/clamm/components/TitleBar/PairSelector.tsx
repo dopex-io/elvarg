@@ -14,7 +14,7 @@ type Pair = {
 const LAST_VISITED_CLAMM_POOL_KEY = 'last_clamm_pool';
 
 const PairSelector = () => {
-  const { selectedOptionsPool, optionsPools } = useClammStore();
+  const { setSelectedOptionsPool, optionsPools } = useClammStore();
   const params = useParams<{ pair: string[] }>();
   const router = useRouter();
 
@@ -99,6 +99,7 @@ const PairSelector = () => {
             const pairName = T.textContent.replaceAll(' ', '');
             router.replace(pairName);
             setSelectedPair(T);
+            setSelectedOptionsPool(pairName);
             localStorage.setItem(LAST_VISITED_CLAMM_POOL_KEY, pairName);
           }}
           selection={selectedPair}
