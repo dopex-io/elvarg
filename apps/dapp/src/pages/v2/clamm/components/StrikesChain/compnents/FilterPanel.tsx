@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-
 import cx from 'classnames';
 
+import useClammStore from 'hooks/clamm/useClammStore';
+
 const FilterPanel = () => {
-  const [isTrade, setIsTrade] = useState(false);
-  const [isPut, setIsPut] = useState(false);
+  const { setIsTrade, setIsPut, isTrade, isPut } = useClammStore();
 
   return (
     <div className="m-[12px] h-[30px] flex items-center justify-center space-x-[12px] w-fit">
