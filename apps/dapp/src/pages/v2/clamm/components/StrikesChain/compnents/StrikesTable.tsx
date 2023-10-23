@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
+import { formatUnits } from 'viem';
 
 import { Checkbox } from '@mui/material';
 
@@ -7,7 +8,11 @@ import { MinusCircleIcon, PlusCircleIcon } from '@heroicons/react/24/solid';
 import ChevronDownIcon from '@heroicons/react/24/solid/ChevronDownIcon';
 import { createColumnHelper } from '@tanstack/react-table';
 import cx from 'classnames';
+import getStrikesChain from 'pages/v2/clamm/utils/varrock/getStrikesChain';
+import toast from 'react-hot-toast';
+import { useNetwork } from 'wagmi';
 
+import useClammStore from 'hooks/clamm/useClammStore';
 import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 
 import TableLayout from 'components/common/TableLayout';
@@ -18,11 +23,15 @@ type StrikeDisclosureItem = {
   iv: number;
   tvl: number;
   utilization: number;
-  normalApy: number;
+  earningsApy: number;
   rewardsApy: number;
+  totalDeposits: {
+    amount: string;
+    symbol: string;
+  };
 };
 
-const columnHelper = createColumnHelper<StrikeItem>();
+const columnHelper = createColumnHelper<any>();
 
 const columns = [
   columnHelper.accessor('strike', {
@@ -30,6 +39,7 @@ const columns = [
     cell: (info) => (
       <span className="flex space-x-1 text-left items-center">
         <Checkbox
+          checked={info.getValue().isSelected}
           onChange={info.getValue().handleSelect}
           className="text-mineshaft"
           size="small"
@@ -51,7 +61,7 @@ const columns = [
     ),
   }),
   columnHelper.accessor('liquidity', {
-    header: 'liquidity',
+    header: 'Liquidity',
     cell: (info) => (
       <StatItem
         name={`${info.getValue().amount} ${info.getValue().symbol}`}
@@ -59,11 +69,47 @@ const columns = [
       />
     ),
   }),
+  columnHelper.accessor('options', {
+    header: 'Options',
+    cell: (info) => (
+      <span className="flex space-x-1 text-left items-center">
+        <p>{formatAmount(info.getValue(), 5)}</p>
+      </span>
+    ),
+  }),
+  columnHelper.accessor('sources', {
+    header: 'Sources',
+    cell: (info) => {
+      const sources = info.getValue();
+      return (
+        <span className="flex text-left items-center space-x-1">
+          {sources.map(
+            ({ name, compositionPercentage }: any, index: number) => (
+              <div
+                key={index}
+                className="flex flex-col items-center justify-center"
+              >
+                <img
+                  className={`w-[30px] h-[30px] z-10 border border-umbra rounded-full`}
+                  src={`/images/exchanges/${name.toLowerCase()}.svg`}
+                  alt={name.toLowerCase()}
+                />
+                <span className="text-xs text-stieglitz">
+                  {compositionPercentage}%
+                </span>
+              </div>
+            ),
+          )}
+        </span>
+      );
+    },
+  }),
   columnHelper.accessor('button', {
     header: '',
     cell: ({ getValue }) => (
       <div className="flex space-x-2 justify-end">
         <Button
+          onClick={getValue().handleSelect}
           color={getValue().isSelected ? 'primary' : 'mineshaft'}
           className={cx()}
         >
@@ -104,7 +150,7 @@ type StrikeItem = {
     iv: number;
     tvl: number;
     utilization: number;
-    normalApy: number;
+    earningsApy: number;
     rewardsApy: number;
   };
 };
@@ -116,11 +162,11 @@ export const StatItem = ({ name, value }: { name: string; value: string }) => (
   </div>
 );
 
-const TableDisclosure = (props: StrikeDisclosureItem) => {
+const TableDisclosure = (props: any) => {
   return (
     <Disclosure.Panel as="tr" className="bg-umbra">
-      <td colSpan={5}>
-        <div className="grid grid-cols-5 gap-6 p-3">
+      <td colSpan={6}>
+        <div className="grid grid-cols-6 gap-6 p-3">
           <StatItem name="IV" value={String(props.iv)} />
           <StatItem
             name="Utilization"
@@ -135,6 +181,10 @@ const TableDisclosure = (props: StrikeDisclosureItem) => {
             name="Premium APY"
             value={`${formatAmount(props.rewardsApy, 2, true)}%`}
           />
+          <StatItem
+            name="Total Deposits"
+            value={`${props.totalDeposits.amount} ${props.totalDeposits.symbol}`}
+          />
         </div>
       </td>
     </Disclosure.Panel>
@@ -142,89 +192,138 @@ const TableDisclosure = (props: StrikeDisclosureItem) => {
 };
 
 const StrikesTable = () => {
-  const { selectStrike, deselectStrike, selectedStrikes } =
-    useStrikesChainStore();
+  const {
+    selectStrike,
+    deselectStrike,
+    selectedStrikes,
+    initialize,
+    strikesChain,
+  } = useStrikesChainStore();
 
-  const [strikes, setStrikes] = useState<StrikeItem[]>([]);
+  const { selectedOptionsPool, isPut, selectedTTL } = useClammStore();
+  const { chain } = useNetwork();
+  // const [strikes, setStrikes] = useState<StrikeItem[]>([]);
+  // const [pagination, __setPagination] = useState({
+  //   first: 10,
+  //   skip: 0,
+  // });
+
   useEffect(() => {
-    const index = 0;
-    setStrikes([
-      {
-        strike: {
-          amount: 1000,
-          handleSelect: (_: any, checked: boolean) => {
-            if (checked) {
-              selectStrike(index, 1000);
-            } else {
-              deselectStrike(index);
-            }
-          },
-        },
-        breakeven: 1200,
-        liquidity: {
-          amount: 1000,
-          usd: 100,
-          symbol: 'ETH',
-        },
-        isSelected: false,
-        button: {
-          index: index,
-          premium: 10.23,
-          handleSelect: () => {},
-          isSelected: selectedStrikes.has(index),
-        },
-        disclosure: {
-          iv: 10,
-          tvl: 10000,
-          utilization: 90,
-          normalApy: 10,
-          rewardsApy: 10,
-        },
-      },
-    ]);
-  }, [deselectStrike, selectStrike, selectedStrikes]);
+    if (!selectedOptionsPool || !chain) return;
+    const { callToken, putToken } = selectedOptionsPool;
+    const { id } = chain;
 
-  // const strikesData = useMemo(() => {
-  //   const index = 0;
-  //   console.log('IS SELECTED', selectedStrikes.has(index));
-  //   return [
-  //     {
-  //       strike: {
-  //         amount: 1000,
-  //         handleSelect: (_: any, checked: boolean) => {
-  //           if (checked) {
-  //             selectStrike(index, 1000);
-  //           } else {
-  //             deselectStrike(index);
-  //           }
-  //         },
-  //       },
-  //       breakeven: 1200,
-  //       liquidity: {
-  //         amount: 1000,
-  //         usd: 100,
-  //         symbol: 'ETH',
-  //       },
-  //       isSelected: false,
-  //       button: {
-  //         index: index,
-  //         premium: 10.23,
-  //         handleSelect: () => {},
-  //         isSelected: selectedStrikes.has(index),
-  //       },
-  //       disclosure: {
-  //         iv: 10,
-  //         tvl: 10000,
-  //         utilization: 90,
-  //         normalApy: 10,
-  //         rewardsApy: 10,
-  //       },
-  //     },
-  //   ];
-  // }, [selectStrike, selectedStrikes, deselectStrike]);
+    getStrikesChain(
+      id,
+      callToken.symbol,
+      putToken.symbol,
+      100,
+      0,
+      initialize,
+      toast.error,
+    );
+  }, [selectedOptionsPool, chain, initialize]);
+
+  const strikes = useMemo(() => {
+    if (!strikesChain) return [];
+    // console.log(strikesChain);
+    return strikesChain.map(
+      (
+        {
+          composition,
+          earningsApy,
+          rewardsApy,
+          strike,
+          utilization,
+          meta,
+          sources,
+        },
+        index,
+      ) => {
+        const { call, put } = composition;
+        const { premiumUsd, iv } = call.premiumTTLIVs[selectedTTL];
+        const isSelected = Boolean(selectedStrikes.get(index));
+
+        return {
+          strike: {
+            amount: strike,
+            isSelected,
+            handleSelect: () => {
+              return isSelected
+                ? deselectStrike(index)
+                : selectStrike(index, strike);
+            },
+          },
+          breakeven: isPut ? strike - premiumUsd : strike + premiumUsd,
+          sources,
+          options: isPut ? put.optionsAvailable : call.optionsAvailable,
+          button: {
+            premium: premiumUsd,
+            isSelected,
+            handleSelect: () => {
+              return isSelected
+                ? deselectStrike(index)
+                : selectStrike(index, strike);
+            },
+          },
+          liquidity: {
+            symbol: isPut ? put.symbol : call.symbol,
+            usd: isPut ? put.availableUsd : call.availableUsd,
+            amount: formatUnits(
+              BigInt(isPut ? put.tokensAvailable : call.tokensAvailable),
+              isPut ? put.decimals : call.decimals,
+            ),
+          },
+          disclosure: {
+            earningsApy,
+            rewardsApy,
+            utilization,
+            iv,
+            totalDeposits: {
+              amount: formatUnits(
+                BigInt(isPut ? put.tokensLiquidity : call.tokensLiquidity),
+                isPut ? put.decimals : call.decimals,
+              ),
+              symbol: isPut ? put.symbol : call.symbol,
+            },
+          },
+        };
+      },
+    );
+  }, [
+    strikesChain,
+    selectStrike,
+    selectedTTL,
+    isPut,
+    deselectStrike,
+    selectedStrikes,
+  ]);
+
+  // type StrikeItem = {
+  //   strike: {
+  //     amount: number;
+  //     handleSelect: (event: any, checked: boolean) => void;
+  //   };
+  //   breakeven: number;
+  //   liquidity: { symbol: string; amount: number; usd: number };
+  //   button: {
+  //     index: number;
+  //     premium: number;
+  //     handleSelect: Function;
+  //     isSelected: boolean;
+  //   };
+  //   isSelected: boolean;
+  //   disclosure: {
+  //     iv: number;
+  //     tvl: number;
+  //     utilization: number;
+  //     normalApy: number;
+  //     rewardsApy: number;
+  //   };
+  // };
 
   return (
-    <TableLayout<StrikeItem>
+    <TableLayout<any>
       data={strikes}
       columns={columns}
       rowSpacing={3}
