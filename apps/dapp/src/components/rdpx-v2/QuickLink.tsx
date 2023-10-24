@@ -15,19 +15,18 @@ const QuickLink = (props: Props) => {
   const [active, setActive] = useState<boolean>(false);
 
   return (
-    <div
-      className={`p-2 border rounded-xl transform ease-in-out duration-200 bg-umbra ${
+    <a
+      className={`p-3 border rounded-xl transform ease-in-out duration-200 bg-umbra ${
         active ? 'border-mineshaft' : 'border-umbra'
       }`}
+      onMouseEnter={() => setActive(true)}
+      onMouseLeave={() => setActive(false)}
+      role="link"
+      href={url}
+      rel="noopener noreferrer"
+      target="_blank"
     >
-      <a
-        className="flex justify-between"
-        href={url}
-        rel="noopener noreferrer"
-        target="_blank"
-        onMouseEnter={() => setActive(true)}
-        onMouseLeave={() => setActive(false)}
-      >
+      <span className="flex justify-between">
         <div className="flex space-x-4">
           <img
             src={iconSymbol}
@@ -37,10 +36,9 @@ const QuickLink = (props: Props) => {
           <p className="text-sm my-auto">{text}</p>
         </div>
         <LaunchOutlinedIcon className="fill-current text-white opacity-40 w-[1.2rem]" />
-      </a>
-
+      </span>
       <span className="text-stieglitz text-sm">{body}</span>
-    </div>
+    </a>
   );
 };
 

@@ -80,7 +80,7 @@ const Bond = () => {
     (e: { target: { value: React.SetStateAction<string | number> } }) => {
       setValue(Number(e.target.value) < 0 ? '' : e.target.value);
     },
-    [],
+    []
   );
 
   const handleApprove = useCallback(async () => {
@@ -97,12 +97,12 @@ const Bond = () => {
 
     const weth = MockToken__factory.connect(
       treasuryData.tokenB.address,
-      signer,
+      signer
     );
 
     const rdpx = MockToken__factory.connect(
       treasuryData.tokenA.address,
-      signer,
+      signer
     );
 
     try {
@@ -135,7 +135,7 @@ const Bond = () => {
 
     const treasury = RdpxV2Treasury__factory.connect(
       contractAddresses['RDPX-V2']['Treasury'],
-      signer,
+      signer
     );
     try {
       if (!delegated)
@@ -145,7 +145,7 @@ const Bond = () => {
           0,
         ]).then(() => {
           updateAssetBalances().then(() =>
-            updateTreasuryData().then(() => updateUserDscBondsData()),
+            updateTreasuryData().then(() => updateUserDscBondsData())
           );
         });
       else {
@@ -161,7 +161,7 @@ const Bond = () => {
         let { amounts, ids } = squeezeTreasuryDelegates(
           availableDelegates,
           totalWethRequired,
-          getContractReadableAmount(value, 18),
+          getContractReadableAmount(value, 18)
         ) || {
           amounts: [getContractReadableAmount(0, 18)],
           ids: [0],
@@ -174,7 +174,7 @@ const Bond = () => {
           0,
         ]).then(() => {
           updateAssetBalances().then(() =>
-            updateTreasuryData().then(() => updateUserDscBondsData()),
+            updateTreasuryData().then(() => updateUserDscBondsData())
           );
         });
       }
@@ -211,21 +211,21 @@ const Bond = () => {
 
       const _weth = MockToken__factory.connect(
         treasuryData.tokenB.address,
-        provider,
+        provider
       );
       const _rdpx = MockToken__factory.connect(
         treasuryData.tokenA.address,
-        provider,
+        provider
       );
 
       const allowances = await Promise.all([
         _rdpx.allowance(
           accountAddress,
-          treasuryContractState.contracts.treasury.address,
+          treasuryContractState.contracts.treasury.address
         ),
         _weth.allowance(
           accountAddress,
-          treasuryContractState.contracts.treasury.address,
+          treasuryContractState.contracts.treasury.address
         ),
       ]);
 
@@ -249,23 +249,23 @@ const Bond = () => {
       if (treasuryData.dscPrice.lt(second_lower)) {
         const veDpx = DPXVotingEscrow__factory.connect(
           '0x37b2786EAfD3EC4794A1863B4A11C0B7EA03F78b',
-          provider,
+          provider
         );
         const userVeDpxBalance = await veDpx.balanceOf(accountAddress);
         eligibleUser = userVeDpxBalance.gte(
-          getContractReadableAmount(1000, 18),
+          getContractReadableAmount(1000, 18)
         );
       }
 
       setMintDisabled(
         treasuryData.dscPrice.gte(upper) ||
           treasuryData.dscPrice.lte(lower) ||
-          !eligibleUser,
+          !eligibleUser
       );
 
       setApproved(
         allowances[0].gte(rdpxReq.sub(1e4)) &&
-          (allowances[1].gte(wethReq.sub(1e4)) || delegated), // **note**: account for dust
+          (allowances[1].gte(wethReq.sub(1e4)) || delegated) // **note**: account for dust
       );
     })();
   }, [
@@ -303,7 +303,7 @@ const Bond = () => {
       let { wethAvailable } = squeezeTreasuryDelegates(
         availableDelegates,
         totalWethRequired,
-        getContractReadableAmount(value, 18),
+        getContractReadableAmount(value, 18)
       ) || {
         amounts: [getContractReadableAmount(0, 18)],
         ids: [0],
@@ -337,7 +337,7 @@ const Bond = () => {
 
     const treasury = RdpxV2Treasury__factory.connect(
       contractAddresses['RDPX-V2']['Treasury'],
-      signer,
+      signer
     );
 
     try {
@@ -374,7 +374,7 @@ const Bond = () => {
 
     const treasury = RdpxV2Treasury__factory.connect(
       contractAddresses['RDPX-V2']['Treasury'],
-      signer,
+      signer
     );
 
     try {
@@ -458,13 +458,13 @@ const Bond = () => {
                       BigNumber.from(
                         userAssetBalances[
                           treasuryData.tokenB.symbol.toUpperCase()
-                        ] ?? '0',
+                        ] ?? '0'
                       ),
                       TOKEN_DECIMALS[chainId]?.[
                         treasuryData.tokenB.symbol.toUpperCase()
-                      ],
+                      ]
                     ),
-                    3,
+                    3
                   )}
                   <span className="text-sm text-stieglitz">{' DPXETH'}</span>
                 </span>
@@ -488,11 +488,9 @@ const Bond = () => {
               {['rDPX + ETH', 'rDPX'].map((label, index) => (
                 <Button
                   key={index}
-                  className={`text-white border-0 hover:border-0 w-full m-0 p-0 transition ease-in-out duration-500 ${
-                    bondingMethod === label
-                      ? 'bg-umbra hover:bg-umbra'
-                      : 'bg-transparent hover:bg-transparent'
-                  } hover:text-white`}
+                  size="xsmall"
+                  className="text-white border-0 w-1/2 hover:text-white"
+                  color={bondingMethod === label ? 'umbra' : 'carbon'}
                   onClick={() => setBondingMethod(label)}
                 >
                   {label}

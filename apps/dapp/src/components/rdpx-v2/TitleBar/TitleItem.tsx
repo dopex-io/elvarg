@@ -11,6 +11,7 @@ const TitleItem = (props: Props) => {
 
   return (
     <Button
+      size="small"
       onClick={onClick}
       color={active ? 'carbon' : 'umbra'}
       className="w-1/3"

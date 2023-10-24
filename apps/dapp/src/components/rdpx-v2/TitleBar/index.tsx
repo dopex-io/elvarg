@@ -40,7 +40,7 @@ const TitleBar = () => {
     (index: number) => {
       update(rdpxV2Actions[index]);
     },
-    [update],
+    [update]
   );
 
   const titleBarContent = useMemo(() => {
@@ -50,7 +50,7 @@ const TitleBar = () => {
         return {
           index: 0,
           renderComponent: (
-            <div className="flex space-x-6 mx-auto mt-3">
+            <div className="flex space-x-6 mx-auto">
               <Stat name="Current Discount" value={'1813.16'} prefix="$" />
               <Stat name="APR" value={'13.1%'} />
               <Stat name="DPXETH Price" value={'1732.55'} prefix="$" />
@@ -78,7 +78,7 @@ const TitleBar = () => {
   }, [state]);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col space-y-6">
       <div className="flex space-x-2 bg-umbra rounded-lg p-1">
         {rdpxV2Actions.map((action, index) => (
           <TitleItem
