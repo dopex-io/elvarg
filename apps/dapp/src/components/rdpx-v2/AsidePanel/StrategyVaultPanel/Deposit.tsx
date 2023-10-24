@@ -8,7 +8,7 @@ import { useBoundStore } from 'store';
 import useSendTx from 'hooks/useSendTx';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import Error from 'components/rdpx-v2/StrategyVaultPanel/Error';
+import Error from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/Error';
 import CustomButton from 'components/UI/Button';
 import Input from 'components/UI/Input';
 

@@ -1,20 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BigNumber } from 'ethers';
 
-import Slider from '@mui/material/Slider';
-import Tooltip from '@mui/material/Tooltip';
-
-import InfoOutlined from '@mui/icons-material/InfoOutlined';
-
 import { MockToken__factory, RdpxV2Treasury__factory } from '@dopex-io/sdk';
-import { Button } from '@dopex-io/ui';
 
 import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import Error from 'components/rdpx-v2/BondPanel/Error';
+import Error from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/Error';
 import CustomButton from 'components/UI/Button';
 import Input from 'components/UI/Input';
 
@@ -22,29 +16,29 @@ import getContractReadableAmount from 'utils/contracts/getContractReadableAmount
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
-const STEP = 0.1;
-const MIN_VAL = 0.1;
-const MAX_VAL = 100;
+// const STEP = 0.1;
+// const MIN_VAL = 0.1;
+// const MAX_VAL = 100;
 
-const customSliderStyle = {
-  '.MuiSlider-markLabel': {
-    color: 'white',
-  },
-  '.MuiSlider-rail': {
-    color: '#3E3E3E',
-  },
-  '.MuiSlider-mark': {
-    color: 'white',
-  },
-  '.MuiSlider-thumb': {
-    color: 'white',
-  },
-  '.MuiSlider-track': {
-    color: '#22E1FF',
-  },
-};
+// const customSliderStyle = {
+//   '.MuiSlider-markLabel': {
+//     color: 'white',
+//   },
+//   '.MuiSlider-rail': {
+//     color: '#3E3E3E',
+//   },
+//   '.MuiSlider-mark': {
+//     color: 'white',
+//   },
+//   '.MuiSlider-thumb': {
+//     color: 'white',
+//   },
+//   '.MuiSlider-track': {
+//     color: '#22E1FF',
+//   },
+// };
 
-const Delegate = () => {
+const Withdraw = () => {
   const {
     accountAddress,
     provider,
@@ -208,7 +202,7 @@ const Delegate = () => {
           className="py-1"
         />
         <div className="flex justify-between px-3 pb-3">
-          <span className="text-stieglitz text-sm">Delegate Amount</span>
+          <span className="text-stieglitz text-sm">Withdrawal Amount</span>
           <div className="flex space-x-1">
             <img
               src="/assets/max.svg"
@@ -221,61 +215,48 @@ const Delegate = () => {
                 3,
               )}
             </span>
-            <span className="text-sm text-stieglitz">ETH</span>
+            <span className="text-sm text-stieglitz">ESV</span>
           </div>
         </div>
       </div>
-      <div>
-        <div className="mx-2">
-          <span className="text-sm">Delegate Fee</span>
-          <Tooltip
-            title="Fee % to charge the spender of your WETH as bonus to your 75% share of the bond."
-            enterTouchDelay={0}
-            leaveTouchDelay={1000}
-          >
-            <InfoOutlined className="fill-current text-stieglitz p-1 my-auto" />
-          </Tooltip>
-        </div>
-        <div className="flex space-x-4 mx-2">
-          <Slider
-            sx={customSliderStyle}
-            value={fee}
-            onChange={handleChangeFee}
-            className="w-4/5 my-auto ml-2"
-            aria-label="steps"
-            defaultValue={0.1}
-            step={STEP}
-            min={MIN_VAL}
-            max={MAX_VAL}
-            valueLabelDisplay="off"
-          />
-          <div className="rounded-md bg-gradient-to-r from-primary to-wave-blue p-[1px] w-1/5">
-            <div className="flex bg-umbra rounded-md px-1 py-1 w-full h-fit justify-center text-stieglitz">
-              <input
-                type="number"
-                value={fee}
-                onChange={(e: any) =>
-                  setFee(Number(e.target.value) < 0 ? '0' : e.target.value)
-                }
-                className="text-sm text-white outline-none text-center bg-inherit w-full"
-              />
-              %
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="mx-2">
+      <div className="bg-umbra rounded-xl p-3">
+        <span className="text-sm mb-1">Withdrawals</span>
         <p className="text-xs text-stieglitz text-justify">
-          Receive 75% share of the bonds minted using your collateral plus an
-          additional fee from the delegatee’s bonding discount.
+          Explanation of withdrawals
         </p>
       </div>
       {errorMsg ? <Error errorMsg={errorMsg} /> : null}
       <div className="rounded-xl p-4 w-full bg-umbra">
-        <div className="rounded-md flex flex-col p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800 space-y-2">
+        <div className="bg-umbra rounded-2xl">
+          <div className="flex flex-col p-0 w-full">
+            <div className="flex mb-2">
+              <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
+                Balance
+              </h6>
+              <div className="text-right">
+                <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
+                  13.11 <span className="text-stieglitz">ESV</span>
+                </h6>
+              </div>
+            </div>
+
+            <div className={'flex mb-2'}>
+              <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
+                You will receive
+              </h6>
+              <div className={'text-right'}>
+                <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
+                  6 <span className="text-stieglitz">rDPX</span> 2.5{' '}
+                  <span className="text-stieglitz">ETH</span>{' '}
+                </h6>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="rounded-md flex flex-col p-4 pt-2 mt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800 space-y-2">
           <EstimatedGasCostButton gas={500000} chainId={chainId} />
         </div>
-        <Button
+        <CustomButton
           size="medium"
           className="w-full mt-2 rounded-md"
           color="primary"
@@ -283,10 +264,10 @@ const Delegate = () => {
           disabled={!Number(value) || Boolean(errorMsg)}
         >
           {approved ? 'Delegate' : 'Approve'}
-        </Button>
+        </CustomButton>
       </div>
     </div>
   );
 };
 
-export default Delegate;
+export default Withdraw;

@@ -1,11 +1,17 @@
 import { useEffect } from 'react';
 import Head from 'next/head';
+
 import Box from '@mui/material/Box';
+
+import { NextSeo } from 'next-seo';
 
 import { useBoundStore } from 'store';
 
-import AppBar from 'components/common/AppBar';
+import PageLayout from 'components/common/PageLayout';
 import RdpxV2Main from 'components/rdpx-v2';
+import TitleBar from 'components/rdpx-v2/TitleBar';
+
+import seo from 'constants/seo';
 
 const Mint = () => {
   const {
@@ -24,8 +30,8 @@ const Mint = () => {
         updateUserDscBondsData().then(() => {
           setIsLoading(false);
           updateAPPContractData();
-        })
-      )
+        }),
+      ),
     );
   }, [
     provider,
@@ -41,10 +47,31 @@ const Mint = () => {
       <Head>
         <title>Mint | Dopex</title>
       </Head>
-      <AppBar active="Bond" />
-      <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
+      <NextSeo
+        title={seo.rdpxV2.title}
+        description={seo.rdpxV2.description}
+        canonical={seo.rdpxV2.url}
+        openGraph={{
+          url: seo.rdpxV2.url,
+          title: seo.rdpxV2.title,
+          description: seo.rdpxV2.description,
+          images: [
+            {
+              url: seo.rdpxV2.banner,
+              width: seo.default.width,
+              height: seo.default.height,
+              alt: seo.rdpxV2.alt,
+              type: 'image/png',
+            },
+          ],
+        }}
+      />
+      <PageLayout>
+        <div className="pt-1 lg:max-w-lg md:max-w-md sm:max-w-sm max-w-md mx-auto px-4 lg:px-0">
+          <TitleBar />
+        </div>
         <RdpxV2Main />
-      </Box>
+      </PageLayout>
     </Box>
   );
 };

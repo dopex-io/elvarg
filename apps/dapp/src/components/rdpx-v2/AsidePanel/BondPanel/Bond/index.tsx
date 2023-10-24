@@ -21,10 +21,10 @@ import { BondingState } from 'store/RdpxV2/dpxeth-bonding';
 import useSendTx from 'hooks/useSendTx';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import CollateralInputPanel from 'components/rdpx-v2/BondPanel/Bond/CollateralInputPanel';
-import InfoBox from 'components/rdpx-v2/BondPanel/Bond/InfoBox';
-import DisabledPanel from 'components/rdpx-v2/BondPanel/DisabledPanel';
-import Error from 'components/rdpx-v2/BondPanel/Error';
+import CollateralInputPanel from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/CollateralInputPanel';
+import InfoBox from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/InfoBox';
+import DisabledPanel from 'components/rdpx-v2/AsidePanel/BondPanel/DisabledPanel';
+import Error from 'components/rdpx-v2/AsidePanel/BondPanel/Error';
 import Input from 'components/UI/Input';
 
 import { getContractReadableAmount } from 'utils/contracts';

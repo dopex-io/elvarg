@@ -4,7 +4,7 @@ import { MockToken__factory } from '@dopex-io/sdk';
 
 import { useBoundStore } from 'store';
 
-import InputRow from 'components/rdpx-v2/BondPanel/Bond/InputRow';
+import InputRow from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/InputRow';
 
 import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';

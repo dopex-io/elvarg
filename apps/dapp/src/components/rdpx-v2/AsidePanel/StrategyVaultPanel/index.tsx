@@ -2,13 +2,13 @@ import { useCallback, useState } from 'react';
 
 import ButtonGroup from '@mui/material/ButtonGroup';
 
-import Bond from 'components/rdpx-v2/BondPanel/Bond';
-import Delegate from 'components/rdpx-v2/BondPanel/Delegate';
+import Deposit from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/Deposit';
+import Withdraw from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/Withdraw';
 
-const BUTTON_LABELS = ['Bond', 'Delegate'];
+const BUTTON_LABELS = ['Deposit', 'Withdraw'];
 
-const BondPanel = () => {
-  const [active, setActive] = useState<string>('Bond');
+const StrategyVaultPanel = () => {
+  const [active, setActive] = useState<string>('Deposit');
 
   const handleClick = useCallback((e: any) => {
     setActive(e.target.textContent);
@@ -29,9 +29,9 @@ const BondPanel = () => {
           </button>
         ))}
       </ButtonGroup>
-      {active === 'Bond' ? <Bond /> : <Delegate />}
+      {active === 'Deposit' ? <Deposit /> : <Withdraw />}
     </div>
   );
 };
 
-export default BondPanel;
+export default StrategyVaultPanel;

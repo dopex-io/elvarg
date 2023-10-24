@@ -85,6 +85,14 @@ const seo = {
     title: 'SSOV Beta | Dopex',
     description: 'Buy/Sell vanilla options from the SSOVs',
   },
+  rdpxV2: {
+    url: `${HOST_URL}/rdpx-v2/mint`,
+    banner:
+      'https://res.cloudinary.com/dxitdndu3/image/upload/v1684326255/dopex_images/preview_images/default_qfq5rc.png',
+    alt: 'RDPX V2',
+    title: 'RDPX | Dopex',
+    description: 'Bond, Redeem, Accrue Rewards with RDPX',
+  },
   default: {
     url: HOST_URL,
     title: 'Dopex',
