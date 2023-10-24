@@ -20,18 +20,42 @@ import TableLayout from 'components/common/TableLayout';
 import { formatAmount } from 'utils/general';
 
 type StrikeDisclosureItem = {
-  iv: number;
-  tvl: number;
-  utilization: number;
   earningsApy: number;
   rewardsApy: number;
+  utilization: number;
+  iv: number;
   totalDeposits: {
     amount: string;
     symbol: string;
   };
 };
 
-const columnHelper = createColumnHelper<any>();
+type StrikeItem = {
+  strike: {
+    amount: number;
+    isSelected: boolean;
+    handleSelect: () => void;
+  };
+  breakeven: number;
+  sources: {
+    name: string;
+    compositionPercentage: number;
+  }[];
+  options: string;
+  button: {
+    premium: number;
+    isSelected: boolean;
+    handleSelect: () => void;
+  };
+  liquidity: {
+    symbol: string;
+    usd: string;
+    amount: string;
+  };
+  disclosure: StrikeDisclosureItem;
+};
+
+const columnHelper = createColumnHelper<StrikeItem>();
 
 const columns = [
   columnHelper.accessor('strike', {
@@ -132,29 +156,6 @@ const columns = [
   }),
 ];
 
-type StrikeItem = {
-  strike: {
-    amount: number;
-    handleSelect: (event: any, checked: boolean) => void;
-  };
-  breakeven: number;
-  liquidity: { symbol: string; amount: number; usd: number };
-  button: {
-    index: number;
-    premium: number;
-    handleSelect: Function;
-    isSelected: boolean;
-  };
-  isSelected: boolean;
-  disclosure: {
-    iv: number;
-    tvl: number;
-    utilization: number;
-    earningsApy: number;
-    rewardsApy: number;
-  };
-};
-
 export const StatItem = ({ name, value }: { name: string; value: string }) => (
   <div className="flex flex-col px-1">
     <span className="text-sm font-medium">{value}</span>
@@ -162,7 +163,7 @@ export const StatItem = ({ name, value }: { name: string; value: string }) => (
   </div>
 );
 
-const TableDisclosure = (props: any) => {
+const TableDisclosure = (props: StrikeDisclosureItem) => {
   return (
     <Disclosure.Panel as="tr" className="bg-umbra">
       <td colSpan={6}>
@@ -172,10 +173,9 @@ const TableDisclosure = (props: any) => {
             name="Utilization"
             value={`${formatAmount(props.utilization, 5)}%`}
           />
-          <StatItem name="TVL" value={`$${formatAmount(props.tvl, 2, true)}`} />
           <StatItem
             name="Reward APY"
-            value={`${formatAmount(props.normalApy, 2, true)}%`}
+            value={`${formatAmount(props.earningsApy, 2, true)}%`}
           />
           <StatItem
             name="Premium APY"
@@ -202,11 +202,6 @@ const StrikesTable = () => {
 
   const { selectedOptionsPool, isPut, selectedTTL } = useClammStore();
   const { chain } = useNetwork();
-  // const [strikes, setStrikes] = useState<StrikeItem[]>([]);
-  // const [pagination, __setPagination] = useState({
-  //   first: 10,
-  //   skip: 0,
-  // });
 
   useEffect(() => {
     if (!selectedOptionsPool || !chain) return;
@@ -226,7 +221,6 @@ const StrikesTable = () => {
 
   const strikes = useMemo(() => {
     if (!strikesChain) return [];
-    // console.log(strikesChain);
     return strikesChain.map(
       (
         {
@@ -299,31 +293,8 @@ const StrikesTable = () => {
     selectedStrikes,
   ]);
 
-  // type StrikeItem = {
-  //   strike: {
-  //     amount: number;
-  //     handleSelect: (event: any, checked: boolean) => void;
-  //   };
-  //   breakeven: number;
-  //   liquidity: { symbol: string; amount: number; usd: number };
-  //   button: {
-  //     index: number;
-  //     premium: number;
-  //     handleSelect: Function;
-  //     isSelected: boolean;
-  //   };
-  //   isSelected: boolean;
-  //   disclosure: {
-  //     iv: number;
-  //     tvl: number;
-  //     utilization: number;
-  //     normalApy: number;
-  //     rewardsApy: number;
-  //   };
-  // };
-
   return (
-    <TableLayout<any>
+    <TableLayout<StrikeItem>
       data={strikes}
       columns={columns}
       rowSpacing={3}
