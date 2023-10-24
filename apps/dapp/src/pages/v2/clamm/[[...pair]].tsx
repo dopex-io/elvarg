@@ -30,12 +30,12 @@ const Page = () => {
 
   return (
     <PageLayout>
-      <div className="flex w-[1554px] flex-col p-[12px] space-y-[12px]">
+      <div className="flex max-w-[1554px]  flex-col p-[12px] space-y-[12px]">
         <div className="flex space-x-[24px] items-end justify-start">
           <PairSelector />
-          <OverViewStats />
+          {/* <OverViewStats /> */}
         </div>
-        {/* <PriceChartWithHide /> */}
+        <PriceChartWithHide />
         <StrikesChain />
         {/* <PositionsTable /> */}
       </div>

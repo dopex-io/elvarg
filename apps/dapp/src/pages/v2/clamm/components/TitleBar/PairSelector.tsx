@@ -49,7 +49,8 @@ const PairSelector = () => {
         pair = [pairInStore];
       }
     }
-    const optionsPoolInfo = optionsPools.get(pair[0]);
+
+    const optionsPoolInfo = optionsPools.get(pair ? pair[0] : '');
     let urlReplacement = '';
     if (optionsPoolInfo) {
       const pairNameSplit = optionsPoolInfo.pairName.split('-');

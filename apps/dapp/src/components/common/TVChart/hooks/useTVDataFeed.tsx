@@ -95,7 +95,7 @@ const useTVDataFeed = (dataProvider: TVDataProvider) => {
         ): Promise<void> => {
           const { from, to, firstDataRequest } = periodParams;
           const interval = SUPPORTED_RESOLUTIONS[resolution];
-          const ticker = symbolInfo.name.toLowerCase().replaceAll('/', '-');
+          const ticker = symbolInfo.name.toUpperCase();
 
           try {
             let priceCandles = await dataProvider?.getCandleStickPrices(
@@ -148,7 +148,7 @@ const useTVDataFeed = (dataProvider: TVDataProvider) => {
             if (!lastBar) return;
             const nextBarTime = lastBar.time + CHART_PERIODS[resolution] * 1000;
             const currentTime = new Date().getTime();
-            const ticker = symbolInfo.name.toLowerCase().replaceAll('/', '-');
+            const ticker = symbolInfo.name;
             const lastPrice = await dataProvider?.getLastPrice(42161, ticker);
 
             let bar;

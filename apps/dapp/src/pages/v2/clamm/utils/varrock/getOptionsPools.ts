@@ -30,7 +30,7 @@ function getOptionsPools(
   onErrorCallback?: (error: string) => void,
 ) {
   axios
-    .get(`${VARROACK_BASE_API_URL}/clamm/options-pools`, {
+    .get(`${VARROACK_BASE_API_URL}/clamm/pools`, {
       params: {
         chainId,
       },

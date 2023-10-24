@@ -12,7 +12,7 @@ async function getStrikesChain(
   onErrorCallback?: (error: string) => void,
 ) {
   axios
-    .get(`${VARROACK_BASE_API_URL}/clamm/strikes-chain`, {
+    .get(`${VARROACK_BASE_API_URL}/clamm/strikes`, {
       params: {
         chainId,
         callToken,
