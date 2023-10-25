@@ -235,7 +235,13 @@ const StrikesTable = () => {
         index,
       ) => {
         const { call, put } = composition;
-        const { premiumUsd, iv } = call.premiumTTLIVs[selectedTTL];
+
+        let premiumUsd = 0;
+        let iv = 0;
+        if (Object.keys(call.premiumTTLIVs).includes(selectedTTL.toString())) {
+          premiumUsd = call.premiumTTLIVs[selectedTTL].premiumUsd;
+          iv = call.premiumTTLIVs[selectedTTL].iv;
+        }
         const isSelected = Boolean(selectedStrikes.get(index));
 
         return {

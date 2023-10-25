@@ -160,7 +160,7 @@ export const TVChartContainer = () => {
 
   return (
     <div
-      className="xl:h-[630px] h-[400px] w-full theme-dark"
+      className="xl:h-[630px] h-[400px] w-full rounded-lg theme-dark"
       ref={chartContainerRef}
     />
   );

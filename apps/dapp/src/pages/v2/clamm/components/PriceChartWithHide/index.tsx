@@ -27,7 +27,7 @@ const PriceChartWithHide = () => {
   };
 
   return (
-    <div className="w-full flex flex-col">
+    <div className="w-full flex flex-col rounded-lg py-1 bg-cod-gray">
       {!hideChart && <TVChart />}
       <div
         role="button"

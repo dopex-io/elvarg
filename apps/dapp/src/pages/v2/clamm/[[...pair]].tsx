@@ -30,7 +30,8 @@ const Page = () => {
     queryKey: ['clamm-pools-' + chain?.id],
     initialData: [],
     staleTime: 0,
-    queryFn: () => {
+    refetchOnWindowFocus: true,
+    queryFn: async () => {
       const queryUrl = new URL(`${VARROACK_BASE_API_URL}/clamm/pools`);
       queryUrl.searchParams.set('chainId', chain?.id.toString() ?? '42161');
       return fetch(queryUrl).then((res) => res.json());
@@ -44,15 +45,6 @@ const Page = () => {
     }
     initialize(data);
   }, [data, initialize]);
-
-  // useEffect(() => {
-  //   window.addEventListener('visibilitychange', () => {
-  //     if (dataUpdatedAt + MAX_AFK_LIMIT < new Date().getTime()) {
-  //       refetch();
-  //     }
-  //   });
-  //   return () => window.removeEventListener('visibilitychange', () => {});
-  // });
 
   return (
     <PageLayout>

@@ -10,8 +10,16 @@ import { StatItem } from 'pages/v2/clamm/components/StrikesChain/compnents/Strik
 import TableLayout from 'components/common/TableLayout';
 
 import { formatAmount } from 'utils/general';
+import getPercentageDifference from 'utils/math/getPercentageDifference';
 
-type BuyPositionItem = {
+type BuyPositionItem = BuyPosition & {
+  select: {
+    handleSelect: Function;
+    disabled: boolean;
+  };
+};
+
+export type BuyPosition = {
   strike: number;
   size: {
     amount: number;
@@ -19,18 +27,14 @@ type BuyPositionItem = {
     usdValue: number;
   };
   side: string;
-  profit: {
+  premium: {
     amount: number;
     symbol: string;
     usdValue: number;
-    percentage: number;
   };
   expiry: number;
-  select: {
-    handleSelect: Function;
-    disabled: boolean;
-  };
-  premium: {
+  profit: {
+    percentage: number;
     amount: number;
     symbol: string;
     usdValue: number;
@@ -42,7 +46,8 @@ const columns = [
   columnHelper.accessor('strike', {
     header: 'Strike Price',
     cell: (info) => (
-      <div className="flex space-x-2 text-left">
+      <div className="flex space-x-2 text-left items-center">
+        <Checkbox className="text-mineshaft" size="small" />
         <span className="text-stieglitz inline-block">$</span>
         <span className="inline-block">{formatAmount(info.getValue(), 5)}</span>
       </div>
@@ -85,16 +90,17 @@ const columns = [
   columnHelper.accessor('profit', {
     header: 'Profit',
     cell: (info) => {
-      let { amount, usdValue, symbol } = info.getValue();
+      let { amount, usdValue, symbol, percentage } = info.getValue();
       const amountInNumber = Number(amount);
 
       return (
         <div className="flex flex-col">
           <span className={amountInNumber > 0 ? 'text-up-only' : 'stieglitz'}>
             {amountInNumber > 0 && '+'}
-            {formatAmount(amountInNumber, 5)}
+            {formatAmount(amountInNumber, 5)}{' '}
+            {`(${formatAmount(percentage, 2)}%)`}
           </span>
-          <span>$ {formatAmount(usdValue, 5)}</span>
+          <span className="text-stieglitz">$ {formatAmount(usdValue, 5)}</span>
         </div>
       );
     },
@@ -102,68 +108,37 @@ const columns = [
   columnHelper.accessor('select', {
     header: '',
     cell: (info) => {
-      return <Checkbox className="text-mineshaft" size="small" />;
+      return <Button>Exericse</Button>;
     },
   }),
 ];
 
-// Calculate PNL Helper
-const BuyPositions = () => {
+const BuyPositions = ({ positions }: { positions: BuyPosition[] }) => {
   const buyPositions = useMemo(() => {
-    return [
-      {
-        strike: 1000,
-        size: {
-          amount: 100,
-          symbol: 'USDC',
-          usdValue: 200,
-        },
-        side: 'Put',
+    return positions.map(({ expiry, premium, profit, side, size, strike }) => {
+      return {
+        expiry,
+        premium,
         profit: {
-          amount: 100,
-          symbol: 'ARB',
-          usdValue: 5,
-          percentage: 0,
+          ...profit,
+          percentage: Math.max(
+            getPercentageDifference(profit.amount, premium.amount),
+            0,
+          ),
         },
-        expiry: 200,
+        side,
+        size,
+        strike,
         select: {
           handleSelect: () => {},
           disabled: false,
         },
-        premium: {
-          amount: 123,
-          symbol: 'ARB',
-          usdValue: 5,
-        },
-      },
-      {
-        strike: 1000,
-        size: {
-          amount: 100,
-          symbol: 'USDC',
-          usdValue: 200,
-        },
-        side: 'Call',
-        profit: {
-          amount: 100,
-          symbol: 'ARB',
-          usdValue: 5,
-          percentage: 0,
-        },
-        expiry: 200,
-        select: {
-          handleSelect: () => {},
-          disabled: true,
-        },
-        premium: {
-          amount: 123,
-          symbol: 'USDC',
-          usdValue: 6,
-        },
-      },
-    ];
-  }, []);
+      };
+    });
+  }, [positions]);
+
   const handleExercise = useCallback(async () => {}, []);
+
   return (
     <TableLayout<BuyPositionItem>
       data={buyPositions}

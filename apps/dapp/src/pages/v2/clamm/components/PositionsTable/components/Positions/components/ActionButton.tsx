@@ -9,14 +9,14 @@ type Props = {
 const ActionButton = (props: Props) => {
   const { positionsTypeIndex, selectedPositions } = props;
 
-  const handleWithdraw = useCallback(() => {}, []);
-  const handleExercise = useCallback(() => {}, []);
+  const handleMultiWithdraw = useCallback(() => {}, []);
+  const handleMultiExercise = useCallback(() => {}, []);
 
   const buttonProps = useMemo(() => {
     const isBuyPositions = positionsTypeIndex === 0;
-    const action = isBuyPositions ? 'Exercise' : 'Withdraw';
+    const action = isBuyPositions ? 'Multi Exercise' : 'Multi Withdraw';
     return {
-      buttonText: selectedPositions.size === 0 ? 'Select positions' : action,
+      buttonText: action,
       disabled: selectedPositions.size === 0,
     };
   }, [positionsTypeIndex, selectedPositions]);
