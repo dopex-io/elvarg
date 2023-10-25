@@ -38,9 +38,9 @@ const PriceChartWithHide = () => {
           {!hideChart ? 'Hide Chart' : 'Show Chart'}
         </span>
         {!hideChart ? (
-          <ChevronUpIcon className="w-[18px] h-w-[18px] fill-current text-stieglitz hover:text-white" />
+          <ChevronUpIcon className="w-[18px] h-[18px] fill-current text-stieglitz hover:text-white" />
         ) : (
-          <ChevronDownIcon className="w-[18px] h-w-[18px] fill-current text-stieglitz hover:text-white" />
+          <ChevronDownIcon className="w-[18px] h-[18px] fill-current text-stieglitz hover:text-white" />
         )}
       </div>
     </div>
