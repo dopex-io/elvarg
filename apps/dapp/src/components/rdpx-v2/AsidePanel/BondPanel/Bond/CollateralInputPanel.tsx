@@ -53,18 +53,18 @@ const CollateralInputPanel = (props: Props) => {
       const [rdpxAllowance, wethAllowance] = await Promise.all([
         MockToken__factory.connect(
           treasuryData.tokenA.address, // rdpx
-          provider,
+          provider
         ).allowance(accountAddress, treasury),
         MockToken__factory.connect(
           treasuryData.tokenB.address, // weth
-          provider,
+          provider
         ).allowance(accountAddress, treasury),
       ]);
 
       setApproved(
         rdpxAllowance.gte(getContractReadableAmount(amounts[0] || 0, 18)) &&
           (delegated ||
-            wethAllowance.gte(getContractReadableAmount(amounts[1] || 0, 18))),
+            wethAllowance.gte(getContractReadableAmount(amounts[1] || 0, 18)))
       );
     })();
   }, [
@@ -81,7 +81,6 @@ const CollateralInputPanel = (props: Props) => {
     <div className="bg-umbra rounded-b-xl">
       <div className="flex flex-col p-2 bg-umbra">
         <span className="text-sm text-stieglitz">Collateral Required</span>
-
         <div className="flex space-x-2 mt-2">
           <InputRow
             key={1}

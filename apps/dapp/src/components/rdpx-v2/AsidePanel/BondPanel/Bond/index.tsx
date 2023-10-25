@@ -472,32 +472,30 @@ const Bond = () => {
             </>
           }
         />
-        <div className="flex flex-col p-2 bg-umbra">
-          <div className="justify-between h-fit">
-            <div className="flex">
-              <span className="text-sm text-stieglitz">Bonding Method</span>
-              <Tooltip
-                title="Spend only rDPX by using WETH from delegating users to cover 75% of the bonds and receive 25% share of dpxETH minus a small percentage in delegation fee."
-                enterTouchDelay={0}
-                leaveTouchDelay={1000}
-              >
-                <InfoOutlinedIcon className="fill-current text-stieglitz p-1" />
-              </Tooltip>
-            </div>
-            <ButtonGroup className="flex justify-between border border-carbon bg-carbon rounded-top-lg p-0.5">
-              {['rDPX + ETH', 'rDPX'].map((label, index) => (
-                <Button
-                  key={index}
-                  size="xsmall"
-                  className="text-white border-0 w-1/2 hover:text-white"
-                  color={bondingMethod === label ? 'umbra' : 'carbon'}
-                  onClick={() => setBondingMethod(label)}
-                >
-                  {label}
-                </Button>
-              ))}
-            </ButtonGroup>
+        <div className="p-2 justify-between h-fit space-y-1">
+          <div className="flex">
+            <p className="text-xs my-auto text-stieglitz">Bonding Method</p>
+            <Tooltip
+              title="Spend only rDPX by using WETH from delegating users to cover 75% of the bonds and receive 25% share of dpxETH minus a small percentage in delegation fee."
+              enterTouchDelay={0}
+              leaveTouchDelay={1000}
+            >
+              <InfoOutlinedIcon className="fill-current text-stieglitz p-1" />
+            </Tooltip>
           </div>
+          <ButtonGroup className="flex justify-between border border-mineshaft bg-mineshaft rounded-md p-0.5">
+            {['rDPX + ETH', 'rDPX'].map((label, index) => (
+              <Button
+                key={index}
+                size="xsmall"
+                className="text-white border-0 w-1/2 hover:text-white"
+                color={bondingMethod === label ? 'carbon' : 'mineshaft'}
+                onClick={() => setBondingMethod(label)}
+              >
+                {label}
+              </Button>
+            ))}
+          </ButtonGroup>
         </div>
         <CollateralInputPanel
           inputAmount={Number(value)}

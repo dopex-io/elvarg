@@ -32,12 +32,12 @@ const UserBonds = () => {
 
       const bond = RdpxV2Bond__factory.connect(
         treasuryContractState.contracts.bond.address,
-        signer,
+        signer
       );
 
       const treasury = RdpxV2Treasury__factory.connect(
         treasuryContractState.contracts.treasury.address,
-        signer,
+        signer
       );
 
       const isApproved = (await bond.getApproved(tokenId))
@@ -63,30 +63,45 @@ const UserBonds = () => {
       treasuryContractState.contracts,
       updateUserDscBondsData,
       updateTreasuryData,
-    ],
+    ]
   );
 
   const userBonds: UserBondsType[] = useMemo(() => {
-    if (userDscBondsData.bonds.length === 0 || !treasuryData) return [];
+    // if (userDscBondsData.bonds.length === 0 || !treasuryData) return [];
 
-    return userDscBondsData.bonds.map((bond) => {
-      const redeemable =
-        Number(bond.maturity) * 1000 < Math.ceil(Number(new Date()));
-
-      return {
-        tokenId: Number(bond.tokenId),
-        amount: BigNumber.from(bond.amount),
-        redeemable,
-        maturity: bond.maturity,
-        timestamp: Number(bond.timestamp),
+    return [
+      {
+        tokenId: 0,
+        amount: BigNumber.from(10),
+        redeemable: false,
+        maturity: 86400,
+        timestamp: 0,
         button: {
-          handleRedeem: () => handleRedeem(bond.tokenId),
-          redeemable,
-          id: bond.tokenId,
+          handleRedeem: () => handleRedeem(0),
+          redeemable: false,
+          id: 0,
         },
-      };
-    });
-  }, [handleRedeem, treasuryData, userDscBondsData.bonds]);
+      },
+    ];
+
+    // return userDscBondsData.bonds.map((bond) => {
+    //   const redeemable =
+    //     Number(bond.maturity) * 1000 < Math.ceil(Number(new Date()));
+
+    //   return {
+    //     tokenId: Number(bond.tokenId),
+    //     amount: BigNumber.from(bond.amount),
+    //     redeemable,
+    //     maturity: bond.maturity,
+    //     timestamp: Number(bond.timestamp),
+    //     button: {
+    //       handleRedeem: () => handleRedeem(bond.tokenId),
+    //       redeemable,
+    //       id: bond.tokenId,
+    //     },
+    //   };
+    // });
+  }, [handleRedeem /* userDscBondsData.bonds, treasuryData*/]);
 
   return (
     <TableLayout<UserBondsType>

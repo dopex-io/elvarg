@@ -49,9 +49,9 @@ const InputRow = (props: Props) => {
   };
 
   return (
-    <div className="!border-[0.05px] flex justify-end space-x-3 divide-x-2 divide-cod-gray border-mineshaft rounded-md">
+    <div className="border-[0.05px] flex justify-end space-x-3 divide-x-2 divide-cod-gray border-mineshaft rounded-md w-full">
       <div
-        className={`flex justify-center w-1/2 px-2 py-1 my-auto text-stieglitz ${
+        className={`flex justify-start w-fit px-2 py-1 my-auto text-stieglitz ${
           rounded ? 'rounded-br-xl' : null
         }`}
       >

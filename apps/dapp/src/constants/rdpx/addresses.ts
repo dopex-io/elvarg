@@ -1,6 +1,6 @@
 import { Address } from 'viem';
 
-const keys = [
+export const rdpxV2ContractKeys = [
   'v2core',
   'perpPool',
   'receiptToken',
@@ -9,9 +9,10 @@ const keys = [
   'weth',
   'dpxeth',
   'dbrdpx',
+  'bond',
 ] as const;
 
-type AddressKey = (typeof keys)[number];
+type AddressKey = (typeof rdpxV2ContractKeys)[number];
 
 const addresses: { [key in AddressKey]: Address } = {
   v2core: '0x',
@@ -22,6 +23,7 @@ const addresses: { [key in AddressKey]: Address } = {
   weth: '0x',
   dpxeth: '0x',
   dbrdpx: '0x',
+  bond: '0x',
 };
 
 export default addresses;

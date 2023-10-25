@@ -1,12 +1,21 @@
-const initialContractStates = {
-  core: {
+import { rdpxV2ContractKeys } from './addresses';
+
+const initialContractStates: {
+  [key in (typeof rdpxV2ContractKeys)[number]]?: any;
+} = {
+  v2core: {
     bondMaturity: 0n,
     bondingRatio: [0n, 0n] as [bigint, bigint],
     feePercentage: 0n,
     isRelpActive: false,
     relpFactor: 0n,
+    dscPrice: 0n,
+    rdpxPriceInEth: 0n,
     bondDiscountFactor: 0n,
     totalWethDelegated: 0n,
+    secondLowerPeg: 0n,
+    firstLowerPeg: 0n,
+    upperPeg: 0n,
   },
   perpPool: {
     state: {

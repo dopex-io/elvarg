@@ -41,6 +41,19 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
   const updateVaultState = useCallback(async () => {
     /// initialize vault
 
+    // expiry
+    // rdpx price
+    // strike
+    // rdpx amount per receipt token // fetch from core contract
+    // premium per receipt token
+
+    // const strike = rdpxPriceInEth - rdpxPriceInEth / 4n;
+    // const premiumPerOption = await readContract({
+    //   abi: PerpetualAtlanticVault__factory.abi,
+    //   address: addresses.perpPool,
+    //   args: [],
+    // });
+
     setVaultState(initialContractStates.perpPool.state);
   }, []);
 

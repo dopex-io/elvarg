@@ -1,16 +1,21 @@
 import { useCallback, useEffect, useState } from 'react';
 import { BigNumber } from 'ethers';
+import { formatUnits, zeroAddress } from 'viem';
 
-import Tooltip from '@mui/material/Tooltip';
+import { useAccount } from 'wagmi';
 
 import { useBoundStore } from 'store';
 import { DelegateType } from 'store/RdpxV2/dpxeth-bonding';
+
+import useBondingData from 'hooks/rdpx/useBondingData';
 
 import {
   getContractReadableAmount,
   getUserReadableAmount,
 } from 'utils/contracts';
 import formatAmount from 'utils/general/formatAmount';
+
+import { DECIMALS_USD } from 'constants/index';
 
 const InfoBox = (props: { value: string; delegated?: boolean }) => {
   const { value, delegated = false } = props;
@@ -21,6 +26,12 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
     appContractData,
     squeezeTreasuryDelegates,
   } = useBoundStore();
+
+  const { address: user } = useAccount();
+
+  const { updateV2CoreData, coreContractState } = useBondingData({
+    user: user ?? zeroAddress,
+  });
 
   const [premium, setPremium] = useState<number>(0);
   const [discount, setDiscount] = useState<number>(0);
@@ -56,11 +67,11 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
         .div(one_ether)
         .sub(requiredWethNoDiscount)
         .mul(-1),
-      18,
+      18
     );
     const totalPremium = getUserReadableAmount(
       treasuryData.premiumPerDsc.mul(_amount).div(one_ether),
-      18,
+      18
     );
 
     // Calculate average fee across delegates based on weight of delegates' collateral used
@@ -74,7 +85,7 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
     const { ids, amounts } = squeezeTreasuryDelegates(
       availableDelegates,
       totalWethRequired,
-      bonds,
+      bonds
     ) || {
       wethAvailable: BigNumber.from(0),
       ids: [0],
@@ -86,13 +97,13 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
     const weights = amounts.map((_amount) =>
       getUserReadableAmount(
         _amount.mul(getContractReadableAmount(1, 10)).div(bonds),
-        10,
-      ),
+        10
+      )
     );
     const _avgFee =
       activeDelegatesFees.reduce(
         (prev, curr, i) => curr + prev * (weights[i] ?? 0),
-        0,
+        0
       ) / activeDelegatesFees.length;
 
     // Calculate delegatee's share; 25% of bonds - (discount - discount * fee_percentage)
@@ -107,8 +118,8 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
           .sub(requiredWethNoDiscount)
           .mul(getContractReadableAmount(1, 18))
           .div(totalWethRequired.gt(0) ? totalWethRequired : '1'),
-        18,
-      ) * 100,
+        18
+      ) * 100
     );
 
     // Calculate total WETH available from delegates
@@ -116,14 +127,14 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
       treasuryData.availableDelegates.reduce((prev: BigNumber, curr: any) => {
         return prev.add(curr.amount.sub(curr.activeCollateral));
       }, BigNumber.from(0)),
-      18,
+      18
     );
 
     const availablePutsLiquidity = getUserReadableAmount(
       appContractData.vaultData.totalCollateral.sub(
-        appContractData.vaultData.activeCollateral,
+        appContractData.vaultData.activeCollateral
       ),
-      18,
+      18
     );
 
     setPutsBalance(availablePutsLiquidity);
@@ -151,32 +162,19 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
     calculateDelegateData();
   }, [calculateDelegateData]);
 
+  // useEffect(() => {
+  //   updateV2CoreData()
+  // }, [updateV2CoreData])
+
   return (
     <div className="flex flex-col border border-carbon rounded-xl">
-      <div className="flex divide-x divide-carbon">
-        <Tooltip
-          followCursor
-          arrow={true}
-          color="transparent"
-          title={
-            <div className="flex flex-col p-2 pb-1 bg-carbon rounded-lg border border-mineshaft w-fit space-y-2 bg-opacity-50 backdrop-blur-md">
-              <p className={`text-xs ${discount > 0 ? 'text-up-only' : null}`}>
-                {formatAmount(discount, 3)} WETH
-              </p>
-            </div>
-          }
-        >
-          <div className="flex w-full p-2">
-            <p className="text-xs text-stieglitz mr-auto">Discount</p>
-            <p
-              className={`text-xs ml-auto${
-                discountPercent > 0 ? 'text-up-only' : null
-              } underline decoration-dashed`}
-            >
-              {formatAmount(discountPercent, 3)}%
-            </p>
-          </div>
-        </Tooltip>
+      <div className="flex divide-x divide-carbon p-2">
+        <p className="text-xs text-stieglitz mr-auto">Discount Factor</p>
+        <p className={`text-xs ${discount > 0 ? 'text-up-only' : null}`}>
+          {formatAmount(
+            formatUnits(coreContractState.bondDiscountFactor, DECIMALS_USD)
+          )}
+        </p>
       </div>
       <div className="flex divide-x divide-carbon">
         <div className="flex w-full p-2 pt-1 text-start space-y-1">

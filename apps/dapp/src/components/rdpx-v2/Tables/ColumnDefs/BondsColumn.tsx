@@ -7,6 +7,7 @@ import CheckCircleRounded from '@mui/icons-material/CheckCircleRounded';
 
 import { Button } from '@dopex-io/ui';
 import { createColumnHelper } from '@tanstack/react-table';
+import { format } from 'date-fns';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
@@ -29,10 +30,9 @@ const columnHelper = createColumnHelper<UserBonds>();
 
 const columns = [
   columnHelper.accessor('tokenId', {
-    header: 'Token ID',
+    header: 'Bond ID',
     cell: (info) => (
       <span className="space-x-2 text-left">
-        <p className="text-stieglitz inline-block">#</p>
         <p className="inline-block">{info.getValue()}</p>
       </span>
     ),
@@ -45,20 +45,17 @@ const columns = [
         <Tooltip title={getUserReadableAmount(amount, DECIMALS_TOKEN)}>
           <p className="text-sm">
             {getUserReadableAmount(amount, DECIMALS_TOKEN).toFixed(3)}{' '}
-            <span className="text-stieglitz">dpxETH</span>
+            <span className="text-stieglitz">RT</span>
           </p>
         </Tooltip>
       );
     },
   }),
-  columnHelper.accessor('redeemable', {
+  columnHelper.accessor('maturity', {
     header: 'Expiry',
-    cell: (info) =>
-      info.getValue() ? (
-        <CheckCircleRounded className="fill-current text-up-only" />
-      ) : (
-        <CancelRoundedIcon className="fill-current text-down-bad" />
-      ),
+    cell: (info) => (
+      <p>{format(new Date(Number(info.getValue())), 'd LLL yyyy')}</p>
+    ),
   }),
   columnHelper.accessor('button', {
     header: '',
