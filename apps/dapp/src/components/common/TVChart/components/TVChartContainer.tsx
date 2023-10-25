@@ -159,7 +159,10 @@ export const TVChartContainer = () => {
   }, [chartReady, resetCache]);
 
   return (
-    <div className="h-[630px] w-full theme-dark" ref={chartContainerRef} />
+    <div
+      className="xl:h-[630px] h-[400px] w-full theme-dark"
+      ref={chartContainerRef}
+    />
   );
 };
 
