@@ -60,7 +60,7 @@ const Deposit = () => {
 
     const _token = MockToken__factory.connect(
       treasuryData.tokenB.address,
-      signer,
+      signer
     );
 
     try {
@@ -87,7 +87,7 @@ const Deposit = () => {
 
     const token = MockToken__factory.connect(
       treasuryData.tokenB.address,
-      provider,
+      provider
     );
 
     const _balance = await token.balanceOf(accountAddress);
@@ -105,7 +105,7 @@ const Deposit = () => {
 
     const treasury = RdpxV2Treasury__factory.connect(
       treasuryContractState.contracts.treasury.address,
-      signer,
+      signer
     );
 
     try {
@@ -145,12 +145,12 @@ const Deposit = () => {
 
       const _token = MockToken__factory.connect(
         treasuryData.tokenB.address,
-        provider,
+        provider
       );
 
       const _allowance = await _token.allowance(
         accountAddress,
-        treasuryContractState.contracts.treasury.address,
+        treasuryContractState.contracts.treasury.address
       );
 
       setApproved(_allowance.gte(getContractReadableAmount(value, 18)));
@@ -190,7 +190,7 @@ const Deposit = () => {
             <span className="text-sm">
               {formatAmount(
                 getUserReadableAmount(BigNumber.from(userBalance), 18),
-                3,
+                3
               )}
             </span>
             <span className="text-sm text-stieglitz">ETH</span>
@@ -205,7 +205,7 @@ const Deposit = () => {
       </div>
 
       {errorMsg ? <Error errorMsg={errorMsg} /> : null}
-      <div className="rounded-xl p-4 w-full bg-umbra">
+      <div className="rounded-xl p-3 w-full bg-umbra">
         <div className="bg-umbra rounded-2xl">
           <div className="flex flex-col p-0 w-full">
             <div className="flex mb-2">

@@ -515,7 +515,7 @@ const Bond = () => {
           <p className="text-black text-sm my-auto">{buttonProps.info}</p>
         </div>
       ) : null}
-      <div className="rounded-xl p-4 w-full bg-umbra">
+      <div className="rounded-xl p-3 w-full bg-umbra">
         <div className="bg-umbra rounded-2xl">
           <div className="flex flex-col p-0 w-full">
             <div className="flex mb-2">
