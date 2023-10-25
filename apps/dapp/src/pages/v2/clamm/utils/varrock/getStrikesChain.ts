@@ -28,9 +28,10 @@ async function getStrikesChain(
         !err.response ||
         !err.response.data ||
         !err.response.data.message
-      )
+      ) {
         console.error(err);
-      console.error(err.response.data.message);
+        return [];
+      }
       onErrorCallback?.(err.response.data.message);
       return [];
     });

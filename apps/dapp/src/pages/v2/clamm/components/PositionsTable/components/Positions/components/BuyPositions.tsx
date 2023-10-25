@@ -89,29 +89,13 @@ const columns = [
       const amountInNumber = Number(amount);
 
       return (
-        <>
-          <span className="space-x-2">
-            {Number(amountInNumber) === 0 && (
-              <p className="text-stieglitz inline-block">
-                {formatAmount(amountInNumber, 5)}
-              </p>
-            )}
-            {Number(amountInNumber) > 0 && (
-              <p className="text-up-only inline-block">
-                {formatAmount(amountInNumber, 5)}
-              </p>
-            )}
-            {Number(amountInNumber) < 0 && (
-              <p className="text-down-bad inline-block">
-                {formatAmount(amountInNumber, 5)}
-              </p>
-            )}
-            <p className="text-stieglitz inline-block">{symbol}</p>
+        <div className="flex flex-col">
+          <span className={amountInNumber > 0 ? 'text-up-only' : 'stieglitz'}>
+            {amountInNumber > 0 && '+'}
+            {formatAmount(amountInNumber, 5)}
           </span>
-          <p className="text-stieglitz text-left text-[12px]">
-            $ {formatAmount(usdValue, 5)}
-          </p>
-        </>
+          <span>$ {formatAmount(usdValue, 5)}</span>
+        </div>
       );
     },
   }),

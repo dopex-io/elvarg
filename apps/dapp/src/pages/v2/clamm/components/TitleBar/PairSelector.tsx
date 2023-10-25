@@ -78,7 +78,7 @@ const PairSelector = () => {
   }, [params, optionsPools]);
 
   return (
-    <div className="flex flex-col space-y-[8px] justify-center">
+    <div className="flex flex-col space-y-[8px]">
       <span className="text-md font-normal text-stieglitz">Select Pair</span>
       <div className="flex space-x-[12px]">
         <div className="flex -space-x-4 self-center">

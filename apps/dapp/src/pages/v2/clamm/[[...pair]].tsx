@@ -1,13 +1,17 @@
 import React, { useEffect } from 'react';
 
+import { Button } from '@dopex-io/ui';
 import toast from 'react-hot-toast';
 import { useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 import useLoadingStates from 'hooks/clamm/useLoadingStates';
+import useWindowSize from 'hooks/useWindowSize';
 
 import PageLayout from 'components/common/PageLayout';
 
+import AsidePanel from './components/AsidePanel';
+import LearningResources from './components/LearningResources';
 import PositionsTable from './components/PositionsTable';
 import PriceChartWithHide from './components/PriceChartWithHide';
 import StrikesChain from './components/StrikesChain';
@@ -30,14 +34,27 @@ const Page = () => {
 
   return (
     <PageLayout>
-      <div className="flex max-w-[1554px]  flex-col p-[12px] space-y-[12px]">
-        <div className="flex space-x-[24px] items-end justify-start">
-          <PairSelector />
-          {/* <OverViewStats /> */}
+      <div className="flex flex-col xl:flex-row w-full xl:items-start items-center justify-center 2xl:space-x-[12px] xl:space-x-[12px] space-y-[12px] 2xl:space-y-[0px]">
+        <div
+          className={`flex flex-col 2xl:w-[1314px] xl:w-[900px] w-[90vw] space-y-[12px] h-full`}
+        >
+          <div className="flex flex-col sm:flex-row w-full sm:items-end h-full space-y-[24px] sm:space-y-[0px] sm:space-x-[24px]">
+            <PairSelector />
+            <OverViewStats />
+          </div>
+          <PriceChartWithHide />
+          <StrikesChain />
+          <PositionsTable />
         </div>
-        <PriceChartWithHide />
-        <StrikesChain />
-        {/* <PositionsTable /> */}
+        {/* convert to dialog */}
+        <div className="xl:hidden sticky bottom-0 h-full w-full z-10 bg-cod-gray flex px-[24px] justify-around space-x-4 py-5 rounded-lg">
+          <Button className="flex-1">Trade</Button>
+          <Button className="flex-1">Liquidity Provision</Button>
+        </div>
+        {/*  */}
+        <div className="xl:w-[366px] w-[90vw] xl:block xl:sticky xl:top-[15rem] 2xl:top-[11rem] hidden">
+          <AsidePanel />
+        </div>
       </div>
     </PageLayout>
   );

@@ -403,12 +403,12 @@ const ClammPage = () => {
         }}
       />
       <PageLayout>
-        <DisclaimerDialog
+        {/* <DisclaimerDialog
           isOpen={isOpen}
           handleClose={handleClose}
           isAgree={isAgree}
           handleAgree={handleAgree}
-        />
+        /> */}
         <div className="w-full bg-primary p-2 mb-4 rounded-lg">
           <h1 className="text-center font-semibold">MVP TESTING CONCLUDED</h1>
           <p className="text-md text-center">
