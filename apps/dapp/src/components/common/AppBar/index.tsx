@@ -123,7 +123,6 @@ const menuLinks = [
   { name: 'Price Oracles', to: '/oracles' },
   { name: 'Diamond Pepe NFTs', to: '/nfts/diamondpepes' },
   { name: 'Dopex NFTs', to: '/nfts/dopex' },
-  { name: 'Community NFTs', to: '/nfts/community' },
 ];
 
 export default function AppBar() {
