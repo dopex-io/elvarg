@@ -6,12 +6,12 @@ import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
 
 import { NextSeo } from 'next-seo';
+
 import { useBoundStore } from 'store';
-import { Farm, FarmData, UserData } from 'types/farms';
 
 import AppBar from 'components/common/AppBar';
 import FarmingMigrationBanner from 'components/common/Banners/FarmingMigrationBanner';
-import SushiMigrationBanner from 'components/common/Banners/SushiMigrationBanner';
+import LiquidityMigrationBanner from 'components/common/Banners/LiquidityMigrationBanner';
 import ClaimCard from 'components/farms/ClaimCard';
 import FarmCard from 'components/farms/FarmCard';
 import ManageDialog, {
@@ -22,6 +22,8 @@ import Typography from 'components/UI/Typography';
 
 import { FARMS } from 'constants/farms';
 import seo from 'constants/seo';
+
+import { Farm, FarmData, UserData } from 'types/farms';
 
 const CustomBox = styled(Box)`
   @media (min-width: 1100px) {
@@ -80,7 +82,7 @@ const Farms = () => {
       const _farms = FARMS[chainId] as Farm[];
       if (_farms) {
         const p = await Promise.all(
-          _farms.map((farm) => getFarmData(farm, lpData))
+          _farms.map((farm) => getFarmData(farm, lpData)),
         );
         setFarmsDataLoading(false);
         setFarmsData(p);
@@ -94,7 +96,7 @@ const Farms = () => {
     (async () => {
       setUserDataLoading(true);
       const p = await Promise.all(
-        FARMS[chainId]?.map((farm) => getUserData(farm)) || []
+        FARMS[chainId]?.map((farm) => getUserData(farm)) || [],
       );
 
       setUserData(p as UserData[]);
@@ -125,7 +127,7 @@ const Farms = () => {
       />
       {chainId !== 42161 ? <FarmingMigrationBanner /> : null}
       <AppBar />
-      <SushiMigrationBanner />
+      <LiquidityMigrationBanner />
       <Box className="flex mb-32 justify-end lg:mx-6 lg:space-x-reverse lg:flex-row-reverse flex-col">
         <Box className="mb-4 xl:mb-0 mx-4">
           <Typography variant="h5" className="mb-6">

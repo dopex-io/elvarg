@@ -1,8 +1,8 @@
 import type { Chain } from 'wagmi/chains';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 
-export class BitKeepConnector extends InjectedConnector {
-  override readonly id = 'bitKeep';
+export class OkxConnector extends InjectedConnector {
+  override readonly id = 'okx';
 
   constructor({
     chains,
@@ -12,13 +12,15 @@ export class BitKeepConnector extends InjectedConnector {
     options?: any;
   } = {}) {
     const options = {
-      name: 'BitKeep',
+      name: 'OKX',
       shimDisconnect: true,
       getProvider() {
         if (typeof window !== 'undefined') {
-          const provider =
-            (window as any).bitkeep && (window as any).bitkeep.ethereum;
-          return provider;
+          if ((window as any).okxwallet) {
+            const provider = (window as any).okxwallet;
+            return provider;
+          }
+          return;
         } else {
           return;
         }

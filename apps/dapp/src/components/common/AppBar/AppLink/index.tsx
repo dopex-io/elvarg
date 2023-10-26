@@ -24,7 +24,7 @@ const AppLink = ({ name, to, children }: AppLinkProps) => {
     );
   } else {
     return (
-      <Link href={to} passHref>
+      <Link href={to} passHref target="_blank">
         <div className={children ? '' : linkClassName}>
           {children ? children : name}
         </div>

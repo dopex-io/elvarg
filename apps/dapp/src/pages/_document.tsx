@@ -26,6 +26,10 @@ function Document() {
         <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#342268" />
         <meta name="msapplication-TileColor" content="#ffffff" />
         <meta name="theme-color" content="#ffffff" />
+        <script
+          async
+          src="https://tag.safary.club/stag.js?id=prd_q5Qlgb9xoq"
+        ></script>
       </Head>
       <body>
         <Main />

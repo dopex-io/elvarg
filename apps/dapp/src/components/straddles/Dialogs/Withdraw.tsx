@@ -1,13 +1,17 @@
 import React, { useCallback, useMemo } from 'react';
 
-import CloseIcon from '@mui/icons-material/Close';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
+
+import CloseIcon from '@mui/icons-material/Close';
+
 import cx from 'classnames';
-import useSendTx from 'hooks/useSendTx';
+
 import { useBoundStore } from 'store';
+
+import useSendTx from 'hooks/useSendTx';
 
 import CustomButton from 'components/UI/Button';
 
@@ -38,7 +42,7 @@ const WithdrawModal = ({
     if (
       straddlesUserData?.writePositions![selectedPositionNftIndex!]![
         'epoch'
-      ]!.toNumber()! < straddlesData!.currentEpoch
+      ].toNumber()! < straddlesData!.currentEpoch
     )
       return true;
     else return false;
@@ -61,7 +65,7 @@ const WithdrawModal = ({
           {
             gasLimit: 1000000,
           },
-        ]
+        ],
       );
       await updateStraddlesUserData!();
     }
@@ -79,7 +83,7 @@ const WithdrawModal = ({
       await sendTx(
         straddlesData.straddlesContract.connect(signer),
         'toggleRollover',
-        [straddlesUserData?.writePositions![selectedPositionNftIndex!]!['id']]
+        [straddlesUserData?.writePositions![selectedPositionNftIndex!]!['id']],
       );
       await updateStraddlesUserData!();
     }
@@ -126,7 +130,7 @@ const WithdrawModal = ({
                   onClick={handleToggleRollover}
                   className={cx(
                     'rounded-md h-10 ml-1 hover:bg-opacity-70 pl-2 pr-2',
-                    'bg-primary hover:bg-primary text-white'
+                    'bg-primary hover:bg-primary text-white',
                   )}
                 >
                   {rolloverText}
@@ -152,7 +156,7 @@ const WithdrawModal = ({
                     'rounded-md h-10 ml-1 hover:bg-opacity-70 pl-2 pr-2',
                     !isWithdrawalEnabled
                       ? 'bg-umbra hover:bg-cod-gray'
-                      : 'bg-primary hover:bg-primary text-white'
+                      : 'bg-primary hover:bg-primary text-white',
                   )}
                   disabled={!isWithdrawalEnabled}
                   color={isWithdrawalEnabled ? 'primary' : 'mineshaft'}

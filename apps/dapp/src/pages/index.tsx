@@ -7,9 +7,7 @@ import Box from '@mui/material/Box';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import AgricultureIcon from '@mui/icons-material/Agriculture';
 import GavelIcon from '@mui/icons-material/Gavel';
-import GraphicEqIcon from '@mui/icons-material/GraphicEq';
 import PieChartIcon from '@mui/icons-material/PieChart';
-import ShowChartIcon from '@mui/icons-material/ShowChart';
 import SsidChartIcon from '@mui/icons-material/SsidChart';
 
 import axios from 'axios';
@@ -132,18 +130,6 @@ const Home = () => {
               description="Purchase SSOV options at a discounted IV"
               href="/olp"
               Icon={AccountTreeIcon}
-            />
-            <Card
-              name="Atlantic Pools"
-              description="Write atlantic options, earn funding & premiums"
-              href="/atlantics/manage/WETH-PUTS-WEEKLY"
-              Icon={GraphicEqIcon}
-            />
-            <Card
-              name="Insured Long futures"
-              description="Open insured longs on GMX"
-              href="/atlantics/manage/insured-perps/WETH-USDC"
-              Icon={ShowChartIcon}
             />
           </Box>
         </Box>

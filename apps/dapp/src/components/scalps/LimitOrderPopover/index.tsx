@@ -46,7 +46,7 @@ const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
         setAnchorEl(event.currentTarget);
       }
     },
-    []
+    [],
   );
   const handleCreate = useCallback(async () => {
     if (
@@ -62,7 +62,7 @@ const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
       Number(rawLimitPrice) *
       10 **
         (optionScalpData?.quoteDecimals?.toNumber() -
-          optionScalpData?.baseDecimals!.toNumber());
+          optionScalpData?.baseDecimals.toNumber());
 
     const spacing = 10;
     const tick0 = Math.round(Math.log(limitPrice) / Math.log(1.0001) / 10) * 10;
@@ -71,7 +71,7 @@ const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
     await sendTx(
       optionScalpData.limitOrdersContract.connect(signer),
       'createCloseOrder',
-      [id, tick0, tick1]
+      [id, tick0, tick1],
     ).then(() => updateOptionScalp().then(() => updateOptionScalpUserData()));
   }, [
     signer,
@@ -131,9 +131,9 @@ const LimitOrderPopover = (props: LimitOrderPopoverProps) => {
                 Number(
                   utils.formatUnits(
                     markPrice,
-                    optionScalpData?.quoteDecimals.toNumber()
-                  )
-                )
+                    optionScalpData?.quoteDecimals.toNumber(),
+                  ),
+                ),
               )}
               onChange={(e: {
                 target: { value: React.SetStateAction<string | number> };

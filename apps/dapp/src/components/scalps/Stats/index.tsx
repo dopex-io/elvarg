@@ -41,14 +41,14 @@ const Stats = () => {
             getTradesFromTimestampDocument,
             {
               fromTimestamp: (new Date().getTime() / 1000 - 86400).toFixed(0),
-            }
+            },
           ),
       });
 
       const _twentyFourHourVolume = payload.trades.reduce(
         (
           acc: { ETH: BigNumber; ARB: BigNumber },
-          trade: { id: string; size: string }
+          trade: { id: string; size: string },
         ) => {
           const address = trade.id.split('#')[0]!;
           if (address === '0xea042b76cb5ac66372867ead8fdafde251026b4e')
@@ -63,7 +63,7 @@ const Stats = () => {
             };
           }
         },
-        { ETH: BigNumber.from(0), ARB: BigNumber.from(0) }
+        { ETH: BigNumber.from(0), ARB: BigNumber.from(0) },
       );
 
       setTwentyFourHourVolume({
@@ -89,20 +89,20 @@ const Stats = () => {
           Number(
             utils.formatUnits(
               optionScalpData?.markPrice || BigNumber.from('0'),
-              optionScalpData?.quoteDecimals.toNumber()
-            )
+              optionScalpData?.quoteDecimals.toNumber(),
+            ),
           ),
-          4
+          4,
         );
 
       return formatAmount(
         Number(
           utils.formatUnits(
             selectedPoolName === 'ETH' ? uniWethPrice : uniArbPrice,
-            optionScalpData?.quoteDecimals?.toNumber()
-          )
+            optionScalpData?.quoteDecimals?.toNumber(),
+          ),
         ),
-        4
+        4,
       );
     }
 
@@ -128,19 +128,19 @@ const Stats = () => {
       Number(
         utils.formatUnits(
           _totalLongs.add(_totalShorts),
-          quoteDecimals.toNumber()
-        )
+          quoteDecimals.toNumber(),
+        ),
       ),
-      10
+      10,
     );
 
     _stats.totalLongs = formatAmount(
       Number(utils.formatUnits(_totalLongs, quoteDecimals.toNumber())),
-      5
+      5,
     );
     _stats.totalShorts = formatAmount(
       Number(utils.formatUnits(_totalShorts, quoteDecimals.toNumber())),
-      5
+      5,
     );
 
     return _stats;
@@ -169,12 +169,12 @@ const Stats = () => {
               ? formatAmount(
                   Number(
                     utils.formatUnits(
-                      optionScalpData?.totalBaseDeposits!,
-                      optionScalpData?.baseDecimals!.toNumber()
-                    )
+                      optionScalpData?.totalBaseDeposits,
+                      optionScalpData?.baseDecimals.toNumber(),
+                    ),
                   ),
                   0,
-                  true
+                  true,
                 )
               : null
           }
@@ -185,11 +185,11 @@ const Stats = () => {
                   Number(
                     utils.formatUnits(
                       optionScalpData?.totalQuoteDeposits!,
-                      optionScalpData?.quoteDecimals?.toNumber()
-                    )
+                      optionScalpData?.quoteDecimals?.toNumber(),
+                    ),
                   ),
                   0,
-                  true
+                  true,
                 )
               : null
           } 
@@ -202,7 +202,7 @@ const Stats = () => {
               ? formatAmount(
                   Number(utils.formatUnits(optionScalpData?.quoteLpAPR!, 0)),
                   0,
-                  true
+                  true,
                 )
               : null
           }%`}
@@ -214,7 +214,7 @@ const Stats = () => {
               ? formatAmount(
                   Number(utils.formatUnits(optionScalpData?.baseLpAPR!, 0)),
                   0,
-                  true
+                  true,
                 )
               : null
           }%`}

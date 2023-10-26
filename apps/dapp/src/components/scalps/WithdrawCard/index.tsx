@@ -63,7 +63,7 @@ const WithdrawCard = () => {
         userTokenBalance,
         isQuote
           ? optionScalpData?.quoteDecimals?.toNumber()!
-          : optionScalpData?.baseDecimals!.toNumber()!,
+          : optionScalpData?.baseDecimals.toNumber()!,
       ),
     );
   }, [optionScalpData, userTokenBalance, isQuote]);
@@ -158,7 +158,7 @@ const WithdrawCard = () => {
             String(amount),
             isQuote
               ? optionScalpData?.quoteDecimals?.toNumber()!
-              : optionScalpData?.baseDecimals!.toNumber()!,
+              : optionScalpData?.baseDecimals.toNumber()!,
           ),
         ],
       );
@@ -189,7 +189,7 @@ const WithdrawCard = () => {
             String(amount),
             isQuote
               ? optionScalpData?.quoteDecimals?.toNumber()!
-              : optionScalpData?.baseDecimals!.toNumber()!,
+              : optionScalpData?.baseDecimals.toNumber()!,
           ),
         );
       setEstimatedOut(estimatedOutput);
@@ -322,7 +322,7 @@ const WithdrawCard = () => {
                         : optionScalpData?.totalBaseAvailable!,
                       isQuote
                         ? optionScalpData?.quoteDecimals?.toNumber()!
-                        : optionScalpData?.baseDecimals!.toNumber()!,
+                        : optionScalpData?.baseDecimals.toNumber()!,
                     ),
                   ),
                   2,
@@ -347,7 +347,7 @@ const WithdrawCard = () => {
                         : optionScalpData?.baseLpValue!,
                       isQuote
                         ? optionScalpData?.quoteDecimals?.toNumber()!
-                        : optionScalpData?.baseDecimals!.toNumber()!,
+                        : optionScalpData?.baseDecimals.toNumber()!,
                     ),
                   ),
                   9,
@@ -373,7 +373,7 @@ const WithdrawCard = () => {
                         estimatedOut,
                         isQuote
                           ? optionScalpData?.quoteDecimals?.toNumber()!
-                          : optionScalpData?.baseDecimals!.toNumber()!,
+                          : optionScalpData?.baseDecimals.toNumber()!,
                       ),
                     ),
                     2,

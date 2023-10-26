@@ -194,7 +194,7 @@ const PositionsTable = ({ tab }: { tab: string }) => {
         const variation = position.pnl
           .add(position.premium)
           .add(position.fees)
-          .mul(10 ** optionScalpData!.quoteDecimals!.toNumber())
+          .mul(10 ** optionScalpData!.quoteDecimals.toNumber())
           .div(position.positions.abs());
 
         const closePrice = Number(
