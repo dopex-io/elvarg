@@ -129,7 +129,6 @@ const menuLinks = [
 export default function AppBar() {
   const {
     accountAddress,
-    tokenPrices,
     updateTokenPrices,
     updateAssetBalances,
     setOpenComplianceDialog,
