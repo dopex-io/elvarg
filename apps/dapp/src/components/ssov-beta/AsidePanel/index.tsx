@@ -320,13 +320,7 @@ const AsidePanel = ({ market }: { market: string }) => {
         ...alerts.error.insufficientAllowance,
         severity: AlertSeverity.error,
       };
-    } else if (selectedStrike.iv > 80)
-      return {
-        ...alerts.warning.highIv,
-        buttonContent,
-        severity: AlertSeverity.warning,
-      };
-    else
+    } else
       return {
         ...alerts.info.enabled,
         buttonContent,
@@ -340,7 +334,6 @@ const AsidePanel = ({ market }: { market: string }) => {
     amountDebounced,
     address,
     selectedStrike.availableCollateral,
-    selectedStrike.iv,
     userBalance,
     approved,
     panelData.totalCost,

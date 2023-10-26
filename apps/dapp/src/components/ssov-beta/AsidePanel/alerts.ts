@@ -29,13 +29,7 @@ const alertsMapping: Record<PopoverType, Record<string, PopoverContent>> = {
       alertBg: 'bg-mineshaft text-white',
     },
   },
-  warning: {
-    highIv: {
-      disabled: false,
-      header: 'IV is currently high',
-      alertBg: 'bg-jaffa text-cod-gray',
-    },
-  },
+  warning: {},
   error: {
     insufficientBalance: {
       disabled: true,
