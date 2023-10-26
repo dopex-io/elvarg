@@ -34,7 +34,6 @@ const AllLpPositions = () => {
   const { olpData, olpEpochData, setSelectedPositionIdx } = useBoundStore();
 
   const [selectedStrikeIdx, setSelectedStrikeIdx] = useState<number>(0);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleFill = (positionIdx: number) => {
     if (!setSelectedPositionIdx) {
@@ -167,8 +166,6 @@ const AllLpPositions = () => {
                 return (
                   <AllPositionsTable
                     key={idx}
-                    anchorEl={anchorEl}
-                    setAnchorEl={setAnchorEl}
                     positionIdx={p.idx}
                     strikePrice={p.strike}
                     usdLiquidity={p.usdLiquidity}
