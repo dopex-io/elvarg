@@ -8,9 +8,11 @@ import { formatAmount } from 'utils/general';
 
 import { MARKETS_MENU } from 'constants/ssov/markets';
 
+import { SsovMenuItem } from 'types/ssov';
+
 interface Props {
   market: string;
-  handleSelectMarket: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSelectMarket: (item: SsovMenuItem) => void;
 }
 
 const TitleBar = (props: Props) => {
@@ -28,10 +30,10 @@ const TitleBar = (props: Props) => {
       <Menu
         color="mineshaft"
         dropdownVariant="icon"
-        handleSelection={handleSelectMarket}
-        selection={market}
+        setSelection={handleSelectMarket}
+        selection={{ textContent: market, disabled: true }}
         data={MARKETS_MENU}
-        className="z-20"
+        menuClassName="z-20"
         showArrow
       />
       <div className="flex space-x-6">

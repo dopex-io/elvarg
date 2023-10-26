@@ -18,6 +18,8 @@ import findDefaultSsov from 'utils/ssov/findDefaultSsov';
 
 import seo from 'constants/seo';
 
+import { SsovMenuItem } from 'types/ssov';
+
 const DEFAULT_MARKET = 'ARB';
 
 const SsovBetaMarket = () => {
@@ -28,8 +30,9 @@ const SsovBetaMarket = () => {
   const [selectedMarket, setSelectedMarket] = useState<string>(DEFAULT_MARKET);
 
   const handleSelectMarket = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      router.push(`/ssov-beta/${e.target.innerText}`);
+    (item: SsovMenuItem) => {
+      console.log(item);
+      router.push(`/ssov-beta/${item.textContent}`);
     },
     [router],
   );
