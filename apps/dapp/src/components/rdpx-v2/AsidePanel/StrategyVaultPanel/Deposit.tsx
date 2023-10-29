@@ -1,161 +1,114 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { BigNumber } from 'ethers';
+import { formatUnits, parseUnits } from 'viem';
 
-import { MockToken__factory, RdpxV2Treasury__factory } from '@dopex-io/sdk';
+import { Button } from '@dopex-io/ui';
+import { erc20ABI, useAccount, useContractWrite, useNetwork } from 'wagmi';
 
-import { useBoundStore } from 'store';
+import useTokenData from 'hooks/helpers/useTokenData';
+import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 
-import useSendTx from 'hooks/useSendTx';
-
+import Alert from 'components/common/Alert';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import Error from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/Error';
-import CustomButton from 'components/UI/Button';
 import Input from 'components/UI/Input';
 
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
 
+import { DECIMALS_TOKEN } from 'constants/index';
+import PerpVaultLp from 'constants/rdpx/abis/PerpVaultLp';
+import addresses from 'constants/rdpx/addresses';
+
+import alerts, { AlertType } from './alerts';
+import InfoRow from './InfoRow';
+
 const Deposit = () => {
-  const {
-    accountAddress,
-    provider,
-    chainId,
-    treasuryContractState,
-    treasuryData,
-    updateTreasuryData,
-    signer,
-  } = useBoundStore();
+  const [amount, setAmount] = useState<string>('');
 
-  const sendTx = useSendTx();
+  const { address: user = '0x' } = useAccount();
+  const { chain } = useNetwork();
+  const { userPerpetualVaultData, updateUserPerpetualVaultData } =
+    usePerpPoolData({
+      user,
+    });
+  const { write: deposit, isSuccess: isDepositSuccess } = useContractWrite({
+    abi: PerpVaultLp,
+    address: addresses.perpPoolLp,
+    functionName: 'deposit',
+    args: [parseUnits(amount, DECIMALS_TOKEN), user],
+  });
+  const { write: approve, isSuccess: isApproveSuccess } = useContractWrite({
+    abi: erc20ABI,
+    address: addresses.weth,
+    functionName: 'approve',
+    args: [addresses.perpPoolLp, parseUnits(amount, DECIMALS_TOKEN)],
+  });
+  const { updateAllowance, approved, balance, updateBalance } = useTokenData({
+    amount,
+    spender: addresses.perpPoolLp,
+    token: addresses.weth,
+  });
 
-  const [value, setValue] = useState<number>(0);
-  const [userBalance, setUserBalance] = useState<string>('0');
-  const [approved, setApproved] = useState<boolean>();
-  const [fee, setFee] = useState<number>(0);
+  const panelState: AlertType & { handler: () => void | null } = useMemo(() => {
+    const doNothing = () => null;
+    if (parseUnits(amount, DECIMALS_TOKEN) > balance)
+      return {
+        ...alerts.insufficientBalance,
+        handler: doNothing,
+      };
+    else if (!approved) {
+      return {
+        ...alerts.insufficientAllowance,
+        handler: () => {
+          approve();
+          updateAllowance();
+        },
+      };
+    } else if (Number(amount) === 0) {
+      return {
+        ...alerts.zeroAmount,
+        handler: doNothing,
+      };
+    } else {
+      return {
+        label: 'Deposit',
+        header: 'Deposit',
+        disabled: false,
+        severity: null,
+        body: null,
+        handler: () => {
+          deposit();
+          updateUserPerpetualVaultData();
+        },
+      };
+    }
+  }, [
+    amount,
+    approve,
+    approved,
+    balance,
+    deposit,
+    updateAllowance,
+    updateUserPerpetualVaultData,
+  ]);
 
-  const errorMsg = useMemo(() => {
-    if (getContractReadableAmount(value, 18).gt(userBalance))
-      return 'Insufficient Balance.';
-    else if (fee > 100 || fee < 0) return 'Fee must be 0-100%';
-    return false;
-  }, [value, userBalance, fee]);
-
-  const handleChange = useCallback((e: any) => {
-    setValue(Number(e.target.value) < 0 ? '' : e.target.value);
-  }, []);
-
-  const handleChangeFee = (_: Event, newValue: number | number[]) => {
-    setFee(newValue as number);
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAmount(Number(e.target.value) < 0 ? '' : e.target.value);
   };
 
-  const handleApprove = useCallback(async () => {
-    if (
-      !signer ||
-      !accountAddress ||
-      !treasuryData ||
-      !treasuryContractState.contracts
-    )
-      return;
-
-    const _token = MockToken__factory.connect(
-      treasuryData.tokenB.address,
-      signer
-    );
-
-    try {
-      await sendTx(_token, 'approve', [
-        treasuryContractState.contracts.treasury.address,
-        getContractReadableAmount(value, 18),
-      ]).then(() => {
-        setApproved(true);
-      });
-    } catch (e) {
-      console.log(e);
-    }
-  }, [
-    accountAddress,
-    sendTx,
-    signer,
-    treasuryContractState.contracts,
-    treasuryData,
-    value,
-  ]);
-
-  const updateBalance = useCallback(async () => {
-    if (!provider || !accountAddress || !treasuryData.tokenB.address) return;
-
-    const token = MockToken__factory.connect(
-      treasuryData.tokenB.address,
-      provider
-    );
-
-    const _balance = await token.balanceOf(accountAddress);
-
-    setUserBalance(_balance.toString());
-  }, [treasuryData, provider, accountAddress]);
-
-  const handleDelegate = useCallback(async () => {
-    if (
-      !treasuryContractState.contracts ||
-      !treasuryContractState.contracts.treasury ||
-      !signer
-    )
-      return;
-
-    const treasury = RdpxV2Treasury__factory.connect(
-      treasuryContractState.contracts.treasury.address,
-      signer
-    );
-
-    try {
-      await sendTx(treasury, 'addToDelegate', [
-        getContractReadableAmount(value, 18),
-        getContractReadableAmount(fee, 8),
-      ]).then(() => {
-        updateTreasuryData();
-        updateBalance();
-      });
-    } catch (e) {
-      console.log(e);
-    }
-  }, [
-    treasuryContractState.contracts,
-    signer,
-    sendTx,
-    value,
-    fee,
-    updateTreasuryData,
-    updateBalance,
-  ]);
+  const onClickMax = useCallback(() => {
+    setAmount(formatUnits(balance, DECIMALS_TOKEN));
+  }, [balance]);
 
   useEffect(() => {
     updateBalance();
-  }, [updateBalance]);
+  }, [updateBalance, isDepositSuccess]);
 
   useEffect(() => {
-    (async () => {
-      if (
-        !provider ||
-        !accountAddress ||
-        !treasuryData ||
-        !treasuryContractState.contracts
-      )
-        return;
+    updateAllowance();
+  }, [updateAllowance, isApproveSuccess]);
 
-      const _token = MockToken__factory.connect(
-        treasuryData.tokenB.address,
-        provider
-      );
-
-      const _allowance = await _token.allowance(
-        accountAddress,
-        treasuryContractState.contracts.treasury.address
-      );
-
-      setApproved(_allowance.gte(getContractReadableAmount(value, 18)));
-    })();
-  }, [accountAddress, provider, treasuryData, treasuryContractState, value]);
+  useEffect(() => {
+    updateUserPerpetualVaultData();
+  }, [updateUserPerpetualVaultData]);
 
   return (
     <div className="space-y-3 relative">
@@ -163,16 +116,14 @@ const Deposit = () => {
         <Input
           type="number"
           size="small"
-          value={value}
-          onChange={handleChange}
+          value={amount}
+          onChange={onChange}
           placeholder="0.0"
           leftElement={
             <div className="flex my-auto space-x-2 w-2/3">
               <img
-                src={`/images/tokens/${
-                  treasuryData.tokenB.symbol.toLowerCase() || 'weth'
-                }.svg`}
-                alt={treasuryData.tokenB.symbol.toLowerCase()}
+                src={`/images/tokens/weth.svg`}
+                alt="weth"
                 className="w-9 h-9 border border-mineshaft rounded-full"
               />
             </div>
@@ -186,64 +137,59 @@ const Deposit = () => {
               src="/assets/max.svg"
               className="hover:bg-silver rounded-[4px] mr-1"
               alt="max"
+              onClick={onClickMax}
             />
             <span className="text-sm">
-              {formatAmount(
-                getUserReadableAmount(BigNumber.from(userBalance), 18),
-                3
-              )}
+              {formatAmount(formatUnits(balance, DECIMALS_TOKEN), 3)}
             </span>
-            <span className="text-sm text-stieglitz">ETH</span>
+            <span className="text-sm text-stieglitz">WETH</span>
           </div>
         </div>
       </div>
-      <div className="bg-umbra rounded-xl p-3">
-        <span className="text-sm mb-1">Deposits</span>
-        <p className="text-xs text-stieglitz text-justify">
-          Explanation of deposits
-        </p>
-      </div>
-
-      {errorMsg ? <Error errorMsg={errorMsg} /> : null}
-      <div className="rounded-xl p-3 w-full bg-umbra">
-        <div className="bg-umbra rounded-2xl">
-          <div className="flex flex-col p-0 w-full">
-            <div className="flex mb-2">
-              <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
-                Balance
-              </h6>
-              <div className="text-right">
-                <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
-                  13.11 <span className="text-stieglitz">ETH</span>
-                </h6>
-              </div>
-            </div>
-
-            <div className={'flex mb-2'}>
-              <h6 className="text-stieglitz ml-0 mr-auto text-[0.8rem]">
-                You will receive
-              </h6>
-              <div className={'text-right'}>
-                <h6 className="text-white mr-auto ml-0 text-[0.8rem]">
-                  2.65 <span className="text-stieglitz">ESV</span>
-                </h6>
-              </div>
-            </div>
-          </div>
+      {panelState.severity !== null ? (
+        <Alert
+          header={panelState.header}
+          body={panelState.body || undefined}
+          severity={panelState.severity}
+        />
+      ) : null}
+      <div className="flex flex-col rounded-xl p-3 space-y-2 w-full bg-umbra">
+        <InfoRow
+          label="Balance"
+          value={
+            <h6 className="text-white text-sm">
+              {formatAmount(formatUnits(balance, DECIMALS_TOKEN), 3)}{' '}
+              <span className="text-stieglitz">WETH</span>
+            </h6>
+          }
+        />
+        <InfoRow
+          label="You will receive"
+          value={
+            <h6 className="text-white text-sm">
+              {formatAmount(
+                formatUnits(
+                  userPerpetualVaultData.totalUserShares || 0n,
+                  DECIMALS_TOKEN
+                ),
+                3
+              )}{' '}
+              <span className="text-stieglitz">ESV</span>
+            </h6>
+          }
+        />
+        <div className="rounded-md flex flex-col p-3 w-full bg-neutral-800 space-y-2">
+          <EstimatedGasCostButton gas={500000} chainId={chain?.id || 42161} />
+          <Button
+            size="small"
+            color={panelState.disabled ? 'mineshaft' : 'primary'}
+            className="w-full"
+            disabled={panelState.disabled}
+            onClick={panelState.handler}
+          >
+            {panelState.label}
+          </Button>
         </div>
-
-        <div className="rounded-md flex flex-col p-4 pt-2 mt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800 space-y-2">
-          <EstimatedGasCostButton gas={500000} chainId={chainId} />
-        </div>
-        <CustomButton
-          size="medium"
-          className="w-full mt-2 rounded-md"
-          color="primary"
-          onClick={approved ? handleDelegate : handleApprove}
-          disabled={!Number(value) || Boolean(errorMsg)}
-        >
-          {approved ? 'Delegate' : 'Approve'}
-        </CustomButton>
       </div>
     </div>
   );

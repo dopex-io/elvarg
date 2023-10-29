@@ -138,7 +138,7 @@ const PriceChart = (props: LiquidityLineChartProps) => {
               id="pattern"
               x="0"
               y="0"
-              width={0.0125}
+              width={0.025}
               height={0.05}
               fill="url(#colorUv2)"
             >

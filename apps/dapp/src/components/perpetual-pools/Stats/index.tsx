@@ -1,12 +1,11 @@
 import InfoTooltip from 'components/UI/InfoTooltip';
-import { StatsType } from 'pages/rdpx-v2/perpetual-pools';
 
 import { smartTrim } from 'utils/general';
 
 import { CHAIN_ID_TO_EXPLORER } from 'constants/index';
 
 interface Props {
-  statsObject: Record<string, StatsType>;
+  statsObject: Record<string, any>;
   chainId?: number;
 }
 

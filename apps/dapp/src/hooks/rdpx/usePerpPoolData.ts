@@ -1,6 +1,12 @@
 import { useCallback, useState } from 'react';
-import { Address, zeroAddress } from 'viem';
+import { Address, parseUnits } from 'viem';
 
+import { multicall, readContract, readContracts } from 'wagmi/actions';
+
+import { DECIMALS_TOKEN } from 'constants/index';
+import PerpVault from 'constants/rdpx/abis/PerpVault';
+import PerpVaultLp from 'constants/rdpx/abis/PerpVaultLp';
+import addresses from 'constants/rdpx/addresses';
 import initialContractStates from 'constants/rdpx/initialStates';
 
 interface VaultState {
@@ -9,26 +15,42 @@ interface VaultState {
   fundingRate: bigint;
   totalActiveOptions: bigint;
   lastFundingUpdateTime: bigint;
+  underlyingPrice: bigint;
+  premiumPerOption: bigint;
   fundingDuration: bigint;
+  totalLpShares: bigint;
+  totalFundingForCurrentEpoch: bigint;
+  oneLpShare: readonly [bigint, bigint];
 }
 
 interface EpochData {
   epoch: bigint;
   expiry: bigint;
   totalFundingForEpoch: bigint;
-  fundingAccountedFor: bigint;
+  totalSharesLocked: bigint;
 }
 
 interface UserData {
-  depositEpoch: bigint;
-  totalDeposit: bigint;
-  withdrawable: bigint;
-  fundingAccrued: bigint;
+  userSharesLocked: bigint;
+  totalUserShares: bigint;
+  isClaimQueued: boolean;
+  claimableTime: bigint;
+  userShareOfFunding: bigint;
 }
 
 interface Props {
   user: Address;
 }
+
+const config = {
+  abi: PerpVault,
+  address: addresses.perpPool,
+};
+
+const lpConfig = {
+  abi: PerpVaultLp,
+  address: addresses.perpPoolLp,
+};
 
 const usePerpPoolData = ({ user = '0x' }: Props) => {
   const [vaultState, setVaultState] = useState<VaultState>(
@@ -39,45 +61,201 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
   );
 
   const updateVaultState = useCallback(async () => {
-    /// initialize vault
+    const [
+      { result: currentEpoch = 0n },
+      { result: fundingDuration = 0n },
+      { result: totalActiveOptions = 0n },
+      { result: lastFundingUpdateTime = 0n },
+      { result: rdpxPriceInEth = 0n },
+      { result: totalLpShares = 0n },
+    ] = await readContracts({
+      // multicall
+      contracts: [
+        {
+          ...config,
+          functionName: 'currentEpoch',
+        },
+        {
+          ...config,
+          functionName: 'fundingDuration',
+        },
+        {
+          ...config,
+          functionName: 'totalActiveOptions',
+        },
+        {
+          ...config,
+          functionName: 'lastUpdateTime',
+        },
+        {
+          ...config,
+          functionName: 'getUnderlyingPrice',
+        },
+        {
+          ...lpConfig,
+          functionName: 'totalSupply',
+        },
+      ],
+    });
 
-    // expiry
-    // rdpx price
-    // strike
-    // rdpx amount per receipt token // fetch from core contract
-    // premium per receipt token
+    const [
+      { result: fundingRate = 0n },
+      { result: epochExpiry = 0n },
+      { result: totalFundingForCurrentEpoch = 0n },
+      { result: oneLpShare = [0n, 0n] as readonly [bigint, bigint] },
+    ] = await readContracts({
+      // multicall
+      contracts: [
+        {
+          ...config,
+          functionName: 'fundingRates',
+          args: [currentEpoch],
+        },
+        {
+          ...config,
+          functionName: 'getEpochExpiry',
+          args: [currentEpoch],
+        },
+        {
+          ...config,
+          functionName: 'totalFundingForEpoch',
+          args: [currentEpoch],
+        },
+        {
+          ...lpConfig,
+          functionName: 'redeemPreview',
+          args: [parseUnits('10', DECIMALS_TOKEN)],
+        },
+      ],
+    });
 
-    // const strike = rdpxPriceInEth - rdpxPriceInEth / 4n;
-    // const premiumPerOption = await readContract({
-    //   abi: PerpetualAtlanticVault__factory.abi,
-    //   address: addresses.perpPool,
-    //   args: [],
-    // });
+    const strike = rdpxPriceInEth - rdpxPriceInEth / 4n;
+    let ttl = epochExpiry - BigInt(Math.ceil(new Date().getTime() / 1000));
+    if (ttl < 0n) {
+      ttl = 0n;
+    }
+    const premium = await readContract({
+      ...config,
+      functionName: 'calculatePremium',
+      args: [strike, parseUnits('10', DECIMALS_TOKEN), ttl, rdpxPriceInEth],
+    });
 
-    setVaultState(initialContractStates.perpPool.state);
+    setVaultState((prev) => ({
+      ...prev,
+      currentEpoch,
+      fundingDuration,
+      fundingRate,
+      lastFundingUpdateTime,
+      premiumPerOption: premium,
+      underlyingPrice: rdpxPriceInEth,
+      expiry: epochExpiry,
+      totalActiveOptions,
+      totalLpShares,
+      totalFundingForCurrentEpoch,
+      oneLpShare,
+    }));
   }, []);
-
-  const updateUserData = useCallback(async () => {
-    if (user === '0x' || user === zeroAddress) return;
-    // mount user data
-
-    setUserData(initialContractStates.perpPool.userData);
-  }, [user]);
 
   const fetchEpochData = useCallback(
     async (epoch: bigint): Promise<EpochData> => {
-      const result = new Promise<EpochData>((resolve, _) => {
-        resolve({
-          epoch: epoch,
-          expiry: 0n,
-          totalFundingForEpoch: 0n,
-          fundingAccountedFor: 0n,
-        });
+      if (vaultState.expiry === 0n)
+        return new Promise((resolve, _) => ({
+          resolve: resolve({
+            epoch: 0n,
+            expiry: 0n,
+            totalFundingForEpoch: 0n,
+            totalSharesLocked: 0n,
+          }),
+          // reject: reject('Could not fetch epoch data'),
+        }));
+
+      const [
+        { result: expiry = 0n },
+        { result: totalFundingForEpoch = 0n },
+        { result: totalSharesLocked = 0n },
+      ] = await readContracts({
+        contracts: [
+          {
+            ...config,
+            functionName: 'epochExpiries',
+            args: [epoch],
+          },
+          {
+            ...config,
+            functionName: 'totalFundingForEpoch',
+            args: [epoch],
+          },
+          {
+            ...config,
+            functionName: 'totalSharesLocked',
+            args: [epoch],
+          },
+        ],
       });
-      return result;
+
+      return {
+        epoch,
+        expiry,
+        totalFundingForEpoch,
+        totalSharesLocked,
+      };
     },
-    []
+    [vaultState.expiry]
   );
+
+  const updateUserData = useCallback(async () => {
+    if (user === '0x') return;
+
+    let targetEpoch = vaultState.currentEpoch;
+    if (targetEpoch === 0n) {
+      targetEpoch = 1n;
+    }
+
+    const [{ result: userSharesLocked = 0n }, { result: userLpShares = 0n }] =
+      await readContracts({
+        // multicall
+        contracts: [
+          {
+            ...config,
+            functionName: 'userSharesLocked',
+            args: [user, vaultState.currentEpoch],
+          },
+          {
+            ...lpConfig,
+            functionName: 'balanceOf',
+            args: [user],
+          },
+        ],
+      });
+    const nonZeroDenominator = vaultState.totalLpShares || 1n;
+    const userShareOfFunding =
+      (parseUnits(
+        vaultState.totalFundingForCurrentEpoch.toString(),
+        DECIMALS_TOKEN
+      ) *
+        parseUnits(userLpShares.toString(), DECIMALS_TOKEN)) /
+      parseUnits(
+        nonZeroDenominator.toString(),
+        nonZeroDenominator === 1n ? 1 : DECIMALS_TOKEN * 2
+      );
+    const isClaimQueued = userSharesLocked > 0n;
+
+    let claimableTime = 0n;
+    if (isClaimQueued) {
+      claimableTime =
+        vaultState.expiry - BigInt(Math.ceil(new Date().getTime() / 1000));
+      // this assumes bootstrap is called at the moment of expiry
+    }
+
+    setUserData((prev) => ({
+      ...prev,
+      userSharesLocked,
+      totalUserShares: userLpShares,
+      isClaimQueued,
+      claimableTime,
+      userShareOfFunding,
+    }));
+  }, [user, vaultState]);
 
   return {
     perpetualVaultState: vaultState,

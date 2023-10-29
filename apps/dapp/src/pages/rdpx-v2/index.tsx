@@ -1,9 +1,7 @@
-import { /*useEffect,*/ useMemo } from 'react';
+import { useMemo } from 'react';
 import Head from 'next/head';
 
 import { NextSeo } from 'next-seo';
-
-// import { useBoundStore } from 'store';
 
 import useStore from 'hooks/rdpx/useStore';
 
@@ -11,7 +9,7 @@ import PageLayout from 'components/common/PageLayout';
 import BondPanel from 'components/rdpx-v2/AsidePanel/BondPanel';
 import StrategyVaultPanel from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel';
 import BondsBody from 'components/rdpx-v2/Body/BondsBody';
-import StrategyVaultBody from 'components/rdpx-v2/Body/StrategyVaultBody';
+import StrategyVaultBody from 'components/rdpx-v2/Body/StrategyVault';
 import QuickLink from 'components/rdpx-v2/QuickLink';
 import TitleBar from 'components/rdpx-v2/TitleBar';
 
@@ -20,33 +18,6 @@ import seo from 'constants/seo';
 
 const Main = () => {
   const rdpxPageState = useStore((vault) => vault.state);
-  // const {
-  //   provider,
-  //   setIsLoading,
-  //   updateTreasuryContractState,
-  //   updateTreasuryData,
-  //   updateUserDscBondsData,
-  //   updateAPPContractData,
-  // } = useBoundStore();
-
-  // useEffect(() => {
-  //   setIsLoading(true);
-  //   updateTreasuryContractState().then(() =>
-  //     updateTreasuryData().then(() =>
-  //       updateUserDscBondsData().then(() => {
-  //         setIsLoading(false);
-  //         updateAPPContractData();
-  //       })
-  //     )
-  //   );
-  // }, [
-  //   provider,
-  //   updateTreasuryContractState,
-  //   updateTreasuryData,
-  //   updateUserDscBondsData,
-  //   setIsLoading,
-  //   updateAPPContractData,
-  // ]);
 
   const renderContent = useMemo(() => {
     switch (rdpxPageState) {

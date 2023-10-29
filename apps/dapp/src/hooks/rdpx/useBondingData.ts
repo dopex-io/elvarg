@@ -3,8 +3,7 @@ import { Address, zeroAddress } from 'viem';
 
 import { RdpxV2Bond__factory, RdpxV2Treasury__factory } from '@dopex-io/sdk';
 import { range } from 'lodash';
-// import { erc20ABI, erc721ABI } from 'wagmi';
-import { multicall, readContract } from 'wagmi/actions';
+import { multicall, readContract, readContracts } from 'wagmi/actions';
 
 import addresses from 'constants/rdpx/addresses';
 import initialContractStates from 'constants/rdpx/initialStates';
@@ -68,7 +67,8 @@ const useBondingData = ({ user = '0x' }: Props) => {
       // { result: bondCostPerReceipt = 0n },
       // { result: bondingRatio = 0n },
       // { result: totalWethDelegated = 0n },
-    ] = await multicall({
+    ] = await readContracts({
+      // multicall
       contracts: [
         {
           ...coreContractConfig,
@@ -142,8 +142,9 @@ const useBondingData = ({ user = '0x' }: Props) => {
       multicallAggregate.push(contractCall);
     }
     const tokenIds = (
-      await multicall({ contracts: { ...multicallAggregate } })
-    ).map((res) => res.result) as bigint[];
+      await readContracts({ contracts: { ...multicallAggregate } })
+    ) // multicall
+      .map((res) => res.result) as bigint[];
 
     multicallAggregate = [];
     for (const id of tokenIds) {
@@ -154,7 +155,8 @@ const useBondingData = ({ user = '0x' }: Props) => {
       };
       multicallAggregate.push(config);
     }
-    let userBonds = (await multicall({
+    let userBonds = (await readContracts({
+      // multicall
       contracts: [...multicallAggregate],
       allowFailure: false,
     })) as {
