@@ -43,6 +43,7 @@ const initialContractStates: {
       isClaimQueued: false,
       claimableTime: 0n,
       userShareOfFunding: 0n,
+      shareComposition: [0n, 0n] as const,
     },
   },
 };

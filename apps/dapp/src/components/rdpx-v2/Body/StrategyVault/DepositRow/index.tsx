@@ -1,15 +1,18 @@
-import { useEffect } from 'react';
-import { formatUnits } from 'viem';
+import { useEffect, useMemo } from 'react';
 
-import { useAccount } from 'wagmi';
+import { Button } from '@dopex-io/ui';
+import Countdown from 'react-countdown';
+import { useAccount, useContractWrite } from 'wagmi';
 
 import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 
 import Cell from 'components/rdpx-v2/Body/StrategyVault/DepositRow/CustomCell';
 
-import { formatAmount } from 'utils/general';
+import formatBigint from 'utils/general/formatBigint';
 
 import { DECIMALS_TOKEN } from 'constants/index';
+import PerpVault from 'constants/rdpx/abis/PerpVault';
+import addresses from 'constants/rdpx/addresses';
 
 const DepositRow = () => {
   const { address: account } = useAccount();
@@ -22,13 +25,42 @@ const DepositRow = () => {
     user: account || '0x',
   });
 
-  useEffect(() => {
-    updateUserPerpetualVaultData();
-  }, [updateUserPerpetualVaultData]);
+  const { write: claim, isSuccess: claimSuccess } = useContractWrite({
+    abi: PerpVault,
+    address: addresses.perpPool,
+    functionName: 'claim',
+    args: [userPerpetualVaultData.userSharesLocked],
+  });
 
   useEffect(() => {
     updatePerpetualVaultState();
-  }, [updatePerpetualVaultState]);
+  }, [updatePerpetualVaultState, claimSuccess]);
+
+  useEffect(() => {
+    updateUserPerpetualVaultData();
+  }, [updateUserPerpetualVaultData, claimSuccess]);
+
+  const buttonState = useMemo(() => {
+    const defaultState = {
+      label: 'Claim',
+      handler: () => null,
+      disabled: true,
+    };
+    if (
+      userPerpetualVaultData.claimableTime <
+      BigInt(Math.ceil(new Date().getTime() / 1000))
+    ) {
+      return {
+        ...defaultState,
+      };
+    } else {
+      return {
+        ...defaultState,
+        disabled: false,
+        handler: () => claim(),
+      };
+    }
+  }, [claim, userPerpetualVaultData.claimableTime]);
 
   return (
     <>
@@ -38,12 +70,9 @@ const DepositRow = () => {
           label="Amount"
           data={[
             [
-              formatAmount(
-                formatUnits(
-                  userPerpetualVaultData.totalUserShares,
-                  DECIMALS_TOKEN
-                ),
-                3
+              formatBigint(
+                userPerpetualVaultData.totalUserShares,
+                DECIMALS_TOKEN
               ),
               ' LP',
             ],
@@ -53,24 +82,16 @@ const DepositRow = () => {
           label="Composition"
           data={[
             [
-              formatAmount(
-                formatUnits(
-                  perpetualVaultState.oneLpShare[0] *
-                    userPerpetualVaultData.totalUserShares,
-                  DECIMALS_TOKEN * 2
-                ),
-                3
+              formatBigint(
+                userPerpetualVaultData.shareComposition[0],
+                DECIMALS_TOKEN
               ),
               'ETH',
             ],
             [
-              formatAmount(
-                formatUnits(
-                  perpetualVaultState.oneLpShare[1] *
-                    userPerpetualVaultData.totalUserShares,
-                  DECIMALS_TOKEN
-                ),
-                3
+              formatBigint(
+                userPerpetualVaultData.shareComposition[1],
+                DECIMALS_TOKEN
               ),
               'rDPX',
             ],
@@ -80,12 +101,9 @@ const DepositRow = () => {
           label="Earnings"
           data={[
             [
-              formatAmount(
-                formatUnits(
-                  userPerpetualVaultData.userShareOfFunding,
-                  DECIMALS_TOKEN
-                ),
-                3
+              formatBigint(
+                userPerpetualVaultData.userShareOfFunding,
+                DECIMALS_TOKEN
               ),
               'ETH',
             ],
@@ -95,18 +113,60 @@ const DepositRow = () => {
           label="To be unlocked"
           data={[
             [
-              formatAmount(
-                formatUnits(
-                  userPerpetualVaultData.totalUserShares,
-                  DECIMALS_TOKEN
-                ),
-                3
+              formatBigint(
+                userPerpetualVaultData.totalUserShares,
+                DECIMALS_TOKEN
               ),
               'LP',
             ],
           ]}
         />
-        <Cell label="Withdrawable" data={[['-', '']]} />
+        <Cell
+          label="Withdrawable"
+          data={[
+            [
+              formatBigint(
+                userPerpetualVaultData.userSharesLocked,
+                DECIMALS_TOKEN
+              ),
+              'LP',
+            ],
+            [
+              <Countdown
+                key={Number(perpetualVaultState.expiry || 0n) * 1000}
+                date={Number(perpetualVaultState.expiry || 0n) * 1000}
+                renderer={({ days, hours, minutes, seconds }) => (
+                  <div className="flex space-x-1 text-stieglitz">
+                    <p>in</p>
+                    <p className="text-white">{days}</p>d
+                    <p className="text-white">{hours}</p>h
+                    <p className="text-white">{minutes}</p>m
+                    <p className="text-white">{seconds}</p>s
+                  </div>
+                )}
+              />,
+              '',
+            ],
+          ]}
+        />
+        {userPerpetualVaultData.userSharesLocked > 0n ? (
+          <Cell
+            label=""
+            data={[
+              [
+                <Button
+                  key="claim"
+                  size="medium"
+                  className="w-full"
+                  onClick={buttonState.handler}
+                >
+                  Claim
+                </Button>,
+                '',
+              ],
+            ]}
+          />
+        ) : null}
       </div>
     </>
   );

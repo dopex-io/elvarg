@@ -26,21 +26,25 @@ const Withdraw = () => {
 
   const { address: user = '0x' } = useAccount();
   const { chain } = useNetwork();
-  const { userPerpetualVaultData, updateUserPerpetualVaultData } =
-    usePerpPoolData({
-      user,
-    });
+  const {
+    userPerpetualVaultData,
+    updateUserPerpetualVaultData,
+    updatePerpetualVaultState,
+  } = usePerpPoolData({
+    user,
+  });
   const { updateAllowance, approved, balance, updateBalance } = useTokenData({
     amount,
     spender: addresses.perpPoolLp,
     token: addresses.perpPoolLp,
   });
-  const { write: redeem, isSuccess: isDepositSuccess } = useContractWrite({
-    abi: PerpVault,
-    address: addresses.perpPool,
-    functionName: 'claim',
-    args: [0n], // epoch where user deposited
-  });
+  const { write: redeemRequest, isSuccess: isDepositSuccess } =
+    useContractWrite({
+      abi: PerpVault,
+      address: addresses.perpPool,
+      functionName: 'redeemRequest',
+      args: [parseUnits(amount, DECIMALS_TOKEN)],
+    });
   const { write: approve, isSuccess: isApproveSuccess } = useContractWrite({
     abi: erc20ABI,
     address: addresses.perpPoolLp,
@@ -54,13 +58,15 @@ const Withdraw = () => {
 
   const panelState: AlertType & { handler: () => void | null } = useMemo(() => {
     const doNothing = () => null;
-    if (parseUnits(amount, DECIMALS_TOKEN) > balance)
+    if (
+      parseUnits(amount, DECIMALS_TOKEN) >
+      userPerpetualVaultData.totalUserShares
+    ) {
       return {
         ...alerts.insufficientBalance,
         handler: doNothing,
       };
-    // before sending approve() transaction, check if user can withdraw in the first place
-    else if (!approved) {
+    } else if (!approved) {
       return {
         ...alerts.insufficientAllowance,
         handler: () => {
@@ -75,13 +81,13 @@ const Withdraw = () => {
       };
     } else {
       return {
-        label: 'Withdraw',
-        header: 'Withdraw',
+        label: 'Request Redeem',
+        header: 'Request Redeem',
         disabled: false,
         severity: null,
         body: null,
         handler: () => {
-          redeem();
+          redeemRequest();
           updateUserPerpetualVaultData();
         },
       };
@@ -90,10 +96,10 @@ const Withdraw = () => {
     amount,
     approve,
     approved,
-    balance,
-    redeem,
+    redeemRequest,
     updateAllowance,
     updateUserPerpetualVaultData,
+    userPerpetualVaultData.totalUserShares,
   ]);
 
   useEffect(() => {
@@ -103,6 +109,13 @@ const Withdraw = () => {
   useEffect(() => {
     updateAllowance();
   }, [updateAllowance, isApproveSuccess]);
+
+  useEffect(() => {
+    updatePerpetualVaultState();
+  }, [updatePerpetualVaultState]);
+  useEffect(() => {
+    updateUserPerpetualVaultData();
+  }, [updateUserPerpetualVaultData]);
 
   return (
     <div className="space-y-3 relative">
@@ -163,12 +176,30 @@ const Withdraw = () => {
           }
         />
         <InfoRow
-          label="You will receive"
+          label="Current composition"
           value={
-            <h6 className="text-white text-xs">
-              6 <span className="text-stieglitz">rDPX</span> 2.5{' '}
-              <span className="text-stieglitz">ETH</span>{' '}
-            </h6>
+            <div className="flex text-white text-xs space-x-1">
+              <p>
+                {formatAmount(
+                  Number(
+                    formatUnits(
+                      userPerpetualVaultData.shareComposition[0],
+                      DECIMALS_TOKEN
+                    )
+                  )
+                )}
+              </p>
+              <p className="text-stieglitz">ETH</p>
+              <p>
+                {formatAmount(
+                  formatUnits(
+                    userPerpetualVaultData.shareComposition[1],
+                    DECIMALS_TOKEN
+                  )
+                )}{' '}
+              </p>
+              <p className="text-stieglitz">rDPX</p>{' '}
+            </div>
           }
         />
         <div className="rounded-md flex flex-col p-3 w-full bg-neutral-800 space-y-2">

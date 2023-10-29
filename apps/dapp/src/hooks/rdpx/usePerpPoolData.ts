@@ -33,6 +33,7 @@ interface EpochData {
 interface UserData {
   userSharesLocked: bigint;
   totalUserShares: bigint;
+  shareComposition: [bigint, bigint];
   isClaimQueued: boolean;
   claimableTime: bigint;
   userShareOfFunding: bigint;
@@ -247,11 +248,16 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
       // this assumes bootstrap is called at the moment of expiry
     }
 
+    const shareComposition = vaultState.oneLpShare.map(
+      (tokenShare) => (tokenShare * userLpShares) / parseUnits('10', 18)
+    ) as [bigint, bigint];
+
     setUserData((prev) => ({
       ...prev,
       userSharesLocked,
       totalUserShares: userLpShares,
       isClaimQueued,
+      shareComposition,
       claimableTime,
       userShareOfFunding,
     }));
