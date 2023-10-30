@@ -34,7 +34,6 @@ const AllLpPositions = () => {
   const { olpData, olpEpochData, setSelectedPositionIdx } = useBoundStore();
 
   const [selectedStrikeIdx, setSelectedStrikeIdx] = useState<number>(0);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleFill = (positionIdx: number) => {
     if (!setSelectedPositionIdx) {
@@ -48,7 +47,7 @@ const AllLpPositions = () => {
     let filterStrikes: string[] = ['Filter strikes'];
     olpEpochData.strikes.map((strike) => {
       filterStrikes.push(
-        `$${formatAmount(getUserReadableAmount(strike, DECIMALS_STRIKE), 2)}`,
+        `$${formatAmount(getUserReadableAmount(strike, DECIMALS_STRIKE), 2)}`
       );
     });
     return filterStrikes.map((strike, idx) => {
@@ -68,13 +67,13 @@ const AllLpPositions = () => {
     (e: SelectChangeEvent<number>) => {
       setSelectedStrikeIdx!(Number(e.target.value));
     },
-    [setSelectedStrikeIdx],
+    [setSelectedStrikeIdx]
   );
 
   function filterStrikes(
     strike: BigNumber,
     selectedStrikeIdx: number,
-    strikes: BigNumber[],
+    strikes: BigNumber[]
   ) {
     return (
       selectedStrikeIdx === 0 || strike.eq(strikes[selectedStrikeIdx - 1]!)
@@ -86,7 +85,7 @@ const AllLpPositions = () => {
       return filterStrikes(
         strike,
         selectedStrikeIdx || 0,
-        olpEpochData!.strikes,
+        olpEpochData!.strikes
       );
     });
   }, [olpEpochData, selectedStrikeIdx]);
@@ -167,8 +166,6 @@ const AllLpPositions = () => {
                 return (
                   <AllPositionsTable
                     key={idx}
-                    anchorEl={anchorEl}
-                    setAnchorEl={setAnchorEl}
                     positionIdx={p.idx}
                     strikePrice={p.strike}
                     usdLiquidity={p.usdLiquidity}

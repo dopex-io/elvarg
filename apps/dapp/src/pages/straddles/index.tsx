@@ -1,31 +1,26 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import Box from '@mui/material/Box';
-
 import axios from 'axios';
 import { NextSeo } from 'next-seo';
 
 import AppBar from 'components/common/AppBar';
-import Filter from 'components/common/Filter';
+import StraddleClosedBanner from 'components/common/Banners/StraddlesClosedBanner';
 import VaultCard from 'components/straddles/VaultCard';
-import Typography from 'components/UI/Typography';
 
 import { CHAINS } from 'constants/chains';
 import { DOPEX_API_BASE_URL } from 'constants/env';
 import seo from 'constants/seo';
 
-const states: string[] = ['Active', 'Retired'];
-
 const NetworkHeader = ({ chainId }: { chainId: number }) => {
   return (
-    <Box className="flex space-x-4 mb-8">
+    <div className="flex space-x-4 mb-8">
       <img
         className="w-8 h-8"
         src={CHAINS[chainId]?.icon}
         alt={CHAINS[chainId]?.name}
       />
-      <Typography variant="h4">{CHAINS[chainId]?.name}</Typography>
-    </Box>
+      <div className="text-xl">{CHAINS[chainId]?.name}</div>
+    </div>
   );
 };
 
@@ -73,11 +68,11 @@ const Straddles = () => {
                 epochTimes: vault['epochTimes'],
               }}
             />
-          ) : null,
+          ) : null
         );
       else return null;
     },
-    [vaults, selectedStates],
+    [vaults, selectedStates]
   );
 
   useEffect(() => {
@@ -92,7 +87,7 @@ const Straddles = () => {
   }, []);
 
   return (
-    <Box className="min-h-screen">
+    <div className="min-h-screen">
       <NextSeo
         title={seo.straddles.title}
         description={seo.straddles.description}
@@ -113,41 +108,23 @@ const Straddles = () => {
         }}
       />
       <AppBar />
-      <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
-        <Box className="text-center mx-auto max-w-xl mb-8 mt-32">
-          <Typography variant="h2" className="z-1 mb-4">
-            Straddles
-          </Typography>
-          <Typography variant="h5" className="text-stieglitz">
-            Supply Option liquidity for our Atlantic Straddle Vaults. Collect
-            premiums as well as compounding funding fees that rollover
-            automatically for easier liquidity management
-          </Typography>
-        </Box>
-        <Box className="mb-12">
-          <Box className="flex mb-4">
-            <Box className="ml-auto mr-auto">
-              <Filter
-                activeFilters={selectedStates}
-                setActiveFilters={setSelectedStates}
-                text="State"
-                options={states}
-                multiple={true}
-                showImages={false}
-              />
-            </Box>
-          </Box>
+      <div className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
+        <div className="text-center mx-auto max-w-xl mb-8 mt-32">
+          <StraddleClosedBanner />
+          <div className="z-1 mb-4 text-3xl">Straddles</div>
+        </div>
+        <div className="mb-12">
           <NetworkHeader chainId={42161} />
-          <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10 mb-10">
+          <div className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10 mb-10">
             {getStraddlesCards(42161)}
-          </Box>
+          </div>
           <NetworkHeader chainId={137} />
-          <Box className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
+          <div className="grid lg:grid-cols-3 grid-cols-1 place-items-center gap-y-10">
             {getStraddlesCards(137)}
-          </Box>
-        </Box>
-      </Box>
-    </Box>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

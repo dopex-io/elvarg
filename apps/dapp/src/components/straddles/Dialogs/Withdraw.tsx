@@ -26,32 +26,10 @@ const WithdrawModal = ({
   handleClose,
   selectedPositionNftIndex,
 }: Props) => {
-  const {
-    signer,
-    straddlesUserData,
-    straddlesData,
-    straddlesEpochData,
-    updateStraddlesUserData,
-  } = useBoundStore();
+  const { signer, straddlesUserData, straddlesData, updateStraddlesUserData } =
+    useBoundStore();
 
   const sendTx = useSendTx();
-
-  const isWithdrawalEnabled: boolean = useMemo(() => {
-    if (!straddlesEpochData) return false;
-
-    if (
-      straddlesUserData?.writePositions![selectedPositionNftIndex!]![
-        'epoch'
-      ].toNumber()! < straddlesData!.currentEpoch
-    )
-      return true;
-    else return false;
-  }, [
-    straddlesEpochData,
-    straddlesData,
-    selectedPositionNftIndex,
-    straddlesUserData,
-  ]);
 
   const handleWithdraw = useCallback(async () => {
     if (!straddlesData?.straddlesContract) return;
@@ -65,7 +43,7 @@ const WithdrawModal = ({
           {
             gasLimit: 1000000,
           },
-        ],
+        ]
       );
       await updateStraddlesUserData!();
     }
@@ -83,7 +61,7 @@ const WithdrawModal = ({
       await sendTx(
         straddlesData.straddlesContract.connect(signer),
         'toggleRollover',
-        [straddlesUserData?.writePositions![selectedPositionNftIndex!]!['id']],
+        [straddlesUserData?.writePositions![selectedPositionNftIndex!]!['id']]
       );
       await updateStraddlesUserData!();
     }
@@ -130,7 +108,7 @@ const WithdrawModal = ({
                   onClick={handleToggleRollover}
                   className={cx(
                     'rounded-md h-10 ml-1 hover:bg-opacity-70 pl-2 pr-2',
-                    'bg-primary hover:bg-primary text-white',
+                    'bg-primary hover:bg-primary text-white'
                   )}
                 >
                   {rolloverText}
@@ -152,14 +130,8 @@ const WithdrawModal = ({
               <Box className="flex items-center">
                 <CustomButton
                   onClick={handleWithdraw}
-                  className={cx(
-                    'rounded-md h-10 ml-1 hover:bg-opacity-70 pl-2 pr-2',
-                    !isWithdrawalEnabled
-                      ? 'bg-umbra hover:bg-cod-gray'
-                      : 'bg-primary hover:bg-primary text-white',
-                  )}
-                  disabled={!isWithdrawalEnabled}
-                  color={isWithdrawalEnabled ? 'primary' : 'mineshaft'}
+                  className="rounded-md h-10 ml-1 hover:bg-opacity-70 pl-2 pr-2 bg-primary hover:bg-primary text-white"
+                  color="primary"
                 >
                   Withdraw
                 </CustomButton>

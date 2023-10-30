@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { BigNumber } from 'ethers';
 
 import { ERC20__factory } from '@dopex-io/sdk';
-import useSendTx from 'hooks/useSendTx';
+import { Dialog } from '@dopex-io/ui';
+
 import { useBoundStore } from 'store';
 
-import Dialog from 'components/UI/Dialog';
+import useSendTx from 'hooks/useSendTx';
+
 import FillPositionDialog from 'components/olp/FillPosition/FillPositionDialog';
 
 import {
@@ -20,11 +21,11 @@ import { DECIMALS_TOKEN, DECIMALS_USD, MAX_VALUE } from 'constants/index';
 const CHAIN_ID: number = 5;
 
 export interface Props {
-  anchorEl: null | HTMLElement;
-  setAnchorEl: Function;
+  isOpen: boolean;
+  handleClose: () => void;
 }
 
-const FillPosition = ({ anchorEl, setAnchorEl }: Props) => {
+const FillPosition = ({ isOpen, handleClose }: Props) => {
   const sendTx = useSendTx();
   const {
     accountAddress,
@@ -221,17 +222,7 @@ const FillPosition = ({ anchorEl, setAnchorEl }: Props) => {
   ]);
 
   return (
-    <Dialog
-      open={anchorEl != null}
-      handleClose={() => setAnchorEl(null)}
-      disableScrollLock={true}
-      sx={{
-        '.MuiPaper-root': {
-          padding: '12px',
-        },
-      }}
-      width={368}
-    >
+    <Dialog isOpen={isOpen} handleClose={handleClose} title="Fill LP">
       <FillPositionDialog
         isPut={olpData?.isPut!}
         lpPositionSelected={lpPositionSelected!}
