@@ -82,12 +82,6 @@ const appLinks: {
       name: 'Trade',
       subLinks: [
         {
-          name: 'Scalps',
-          to: '/scalps/ETH',
-          description:
-            'Scalp market moves with short term positions & high leverage',
-        },
-        {
           name: 'DPX Bonds',
           to: '/dpx-bonds',
           description: 'Commit stables upfront to receive DPX at a discount',
