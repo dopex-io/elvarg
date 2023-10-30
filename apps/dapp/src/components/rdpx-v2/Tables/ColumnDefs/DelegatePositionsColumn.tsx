@@ -34,18 +34,6 @@ const columns = [
       </Tooltip>
     ),
   }),
-  columnHelper.accessor('activeCollateral', {
-    header: 'Active Collateral',
-    cell: (info) => {
-      const activeCollateral = info.getValue();
-      return (
-        <p className="text-sm">
-          {formatBigint(activeCollateral, DECIMALS_TOKEN)}{' '}
-          <span className="text-stieglitz">WETH</span>
-        </p>
-      );
-    },
-  }),
   columnHelper.accessor('balance', {
     header: 'Balance',
     cell: (info) => {
@@ -57,6 +45,18 @@ const columns = [
             <span className="text-stieglitz">WETH</span>
           </p>
         </Tooltip>
+      );
+    },
+  }),
+  columnHelper.accessor('activeCollateral', {
+    header: 'Active',
+    cell: (info) => {
+      const activeCollateral = info.getValue();
+      return (
+        <p className="text-sm">
+          {formatBigint(activeCollateral, DECIMALS_TOKEN)}{' '}
+          <span className="text-stieglitz">WETH</span>
+        </p>
       );
     },
   }),

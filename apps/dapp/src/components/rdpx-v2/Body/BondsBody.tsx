@@ -23,9 +23,9 @@ const BUTTON_LABELS: { [key in ActionType]: string } = {
 const BondsBody = () => {
   const [active, setActive] = useState<string>('Bonds');
 
-  const handleClick = useCallback((e: any) => {
+  const handleClick = (e: any) => {
     setActive(e.target.textContent);
-  }, []);
+  };
 
   return (
     <div className="p-3 bg-cod-gray rounded-xl space-y-3">
@@ -46,20 +46,27 @@ const BondsBody = () => {
         <Charts />
       </div>
       <ButtonGroup className="flex w-full">
-        {actions.map((label: ActionType, index) => (
-          <Button
-            key={index}
-            size="small"
-            className={`rounded-md bg-transparent hover:bg-transparent ${
-              active === BUTTON_LABELS[actions[index]]
-                ? 'text-white'
-                : 'text-[#8E8E8F]'
-            }`}
-            onClick={handleClick}
-          >
-            <span className="text-md">{BUTTON_LABELS[label]}</span>
-          </Button>
-        ))}
+        {actions.map((label: ActionType, index) => {
+          console.log(active, BUTTON_LABELS[label]);
+          return (
+            <Button
+              key={index}
+              size="xsmall"
+              className="rounded-md bg-transparent hover:bg-transparent"
+              onClick={handleClick}
+            >
+              <span
+                className={`text-sm ${
+                  active === BUTTON_LABELS[label]
+                    ? 'text-white'
+                    : 'text-stieglitz'
+                }`}
+              >
+                {BUTTON_LABELS[label]}
+              </span>
+            </Button>
+          );
+        })}
       </ButtonGroup>
       {active === 'Bonds' ? <UserBonds /> : null}
       {active === 'Delegate Positions' ? <DelegatePositions /> : null}
