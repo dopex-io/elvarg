@@ -15,9 +15,9 @@ const useBondBreakdownCalculator = ({
   return useMemo(
     () => [
       (parseUnits(inputAmount, DECIMALS_TOKEN) * oneBondComposition[0]) /
-        parseUnits('10', DECIMALS_TOKEN),
+        parseUnits('1', DECIMALS_TOKEN),
       (parseUnits(inputAmount, DECIMALS_TOKEN) * oneBondComposition[1]) /
-        parseUnits('10', DECIMALS_TOKEN),
+        parseUnits('1', DECIMALS_TOKEN),
     ],
     [inputAmount, oneBondComposition]
   );

@@ -7,7 +7,7 @@ import { useAccount } from 'wagmi';
 import { useBoundStore } from 'store';
 import { DelegateType } from 'store/RdpxV2/dpxeth-bonding';
 
-import useBondingData from 'hooks/rdpx/useBondingData';
+import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 
 import {
   getContractReadableAmount,
@@ -29,7 +29,7 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
 
   const { address: user } = useAccount();
 
-  const { updateRdpxV2CoreState, rdpxV2CoreState } = useBondingData({
+  const { updateRdpxV2CoreState, rdpxV2CoreState } = useRdpxV2CoreData({
     user: user ?? zeroAddress,
   });
 

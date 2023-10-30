@@ -1,19 +1,19 @@
-import { BigNumber } from 'ethers';
+import { formatUnits } from 'viem';
 
 import Tooltip from '@mui/material/Tooltip';
 
 import { Button } from '@dopex-io/ui';
 import { createColumnHelper } from '@tanstack/react-table';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatBigint from 'utils/general/formatBigint';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 
 export interface DelegatePositions {
-  amount: BigNumber;
-  activeCollateral: BigNumber;
-  balance: BigNumber;
-  fee: BigNumber;
+  amount: bigint;
+  activeCollateral: bigint;
+  balance: bigint;
+  fee: bigint;
   button: {
     handleWithdraw: () => void;
     disabled: boolean;
@@ -26,9 +26,9 @@ const columns = [
   columnHelper.accessor('amount', {
     header: 'Amount',
     cell: (info) => (
-      <Tooltip title={getUserReadableAmount(info.getValue(), DECIMALS_TOKEN)}>
+      <Tooltip title={formatUnits(info.getValue(), DECIMALS_TOKEN)}>
         <p className="text-sm">
-          {getUserReadableAmount(info.getValue(), DECIMALS_TOKEN).toFixed(3)}{' '}
+          {formatBigint(info.getValue(), DECIMALS_TOKEN)}{' '}
           <span className="text-stieglitz">WETH</span>
         </p>
       </Tooltip>
@@ -40,7 +40,7 @@ const columns = [
       const activeCollateral = info.getValue();
       return (
         <p className="text-sm">
-          {getUserReadableAmount(activeCollateral, DECIMALS_TOKEN).toFixed(3)}{' '}
+          {formatBigint(activeCollateral, DECIMALS_TOKEN)}{' '}
           <span className="text-stieglitz">WETH</span>
         </p>
       );
@@ -51,9 +51,9 @@ const columns = [
     cell: (info) => {
       const balance = info.getValue();
       return (
-        <Tooltip title={getUserReadableAmount(balance, DECIMALS_TOKEN)}>
+        <Tooltip title={formatBigint(balance, DECIMALS_TOKEN)}>
           <p className="text-sm">
-            {getUserReadableAmount(balance, DECIMALS_TOKEN).toFixed(3)}{' '}
+            {formatBigint(balance, DECIMALS_TOKEN)}{' '}
             <span className="text-stieglitz">WETH</span>
           </p>
         </Tooltip>
@@ -63,7 +63,7 @@ const columns = [
   columnHelper.accessor('fee', {
     header: 'Fee',
     cell: (info) => (
-      <p>{getUserReadableAmount(info.getValue(), DECIMALS_STRIKE) + '%'}</p>
+      <p>{formatBigint(info.getValue(), DECIMALS_STRIKE) + '%'}</p>
     ),
   }),
   columnHelper.accessor('button', {
@@ -71,7 +71,12 @@ const columns = [
     cell: (info) => {
       const { disabled, handleWithdraw } = info.getValue();
       return (
-        <Button disabled={disabled} onClick={handleWithdraw}>
+        <Button
+          disabled={disabled}
+          onClick={handleWithdraw}
+          size="small"
+          className="my-2"
+        >
           Withdraw
         </Button>
       );

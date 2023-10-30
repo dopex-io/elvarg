@@ -1,16 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { parseUnits } from 'viem';
 
-import { MockToken__factory } from '@dopex-io/sdk';
 import { useAccount } from 'wagmi';
 
-import useBondingData from 'hooks/rdpx/useBondingData';
+import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 
 import { BondType } from 'components/rdpx-v2/AsidePanel/BondPanel/Bond';
 import InputRow from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/InputRow';
-
-import getContractReadableAmount from 'utils/contracts/getContractReadableAmount';
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { DECIMALS_TOKEN } from 'constants/index';
 
@@ -29,7 +25,7 @@ const CollateralInputPanel = (props: Props) => {
 
   const { address: account } = useAccount();
 
-  const { rdpxV2CoreState, updateRdpxV2CoreState } = useBondingData({
+  const { rdpxV2CoreState, updateRdpxV2CoreState } = useRdpxV2CoreData({
     user: account || '0x',
   });
 

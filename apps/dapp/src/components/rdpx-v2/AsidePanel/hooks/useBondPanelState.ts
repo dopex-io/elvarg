@@ -44,7 +44,15 @@ const useBondPanelState = (props: Props) => {
     if (Number(amount) === 0 || isNaN(Number(amount))) {
       return { ...defaultState, disabled: true };
     } else if (!delegated) {
-      if (!isWethApproved && !isRdpxApproved) {
+      if (isTotalBondCostBreakdownLessThanUserBalance) {
+        return {
+          ...defaultState,
+          disabled: true,
+          severity: AlertSeverity.error,
+          header: 'Insufficient Balance',
+          body: 'You do not have sufficient tokens to perform this transaction.',
+        };
+      } else if (!isWethApproved && !isRdpxApproved) {
         return {
           ...defaultState,
           header: 'Approve WETH & rDPX',
@@ -65,16 +73,7 @@ const useBondPanelState = (props: Props) => {
         };
       } else if (!isRdpxApproved) {
         return approveRdpxState;
-      } else if (isTotalBondCostBreakdownLessThanUserBalance) {
-        return {
-          ...defaultState,
-          disabled: true,
-          severity: AlertSeverity.error,
-          header: 'Insufficient Balance',
-          body: 'You do not have sufficient tokens to perform this transaction.',
-        };
       }
-    } else {
       if (!isRdpxApproved) {
         return approveRdpxState;
       }

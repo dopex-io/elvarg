@@ -1,16 +1,10 @@
 import { AlertSeverity } from 'components/common/Alert';
 
-export type AlertType = {
-  label: string | null;
-  header: string;
-  body: string | null;
-  severity: AlertSeverity | null;
-  disabled: boolean;
-};
+import { AlertType } from '../StrategyVaultPanel/alerts';
 
 const alerts: Record<string, AlertType> = {
   insufficientBalance: {
-    label: 'Insufficient Balance',
+    label: 'Delegate',
     header: 'Insufficient Balance',
     body: 'You have insufficient balance to perform this transaction.',
     severity: AlertSeverity.error,
@@ -20,13 +14,21 @@ const alerts: Record<string, AlertType> = {
     label: 'Approve',
     header: 'Insufficient Allowance',
     body: 'You need to provide allowance to the contract to spend your tokens for this transaction.',
-    severity: AlertSeverity.info,
+    severity: AlertSeverity.warning,
     disabled: false,
   },
   zeroAmount: {
-    label: 'Enter an amount',
+    label: 'Delegate',
     header: 'Enter an amount',
     body: null,
+    severity: AlertSeverity.info,
+    disabled: true,
+  },
+  default: {
+    label: 'Delegate',
+    header: 'Delegate WETH',
+    body: `Receive 75% share of the Receipt Tokens minted using your collateral plus 
+          an additional fee from the delegatee’s bonding discount.`,
     severity: AlertSeverity.info,
     disabled: true,
   },

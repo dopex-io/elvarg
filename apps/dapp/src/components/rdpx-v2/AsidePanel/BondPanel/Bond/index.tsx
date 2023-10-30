@@ -2,23 +2,20 @@ import { useEffect, useState } from 'react';
 import { parseUnits } from 'viem';
 
 import ButtonGroup from '@mui/material/ButtonGroup';
-import Tooltip from '@mui/material/Tooltip';
-
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import { Button } from '@dopex-io/ui';
 import { erc20ABI, useAccount, useContractWrite, useNetwork } from 'wagmi';
 
 import useTokenData from 'hooks/helpers/useTokenData';
-import useBondingData from 'hooks/rdpx/useBondingData';
+import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 
 import Alert from 'components/common/Alert';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CollateralInputPanel from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/CollateralInputPanel';
-import useBondBreakdownCalculator from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/hooks/useBondBreakdownCalculator';
-import useBondPanelState from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/hooks/useBondPanelState';
 import InfoBox from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/InfoBox';
 import PanelInput from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/PanelInput';
+import useBondBreakdownCalculator from 'components/rdpx-v2/AsidePanel/hooks/useBondBreakdownCalculator';
+import useBondPanelState from 'components/rdpx-v2/AsidePanel/hooks/useBondPanelState';
 import InfoRow from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/InfoRow';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
@@ -54,7 +51,7 @@ const Bond = () => {
 
   const { chain } = useNetwork();
   const { address: account } = useAccount();
-  const { updateRdpxV2CoreState, rdpxV2CoreState } = useBondingData({
+  const { updateRdpxV2CoreState, rdpxV2CoreState } = useRdpxV2CoreData({
     user: account || '0x',
   });
   const inputAmountBreakdown = useBondBreakdownCalculator({

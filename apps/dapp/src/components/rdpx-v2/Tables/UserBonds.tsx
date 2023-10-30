@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { useAccount, useContractWrite } from 'wagmi';
 
-import useBondingData from 'hooks/rdpx/useBondingData';
+import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 
 import TableLayout from 'components/common/TableLayout';
 
@@ -15,7 +15,7 @@ import columns, { UserBonds as UserBondsType } from './ColumnDefs/BondsColumn';
 const UserBonds = () => {
   const [selectionIndex, setSelectionIndex] = useState<number>(0);
   const { address: account } = useAccount();
-  const { updateUserBonds, userBonds, loading } = useBondingData({
+  const { updateUserBonds, userBonds, loading } = useRdpxV2CoreData({
     user: account || '0x',
   });
 
@@ -34,8 +34,6 @@ const UserBonds = () => {
 
   const userRdpxBonds = useMemo(() => {
     if (userBonds.length === 0) return [];
-
-    console.log(userBonds);
 
     return userBonds.map((bond, index) => {
       return {

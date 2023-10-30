@@ -28,6 +28,14 @@ interface UserBond {
   id: bigint;
 }
 
+interface DelegatePosition {
+  _id: bigint;
+  owner: Address;
+  amount: bigint;
+  fee: bigint;
+  activeCollateral: bigint;
+}
+
 interface Props {
   user: Address;
 }
@@ -42,11 +50,14 @@ const bondConfig = {
   address: addresses.bond,
 };
 
-const useBondingData = ({ user = '0x' }: Props) => {
+const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
   const [rdpxV2CoreState, setRdpxV2CoreState] = useState<RdpxV2CoreState>(
     initialContractStates.v2core
   );
   const [userBonds, setUserBonds] = useState<UserBond[]>([]);
+  const [userDelegatePositions, setUserDelegatePositions] = useState<
+    DelegatePosition[]
+  >([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   const updateRdpxV2CoreState = useCallback(async () => {
@@ -119,6 +130,8 @@ const useBondingData = ({ user = '0x' }: Props) => {
   const updateUserBonds = useCallback(async () => {
     if (user === '0x') return;
 
+    setLoading(true);
+
     const balance = await readContract({
       ...bondConfig,
       functionName: 'balanceOf',
@@ -163,14 +176,54 @@ const useBondingData = ({ user = '0x' }: Props) => {
     }
   }, [user]);
 
+  const updateUserDelegatePositions = useCallback(async () => {
+    if (user === '0x') return;
+
+    setLoading(true);
+
+    const totalDelegates = await readContract({
+      ...coreContractConfig,
+      functionName: 'getDelegatesLength',
+    });
+
+    const delegateCalls = [];
+    for (const i of range(Number(totalDelegates))) {
+      const fnCall = readContract({
+        ...coreContractConfig,
+        functionName: 'delegates',
+        args: [BigInt(i)],
+      });
+      delegateCalls.push(fnCall);
+    }
+
+    const delegates = await Promise.all(delegateCalls);
+
+    const _userDelegatePositions = delegates
+      .map((delegate, index) => ({
+        _id: BigInt(index),
+        owner: delegate[0],
+        amount: delegate[1],
+        fee: delegate[2],
+        activeCollateral: delegate[3],
+      }))
+      .filter(
+        (pos) => pos.owner === user && pos.amount - pos.activeCollateral !== 0n
+      );
+
+    setUserDelegatePositions(_userDelegatePositions);
+    setLoading(false);
+  }, [user]);
+
   // pass states and respective handlers
   return {
     userBonds,
     updateUserBonds,
     rdpxV2CoreState,
-    loading,
     updateRdpxV2CoreState,
+    userDelegatePositions,
+    updateUserDelegatePositions,
+    loading,
   };
 };
 
-export default useBondingData;
+export default useRdpxV2CoreData;

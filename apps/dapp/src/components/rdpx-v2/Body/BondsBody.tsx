@@ -24,7 +24,6 @@ const BondsBody = () => {
   const [active, setActive] = useState<string>('Bonds');
 
   const handleClick = useCallback((e: any) => {
-    console.log(e.target.textContent);
     setActive(e.target.textContent);
   }, []);
 
