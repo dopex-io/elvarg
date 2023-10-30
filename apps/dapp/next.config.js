@@ -28,11 +28,6 @@ const nextConfig = {
         permanent: false,
       },
       {
-        source: '/scalps',
-        destination: '/scalps/ETH',
-        permanent: false,
-      },
-      {
         source: '/ssov-v3/:path*',
         destination: '/ssov/:path*',
         permanent: false,
