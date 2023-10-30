@@ -21,7 +21,7 @@
     "@mui/icons-material": "^5.14.14",
     "@mui/material": "^5.14.14",
     "@notifi-network/notifi-react-card": "0.85.6",
-    "@sentry/nextjs": "^7.74.1",
+    "@sentry/nextjs": "^7.76.0",
     "@tanstack/react-query": "^4.36.1",
     "@tanstack/react-table": "^8.10.7",
     "axios": "^1.5.1",
