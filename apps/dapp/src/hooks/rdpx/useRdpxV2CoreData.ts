@@ -28,7 +28,7 @@ interface UserBond {
   id: bigint;
 }
 
-interface DelegatePosition {
+export interface DelegatePosition {
   _id: bigint;
   owner: Address;
   amount: bigint;
@@ -56,6 +56,9 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
   );
   const [userBonds, setUserBonds] = useState<UserBond[]>([]);
   const [userDelegatePositions, setUserDelegatePositions] = useState<
+    DelegatePosition[]
+  >([]);
+  const [delegatePositions, setDelegatePositions] = useState<
     DelegatePosition[]
   >([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -89,7 +92,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
         {
           ...coreContractConfig,
           functionName: 'calculateBondCost',
-          args: [parseUnits('10', DECIMALS_TOKEN), 0n],
+          args: [parseUnits('1', DECIMALS_TOKEN), 0n],
         },
         {
           abi: erc20ABI,
@@ -198,19 +201,19 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
 
     const delegates = await Promise.all(delegateCalls);
 
-    const _userDelegatePositions = delegates
-      .map((delegate, index) => ({
-        _id: BigInt(index),
-        owner: delegate[0],
-        amount: delegate[1],
-        fee: delegate[2],
-        activeCollateral: delegate[3],
-      }))
-      .filter(
-        (pos) => pos.owner === user && pos.amount - pos.activeCollateral !== 0n
-      );
+    const delegatePositions = delegates.map((delegate, index) => ({
+      _id: BigInt(index),
+      owner: delegate[0],
+      amount: delegate[1],
+      fee: delegate[2],
+      activeCollateral: delegate[3],
+    }));
 
+    const _userDelegatePositions = delegatePositions.filter(
+      (pos) => pos.owner === user && pos.amount - pos.activeCollateral !== 0n
+    );
     setUserDelegatePositions(_userDelegatePositions);
+    setDelegatePositions(delegatePositions);
     setLoading(false);
   }, [user]);
 
@@ -222,6 +225,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
     updateRdpxV2CoreState,
     userDelegatePositions,
     updateUserDelegatePositions,
+    delegatePositions,
     loading,
   };
 };

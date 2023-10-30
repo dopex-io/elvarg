@@ -47,7 +47,6 @@ const BondsBody = () => {
       </div>
       <ButtonGroup className="flex w-full">
         {actions.map((label: ActionType, index) => {
-          console.log(active, BUTTON_LABELS[label]);
           return (
             <Button
               key={index}

@@ -8,9 +8,11 @@ interface Props {
   isWethApproved: boolean;
   delegated: boolean;
   isTotalBondCostBreakdownLessThanUserBalance: boolean;
+  isInsufficientWeth: boolean;
   approveRdpx: () => void;
   approveWeth: () => void;
   bond: () => void;
+  bondWithDelegate: () => void;
 }
 
 const useBondPanelState = (props: Props) => {
@@ -18,8 +20,10 @@ const useBondPanelState = (props: Props) => {
     approveRdpx,
     approveWeth,
     bond,
+    bondWithDelegate,
     isRdpxApproved,
     isWethApproved,
+    isInsufficientWeth,
     amount,
     delegated,
     isTotalBondCostBreakdownLessThanUserBalance,
@@ -38,7 +42,7 @@ const useBondPanelState = (props: Props) => {
       ...defaultState,
       header: 'Approve rDPX',
       severity: AlertSeverity.warning,
-      label: 'Approve',
+      label: 'Approve rDPX',
       handler: () => approveRdpx(),
     };
     if (Number(amount) === 0 || isNaN(Number(amount))) {
@@ -57,7 +61,7 @@ const useBondPanelState = (props: Props) => {
           ...defaultState,
           header: 'Approve WETH & rDPX',
           severity: AlertSeverity.warning,
-          label: 'Approve',
+          label: 'Approve WETH & rDPX',
           handler: () => {
             approveWeth();
             approveRdpx();
@@ -74,20 +78,38 @@ const useBondPanelState = (props: Props) => {
       } else if (!isRdpxApproved) {
         return approveRdpxState;
       }
-      if (!isRdpxApproved) {
+    } else {
+      if (isInsufficientWeth) {
+        return {
+          ...defaultState,
+          label: 'Bond',
+          header: 'Insufficient WETH',
+          severity: AlertSeverity.error,
+          body: 'Insufficient WETH from delegates to perform this action.',
+          disabled: true,
+        };
+      } else if (!isRdpxApproved) {
         return approveRdpxState;
+      } else {
+        return {
+          ...defaultState,
+          label: 'Bond with delegate',
+          handler: () => bondWithDelegate(),
+        };
       }
     }
     return { ...defaultState, handler: () => bond() };
   }, [
     amount,
-    approveRdpx,
-    approveWeth,
-    isRdpxApproved,
-    isWethApproved,
-    bond,
     delegated,
+    approveRdpx,
     isTotalBondCostBreakdownLessThanUserBalance,
+    isWethApproved,
+    isRdpxApproved,
+    approveWeth,
+    isInsufficientWeth,
+    bondWithDelegate,
+    bond,
   ]);
 };
 

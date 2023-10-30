@@ -33,10 +33,10 @@ const CollateralInputPanel = (props: Props) => {
     setAmounts([
       (rdpxV2CoreState.bondComposition[0] *
         parseUnits(inputAmount, DECIMALS_TOKEN)) /
-        parseUnits('10', DECIMALS_TOKEN), // rDPX
+        parseUnits('1', DECIMALS_TOKEN), // rDPX
       (rdpxV2CoreState.bondComposition[1] *
         parseUnits(inputAmount, DECIMALS_TOKEN)) /
-        parseUnits('10', DECIMALS_TOKEN), // WETH
+        parseUnits('1', DECIMALS_TOKEN), // WETH
     ]);
   }, [rdpxV2CoreState.bondComposition, inputAmount]);
 

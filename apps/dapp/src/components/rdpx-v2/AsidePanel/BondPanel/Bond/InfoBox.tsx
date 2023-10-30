@@ -13,9 +13,10 @@ import {
   getContractReadableAmount,
   getUserReadableAmount,
 } from 'utils/contracts';
-import formatAmount from 'utils/general/formatAmount';
 
-import { DECIMALS_USD } from 'constants/index';
+// import formatAmount from 'utils/general/formatAmount';
+
+import { DECIMALS_STRIKE } from 'constants/index';
 
 const InfoBox = (props: { value: string; delegated?: boolean }) => {
   const { value, delegated = false } = props;
@@ -171,16 +172,14 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
       <div className="flex divide-x divide-carbon p-2">
         <p className="text-xs text-stieglitz mr-auto">Discount Factor</p>
         <p className={`text-xs ${discount > 0 ? 'text-up-only' : null}`}>
-          {formatAmount(
-            formatUnits(rdpxV2CoreState.bondDiscountFactor, DECIMALS_USD)
-          )}
+          {formatUnits(rdpxV2CoreState.bondDiscountFactor, DECIMALS_STRIKE)}
         </p>
       </div>
       <div className="flex divide-x divide-carbon">
         <div className="flex w-full p-2 pt-1 text-start space-y-1">
-          <p className="text-xs text-stieglitz mr-auto">Cap</p>
-          <span className="text-xs ml-auto text-white">
-            931.41 <span className="text-stieglitz">/</span> 1341.21{' '}
+          <p className="text-xs text-stieglitz">Cap</p>
+          <span className="text-xs ml-auto text-white space-x-1">
+            -<span className="text-stieglitz">/</span>-
             <span className="text-stieglitz">DPXETH</span>
           </span>
         </div>

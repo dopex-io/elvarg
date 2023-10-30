@@ -8,6 +8,7 @@ import { erc20ABI, useAccount, useContractWrite, useNetwork } from 'wagmi';
 
 import useTokenData from 'hooks/helpers/useTokenData';
 import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
+import useSqueezeDelegatedWeth from 'hooks/rdpx/useSqueezeDelegatedWeth';
 
 import Alert from 'components/common/Alert';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
@@ -78,6 +79,11 @@ const Bond = () => {
     spender: addresses.v2core,
     token: addresses.weth,
   });
+  const { squeezeDelegatesResult } = useSqueezeDelegatedWeth({
+    user: account || '0x',
+    collateralRequired: inputAmountBreakdown[1], // todo: bug: 1e19 precision instead of 1e18
+    bondsToMint: amount,
+  });
   const { write: approveRdpx, isSuccess: approveRdpxSuccess } =
     useContractWrite({
       abi: erc20ABI,
@@ -98,17 +104,33 @@ const Bond = () => {
     functionName: 'bond',
     args: [parseUnits(amount, DECIMALS_TOKEN), 0n, account || '0x'],
   });
+  const { write: delegateBond, isSuccess: delegateBondSuccess } =
+    useContractWrite({
+      abi: RdpxV2Core,
+      address: addresses.v2core,
+      functionName: 'bondWithDelegate',
+      args: [
+        account || '0x',
+        squeezeDelegatesResult.amounts,
+        squeezeDelegatesResult.ids,
+        0n,
+      ],
+    });
   const panelState = useBondPanelState({
     amount,
     isRdpxApproved,
     isWethApproved,
     delegated,
+    isInsufficientWeth:
+      squeezeDelegatesResult.wethToBeUsed >=
+      squeezeDelegatesResult.totalWethAvailable,
     isTotalBondCostBreakdownLessThanUserBalance:
       wethBalance < inputAmountBreakdown[1] ||
       rdpxBalance < inputAmountBreakdown[0],
     approveRdpx,
     approveWeth,
     bond,
+    bondWithDelegate: delegateBond,
   });
 
   const handleChange = (e: {
@@ -135,7 +157,7 @@ const Bond = () => {
 
   useEffect(() => {
     updateRdpxV2CoreState();
-  }, [updateRdpxV2CoreState, bondSuccess]);
+  }, [updateRdpxV2CoreState, bondSuccess, delegateBondSuccess]);
 
   return (
     <div className="space-y-3 relative">
