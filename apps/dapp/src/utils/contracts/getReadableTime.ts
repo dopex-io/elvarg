@@ -1,6 +1,8 @@
-import format from 'date-fns/format';
 import { BigNumber } from 'ethers';
-import { DATE_FORMAT } from 'constants/index';
+
+import format from 'date-fns/format';
+
+const DATE_FORMAT: string = 'd LLL yy';
 
 function getReadableTime(data: BigNumber | number): string {
   try {
