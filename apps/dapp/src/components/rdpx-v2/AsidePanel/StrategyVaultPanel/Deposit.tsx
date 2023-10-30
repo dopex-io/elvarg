@@ -130,8 +130,8 @@ const Deposit = () => {
           }
           className="py-1"
         />
-        <div className="flex justify-between px-3 pb-3">
-          <span className="text-stieglitz text-sm">Deposit Amount</span>
+        <div className="flex justify-between px-3 pb-3 text-xs">
+          <span className="text-stieglitz">Deposit Amount</span>
           <div className="flex space-x-1">
             <img
               src="/assets/max.svg"
@@ -139,10 +139,10 @@ const Deposit = () => {
               alt="max"
               onClick={onClickMax}
             />
-            <span className="text-sm">
+            <span className="">
               {formatAmount(formatUnits(balance, DECIMALS_TOKEN), 3)}
             </span>
-            <span className="text-sm text-stieglitz">WETH</span>
+            <span className=" text-stieglitz">WETH</span>
           </div>
         </div>
       </div>

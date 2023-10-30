@@ -72,7 +72,7 @@ const Main = () => {
             {renderContent.asidePanel}
             <div className="flex flex-col space-y-3">
               <QuickLink {...quickLinks.etherscan} />
-              <QuickLink {...quickLinks.dune} />
+              {/* <QuickLink {...quickLinks.dune} /> */}
             </div>
           </div>
         </div>

@@ -14,6 +14,8 @@ const customSliderStyle = {
   },
   '.MuiSlider-thumb': {
     color: 'white',
+    width: '16px',
+    height: '16px',
   },
   '.MuiSlider-track': {
     color: '#22E1FF',

@@ -47,7 +47,7 @@ const Alert = (props: Props) => {
   const theme = useMemo(() => {
     switch (severity) {
       case 0:
-        return 'bg-umbra text-white';
+        return 'bg-carbon text-white';
       case 1:
         return 'bg-jaffa';
       case 2:

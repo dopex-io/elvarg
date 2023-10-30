@@ -91,56 +91,66 @@ const Delegate = () => {
 
   return (
     <div className="space-y-3 relative">
-      <div className="bg-umbra rounded-xl w-full h-fit">
-        <Input
-          type="number"
-          variant="xl"
-          value={amount}
-          onChange={handleChange}
-          placeholder="0.0"
-          leftElement={
-            <div className="flex my-auto space-x-2 w-2/3">
+      <div className="bg-umbra rounded-xl w-full h-fit divide-y-2 divide-cod-gray">
+        <div>
+          <Input
+            type="number"
+            variant="xl"
+            value={amount}
+            onChange={handleChange}
+            placeholder="0.0"
+            leftElement={
+              <div className="flex my-auto space-x-2 w-2/3">
+                <img
+                  src="/images/tokens/weth.svg"
+                  alt="weth"
+                  className="w-9 h-9 border border-mineshaft rounded-full"
+                />
+              </div>
+            }
+          />
+          <div className="flex justify-between px-3 pb-3">
+            <span className="text-stieglitz text-sm">Delegate Amount</span>
+            <div className="flex space-x-1">
               <img
-                src="/images/tokens/weth.svg"
-                alt="weth"
-                className="w-9 h-9 border border-mineshaft rounded-full"
+                onClick={() => setAmount(formatUnits(balance, DECIMALS_TOKEN))}
+                src="/assets/max.svg"
+                className="hover:bg-silver rounded-[4px] mr-1"
+                alt="max"
               />
+              <span className="text-sm">
+                {formatBigint(balance, DECIMALS_TOKEN)}
+              </span>
+              <span className="text-sm text-stieglitz">ETH</span>
             </div>
-          }
-        />
-        <div className="flex justify-between px-3 pb-3">
-          <span className="text-stieglitz text-sm">Delegate Amount</span>
-          <div className="flex space-x-1">
-            <img
-              onClick={() => setAmount(formatUnits(balance, DECIMALS_TOKEN))}
-              src="/assets/max.svg"
-              className="hover:bg-silver rounded-[4px] mr-1"
-              alt="max"
-            />
-            <span className="text-sm">
-              {formatBigint(balance, DECIMALS_TOKEN)}
-            </span>
-            <span className="text-sm text-stieglitz">ETH</span>
           </div>
         </div>
-      </div>
-      <div>
-        <div className="mx-2">
-          <span className="text-sm">Delegate Fee</span>
-          <Tooltip
-            title="Fee % to charge the spender of your WETH as bonus to your 75% share of the bond."
-            enterTouchDelay={0}
-            leaveTouchDelay={1000}
-          >
-            <InfoOutlined className="fill-current text-stieglitz p-1 my-auto" />
-          </Tooltip>
-        </div>
-        <div className="flex space-x-4 mx-2">
+        <div className="flex flex-col bg-umbra p-3 rounded-b-xl space-y-2">
+          <div>
+            <span className="text-sm text-stieglitz">Delegate Fee</span>
+            <Tooltip
+              title="Fee % to charge the spender of your WETH as bonus to your 75% share of the bond."
+              enterTouchDelay={0}
+              leaveTouchDelay={1000}
+            >
+              <InfoOutlined className="fill-current text-stieglitz my-auto p-1" />
+            </Tooltip>
+          </div>
+          <Input
+            variant="small"
+            type="number"
+            outline="mineshaft"
+            value={fee}
+            onChange={(e: any) =>
+              setFee(Number(e.target.value) < 0 ? '0' : e.target.value)
+            }
+            rightElement={<p className="text-stieglitz">%</p>}
+          />
           <Slider
             sx={customSliderStyle}
             value={Number(fee)}
             onChange={handleChangeFee}
-            className="w-4/5 my-auto ml-2"
+            className="w-auto my-auto mx-2"
             aria-label="steps"
             defaultValue={0.1}
             step={STEP}
@@ -148,19 +158,6 @@ const Delegate = () => {
             max={MAX_VAL}
             valueLabelDisplay="off"
           />
-          <div className="rounded-md bg-gradient-to-r from-primary to-wave-blue p-[1px] w-1/5">
-            <div className="flex bg-umbra rounded-md px-1 py-1 w-full h-fit justify-center text-stieglitz">
-              <input
-                type="number"
-                value={fee}
-                onChange={(e: any) =>
-                  setFee(Number(e.target.value) < 0 ? '0' : e.target.value)
-                }
-                className="text-sm text-white outline-none text-center bg-inherit w-full"
-              />
-              %
-            </div>
-          </div>
         </div>
       </div>
       {panelState.header ? (

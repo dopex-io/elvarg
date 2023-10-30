@@ -30,7 +30,7 @@ const useDelegatePanelState = (props: Props) => {
     const doNothing = () => null;
     if (Number(amount) === 0 || isNaN(Number(amount))) {
       return {
-        ...alerts.zeroAmount,
+        ...alerts.default,
         handler: doNothing,
       };
     } else if (balance < parseUnits(amount, DECIMALS_TOKEN)) {

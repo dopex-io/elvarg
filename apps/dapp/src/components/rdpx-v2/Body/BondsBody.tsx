@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 
 import ButtonGroup from '@mui/material/ButtonGroup';
 
@@ -11,13 +11,13 @@ import QuickLink from '../QuickLink';
 import DelegatePositions from '../Tables/DelegatePositions';
 import UserBonds from '../Tables/UserBonds';
 
-const actions = ['bonds', 'delegatePositions', 'history'] as const;
+const actions = ['bonds', 'delegatePositions' /*, 'history'*/] as const;
 type ActionType = (typeof actions)[number];
 
 const BUTTON_LABELS: { [key in ActionType]: string } = {
   bonds: 'Bonds',
   delegatePositions: 'Delegate Positions',
-  history: 'History',
+  // history: 'History',
 };
 
 const BondsBody = () => {
