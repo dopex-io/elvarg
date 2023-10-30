@@ -58,7 +58,7 @@ const useTokenData = (props: Props) => {
       });
       setAllowance(allowance);
       if (typeof amount === 'bigint') {
-        setApproved(allowance <= amount);
+        setApproved(allowance >= amount);
       } else {
         const decimals = await getDecimals();
         setApproved(allowance >= parseUnits(amount, decimals));

@@ -1,28 +1,26 @@
 import { BigNumber } from 'ethers';
+import { formatUnits } from 'viem';
 
 import Tooltip from '@mui/material/Tooltip';
-
-import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
-import CheckCircleRounded from '@mui/icons-material/CheckCircleRounded';
 
 import { Button } from '@dopex-io/ui';
 import { createColumnHelper } from '@tanstack/react-table';
 import { format } from 'date-fns';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatBigint from 'utils/general/formatBigint';
 
 import { DECIMALS_TOKEN } from 'constants/index';
 
 export interface UserBonds {
-  tokenId: number;
-  maturity: number | BigNumber;
-  amount: BigNumber;
+  tokenId: bigint;
+  maturity: bigint;
+  amount: bigint;
   redeemable: Boolean;
-  timestamp: number | BigNumber;
+  timestamp: bigint;
   button: {
     handleRedeem: () => void;
     redeemable: boolean;
-    id: number;
+    id: bigint;
   };
 }
 
@@ -33,7 +31,7 @@ const columns = [
     header: 'Bond ID',
     cell: (info) => (
       <span className="space-x-2 text-left">
-        <p className="inline-block">{info.getValue()}</p>
+        <p className="inline-block">{Number(info.getValue())}</p>
       </span>
     ),
   }),
@@ -42,9 +40,9 @@ const columns = [
     cell: (info) => {
       const amount = info.getValue();
       return (
-        <Tooltip title={getUserReadableAmount(amount, DECIMALS_TOKEN)}>
+        <Tooltip title={formatBigint(amount || 0n, DECIMALS_TOKEN)}>
           <p className="text-sm">
-            {getUserReadableAmount(amount, DECIMALS_TOKEN).toFixed(3)}{' '}
+            {formatBigint(amount || 0n, DECIMALS_TOKEN)}{' '}
             <span className="text-stieglitz">RT</span>
           </p>
         </Tooltip>
@@ -54,7 +52,7 @@ const columns = [
   columnHelper.accessor('maturity', {
     header: 'Expiry',
     cell: (info) => (
-      <p>{format(new Date(Number(info.getValue())), 'd LLL yyyy')}</p>
+      <p>{format(new Date(Number(info.getValue() || 0n)), 'd LLL yyyy')}</p>
     ),
   }),
   columnHelper.accessor('button', {
@@ -63,6 +61,7 @@ const columns = [
       const value = info.getValue();
       return (
         <Button
+          size="small"
           key={value.id}
           color={value.redeemable ? 'primary' : 'mineshaft'}
           onClick={value.handleRedeem}

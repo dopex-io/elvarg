@@ -51,10 +51,10 @@ const TitleBar = () => {
           index: 0,
           renderComponent: (
             <div className="flex space-x-6 mx-auto">
-              <Stat name="Current Discount" value={'1813.16'} prefix="$" />
-              <Stat name="APR" value={'13.1%'} />
-              <Stat name="DPXETH Price" value={'1732.55'} prefix="$" />
-              <Stat name="RDPX Price" value={'21.5'} prefix="$" />
+              <Stat name="Current Discount" value={'-'} prefix="$" />
+              <Stat name="APR" value={'-'} />
+              <Stat name="DPXETH Price" value={'-'} prefix="$" />
+              <Stat name="RDPX Price" value={'-'} prefix="$" />
             </div>
           ),
         };
@@ -63,10 +63,10 @@ const TitleBar = () => {
           index: 1,
           renderComponent: (
             <div className="flex space-x-6 mx-auto mt-3">
-              <Stat name="Funding" value={'1.1%'} />
-              <Stat name="APR" value={'13.1%'} />
-              <Stat name="Utilization" value={'87%'} />
-              <Stat name="TVL" value={'2.1m'} prefix="$" />
+              <Stat name="Funding" value={'-'} />
+              <Stat name="APR" value={'-'} />
+              <Stat name="Utilization" value={'-'} />
+              <Stat name="TVL" value={'-'} prefix="$" />
             </div>
           ),
         };

@@ -29,7 +29,7 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
 
   const { address: user } = useAccount();
 
-  const { updateV2CoreData, coreContractState } = useBondingData({
+  const { updateRdpxV2CoreState, rdpxV2CoreState } = useBondingData({
     user: user ?? zeroAddress,
   });
 
@@ -162,9 +162,9 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
     calculateDelegateData();
   }, [calculateDelegateData]);
 
-  // useEffect(() => {
-  //   updateV2CoreData()
-  // }, [updateV2CoreData])
+  useEffect(() => {
+    updateRdpxV2CoreState();
+  }, [updateRdpxV2CoreState]);
 
   return (
     <div className="flex flex-col border border-carbon rounded-xl">
@@ -172,7 +172,7 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
         <p className="text-xs text-stieglitz mr-auto">Discount Factor</p>
         <p className={`text-xs ${discount > 0 ? 'text-up-only' : null}`}>
           {formatAmount(
-            formatUnits(coreContractState.bondDiscountFactor, DECIMALS_USD)
+            formatUnits(rdpxV2CoreState.bondDiscountFactor, DECIMALS_USD)
           )}
         </p>
       </div>

@@ -1,26 +1,24 @@
 import { useCallback, useState } from 'react';
-import { Address, zeroAddress } from 'viem';
+import { Address, parseUnits, zeroAddress } from 'viem';
 
-import { RdpxV2Bond__factory, RdpxV2Treasury__factory } from '@dopex-io/sdk';
 import { range } from 'lodash';
+import { erc20ABI } from 'wagmi';
 import { multicall, readContract, readContracts } from 'wagmi/actions';
 
+import { DECIMALS_TOKEN } from 'constants/index';
+import RdpxV2Bond from 'constants/rdpx/abis/RdpxV2Bond';
+import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
 import addresses from 'constants/rdpx/addresses';
 import initialContractStates from 'constants/rdpx/initialStates';
 
 interface RdpxV2CoreState {
   bondMaturity: bigint;
-  bondingRatio: [bigint, bigint];
-  feePercentage: bigint;
-  isRelpActive: boolean;
-  relpFactor: bigint;
-  dscPrice: bigint;
-  rdpxPriceInEth: bigint;
-  secondLowerPeg: bigint;
-  firstLowerPeg: bigint;
-  upperPeg: bigint;
   bondDiscountFactor: bigint;
-  totalWethDelegated: bigint;
+  ethPrice: bigint;
+  dpxethPriceInEth: bigint;
+  rdpxPriceInEth: bigint;
+  maxMintableBonds: bigint;
+  bondComposition: readonly [bigint, bigint];
 }
 
 interface UserBond {
@@ -28,7 +26,6 @@ interface UserBond {
   maturity: bigint;
   timestamp: bigint;
   id: bigint;
-  // collateralRatio: bigint;
 }
 
 interface Props {
@@ -36,37 +33,34 @@ interface Props {
 }
 
 const coreContractConfig = {
-  abi: RdpxV2Treasury__factory.abi,
+  abi: RdpxV2Core,
   address: addresses.v2core,
 };
 
 const bondConfig = {
-  abi: RdpxV2Bond__factory.abi,
+  abi: RdpxV2Bond,
   address: addresses.bond,
 };
 
 const useBondingData = ({ user = '0x' }: Props) => {
-  const [state, setState] = useState<RdpxV2CoreState>(
+  const [rdpxV2CoreState, setRdpxV2CoreState] = useState<RdpxV2CoreState>(
     initialContractStates.v2core
   );
   const [userBonds, setUserBonds] = useState<UserBond[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const updateV2CoreData = useCallback(async () => {
-    if (user === '0x' || user === zeroAddress)
-      throw new Error('Invalid user address');
+  const updateRdpxV2CoreState = useCallback(async () => {
+    if (user === '0x' || user === zeroAddress) return;
 
     const [
       { result: bondMaturity = 0n },
-      { result: relpFactor = 0n },
       { result: bondDiscountFactor = 0n },
       { result: rdpxPriceInEth = 0n },
-      { result: dscPrice = 0n },
-      { result: secondLowerPeg = 0n },
-      { result: firstLowerPeg = 0n },
-      { result: upperPeg = 0n },
-      // { result: bondCostPerReceipt = 0n },
-      // { result: bondingRatio = 0n },
-      // { result: totalWethDelegated = 0n },
+      { result: dpxethPriceInEth = 0n },
+      { result: ethPrice = 0n },
+      { result: bondComposition = [0n, 0n] as const },
+      { result: wethBalance = 0n },
+      { result: rdpxBalance = 0n },
     ] = await readContracts({
       // multicall
       contracts: [
@@ -76,50 +70,49 @@ const useBondingData = ({ user = '0x' }: Props) => {
         },
         {
           ...coreContractConfig,
-          functionName: 'reLpFactor',
-        },
-        {
-          ...coreContractConfig,
           functionName: 'bondDiscountFactor',
         },
         { ...coreContractConfig, functionName: 'getRdpxPrice' },
-        { ...coreContractConfig, functionName: 'getDscPrice' },
-        { ...coreContractConfig, functionName: 'DSC_SECOND_LOWER_PEG' },
-        { ...coreContractConfig, functionName: 'DSC_FIRST_LOWER_PEG' },
-        { ...coreContractConfig, functionName: 'DSC_UPPER_PEG' },
-        // {
-        //   abi: erc20ABI,
-        //   address: addresses.weth,
-        //   functionName: 'balanceOf',
-        //   args: [user],
-        // },
-        // {
-        //   abi: erc20ABI,
-        //   address: addresses.rdpx,
-        //   functionName: 'balanceOf',
-        //   args: [user],
-        // },
-        // { ...coreContractConfig, functionName: 'bondingRatio' },
-        // {
-        //   ...coreContractConfig,
-        //   functionName: 'totalWethDelegated',
-        // },
+        { ...coreContractConfig, functionName: 'getDpxEthPrice' },
+        { ...coreContractConfig, functionName: 'getEthPrice' },
+        {
+          ...coreContractConfig,
+          functionName: 'calculateBondCost',
+          args: [parseUnits('10', DECIMALS_TOKEN), 0n],
+        },
+        {
+          abi: erc20ABI,
+          address: addresses.weth,
+          functionName: 'balanceOf',
+          args: [user],
+        },
+        {
+          abi: erc20ABI,
+          address: addresses.rdpx,
+          functionName: 'balanceOf',
+          args: [user],
+        },
       ],
     });
 
-    if (!bondMaturity || !relpFactor || !bondDiscountFactor)
-      throw new Error('Could not fetch from RDPX Core contract');
+    // Minimum(Total RDPX / Cost of 1 bond in RDPX, Total ETH / Cost of 1 bond in ETH)
+    const maxMintableBonds = parseUnits(
+      Math.min(
+        Number(rdpxBalance) / Number(bondComposition[0]),
+        Number(wethBalance) / Number(bondComposition[1])
+      ).toString(),
+      DECIMALS_TOKEN
+    );
 
-    setState((s) => ({
-      ...s,
+    setRdpxV2CoreState((prev) => ({
+      ...prev,
       bondMaturity,
-      relpFactor,
       bondDiscountFactor,
-      dscPrice,
+      dpxethPriceInEth,
+      bondComposition,
       rdpxPriceInEth,
-      secondLowerPeg,
-      firstLowerPeg,
-      upperPeg,
+      ethPrice,
+      maxMintableBonds,
     }));
   }, [user]);
 
@@ -134,44 +127,36 @@ const useBondingData = ({ user = '0x' }: Props) => {
 
     let multicallAggregate = [];
     for (const i of range(Number(balance))) {
-      const contractCall = {
+      const contractCall = readContract({
         ...bondConfig,
         functionName: 'tokenOfOwnerByIndex',
         args: [user, BigInt(i)],
-      };
+      });
       multicallAggregate.push(contractCall);
     }
-    const tokenIds = (
-      await readContracts({ contracts: { ...multicallAggregate } })
-    ) // multicall
-      .map((res) => res.result) as bigint[];
+    const tokenIds = await Promise.all(multicallAggregate); // multicall
 
     multicallAggregate = [];
     for (const id of tokenIds) {
-      const config = {
+      const contractCall = readContract({
         ...coreContractConfig,
         functionName: 'bonds',
-        args: [id],
-      };
-      multicallAggregate.push(config);
+        args: [BigInt(id)],
+      });
+      multicallAggregate.push(contractCall);
     }
-    let userBonds = (await readContracts({
-      // multicall
-      contracts: [...multicallAggregate],
-      allowFailure: false,
-    })) as {
-      amount: bigint;
-      maturity: bigint;
-      timestamp: bigint;
-    }[];
+    let userBonds = await Promise.all(multicallAggregate);
 
     try {
       setUserBonds(
         userBonds.map((bond, index) => ({
-          ...bond,
+          amount: bond[0],
+          maturity: bond[1] * 1000n,
+          timestamp: bond[2],
           id: tokenIds[index],
         }))
       );
+      setLoading(false);
     } catch (e) {
       console.error(e);
       throw new Error('Something went wrong updating user bonds...');
@@ -182,8 +167,9 @@ const useBondingData = ({ user = '0x' }: Props) => {
   return {
     userBonds,
     updateUserBonds,
-    coreContractState: state,
-    updateV2CoreData,
+    rdpxV2CoreState,
+    loading,
+    updateRdpxV2CoreState,
   };
 };
 

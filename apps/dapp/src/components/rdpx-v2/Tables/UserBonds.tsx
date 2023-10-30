@@ -1,114 +1,74 @@
-import { useCallback, useMemo } from 'react';
-import { BigNumber } from 'ethers';
+import { useEffect, useMemo, useState } from 'react';
 
-import { RdpxV2Bond__factory, RdpxV2Treasury__factory } from '@dopex-io/sdk';
+import { useAccount, useContractWrite } from 'wagmi';
 
-import { useBoundStore } from 'store';
-
-import useSendTx from 'hooks/useSendTx';
+import useBondingData from 'hooks/rdpx/useBondingData';
 
 import TableLayout from 'components/common/TableLayout';
+
+import RdpxV2Bond from 'constants/rdpx/abis/RdpxV2Bond';
+import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
+import addresses from 'constants/rdpx/addresses';
 
 import columns, { UserBonds as UserBondsType } from './ColumnDefs/BondsColumn';
 
 const UserBonds = () => {
-  const sendTx = useSendTx();
+  const [selectionIndex, setSelectionIndex] = useState<number>(0);
+  const { address: account } = useAccount();
+  const { updateUserBonds, userBonds, loading } = useBondingData({
+    user: account || '0x',
+  });
 
-  const {
-    signer,
-    accountAddress,
-    userDscBondsData,
-    treasuryContractState,
-    updateTreasuryData,
-    treasuryData,
-    updateUserDscBondsData,
-    isLoading,
-  } = useBoundStore();
+  const { write: approve } = useContractWrite({
+    abi: RdpxV2Bond,
+    address: addresses.bond,
+    functionName: 'setApprovalForAll',
+    args: [addresses.v2core, true], // use userBonds[selectionIndex].id for single approval
+  });
 
-  const handleRedeem = useCallback(
-    async (tokenId: number) => {
-      if (!signer || !treasuryContractState.contracts || !accountAddress)
-        return;
+  // const { write: redeem } = useContractWrite({
+  //   abi: Rdpx,
+  //   address: addresses.v2core,
+  //   functionName: 'settle',
+  // });
 
-      const bond = RdpxV2Bond__factory.connect(
-        treasuryContractState.contracts.bond.address,
-        signer
-      );
+  const userRdpxBonds = useMemo(() => {
+    if (userBonds.length === 0) return [];
 
-      const treasury = RdpxV2Treasury__factory.connect(
-        treasuryContractState.contracts.treasury.address,
-        signer
-      );
+    console.log(userBonds);
 
-      const isApproved = (await bond.getApproved(tokenId))
-        .toString()
-        .toLowerCase()
-        .includes(treasury.address.toLowerCase());
-
-      try {
-        if (!isApproved)
-          await sendTx(bond, 'approve', [treasury.address, tokenId]);
-        await sendTx(treasury, 'redeem', [tokenId, accountAddress]).then(() => {
-          updateTreasuryData();
-          updateUserDscBondsData();
-        });
-      } catch (e) {
-        console.log(e);
-      }
-    },
-    [
-      accountAddress,
-      sendTx,
-      signer,
-      treasuryContractState.contracts,
-      updateUserDscBondsData,
-      updateTreasuryData,
-    ]
-  );
-
-  const userBonds: UserBondsType[] = useMemo(() => {
-    // if (userDscBondsData.bonds.length === 0 || !treasuryData) return [];
-
-    return [
-      {
-        tokenId: 0,
-        amount: BigNumber.from(10),
-        redeemable: false,
-        maturity: 86400,
-        timestamp: 0,
+    return userBonds.map((bond, index) => {
+      return {
+        tokenId: bond.id,
+        maturity: bond.maturity,
+        amount: bond.amount,
+        redeemable:
+          bond.maturity <= BigInt(Math.ceil(new Date().getTime() / 1000)),
+        timestamp: bond.timestamp,
         button: {
-          handleRedeem: () => handleRedeem(0),
-          redeemable: false,
-          id: 0,
+          handleRedeem: () => {
+            setSelectionIndex(index);
+            approve();
+          },
+          redeemable:
+            bond.maturity <= BigInt(Math.ceil(new Date().getTime() / 1000)),
+          id: bond.id,
         },
-      },
-    ];
+      };
+    });
+  }, [approve, userBonds]);
 
-    // return userDscBondsData.bonds.map((bond) => {
-    //   const redeemable =
-    //     Number(bond.maturity) * 1000 < Math.ceil(Number(new Date()));
-
-    //   return {
-    //     tokenId: Number(bond.tokenId),
-    //     amount: BigNumber.from(bond.amount),
-    //     redeemable,
-    //     maturity: bond.maturity,
-    //     timestamp: Number(bond.timestamp),
-    //     button: {
-    //       handleRedeem: () => handleRedeem(bond.tokenId),
-    //       redeemable,
-    //       id: bond.tokenId,
-    //     },
-    //   };
-    // });
-  }, [handleRedeem /* userDscBondsData.bonds, treasuryData*/]);
+  useEffect(() => {
+    updateUserBonds();
+  }, [updateUserBonds]);
 
   return (
     <TableLayout<UserBondsType>
-      data={userBonds}
+      data={userRdpxBonds}
       columns={columns}
       rowSpacing={2}
-      isContentLoading={isLoading}
+      isContentLoading={loading}
+      fill="bg-umbra"
     />
   );
 };

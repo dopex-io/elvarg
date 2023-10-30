@@ -6,8 +6,8 @@ interface Props {
 const InfoRow = ({ label, value }: Props) => {
   return (
     <div className="flex justify-between">
-      <h6 className="text-stieglitz text-sm">{label}</h6>
-      {value}
+      <p className="text-stieglitz text-sm">{label}</p>
+      <span className="my-auto">{value}</span>
     </div>
   );
 };

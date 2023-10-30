@@ -1,52 +1,27 @@
-import { useBoundStore } from 'store';
+import { formatUnits, parseUnits } from 'viem';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import { DECIMALS_TOKEN } from 'constants/index';
 
 interface Props {
   tokenSymbol: string;
-  amounts: number[];
-  setAmounts: React.Dispatch<React.SetStateAction<number[]>>;
-  setBonds: React.Dispatch<React.SetStateAction<number | string>>;
+  amounts: readonly [bigint, bigint];
+  setAmounts: React.Dispatch<React.SetStateAction<readonly [bigint, bigint]>>;
+  setBonds: React.Dispatch<React.SetStateAction<string>>;
   index: number;
   label?: string;
   rounded?: boolean;
   disabled?: boolean;
+  bondComposition: readonly [bigint, bigint];
 }
 
 const InputRow = (props: Props) => {
   const {
     tokenSymbol,
     amounts,
-    setAmounts,
-    setBonds,
     index,
     rounded = false,
     disabled = false,
   } = props;
-
-  const { treasuryData } = useBoundStore();
-
-  const handleChange = (e: any) => {
-    if (!treasuryData) return;
-
-    let [rdpxRequired, wethRequired] = treasuryData.bondCostPerDsc;
-
-    if (index === 0) {
-      const ratio =
-        Number(e.target.value) / getUserReadableAmount(rdpxRequired, 18);
-      const weth = ratio * getUserReadableAmount(wethRequired, 18);
-      const bonds = ratio;
-      setAmounts([e.target.value ?? 0, weth]);
-      setBonds(bonds);
-    } else {
-      const ratio =
-        Number(e.target.value) / getUserReadableAmount(wethRequired, 18);
-      const rdpx = ratio * getUserReadableAmount(rdpxRequired, 18);
-      const bonds = ratio;
-      setAmounts([rdpx, e.target.value ?? 0]);
-      setBonds(bonds);
-    }
-  };
 
   return (
     <div className="border-[0.05px] flex justify-end space-x-3 divide-x-2 divide-cod-gray border-mineshaft rounded-md w-full">
@@ -62,9 +37,8 @@ const InputRow = (props: Props) => {
         className={`text-sm my-auto bg-umbra border-none outline-none text-end w-full pr-3 ${
           disabled ? 'text-mineshaft cursor-not-allowed' : null
         }`}
-        value={amounts[index]}
-        onChange={(e) => handleChange(e)}
-        disabled={disabled}
+        value={formatUnits(amounts[index], DECIMALS_TOKEN)}
+        disabled={true}
       />
     </div>
   );
