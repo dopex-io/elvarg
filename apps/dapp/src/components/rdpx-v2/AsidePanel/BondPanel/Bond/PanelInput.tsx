@@ -30,7 +30,7 @@ const PanelInput = (props: Props) => {
           <img
             src={iconPath}
             alt="dpxeth"
-            className="w-10 h-10 border border-mineshaft rounded-full"
+            className="w-9 h-9 border border-mineshaft rounded-full"
           />
         </div>
       }

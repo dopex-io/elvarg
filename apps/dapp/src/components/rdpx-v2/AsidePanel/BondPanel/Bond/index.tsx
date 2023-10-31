@@ -185,7 +185,7 @@ const Bond = () => {
                   setBondType(
                     label === BondType.Delegate
                       ? BondType.Delegate
-                      : BondType.Default
+                      : BondType.Default,
                   );
                   setDelegated(label === BondType.Delegate);
                 }}
