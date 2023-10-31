@@ -23,11 +23,6 @@ const nextConfig = {
         permanent: false,
       },
       {
-        source: '/',
-        destination: '/rdpx-v2/mint',
-        permanent: false,
-      },
-      {
         source: '/scalps',
         destination: '/scalps/ETH',
         permanent: false,
