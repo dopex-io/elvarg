@@ -35,11 +35,11 @@ const PanelInput = (props: Props) => {
         </div>
       }
       bottomElement={
-        <div className="flex justify-between">
-          <span className="text-xs text-stieglitz">{label}</span>
-          <span className="text-xs">
+        <div className="flex justify-between text-xs">
+          <span className="text-stieglitz">{label}</span>
+          <span>
             {formatBigint(maxAmount, DECIMALS_TOKEN)}
-            <span className="text-xs text-stieglitz"> {symbol}</span>
+            <span className="text-stieglitz"> {symbol}</span>
           </span>
         </div>
       }

@@ -92,39 +92,39 @@ const Delegate = () => {
   return (
     <div className="space-y-3 relative">
       <div className="bg-umbra rounded-xl w-full h-fit divide-y-2 divide-cod-gray">
-        <div>
-          <Input
-            type="number"
-            variant="xl"
-            value={amount}
-            onChange={handleChange}
-            placeholder="0.0"
-            leftElement={
-              <div className="flex my-auto space-x-2 w-2/3">
-                <img
-                  src="/images/tokens/weth.svg"
-                  alt="weth"
-                  className="w-9 h-9 border border-mineshaft rounded-full"
-                />
-              </div>
-            }
-          />
-          <div className="flex justify-between px-3 pb-3">
-            <span className="text-stieglitz text-sm">Delegate Amount</span>
-            <div className="flex space-x-1">
+        <Input
+          type="number"
+          variant="xl"
+          value={amount}
+          onChange={handleChange}
+          placeholder="0.0"
+          leftElement={
+            <div className="flex my-auto space-x-2 w-2/3">
               <img
-                onClick={() => setAmount(formatUnits(balance, DECIMALS_TOKEN))}
-                src="/assets/max.svg"
-                className="hover:bg-silver rounded-[4px] mr-1"
-                alt="max"
+                src="/images/tokens/weth.svg"
+                alt="weth"
+                className="w-9 h-9 border border-mineshaft rounded-full"
               />
-              <span className="text-sm">
-                {formatBigint(balance, DECIMALS_TOKEN)}
-              </span>
-              <span className="text-sm text-stieglitz">ETH</span>
             </div>
-          </div>
-        </div>
+          }
+          bottomElement={
+            <div className="flex justify-between text-xs">
+              <span className="text-stieglitz">Delegate Amount</span>
+              <div className="flex space-x-1">
+                <img
+                  onClick={() =>
+                    setAmount(formatUnits(balance, DECIMALS_TOKEN))
+                  }
+                  src="/assets/max.svg"
+                  className="hover:bg-silver rounded-[4px] mr-1"
+                  alt="max"
+                />
+                <span>{formatBigint(balance, DECIMALS_TOKEN)}</span>
+                <span className="text-stieglitz">ETH</span>
+              </div>
+            </div>
+          }
+        />
         <div className="flex flex-col bg-umbra p-3 rounded-b-xl space-y-2">
           <div>
             <span className="text-sm text-stieglitz">Delegate Fee</span>

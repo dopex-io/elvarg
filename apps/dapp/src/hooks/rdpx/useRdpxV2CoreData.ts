@@ -54,7 +54,7 @@ const bondConfig = {
 
 const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
   const [rdpxV2CoreState, setRdpxV2CoreState] = useState<RdpxV2CoreState>(
-    initialContractStates.v2core
+    initialContractStates.v2core,
   );
   const [userBonds, setUserBonds] = useState<UserBond[]>([]);
   const [userDelegatePositions, setUserDelegatePositions] = useState<
@@ -118,17 +118,23 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
     });
 
     // Minimum(Total RDPX / Cost of 1 bond in RDPX, Total ETH / Cost of 1 bond in ETH)
-    const maxMintableBonds = parseUnits(
-      Math.min(
-        Number(rdpxBalance) / Number(bondComposition[0]),
-        Number(wethBalance) / Number(bondComposition[1])
-      ).toString(),
-      DECIMALS_TOKEN
-    );
+    const maxRdpxBondable =
+      (rdpxBalance * parseUnits('1', DECIMALS_TOKEN)) /
+      (bondComposition[0] || 1n);
+    const maxEthBondable =
+      (wethBalance * parseUnits('1', DECIMALS_TOKEN)) /
+      (bondComposition[1] || 1n);
+
+    let maxMintableBonds: bigint = 0n;
+    if (maxRdpxBondable > maxEthBondable) {
+      maxMintableBonds = maxRdpxBondable / parseUnits('1', DECIMALS_TOKEN);
+    } else {
+      maxMintableBonds = maxEthBondable / parseUnits('1', DECIMALS_TOKEN);
+    }
 
     const discount =
       Math.ceil(
-        Number(bondDiscountFactor) * Math.sqrt(Number(rdpxReserve)) * 1e2
+        Number(bondDiscountFactor) * Math.sqrt(Number(rdpxReserve)) * 1e2,
       ) / Math.sqrt(Number(parseUnits('1', DECIMALS_TOKEN)));
 
     setRdpxV2CoreState((prev) => ({
@@ -184,7 +190,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
           maturity: bond[1] * 1000n,
           timestamp: bond[2],
           id: tokenIds[index],
-        }))
+        })),
       );
       setLoading(false);
     } catch (e) {
@@ -224,7 +230,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
     }));
 
     const _userDelegatePositions = delegatePositions.filter(
-      (pos) => pos.owner === user && pos.amount - pos.activeCollateral !== 0n
+      (pos) => pos.owner === user && pos.amount - pos.activeCollateral !== 0n,
     );
     setUserDelegatePositions(_userDelegatePositions);
     setDelegatePositions(delegatePositions);
