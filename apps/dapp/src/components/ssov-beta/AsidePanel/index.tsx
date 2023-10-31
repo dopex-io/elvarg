@@ -326,6 +326,8 @@ const AsidePanel = ({ market }: { market: string }) => {
         buttonContent,
         severity: AlertSeverity.info,
       };
+
+    // return {};
   }, [
     activeIndex,
     selectedVault,
@@ -448,7 +450,7 @@ const AsidePanel = ({ market }: { market: string }) => {
           }
           placeholder="0.0"
         />
-        {infoPopover.body !== '' ? (
+        {infoPopover.header !== '' ? (
           <Alert
             header={infoPopover.header}
             body={infoPopover.body}
