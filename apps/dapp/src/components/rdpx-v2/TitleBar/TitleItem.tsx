@@ -4,17 +4,19 @@ interface Props {
   onClick: () => void;
   active: boolean;
   label: string;
+  disabled: boolean;
 }
 
 const TitleItem = (props: Props) => {
-  const { label, active, onClick } = props;
+  const { label, active, onClick, disabled } = props;
 
   return (
     <Button
       size="small"
       onClick={onClick}
       color={active ? 'carbon' : 'umbra'}
-      className="w-1/3"
+      disabled={disabled}
+      className={`w-1/3 ${disabled ? 'cursor-not-allowed' : 'cursor-default'}`}
     >
       <p className={`text-xs ${active ? 'text-white' : 'text-stieglitz'}`}>
         {label}

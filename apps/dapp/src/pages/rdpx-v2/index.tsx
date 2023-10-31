@@ -64,11 +64,11 @@ const Main = () => {
         <div className="mb-6 lg:max-w-lg md:max-w-md sm:max-w-sm max-w-md mx-auto px-4 lg:px-0">
           <TitleBar />
         </div>
-        <div className="flex lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row justify-center">
+        <div className="flex lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row justify-center space-y-3 lg:space-y-0">
           <div className="flex flex-col w-full sm:w-full lg:w-[646px] h-full">
             {renderContent.body}
           </div>
-          <div className="flex flex-col w-full sm:w-full lg:w-[390px] h-full lg:mt-0 space-y-3">
+          <div className="flex flex-col w-full sm:w-full lg:w-[390px] h-full space-y-3">
             {renderContent.asidePanel}
             <div className="flex flex-col space-y-3">
               <QuickLink {...quickLinks.etherscan} />

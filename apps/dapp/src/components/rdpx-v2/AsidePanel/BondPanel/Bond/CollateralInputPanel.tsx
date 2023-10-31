@@ -50,7 +50,7 @@ const CollateralInputPanel = (props: Props) => {
 
   return (
     <div className="flex flex-col p-2 bg-umbra rounded-b-xl">
-      <span className="text-sm text-stieglitz">Collateral Required</span>
+      <span className="text-xs text-stieglitz">Collateral Required</span>
       <div className="flex space-x-2 mt-2">
         <InputRow
           key={'B'}

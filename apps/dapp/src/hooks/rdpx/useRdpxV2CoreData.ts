@@ -6,6 +6,7 @@ import { erc20ABI } from 'wagmi';
 import { multicall, readContract, readContracts } from 'wagmi/actions';
 
 import { DECIMALS_TOKEN } from 'constants/index';
+import RdpxReserve from 'constants/rdpx/abis/RdpxReserve';
 import RdpxV2Bond from 'constants/rdpx/abis/RdpxV2Bond';
 import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
 import addresses from 'constants/rdpx/addresses';
@@ -19,6 +20,7 @@ interface RdpxV2CoreState {
   rdpxPriceInEth: bigint;
   maxMintableBonds: bigint;
   bondComposition: readonly [bigint, bigint];
+  discount: bigint;
 }
 
 interface UserBond {
@@ -75,6 +77,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
       { result: bondComposition = [0n, 0n] as const },
       { result: wethBalance = 0n },
       { result: rdpxBalance = 0n },
+      { result: rdpxReserve = 0n },
     ] = await readContracts({
       // multicall
       contracts: [
@@ -106,6 +109,11 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
           functionName: 'balanceOf',
           args: [user],
         },
+        {
+          abi: RdpxReserve,
+          address: addresses.rdpxReserve,
+          functionName: 'rdpxReserve',
+        },
       ],
     });
 
@@ -118,6 +126,11 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
       DECIMALS_TOKEN
     );
 
+    const discount =
+      Math.ceil(
+        Number(bondDiscountFactor) * Math.sqrt(Number(rdpxReserve)) * 1e2
+      ) / Math.sqrt(Number(parseUnits('1', DECIMALS_TOKEN)));
+
     setRdpxV2CoreState((prev) => ({
       ...prev,
       bondMaturity,
@@ -126,6 +139,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
       bondComposition,
       rdpxPriceInEth,
       ethPrice,
+      discount: parseUnits(discount.toString(), 0),
       maxMintableBonds,
     }));
   }, [user]);

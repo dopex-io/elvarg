@@ -19,6 +19,8 @@ import useBondBreakdownCalculator from 'components/rdpx-v2/AsidePanel/hooks/useB
 import useBondPanelState from 'components/rdpx-v2/AsidePanel/hooks/useBondPanelState';
 import InfoRow from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/InfoRow';
 
+import formatBigint from 'utils/general/formatBigint';
+
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 import { DECIMALS_TOKEN } from 'constants/index';
 import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
@@ -208,10 +210,17 @@ const Bond = () => {
         />
       ) : null}
       <InfoBox value={amount} delegated={delegated} />
-      <div className="flex flex-col rounded-xl p-3 w-full bg-umbra space-y-2">
-        <InfoRow label="Balance" value={13.11} />
-        <InfoRow label="Fees" value={1.1} />
-        <InfoRow label="Receipt tokens to be received" value={13.13} />
+      <div className="flex flex-col rounded-xl p-3 text-xs w-full bg-umbra space-y-2">
+        <InfoRow
+          label="rDPX Balance"
+          value={`${formatBigint(wethBalance, DECIMALS_TOKEN)} WETH`}
+        />
+        <InfoRow
+          label="WETH Balance"
+          value={`${formatBigint(rdpxBalance, DECIMALS_TOKEN)} rDPX`}
+        />
+        <InfoRow label="Fees" value="-" />
+        <InfoRow label="Receipt tokens to be received" value="-" />
         <div className="rounded-md p-3 bg-carbon">
           <EstimatedGasCostButton
             gas={500000}

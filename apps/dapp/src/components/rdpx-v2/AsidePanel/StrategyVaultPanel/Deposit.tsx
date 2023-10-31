@@ -153,11 +153,11 @@ const Deposit = () => {
           severity={panelState.severity}
         />
       ) : null}
-      <div className="flex flex-col rounded-xl p-3 space-y-2 w-full bg-umbra">
+      <div className="flex flex-col rounded-xl p-3 space-y-2 w-full bg-umbra text-xs">
         <InfoRow
           label="Balance"
           value={
-            <h6 className="text-white text-sm">
+            <h6 className="text-white">
               {formatAmount(formatUnits(balance, DECIMALS_TOKEN), 3)}{' '}
               <span className="text-stieglitz">WETH</span>
             </h6>
@@ -166,7 +166,7 @@ const Deposit = () => {
         <InfoRow
           label="You will receive"
           value={
-            <h6 className="text-white text-sm">
+            <h6 className="text-white">
               {formatAmount(
                 formatUnits(
                   userPerpetualVaultData.totalUserShares || 0n,
