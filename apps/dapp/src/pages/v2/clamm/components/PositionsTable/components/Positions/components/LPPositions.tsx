@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { formatUnits } from 'viem';
 
 import { Checkbox } from '@mui/material';
 
@@ -19,22 +20,22 @@ type LPPositionItem = LPPosition & {
 export type LPPosition = {
   strike: number;
   size: {
-    callTokenAmount: number;
-    putTokenAmount: number;
+    callTokenAmount: string;
+    putTokenAmount: string;
     callTokenSymbol: string;
     putTokenSymbol: string;
   };
   withdrawable: {
-    callTokenAmount: number;
-    putTokenAmount: number;
+    callTokenAmount: string;
+    putTokenAmount: string;
     callTokenSymbol: string;
     putTokenSymbol: string;
   };
   earned: {
-    callTokenAmount: number;
-    putTokenAmount: number;
-    callTokenSymbol: number;
-    putTokenSymbol: number;
+    callTokenAmount: string;
+    putTokenAmount: string;
+    callTokenSymbol: string;
+    putTokenSymbol: string;
   };
 };
 
@@ -90,18 +91,14 @@ const columns = [
       } = info.getValue();
       return (
         <div className="flex flex-col items-start justify-center">
-          {Number(callTokenAmount) !== 0 && (
-            <span>
-              {formatAmount(callTokenAmount, 5)}{' '}
-              <span className="text-stieglitz">{callTokenSymbol}</span>
-            </span>
-          )}
-          {Number(putTokenAmount) !== 0 && (
-            <span>
-              {formatAmount(putTokenAmount, 5)}{' '}
-              <span className="text-stieglitz">{putTokenSymbol}</span>
-            </span>
-          )}
+          <span>
+            {formatAmount(callTokenAmount, 5)}{' '}
+            <span className="text-stieglitz">{callTokenSymbol}</span>
+          </span>
+          <span>
+            {formatAmount(putTokenAmount, 5)}{' '}
+            <span className="text-stieglitz">{putTokenSymbol}</span>
+          </span>
         </div>
       );
     },
@@ -117,18 +114,14 @@ const columns = [
       } = info.getValue();
       return (
         <div className="flex flex-col items-start justify-center">
-          {Number(callTokenAmount) !== 0 && (
-            <span>
-              {formatAmount(callTokenAmount, 5)}{' '}
-              <span className="text-stieglitz">{callTokenSymbol}</span>
-            </span>
-          )}
-          {Number(putTokenAmount) !== 0 && (
-            <span>
-              {formatAmount(putTokenAmount, 5)}{' '}
-              <span className="text-stieglitz">{putTokenSymbol}</span>
-            </span>
-          )}
+          <span>
+            {formatAmount(callTokenAmount, 5)}{' '}
+            <span className="text-stieglitz">{callTokenSymbol}</span>
+          </span>
+          <span>
+            {formatAmount(putTokenAmount, 5)}{' '}
+            <span className="text-stieglitz">{putTokenSymbol}</span>
+          </span>
         </div>
       );
     },
@@ -141,21 +134,67 @@ const columns = [
   }),
 ];
 
-const LPPositions = ({ positions }: { positions: LPPosition[] }) => {
+const LPPositions = ({ positions }: { positions: any }) => {
   const lpPositions = useMemo(() => {
-    console.log(positions);
-    return positions.map(({ earned, size, strike, withdrawable }) => {
-      return {
-        earned,
-        size,
-        strike,
-        withdrawable,
-        select: {
-          handleSelect: () => {},
-          disabled: true,
-        },
-      };
-    });
+    return positions.map(
+      ({
+        strikePrice,
+        token0LiquidityInToken,
+        token1LiquidityInToken,
+        token0Earned,
+        token1Earned,
+        token0Symbol,
+        token0Decimals,
+        token1Decimals,
+        token1Symbol,
+        token0Withdrawable,
+        token1Withdrawable,
+      }: any) => {
+        return {
+          earned: {
+            callTokenAmount: formatUnits(
+              BigInt(token0Earned),
+              Number(token0Decimals),
+            ),
+            putTokenAmount: formatUnits(
+              BigInt(token1Earned),
+              Number(token1Decimals),
+            ),
+            callTokenSymbol: token0Symbol,
+            putTokenSymbol: token1Symbol,
+          },
+          size: {
+            callTokenAmount: formatUnits(
+              BigInt(token0LiquidityInToken),
+              Number(token0Decimals),
+            ),
+            putTokenAmount: formatUnits(
+              BigInt(token1LiquidityInToken),
+              Number(token1Decimals),
+            ),
+            callTokenSymbol: token0Symbol,
+            putTokenSymbol: token1Symbol,
+          },
+          strike: strikePrice,
+          withdrawable: {
+            callTokenAmount: formatUnits(
+              BigInt(token0Withdrawable),
+              Number(token0Decimals),
+            ),
+            putTokenAmount: formatUnits(
+              BigInt(token1Withdrawable),
+              Number(token1Decimals),
+            ),
+            callTokenSymbol: token0Symbol,
+            putTokenSymbol: token1Symbol,
+          },
+          select: {
+            handleSelect: () => {},
+            disabled: true,
+          },
+        };
+      },
+    );
   }, [positions]);
   return (
     <TableLayout<LPPositionItem>

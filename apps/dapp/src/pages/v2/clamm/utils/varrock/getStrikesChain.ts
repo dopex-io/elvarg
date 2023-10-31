@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { VARROACK_BASE_API_URL } from '../../constants';
+import { VARROCK_BASE_API_URL } from '../../constants';
 
 async function getStrikesChain(
   chainId: number,
@@ -12,7 +12,7 @@ async function getStrikesChain(
   onErrorCallback?: (error: string) => void,
 ) {
   axios
-    .get(`${VARROACK_BASE_API_URL}/clamm/strikes`, {
+    .get(`${VARROCK_BASE_API_URL}/clamm/strikes`, {
       params: {
         chainId,
         callToken,
@@ -40,38 +40,20 @@ async function getStrikesChain(
 export default getStrikesChain;
 
 export type StrikesChainAPIResponse = {
+  type: string;
   strike: number;
   utilization: number;
-  rewardsApy: number;
   earningsApy: number;
-  composition: {
-    call: {
-      liquidityUsd: string;
-      availableUsd: string;
-      tokensLiquidity: string;
-      tokensAvailable: string;
-      optionsLiquidity: string;
-      optionsAvailable: string;
-      liquidityUsable: string;
-      symbol: string;
-      decimals: number;
-      priceUsd: string;
-      premiumTTLIVs: PremiumTTLIVs;
-    };
-    put: {
-      liquidityUsd: string;
-      availableUsd: string;
-      tokensLiquidity: string;
-      tokensAvailable: string;
-      optionsLiquidity: string;
-      optionsAvailable: string;
-      liquidityUsable: string;
-      symbol: string;
-      decimals: number;
-      priceUsd: string;
-      premiumTTLIVs: PremiumTTLIVs;
-    };
-  };
+  rewardsApy: number;
+  liquidityUsd: string;
+  liquidityAvailableUsd: string;
+  liquidityInToken: string;
+  liquidityAvailableInToken: string;
+  optionsAvailable: number;
+  optionsAvailableInLiquidity: string;
+  tokenSymbol: string;
+  tokenPrice: string;
+  tokenDecimals: number;
   sources: { name: string; compositionPercentage: number }[];
   meta: {
     tickLower: number;
@@ -79,10 +61,3 @@ export type StrikesChainAPIResponse = {
     liquidity: string;
   };
 }[];
-
-type PremiumTTLIVs = Record<number, PremiumTTLIV>;
-type PremiumTTLIV = {
-  iv: number;
-  premiumInToken: string;
-  premiumUsd: number;
-};

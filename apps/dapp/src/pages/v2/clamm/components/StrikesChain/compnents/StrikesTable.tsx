@@ -23,7 +23,6 @@ type StrikeDisclosureItem = {
   earningsApy: number;
   rewardsApy: number;
   utilization: number;
-  iv: number;
   totalDeposits: {
     amount: string;
     symbol: string;
@@ -36,14 +35,12 @@ type StrikeItem = {
     isSelected: boolean;
     handleSelect: () => void;
   };
-  breakeven: number;
   sources: {
     name: string;
     compositionPercentage: number;
   }[];
-  options: string;
+  options: number;
   button: {
-    premium: number;
     isSelected: boolean;
     handleSelect: () => void;
   };
@@ -75,20 +72,13 @@ const columns = [
       </span>
     ),
   }),
-  columnHelper.accessor('breakeven', {
-    header: 'Breakeven',
-    cell: (info) => (
-      <span className="text-left flex">
-        <p className="text-stieglitz pr-1">$</p>
-        <p className="pr-1">{formatAmount(info.getValue(), 5)}</p>
-      </span>
-    ),
-  }),
   columnHelper.accessor('liquidity', {
     header: 'Liquidity',
     cell: (info) => (
       <StatItem
-        name={`${info.getValue().amount} ${info.getValue().symbol}`}
+        name={`${formatAmount(info.getValue().amount, 5)} ${
+          info.getValue().symbol
+        }`}
         value={`$ ${formatAmount(info.getValue().usd)}`}
       />
     ),
@@ -138,7 +128,6 @@ const columns = [
           className={cx()}
         >
           <div className="flex items-center space-x-1">
-            <span>$ {formatAmount(getValue().premium)}</span>
             {getValue().isSelected ? (
               <MinusCircleIcon className="w-[14px]" />
             ) : (
@@ -168,7 +157,6 @@ const TableDisclosure = (props: StrikeDisclosureItem) => {
     <Disclosure.Panel as="tr" className="bg-umbra">
       <td colSpan={6}>
         <div className="grid grid-cols-6 gap-6 p-3">
-          <StatItem name="IV" value={String(props.iv)} />
           <StatItem
             name="Utilization"
             value={`${formatAmount(props.utilization, 5)}%`}
@@ -183,7 +171,9 @@ const TableDisclosure = (props: StrikeDisclosureItem) => {
           />
           <StatItem
             name="Total Deposits"
-            value={`${props.totalDeposits.amount} ${props.totalDeposits.symbol}`}
+            value={`${formatAmount(props.totalDeposits.amount, 5)} ${
+              props.totalDeposits.symbol
+            }`}
           />
         </div>
       </td>
@@ -200,104 +190,122 @@ const StrikesTable = () => {
     strikesChain,
   } = useStrikesChainStore();
 
-  const { selectedOptionsPool, isPut, selectedTTL } = useClammStore();
+  const { selectedOptionsPool, isPut } = useClammStore();
   const { chain } = useNetwork();
 
   useEffect(() => {
     if (!selectedOptionsPool || !chain) return;
-    const { callToken, putToken } = selectedOptionsPool;
-    const { id } = chain;
 
     getStrikesChain(
-      id,
-      callToken.symbol,
-      putToken.symbol,
-      100,
+      chain.id,
+      selectedOptionsPool.callToken.address,
+      selectedOptionsPool.putToken.address,
+      10,
       0,
       initialize,
-      toast.error,
+      (err) => {
+        toast.error(err);
+      },
     );
-  }, [selectedOptionsPool, chain, initialize]);
+  }, [chain, initialize, selectedOptionsPool]);
 
   const strikes = useMemo(() => {
     if (!strikesChain) return [];
-    return strikesChain.map(
-      (
-        {
-          composition,
-          earningsApy,
-          rewardsApy,
-          strike,
-          utilization,
-          meta,
-          sources,
-        },
-        index,
-      ) => {
-        const { call, put } = composition;
-
-        let premiumUsd = 0;
-        let iv = 0;
-        if (Object.keys(call.premiumTTLIVs).includes(selectedTTL.toString())) {
-          premiumUsd = call.premiumTTLIVs[selectedTTL].premiumUsd;
-          iv = call.premiumTTLIVs[selectedTTL].iv;
-        }
-        const isSelected = Boolean(selectedStrikes.get(index));
-
-        return {
-          strike: {
-            amount: strike,
-            isSelected,
-            handleSelect: () => {
-              return isSelected
-                ? deselectStrike(index)
-                : selectStrike(index, strike);
-            },
-          },
-          breakeven: isPut ? strike - premiumUsd : strike + premiumUsd,
-          sources,
-          options: isPut ? put.optionsAvailable : call.optionsAvailable,
-          button: {
-            premium: premiumUsd,
-            isSelected,
-            handleSelect: () => {
-              return isSelected
-                ? deselectStrike(index)
-                : selectStrike(index, strike);
-            },
-          },
-          liquidity: {
-            symbol: isPut ? put.symbol : call.symbol,
-            usd: isPut ? put.availableUsd : call.availableUsd,
-            amount: formatUnits(
-              BigInt(isPut ? put.tokensAvailable : call.tokensAvailable),
-              isPut ? put.decimals : call.decimals,
-            ),
-          },
-          disclosure: {
+    return strikesChain
+      .map(
+        (
+          {
             earningsApy,
+            liquidityAvailableUsd,
+            liquidityInToken,
+            liquidityUsd,
+            meta,
+            liquidityAvailableInToken,
+            optionsAvailable,
+            optionsAvailableInLiquidity,
             rewardsApy,
+            sources,
+            strike,
+            tokenDecimals,
+            tokenPrice,
+            tokenSymbol,
             utilization,
-            iv,
-            totalDeposits: {
-              amount: formatUnits(
-                BigInt(isPut ? put.tokensLiquidity : call.tokensLiquidity),
-                isPut ? put.decimals : call.decimals,
-              ),
-              symbol: isPut ? put.symbol : call.symbol,
-            },
+            type,
           },
-        };
-      },
-    );
-  }, [
-    strikesChain,
-    selectStrike,
-    selectedTTL,
-    isPut,
-    deselectStrike,
-    selectedStrikes,
-  ]);
+          index,
+        ) => {
+          const isSelected = Boolean(selectedStrikes.get(index));
+          return {
+            type,
+            strike: {
+              amount: strike,
+              isSelected,
+              handleSelect: () => {
+                return isSelected
+                  ? deselectStrike(index)
+                  : selectStrike(index, {
+                      amount0: 0,
+                      amount1: 0,
+                      isCall: type === 'call' ? true : false,
+                      strike: strike,
+                      ttl: '24h',
+                      tokenDecimals: Number(tokenDecimals),
+                      tokenSymbol,
+                      meta: {
+                        tickLower: Number(meta.tickLower),
+                        tickUpper: Number(meta.tickUpper),
+                        amount0: 0n,
+                        amount1: 0n,
+                      },
+                    });
+              },
+            },
+            sources,
+            options: optionsAvailable,
+            button: {
+              isSelected,
+              handleSelect: () => {
+                return isSelected
+                  ? deselectStrike(index)
+                  : selectStrike(index, {
+                      amount0: 0,
+                      amount1: 0,
+                      isCall: type === 'call' ? true : false,
+                      strike: strike,
+                      ttl: '24h',
+                      tokenDecimals: Number(tokenDecimals),
+                      tokenSymbol,
+                      meta: {
+                        tickLower: Number(meta.tickLower),
+                        tickUpper: Number(meta.tickUpper),
+                        amount0: 0n,
+                        amount1: 0n,
+                      },
+                    });
+              },
+            },
+            liquidity: {
+              symbol: tokenSymbol,
+              usd: liquidityAvailableUsd,
+              amount: formatUnits(
+                BigInt(liquidityAvailableInToken),
+                tokenDecimals,
+              ),
+            },
+            disclosure: {
+              earningsApy,
+              rewardsApy,
+              utilization,
+              totalDeposits: {
+                amount: formatUnits(BigInt(liquidityInToken), tokenDecimals),
+                symbol: tokenSymbol,
+              },
+            },
+          };
+        },
+      )
+      .filter(({ type }) => (isPut ? type === 'put' : type === 'call'));
+  }, [strikesChain, selectStrike, deselectStrike, selectedStrikes, isPut]);
 
   return (
     <TableLayout<StrikeItem>

@@ -2,7 +2,7 @@ import { Address } from 'viem';
 
 import axios from 'axios';
 
-import { VARROACK_BASE_API_URL } from '../../constants';
+import { VARROCK_BASE_API_URL } from '../../constants';
 
 export type OptionsPoolsAPIResponse = {
   pairName: string;
@@ -10,18 +10,18 @@ export type OptionsPoolsAPIResponse = {
   callToken: {
     symbol: string;
     address: Address;
+    decimals: number;
   };
   putToken: {
     symbol: string;
     address: Address;
+    decimals: number;
   };
   optionsPoolAddress: Address;
-  handlers: {
-    handlerName: string;
-    handlerAddress: Address;
-    dexName: string;
-    pairAddress: Address;
-  }[];
+  tokenURIFetcher: Address;
+  ttls: string[];
+  ivs: string[];
+  primePool: Address;
 }[];
 
 function getOptionsPools(
@@ -30,7 +30,7 @@ function getOptionsPools(
   onErrorCallback?: (error: string) => void,
 ) {
   axios
-    .get(`${VARROACK_BASE_API_URL}/clamm/pools`, {
+    .get(`${VARROCK_BASE_API_URL}/clamm/pools`, {
       params: {
         chainId,
       },

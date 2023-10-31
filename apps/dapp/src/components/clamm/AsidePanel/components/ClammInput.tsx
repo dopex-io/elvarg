@@ -1,5 +1,3 @@
-import { ReactEventHandler } from 'react';
-
 import { Input } from '@dopex-io/ui';
 
 type InputProps = {

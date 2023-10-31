@@ -11,6 +11,8 @@ import useWindowSize from 'hooks/useWindowSize';
 
 import PageLayout from 'components/common/PageLayout';
 
+import { DEFAULT_CHAIN_ID } from 'constants/env';
+
 import AsidePanel from './components/AsidePanel';
 import LearningResources from './components/LearningResources';
 import PositionsTable from './components/PositionsTable';
@@ -18,7 +20,8 @@ import PriceChartWithHide from './components/PriceChartWithHide';
 import StrikesChain from './components/StrikesChain';
 import OverViewStats from './components/TitleBar/OverViewStats';
 import PairSelector from './components/TitleBar/PairSelector';
-import { VARROACK_BASE_API_URL } from './constants';
+import { VARROCK_BASE_API_URL } from './constants';
+import getOptionsPools from './utils/varrock/getOptionsPools';
 
 const MAX_AFK_LIMIT = 60000;
 
@@ -26,25 +29,15 @@ const Page = () => {
   const { initialize } = useClammStore();
   const { chain } = useNetwork();
 
-  const { data, refetch, dataUpdatedAt } = useQuery({
-    queryKey: ['clamm-pools-' + chain?.id],
-    initialData: [],
-    staleTime: 0,
-    refetchOnWindowFocus: true,
-    queryFn: async () => {
-      const queryUrl = new URL(`${VARROACK_BASE_API_URL}/clamm/pools`);
-      queryUrl.searchParams.set('chainId', chain?.id.toString() ?? '42161');
-      return fetch(queryUrl).then((res) => res.json());
-    },
-  });
-
   useEffect(() => {
-    if (data.error) {
-      toast.error('Failed to load pools from API.');
-      return;
-    }
-    initialize(data);
-  }, [data, initialize]);
+    getOptionsPools(
+      chain?.id ?? DEFAULT_CHAIN_ID,
+      initialize,
+      (error: string) => {
+        toast.error(error);
+      },
+    );
+  }, [chain?.id, initialize]);
 
   return (
     <PageLayout>
@@ -56,7 +49,7 @@ const Page = () => {
             <PairSelector />
             <OverViewStats />
           </div>
-          <PriceChartWithHide />
+          {/* <PriceChartWithHide /> */}
           <StrikesChain />
           <PositionsTable />
         </div>

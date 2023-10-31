@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { formatUnits } from 'viem';
 
 import { Checkbox } from '@mui/material';
 
@@ -22,13 +23,13 @@ type BuyPositionItem = BuyPosition & {
 export type BuyPosition = {
   strike: number;
   size: {
-    amount: number;
+    amount: string;
     symbol: string;
     usdValue: number;
   };
   side: string;
   premium: {
-    amount: number;
+    amount: string;
     symbol: string;
     usdValue: number;
   };
@@ -56,10 +57,17 @@ const columns = [
   columnHelper.accessor('size', {
     header: 'Size',
     cell: (info) => (
-      <StatItem
-        value={`${info.getValue().amount} ${info.getValue().symbol}`}
-        name={`$ ${formatAmount(info.getValue().usdValue)}`}
-      />
+      <div className="flex flex-col items-start justfiy-start">
+        <div className="flex items-center justify-start space-x-[3px]">
+          <span className="text-white">
+            {formatAmount(info.getValue().amount, 5)}
+          </span>
+          <span className="text-stieglitz">{info.getValue().symbol}</span>
+        </div>
+        <span className="text-stieglitz text-sm">
+          $ {formatAmount(info.getValue().usdValue, 5)}
+        </span>
+      </div>
     ),
   }),
   columnHelper.accessor('side', {
@@ -80,10 +88,17 @@ const columns = [
     cell: (info) => {
       const { amount, symbol } = info.getValue();
       return (
-        <StatItem
-          value={`${info.getValue().amount} ${info.getValue().symbol}`}
-          name={`$ ${formatAmount(info.getValue().usdValue)}`}
-        />
+        <div className="flex flex-col items-start justfiy-start">
+          <div className="flex items-center justify-start space-x-[3px]">
+            <span className="text-white">
+              {formatAmount(info.getValue().amount, 5)}
+            </span>
+            <span className="text-stieglitz">{info.getValue().symbol}</span>
+          </div>
+          <span className="text-stieglitz text-sm">
+            $ {formatAmount(info.getValue().usdValue, 5)}
+          </span>
+        </div>
       );
     },
   }),
@@ -97,7 +112,7 @@ const columns = [
         <div className="flex flex-col">
           <span className={amountInNumber > 0 ? 'text-up-only' : 'stieglitz'}>
             {amountInNumber > 0 && '+'}
-            {formatAmount(amountInNumber, 5)}{' '}
+            {formatAmount(amountInNumber, 5)} {symbol}{' '}
             {`(${formatAmount(percentage, 2)}%)`}
           </span>
           <span className="text-stieglitz">$ {formatAmount(usdValue, 5)}</span>
@@ -113,22 +128,40 @@ const columns = [
   }),
 ];
 
-const BuyPositions = ({ positions }: { positions: BuyPosition[] }) => {
+const BuyPositions = ({ positions }: { positions: any[] }) => {
   const buyPositions = useMemo(() => {
     return positions.map(({ expiry, premium, profit, side, size, strike }) => {
+      const readablePremium = formatUnits(
+        premium.amountInToken,
+        premium.decimals,
+      );
+
       return {
         expiry,
-        premium,
+        premium: {
+          amount: readablePremium,
+          symbol: premium.symbol,
+          usdValue: premium.usdValue,
+        },
         profit: {
-          ...profit,
+          amount: profit.amount,
+          usdVlaue: profit.usdValue,
+          symbol: profit.symbol,
           percentage: Math.max(
-            getPercentageDifference(profit.amount, premium.amount),
+            getPercentageDifference(
+              Number(profit.amount),
+              Number(readablePremium),
+            ),
             0,
           ),
         },
-        side,
-        size,
-        strike,
+        side: side.charAt(0).toUpperCase() + side.slice(1),
+        size: {
+          amount: formatUnits(size.amountInToken, size.decimals),
+          symbol: size.symbol,
+          usdValue: 0,
+        },
+        strike: Number(strike),
         select: {
           handleSelect: () => {},
           disabled: false,

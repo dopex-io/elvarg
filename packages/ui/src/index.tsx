@@ -27,6 +27,7 @@ export type { SkeletonProps } from './Skeleton';
 
 // Direct exports from headless UI
 export { Disclosure } from '@headlessui/react';
+export { Listbox } from '@headlessui/react';
 export type {
   DisclosureProps,
   DisclosureButtonProps,

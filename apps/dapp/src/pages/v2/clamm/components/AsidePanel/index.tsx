@@ -1,93 +1,53 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import cx from 'classnames';
+import axios from 'axios';
+import { useAccount } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 
-import { EXPIRIES, EXPIRIES_BY_INDEX, EXPIRIES_TO_KEY } from 'constants/clamm';
+import { VARROCK_BASE_API_URL } from '../../constants';
+import InfoPanel from './components/InfoPanel';
+import StrikesSection from './components/StrikesSection';
+import TradeSideSelector from './components/TradeSideSelector';
 
 const AsidePanel = () => {
-  const { isTrade, setIsTrade, isPut, setIsPut, selectedTTL, setSelectedTTL } =
-    useClammStore();
+  const { selectedOptionsPool, setTokenBalances } = useClammStore();
+  const { address: userAddress } = useAccount();
+
+  const updateTokenBalances = useCallback(async () => {
+    if (!selectedOptionsPool || !userAddress) return;
+    const { callToken, putToken } = selectedOptionsPool;
+    if (!callToken.address || !putToken.address) return;
+    const balances = await Promise.all([
+      axios.get(`${VARROCK_BASE_API_URL}/token/balance`, {
+        params: {
+          token: callToken.address,
+          user: userAddress,
+        },
+      }),
+      axios.get(`${VARROCK_BASE_API_URL}/token/balance`, {
+        params: {
+          token: putToken.address,
+          user: userAddress,
+        },
+      }),
+    ]);
+
+    setTokenBalances({
+      callToken: balances[0].data ? BigInt(balances[0].data.balance) : 0n,
+      putToken: balances[1].data ? BigInt(balances[1].data.balance) : 0n,
+    });
+  }, [selectedOptionsPool, userAddress, setTokenBalances]);
+
+  useEffect(() => {
+    updateTokenBalances();
+  }, [updateTokenBalances]);
+
   return (
-    <div className="w-full bg-cod-gray h-[30rem] p-[12px] rounded-lg space-y-[4px]">
-      <div className="flex space-x-[12px] items-center justfiy-start w-full mb-[12px]">
-        <span
-          role="button"
-          onClick={() => {
-            setIsTrade(true);
-          }}
-          className={cx(
-            'text-[14px]',
-            isTrade ? 'text-white' : 'text-stieglitz',
-          )}
-        >
-          Trade
-        </span>
-        <span
-          role="button"
-          onClick={() => {
-            setIsTrade(false);
-          }}
-          className={cx(
-            'text-[14px]',
-            !isTrade ? 'text-white' : 'text-stieglitz',
-          )}
-        >
-          Liquidity Provision
-        </span>
-      </div>
-      <div className="w-full flex flex-col items-start justfiy-center space-y-[12px] bg-umbra rounded-md p-[12px]">
-        <span className="w-full text-[16px] font-normal text-stieglitz">
-          Side
-        </span>
-        <div className="w-full flex p-[4px] rounded-md bg-mineshaft h-[36px]">
-          <span
-            role="button"
-            onClick={() => {
-              setIsPut(false);
-            }}
-            className={cx(
-              'flex-1 flex items-center justify-center text-center text-[14px] h-[30px] rounded-md',
-              !isPut && 'bg-carbon',
-            )}
-          >
-            <span>Call</span>
-          </span>
-          <span
-            role="button"
-            onClick={() => {
-              setIsPut(true);
-            }}
-            className={cx(
-              'flex-1 flex items-center justify-center text-center text-[14px] h-[30px] rounded-md',
-              isPut && 'bg-carbon',
-            )}
-          >
-            <span>Put</span>
-          </span>
-        </div>
-      </div>
-      <div className="w-full flex flex-col space-y-[12px] p-[4px] bg-umbra rounded-md">
-        <span>Expiry</span>
-        <div className="w-full bg-mineshaft rounded-md p-[4px] flex justify-around items-center">
-          {Object.keys(EXPIRIES).map((ttl, index) => (
-            <span
-              role="button"
-              onClick={() => {
-                setSelectedTTL(EXPIRIES[ttl]);
-              }}
-              className={cx(
-                'rounded-md flex-1 py-[4px] text-center',
-                selectedTTL === EXPIRIES[ttl] && 'bg-carbon',
-              )}
-              key={index}
-            >
-              {ttl}
-            </span>
-          ))}
-        </div>
-      </div>
+    <div className="w-full bg-cod-gray p-[12px] rounded-lg space-y-[4px]">
+      <TradeSideSelector />
+      <StrikesSection />
+      <InfoPanel updateTokenBalances={updateTokenBalances} />
     </div>
   );
 };
