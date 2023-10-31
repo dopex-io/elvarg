@@ -32,8 +32,8 @@ const BondsBody = () => {
       <div className="flex w-full">
         <QuickLink {...quickLinks.whitepaper} />
       </div>
-      <div className=" bg-umbra rounded-xl divide-y divide-cod-gray">
-        <div className="flex w-full divide-x divide-cod-gray">
+      <div className=" bg-umbra rounded-xl divide-y-2 divide-cod-gray">
+        <div className="flex w-full divide-x-2 divide-cod-gray">
           <span className="w-1/2 p-3 text-xs">
             <p>Label 1</p>
             <p className="text-stieglitz">Description 1</p>

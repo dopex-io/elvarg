@@ -55,10 +55,10 @@ const lpConfig = {
 
 const usePerpPoolData = ({ user = '0x' }: Props) => {
   const [vaultState, setVaultState] = useState<VaultState>(
-    initialContractStates.perpPool.state
+    initialContractStates.perpPool.state,
   );
   const [userData, setUserData] = useState<UserData>(
-    initialContractStates.perpPool.userData
+    initialContractStates.perpPool.userData,
   );
 
   const updateVaultState = useCallback(async () => {
@@ -201,7 +201,7 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
         totalSharesLocked,
       };
     },
-    [vaultState.expiry]
+    [vaultState.expiry],
   );
 
   const updateUserData = useCallback(async () => {
@@ -232,12 +232,12 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
     const userShareOfFunding =
       (parseUnits(
         vaultState.totalFundingForCurrentEpoch.toString(),
-        DECIMALS_TOKEN
+        DECIMALS_TOKEN,
       ) *
         parseUnits(userLpShares.toString(), DECIMALS_TOKEN)) /
       parseUnits(
         nonZeroDenominator.toString(),
-        nonZeroDenominator === 1n ? 1 : DECIMALS_TOKEN * 2
+        nonZeroDenominator === 1n ? 1 : DECIMALS_TOKEN * 2,
       );
     const isClaimQueued = userSharesLocked > 0n;
 
@@ -249,7 +249,7 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
     }
 
     const shareComposition = vaultState.oneLpShare.map(
-      (tokenShare) => (tokenShare * userLpShares) / parseUnits('10', 18)
+      (tokenShare) => (tokenShare * userLpShares) / parseUnits('10', 18),
     ) as [bigint, bigint];
 
     setUserData((prev) => ({

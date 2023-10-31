@@ -56,7 +56,7 @@ const TitleBar = () => {
     (index: number) => {
       update(rdpxV2Actions[index]);
     },
-    [update]
+    [update],
   );
 
   useEffect(() => {
@@ -94,7 +94,7 @@ const TitleBar = () => {
                 name="Current Discount"
                 value={`${formatBigint(
                   rdpxV2CoreState.discount,
-                  DECIMALS_STRIKE
+                  DECIMALS_STRIKE,
                 )}%`}
               />
               <Stat name="APR" value={'-'} />
@@ -102,14 +102,14 @@ const TitleBar = () => {
                 name="DPXETH Price"
                 value={`${formatBigint(
                   rdpxV2CoreState.dpxethPriceInEth,
-                  DECIMALS_STRIKE
+                  DECIMALS_STRIKE,
                 )} WETH`}
               />
               <Stat
                 name="RDPX Price"
                 value={`${formatBigint(
                   rdpxV2CoreState.rdpxPriceInEth,
-                  DECIMALS_STRIKE
+                  DECIMALS_STRIKE,
                 )} WETH`}
               />
             </div>
@@ -124,7 +124,7 @@ const TitleBar = () => {
                 name="Funding"
                 value={`${formatBigint(
                   perpetualVaultState.totalFundingForCurrentEpoch,
-                  DECIMALS_TOKEN
+                  DECIMALS_TOKEN,
                 )} WETH`}
               />
               <Stat name="APR" value={'-'} />
@@ -134,8 +134,8 @@ const TitleBar = () => {
                   (perpetualVaultState.totalActiveOptions *
                     parseUnits('1', DECIMALS_TOKEN)) /
                     (perpetualVaultState.totalLpShares || 1n),
-                  DECIMALS_TOKEN
-                )} %`}
+                  DECIMALS_TOKEN,
+                )}%`}
               />
               <Stat
                 name="TVL"

@@ -63,16 +63,16 @@ const DepositRow = () => {
   }, [claim, userPerpetualVaultData.claimableTime]);
 
   return (
-    <>
-      <span className="text-sm mt-4 mb-3 flex">Your deposits</span>
-      <div className="bg-umbra flex max-w-full divide-x divide-cod-gray rounded-lg">
+    <div className="space-y-3">
+      <span className="text-sm">Your deposits</span>
+      <div className="bg-umbra flex overflow-auto max-w-full divide-x divide-cod-gray rounded-lg">
         <Cell
           label="Amount"
           data={[
             [
               formatBigint(
                 userPerpetualVaultData.totalUserShares,
-                DECIMALS_TOKEN
+                DECIMALS_TOKEN,
               ),
               ' LP',
             ],
@@ -84,14 +84,14 @@ const DepositRow = () => {
             [
               formatBigint(
                 userPerpetualVaultData.shareComposition[0],
-                DECIMALS_TOKEN
+                DECIMALS_TOKEN,
               ),
               'ETH',
             ],
             [
               formatBigint(
                 userPerpetualVaultData.shareComposition[1],
-                DECIMALS_TOKEN
+                DECIMALS_TOKEN,
               ),
               'rDPX',
             ],
@@ -103,7 +103,7 @@ const DepositRow = () => {
             [
               formatBigint(
                 userPerpetualVaultData.userShareOfFunding,
-                DECIMALS_TOKEN
+                DECIMALS_TOKEN,
               ),
               'ETH',
             ],
@@ -115,7 +115,7 @@ const DepositRow = () => {
             [
               formatBigint(
                 userPerpetualVaultData.totalUserShares,
-                DECIMALS_TOKEN
+                DECIMALS_TOKEN,
               ),
               'LP',
             ],
@@ -127,7 +127,7 @@ const DepositRow = () => {
             [
               formatBigint(
                 userPerpetualVaultData.userSharesLocked,
-                DECIMALS_TOKEN
+                DECIMALS_TOKEN,
               ),
               'LP',
             ],
@@ -168,7 +168,7 @@ const DepositRow = () => {
           />
         ) : null}
       </div>
-    </>
+    </div>
   );
 };
 

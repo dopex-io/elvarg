@@ -1,9 +1,5 @@
 import { useEffect, useState } from 'react';
 
-import Tooltip from '@mui/material/Tooltip';
-
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-
 import axios from 'axios';
 import { format } from 'date-fns';
 import request from 'graphql-request';
@@ -60,12 +56,12 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
         rdpxPrices: Number(
           (
             getUserReadableAmount(prices[0]?.[i]?.price, 8) * ethPriceInUsd
-          ).toFixed(3)
+          ).toFixed(3),
         ),
         dscPrices: Number(
           (
             getUserReadableAmount(prices[1]?.[i]?.price, 8) * ethPriceInUsd
-          ).toFixed(3)
+          ).toFixed(3),
         ),
       }));
 
@@ -76,7 +72,7 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
   useEffect(() => {
     axios
       .get(
-        'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd'
+        'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd',
       )
       .then((payload) => {
         const _ethPriceInUsd = Number(payload.data.ethereum.usd);
@@ -89,11 +85,7 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
       <h6 className="absolute top-3 left-3 text-xs text-stieglitz align-center">
         Staking Rewards
       </h6>
-      <ResponsiveContainer
-        width="100%"
-        height={height}
-        className="absolute top-6"
-      >
+      <ResponsiveContainer width="100%" height={height} className="top-6">
         <AreaChart
           width={500}
           height={400}

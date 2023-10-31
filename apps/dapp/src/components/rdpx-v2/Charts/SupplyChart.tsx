@@ -1,9 +1,5 @@
 import { useEffect, useState } from 'react';
 
-import MuiTooltip from '@mui/material/Tooltip';
-
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-
 import { format } from 'date-fns';
 import request from 'graphql-request';
 import {
@@ -55,10 +51,14 @@ const PriceChart = (props: LiquidityLineChartProps) => {
       const formatted = dscSupplies[1]?.map((obj, i) => ({
         time: format(new Date(Number(obj.id) * 1000), 'dd LLL YYY'),
         rdpxTotalSupplies: Number(
-          getUserReadableAmount(dscSupplies[0]?.[i]?.totalSupply, 18).toFixed(3)
+          getUserReadableAmount(dscSupplies[0]?.[i]?.totalSupply, 18).toFixed(
+            3,
+          ),
         ),
         dscTotalSupplies: Number(
-          getUserReadableAmount(dscSupplies[1]?.[i]?.totalSupply, 18).toFixed(3)
+          getUserReadableAmount(dscSupplies[1]?.[i]?.totalSupply, 18).toFixed(
+            3,
+          ),
         ),
       }));
 
@@ -71,11 +71,7 @@ const PriceChart = (props: LiquidityLineChartProps) => {
       <h6 className="absolute top-3 left-3 text-xs text-stieglitz align-center">
         Composition
       </h6>
-      <ResponsiveContainer
-        width="100%"
-        height={height}
-        className="absolute top-6"
-      >
+      <ResponsiveContainer width="100%" height={height} className="top-6">
         <AreaChart
           width={500}
           height={400}

@@ -16,7 +16,7 @@ const QuickLink = (props: Props) => {
 
   return (
     <a
-      className={`p-3 border rounded-xl transform ease-in-out duration-200 bg-umbra ${
+      className={`p-3 w-full border rounded-xl transform ease-in-out duration-200 bg-umbra ${
         active ? 'border-mineshaft' : 'border-umbra'
       }`}
       onMouseEnter={() => setActive(true)}

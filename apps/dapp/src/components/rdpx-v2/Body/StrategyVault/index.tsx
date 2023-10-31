@@ -6,7 +6,7 @@ import DepositRow from './DepositRow';
 
 const StrategyVaultBody = () => {
   return (
-    <div className="bg-cod-gray rounded-xl w-full h-fit p-3">
+    <div className="bg-cod-gray rounded-xl w-full h-fit p-3 space-y-3">
       <div className="flex w-full">
         <QuickLink {...quickLinks.strategyVault} />
       </div>
