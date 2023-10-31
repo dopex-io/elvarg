@@ -7,7 +7,7 @@ import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 import TableLayout from 'components/common/TableLayout';
 
 import RdpxV2Bond from 'constants/rdpx/abis/RdpxV2Bond';
-import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
+// import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
 import addresses from 'constants/rdpx/addresses';
 
 import columns, { UserBonds as UserBondsType } from './ColumnDefs/BondsColumn';
