@@ -1,30 +1,60 @@
 import { StrikesChainAPIResponse } from 'pages/v2/clamm/utils/varrock/getStrikesChain';
 import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
 
 type StrikesChain = StrikesChainAPIResponse;
+export type SelectedStrike = {
+  ttl: string;
+  strike: number;
+  isCall: boolean;
+  amount0: number;
+  amount1: number;
+  tokenSymbol: string;
+  tokenDecimals: number;
+  meta: StrikeMeta;
+};
+
+type StrikeMeta = {
+  tickLower: number;
+  tickUpper: number;
+  amount0: bigint;
+  amount1: bigint;
+};
 export interface StrikesChainStore {
-  selectedStrikes: Map<number, number>;
-  selectStrike: (index: number, strike: any) => void;
+  reset: () => void;
+  selectedStrikes: Map<number, SelectedStrike>;
+  selectStrike: (index: number, strike: SelectedStrike) => void;
   deselectStrike: (index: number) => void;
-  initialize: (data: StrikesChainAPIResponse) => void;
+  initialize: (data: StrikesChain) => void;
   strikesChain: StrikesChain;
+  selectedStrikesErrors: Map<
+    number,
+    {
+      isError: boolean;
+      message: string;
+    }
+  >;
+  setSelectedStrikesError: (key: number, error: SelectedStrikeError) => void;
 }
+
+type SelectedStrikeError = {
+  isError: boolean;
+  message: string;
+};
 
 const useStrikesChainStore = create<StrikesChainStore>((set) => ({
   strikesChain: [],
+  selectedStrikesErrors: new Map(),
   initialize: (data: StrikesChain) => {
-    console.log(data);
     set((prev) => ({
       ...prev,
       strikesChain: data,
     }));
   },
   selectedStrikes: new Map(),
-  selectStrike: (index: number, strike: number) => {
+  selectStrike: (index: number, strikeData: SelectedStrike) => {
     set((prev) => {
       const selectedStrikes = new Map(prev.selectedStrikes);
-      selectedStrikes.set(index, strike);
+      selectedStrikes.set(index, strikeData);
       return {
         ...prev,
         selectedStrikes: selectedStrikes,
@@ -41,6 +71,22 @@ const useStrikesChainStore = create<StrikesChainStore>((set) => ({
         selectedStrikes: selectedStrikes,
       };
     });
+  },
+  setSelectedStrikesError(key: number, error: SelectedStrikeError) {
+    set((prev) => {
+      const strikeError = new Map(prev.selectedStrikesErrors);
+      strikeError.set(key, error);
+      return {
+        ...prev,
+        selectedStrikesErrors: strikeError,
+      };
+    });
+  },
+  reset: () => {
+    set((prev) => ({
+      ...prev,
+      selectedStrikes: new Map(),
+    }));
   },
 }));
 

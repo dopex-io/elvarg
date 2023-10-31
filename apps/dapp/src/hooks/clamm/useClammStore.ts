@@ -9,18 +9,23 @@ export type OptionsPool = {
   callToken: {
     symbol: string;
     address: Address;
+    decimals: number;
   };
   putToken: {
     symbol: string;
     address: Address;
+    decimals: number;
   };
   optionsPoolAddress: Address;
-  handlers: {
-    handlerName: string;
-    handlerAddress: Address;
-    dexName: string;
-    pairAddress: Address;
-  }[];
+  tokenURIFetcher: Address;
+  ttls: string[];
+  ivs: string[];
+  primePool: Address;
+};
+
+type TokenBalances = {
+  callToken: bigint;
+  putToken: bigint;
 };
 
 type ClammStore = {
@@ -37,11 +42,25 @@ type ClammStore = {
 
   selectedTTL: number;
   setSelectedTTL: (TTL: number) => void;
+
+  tokenBalances: TokenBalances;
+
+  setTokenBalances: (tokenBalances: TokenBalances) => void;
 };
 const useClammStore = create<ClammStore>((set, get) => ({
   isPut: false,
-  isTrade: true,
+  isTrade: false,
   selectedTTL: 1200,
+  tokenBalances: {
+    callToken: 0n,
+    putToken: 0n,
+  },
+  setTokenBalances: (tokenBalances: TokenBalances) => {
+    set((prev) => ({
+      ...prev,
+      tokenBalances,
+    }));
+  },
   setSelectedTTL: (TTL: number) => {
     set((prev) => ({
       ...prev,
@@ -73,29 +92,29 @@ const useClammStore = create<ClammStore>((set, get) => ({
   },
   initialize: (initialData: OptionsPoolsAPIResponse) => {
     const poolsMapping = new Map<string, OptionsPool>();
+    if (!initialData.length) return;
     initialData.forEach(
       ({
         callToken,
-        handlers,
         optionsPoolAddress,
         pairName,
         pairTicker,
         putToken,
+        ivs,
+        tokenURIFetcher,
+        ttls,
+        primePool,
       }) => {
         poolsMapping.set(pairName, {
           callToken: callToken,
-          handlers: handlers.map(
-            ({ dexName, handlerAddress, handlerName, pairAddress }) => ({
-              dexName: dexName,
-              pairAddress: pairAddress,
-              handlerAddress: handlerAddress,
-              handlerName: handlerName,
-            }),
-          ),
           optionsPoolAddress: optionsPoolAddress,
           pairName: pairName,
           pairTicker: pairTicker,
           putToken: putToken,
+          ivs,
+          tokenURIFetcher,
+          ttls,
+          primePool,
         });
       },
     );
