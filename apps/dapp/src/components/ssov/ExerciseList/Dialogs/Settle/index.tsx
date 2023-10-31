@@ -1,21 +1,24 @@
 import { useCallback, useEffect, useState } from 'react';
-import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { ERC20__factory } from '@dopex-io/sdk';
 import { ethers } from 'ethers';
 
-import Dialog from 'components/UI/Dialog';
-import Typography from 'components/UI/Typography';
-import CustomButton from 'components/UI/Button';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
+import { ERC20__factory } from '@dopex-io/sdk';
 
 import { useBoundStore } from 'store';
 import { SsovV3EpochData } from 'store/Vault/ssov';
 
+import useSendTx from 'hooks/useSendTx';
+
+import CustomButton from 'components/UI/Button';
+import Dialog from 'components/UI/Dialog';
+import Typography from 'components/UI/Typography';
+
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
-
-import useSendTx from 'hooks/useSendTx';
 
 export interface Props {
   open: boolean;
@@ -66,7 +69,7 @@ const Settle = ({ open, handleClose, strikeIndex }: Props) => {
     }
     const _userEpochStrikeTokenBalance = await ERC20__factory.connect(
       epochStrikeToken,
-      provider
+      provider,
     ).balanceOf(accountAddress);
     setUserEpochStrikeTokenBalance(_userEpochStrikeTokenBalance.toString());
   }, [epochStrikeToken, accountAddress, provider]);
@@ -120,6 +123,8 @@ const Settle = ({ open, handleClose, strikeIndex }: Props) => {
         ssovSigner.ssovContractWithSigner.address,
         userEpochStrikeTokenBalance,
       ]);
+
+      setApproved(true);
     } catch (err) {
       console.log(err);
     }
@@ -144,7 +149,7 @@ const Settle = ({ open, handleClose, strikeIndex }: Props) => {
 
       const allowance = await optionsToken.allowance(
         accountAddress,
-        ssovSigner.ssovContractWithSigner.address
+        ssovSigner.ssovContractWithSigner.address,
       );
 
       setApproved(allowance.gte(userEpochStrikeTokenBalance));

@@ -11,12 +11,9 @@ import getCurrentTime from 'utils/date/getCurrentTime';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import {
-  ASC,
   DECIMALS_STRIKE,
   DECIMALS_TOKEN,
   DECIMALS_USD,
-  DESC,
-  PERCENT,
   ZERO_ADDRESS,
 } from '../../../constants';
 
@@ -237,7 +234,9 @@ export const createOlpSlice: StateCreator<
               olpData?.ssov,
               pos?.strike,
             );
-            impliedVol = impliedVol.mul(PERCENT.sub(pos.discount)).div(PERCENT);
+            impliedVol = impliedVol
+              .mul(BigNumber.from(100).sub(pos.discount))
+              .div(BigNumber.from(100));
             const premium: BigNumber = await olpContract?.calculatePremium(
               olpData?.isPut,
               pos.strike,
@@ -285,7 +284,7 @@ export const createOlpSlice: StateCreator<
                 return pos.discount.toNumber();
               },
             ],
-            olpData?.isPut ? [DESC, ASC] : [ASC, ASC],
+            olpData?.isPut ? ['desc', 'asc'] : ['asc', 'asc'],
           ).map((pos, idx) => ({ ...pos, idx: idx })),
           strikes: strikes,
           strikeToUtilization: strikeToUtilization,

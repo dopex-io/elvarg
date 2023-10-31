@@ -61,14 +61,6 @@ const seo = {
     description:
       'Exit your SSOV positions mid-epoch or provide liquidity to purchase calls and puts at a discount',
   },
-  scalps: {
-    url: `${HOST_URL}/scalps`,
-    banner:
-      'https://res.cloudinary.com/dxitdndu3/image/upload/v1685374223/dopex_images/preview_images/scalps_k7mnxe.png',
-    alt: 'Scalps',
-    title: 'Dopex Option Scalps',
-    description: 'Trade short time frames using high leverage at a fixed cost',
-  },
   bonds: {
     url: `${HOST_URL}/dpx-bonds`,
     banner:

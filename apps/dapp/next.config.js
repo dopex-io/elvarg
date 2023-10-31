@@ -7,9 +7,6 @@ const nextConfig = {
   sentry: {
     hideSourceMaps: true,
   },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   generateBuildId: () => 'build',
   images: {
     domains: ['lh3.googleusercontent.com'],
@@ -23,8 +20,8 @@ const nextConfig = {
         permanent: false,
       },
       {
-        source: '/scalps',
-        destination: '/scalps/ETH',
+        source: '/',
+        destination: '/ssov',
         permanent: false,
       },
       {

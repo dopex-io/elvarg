@@ -9,9 +9,6 @@ const DOPEX_SSOV_SUBGRAPH_API_URL =
 const DOPEX_POLYGON_SSOV_SUBGRAPH_API_URL =
   'https://api.thegraph.com/subgraphs/name/garyunwin42/dopex-ssov-polygon';
 
-const DOPEX_OPTION_SCALPS_SUBGRAPH_API_URL =
-  'https://api.thegraph.com/subgraphs/name/aercwarden/dopex-option-scalps';
-
 export const DOPEX_RDPX_SUBGRAPH_API_URL =
   'https://api.thegraph.com/subgraphs/name/psytama/rdpxv2';
 
@@ -30,11 +27,6 @@ const config: CodegenConfig = {
     './src/gql/ssovs-polygon/': {
       schema: DOPEX_POLYGON_SSOV_SUBGRAPH_API_URL,
       documents: ['src/graphql/ssovs-polygon/*.ts'],
-      preset: 'client',
-    },
-    './src/gql/optionScalps/': {
-      schema: DOPEX_OPTION_SCALPS_SUBGRAPH_API_URL,
-      documents: ['src/graphql/optionScalps/*.ts'],
       preset: 'client',
     },
     './src/gql/rdpx/': {

@@ -35,7 +35,7 @@ import { LinkType } from './types';
 const NotifiCard = lazy(() =>
   import('components/NotifiCard').then((module) => ({
     default: module.NotifiCard,
-  }))
+  })),
 );
 
 const appLinks: {
@@ -81,12 +81,6 @@ const appLinks: {
     {
       name: 'Trade',
       subLinks: [
-        {
-          name: 'Scalps',
-          to: '/scalps/ETH',
-          description:
-            'Scalp market moves with short term positions & high leverage',
-        },
         {
           name: 'DPX Bonds',
           to: '/dpx-bonds',
@@ -147,7 +141,7 @@ export default function AppBar() {
   const [isNotifiCardOpen, setIsNotifiCardOpen] = useState(false);
 
   const links = (appLinks[chain?.id! || DEFAULT_CHAIN_ID] || []).concat(
-    baseAppLinks
+    baseAppLinks,
   );
 
   const handleClose = useCallback(() => setAnchorEl(null), []);
@@ -155,12 +149,12 @@ export default function AppBar() {
 
   const handleClickMenu = useCallback(
     (event: any) => setAnchorEl(event.currentTarget),
-    []
+    [],
   );
 
   const handleClickMenuSmall = useCallback(
     (event: any) => setAnchorElSmall(event.currentTarget),
-    []
+    [],
   );
 
   const userComplianceCheck = useCallback(async () => {
@@ -175,8 +169,8 @@ export default function AppBar() {
         await axios
           .get(
             `https://flo7r5qw6dj5mi337w2esfvhhm0caese.lambda-url.us-east-1.on.aws/?address=${ethers.utils.getAddress(
-              accountAddress
-            )}`
+              accountAddress,
+            )}`,
           )
           .then((res) => {
             signature = res.data.signature;
@@ -196,7 +190,7 @@ export default function AppBar() {
 
     const signatureSigner = ethers.utils.verifyMessage(
       DISCLAIMER_MESSAGE['english'],
-      signature
+      signature,
     );
 
     if (signatureSigner === accountAddress) setUserCompliant(true);
@@ -342,7 +336,7 @@ export default function AppBar() {
                             <AppLink to={to} name={name} />
                           </MenuItem>
                         );
-                      }
+                      },
                     );
                   }
                 })}
