@@ -128,46 +128,53 @@ const columns = [
   }),
 ];
 
-const BuyPositions = ({ positions }: { positions: any[] }) => {
+const BuyPositions = ({
+  positions,
+  selectPosition,
+  selectedPositions,
+  unselectPosition,
+}: any) => {
   const buyPositions = useMemo(() => {
-    return positions.map(({ expiry, premium, profit, side, size, strike }) => {
-      const readablePremium = formatUnits(
-        premium.amountInToken,
-        premium.decimals,
-      );
+    return positions.map(
+      ({ expiry, premium, profit, side, size, strike }: any) => {
+        const readablePremium = formatUnits(
+          premium.amountInToken,
+          premium.decimals,
+        );
 
-      return {
-        expiry,
-        premium: {
-          amount: readablePremium,
-          symbol: premium.symbol,
-          usdValue: premium.usdValue,
-        },
-        profit: {
-          amount: profit.amount,
-          usdVlaue: profit.usdValue,
-          symbol: profit.symbol,
-          percentage: Math.max(
-            getPercentageDifference(
-              Number(profit.amount),
-              Number(readablePremium),
+        return {
+          expiry,
+          premium: {
+            amount: readablePremium,
+            symbol: premium.symbol,
+            usdValue: premium.usdValue,
+          },
+          profit: {
+            amount: profit.amount,
+            usdVlaue: profit.usdValue,
+            symbol: profit.symbol,
+            percentage: Math.max(
+              getPercentageDifference(
+                Number(profit.amount),
+                Number(readablePremium),
+              ),
+              0,
             ),
-            0,
-          ),
-        },
-        side: side.charAt(0).toUpperCase() + side.slice(1),
-        size: {
-          amount: formatUnits(size.amountInToken, size.decimals),
-          symbol: size.symbol,
-          usdValue: 0,
-        },
-        strike: Number(strike),
-        select: {
-          handleSelect: () => {},
-          disabled: false,
-        },
-      };
-    });
+          },
+          side: side.charAt(0).toUpperCase() + side.slice(1),
+          size: {
+            amount: formatUnits(size.amountInToken, size.decimals),
+            symbol: size.symbol,
+            usdValue: 0,
+          },
+          strike: Number(strike),
+          select: {
+            handleSelect: () => {},
+            disabled: false,
+          },
+        };
+      },
+    );
   }, [positions]);
 
   const handleExercise = useCallback(async () => {}, []);

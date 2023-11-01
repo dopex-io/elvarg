@@ -1,24 +1,26 @@
-import React, { useMemo } from 'react';
-import { formatUnits } from 'viem';
+import React, { useCallback, useMemo } from 'react';
+import { Address, encodeFunctionData, formatUnits, Hex, parseAbi } from 'viem';
 
 import { Checkbox } from '@mui/material';
 
 import { Button } from '@dopex-io/ui';
 import { createColumnHelper } from '@tanstack/react-table';
+import { MULTI_CALL_FN_SIG } from 'pages/v2/clamm/constants';
+import { useNetwork, useWalletClient } from 'wagmi';
+import wagmiConfig from 'wagmi-config';
 
 import TableLayout from 'components/common/TableLayout';
 
 import { formatAmount } from 'utils/general';
 
-type LPPositionItem = LPPosition & {
-  select: {
-    handleSelect: Function;
-    disabled: boolean;
-  };
-};
+import { DEFAULT_CHAIN_ID } from 'constants/env';
 
-export type LPPosition = {
-  strike: number;
+export type LPPositionItem = {
+  strike: {
+    strikePrice: number;
+    isSelected: boolean;
+    handleSelect: () => void;
+  };
   size: {
     callTokenAmount: string;
     putTokenAmount: string;
@@ -37,6 +39,9 @@ export type LPPosition = {
     callTokenSymbol: string;
     putTokenSymbol: string;
   };
+  withdrawButton: {
+    handleWithdraw: (meta: any) => void;
+  };
 };
 
 const columnHelper = createColumnHelper<LPPositionItem>();
@@ -46,9 +51,14 @@ const columns = [
     header: 'Strike Price',
     cell: (info) => (
       <span className="flex space-x-2 text-left items-center justify-start">
-        <Checkbox className="text-mineshaft" size="small" />
+        <Checkbox
+          checked={info.getValue().isSelected}
+          onChange={info.getValue().handleSelect}
+          className="text-mineshaft"
+          size="small"
+        />
         <p className="text-stieglitz inline-block">$</p>
-        <p className="inline-block">{info.getValue().toFixed(5)}</p>
+        <p className="inline-block">{info.getValue().strikePrice.toFixed(5)}</p>
       </span>
     ),
   }),
@@ -126,30 +136,66 @@ const columns = [
       );
     },
   }),
-  columnHelper.accessor('select', {
+  columnHelper.accessor('withdrawButton', {
     header: '',
     cell: (info) => {
-      return <Button>Withdraw</Button>;
+      return <Button onClick={info.getValue().handleWithdraw}>Withdraw</Button>;
     },
   }),
 ];
 
-const LPPositions = ({ positions }: { positions: any }) => {
+const LPPositions = ({
+  positions,
+  selectPosition,
+  selectedPositions,
+  unselectPosition,
+}: any) => {
+  const { chain } = useNetwork();
+  const { data: walletClient } = useWalletClient({
+    chainId: chain?.id ?? DEFAULT_CHAIN_ID,
+  });
+
+  const handleWithdraw = useCallback(
+    async (txData: Hex, to: Address) => {
+      if (!walletClient) return;
+      const { publicClient } = wagmiConfig;
+
+      const request = await walletClient.prepareTransactionRequest({
+        account: walletClient.account,
+        to: to,
+        data: txData,
+        type: 'legacy',
+      });
+
+      const hash = await walletClient.sendTransaction(request);
+      const reciept = await publicClient.waitForTransactionReceipt({
+        hash,
+      });
+    },
+    [walletClient],
+  );
+
   const lpPositions = useMemo(() => {
     return positions.map(
-      ({
-        strikePrice,
-        token0LiquidityInToken,
-        token1LiquidityInToken,
-        token0Earned,
-        token1Earned,
-        token0Symbol,
-        token0Decimals,
-        token1Decimals,
-        token1Symbol,
-        token0Withdrawable,
-        token1Withdrawable,
-      }: any) => {
+      (
+        {
+          strikePrice,
+          token0LiquidityInToken,
+          token1LiquidityInToken,
+          token0Earned,
+          token1Earned,
+          token0Symbol,
+          token0Decimals,
+          token1Decimals,
+          token1Symbol,
+          token0Withdrawable,
+          token1Withdrawable,
+          meta,
+        }: any,
+        index: number,
+      ) => {
+        const isSelected = Boolean(selectedPositions.get(index));
+
         return {
           earned: {
             callTokenAmount: formatUnits(
@@ -175,7 +221,17 @@ const LPPositions = ({ positions }: { positions: any }) => {
             callTokenSymbol: token0Symbol,
             putTokenSymbol: token1Symbol,
           },
-          strike: strikePrice,
+          strike: {
+            handleSelect: () => {
+              if (!isSelected) {
+                selectPosition(index, meta);
+              } else {
+                unselectPosition(index);
+              }
+            },
+            isSelected: isSelected,
+            strikePrice: strikePrice,
+          },
           withdrawable: {
             callTokenAmount: formatUnits(
               BigInt(token0Withdrawable),
@@ -188,14 +244,22 @@ const LPPositions = ({ positions }: { positions: any }) => {
             callTokenSymbol: token0Symbol,
             putTokenSymbol: token1Symbol,
           },
-          select: {
-            handleSelect: () => {},
-            disabled: true,
+          withdrawButton: {
+            handleWithdraw: () => {
+              const { txData, to } = meta.withdrawTx;
+              handleWithdraw(txData, to);
+            },
           },
         };
       },
     );
-  }, [positions]);
+  }, [
+    positions,
+    selectPosition,
+    selectedPositions,
+    unselectPosition,
+    handleWithdraw,
+  ]);
   return (
     <TableLayout<LPPositionItem>
       data={lpPositions}

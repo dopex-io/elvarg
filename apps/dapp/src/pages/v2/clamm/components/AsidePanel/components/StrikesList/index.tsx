@@ -34,22 +34,23 @@ const StrikesList = () => {
           <ChevronDownIcon className="w-[18px] h-[18px] pt-[3px]" />
         </Listbox.Button>
         <Listbox.Options className="absolute w-[318px] rounded-md overflow-auto mt-1 border border-umbra drop-shadow-md divide-y-[0.1px] divide-carbon">
-          {strikesChain.map((strikeData, index) => (
-            <Listbox.Option
-              className="bg-mineshaft hover:cursor-pointer hover:bg-carbon z-10 py-[8px]"
-              key={index}
-              value={{ key: index, strikeData }}
-            >
-              <div className="flex items-center w-full justify-center">
-                <div className="flex items-center justfiy-center space-x-[4px]">
-                  <span className="text-sm text-stieglitz">$</span>
-                  <span className="text-sm text-white">
-                    {strikeData.strike.toFixed(4)}
-                  </span>
+          {strikesChain &&
+            strikesChain.map((strikeData, index) => (
+              <Listbox.Option
+                className="bg-mineshaft hover:cursor-pointer hover:bg-carbon z-10 py-[8px]"
+                key={index}
+                value={{ key: index, strikeData }}
+              >
+                <div className="flex items-center w-full justify-center">
+                  <div className="flex items-center justfiy-center space-x-[4px]">
+                    <span className="text-sm text-stieglitz">$</span>
+                    <span className="text-sm text-white">
+                      {strikeData.strike.toFixed(4)}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </Listbox.Option>
-          ))}
+              </Listbox.Option>
+            ))}
         </Listbox.Options>
       </div>
     </Listbox>

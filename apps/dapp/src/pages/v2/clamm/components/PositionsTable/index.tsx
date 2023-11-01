@@ -19,26 +19,36 @@ const PositionsTable = () => {
   const { chain } = useNetwork();
   const { address: userAddress } = useAccount();
   const { selectedOptionsPool } = useClammStore();
-  const [positionsTypeIndex, setPositionsTypeIndex] = useState(0);
+  const [positionsTypeIndex, setPositionsTypeIndex] = useState(1);
   const [lpPositions, setLpPositions] = useState<any>([]);
   const [buyPositions, setBuyPositions] = useState<any>([]);
-  const [selectedPositions, setSelectedPositions] = useState<
-    Map<number, any | null>
-  >(new Map());
+  const [selectedPositions, setSelectedPositions] = useState<Map<number, any>>(
+    new Map(),
+  );
 
-  const selectPosition = (key: number, positionId: number) => {
+  const selectPosition = (key: number, positionInfo: any) => {
+    setSelectedPositions((prev) => new Map(prev.set(key, positionInfo)));
+  };
+  const unselectPosition = (key: number, positionInfo: any) => {
     setSelectedPositions((prev) => {
-      prev.set(key, positionId);
-      return prev;
+      prev.delete(key);
+      return new Map(prev);
     });
   };
 
-  const deselectposition = (key: number, positionId: number) => {
-    setSelectedPositions((prev) => {
-      prev.set(key, null);
-      return prev;
-    });
-  };
+  // const selectPosition = (key: number, positionId: number) => {
+  //   setSelectedPositions((prev) => {
+  //     prev.set(key, positionId);
+  //     return prev;
+  //   });
+  // };
+
+  // const deselectposition = (key: number, positionId: number) => {
+  //   setSelectedPositions((prev) => {
+  //     prev.set(key, null);
+  //     return prev;
+  //   });
+  // };
 
   const updatePositionsType = (index: number) => {
     const newMap = new Map<number, any | null>();
@@ -90,7 +100,12 @@ const PositionsTable = () => {
         {positionsTypeIndex === 0 ? (
           <BuyPositions positions={buyPositions} />
         ) : (
-          <LPPositions positions={lpPositions} />
+          <LPPositions
+            positions={lpPositions}
+            selectPosition={selectPosition}
+            unselectPosition={unselectPosition}
+            selectedPositions={selectedPositions}
+          />
         )}
       </div>
     </div>

@@ -1,3 +1,5 @@
+import { Address, Hex } from 'viem';
+
 import axios from 'axios';
 
 import { VARROCK_BASE_API_URL } from '../../constants';
@@ -22,7 +24,7 @@ async function getLPPositions(
       },
     })
     .then(({ data }) => {
-      onSuccessCallback(data as any);
+      onSuccessCallback(data as LPPositionAPIResponse);
     })
     .catch((err) => {
       if (
@@ -39,3 +41,29 @@ async function getLPPositions(
     });
 }
 export default getLPPositions;
+
+export type LPPositionAPIResponse = {
+  strikePrice: number;
+  token0LiquidityInToken: string;
+  token1LiquidityInToken: string;
+  token0Earned: string;
+  token1Earned: string;
+  token0Symbol: string;
+  token1Symbol: string;
+  token0Decimals: number;
+  token1Decimals: number;
+  token0Withdrawable: string;
+  token1Withdrawable: string;
+  meta: {
+    pool: Address;
+    handler: Address;
+    withdrawableShares: string;
+    withdrawTx: {
+      txData: Hex;
+      to: Address;
+    };
+    tickLower: number;
+    tickUpper: number;
+    shares: string;
+  };
+};
