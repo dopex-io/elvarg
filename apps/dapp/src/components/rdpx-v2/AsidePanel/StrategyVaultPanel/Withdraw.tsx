@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { formatUnits, parseUnits } from 'viem';
 
-import { Button } from '@dopex-io/ui';
+import { Button, Input } from '@dopex-io/ui';
 import { erc20ABI, useAccount, useContractWrite, useNetwork } from 'wagmi';
 
 import useTokenData from 'hooks/helpers/useTokenData';
@@ -13,9 +13,10 @@ import alerts, {
   AlertType,
 } from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/alerts';
 import InfoRow from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/InfoRow';
-import Input from 'components/UI/Input';
+import Typography2 from 'components/UI/Typography2';
 
 import formatAmount from 'utils/general/formatAmount';
+import formatBigint from 'utils/general/formatBigint';
 
 import { DECIMALS_TOKEN } from 'constants/index';
 import PerpVault from 'constants/rdpx/abis/PerpVault';
@@ -122,7 +123,7 @@ const Withdraw = () => {
       <div className="bg-umbra rounded-xl w-full h-fit">
         <Input
           type="number"
-          size="small"
+          variant="xl"
           value={amount}
           onChange={onChange}
           placeholder="0.0"
@@ -135,20 +136,23 @@ const Withdraw = () => {
               />
             </div>
           }
-          className="py-1"
         />
         <div className="flex justify-between px-3 pb-3">
-          <span className="text-stieglitz text-xs">Balance</span>
+          <Typography2 variant="caption" color="stieglitz">
+            Withdrawal Amount
+          </Typography2>
           <div className="flex space-x-1">
             <img
               src="/assets/max.svg"
-              className="hover:bg-silver rounded-[4px] mr-1"
+              className="hover:bg-silver rounded-[4px]"
               alt="max"
             />
-            <span className="text-xs">
-              {formatAmount(formatUnits(balance, DECIMALS_TOKEN), 3)}
-            </span>
-            <span className="text-xs text-stieglitz">LP</span>
+            <Typography2 variant="caption">
+              {formatBigint(balance, DECIMALS_TOKEN)}
+            </Typography2>
+            <Typography2 variant="caption" color="stieglitz">
+              LP
+            </Typography2>
           </div>
         </div>
       </div>
@@ -159,27 +163,24 @@ const Withdraw = () => {
           severity={panelState.severity}
         />
       ) : null}
-      <div className="flex flex-col rounded-xl p-3 space-y-2 w-full bg-umbra">
+      <div className="flex flex-col rounded-xl p-3 space-y-3 w-full bg-umbra">
         <InfoRow
           label="Balance"
           value={
-            <h6 className="text-white text-xs">
-              {formatAmount(
-                formatUnits(
-                  userPerpetualVaultData.totalUserShares,
-                  DECIMALS_TOKEN,
-                ),
-                3,
+            <Typography2 variant="caption">
+              {formatBigint(
+                userPerpetualVaultData.totalUserShares,
+                DECIMALS_TOKEN,
               )}
               <span className="text-stieglitz"> LP</span>
-            </h6>
+            </Typography2>
           }
         />
         <InfoRow
           label="Current composition"
           value={
-            <div className="flex text-white text-xs space-x-1">
-              <p>
+            <div className="flex space-x-1">
+              <Typography2 variant="caption">
                 {formatAmount(
                   Number(
                     formatUnits(
@@ -188,17 +189,21 @@ const Withdraw = () => {
                     ),
                   ),
                 )}
-              </p>
-              <p className="text-stieglitz">ETH</p>
-              <p>
+              </Typography2>
+              <Typography2 variant="caption" color="stieglitz">
+                ETH
+              </Typography2>
+              <Typography2 variant="caption">
                 {formatAmount(
                   formatUnits(
                     userPerpetualVaultData.shareComposition[1],
                     DECIMALS_TOKEN,
                   ),
                 )}{' '}
-              </p>
-              <p className="text-stieglitz">rDPX</p>{' '}
+              </Typography2>
+              <Typography2 variant="caption" color="stieglitz">
+                rDPX
+              </Typography2>{' '}
             </div>
           }
         />

@@ -9,6 +9,8 @@ import { DelegateType } from 'store/RdpxV2/dpxeth-bonding';
 
 import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 
+import Typography2 from 'components/UI/Typography2';
+
 import {
   getContractReadableAmount,
   getUserReadableAmount,
@@ -68,11 +70,11 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
         .div(one_ether)
         .sub(requiredWethNoDiscount)
         .mul(-1),
-      18
+      18,
     );
     const totalPremium = getUserReadableAmount(
       treasuryData.premiumPerDsc.mul(_amount).div(one_ether),
-      18
+      18,
     );
 
     // Calculate average fee across delegates based on weight of delegates' collateral used
@@ -86,7 +88,7 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
     const { ids, amounts } = squeezeTreasuryDelegates(
       availableDelegates,
       totalWethRequired,
-      bonds
+      bonds,
     ) || {
       wethAvailable: BigNumber.from(0),
       ids: [0],
@@ -98,13 +100,13 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
     const weights = amounts.map((_amount) =>
       getUserReadableAmount(
         _amount.mul(getContractReadableAmount(1, 10)).div(bonds),
-        10
-      )
+        10,
+      ),
     );
     const _avgFee =
       activeDelegatesFees.reduce(
         (prev, curr, i) => curr + prev * (weights[i] ?? 0),
-        0
+        0,
       ) / activeDelegatesFees.length;
 
     // Calculate delegatee's share; 25% of bonds - (discount - discount * fee_percentage)
@@ -119,8 +121,8 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
           .sub(requiredWethNoDiscount)
           .mul(getContractReadableAmount(1, 18))
           .div(totalWethRequired.gt(0) ? totalWethRequired : '1'),
-        18
-      ) * 100
+        18,
+      ) * 100,
     );
 
     // Calculate total WETH available from delegates
@@ -128,14 +130,14 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
       treasuryData.availableDelegates.reduce((prev: BigNumber, curr: any) => {
         return prev.add(curr.amount.sub(curr.activeCollateral));
       }, BigNumber.from(0)),
-      18
+      18,
     );
 
     const availablePutsLiquidity = getUserReadableAmount(
       appContractData.vaultData.totalCollateral.sub(
-        appContractData.vaultData.activeCollateral
+        appContractData.vaultData.activeCollateral,
       ),
-      18
+      18,
     );
 
     setPutsBalance(availablePutsLiquidity);
@@ -168,21 +170,23 @@ const InfoBox = (props: { value: string; delegated?: boolean }) => {
   }, [updateRdpxV2CoreState]);
 
   return (
-    <div className="flex flex-col border border-carbon rounded-xl">
-      <div className="flex divide-x divide-carbon p-2">
-        <p className="text-xs text-stieglitz mr-auto">Discount Factor</p>
-        <p className={`text-xs ${discount > 0 ? 'text-up-only' : null}`}>
+    <div className="flex flex-col border border-carbon rounded-xl p-3 space-y-2">
+      <div className="flex divide-carbon justify-between">
+        <Typography2 variant="caption" color="stieglitz">
+          Discount Factor
+        </Typography2>
+        <Typography2 variant="caption" color={discount > 0 ? 'up-only' : ''}>
           {formatUnits(rdpxV2CoreState.bondDiscountFactor, DECIMALS_STRIKE)}
-        </p>
+        </Typography2>
       </div>
-      <div className="flex divide-x divide-carbon">
-        <div className="flex w-full p-2 pt-1 text-start space-y-1">
-          <p className="text-xs text-stieglitz">Cap</p>
-          <span className="text-xs ml-auto text-white space-x-1">
-            -<span className="text-stieglitz">/</span>-
-            <span className="text-stieglitz">DPXETH</span>
-          </span>
-        </div>
+      <div className="flex divide-carbon justify-between">
+        <Typography2 variant="caption" color="stieglitz">
+          Cap
+        </Typography2>
+        <Typography2 variant="caption" color="white" className="space-x-1">
+          -<span className="text-stieglitz">/</span>-
+          <span className="text-stieglitz">rtETH</span>
+        </Typography2>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { formatUnits, parseUnits } from 'viem';
+import { parseUnits } from 'viem';
 
 import Slider from '@mui/material/Slider';
 import Tooltip from '@mui/material/Tooltip';
@@ -14,8 +14,7 @@ import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 
 import Alert, { AlertSeverity } from 'components/common/Alert';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-
-import formatBigint from 'utils/general/formatBigint';
+import Typography2 from 'components/UI/Typography2';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
@@ -23,6 +22,7 @@ import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
 import addresses from 'constants/rdpx/addresses';
 
 import useDelegatePanelState from '../../hooks/useDelegatePanelState';
+import PanelInput from '../Bond/PanelInput';
 import customSliderStyle, { MAX_VAL, MIN_VAL, STEP } from './customSlider';
 
 const Delegate = () => {
@@ -92,42 +92,19 @@ const Delegate = () => {
   return (
     <div className="space-y-3 relative">
       <div className="bg-umbra rounded-xl w-full h-fit divide-y-2 divide-cod-gray">
-        <Input
-          type="number"
-          variant="xl"
-          value={amount}
-          onChange={handleChange}
-          placeholder="0.0"
-          leftElement={
-            <div className="flex my-auto space-x-2 w-2/3">
-              <img
-                src="/images/tokens/weth.svg"
-                alt="weth"
-                className="w-9 h-9 border border-mineshaft rounded-full"
-              />
-            </div>
-          }
-          bottomElement={
-            <div className="flex justify-between text-xs">
-              <span className="text-stieglitz">Delegate Amount</span>
-              <div className="flex space-x-1">
-                <img
-                  onClick={() =>
-                    setAmount(formatUnits(balance, DECIMALS_TOKEN))
-                  }
-                  src="/assets/max.svg"
-                  className="hover:bg-silver rounded-[4px] mr-1"
-                  alt="max"
-                />
-                <span>{formatBigint(balance, DECIMALS_TOKEN)}</span>
-                <span className="text-stieglitz">ETH</span>
-              </div>
-            </div>
-          }
+        <PanelInput
+          amount={amount}
+          handleChange={handleChange}
+          maxAmount={balance}
+          iconPath="/images/tokens/weth.svg"
+          label="Balance"
+          symbol="WETH"
         />
         <div className="flex flex-col bg-umbra p-3 rounded-b-xl space-y-2">
           <div>
-            <span className="text-sm text-stieglitz">Delegate Fee</span>
+            <Typography2 variant="subtitle2" color="stieglitz">
+              Delegate Fee
+            </Typography2>
             <Tooltip
               title="Fee % to charge the spender of your WETH as bonus to your 75% share of the bond."
               enterTouchDelay={0}
@@ -144,7 +121,7 @@ const Delegate = () => {
             onChange={(e: any) =>
               setFee(Number(e.target.value) < 0 ? '0' : e.target.value)
             }
-            rightElement={<p className="text-stieglitz">%</p>}
+            rightElement={<p className="text-stieglitz pl-2">%</p>}
           />
           <Slider
             sx={customSliderStyle}

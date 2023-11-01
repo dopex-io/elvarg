@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { formatUnits, parseUnits } from 'viem';
 
-import { Button } from '@dopex-io/ui';
+import { Button, Input } from '@dopex-io/ui';
 import { erc20ABI, useAccount, useContractWrite, useNetwork } from 'wagmi';
 
 import useTokenData from 'hooks/helpers/useTokenData';
@@ -9,9 +9,9 @@ import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 
 import Alert from 'components/common/Alert';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import Input from 'components/UI/Input';
+import Typography2 from 'components/UI/Typography2';
 
-import formatAmount from 'utils/general/formatAmount';
+import formatBigint from 'utils/general/formatBigint';
 
 import { DECIMALS_TOKEN } from 'constants/index';
 import PerpVaultLp from 'constants/rdpx/abis/PerpVaultLp';
@@ -115,7 +115,7 @@ const Deposit = () => {
       <div className="bg-umbra rounded-xl w-full h-fit">
         <Input
           type="number"
-          size="small"
+          variant="xl"
           value={amount}
           onChange={onChange}
           placeholder="0.0"
@@ -128,10 +128,11 @@ const Deposit = () => {
               />
             </div>
           }
-          className="py-1"
         />
-        <div className="flex justify-between px-3 pb-3 text-xs">
-          <span className="text-stieglitz">Deposit Amount</span>
+        <div className="flex justify-between px-3 pb-3">
+          <Typography2 variant="caption" weight="500" color="stieglitz">
+            Deposit Amount
+          </Typography2>
           <div className="flex space-x-1">
             <img
               src="/assets/max.svg"
@@ -139,10 +140,12 @@ const Deposit = () => {
               alt="max"
               onClick={onClickMax}
             />
-            <span className="">
-              {formatAmount(formatUnits(balance, DECIMALS_TOKEN), 3)}
-            </span>
-            <span className=" text-stieglitz">WETH</span>
+            <Typography2 variant="caption" weight="500">
+              {formatBigint(balance, DECIMALS_TOKEN)}
+            </Typography2>
+            <Typography2 variant="caption" weight="500" color="stieglitz">
+              WETH
+            </Typography2>
           </div>
         </div>
       </div>
@@ -153,29 +156,30 @@ const Deposit = () => {
           severity={panelState.severity}
         />
       ) : null}
-      <div className="flex flex-col rounded-xl p-3 space-y-2 w-full bg-umbra text-xs">
+      <div className="flex flex-col rounded-xl p-3 space-y-3 w-full bg-umbra">
         <InfoRow
           label="Balance"
           value={
-            <h6 className="text-white">
-              {formatAmount(formatUnits(balance, DECIMALS_TOKEN), 3)}{' '}
-              <span className="text-stieglitz">WETH</span>
-            </h6>
+            <Typography2 variant="caption">
+              {formatBigint(balance, DECIMALS_TOKEN)}{' '}
+              <Typography2 variant="caption" color="stieglitz">
+                WETH
+              </Typography2>
+            </Typography2>
           }
         />
         <InfoRow
           label="You will receive"
           value={
-            <h6 className="text-white">
-              {formatAmount(
-                formatUnits(
-                  userPerpetualVaultData.totalUserShares || 0n,
-                  DECIMALS_TOKEN,
-                ),
-                3,
+            <Typography2 variant="caption">
+              {formatBigint(
+                userPerpetualVaultData.totalUserShares || 0n,
+                DECIMALS_TOKEN,
               )}{' '}
-              <span className="text-stieglitz">ESV</span>
-            </h6>
+              <Typography2 variant="caption" color="stieglitz">
+                ESV
+              </Typography2>
+            </Typography2>
           }
         />
         <div className="rounded-md flex flex-col p-3 w-full bg-neutral-800 space-y-2">

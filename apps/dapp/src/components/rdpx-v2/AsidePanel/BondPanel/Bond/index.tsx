@@ -18,6 +18,7 @@ import PanelInput from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/PanelInput'
 import useBondBreakdownCalculator from 'components/rdpx-v2/AsidePanel/hooks/useBondBreakdownCalculator';
 import useBondPanelState from 'components/rdpx-v2/AsidePanel/hooks/useBondPanelState';
 import InfoRow from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/InfoRow';
+import Typography2 from 'components/UI/Typography2';
 
 import formatBigint from 'utils/general/formatBigint';
 
@@ -169,11 +170,13 @@ const Bond = () => {
           handleChange={handleChange}
           maxAmount={rdpxV2CoreState.maxMintableBonds}
           iconPath="/images/tokens/dpxeth.svg"
-          label="Max Bonds"
-          symbol="Bonds"
+          label="Bond Amount"
+          symbol="rtETH"
         />
-        <div className="p-2 justify-between h-fit space-y-2">
-          <p className="text-xs my-auto text-stieglitz">Bonding Method</p>
+        <div className="p-3 justify-between h-fit space-y-2">
+          <Typography2 variant="caption" color="stieglitz">
+            Bonding Method
+          </Typography2>
           <ButtonGroup className="flex justify-between border border-mineshaft bg-mineshaft rounded-md p-0.5">
             {[BondType.Default, BondType.Delegate].map((label, index) => (
               <Button
@@ -210,17 +213,31 @@ const Bond = () => {
         />
       ) : null}
       <InfoBox value={amount} delegated={delegated} />
-      <div className="flex flex-col rounded-xl p-3 text-xs w-full bg-umbra space-y-2">
+      <div className="flex flex-col rounded-xl p-3 w-full bg-umbra space-y-3">
         <InfoRow
           label="rDPX Balance"
-          value={`${formatBigint(wethBalance, DECIMALS_TOKEN)} WETH`}
+          value={
+            <Typography2 variant="caption">
+              {formatBigint(wethBalance, DECIMALS_TOKEN)} WETH
+            </Typography2>
+          }
         />
         <InfoRow
           label="WETH Balance"
-          value={`${formatBigint(rdpxBalance, DECIMALS_TOKEN)} rDPX`}
+          value={
+            <Typography2 variant="caption">
+              {formatBigint(rdpxBalance, DECIMALS_TOKEN)} rDPX
+            </Typography2>
+          }
         />
-        <InfoRow label="Fees" value="-" />
-        <InfoRow label="Receipt tokens to be received" value="-" />
+        <InfoRow
+          label="Fees"
+          value={<Typography2 variant="caption">-</Typography2>}
+        />
+        <InfoRow
+          label="rtETH to be received"
+          value={<Typography2 variant="caption">-</Typography2>}
+        />
         <div className="rounded-md p-3 bg-carbon">
           <EstimatedGasCostButton
             gas={500000}

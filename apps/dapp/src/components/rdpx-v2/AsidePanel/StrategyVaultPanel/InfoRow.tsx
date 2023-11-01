@@ -1,3 +1,5 @@
+import Typography2 from 'components/UI/Typography2';
+
 interface Props {
   label: string;
   value: React.ReactNode;
@@ -6,8 +8,10 @@ interface Props {
 const InfoRow = ({ label, value }: Props) => {
   return (
     <div className="flex justify-between">
-      <p className="text-stieglitz">{label}</p>
-      <span className="my-auto">{value}</span>
+      <Typography2 variant="caption" color="stieglitz">
+        {label}
+      </Typography2>
+      {value}
     </div>
   );
 };

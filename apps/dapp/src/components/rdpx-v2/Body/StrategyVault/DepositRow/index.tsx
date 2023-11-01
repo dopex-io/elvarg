@@ -7,6 +7,7 @@ import { useAccount, useContractWrite } from 'wagmi';
 import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 
 import Cell from 'components/rdpx-v2/Body/StrategyVault/DepositRow/CustomCell';
+import Typography2 from 'components/UI/Typography2';
 
 import formatBigint from 'utils/general/formatBigint';
 
@@ -64,7 +65,7 @@ const DepositRow = () => {
 
   return (
     <div className="space-y-3">
-      <span className="text-sm">Your deposits</span>
+      <Typography2 variant="subtitle2">Your Deposits</Typography2>
       <div className="bg-umbra flex overflow-auto max-w-full divide-x divide-cod-gray rounded-lg">
         <Cell
           label="Amount"
@@ -110,18 +111,6 @@ const DepositRow = () => {
           ]}
         />
         <Cell
-          label="To be unlocked"
-          data={[
-            [
-              formatBigint(
-                userPerpetualVaultData.totalUserShares,
-                DECIMALS_TOKEN,
-              ),
-              'LP',
-            ],
-          ]}
-        />
-        <Cell
           label="Withdrawable"
           data={[
             [
@@ -137,11 +126,27 @@ const DepositRow = () => {
                 date={Number(perpetualVaultState.expiry || 0n) * 1000}
                 renderer={({ days, hours, minutes, seconds }) => (
                   <div className="flex space-x-1 text-stieglitz">
-                    <p>in</p>
-                    <p className="text-white">{days}</p>d
-                    <p className="text-white">{hours}</p>h
-                    <p className="text-white">{minutes}</p>m
-                    <p className="text-white">{seconds}</p>s
+                    <Typography2 variant="caption" color="stieglitz">
+                      in
+                    </Typography2>
+                    <div className="space-x-1">
+                      <Typography2 variant="caption" color="white">
+                        {days}
+                      </Typography2>
+                      d
+                      <Typography2 variant="caption" color="white">
+                        {hours}
+                      </Typography2>
+                      h
+                      <Typography2 variant="caption" color="white">
+                        {minutes}
+                      </Typography2>
+                      m
+                      <Typography2 variant="caption" color="white">
+                        {seconds}
+                      </Typography2>
+                      s
+                    </div>
                   </div>
                 )}
               />,
@@ -149,17 +154,12 @@ const DepositRow = () => {
             ],
           ]}
         />
-        {userPerpetualVaultData.userSharesLocked > 0n ? (
+        {userPerpetualVaultData.userSharesLocked > 0n &&
+        Number(perpetualVaultState.expiry) < new Date().getTime() / 1000 ? (
           <Cell
-            label=""
             data={[
               [
-                <Button
-                  key="claim"
-                  size="medium"
-                  className="w-full"
-                  onClick={buttonState.handler}
-                >
+                <Button key="claim" size="medium" onClick={buttonState.handler}>
                   Claim
                 </Button>,
                 '',

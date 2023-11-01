@@ -2,6 +2,8 @@ import { useState } from 'react';
 
 import LaunchOutlinedIcon from '@mui/icons-material/LaunchOutlined';
 
+import Typography2 from 'components/UI/Typography2';
+
 interface Props {
   text: string;
   iconSymbol: string;
@@ -27,13 +29,11 @@ const QuickLink = (props: Props) => {
       target="_blank"
     >
       <span className="flex justify-between">
-        <div className="flex space-x-4">
-          <img
-            src={iconSymbol}
-            alt="img"
-            className="w-[20px] h-[20px] mt-[1px]"
-          />
-          <p className="text-sm my-auto">{text}</p>
+        <div className="flex space-x-2">
+          <img src={iconSymbol} alt="img" className="w-[20px] h-[20px]" />
+          <Typography2 variant="subtitle2" className="my-auto">
+            {text}
+          </Typography2>
         </div>
         <LaunchOutlinedIcon className="fill-current text-white opacity-40 w-[1.2rem]" />
       </span>

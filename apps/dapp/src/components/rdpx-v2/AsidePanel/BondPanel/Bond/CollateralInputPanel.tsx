@@ -7,6 +7,7 @@ import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 
 import { BondType } from 'components/rdpx-v2/AsidePanel/BondPanel/Bond';
 import InputRow from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/InputRow';
+import Typography2 from 'components/UI/Typography2';
 
 import { DECIMALS_TOKEN } from 'constants/index';
 
@@ -49,8 +50,10 @@ const CollateralInputPanel = (props: Props) => {
   }, [updateRdpxV2CoreState]);
 
   return (
-    <div className="flex flex-col p-2 bg-umbra rounded-b-xl">
-      <span className="text-xs text-stieglitz">Collateral Required</span>
+    <div className="flex flex-col p-3 bg-umbra rounded-b-xl space-y-2">
+      <Typography2 variant="caption" color="stieglitz">
+        Collateral Required
+      </Typography2>
       <div className="flex space-x-2 mt-2">
         <InputRow
           key={'B'}

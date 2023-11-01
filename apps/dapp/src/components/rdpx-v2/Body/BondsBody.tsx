@@ -4,6 +4,8 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 
 import { Button } from '@dopex-io/ui';
 
+import Typography2 from 'components/UI/Typography2';
+
 import { quickLinks } from 'constants/rdpx';
 
 import Charts from '../Charts';
@@ -34,41 +36,46 @@ const BondsBody = () => {
       </div>
       <div className=" bg-umbra rounded-xl divide-y-2 divide-cod-gray">
         <div className="flex w-full divide-x-2 divide-cod-gray">
-          <span className="w-1/2 p-3 text-xs">
-            <p>Label 1</p>
-            <p className="text-stieglitz">Description 1</p>
+          <span className="w-1/2 p-3 flex flex-col space-y-1">
+            <Typography2 variant="caption">Label 1</Typography2>
+            <Typography2 variant="caption" color="stieglitz">
+              Description 1
+            </Typography2>
           </span>
-          <span className="w-1/2 p-3 text-xs">
-            <p>Label 2</p>
-            <p className="text-stieglitz">Description 2</p>
+          <span className="w-1/2 p-3 flex flex-col space-y-1">
+            <Typography2 variant="caption">Label 2</Typography2>
+            <Typography2 variant="caption" color="stieglitz">
+              Description 2
+            </Typography2>
           </span>
         </div>
         <Charts />
       </div>
-      <ButtonGroup className="flex w-full">
-        {actions.map((label: ActionType, index) => {
-          return (
-            <Button
-              key={index}
-              size="xsmall"
-              className="rounded-md bg-transparent hover:bg-transparent"
-              onClick={handleClick}
-            >
-              <span
-                className={`text-sm ${
-                  active === BUTTON_LABELS[label]
-                    ? 'text-white'
-                    : 'text-stieglitz'
-                }`}
+      <div className="space-y-1">
+        <ButtonGroup className="flex w-full">
+          {actions.map((label: ActionType, index) => {
+            return (
+              <Button
+                key={index}
+                size="xsmall"
+                className="rounded-md bg-transparent hover:bg-transparent"
+                onClick={handleClick}
               >
-                {BUTTON_LABELS[label]}
-              </span>
-            </Button>
-          );
-        })}
-      </ButtonGroup>
-      {active === 'Bonds' ? <UserBonds /> : null}
-      {active === 'Delegate Positions' ? <DelegatePositions /> : null}
+                <Typography2
+                  variant="subtitle2"
+                  color={
+                    active === BUTTON_LABELS[label] ? 'white' : 'stieglitz'
+                  }
+                >
+                  {BUTTON_LABELS[label]}
+                </Typography2>
+              </Button>
+            );
+          })}
+        </ButtonGroup>
+        {active === 'Bonds' ? <UserBonds /> : null}
+        {active === 'Delegate Positions' ? <DelegatePositions /> : null}
+      </div>
     </div>
   );
 };

@@ -1,5 +1,7 @@
 import { Button } from '@dopex-io/ui';
 
+import Typography2 from 'components/UI/Typography2';
+
 interface Props {
   onClick: () => void;
   active: boolean;
@@ -18,9 +20,9 @@ const TitleItem = (props: Props) => {
       disabled={disabled}
       className={`w-1/3 ${disabled ? 'cursor-not-allowed' : 'cursor-default'}`}
     >
-      <p className={`text-xs ${active ? 'text-white' : 'text-stieglitz'}`}>
+      <Typography2 variant="caption" color={active ? 'white' : 'stieglitz'}>
         {label}
-      </p>
+      </Typography2>
     </Button>
   );
 };

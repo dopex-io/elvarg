@@ -7,6 +7,8 @@ import { Button } from '@dopex-io/ui';
 import { createColumnHelper } from '@tanstack/react-table';
 import { format } from 'date-fns';
 
+import Typography2 from 'components/UI/Typography2';
+
 import formatBigint from 'utils/general/formatBigint';
 
 import { DECIMALS_TOKEN } from 'constants/index';
@@ -41,10 +43,10 @@ const columns = [
       const amount = info.getValue();
       return (
         <Tooltip title={formatBigint(amount || 0n, DECIMALS_TOKEN)}>
-          <p className="text-sm">
+          <Typography2 variant="subtitle2">
             {formatBigint(amount || 0n, DECIMALS_TOKEN)}{' '}
-            <span className="text-stieglitz">RT</span>
-          </p>
+            <span className="text-stieglitz">rtETH</span>
+          </Typography2>
         </Tooltip>
       );
     },

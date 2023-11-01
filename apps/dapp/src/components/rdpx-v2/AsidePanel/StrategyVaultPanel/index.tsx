@@ -4,6 +4,7 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 
 import Deposit from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/Deposit';
 import Withdraw from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/Withdraw';
+import Typography2 from 'components/UI/Typography2';
 
 const BUTTON_LABELS = ['Deposit', 'Withdraw'];
 
@@ -15,17 +16,21 @@ const StrategyVaultPanel = () => {
   }, []);
 
   return (
-    <div className="space-y-1 bg-cod-gray rounded-xl p-3">
+    <div className="space-y-2 bg-cod-gray rounded-xl p-3">
       <ButtonGroup className="flex w-full">
         {BUTTON_LABELS.map((label, index) => (
           <button
             key={index}
-            className={`flex border-0 mr-2 transition ease-in-out duration-500 rounded-md bg-transparent hover:bg-transparent ${
-              active === label ? 'text-white' : 'text-stieglitz'
-            } hover:text-white`}
+            className="flex border-0 mr-2 transition ease-in-out duration-500 rounded-md bg-transparent hover:bg-transparent hover:text-white"
             onClick={handleClick}
           >
-            <span className="text-xs">{label}</span>
+            <Typography2
+              variant="subtitle2"
+              weight="400"
+              color={active === label ? 'white' : 'stieglitz'}
+            >
+              {label}
+            </Typography2>
           </button>
         ))}
       </ButtonGroup>

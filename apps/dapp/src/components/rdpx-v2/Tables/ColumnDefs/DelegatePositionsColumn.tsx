@@ -5,6 +5,8 @@ import Tooltip from '@mui/material/Tooltip';
 import { Button } from '@dopex-io/ui';
 import { createColumnHelper } from '@tanstack/react-table';
 
+import Typography2 from 'components/UI/Typography2';
+
 import formatBigint from 'utils/general/formatBigint';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
@@ -27,10 +29,10 @@ const columns = [
     header: 'Amount',
     cell: (info) => (
       <Tooltip title={formatUnits(info.getValue(), DECIMALS_TOKEN)}>
-        <p className="text-sm">
+        <Typography2 variant="subtitle2">
           {formatBigint(info.getValue(), DECIMALS_TOKEN)}{' '}
           <span className="text-stieglitz">WETH</span>
-        </p>
+        </Typography2>
       </Tooltip>
     ),
   }),
@@ -40,10 +42,10 @@ const columns = [
       const balance = info.getValue();
       return (
         <Tooltip title={formatBigint(balance, DECIMALS_TOKEN)}>
-          <p className="text-sm">
+          <Typography2 variant="subtitle2">
             {formatBigint(balance, DECIMALS_TOKEN)}{' '}
             <span className="text-stieglitz">WETH</span>
-          </p>
+          </Typography2>
         </Tooltip>
       );
     },
@@ -53,10 +55,10 @@ const columns = [
     cell: (info) => {
       const activeCollateral = info.getValue();
       return (
-        <p className="text-sm">
+        <Typography2 variant="subtitle2">
           {formatBigint(activeCollateral, DECIMALS_TOKEN)}{' '}
           <span className="text-stieglitz">WETH</span>
-        </p>
+        </Typography2>
       );
     },
   }),

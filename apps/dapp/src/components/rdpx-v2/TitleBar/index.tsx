@@ -8,6 +8,7 @@ import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 import useStore, { rdpxV2Actions } from 'hooks/rdpx/useStore';
 
 import TitleItem from 'components/rdpx-v2/TitleBar/TitleItem';
+import Typography2 from 'components/UI/Typography2';
 
 import formatBigint from 'utils/general/formatBigint';
 
@@ -31,12 +32,14 @@ const Stat = ({
   prefix?: ReactNode;
   reverse?: boolean;
 }) => (
-  <div className="flex flex-col text-center">
-    <span className="text-white text-sm">
+  <div className="flex flex-col text-center space-y-1">
+    <Typography2 variant="body2">
       <span className="text-stieglitz">{prefix} </span>
       {value}
-    </span>
-    <span className="text-stieglitz text-sm">{name}</span>
+    </Typography2>
+    <Typography2 variant="caption" color="stieglitz">
+      {name}
+    </Typography2>
   </div>
 );
 
