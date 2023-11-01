@@ -22,6 +22,7 @@ const DepositRow = () => {
     updateUserPerpetualVaultData,
     perpetualVaultState,
     updatePerpetualVaultState,
+    loading,
   } = usePerpPoolData({
     user: account || '0x',
   });
@@ -64,110 +65,120 @@ const DepositRow = () => {
   }, [claim, userPerpetualVaultData.claimableTime]);
 
   return (
-    <div className="space-y-3">
-      <Typography2 variant="subtitle2">Your Deposits</Typography2>
-      <div className="bg-umbra flex overflow-auto max-w-full divide-x divide-cod-gray rounded-lg">
-        <Cell
-          label="Amount"
-          data={[
-            [
-              formatBigint(
-                userPerpetualVaultData.totalUserShares,
-                DECIMALS_TOKEN,
-              ),
-              ' LP',
-            ],
-          ]}
-        />
-        <Cell
-          label="Composition"
-          data={[
-            [
-              formatBigint(
-                userPerpetualVaultData.shareComposition[0],
-                DECIMALS_TOKEN,
-              ),
-              'ETH',
-            ],
-            [
-              formatBigint(
-                userPerpetualVaultData.shareComposition[1],
-                DECIMALS_TOKEN,
-              ),
-              'rDPX',
-            ],
-          ]}
-        />
-        <Cell
-          label="Earnings"
-          data={[
-            [
-              formatBigint(
-                userPerpetualVaultData.userShareOfFunding,
-                DECIMALS_TOKEN,
-              ),
-              'ETH',
-            ],
-          ]}
-        />
-        <Cell
-          label="Withdrawable"
-          data={[
-            [
-              formatBigint(
-                userPerpetualVaultData.userSharesLocked,
-                DECIMALS_TOKEN,
-              ),
-              'LP',
-            ],
-            [
-              <Countdown
-                key={Number(perpetualVaultState.expiry || 0n) * 1000}
-                date={Number(perpetualVaultState.expiry || 0n) * 1000}
-                renderer={({ days, hours, minutes, seconds }) => (
-                  <div className="flex space-x-1 text-stieglitz">
-                    <Typography2 variant="caption" color="stieglitz">
-                      in
-                    </Typography2>
-                    <div className="space-x-1">
-                      <Typography2 variant="caption" color="white">
-                        {days}
-                      </Typography2>
-                      d
-                      <Typography2 variant="caption" color="white">
-                        {hours}
-                      </Typography2>
-                      h
-                      <Typography2 variant="caption" color="white">
-                        {minutes}
-                      </Typography2>
-                      m
-                      <Typography2 variant="caption" color="white">
-                        {seconds}
-                      </Typography2>
-                      s
-                    </div>
-                  </div>
-                )}
-              />,
-              '',
-            ],
-          ]}
-        />
-        {userPerpetualVaultData.userSharesLocked > 0n &&
-        Number(perpetualVaultState.expiry) < new Date().getTime() / 1000 ? (
+    <div className="space-y-2">
+      <Typography2 variant="subtitle2" className="px-2">
+        Your Deposits
+      </Typography2>
+      {loading ? (
+        <div className="py-6 text-center w-full text-white">Loading...</div>
+      ) : (
+        <div className="bg-umbra flex overflow-auto max-w-full divide-x divide-cod-gray rounded-lg">
           <Cell
+            label="Amount"
             data={[
               [
-                <Button key="claim" size="medium" onClick={buttonState.handler}>
-                  Claim
-                </Button>,
+                formatBigint(
+                  userPerpetualVaultData.totalUserShares,
+                  DECIMALS_TOKEN,
+                ),
+                ' LP',
+              ],
+            ]}
+          />
+          <Cell
+            label="Composition"
+            data={[
+              [
+                formatBigint(
+                  userPerpetualVaultData.shareComposition[0],
+                  DECIMALS_TOKEN,
+                ),
+                'ETH',
+              ],
+              [
+                formatBigint(
+                  userPerpetualVaultData.shareComposition[1],
+                  DECIMALS_TOKEN,
+                ),
+                'rDPX',
+              ],
+            ]}
+          />
+          <Cell
+            label="Earnings"
+            data={[
+              [
+                formatBigint(
+                  userPerpetualVaultData.userShareOfFunding,
+                  DECIMALS_TOKEN,
+                ),
+                'ETH',
+              ],
+            ]}
+          />
+          <Cell
+            label="Withdrawable"
+            data={[
+              [
+                formatBigint(
+                  userPerpetualVaultData.userSharesLocked,
+                  DECIMALS_TOKEN,
+                ),
+                'LP',
+              ],
+              [
+                <Countdown
+                  key={Number(perpetualVaultState.expiry || 0n) * 1000}
+                  date={Number(perpetualVaultState.expiry || 0n) * 1000}
+                  renderer={({ days, hours, minutes, seconds }) => (
+                    <div className="flex space-x-1 text-stieglitz">
+                      <Typography2 variant="caption" color="stieglitz">
+                        in
+                      </Typography2>
+                      <div className="space-x-1">
+                        <Typography2 variant="caption" color="white">
+                          {days}
+                        </Typography2>
+                        d
+                        <Typography2 variant="caption" color="white">
+                          {hours}
+                        </Typography2>
+                        h
+                        <Typography2 variant="caption" color="white">
+                          {minutes}
+                        </Typography2>
+                        m
+                        <Typography2 variant="caption" color="white">
+                          {seconds}
+                        </Typography2>
+                        s
+                      </div>
+                    </div>
+                  )}
+                />,
                 '',
               ],
             ]}
           />
-        ) : null}
-      </div>
+          {userPerpetualVaultData.userSharesLocked > 0n &&
+          Number(perpetualVaultState.expiry) < new Date().getTime() / 1000 ? (
+            <Cell
+              data={[
+                [
+                  <Button
+                    key="claim"
+                    size="medium"
+                    onClick={buttonState.handler}
+                  >
+                    Claim
+                  </Button>,
+                  '',
+                ],
+              ]}
+            />
+          ) : null}
+        </div>
+      )}
     </div>
   );
 };

@@ -60,8 +60,10 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
   const [userData, setUserData] = useState<UserData>(
     initialContractStates.perpPool.userData,
   );
+  const [loading, setLoading] = useState<boolean>(true);
 
   const updateVaultState = useCallback(async () => {
+    setLoading(true);
     const [
       { result: currentEpoch = 0n },
       { result: fundingDuration = 0n },
@@ -261,6 +263,7 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
       claimableTime,
       userShareOfFunding,
     }));
+    setLoading(false);
   }, [user, vaultState]);
 
   return {
@@ -269,6 +272,7 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
     fetchPerpetualVaultEpochData: fetchEpochData,
     updatePerpetualVaultState: updateVaultState,
     updateUserPerpetualVaultData: updateUserData,
+    loading,
   };
 };
 
