@@ -7,6 +7,7 @@ type Props = {
   buyPositionsLength: number;
   lpPositionsLength: number;
   setSelectedIndex: (index: number) => void;
+  resetPositions: () => void;
 };
 
 const PositionsTypeSelector = (props: Props) => {
@@ -15,12 +16,16 @@ const PositionsTypeSelector = (props: Props) => {
     lpPositionsLength,
     setSelectedIndex,
     selectedIndex,
+    resetPositions,
   } = props;
   return (
     <div className="w-full flex space-x-[12px] items-center justify-start">
       <div
         role="button"
-        onClick={() => setSelectedIndex(0)}
+        onClick={() => {
+          setSelectedIndex(0);
+          resetPositions();
+        }}
         className="flex space-x-[4px] items-center justify-center"
       >
         <span
@@ -42,7 +47,10 @@ const PositionsTypeSelector = (props: Props) => {
       </div>
       <div
         role="button"
-        onClick={() => setSelectedIndex(1)}
+        onClick={() => {
+          setSelectedIndex(1);
+          resetPositions();
+        }}
         className="flex space-x-[4px] items-center justify-center"
       >
         <span

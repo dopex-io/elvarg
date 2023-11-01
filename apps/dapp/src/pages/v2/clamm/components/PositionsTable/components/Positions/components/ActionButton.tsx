@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { encodeFunctionData, parseAbi } from 'viem';
+import { Address, encodeFunctionData, Hex, parseAbi, zeroAddress } from 'viem';
 
 import { Button } from '@dopex-io/ui';
 import { MULTI_CALL_FN_SIG } from 'pages/v2/clamm/constants';
@@ -25,18 +25,28 @@ const ActionButton = (props: Props) => {
     if (!userAddress || !chain || !walletClient) return;
     const { publicClient } = wagmiConfig;
 
+    let to: Address = zeroAddress;
+    let encodedTxData: Hex = '0x0';
+
     const positionsArray = Array.from(selectedPositions);
-    const positionManager = positionsArray[0][1].withdrawTx.to;
-
-    const encodedTxData = encodeFunctionData({
-      abi: parseAbi([MULTI_CALL_FN_SIG]),
-      functionName: 'multicall',
-      args: [positionsArray.map(([_, v]) => v.withdrawTx.txData)],
-    });
-
+    if (positionsTypeIndex === 1) {
+      to = positionsArray[0][1].withdrawTx.to;
+      encodedTxData = encodeFunctionData({
+        abi: parseAbi([MULTI_CALL_FN_SIG]),
+        functionName: 'multicall',
+        args: [positionsArray.map(([_, v]) => v.withdrawTx.txData)],
+      });
+    } else {
+      to = positionsArray[0][1].exerciseTx.to;
+      encodedTxData = encodeFunctionData({
+        abi: parseAbi([MULTI_CALL_FN_SIG]),
+        functionName: 'multicall',
+        args: [positionsArray.map(([_, v]) => v.exerciseTx.txData)],
+      });
+    }
     const request = await walletClient.prepareTransactionRequest({
       account: walletClient.account,
-      to: positionManager,
+      to: to,
       data: encodedTxData,
       type: 'legacy',
     });
@@ -44,7 +54,7 @@ const ActionButton = (props: Props) => {
     const reciept = await publicClient.waitForTransactionReceipt({
       hash,
     });
-  }, [chain, selectedPositions, userAddress, walletClient]);
+  }, [chain, selectedPositions, userAddress, walletClient, positionsTypeIndex]);
 
   const buttonProps = useMemo(() => {
     const isBuyPositions = positionsTypeIndex === 0;

@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from 'react';
 
-import { useQueries } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useAccount, useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
-
-import { DEFAULT_CHAIN_ID } from 'constants/env';
 
 import getBuyPositions from '../../utils/varrock/getBuyPosition';
 import getLPPositions from '../../utils/varrock/getLPPositions';
@@ -19,7 +16,7 @@ const PositionsTable = () => {
   const { chain } = useNetwork();
   const { address: userAddress } = useAccount();
   const { selectedOptionsPool } = useClammStore();
-  const [positionsTypeIndex, setPositionsTypeIndex] = useState(1);
+  const [positionsTypeIndex, setPositionsTypeIndex] = useState(0);
   const [lpPositions, setLpPositions] = useState<any>([]);
   const [buyPositions, setBuyPositions] = useState<any>([]);
   const [selectedPositions, setSelectedPositions] = useState<Map<number, any>>(
@@ -36,19 +33,9 @@ const PositionsTable = () => {
     });
   };
 
-  // const selectPosition = (key: number, positionId: number) => {
-  //   setSelectedPositions((prev) => {
-  //     prev.set(key, positionId);
-  //     return prev;
-  //   });
-  // };
-
-  // const deselectposition = (key: number, positionId: number) => {
-  //   setSelectedPositions((prev) => {
-  //     prev.set(key, null);
-  //     return prev;
-  //   });
-  // };
+  const resetPositions = () => {
+    setSelectedPositions(new Map<number, any>());
+  };
 
   const updatePositionsType = (index: number) => {
     const newMap = new Map<number, any | null>();
@@ -86,6 +73,7 @@ const PositionsTable = () => {
     <div className="w-full flex-col items-center justify-center space-y-[12px]">
       <div className="w-full flex flex-row items-center justify-between">
         <PositionsTypeSelector
+          resetPositions={resetPositions}
           selectedIndex={positionsTypeIndex}
           buyPositionsLength={buyPositions.length}
           lpPositionsLength={lpPositions.length}
@@ -98,7 +86,12 @@ const PositionsTable = () => {
       </div>
       <div className="w-full h-fit">
         {positionsTypeIndex === 0 ? (
-          <BuyPositions positions={buyPositions} />
+          <BuyPositions
+            positions={buyPositions}
+            selectPosition={selectPosition}
+            unselectPosition={unselectPosition}
+            selectedPositions={selectedPositions}
+          />
         ) : (
           <LPPositions
             positions={lpPositions}

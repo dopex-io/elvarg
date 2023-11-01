@@ -1,27 +1,33 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { formatUnits } from 'viem';
+import React, { useCallback, useMemo } from 'react';
+import { Address, formatUnits, Hex } from 'viem';
 
 import { Checkbox } from '@mui/material';
 
 import { Button } from '@dopex-io/ui';
 import { createColumnHelper } from '@tanstack/react-table';
 import { formatDistance } from 'date-fns';
-import { StatItem } from 'pages/v2/clamm/components/StrikesChain/compnents/StrikesTable';
+import { useNetwork, useWalletClient } from 'wagmi';
+import wagmiConfig from 'wagmi-config';
 
 import TableLayout from 'components/common/TableLayout';
 
 import { formatAmount } from 'utils/general';
 import getPercentageDifference from 'utils/math/getPercentageDifference';
 
+import { DEFAULT_CHAIN_ID } from 'constants/env';
+
 type BuyPositionItem = BuyPosition & {
-  select: {
-    handleSelect: Function;
-    disabled: boolean;
+  exerciseButton: {
+    handleExercise: (meta: any) => void;
   };
 };
 
 export type BuyPosition = {
-  strike: number;
+  strike: {
+    strikePrice: number;
+    isSelected: boolean;
+    handleSelect: () => void;
+  };
   size: {
     amount: string;
     symbol: string;
@@ -47,11 +53,16 @@ const columns = [
   columnHelper.accessor('strike', {
     header: 'Strike Price',
     cell: (info) => (
-      <div className="flex space-x-2 text-left items-center">
-        <Checkbox className="text-mineshaft" size="small" />
-        <span className="text-stieglitz inline-block">$</span>
-        <span className="inline-block">{formatAmount(info.getValue(), 5)}</span>
-      </div>
+      <span className="flex space-x-2 text-left items-center justify-start">
+        <Checkbox
+          checked={info.getValue().isSelected}
+          onChange={info.getValue().handleSelect}
+          className="text-mineshaft"
+          size="small"
+        />
+        <p className="text-stieglitz inline-block">$</p>
+        <p className="inline-block">{info.getValue().strikePrice.toFixed(5)}</p>
+      </span>
     ),
   }),
   columnHelper.accessor('size', {
@@ -120,10 +131,10 @@ const columns = [
       );
     },
   }),
-  columnHelper.accessor('select', {
+  columnHelper.accessor('exerciseButton', {
     header: '',
     cell: (info) => {
-      return <Button>Exericse</Button>;
+      return <Button onClick={info.getValue().handleExercise}>Exericse</Button>;
     },
   }),
 ];
@@ -134,13 +145,43 @@ const BuyPositions = ({
   selectedPositions,
   unselectPosition,
 }: any) => {
+  const { chain } = useNetwork();
+  const { data: walletClient } = useWalletClient({
+    chainId: chain?.id ?? DEFAULT_CHAIN_ID,
+  });
+
+  const handleExercise = useCallback(
+    async (txData: Hex, to: Address) => {
+      if (!walletClient) return;
+      const { publicClient } = wagmiConfig;
+
+      const request = await walletClient.prepareTransactionRequest({
+        account: walletClient.account,
+        to: to,
+        data: txData,
+        type: 'legacy',
+      });
+
+      const hash = await walletClient.sendTransaction(request);
+      const reciept = await publicClient.waitForTransactionReceipt({
+        hash,
+      });
+    },
+    [walletClient],
+  );
+
   const buyPositions = useMemo(() => {
     return positions.map(
-      ({ expiry, premium, profit, side, size, strike }: any) => {
+      (
+        { expiry, premium, profit, side, size, strike, meta }: any,
+        index: number,
+      ) => {
         const readablePremium = formatUnits(
           premium.amountInToken,
           premium.decimals,
         );
+
+        const isSelected = Boolean(selectedPositions.get(index));
 
         return {
           expiry,
@@ -167,17 +208,33 @@ const BuyPositions = ({
             symbol: size.symbol,
             usdValue: 0,
           },
-          strike: Number(strike),
-          select: {
-            handleSelect: () => {},
-            disabled: false,
+          strike: {
+            handleSelect: () => {
+              if (!isSelected) {
+                selectPosition(index, meta);
+              } else {
+                unselectPosition(index);
+              }
+            },
+            isSelected: isSelected,
+            strikePrice: Number(strike),
+          },
+          exerciseButton: {
+            handleExercise: async () => {
+              const { txData, to } = meta.exerciseTx;
+              await handleExercise(txData, to);
+            },
           },
         };
       },
     );
-  }, [positions]);
-
-  const handleExercise = useCallback(async () => {}, []);
+  }, [
+    positions,
+    handleExercise,
+    selectPosition,
+    selectedPositions,
+    unselectPosition,
+  ]);
 
   return (
     <TableLayout<BuyPositionItem>
