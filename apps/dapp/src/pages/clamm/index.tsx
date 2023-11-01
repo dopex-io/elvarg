@@ -15,6 +15,7 @@ import { PairSelector } from 'components/clamm/TitleBar/PairSelector';
 import PageLayout from 'components/common/PageLayout';
 import PriceChart from 'components/common/PriceChart';
 
+import parsePriceFromTick from 'utils/clamm/getPriceFromTick';
 import getTicksPremiumAndBreakeven from 'utils/clamm/getTicksPremiumAndBreakeven';
 import getTokensData from 'utils/clamm/getTokensData';
 import getUniswapPoolData from 'utils/clamm/getUniswapPoolData';
@@ -23,7 +24,6 @@ import {
   getLiquidityForAmount1,
 } from 'utils/clamm/liquidityAmountMath';
 import parseOptionsPosition from 'utils/clamm/parseOptionsPosition';
-import parsePriceFromTick from 'utils/clamm/parsePriceFromTick';
 import parseTickData from 'utils/clamm/parseTickData';
 import parseWritePosition, {
   WritePosition,

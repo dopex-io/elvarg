@@ -1,6 +1,6 @@
+import parsePriceFromTick from './getPriceFromTick';
 import getSqrtx96Price from './getSqrtx96Price';
 import { getAmountsForLiquidity } from './liquidityAmountMath';
-import parsePriceFromTick from './parsePriceFromTick';
 import { WritePositionBurnRaw } from './subgraph/getUserWritePositionBurns';
 import { getSqrtRatioAtTick } from './tickMath';
 

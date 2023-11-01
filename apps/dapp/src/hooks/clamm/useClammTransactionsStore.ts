@@ -2,28 +2,23 @@ import { Address, Hex } from 'viem';
 
 import { create } from 'zustand';
 
-type ApprovalRequired = {
-  address: Address;
-  amount: bigint;
-};
-
 type DepositTransaction = {
+  tokenAddress: Address;
+  positionManager: Address;
+  tokenSymbol: string;
   amount: bigint;
-  symbol: string;
   txData: Hex;
 };
 
 type PurchaseTransaction = {
-  amountOfOptions: string;
+  tokenAddress: Address;
+  optionsPool: Address;
   premium: bigint;
-  symbol: bigint;
-  txData: bigint;
+  tokenSymbol: string;
+  txData: Hex;
 };
 
 type ClammTransactionsStore = {
-  approvals: Map<number, ApprovalRequired>;
-  setApproval: (key: number, approvalRequired: ApprovalRequired) => void;
-  unsetApproval: (key: number) => void;
   deposits: Map<number, DepositTransaction>;
   setDeposit: (key: number, tx: DepositTransaction) => void;
   unsetDeposit: (key: number) => void;
@@ -33,7 +28,6 @@ type ClammTransactionsStore = {
 };
 const useClammTransactionsStore = create<ClammTransactionsStore>(
   (set, get) => ({
-    approvals: new Map(),
     deposits: new Map(),
     purchases: new Map(),
     setPurchase(key, tx) {
@@ -41,7 +35,7 @@ const useClammTransactionsStore = create<ClammTransactionsStore>(
       purchases.set(key, tx);
       set((prev) => ({
         ...prev,
-        purchases,
+        purchases: new Map(purchases),
       }));
     },
     setDeposit(key, tx) {
@@ -49,7 +43,7 @@ const useClammTransactionsStore = create<ClammTransactionsStore>(
       deposits.set(key, tx);
       set((prev) => ({
         ...prev,
-        deposits,
+        deposits: new Map(deposits),
       }));
     },
     unsetDeposit(key) {
@@ -57,7 +51,7 @@ const useClammTransactionsStore = create<ClammTransactionsStore>(
       deposits.delete(key);
       set((prev) => ({
         ...prev,
-        deposits,
+        deposits: new Map(deposits),
       }));
     },
     unsetPurchase(key) {
@@ -65,26 +59,7 @@ const useClammTransactionsStore = create<ClammTransactionsStore>(
       purchases.delete(key);
       set((prev) => ({
         ...prev,
-        purchases,
-      }));
-    },
-    unsetApproval(key) {
-      const { approvals } = get();
-      approvals.delete(key);
-      set((prev) => ({
-        ...prev,
-        approvals,
-      }));
-    },
-    setApproval: (key: number, approvalRequired: ApprovalRequired) => {
-      const { approvals } = get();
-      approvals.set(key, {
-        address: approvalRequired.address,
-        amount: approvalRequired.amount,
-      });
-      set((prev) => ({
-        ...prev,
-        approvals: approvals,
+        purchases: new Map(purchases),
       }));
     },
   }),

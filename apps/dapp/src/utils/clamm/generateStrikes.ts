@@ -1,4 +1,4 @@
-import parsePriceFromTick from './parsePriceFromTick';
+import parsePriceFromTick from './getPriceFromTick';
 
 function generateStrikes(
   tick: number,

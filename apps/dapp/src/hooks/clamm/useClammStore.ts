@@ -50,7 +50,7 @@ type ClammStore = {
 const useClammStore = create<ClammStore>((set, get) => ({
   isPut: false,
   isTrade: false,
-  selectedTTL: 1200,
+  selectedTTL: 86400,
   tokenBalances: {
     callToken: 0n,
     putToken: 0n,

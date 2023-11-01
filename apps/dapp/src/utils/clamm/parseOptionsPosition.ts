@@ -4,7 +4,7 @@ import {
 } from 'utils/clamm/liquidityAmountMath';
 import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
 
-import parsePriceFromTick from './parsePriceFromTick';
+import parsePriceFromTick from './getPriceFromTick';
 import { OptionsPositionRaw } from './subgraph/getUserOptionsPositions';
 
 export type OptionsPosition = {

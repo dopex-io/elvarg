@@ -1,8 +1,8 @@
+import parsePriceFromTick from './getPriceFromTick';
 import {
   getAmount0ForLiquidity,
   getAmount1ForLiquidity,
 } from './liquidityAmountMath';
-import parsePriceFromTick from './parsePriceFromTick';
 import { OptionsPurchasesRaw } from './subgraph/getUserOptionsPurchases';
 import { getSqrtRatioAtTick } from './tickMath';
 

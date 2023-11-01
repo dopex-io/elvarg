@@ -1,4 +1,4 @@
-const parsePriceFromTick = (
+const getPriceFromTick = (
   tick: number,
   precision0: number,
   precision1: number,
@@ -10,4 +10,4 @@ const parsePriceFromTick = (
   const price = (base * mulitplicant) / dividend;
   return price;
 };
-export default parsePriceFromTick;
+export default getPriceFromTick;

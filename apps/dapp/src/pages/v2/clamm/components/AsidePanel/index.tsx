@@ -9,9 +9,10 @@ import { VARROCK_BASE_API_URL } from '../../constants';
 import InfoPanel from './components/InfoPanel';
 import StrikesSection from './components/StrikesSection';
 import TradeSideSelector from './components/TradeSideSelector';
+import TTLSelector from './components/TTLSelector';
 
 const AsidePanel = () => {
-  const { selectedOptionsPool, setTokenBalances } = useClammStore();
+  const { selectedOptionsPool, setTokenBalances, isTrade } = useClammStore();
   const { address: userAddress } = useAccount();
 
   const updateTokenBalances = useCallback(async () => {
@@ -46,6 +47,7 @@ const AsidePanel = () => {
   return (
     <div className="w-full bg-cod-gray p-[12px] rounded-lg space-y-[4px]">
       <TradeSideSelector />
+      {isTrade && <TTLSelector />}
       <StrikesSection />
       <InfoPanel updateTokenBalances={updateTokenBalances} />
     </div>

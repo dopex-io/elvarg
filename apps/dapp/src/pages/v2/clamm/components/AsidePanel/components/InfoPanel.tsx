@@ -1,40 +1,23 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  encodeFunctionData,
-  getAddress,
-  Hex,
-  parseAbi,
-  parseUnits,
-} from 'viem';
+import { encodeFunctionData, Hex, parseAbi } from 'viem';
 
 import { Button } from '@dopex-io/ui';
-import axios from 'axios';
+import { MULTI_CALL_FN_SIG } from 'pages/v2/clamm/constants';
+import getTokenAllowance from 'pages/v2/clamm/utils/varrock/getTokenAllowance';
 import {
-  MULTI_CALL_FN_SIG,
-  VARROCK_BASE_API_URL,
-} from 'pages/v2/clamm/constants';
-import { Address, useAccount, useNetwork, useWalletClient } from 'wagmi';
+  Address,
+  erc20ABI,
+  useAccount,
+  useNetwork,
+  useWalletClient,
+} from 'wagmi';
 import wagmiConfig from 'wagmi-config';
 
 import useClammStore from 'hooks/clamm/useClammStore';
+import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
 import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
-
-type ApprovalRequired = {
-  address: Address;
-  symbol: string;
-  approvalTx: string;
-};
-
-type DepositTransaction = {
-  to: Address;
-  tokenAddress: Address;
-  tokenAmount: string;
-  tokenDecimals: number;
-  tokenSymbol: string;
-  txData: Hex;
-};
 
 type Props = {
   updateTokenBalances: () => Promise<void>;
@@ -42,6 +25,7 @@ type Props = {
 const InfoPanel = ({ updateTokenBalances }: Props) => {
   const { isTrade, selectedOptionsPool } = useClammStore();
   const { selectedStrikes, setSelectedStrikesError } = useStrikesChainStore();
+  const { deposits, purchases } = useClammTransactionsStore();
   const { chain } = useNetwork();
   const { data: walletClient } = useWalletClient({
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
@@ -49,209 +33,130 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
   const { address: userAddress } = useAccount();
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const [buttonLoading, setButtonLoading] = useState(false);
-  const [transactions, setTransactions] = useState<
-    Map<number, DepositTransaction>
-  >(new Map());
+
+  type ApprovedRequiredInfo = {
+    tokenSymbol: string;
+    tokenAddress: Address;
+    txData: Hex;
+  };
   const [approvalsRequired, setApprovalsRequired] = useState<
-    ApprovalRequired[]
+    ApprovedRequiredInfo[]
   >([]);
 
-  useEffect(() => {
-    if (!selectedOptionsPool || !chain) return;
-    const { callToken, putToken } = selectedOptionsPool;
-    // if (!isTrade) {
-    //   Array.from(selectedStrikes).forEach(([k, v]) => {
-    //     const { strike, amount0 } = v;
-    //     if (amount0 > 0) {
-    //       axios
-    //         .get(`${VARROCK_BASE_API_URL}/clamm/deposit`, {
-    //           params: {
-    //             chainId: chain.id,
-    //             callToken: callToken.address,
-    //             putToken: putToken.address,
-    //             pool: '0x53b27D62963064134D60D095a526e1E72b74A5C4' as Address,
-    //             handler:
-    //               '0x0165878A594ca255338adfa4d48449f69242Eb8F' as Address,
-    //             amount: amount0,
-    //             tickLower: v.meta.tickLower,
-    //             tickUpper: v.meta.tickUpper,
-    //           },
-    //         })
-    //         .then(({ data }) => {
-    //           if (data) {
-    //             setTransactions((prev) => {
-    //               const newMap = new Map(prev).set(k, data);
-    //               return newMap;
-    //             });
-    //           }
-    //         });
-    //     }
-    //   });
-    // }
-  }, [selectedStrikes, chain, isTrade, selectedOptionsPool]);
-
-  const checkApprovals = useCallback(
-    async () => {
-      // if (!selectedOptionsPool || !chain || !userAddress) return;
-      // setButtonLoading(true);
-      // try {
-      //   const { callToken, putToken } = selectedOptionsPool;
-      //   const totalTokensAmountMapping = new Map<
-      //     string,
-      //     {
-      //       key: number;
-      //       amount: bigint;
-      //       isCall: boolean;
-      //       address: Address;
-      //       approvalTx: Hex;
-      //     }
-      //   >();
-      //   Array.from(selectedStrikes).forEach(([k, v]) => {
-      //     const { tokenSymbol, isCall } = v;
-      //     const current = totalTokensAmountMapping.get(tokenSymbol);
-      //     if (!current) {
-      //       totalTokensAmountMapping.set(tokenSymbol, {
-      //         key: k,
-      //         isCall,
-      //         amount: parseUnits(
-      //           v.amount0.toString(),
-      //           isCall ? callToken.decimals : putToken.decimals,
-      //         ),
-      //         address: getAddress(isCall ? callToken.address : putToken.address),
-      //         approvalTx: `0x${0}`,
-      //       });
-      //     } else {
-      //       totalTokensAmountMapping.set(tokenSymbol, {
-      //         ...current,
-      //         amount:
-      //           BigInt(current.amount) +
-      //           parseUnits(
-      //             v.amount0.toString(),
-      //             isCall ? callToken.decimals : putToken.decimals,
-      //           ),w
-      //       });
-      //     }
-      //   });
-      //   for await (const [k, v] of totalTokensAmountMapping) {
-      //     const allowance = await axios
-      //       .get(`${VARROCK_BASE_API_URL}/token/allowance`, {
-      //         params: {
-      //           // chainId: chain.id,
-      //           token: v.address,
-      //           account: userAddress,
-      //           spender: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
-      //         },
-      //       })
-      //       .then(({ data }) => (data ? data.allowance : 0n));
-      //     const allowanceBI = BigInt(allowance as string);
-      //     console.log('KEY', v.key);
-      //     if (v.amount === 0n) {
-      //       setButtonDisabled(true);
-      //       setSelectedStrikesError(v.key, {
-      //         isError: true,
-      //         message: 'Amount is required.',
-      //       });
-      //     }
-      //     if (v.amount > allowanceBI) {
-      //       const strike = selectedStrikes.get(v.key);
-      //       if (strike) {
-      //         setSelectedStrikesError(v.key, {
-      //           isError: true,
-      //           message: 'Approval is required.',
-      //         });
-      //       }
-      //       const approvalTx = await axios
-      //         .get(`${VARROCK_BASE_API_URL}/token/approve`, {
-      //           params: {
-      //             token: v.address,
-      //             spender: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
-      //             amount: v.amount.toString(),
-      //           },
-      //         })
-      //         .then(({ data }) => data.txData);
-      //       const current = totalTokensAmountMapping.get(k);
-      //       if (current) {
-      //         totalTokensAmountMapping.set(k, {
-      //           ...current,
-      //           approvalTx: approvalTx,
-      //         });
-      //       }
-      //     }
-      //     // if(v.amount < allowanceBI ){
-      //     //   setButtonDisabled(false);
-      //     //   setSelectedStrikesError(v.key, {
-      //     //     isError: false,
-      //     //     message: '',
-      //     //   });
-      //     // }
-      //   }
-      //   setApprovalsRequired(
-      //     Array.from(totalTokensAmountMapping)
-      //       .map(([k, v]) => ({
-      //         address: v.address,
-      //         approvalTx: v.approvalTx,
-      //         symbol: k,
-      //       }))
-      //       .filter(({ approvalTx }) => approvalTx !== '0x0'),
-      //   );
-      // } catch (err) {
-      //   console.error(err);
-      // }
-      // setButtonLoading(false);
-    },
-    [
-      // chain,
-      // selectedOptionsPool,
-      // selectedStrikes,
-      // userAddress,
-      // setSelectedStrikesError,
-    ],
-  );
-
-  const handleApprove = useCallback(async () => {
-    if (!userAddress || !walletClient) return;
-    if (approvalsRequired.length > 0) {
-      const { address, approvalTx } = approvalsRequired[0];
-      const { publicClient } = wagmiConfig;
-
-      const request = await walletClient.prepareTransactionRequest({
-        account: walletClient.account,
-        to: address,
-        data: approvalTx as Hex,
-        type: 'legacy',
+  const checkApproved = useCallback(async () => {
+    if (!chain || !userAddress) return;
+    const symbolToAmounts = new Map<string, bigint>();
+    const symbolToAddress = new Map<string, Address>();
+    if (!isTrade) {
+      deposits.forEach(({ tokenSymbol, amount, tokenAddress }) => {
+        symbolToAddress.set(tokenSymbol, tokenAddress);
+        const curr = symbolToAmounts.get(tokenSymbol);
+        if (!curr) {
+          symbolToAmounts.set(tokenSymbol, amount);
+        } else {
+          symbolToAmounts.set(tokenSymbol, amount + curr);
+        }
       });
-
-      const hash = await walletClient.sendTransaction(request);
-      const reciept = await publicClient.waitForTransactionReceipt({
-        hash,
+    } else {
+      purchases.forEach(({ premium, tokenSymbol, tokenAddress }) => {
+        symbolToAddress.set(tokenSymbol, tokenAddress);
+        const curr = symbolToAmounts.get(tokenSymbol);
+        if (!curr) {
+          symbolToAmounts.set(tokenSymbol, premium);
+        } else {
+          symbolToAmounts.set(tokenSymbol, premium + curr);
+        }
       });
-
-      await checkApprovals();
     }
-  }, [approvalsRequired, userAddress, walletClient, checkApprovals]);
 
-  // For Approvals
-  useEffect(() => {
-    checkApprovals();
-  }, [checkApprovals]);
+    const spender = isTrade
+      ? '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e'
+      : '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707';
 
-  const handleDepositOrPurchase = useCallback(async () => {
-    if (!userAddress || !walletClient) return;
-    if (transactions.size === 0) return;
+    const _approvals: ApprovedRequiredInfo[] = [];
+    for await (const [k, v] of symbolToAmounts) {
+      const tokenAddress = symbolToAddress.get(k)!;
+      const allowance = await getTokenAllowance(
+        chain.id,
+        tokenAddress,
+        userAddress,
+        spender,
+      );
 
+      if (allowance < v) {
+        _approvals.push({
+          tokenSymbol: k,
+          tokenAddress: tokenAddress,
+          txData: encodeFunctionData({
+            abi: erc20ABI,
+            functionName: 'approve',
+            args: [spender, v],
+          }),
+        });
+      }
+    }
+    setApprovalsRequired(_approvals);
+  }, [deposits, isTrade, chain, userAddress, purchases]);
+
+  const handleDeposit = useCallback(async () => {
+    if (!userAddress || !walletClient || isTrade) return;
     const { publicClient } = wagmiConfig;
 
-    const transactionsArray = Array.from(transactions);
-    if (transactions.size > 1) {
-      const to = transactionsArray[0][1].to;
+    const depositsArray = Array.from(deposits);
+    if (depositsArray.length > 1) {
+      if (depositsArray[0]) {
+        const pm = depositsArray[0][1].positionManager;
+        const encodedTxData = encodeFunctionData({
+          abi: parseAbi([MULTI_CALL_FN_SIG]),
+          functionName: 'multicall',
+          args: [depositsArray.map(([_, v]) => v.txData)],
+        });
+        const request = await walletClient.prepareTransactionRequest({
+          account: walletClient.account,
+          to: pm,
+          data: encodedTxData,
+          type: 'legacy',
+        });
+        const hash = await walletClient.sendTransaction(request);
+        const reciept = await publicClient.waitForTransactionReceipt({
+          hash,
+        });
+      }
+    } else {
+      if (depositsArray[0]) {
+        const pm = depositsArray[0][1].positionManager;
+        const [_, v] = depositsArray[0];
+        const request = await walletClient.prepareTransactionRequest({
+          account: walletClient.account,
+          to: pm,
+          data: v.txData,
+          type: 'legacy',
+        });
+
+        const hash = await walletClient.sendTransaction(request);
+        const reciept = await publicClient.waitForTransactionReceipt({
+          hash,
+        });
+      }
+    }
+
+    await checkApproved();
+  }, [userAddress, walletClient, deposits, isTrade, checkApproved]);
+
+  const handlePurchase = useCallback(async () => {
+    if (!userAddress || !walletClient || !isTrade) return;
+    const { publicClient } = wagmiConfig;
+    const purchasesArray = Array.from(purchases);
+    if (purchasesArray.length > 1 && purchasesArray[0]) {
+      const optionsPool = purchasesArray[0][1].optionsPool;
       const encodedTxData = encodeFunctionData({
-        abi: parseAbi(MULTI_CALL_FN_SIG),
+        abi: parseAbi([MULTI_CALL_FN_SIG]),
         functionName: 'multicall',
-        args: [transactionsArray.map(([_, v]) => v.txData)],
+        args: [purchasesArray.map(([_, v]) => v.txData)],
       });
       const request = await walletClient.prepareTransactionRequest({
         account: walletClient.account,
-        to: to,
+        to: optionsPool,
         data: encodedTxData,
         type: 'legacy',
       });
@@ -260,21 +165,66 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
         hash,
       });
     } else {
-      const [_, v] = transactionsArray[0];
+      if (purchasesArray[0]) {
+        const optionsPool = purchasesArray[0][1].optionsPool;
+        const [_, v] = purchasesArray[0];
+        const request = await walletClient.prepareTransactionRequest({
+          account: walletClient.account,
+          to: optionsPool,
+          data: v.txData,
+          type: 'legacy',
+        });
+        const hash = await walletClient.sendTransaction(request);
+        const reciept = await publicClient.waitForTransactionReceipt({
+          hash,
+        });
+      }
+    }
+
+    await checkApproved();
+  }, [isTrade, purchases, userAddress, walletClient, checkApproved]);
+
+  const handleApprove = useCallback(async () => {
+    if (!userAddress || !walletClient) return;
+    const { publicClient } = wagmiConfig;
+
+    for await (const approval of approvalsRequired) {
       const request = await walletClient.prepareTransactionRequest({
         account: walletClient.account,
-        to: v.to,
-        data: v.txData,
+        to: approval.tokenAddress,
+        data: approval.txData,
         type: 'legacy',
       });
       const hash = await walletClient.sendTransaction(request);
       const reciept = await publicClient.waitForTransactionReceipt({
         hash,
       });
+      await checkApproved();
     }
+  }, [userAddress, walletClient, approvalsRequired, checkApproved]);
 
-    await checkApprovals();
-  }, [userAddress, walletClient, transactions, checkApprovals]);
+  const buttonProps = useMemo(() => {
+    if (approvalsRequired.length > 0) {
+      return {
+        text: `Approve ${approvalsRequired[0].tokenSymbol}`,
+        onClick: handleApprove,
+      };
+    }
+    return {
+      text: isTrade ? 'Purchase' : 'Deposit',
+      onClick: isTrade ? handlePurchase : handleDeposit,
+    };
+  }, [
+    approvalsRequired,
+    isTrade,
+    handleApprove,
+    handleDeposit,
+    handlePurchase,
+  ]);
+
+  useEffect(() => {
+    checkApproved();
+  }, [checkApproved, deposits]);
 
   return (
     <div className="flex flex-col bg-umbra p-[12px] rounded-lg w-full space-y-[12px]">
@@ -288,17 +238,11 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
         <span className="text-stieglitz">Balance</span> <span>20m</span>
       </div>
       <Button
-        onClick={
-          approvalsRequired.length > 0 ? handleApprove : handleDepositOrPurchase
-        }
-        className=""
+        onClick={buttonProps?.onClick}
+        className="animte-pulse animate-bg"
         // disabled={}
       >
-        {approvalsRequired.length > 0
-          ? `Approve ${approvalsRequired[0].symbol}`
-          : isTrade
-          ? 'Purchase'
-          : 'Deposit'}
+        {buttonProps?.text}
       </Button>
     </div>
   );

@@ -20,10 +20,7 @@ import PriceChartWithHide from './components/PriceChartWithHide';
 import StrikesChain from './components/StrikesChain';
 import OverViewStats from './components/TitleBar/OverViewStats';
 import PairSelector from './components/TitleBar/PairSelector';
-import { VARROCK_BASE_API_URL } from './constants';
 import getOptionsPools from './utils/varrock/getOptionsPools';
-
-const MAX_AFK_LIMIT = 60000;
 
 const Page = () => {
   const { initialize } = useClammStore();
@@ -59,7 +56,7 @@ const Page = () => {
           <Button className="flex-1">Liquidity Provision</Button>
         </div>
         {/*  */}
-        <div className="xl:w-[366px] w-[90vw] xl:block xl:sticky xl:top-[15rem] 2xl:top-[11rem] hidden">
+        <div className="xl:w-[366px] w-[90vw] xl:block xl:sticky xl:top-[10rem] 2xl:top-[11rem] hidden">
           <AsidePanel />
         </div>
       </div>
