@@ -33,7 +33,7 @@ const Delegate = () => {
   const { chain } = useNetwork();
   const { balance, updateBalance, approved, updateAllowance } = useTokenData({
     token: addresses.weth,
-    spender: addresses.v2core,
+    spender: addresses.v2core || '0x',
     amount,
   });
   const { updateUserBonds, updateUserDelegatePositions } = useRdpxV2CoreData({

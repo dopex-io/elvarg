@@ -35,7 +35,7 @@ const Withdraw = () => {
   });
   const { updateAllowance, approved, balance, updateBalance } = useTokenData({
     amount,
-    spender: addresses.perpPoolLp,
+    spender: addresses.perpPool || '0x',
     token: addresses.perpPoolLp,
   });
   const { write: redeemRequest, isSuccess: isDepositSuccess } =
@@ -49,7 +49,7 @@ const Withdraw = () => {
     abi: erc20ABI,
     address: addresses.perpPoolLp,
     functionName: 'approve',
-    args: [addresses.perpPoolLp, parseUnits(amount, DECIMALS_TOKEN)],
+    args: [addresses.perpPool, parseUnits(amount, DECIMALS_TOKEN)],
   });
 
   const onChange = useCallback((e: any) => {
@@ -167,9 +167,9 @@ const Withdraw = () => {
               {formatAmount(
                 formatUnits(
                   userPerpetualVaultData.totalUserShares,
-                  DECIMALS_TOKEN
+                  DECIMALS_TOKEN,
                 ),
-                3
+                3,
               )}
               <span className="text-stieglitz"> LP</span>
             </h6>
@@ -184,9 +184,9 @@ const Withdraw = () => {
                   Number(
                     formatUnits(
                       userPerpetualVaultData.shareComposition[0],
-                      DECIMALS_TOKEN
-                    )
-                  )
+                      DECIMALS_TOKEN,
+                    ),
+                  ),
                 )}
               </p>
               <p className="text-stieglitz">ETH</p>
@@ -194,8 +194,8 @@ const Withdraw = () => {
                 {formatAmount(
                   formatUnits(
                     userPerpetualVaultData.shareComposition[1],
-                    DECIMALS_TOKEN
-                  )
+                    DECIMALS_TOKEN,
+                  ),
                 )}{' '}
               </p>
               <p className="text-stieglitz">rDPX</p>{' '}

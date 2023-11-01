@@ -68,7 +68,7 @@ const Bond = () => {
     updateBalance: updateBalanceRdpx,
   } = useTokenData({
     amount: inputAmountBreakdown[0],
-    spender: addresses.v2core,
+    spender: addresses.v2core || '0x',
     token: addresses.rdpx,
   });
   const {
@@ -78,12 +78,12 @@ const Bond = () => {
     updateBalance: updateBalanceWeth,
   } = useTokenData({
     amount: inputAmountBreakdown[1],
-    spender: addresses.v2core,
+    spender: addresses.v2core || '0x',
     token: addresses.weth,
   });
   const { squeezeDelegatesResult } = useSqueezeDelegatedWeth({
     user: account || '0x',
-    collateralRequired: inputAmountBreakdown[1], // todo: bug: 1e19 precision instead of 1e18
+    collateralRequired: inputAmountBreakdown[1],
     bondsToMint: amount,
   });
   const { write: approveRdpx, isSuccess: approveRdpxSuccess } =
@@ -172,7 +172,7 @@ const Bond = () => {
           label="Max Bonds"
           symbol="Bonds"
         />
-        <div className="p-2 justify-between h-fit space-y-1">
+        <div className="p-2 justify-between h-fit space-y-2">
           <p className="text-xs my-auto text-stieglitz">Bonding Method</p>
           <ButtonGroup className="flex justify-between border border-mineshaft bg-mineshaft rounded-md p-0.5">
             {[BondType.Default, BondType.Delegate].map((label, index) => (

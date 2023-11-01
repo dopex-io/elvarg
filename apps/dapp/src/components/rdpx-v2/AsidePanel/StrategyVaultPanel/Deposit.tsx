@@ -43,7 +43,7 @@ const Deposit = () => {
   });
   const { updateAllowance, approved, balance, updateBalance } = useTokenData({
     amount,
-    spender: addresses.perpPoolLp,
+    spender: addresses.perpPoolLp || '0x',
     token: addresses.weth,
   });
 
@@ -170,9 +170,9 @@ const Deposit = () => {
               {formatAmount(
                 formatUnits(
                   userPerpetualVaultData.totalUserShares || 0n,
-                  DECIMALS_TOKEN
+                  DECIMALS_TOKEN,
                 ),
-                3
+                3,
               )}{' '}
               <span className="text-stieglitz">ESV</span>
             </h6>

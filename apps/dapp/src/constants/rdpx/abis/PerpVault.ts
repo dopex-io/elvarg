@@ -1,78 +1,20 @@
+// functionName: 'redeemRequest',
+// functionName: 'claim',
+// functionName: 'currentEpoch',
+// functionName: 'fundingDuration',
+// functionName: 'totalActiveOptions',
+// functionName: 'lastUpdateTime',
+// functionName: 'getUnderlyingPrice',
+// functionName: 'userSharesLocked'
+// functionName: 'balanceOf'
+// functionName: 'fundingRates'
+// functionName: 'getEpochExpiry'
+// functionName: 'totalFundingForEpoch'
+// functionName: 'epochExpiries'
+// functionName: 'totalSharesLocked'
+// functionName: 'calculatePremium'
+
 const PerpVault = [
-  {
-    inputs: [],
-    name: 'collateralPrecision',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'collateralToken',
-    outputs: [
-      {
-        internalType: 'contract IERC20WithBurn',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-    ],
-    name: 'redeemRequest',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: 'collateralAmount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'rdpxAmount',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256',
-      },
-    ],
-    name: 'claim',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: 'collateralAmount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'rdpxAmount',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
   {
     inputs: [],
     name: 'currentEpoch',
@@ -242,40 +184,6 @@ const PerpVault = [
     inputs: [
       {
         internalType: 'uint256',
-        name: '_strike',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '_amount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'timeToExpiry',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '_price',
-        type: 'uint256',
-      },
-    ],
-    name: 'calculatePremium',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: 'premium',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
         name: '',
         type: 'uint256',
       },
@@ -310,21 +218,88 @@ const PerpVault = [
     stateMutability: 'view',
     type: 'function',
   },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_strike',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '_amount',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'timeToExpiry',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '_price',
+        type: 'uint256',
+      },
+    ],
+    name: 'calculatePremium',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'premium',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'redeemRequest',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'collateralAmount',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'rdpxAmount',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'epoch',
+        type: 'uint256',
+      },
+    ],
+    name: 'claim',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'collateralAmount',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'rdpxAmount',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
 ] as const;
 
 export default PerpVault;
-
-// redeemRequest
-// claim
-// functionName: 'currentEpoch',
-// functionName: 'fundingDuration',
-// functionName: 'totalActiveOptions',
-// functionName: 'lastUpdateTime',
-// functionName: 'getUnderlyingPrice',
-// functionName: 'userSharesLocked'
-// functionName: 'balanceOf'
-// functionName: 'fundingRates'
-// functionName: 'getEpochExpiry'
-// functionName: 'totalFundingForEpoch'
-// functionName: 'epochExpiries'
-// functionName: 'totalSharesLocked'

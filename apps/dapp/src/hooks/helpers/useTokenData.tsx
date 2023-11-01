@@ -45,7 +45,7 @@ const useTokenData = (props: Props) => {
   }, [token, account]);
 
   const updateAllowance = useCallback(async () => {
-    if (!spender) {
+    if (spender === '0x') {
       console.log('No spender passed');
       return;
     }

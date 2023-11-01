@@ -117,7 +117,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
       ],
     });
 
-    // Minimum(Total RDPX / Cost of 1 bond in RDPX, Total ETH / Cost of 1 bond in ETH)
+    // Math.min(Total RDPX / Cost of 1 bond in RDPX, Total ETH / Cost of 1 bond in ETH)
     const maxRdpxBondable =
       (rdpxBalance * parseUnits('1', DECIMALS_TOKEN)) /
       (bondComposition[0] || 1n);
@@ -126,10 +126,14 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
       (bondComposition[1] || 1n);
 
     let maxMintableBonds: bigint = 0n;
-    if (maxRdpxBondable > maxEthBondable) {
-      maxMintableBonds = maxRdpxBondable / parseUnits('1', DECIMALS_TOKEN);
+    if (maxRdpxBondable < maxEthBondable) {
+      maxMintableBonds =
+        (maxRdpxBondable * parseUnits('1', DECIMALS_TOKEN)) /
+        parseUnits('1', DECIMALS_TOKEN);
     } else {
-      maxMintableBonds = maxEthBondable / parseUnits('1', DECIMALS_TOKEN);
+      maxMintableBonds =
+        (maxEthBondable * parseUnits('1', DECIMALS_TOKEN)) /
+        parseUnits('1', DECIMALS_TOKEN);
     }
 
     const discount =
