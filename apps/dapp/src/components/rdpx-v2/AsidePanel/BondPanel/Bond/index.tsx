@@ -218,7 +218,7 @@ const Bond = () => {
           label="rDPX Balance"
           value={
             <Typography2 variant="caption">
-              {formatBigint(wethBalance, DECIMALS_TOKEN)} WETH
+              {formatBigint(rdpxBalance, DECIMALS_TOKEN)} rDPX
             </Typography2>
           }
         />
@@ -226,7 +226,7 @@ const Bond = () => {
           label="WETH Balance"
           value={
             <Typography2 variant="caption">
-              {formatBigint(rdpxBalance, DECIMALS_TOKEN)} rDPX
+              {formatBigint(wethBalance, DECIMALS_TOKEN)} WETH
             </Typography2>
           }
         />

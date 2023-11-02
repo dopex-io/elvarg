@@ -20,8 +20,8 @@ type AddressKey = (typeof rdpxV2ContractKeys)[number];
 
 const addresses: { [key in AddressKey]: Address } = {
   v2core: '0x1784f23e6e054AEe050308AA88f2ae85C77150a1', // 421613
-  perpPool: '0xA4A485b87B57d9C88c439f544389d13954e12408', // 421613
-  perpPoolLp: '0x341BFe62e84f4EdB628c4f07E5Cd027000DbF034', // 421613
+  perpPool: '0x04ef82C73106c8771AdF0c79FD6fB455a44A28Dc', // 421613
+  perpPoolLp: '0x10A40c5fC09f686e760469Fea12c6733af47BED4', // 421613
   receiptToken: '0xa03cc2AdA8f0ef94AD31d5290BffEab131521f3D', // 421613
   rdpxReserve: '0x277C7c36bFD15BA1DacDc89524Fe8D80851580c9', // 421613
   redeemDpxeth: '0xAD150b6Cb1B0DdcBD53f81C214766279a33130D6',
