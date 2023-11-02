@@ -7,6 +7,7 @@ import { useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 import useLoadingStates from 'hooks/clamm/useLoadingStates';
+import useTradingViewChartStore from 'hooks/tradingViewChart/useTradingViewChartStore';
 import useWindowSize from 'hooks/useWindowSize';
 
 import PageLayout from 'components/common/PageLayout';
@@ -14,7 +15,6 @@ import PageLayout from 'components/common/PageLayout';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
 import AsidePanel from './components/AsidePanel';
-import LearningResources from './components/LearningResources';
 import PositionsTable from './components/PositionsTable';
 import PriceChartWithHide from './components/PriceChartWithHide';
 import StrikesChain from './components/StrikesChain';
@@ -23,7 +23,8 @@ import PairSelector from './components/TitleBar/PairSelector';
 import getOptionsPools from './utils/varrock/getOptionsPools';
 
 const Page = () => {
-  const { initialize } = useClammStore();
+  const { initialize, selectedOptionsPool } = useClammStore();
+  const { setSelectedTicker } = useTradingViewChartStore();
   const { chain } = useNetwork();
 
   useEffect(() => {
@@ -36,6 +37,12 @@ const Page = () => {
     );
   }, [chain?.id, initialize]);
 
+  useEffect(() => {
+    if (!selectedOptionsPool) return;
+    // @ts-ignore
+    setSelectedTicker(selectedOptionsPool.pairTicker);
+  }, [selectedOptionsPool, setSelectedTicker]);
+
   return (
     <PageLayout>
       <div className="flex flex-col xl:flex-row w-full xl:items-start items-center justify-center 2xl:space-x-[12px] xl:space-x-[12px] space-y-[12px] 2xl:space-y-[0px] lg:mb-4">
@@ -46,7 +53,7 @@ const Page = () => {
             <PairSelector />
             <OverViewStats />
           </div>
-          {/* <PriceChartWithHide /> */}
+          <PriceChartWithHide />
           <StrikesChain />
           <PositionsTable />
         </div>

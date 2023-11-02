@@ -1,6 +1,7 @@
 const PRICES_URLS: Record<number, Record<string, string>> = {
   42161: {
     'ARB/USDC': 'http://localhost:8080/uniswap-prices',
+    'WETH/USDC': 'http://localhost:8080/uniswap-prices',
   },
 };
 

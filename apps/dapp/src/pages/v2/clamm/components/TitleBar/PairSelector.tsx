@@ -52,6 +52,7 @@ const PairSelector = () => {
 
     const optionsPoolInfo = optionsPools.get(pair ? pair[0] : '');
     let urlReplacement = '';
+    let pairTicker = '';
     if (optionsPoolInfo) {
       const pairNameSplit = optionsPoolInfo.pairName.split('-');
       urlReplacement = optionsPoolInfo.pairName;

@@ -7,6 +7,8 @@ import {
   widget,
 } from 'public/charting_library';
 
+import useTradingViewChartStore from 'hooks/tradingViewChart/useTradingViewChartStore';
+
 import { TVDataProvider } from '../classes/TVDataProvider';
 import useTVDataFeed from '../hooks/useTVDataFeed';
 
@@ -14,6 +16,7 @@ export const TV_CHART_RELOAD_TIMESTAMP_KEY = 'tv-chart-reload-timestamp';
 export const TV_CHART_RELOAD_INTERVAL = 15 * 60 * 1000; // 15 minutes
 
 export const TVChartContainer = () => {
+  const { selectedTicker } = useTradingViewChartStore();
   const [chartReady, setChartReady] = useState(false);
   const [chartDataLoading, setChartDataLoading] = useState(true);
   const tvWidgetRef = useRef<IChartingLibraryWidget | null>(null);
@@ -62,7 +65,7 @@ export const TVChartContainer = () => {
 
   useEffect(() => {
     const widgetOptions: ChartingLibraryWidgetOptions = {
-      symbol: 'ARB/USDC', // Default symbol pair
+      symbol: selectedTicker, // Default symbol pair
       interval: '5' as ResolutionString,
       library_path: '/charting_library/',
       locale: 'en',
@@ -143,7 +146,7 @@ export const TVChartContainer = () => {
         setChartDataLoading(true);
       }
     };
-  }, [dataFeedV2]);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {

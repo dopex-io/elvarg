@@ -39,6 +39,8 @@ const SUPPORTED_RESOLUTIONS: Record<string, string> = {
   '240': '4h',
 };
 
+const supportedSymbols = ['ARB/USDC', 'WETH/USDC'];
+
 export function formatTimeInBarToMs(bar: any) {
   return {
     ...bar,
@@ -64,7 +66,6 @@ const useTVDataFeed = (dataProvider: TVDataProvider) => {
           onSymbolResolvedCallback: Function,
           onResolveErrorCallback: Function,
         ) => {
-          const supportedSymbols = ['ARB/USDC'];
           if (!supportedSymbols.includes(symbolName)) {
             onResolveErrorCallback('Cannot resolve symbol');
             return;
