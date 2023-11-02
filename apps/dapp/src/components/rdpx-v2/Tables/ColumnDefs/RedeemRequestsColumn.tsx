@@ -24,7 +24,7 @@ const columns = [
   columnHelper.accessor('epoch', {
     header: 'Epoch',
     cell: (info) => (
-      <Typography2 variant="subtitle2">{Number(info.getValue())}</Typography2>
+      <Typography2 variant="caption">{Number(info.getValue())}</Typography2>
     ),
   }),
   columnHelper.accessor('amount', {
@@ -32,9 +32,9 @@ const columns = [
     cell: (info) => {
       const balance = info.getValue();
       return (
-        <Typography2 variant="subtitle2">
+        <Typography2 variant="caption">
           {formatBigint(balance, DECIMALS_TOKEN)}{' '}
-          <span className="text-stieglitz">WETH</span>
+          <span className="text-stieglitz"> LP</span>
         </Typography2>
       );
     },
@@ -46,18 +46,18 @@ const columns = [
       return (
         <td className="flex space-x-1">
           <span className="flex space-x-1">
-            <Typography2 variant="subtitle2">
+            <Typography2 variant="caption">
               {formatBigint(wethAmount || 0n, DECIMALS_TOKEN)}{' '}
             </Typography2>
-            <Typography2 variant="subtitle2" color="stieglitz">
+            <Typography2 variant="caption" color="stieglitz">
               WETH
             </Typography2>
           </span>
           <span className="flex space-x-1">
-            <Typography2 variant="subtitle2">
+            <Typography2 variant="caption">
               {formatBigint(rdpxAmount || 0n, DECIMALS_TOKEN)}{' '}
             </Typography2>
-            <Typography2 variant="subtitle2" color="stieglitz">
+            <Typography2 variant="caption" color="stieglitz">
               rDPX
             </Typography2>
           </span>

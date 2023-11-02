@@ -47,10 +47,6 @@ const UserBonds = () => {
     return userBonds.map((bond) => {
       const redeemable =
         bond.maturity <= BigInt(Math.ceil(new Date().getTime()));
-      let label = 'Redeem';
-      if (redeemable) {
-        label = approved ? 'Redeem' : 'Approve';
-      }
       return {
         tokenId: bond.id,
         maturity: bond.maturity,
@@ -58,13 +54,13 @@ const UserBonds = () => {
         redeemable,
         timestamp: bond.timestamp,
         button: {
+          label: 'Redeem',
+          id: bond.id,
+          redeemable: false,
           handleRedeem: () => {
             setAmount(bond.amount);
             approved ? redeem() : approve();
           },
-          redeemable,
-          id: bond.id,
-          label,
         },
       };
     });

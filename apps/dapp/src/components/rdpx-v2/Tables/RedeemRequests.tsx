@@ -21,6 +21,7 @@ const RedeemRequests = () => {
     userPerpetualVaultData,
     perpetualVaultState,
     updatePerpetualVaultState,
+    loading,
   } = usePerpPoolData({
     user: account || '0x',
   });
@@ -76,7 +77,7 @@ const RedeemRequests = () => {
       <TableLayout<RedeemRequestType>
         data={data}
         columns={columns}
-        isContentLoading={false}
+        isContentLoading={loading}
         fill="bg-umbra"
       />
     </div>
