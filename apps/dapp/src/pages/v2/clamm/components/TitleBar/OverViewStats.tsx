@@ -9,11 +9,12 @@ import useClammStore from 'hooks/clamm/useClammStore';
 import { formatAmount } from 'utils/general';
 
 import { VARROCK_BASE_API_URL } from '../../constants';
+import getMarkPrice from '../../utils/varrock/getMarkPrice';
+import getStats from '../../utils/varrock/getStats';
 
 const OverViewStats = () => {
   const { chain } = useNetwork();
-  const { selectedOptionsPool } = useClammStore();
-  const [markPrice, setMarkPrice] = useState<number | string>(0);
+  const { selectedOptionsPool, markPrice, setMarkPrice } = useClammStore();
   const [stats, setStats] = useState({
     oi: 0,
     tvl: 0,
@@ -21,41 +22,19 @@ const OverViewStats = () => {
 
   useEffect(() => {
     if (!selectedOptionsPool) return;
-    axios
-      .get(`${VARROCK_BASE_API_URL}/uniswap-prices/last-price`, {
-        params: {
-          ticker: selectedOptionsPool.pairTicker,
-        },
-      })
-      .then((res) => {
-        setMarkPrice(res.data.lastPrice);
-      })
-      .catch((err) => {
-        console.error(err);
-        toast.error('Failed to fetch mark price');
-      });
-  }, [selectedOptionsPool]);
+    getMarkPrice(selectedOptionsPool.pairTicker, setMarkPrice, toast.error);
+  }, [selectedOptionsPool, setMarkPrice]);
 
   useEffect(() => {
     if (!selectedOptionsPool || !chain) return;
-    axios
-      .get(`${VARROCK_BASE_API_URL}/clamm/stats`, {
-        params: {
-          chainId: chain.id,
-          callToken: selectedOptionsPool.callToken.address,
-          putToken: selectedOptionsPool.putToken.address,
-        },
-      })
-      .then((res) => {
-        setStats({
-          oi: res.data.oi ?? 0,
-          tvl: res.data.tvl ?? 0,
-        });
-      })
-      .catch((err) => {
-        console.error(err);
-        toast.error('Failed to fetch stats');
-      });
+
+    getStats(
+      chain.id,
+      selectedOptionsPool.callToken.address,
+      selectedOptionsPool.putToken.address,
+      setStats,
+      toast.error,
+    );
   }, [chain, selectedOptionsPool]);
 
   return (

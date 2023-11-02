@@ -46,10 +46,14 @@ type ClammStore = {
   tokenBalances: TokenBalances;
 
   setTokenBalances: (tokenBalances: TokenBalances) => void;
+
+  markPrice: number;
+  setMarkPrice: (price: number) => void;
 };
 const useClammStore = create<ClammStore>((set, get) => ({
   isPut: false,
   isTrade: false,
+  markPrice: 0,
   selectedTTL: 86400,
   tokenBalances: {
     callToken: 0n,
@@ -124,6 +128,12 @@ const useClammStore = create<ClammStore>((set, get) => ({
       optionsPools: poolsMapping,
       selectedOptionsPool:
         initialData.length > 0 ? poolsMapping.entries().next().value[1] : null,
+    }));
+  },
+  setMarkPrice(price) {
+    set((prev) => ({
+      ...prev,
+      markPrice: price,
     }));
   },
 }));
