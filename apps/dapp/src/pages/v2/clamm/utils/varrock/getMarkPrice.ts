@@ -4,7 +4,7 @@ import { VARROCK_BASE_API_URL } from '../../constants';
 
 async function getMarkPrice(
   ticker: string,
-  onSuccessCallback: any,
+  onSuccessCallback: ({ price, tick }: { price: number; tick: number }) => void,
   onErrorCallback: any,
 ): Promise<number> {
   return await axios
@@ -15,7 +15,12 @@ async function getMarkPrice(
     })
     .then((res) => {
       const price = res.data.lastPrice ? Number(res.data.lastPrice) : 0;
-      onSuccessCallback(price);
+      const tick = res.data.tick ? Number(res.data.tick) : 0;
+      console.log(res.data);
+      onSuccessCallback({
+        price,
+        tick,
+      });
       return price;
     })
     .catch((err) => {

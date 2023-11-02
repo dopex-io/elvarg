@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 
-import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNetwork } from 'wagmi';
 
@@ -8,13 +7,13 @@ import useClammStore from 'hooks/clamm/useClammStore';
 
 import { formatAmount } from 'utils/general';
 
-import { VARROCK_BASE_API_URL } from '../../constants';
 import getMarkPrice from '../../utils/varrock/getMarkPrice';
 import getStats from '../../utils/varrock/getStats';
 
 const OverViewStats = () => {
   const { chain } = useNetwork();
-  const { selectedOptionsPool, markPrice, setMarkPrice } = useClammStore();
+  const { selectedOptionsPool, markPrice, setMarkPrice, setTick } =
+    useClammStore();
   const [stats, setStats] = useState({
     oi: 0,
     tvl: 0,
@@ -22,8 +21,15 @@ const OverViewStats = () => {
 
   useEffect(() => {
     if (!selectedOptionsPool) return;
-    getMarkPrice(selectedOptionsPool.pairTicker, setMarkPrice, toast.error);
-  }, [selectedOptionsPool, setMarkPrice]);
+    getMarkPrice(
+      selectedOptionsPool.pairTicker,
+      ({ price, tick }) => {
+        setMarkPrice(price);
+        setTick(tick);
+      },
+      toast.error,
+    );
+  }, [selectedOptionsPool, setMarkPrice, setTick]);
 
   useEffect(() => {
     if (!selectedOptionsPool || !chain) return;

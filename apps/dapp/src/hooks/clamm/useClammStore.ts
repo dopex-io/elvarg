@@ -49,12 +49,16 @@ type ClammStore = {
 
   markPrice: number;
   setMarkPrice: (price: number) => void;
+
+  tick: number;
+  setTick: (tick: number) => void;
 };
 const useClammStore = create<ClammStore>((set, get) => ({
   isPut: false,
   isTrade: false,
   markPrice: 0,
   selectedTTL: 86400,
+  tick: 0,
   tokenBalances: {
     callToken: 0n,
     putToken: 0n,
@@ -134,6 +138,12 @@ const useClammStore = create<ClammStore>((set, get) => ({
     set((prev) => ({
       ...prev,
       markPrice: price,
+    }));
+  },
+  setTick(tick) {
+    set((prev) => ({
+      ...prev,
+      tick: tick,
     }));
   },
 }));

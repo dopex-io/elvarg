@@ -4,25 +4,19 @@ import {
   encodeFunctionData,
   formatUnits,
   hexToBigInt,
-  parseEther,
   parseUnits,
 } from 'viem';
 
 import {
   ArrowDownRightIcon,
   ArrowUpRightIcon,
-  CalculatorIcon,
-  CheckCircleIcon,
   ExclamationCircleIcon,
-  TrashIcon,
-  XCircleIcon,
   XMarkIcon,
 } from '@heroicons/react/24/solid';
 import axios from 'axios';
 import { VARROCK_BASE_API_URL } from 'pages/v2/clamm/constants';
 import optionPoolsAbi from 'pages/v2/clamm/constants/optionPoolsAbi';
 import getPremium from 'pages/v2/clamm/utils/varrock/getPremium';
-import getTokenAllowance from 'pages/v2/clamm/utils/varrock/getTokenAllowance';
 import { useAccount, useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
@@ -84,7 +78,6 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
     );
     if (!amountInToken) return;
 
-    console.log('PREMIUM', amountInToken);
     const decimalsInContext = isCall ? callToken.decimals : putToken.decimals;
     const totalPremium =
       (BigInt(amountInToken) *
@@ -373,7 +366,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
                           ? tokenDecimals.callToken
                           : tokenDecimals.putToken,
                       ),
-                    ) * Number(inputAmount),
+                    ),
                     5,
                   )}
                 </span>
@@ -383,15 +376,6 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
               </div>
             </div>
           )}
-          {/* {isTrade && (
-            <div className="w-full flex items-center justify-between text-xs">
-              <span className="text-stieglitz font-normal">Breakeven</span>
-              <div className="flex space-x-[4px]">
-                <span className="text-stieglitz font-normal">$</span>
-                <span className="font-normal">{0}</span>
-              </div>
-            </div>
-          )} */}
         </div>
       </div>
       <div className="w-full flex items-center justify-between px-[12px] py-[6px]">

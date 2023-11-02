@@ -146,7 +146,7 @@ export const TVChartContainer = () => {
         setChartDataLoading(true);
       }
     };
-  }, []);
+  }, [dataFeedV2, selectedTicker]);
 
   useEffect(() => {
     const interval = setInterval(() => {
