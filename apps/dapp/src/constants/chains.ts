@@ -98,7 +98,6 @@ export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/farms': { default: 42161, all: [1, 42161] },
   '/nfts/community': { default: 42161, all: [1, 42161, 137] },
   '/sale': { default: 1, all: [1] },
-  '/oracles': { default: 42161, all: [1, 42161, 137] },
   '/tzwap': { default: 42161, all: [1, 42161] },
   '/straddles': { default: 42161, all: [42161, 137] },
   '/straddles/MATIC': { default: 137, all: [137] },
