@@ -83,6 +83,8 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
       chain.id,
     );
     if (!amountInToken) return;
+
+    console.log('PREMIUM', amountInToken);
     const decimalsInContext = isCall ? callToken.decimals : putToken.decimals;
     const totalPremium =
       (BigInt(amountInToken) *
@@ -145,12 +147,12 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
   ]);
 
   const statusMessage = useMemo(() => {
-    if (isTrade && premium === 0n) {
+    if (isTrade && Number(inputAmount) !== 0 && premium === 0n) {
       return 'Premium is zero. Try a later expiry';
     }
 
     return '';
-  }, [premium, isTrade]);
+  }, [premium, isTrade, inputAmount]);
 
   const updatePurchases = useCallback(() => {
     if (!isTrade || !chain || !selectedOptionsPool) return;
@@ -218,7 +220,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
 
     const txData = encodeFunctionData({
       abi: optionPoolsAbi,
-      functionName: 'mintOptionRoll',
+      functionName: 'mintOption',
       args: [
         {
           optionTicks: optTicks,
