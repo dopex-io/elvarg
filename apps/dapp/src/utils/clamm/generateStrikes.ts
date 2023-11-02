@@ -38,7 +38,6 @@ function generateStrikes(
   while (startTick != endTick && loopCount < maxLoops) {
     loopCount = loopCount + 1;
     startTick -= tickSpacing;
-    console.log(startTick, endTick, tickSpacing);
 
     const tickUpper = startTick + tickSpacing;
     const tickLower = startTick;

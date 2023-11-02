@@ -71,8 +71,8 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     }
 
     const spender = isTrade
-      ? '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e'
-      : '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707';
+      ? '0x58c4d160b33aC1fE89c136c598CEdc9C299D8a0f'
+      : '0x672436dB2468D9B736f4Ec8300CAc3532303f88b';
 
     const _approvals: ApprovedRequiredInfo[] = [];
     for await (const [k, v] of symbolToAmounts) {

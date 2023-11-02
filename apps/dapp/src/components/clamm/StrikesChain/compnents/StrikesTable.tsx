@@ -17,7 +17,6 @@ import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 import TableLayout from 'components/common/TableLayout';
 
 import getStrikesChain from 'utils/clamm/varrock/getStrikesChain';
-import { formatAmount } from 'utils/general';
 
 type StrikeDisclosureItem = {
   earningsApy: number;
@@ -46,8 +45,8 @@ type StrikeItem = {
   };
   liquidity: {
     symbol: string;
-    usd: string;
-    amount: string;
+    usd: number;
+    amount: number;
   };
   disclosure: StrikeDisclosureItem;
 };
@@ -66,9 +65,7 @@ const columns = [
           size="small"
         />
         <p className="text-stieglitz inline-block">$</p>
-        <p className="inline-block">
-          {formatAmount(info.getValue().amount, 5)}
-        </p>
+        <p className="inline-block">{info.getValue().amount.toFixed(4)}</p>
       </span>
     ),
   }),
@@ -76,10 +73,8 @@ const columns = [
     header: 'Liquidity',
     cell: (info) => (
       <StatItem
-        name={`${formatAmount(info.getValue().amount, 5)} ${
-          info.getValue().symbol
-        }`}
-        value={`$ ${formatAmount(info.getValue().usd)}`}
+        name={`${info.getValue().amount.toFixed(4)} ${info.getValue().symbol}`}
+        value={`$ ${info.getValue().usd.toFixed(2)}`}
       />
     ),
   }),
@@ -87,7 +82,7 @@ const columns = [
     header: 'Options',
     cell: (info) => (
       <span className="flex space-x-1 text-left items-center">
-        <p>{formatAmount(info.getValue(), 5)}</p>
+        <p>{info.getValue().toFixed(4)}</p>
       </span>
     ),
   }),
@@ -159,19 +154,19 @@ const TableDisclosure = (props: StrikeDisclosureItem) => {
         <div className="grid grid-cols-6 gap-6 p-3">
           <StatItem
             name="Utilization"
-            value={`${formatAmount(props.utilization, 5)}%`}
+            value={`${props.utilization.toFixed(3)}%`}
           />
           <StatItem
             name="Reward APY"
-            value={`${formatAmount(props.earningsApy, 2, true)}%`}
+            value={`${props.earningsApy.toFixed(3)}%`}
           />
           <StatItem
             name="Premium APY"
-            value={`${formatAmount(props.rewardsApy, 2, true)}%`}
+            value={`${props.rewardsApy.toFixed(3)}%`}
           />
           <StatItem
             name="Total Deposits"
-            value={`${formatAmount(props.totalDeposits.amount, 5)} ${
+            value={`${Number(props.totalDeposits.amount).toFixed(3)} ${
               props.totalDeposits.symbol
             }`}
           />
@@ -258,7 +253,7 @@ const StrikesTable = () => {
               },
             },
             sources,
-            options: optionsAvailable,
+            options: Number(optionsAvailable),
             button: {
               isSelected,
               handleSelect: () => {
@@ -283,18 +278,19 @@ const StrikesTable = () => {
             },
             liquidity: {
               symbol: tokenSymbol,
-              usd: liquidityAvailableUsd,
-              amount: formatUnits(
-                BigInt(liquidityAvailableInToken),
-                tokenDecimals,
+              usd: Number(liquidityAvailableUsd),
+              amount: Number(
+                formatUnits(BigInt(liquidityAvailableInToken), tokenDecimals),
               ),
             },
             disclosure: {
-              earningsApy,
-              rewardsApy,
-              utilization,
+              earningsApy: Number(earningsApy),
+              rewardsApy: Number(rewardsApy),
+              utilization: Number(utilization),
               totalDeposits: {
-                amount: formatUnits(BigInt(liquidityInToken), tokenDecimals),
+                amount: Number(
+                  formatUnits(BigInt(liquidityInToken), tokenDecimals),
+                ),
                 symbol: tokenSymbol,
               },
             },

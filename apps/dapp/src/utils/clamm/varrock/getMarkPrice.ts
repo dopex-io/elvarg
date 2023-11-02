@@ -16,7 +16,6 @@ async function getMarkPrice(
     .then((res) => {
       const price = res.data.lastPrice ? Number(res.data.lastPrice) : 0;
       const tick = res.data.tick ? Number(res.data.tick) : 0;
-      console.log(res.data);
       onSuccessCallback({
         price,
         tick,

@@ -109,8 +109,8 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
           chainId: chain.id,
           callToken: callToken.address,
           putToken: putToken.address,
-          pool: '0x53b27D62963064134D60D095a526e1E72b74A5C4' as Address,
-          handler: '0x0165878A594ca255338adfa4d48449f69242Eb8F' as Address,
+          pool: '0xC31E54c7a869B9FcBEcc14363CF510d1c41fa443' as Address,
+          handler: '0xfe30F2e6cDcEA6815EF396d81Db5bE2B5C43166c' as Address,
           amount: depositAmount,
           tickLower: meta.tickLower,
           tickUpper: meta.tickUpper,
@@ -122,7 +122,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
             amount: depositAmount,
             tokenSymbol: data.tokenSymbol,
             tokenAddress: data.tokenAddress,
-            positionManager: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
+            positionManager: '0x672436dB2468D9B736f4Ec8300CAc3532303f88b',
             txData: data.txData,
           });
         }
@@ -199,8 +199,8 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
 
     const optTicks = [
       {
-        _handler: '0x0165878A594ca255338adfa4d48449f69242Eb8F' as Address,
-        pool: '0x53b27D62963064134D60D095a526e1E72b74A5C4' as Address,
+        _handler: '0xfe30F2e6cDcEA6815EF396d81Db5bE2B5C43166c' as Address,
+        pool: '0xC31E54c7a869B9FcBEcc14363CF510d1c41fa443' as Address,
         tickLower: tickLower,
         tickUpper: tickUpper,
         liquidityToUse,

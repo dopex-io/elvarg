@@ -19,6 +19,7 @@ import { DEFAULT_CHAIN_ID } from 'constants/env';
 type BuyPositionItem = BuyPosition & {
   exerciseButton: {
     handleExercise: (meta: any) => void;
+    disabled: boolean;
   };
 };
 
@@ -134,7 +135,14 @@ const columns = [
   columnHelper.accessor('exerciseButton', {
     header: '',
     cell: (info) => {
-      return <Button onClick={info.getValue().handleExercise}>Exericse</Button>;
+      return (
+        <Button
+          onClick={info.getValue().handleExercise}
+          disabled={info.getValue().disabled}
+        >
+          Exericse
+        </Button>
+      );
     },
   }),
 ];
@@ -192,7 +200,7 @@ const BuyPositions = ({
           },
           profit: {
             amount: profit.amount,
-            usdVlaue: profit.usdValue,
+            usdValue: profit.usdValue,
             symbol: profit.symbol,
             percentage: Math.max(
               getPercentageDifference(
@@ -224,6 +232,7 @@ const BuyPositions = ({
               const { txData, to } = meta.exerciseTx;
               await handleExercise(txData, to);
             },
+            disabled: Number(profit.amount) === 0,
           },
         };
       },
