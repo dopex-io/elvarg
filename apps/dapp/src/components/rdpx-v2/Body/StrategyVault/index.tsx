@@ -1,4 +1,5 @@
 import QuickLink from 'components/rdpx-v2/QuickLink';
+import RedeemRequests from 'components/rdpx-v2/Tables/RedeemRequests';
 
 import { quickLinks } from 'constants/rdpx';
 
@@ -11,6 +12,7 @@ const StrategyVaultBody = () => {
         <QuickLink {...quickLinks.strategyVault} />
       </div>
       <DepositRow />
+      <RedeemRequests />
     </div>
   );
 };

@@ -1,13 +1,20 @@
 import { useCallback, useState } from 'react';
 import { Address, parseUnits } from 'viem';
 
+import request from 'graphql-request';
 import { multicall, readContract, readContracts } from 'wagmi/actions';
+
+import queryClient from 'queryClient';
+
+import { getUserRedeemRequestsDocument } from 'graphql/rdpx-v2';
 
 import { DECIMALS_TOKEN } from 'constants/index';
 import PerpVault from 'constants/rdpx/abis/PerpVault';
 import PerpVaultLp from 'constants/rdpx/abis/PerpVaultLp';
 import addresses from 'constants/rdpx/addresses';
 import initialContractStates from 'constants/rdpx/initialStates';
+
+import { DOPEX_RDPX_V2_SUBGRAPH_API_URL } from '../../../codegen';
 
 interface VaultState {
   currentEpoch: bigint;
@@ -37,10 +44,13 @@ interface UserData {
   isClaimQueued: boolean;
   claimableTime: bigint;
   userShareOfFunding: bigint;
-}
-
-interface Props {
-  user: Address;
+  redeemRequests: {
+    sender: string;
+    amount: bigint;
+    ethAmount: bigint;
+    rdpxAmount: bigint;
+    epoch: bigint;
+  }[];
 }
 
 const config = {
@@ -52,6 +62,10 @@ const lpConfig = {
   abi: PerpVaultLp,
   address: addresses.perpPoolLp,
 };
+
+interface Props {
+  user: Address;
+}
 
 const usePerpPoolData = ({ user = '0x' }: Props) => {
   const [vaultState, setVaultState] = useState<VaultState>(
@@ -254,6 +268,29 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
       (tokenShare) => (tokenShare * userLpShares) / parseUnits('10', 18),
     ) as [bigint, bigint];
 
+    const data = await queryClient
+      .fetchQuery({
+        queryKey: ['getRedeemRequests'],
+        queryFn: () =>
+          request(
+            DOPEX_RDPX_V2_SUBGRAPH_API_URL,
+            getUserRedeemRequestsDocument,
+            {
+              sender: user,
+            },
+          ),
+      })
+      .then((res) => res.redeemRequests)
+      .catch(() => []);
+
+    const redeemRequestsFormatted = data.map((rr) => ({
+      sender: rr.sender,
+      amount: BigInt(rr.amount),
+      ethAmount: BigInt(rr.ethAmount),
+      rdpxAmount: BigInt(rr.rdpxAmount),
+      epoch: BigInt(rr.epoch),
+    }));
+
     setUserData((prev) => ({
       ...prev,
       userSharesLocked,
@@ -262,6 +299,7 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
       shareComposition,
       claimableTime,
       userShareOfFunding,
+      redeemRequests: redeemRequestsFormatted,
     }));
     setLoading(false);
   }, [user, vaultState]);

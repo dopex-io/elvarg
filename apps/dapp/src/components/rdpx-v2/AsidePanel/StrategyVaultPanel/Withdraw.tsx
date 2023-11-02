@@ -82,8 +82,8 @@ const Withdraw = () => {
       };
     } else {
       return {
-        label: 'Request Redeem',
-        header: 'Request Redeem',
+        label: 'Request Withdrawal',
+        header: 'Request Withdrawal',
         disabled: false,
         severity: null,
         body: null,

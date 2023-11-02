@@ -12,6 +12,9 @@ const DOPEX_POLYGON_SSOV_SUBGRAPH_API_URL =
 export const DOPEX_RDPX_SUBGRAPH_API_URL =
   'https://api.thegraph.com/subgraphs/name/psytama/rdpxv2';
 
+export const DOPEX_RDPX_V2_SUBGRAPH_API_URL =
+  'https://api.thegraph.com/subgraphs/name/hibou-de-nuit/rdpxv2';
+
 const config: CodegenConfig = {
   generates: {
     './src/gql/straddles/': {
@@ -32,6 +35,11 @@ const config: CodegenConfig = {
     './src/gql/rdpx/': {
       schema: DOPEX_RDPX_SUBGRAPH_API_URL,
       documents: ['src/graphql/rdpx/*.ts'],
+      preset: 'client',
+    },
+    './src/gql/rdpx-v2/': {
+      schema: DOPEX_RDPX_V2_SUBGRAPH_API_URL,
+      documents: ['src/graphql/rdpx-v2/*.ts'],
       preset: 'client',
     },
   },

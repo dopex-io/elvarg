@@ -34,7 +34,6 @@ const DelegatePositions = () => {
 
   const delegatePositions = useMemo(() => {
     if (userDelegatePositions.length === 0) return [];
-    console.log(userDelegatePositions);
     return userDelegatePositions.map((pos) => {
       return {
         amount: pos.amount,
