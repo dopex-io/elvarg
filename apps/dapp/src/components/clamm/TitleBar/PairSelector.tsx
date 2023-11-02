@@ -1,223 +1,117 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { formatUnits } from 'viem';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 
 import { Menu } from '@dopex-io/ui';
 
-import { useBoundStore } from 'store';
+import useClammStore from 'hooks/clamm/useClammStore';
 
-import TitleItem from 'components/ssov-beta/TitleBar/TitleItem';
-
-import getStats from 'utils/clamm/getCumulativeVolume';
-import { formatAmount } from 'utils/general';
-
-import {
-  CLAMM_COLLATERAL_TOKENS_LIST,
-  CLAMM_UNDERLYING_TOKENS_LIST,
-} from 'constants/clamm';
-
-type MenuItem = {
+type Pair = {
   textContent: string;
+  callToken: string;
+  putToken: string;
 };
 
-export function PairSelector() {
-  const {
-    setSelectedOptionsPoolPair,
-    markPrice,
-    ticksData,
-    optionsPool,
-    keys,
-    tokenPrices,
-  } = useBoundStore();
+const LAST_VISITED_CLAMM_POOL_KEY = 'last_clamm_pool';
 
-  const [underlyingToken, setUnderlyingToken] = useState<MenuItem>({
-    textContent: 'ARB',
-  });
-  const [collateralToken, setCollateralToken] = useState<MenuItem>({
-    textContent: 'USDC',
-  });
-  const [_stats, _setStats] = useState<{ totalVolumeUsd: number }>({
-    totalVolumeUsd: 0,
+const PairSelector = () => {
+  const { setSelectedOptionsPool, optionsPools } = useClammStore();
+  const params = useParams<{ pair: string[] }>();
+  const router = useRouter();
+
+  const [selectedPair, setSelectedPair] = useState<Pair>({
+    callToken: '-',
+    putToken: '-',
+    textContent: '-',
   });
 
-  const updateCumulativeVolume = useCallback(async () => {
-    if (!optionsPool) return;
-    const {
-      token0Decimals,
-      token1Decimals,
-      uniswapV3PoolAddress,
-      inversePrice,
-    } = optionsPool;
-    getStats(
-      uniswapV3PoolAddress,
-      keys.callAssetAmountKey,
-      keys.putAssetAmountKey,
-      optionsPool[keys.callAssetDecimalsKey],
-      optionsPool[keys.putAssetDecimalsKey],
-      token0Decimals,
-      token1Decimals,
-      inversePrice,
-      (totalVolumeUsd) => {
-        _setStats({
-          totalVolumeUsd,
-        });
-      },
-    );
-  }, [
-    keys.callAssetAmountKey,
-    keys.callAssetDecimalsKey,
-    keys.putAssetAmountKey,
-    keys.putAssetDecimalsKey,
-    optionsPool,
-  ]);
+  const validPairs = useMemo(() => {
+    if (!optionsPools || optionsPools.size === 0) return [];
+    return Array.from(optionsPools, ([key, value]) => {
+      const pairNameSplit = value.pairName.split('-');
+      return {
+        textContent: `${pairNameSplit[0]} - ${pairNameSplit[1]}`,
+        callToken: value.callToken.symbol,
+        putToken: value.putToken.symbol,
+      };
+    });
+  }, [optionsPools]);
 
   useEffect(() => {
-    updateCumulativeVolume();
-  }, [updateCumulativeVolume]);
-
-  const stats = useMemo(() => {
-    if (!optionsPool)
-      return {
-        TVL: 0,
-        openInterest: 0,
-      };
-    const putAssetSymbol = optionsPool[keys.putAssetSymbolKey];
-    const callAssetSymbol = optionsPool[keys.callAssetSymbolKey];
-
-    const putAssetPrice =
-      tokenPrices.find(
-        (data) => data.name.toLowerCase() === putAssetSymbol.toLowerCase(),
-      )?.price ?? 0;
-    const callAssetPrice =
-      tokenPrices.find(
-        (data) => data.name.toLowerCase() === callAssetSymbol.toLowerCase(),
-      )?.price ?? 0;
-
-    let TVL = 0;
-    let openInterest = 0;
-
-    for (let i = 0; i < ticksData.length; i++) {
-      // ticksData[i].totalLiquidity;
-      const callAssetDecimals = optionsPool[keys.callAssetDecimalsKey];
-      const putAssetDecimals = optionsPool[keys.putAssetDecimalsKey];
-
-      const callAssetsValue =
-        Number(
-          formatUnits(
-            ticksData[i].totalLiquidity[keys.callAssetAmountKey],
-            callAssetDecimals,
-          ),
-        ) * callAssetPrice;
-      const putAssetsValue =
-        Number(
-          formatUnits(
-            ticksData[i].totalLiquidity[keys.putAssetAmountKey],
-            putAssetDecimals,
-          ),
-        ) * putAssetPrice;
-
-      TVL += callAssetsValue + putAssetsValue;
-
-      const callAssetsUsedValue =
-        Number(
-          formatUnits(
-            ticksData[i].totalLiquidity[keys.callAssetAmountKey] -
-              ticksData[i].liquidityAvailable[keys.callAssetAmountKey],
-            callAssetDecimals,
-          ),
-        ) * callAssetPrice;
-
-      const putAssetsUsedValue =
-        Number(
-          formatUnits(
-            ticksData[i].totalLiquidity[keys.putAssetAmountKey] -
-              ticksData[i].liquidityAvailable[keys.putAssetAmountKey],
-            putAssetDecimals,
-          ),
-        ) * putAssetPrice;
-
-      openInterest += callAssetsUsedValue + putAssetsUsedValue;
+    /**
+     * checks for pool name in URL or local storage and accordingly
+     * selects a valid one or defaults to an existing one
+     */
+    if (!params || optionsPools.size === 0) return;
+    let { pair } = params;
+    if (!pair) {
+      const pairInStore = localStorage.getItem(LAST_VISITED_CLAMM_POOL_KEY);
+      if (pairInStore) {
+        pair = [pairInStore];
+      }
     }
 
-    return {
-      TVL,
-      openInterest,
-    };
-  }, [
-    keys.callAssetAmountKey,
-    keys.callAssetDecimalsKey,
-    keys.callAssetSymbolKey,
-    keys.putAssetAmountKey,
-    keys.putAssetDecimalsKey,
-    keys.putAssetSymbolKey,
-    optionsPool,
-    ticksData,
-    tokenPrices,
-  ]);
+    const optionsPoolInfo = optionsPools.get(pair ? pair[0] : '');
+    let urlReplacement = '';
+    if (optionsPoolInfo) {
+      const pairNameSplit = optionsPoolInfo.pairName.split('-');
+      urlReplacement = optionsPoolInfo.pairName;
+      setSelectedPair({
+        callToken: optionsPoolInfo.callToken.symbol,
+        putToken: optionsPoolInfo.putToken.symbol,
+        textContent: `${pairNameSplit[0]} - ${pairNameSplit[1]}`,
+      });
+    } else {
+      const defaultPool = optionsPools.entries().next().value[1];
+      const pairNameSplit = defaultPool
+        ? defaultPool.pairName.split('-')
+        : null;
+
+      urlReplacement = defaultPool.pairName;
+      setSelectedPair({
+        callToken: defaultPool ? defaultPool.callToken.symbol : '-',
+        putToken: defaultPool ? defaultPool.putToken.symbol : '-',
+        textContent: pairNameSplit
+          ? `${pairNameSplit[0]} - ${pairNameSplit[1]}`
+          : '-',
+      });
+    }
+  }, [params, optionsPools]);
 
   return (
-    <>
-      <span className="text-stieglitz text-md">Select Pair</span>
-      <div className="flex space-x-4 mb-4 mt-2">
+    <div className="flex flex-col space-y-[8px]">
+      <span className="text-md font-normal text-stieglitz">Select Pair</span>
+      <div className="flex space-x-[12px]">
         <div className="flex -space-x-4 self-center">
           <img
-            className="w-8 h-8 z-10 border border-gray-500 rounded-full"
-            src={`/images/tokens/${underlyingToken.textContent.toLowerCase()}.svg`}
-            alt={underlyingToken.textContent}
+            className="w-[40px] h-[40px] z-10 border border-gray-500 rounded-full"
+            src={`/images/tokens/${selectedPair.callToken.toLowerCase()}.svg`}
+            alt={selectedPair.callToken.toLowerCase()}
           />
           <img
-            className="w-8 h-8 z-0"
-            src={`/images/tokens/${collateralToken.textContent.toLowerCase()}.svg`}
-            alt={collateralToken.textContent}
+            className="w-[40px] h-[40px]"
+            src={`/images/tokens/${selectedPair.putToken.toLowerCase()}.svg`}
+            alt={selectedPair.putToken.toLowerCase()}
           />
         </div>
         <Menu
           color="mineshaft"
           dropdownVariant="icon"
-          setSelection={(T: MenuItem) => {
-            setUnderlyingToken(T);
-            setSelectedOptionsPoolPair(T.textContent, collateralToken);
+          setSelection={(T: Pair) => {
+            const pairName = T.textContent.replaceAll(' ', '');
+            router.replace(pairName);
+            setSelectedPair(T);
+            setSelectedOptionsPool(pairName);
+            localStorage.setItem(LAST_VISITED_CLAMM_POOL_KEY, pairName);
           }}
-          selection={underlyingToken}
-          data={CLAMM_UNDERLYING_TOKENS_LIST}
+          selection={selectedPair}
+          data={validPairs.filter(
+            ({ textContent }) => textContent !== selectedPair.textContent,
+          )}
           showArrow
-        />
-        <Menu
-          color="mineshaft"
-          dropdownVariant="icon"
-          setSelection={(T: MenuItem) => {
-            setCollateralToken(T);
-            setSelectedOptionsPoolPair(underlyingToken, T.textContent);
-          }}
-          selection={collateralToken}
-          data={CLAMM_COLLATERAL_TOKENS_LIST}
-          scrollable
-          showArrow
-        />
-        <TitleItem
-          symbol="$"
-          symbolPrefixed
-          label="Mark Price"
-          value={markPrice === 0 ? '...' : markPrice.toFixed(5)}
-        />
-        <TitleItem
-          symbol="$"
-          symbolPrefixed
-          label="Open Interest"
-          value={formatAmount(stats.openInterest, 3, true)}
-        />
-        <TitleItem
-          symbol="$"
-          symbolPrefixed
-          label="Total Deposits"
-          value={formatAmount(stats.TVL, 3, true)}
-        />
-        <TitleItem
-          symbol="$"
-          symbolPrefixed
-          label="Cumulative Volume"
-          value={formatAmount(_stats.totalVolumeUsd, 3, true)}
         />
       </div>
-    </>
+    </div>
   );
-}
+};
+
+export default PairSelector;

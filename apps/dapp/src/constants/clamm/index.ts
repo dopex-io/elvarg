@@ -1,36 +1,3 @@
-import { Address } from 'viem';
-
-export const CLAMM_UNDERLYING_TOKENS_LIST = [
-  { textContent: 'ARB', disabled: false },
-];
-export const CLAMM_COLLATERAL_TOKENS_LIST = [
-  { textContent: 'USDC', disabled: false },
-];
-
-export const VALID_CLAMM_PAIRS = ['ARB-USDC'];
-
-type PairToAddress = {
-  underlyingTokenAddress: Address;
-  collateralTokenAddress: Address;
-  optionsPoolAddress: Address;
-  uniswapV3PoolAddress: Address;
-};
-
-export const CLAMM_PAIRS_TO_ADDRESSES: Record<string, PairToAddress> = {
-  // 'ARB-USDC': {
-  //   underlyingTokenAddress: '0x63A38A21F74E69F75209ae5a76DbE7f1558AB890',
-  //   collateralTokenAddress: '0x50DfFf781E60875d304Cac5f034d3F9E275445A9',
-  //   optionsPoolAddress: '0x090fdA0F2c26198058530A0A8cFE53362d54d9f1',
-  //   uniswapV3PoolAddress: '0xce0F8EfCa1Bc21Dd9AaEE6ee8F2c0F2155980bBB',
-  // },
-  'ARB-USDC': {
-    underlyingTokenAddress: '0x912CE59144191C1204E64559FE8253a0e49E6548',
-    collateralTokenAddress: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
-    optionsPoolAddress: '0x88C78f6F674Ed711EEbDE15d8b090dec44C590b4',
-    uniswapV3PoolAddress: '0xcDa53B1F66614552F834cEeF361A8D12a0B8DaD8',
-  },
-};
-
 export const EXPIRIES: { [key: string]: number } = {
   '20m': 20 * 60,
   '1h': 60 * 60,
@@ -51,3 +18,1332 @@ export const EXPIRIES_TO_KEY: { [key: number]: string } = {
 
 export const EXPIRIES_MENU = Object.keys(EXPIRIES);
 export const EXPIRIES_BY_INDEX = Object.values(EXPIRIES);
+
+export const VARROCK_BASE_API_URL = 'http://localhost:8080';
+export const MULTI_CALL_FN_SIG =
+  'function multicall(bytes[] calldata data) external returns (bytes[] memory results)';
+
+export const optionPoolsAbi = [
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_pm',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_optionPricing',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_dpFee',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_callAsset',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_putAsset',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_primePool',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'constructor',
+  },
+  {
+    inputs: [],
+    name: 'DopexV2OptionPools__ArrayLenMismatch',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'DopexV2OptionPools__IVNotSet',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'DopexV2OptionPools__MaxFeeAllowanceExceeded',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'DopexV2OptionPools__NotApprovedSettler',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'DopexV2OptionPools__NotEnoughAfterSwap',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'DopexV2OptionPools__NotOwnerOrDelegator',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'DopexV2OptionPools__NotValidStrikeTick',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'DopexV2OptionPools__OptionExpired',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'DopexV2OptionPools__OptionNotExpired',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'DopexV2OptionPools__PoolNotApproved',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'T',
+    type: 'error',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'approved',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'Approval',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'operator',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'bool',
+        name: 'approved',
+        type: 'bool',
+      },
+    ],
+    name: 'ApprovalForAll',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'totalProfit',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'totalAssetRelocked',
+        type: 'uint256',
+      },
+    ],
+    name: 'LogExerciseOption',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'uint256[]',
+        name: 'ttl',
+        type: 'uint256[]',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256[]',
+        name: 'iv',
+        type: 'uint256[]',
+      },
+    ],
+    name: 'LogIVUpdate',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'bool',
+        name: 'isCall',
+        type: 'bool',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'premiumAmount',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'totalAssetWithdrawn',
+        type: 'uint256',
+      },
+    ],
+    name: 'LogMintOption',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'optionPricing',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'dpFee',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'callAsset',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'putAsset',
+        type: 'address',
+      },
+    ],
+    name: 'LogOptionsPoolInitialized',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'LogSettleOption',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'newTokenId',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+    ],
+    name: 'LogSplitOption',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'tokeURIFetcher',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'dpFee',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'optionPricing',
+        type: 'address',
+      },
+    ],
+    name: 'LogUpdateAddress',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'previousOwner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
+    name: 'OwnershipTransferred',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'from',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'Transfer',
+    type: 'event',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'approve',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    name: 'approvedPools',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+    ],
+    name: 'balanceOf',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'callAsset',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'dpFee',
+    outputs: [
+      {
+        internalType: 'contract IDopexFee',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+    ],
+    name: 'emergencyWithdraw',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    name: 'exerciseDelegator',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'optionId',
+            type: 'uint256',
+          },
+          {
+            internalType: 'contract ISwapper',
+            name: 'swapper',
+            type: 'address',
+          },
+          {
+            internalType: 'bytes',
+            name: 'swapData',
+            type: 'bytes',
+          },
+          {
+            internalType: 'uint256[]',
+            name: 'liquidityToExercise',
+            type: 'uint256[]',
+          },
+        ],
+        internalType: 'struct DopexV2OptionPools.ExerciseOptionParams',
+        name: '_params',
+        type: 'tuple',
+      },
+    ],
+    name: 'exerciseOption',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'feeTo',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'getApproved',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'contract IUniswapV3Pool',
+        name: '_pool',
+        type: 'address',
+      },
+    ],
+    name: 'getCurrentPricePerCallAsset',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bool',
+        name: 'isPut',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'expiry',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'strike',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'lastPrice',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'baseIv',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'getPremiumAmount',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'contract IUniswapV3Pool',
+        name: '_pool',
+        type: 'address',
+      },
+      {
+        internalType: 'int24',
+        name: '_tick',
+        type: 'int24',
+      },
+    ],
+    name: 'getPricePerCallAssetViaTick',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'operator',
+        type: 'address',
+      },
+    ],
+    name: 'isApprovedForAll',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            components: [
+              {
+                internalType: 'contract IHandler',
+                name: '_handler',
+                type: 'address',
+              },
+              {
+                internalType: 'contract IUniswapV3Pool',
+                name: 'pool',
+                type: 'address',
+              },
+              {
+                internalType: 'int24',
+                name: 'tickLower',
+                type: 'int24',
+              },
+              {
+                internalType: 'int24',
+                name: 'tickUpper',
+                type: 'int24',
+              },
+              {
+                internalType: 'uint256',
+                name: 'liquidityToUse',
+                type: 'uint256',
+              },
+            ],
+            internalType: 'struct DopexV2OptionPools.OptionTicks[]',
+            name: 'optionTicks',
+            type: 'tuple[]',
+          },
+          {
+            internalType: 'int24',
+            name: 'tickLower',
+            type: 'int24',
+          },
+          {
+            internalType: 'int24',
+            name: 'tickUpper',
+            type: 'int24',
+          },
+          {
+            internalType: 'uint256',
+            name: 'ttl',
+            type: 'uint256',
+          },
+          {
+            internalType: 'bool',
+            name: 'isCall',
+            type: 'bool',
+          },
+          {
+            internalType: 'uint256',
+            name: 'maxFeeAllowed',
+            type: 'uint256',
+          },
+        ],
+        internalType: 'struct DopexV2OptionPools.OptionParams',
+        name: '_params',
+        type: 'tuple',
+      },
+    ],
+    name: 'mintOption',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes[]',
+        name: 'data',
+        type: 'bytes[]',
+      },
+    ],
+    name: 'multicall',
+    outputs: [
+      {
+        internalType: 'bytes[]',
+        name: 'results',
+        type: 'bytes[]',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'name',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'opData',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'opTickArrayLen',
+        type: 'uint256',
+      },
+      {
+        internalType: 'int24',
+        name: 'tickLower',
+        type: 'int24',
+      },
+      {
+        internalType: 'int24',
+        name: 'tickUpper',
+        type: 'int24',
+      },
+      {
+        internalType: 'uint256',
+        name: 'expiry',
+        type: 'uint256',
+      },
+      {
+        internalType: 'bool',
+        name: 'isCall',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'opTickMap',
+    outputs: [
+      {
+        internalType: 'contract IHandler',
+        name: '_handler',
+        type: 'address',
+      },
+      {
+        internalType: 'contract IUniswapV3Pool',
+        name: 'pool',
+        type: 'address',
+      },
+      {
+        internalType: 'int24',
+        name: 'tickLower',
+        type: 'int24',
+      },
+      {
+        internalType: 'int24',
+        name: 'tickUpper',
+        type: 'int24',
+      },
+      {
+        internalType: 'uint256',
+        name: 'liquidityToUse',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'optionIds',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'optionPricing',
+    outputs: [
+      {
+        internalType: 'contract IOptionPricing',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'owner',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'ownerOf',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'positionManager',
+    outputs: [
+      {
+        internalType: 'contract IDopexV2PositionManager',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'optionId',
+            type: 'uint256',
+          },
+          {
+            internalType: 'address',
+            name: 'to',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256[]',
+            name: 'liquidityToSplit',
+            type: 'uint256[]',
+          },
+        ],
+        internalType: 'struct DopexV2OptionPools.PositionSplitterParams',
+        name: '_params',
+        type: 'tuple',
+      },
+    ],
+    name: 'positionSplitter',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'primePool',
+    outputs: [
+      {
+        internalType: 'contract IUniswapV3Pool',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'putAsset',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'from',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'safeTransferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'from',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'bytes',
+        name: 'data',
+        type: 'bytes',
+      },
+    ],
+    name: 'safeTransferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'operator',
+        type: 'address',
+      },
+      {
+        internalType: 'bool',
+        name: 'approved',
+        type: 'bool',
+      },
+    ],
+    name: 'setApprovalForAll',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'optionId',
+            type: 'uint256',
+          },
+          {
+            internalType: 'contract ISwapper',
+            name: 'swapper',
+            type: 'address',
+          },
+          {
+            internalType: 'bytes',
+            name: 'swapData',
+            type: 'bytes',
+          },
+          {
+            internalType: 'uint256[]',
+            name: 'liquidityToSettle',
+            type: 'uint256[]',
+          },
+        ],
+        internalType: 'struct DopexV2OptionPools.SettleOptionParams',
+        name: '_params',
+        type: 'tuple',
+      },
+    ],
+    name: 'settleOption',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    name: 'settlers',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes4',
+        name: 'interfaceId',
+        type: 'bytes4',
+      },
+    ],
+    name: 'supportsInterface',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'symbol',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+    ],
+    name: 'tokenURI',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'tokenURIFetcher',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'from',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'transferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'ttlToVEID',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_feeTo',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_tokeURIFetcher',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_dpFee',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_optionPricing',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_settler',
+        type: 'address',
+      },
+      {
+        internalType: 'bool',
+        name: '_statusSettler',
+        type: 'bool',
+      },
+      {
+        internalType: 'address',
+        name: '_pool',
+        type: 'address',
+      },
+      {
+        internalType: 'bool',
+        name: '_statusPools',
+        type: 'bool',
+      },
+    ],
+    name: 'updateAddress',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_delegateTo',
+        type: 'address',
+      },
+      {
+        internalType: 'bool',
+        name: '_status',
+        type: 'bool',
+      },
+    ],
+    name: 'updateExerciseDelegate',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256[]',
+        name: '_ttls',
+        type: 'uint256[]',
+      },
+      {
+        internalType: 'uint256[]',
+        name: '_ttlIV',
+        type: 'uint256[]',
+      },
+    ],
+    name: 'updateIVs',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+] as const;
