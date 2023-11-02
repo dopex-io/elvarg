@@ -2,59 +2,81 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { useAccount, useContractWrite } from 'wagmi';
 
+import useTokenData from 'hooks/helpers/useTokenData';
 import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 
 import TableLayout from 'components/common/TableLayout';
 
-import RdpxV2Bond from 'constants/rdpx/abis/RdpxV2Bond';
-// import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
+import ReceiptToken from 'constants/rdpx/abis/ReceiptToken';
 import addresses from 'constants/rdpx/addresses';
 
 import columns, { UserBonds as UserBondsType } from './ColumnDefs/BondsColumn';
 
 const UserBonds = () => {
-  const [selectionIndex, setSelectionIndex] = useState<number>(0);
+  const [amount, setAmount] = useState<bigint>(0n);
+
   const { address: account } = useAccount();
   const { updateUserBonds, userBonds, loading } = useRdpxV2CoreData({
     user: account || '0x',
   });
 
-  const { write: approve } = useContractWrite({
-    abi: RdpxV2Bond,
-    address: addresses.bond,
-    functionName: 'setApprovalForAll',
-    args: [addresses.v2core, true], // use userBonds[selectionIndex].id for single approval
+  const { updateBalance, updateAllowance, approved } = useTokenData({
+    amount,
+    spender: addresses.receiptToken,
+    token: addresses.receiptToken,
   });
 
-  // const { write: redeem } = useContractWrite({
-  //   abi: Rdpx,
-  //   address: addresses.v2core,
-  //   functionName: 'settle',
-  // });
+  const { write: approve } = useContractWrite({
+    abi: ReceiptToken,
+    address: addresses.receiptToken,
+    functionName: 'approve',
+    args: [addresses.receiptToken, amount],
+  });
+
+  // todo: incomplete contract implementation
+  const { write: redeem } = useContractWrite({
+    abi: ReceiptToken,
+    address: addresses.receiptToken,
+    functionName: 'redeem',
+    args: [amount],
+  });
 
   const userRdpxBonds = useMemo(() => {
     if (userBonds.length === 0) return [];
 
-    return userBonds.map((bond, index) => {
+    return userBonds.map((bond) => {
+      const redeemable =
+        bond.maturity <= BigInt(Math.ceil(new Date().getTime()));
+      let label = 'Redeem';
+      if (redeemable) {
+        label = approved ? 'Redeem' : 'Approve';
+      }
       return {
         tokenId: bond.id,
         maturity: bond.maturity,
         amount: bond.amount,
-        redeemable:
-          bond.maturity <= BigInt(Math.ceil(new Date().getTime() / 1000)),
+        redeemable,
         timestamp: bond.timestamp,
         button: {
           handleRedeem: () => {
-            setSelectionIndex(index);
-            approve();
+            setAmount(bond.amount);
+            approved ? redeem() : approve();
           },
-          redeemable:
-            bond.maturity <= BigInt(Math.ceil(new Date().getTime() / 1000)),
+          redeemable,
           id: bond.id,
+          label,
         },
       };
     });
-  }, [approve, userBonds]);
+  }, [userBonds, approve, approved, redeem]);
+
+  useEffect(() => {
+    updateBalance();
+  }, [updateBalance]);
+
+  useEffect(() => {
+    updateAllowance();
+  }, [updateAllowance]);
 
   useEffect(() => {
     updateUserBonds();

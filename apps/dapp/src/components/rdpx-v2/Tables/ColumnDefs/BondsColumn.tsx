@@ -1,6 +1,3 @@
-import { BigNumber } from 'ethers';
-import { formatUnits } from 'viem';
-
 import Tooltip from '@mui/material/Tooltip';
 
 import { Button } from '@dopex-io/ui';
@@ -23,6 +20,7 @@ export interface UserBonds {
     handleRedeem: () => void;
     redeemable: boolean;
     id: bigint;
+    label: string;
   };
 }
 
@@ -69,7 +67,7 @@ const columns = [
           onClick={value.handleRedeem}
           disabled={!value.redeemable}
         >
-          Redeem
+          {value.label}
         </Button>
       );
     },
