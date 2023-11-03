@@ -7,7 +7,7 @@ export const getUserPurchasesDocument = graphql(`
       amount
       strike
       premium
-      to
+      tokenId
       transaction {
         timestamp
         sender
