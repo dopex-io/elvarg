@@ -1,8 +1,7 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 
-import { Button } from '@dopex-io/ui';
 import Countdown from 'react-countdown';
-import { useAccount, useContractWrite } from 'wagmi';
+import { useAccount } from 'wagmi';
 
 import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 
@@ -12,8 +11,6 @@ import Typography2 from 'components/UI/Typography2';
 import formatBigint from 'utils/general/formatBigint';
 
 import { DECIMALS_TOKEN } from 'constants/index';
-import PerpVault from 'constants/rdpx/abis/PerpVault';
-import addresses from 'constants/rdpx/addresses';
 
 const DepositRow = () => {
   const { address: account } = useAccount();
@@ -27,42 +24,13 @@ const DepositRow = () => {
     user: account || '0x',
   });
 
-  const { write: claim, isSuccess: claimSuccess } = useContractWrite({
-    abi: PerpVault,
-    address: addresses.perpPool,
-    functionName: 'claim',
-    args: [userPerpetualVaultData.userSharesLocked],
-  });
-
   useEffect(() => {
     updatePerpetualVaultState();
-  }, [updatePerpetualVaultState, claimSuccess]);
+  }, [updatePerpetualVaultState]);
 
   useEffect(() => {
     updateUserPerpetualVaultData();
-  }, [updateUserPerpetualVaultData, claimSuccess]);
-
-  const buttonState = useMemo(() => {
-    const defaultState = {
-      label: 'Claim',
-      handler: () => null,
-      disabled: true,
-    };
-    if (
-      userPerpetualVaultData.claimableTime <
-      BigInt(Math.ceil(new Date().getTime() / 1000))
-    ) {
-      return {
-        ...defaultState,
-      };
-    } else {
-      return {
-        ...defaultState,
-        disabled: false,
-        handler: () => claim(),
-      };
-    }
-  }, [claim, userPerpetualVaultData.claimableTime]);
+  }, [updateUserPerpetualVaultData]);
 
   return (
     <div className="space-y-2">
@@ -160,23 +128,6 @@ const DepositRow = () => {
               ],
             ]}
           />
-          {userPerpetualVaultData.userSharesLocked > 0n &&
-          Number(perpetualVaultState.expiry) < new Date().getTime() / 1000 ? (
-            <Cell
-              data={[
-                [
-                  <Button
-                    key="claim"
-                    size="medium"
-                    onClick={buttonState.handler}
-                  >
-                    Claim
-                  </Button>,
-                  '',
-                ],
-              ]}
-            />
-          ) : null}
         </div>
       )}
     </div>
