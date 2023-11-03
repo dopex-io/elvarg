@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { /*useEffect, */ useMemo } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
@@ -39,9 +39,9 @@ const Main = () => {
   }, [rdpxPageState]);
 
   // reroute to default page state if slug is empty
-  useEffect(() => {
-    if (router.asPath === '/rdpx-v2') router.push(`/rdpx-v2/${rdpxPageState}`);
-  }, [rdpxPageState, router]);
+  // useEffect(() => {
+  //   if (router.asPath === '/rdpx-v2') router.push(`/rdpx-v2/${rdpxPageState}`);
+  // }, [rdpxPageState, router]);
 
   return (
     <div className="bg-contain min-h-screen">
