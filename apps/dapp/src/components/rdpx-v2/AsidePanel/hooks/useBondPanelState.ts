@@ -31,7 +31,7 @@ const useBondPanelState = (props: Props) => {
 
   return useMemo(() => {
     const defaultState = {
-      label: 'Bond',
+      label: 'Bond rtETH',
       handler: () => null,
       header: null,
       body: null,

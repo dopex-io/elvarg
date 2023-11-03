@@ -105,7 +105,7 @@ const TitleBar = () => {
               />
               <Stat name="APR" value={'-'} />
               <Stat
-                name="DPXETH Price"
+                name="rtETH Price"
                 value={`${formatBigint(
                   rdpxV2CoreState.dpxethPriceInEth,
                   DECIMALS_STRIKE,

@@ -3,7 +3,7 @@ export const quickLinks = {
     text: 'What is rDPX v2',
     iconSymbol: '/images/tokens/rdpx.svg',
     url: 'https://docs.google.com/document/d/1005YPC8-tUJhuhzTZK__3KZss0o_-ix4/edit',
-    body: 'rDPX v2 is a system that allows you to mint DPXETH, a yield-bearing synthetic version of ETH.',
+    body: 'rDPX v2 is a system that allows you to mint rtETH, a yield-bearing synthetic version of ETH.',
   },
   etherscan: {
     text: 'Etherscan',

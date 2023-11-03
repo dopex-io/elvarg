@@ -27,7 +27,7 @@ const alerts: Record<string, AlertType> = {
   default: {
     label: 'Delegate',
     header: 'What does delegating do?',
-    body: `Receive 75% share of the Receipt Tokens minted using your collateral plus 
+    body: `Receive 75% share of rtETH minted using your collateral plus 
           an additional fee from the delegatee’s bonding discount.`,
     severity: AlertSeverity.info,
     disabled: true,

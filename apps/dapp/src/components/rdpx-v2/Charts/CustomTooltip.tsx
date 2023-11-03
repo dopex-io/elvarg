@@ -12,8 +12,8 @@ interface Props extends TooltipProps<number, string> {
 
 const TITLE_LABELS: Record<string, string> = {
   rdpxPrices: 'RDPX Price',
-  dscPrices: 'DPXETH Price',
-  dscTotalSupplies: 'DPXETH Supply',
+  dscPrices: 'rtETH Price',
+  dscTotalSupplies: 'rtETH Supply',
   rdpxTotalSupplies: 'RDPX Supply',
 };
 
