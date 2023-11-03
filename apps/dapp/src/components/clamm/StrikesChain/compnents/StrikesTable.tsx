@@ -227,6 +227,7 @@ const StrikesTable = () => {
           index,
         ) => {
           const isSelected = Boolean(selectedStrikes.get(index));
+
           return {
             type,
             strike: {

@@ -233,10 +233,10 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
         <span className="text-stieglitz">
           {isTrade ? 'Total Cost' : 'Total Deposit'}
         </span>{' '}
-        <span>20m</span>
+        <span>-</span>
       </div>
       <div className="text-sm font-medium flex items-center justify-between">
-        <span className="text-stieglitz">Balance</span> <span>20m</span>
+        <span className="text-stieglitz">Balance</span> <span>-</span>
       </div>
       <Button
         onClick={buttonProps?.onClick}

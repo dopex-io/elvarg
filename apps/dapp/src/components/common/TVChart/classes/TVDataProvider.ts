@@ -1,7 +1,9 @@
+import { VARROCK_BASE_API_URL } from 'constants/clamm';
+
 const PRICES_URLS: Record<number, Record<string, string>> = {
   42161: {
-    'ARB/USDC': 'http://localhost:8080/uniswap-prices',
-    'WETH/USDC': 'http://localhost:8080/uniswap-prices',
+    'ARB/USDC': `${VARROCK_BASE_API_URL}/uniswap-prices`,
+    'WETH/USDC': `${VARROCK_BASE_API_URL}/uniswap-prices`,
   },
 };
 
