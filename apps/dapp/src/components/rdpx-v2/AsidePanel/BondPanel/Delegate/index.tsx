@@ -23,7 +23,12 @@ import addresses from 'constants/rdpx/addresses';
 
 import useDelegatePanelState from '../../hooks/useDelegatePanelState';
 import PanelInput from '../Bond/PanelInput';
-import customSliderStyle, { MAX_VAL, MIN_VAL, STEP } from './customSlider';
+import customSliderStyle, {
+  MARKS,
+  MAX_VAL,
+  MIN_VAL,
+  STEP,
+} from './customSlider';
 
 const Delegate = () => {
   const [amount, setAmount] = useState<string>('');
@@ -100,7 +105,7 @@ const Delegate = () => {
           label="Balance"
           symbol="WETH"
         />
-        <div className="flex flex-col bg-umbra p-3 rounded-b-xl space-y-2">
+        <div className="flex flex-col bg-umbra p-3 rounded-b-xl space-y-2 mb-6">
           <div>
             <Typography2 variant="subtitle2" color="stieglitz">
               Delegate Fee
@@ -133,7 +138,8 @@ const Delegate = () => {
             step={STEP}
             min={MIN_VAL}
             max={MAX_VAL}
-            valueLabelDisplay="off"
+            valueLabelDisplay="auto"
+            marks={MARKS}
           />
         </div>
       </div>
