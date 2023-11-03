@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 
 import { NextSeo } from 'next-seo';
 
@@ -17,6 +18,7 @@ import { quickLinks } from 'constants/rdpx';
 import seo from 'constants/seo';
 
 const Main = () => {
+  const router = useRouter();
   const rdpxPageState = useStore((vault) => vault.state);
 
   const renderContent = useMemo(() => {
@@ -35,6 +37,11 @@ const Main = () => {
         return { asidePanel: null, body: null };
     }
   }, [rdpxPageState]);
+
+  // reroute to default page state if slug is empty
+  useEffect(() => {
+    if (router.asPath === '/rdpx-v2') router.push(`/rdpx-v2/${rdpxPageState}`);
+  }, [rdpxPageState, router]);
 
   return (
     <div className="bg-contain min-h-screen">

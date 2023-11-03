@@ -1,4 +1,5 @@
 import { ReactNode, useCallback, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/router';
 import { parseUnits } from 'viem';
 
 import { useAccount } from 'wagmi';
@@ -44,6 +45,7 @@ const Stat = ({
 );
 
 const TitleBar = () => {
+  const router = useRouter();
   const state = useStore((store) => store.state);
   const update = useStore((store) => store.update);
   const { address: _user } = useAccount();
@@ -57,9 +59,10 @@ const TitleBar = () => {
 
   const onClick = useCallback(
     (index: number) => {
+      router.push(`/rdpx-v2/${rdpxV2Actions[index]}`);
       update(rdpxV2Actions[index]);
     },
-    [update],
+    [router, update],
   );
 
   useEffect(() => {
