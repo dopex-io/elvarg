@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
-import { useAccount, useContractWrite } from 'wagmi';
+import { useAccount } from 'wagmi';
+import { writeContract } from 'wagmi/actions';
 
 import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 
@@ -13,8 +14,6 @@ import addresses from 'constants/rdpx/addresses';
 import columns, { RedeemRequestType } from './ColumnDefs/RedeemRequestsColumn';
 
 const RedeemRequests = () => {
-  const [epoch, setEpoch] = useState<bigint>(0n);
-
   const { address: account } = useAccount();
   const {
     updateUserPerpetualVaultData,
@@ -25,12 +24,6 @@ const RedeemRequests = () => {
   } = usePerpPoolData({
     user: account || '0x',
   });
-  const { write: redeem, isSuccess: redeemSuccess } = useContractWrite({
-    abi: PerpVault,
-    address: addresses.perpPool,
-    functionName: 'claim',
-    args: [epoch],
-  });
 
   useEffect(() => {
     updatePerpetualVaultState();
@@ -38,7 +31,23 @@ const RedeemRequests = () => {
 
   useEffect(() => {
     updateUserPerpetualVaultData();
-  }, [updateUserPerpetualVaultData, redeemSuccess]);
+  }, [updateUserPerpetualVaultData]);
+
+  const handleClaim = useCallback(
+    (epoch: bigint) => {
+      const write = async () =>
+        await writeContract({
+          abi: PerpVault,
+          address: addresses.perpPool,
+          functionName: 'claim',
+          args: [epoch],
+        });
+      write()
+        .then(() => updateUserPerpetualVaultData())
+        .catch((e) => console.error(e));
+    },
+    [updateUserPerpetualVaultData],
+  );
 
   const data = useMemo(() => {
     if (
@@ -55,18 +64,15 @@ const RedeemRequests = () => {
           button: {
             disabled: rr.epoch === perpetualVaultState.currentEpoch,
             label: 'Withdraw',
-            handler: () => {
-              setEpoch(rr.epoch);
-              redeem();
-            },
+            handler: () => handleClaim(rr.epoch),
           },
         };
       })
       .sort((prev, curr) => Number(prev.epoch - curr.epoch));
   }, [
-    perpetualVaultState.currentEpoch,
     userPerpetualVaultData.redeemRequests,
-    redeem,
+    perpetualVaultState.currentEpoch,
+    handleClaim,
   ]);
 
   return (
