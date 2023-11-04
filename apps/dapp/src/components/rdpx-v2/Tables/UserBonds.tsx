@@ -1,45 +1,54 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
-import { useAccount, useContractWrite } from 'wagmi';
+import { useAccount, useContractRead, useContractWrite } from 'wagmi';
+import { writeContract } from 'wagmi/actions';
 
-import useTokenData from 'hooks/helpers/useTokenData';
 import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 
 import TableLayout from 'components/common/TableLayout';
 
-import ReceiptToken from 'constants/rdpx/abis/ReceiptToken';
+import RdpxV2Bond from 'constants/rdpx/abis/RdpxV2Bond';
+import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
 import addresses from 'constants/rdpx/addresses';
 
 import columns, { UserBonds as UserBondsType } from './ColumnDefs/BondsColumn';
 
 const UserBonds = () => {
-  const [amount, setAmount] = useState<bigint>(0n);
-
   const { address: account } = useAccount();
   const { updateUserBonds, userBonds, loading } = useRdpxV2CoreData({
     user: account || '0x',
   });
 
-  const { updateBalance, updateAllowance, approved } = useTokenData({
-    amount,
-    spender: addresses.receiptToken,
-    token: addresses.receiptToken,
+  const { data: isApprovedForAll } = useContractRead({
+    abi: RdpxV2Bond,
+    address: addresses.bond,
+    functionName: 'isApprovedForAll',
+    args: [account || '0x', addresses.v2core],
   });
 
   const { write: approve } = useContractWrite({
-    abi: ReceiptToken,
-    address: addresses.receiptToken,
-    functionName: 'approve',
-    args: [addresses.receiptToken, amount],
+    abi: RdpxV2Bond,
+    address: addresses.bond,
+    functionName: 'setApprovalForAll',
+    args: [addresses.v2core, true],
   });
 
-  // todo: incomplete contract implementation
-  const { write: redeem } = useContractWrite({
-    abi: ReceiptToken,
-    address: addresses.receiptToken,
-    functionName: 'redeem',
-    args: [amount],
-  });
+  const handleRedeem = useCallback(
+    async (id: bigint) => {
+      const write = writeContract({
+        abi: RdpxV2Core,
+        address: addresses.v2core,
+        functionName: 'redeemReceiptTokenBonds',
+        args: [id, account || '0x'],
+      });
+      try {
+        await write.then(() => updateUserBonds());
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    [account, updateUserBonds],
+  );
 
   const userRdpxBonds = useMemo(() => {
     if (userBonds.length === 0) return [];
@@ -54,25 +63,16 @@ const UserBonds = () => {
         redeemable,
         timestamp: bond.timestamp,
         button: {
-          label: 'Redeem',
+          label: !!isApprovedForAll ? 'Redeem' : 'Approve',
           id: bond.id,
-          redeemable: false,
+          redeemable,
           handleRedeem: () => {
-            setAmount(bond.amount);
-            approved ? redeem() : approve();
+            !!isApprovedForAll ? handleRedeem(bond.id) : approve();
           },
         },
       };
     });
-  }, [userBonds, approve, approved, redeem]);
-
-  useEffect(() => {
-    updateBalance();
-  }, [updateBalance]);
-
-  useEffect(() => {
-    updateAllowance();
-  }, [updateAllowance]);
+  }, [userBonds, isApprovedForAll, handleRedeem, approve]);
 
   useEffect(() => {
     updateUserBonds();

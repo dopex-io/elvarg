@@ -1,4 +1,4 @@
-// includes only functions used
+// includes functions used
 // functionName: 'bond'
 // functionName: 'bondWithDelegate'
 // functionName: 'addToDelegate'
@@ -12,6 +12,7 @@
 // functionName: 'bonds'
 // functionName: 'getDelegatesLength'
 // functionName: 'delegates'
+// functionName: 'redeemReceiptTokenBonds'
 
 const RdpxV2Core = [
   {
@@ -306,6 +307,30 @@ const RdpxV2Core = [
       },
     ],
     stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+    ],
+    name: 'redeemReceiptTokenBonds',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'receiptTokenAmount',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
 ] as const;
