@@ -46,7 +46,7 @@ const AsidePanel = () => {
   }, [updateTokenBalances]);
 
   return (
-    <div className="w-full bg-cod-gray p-[12px] rounded-lg space-y-[4px]">
+    <div className="w-full bg-cod-gray p-[12px] rounded-lg space-y-[4px] sticky top-0">
       <TradeSideSelector />
       {isTrade && <TTLSelector />}
       <StrikesSection />
