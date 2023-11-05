@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { formatUnits } from 'viem';
 
-import { Disclosure } from '@dopex-io/ui';
+import { Disclosure, Transition } from '@dopex-io/ui';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import cx from 'classnames';
 
@@ -116,23 +116,34 @@ const CostSummary = () => {
                 />
               </div>
             </Disclosure.Button>
-            <Disclosure.Panel className="w-full h-fit p-[12px] flex flex-col space-y-[12px] items-center justify-center">
-              {totalItems.map(({ strike, tokenAmount, tokenSymbol }, index) => (
-                <div
-                  key={index}
-                  className="w-full flex items-center justify-between"
-                >
-                  <span className="text-[13px] flex items-center justify-center space-x-[2px]">
-                    <span className="text-stieglitz">$</span>
-                    <span>{strike}</span>
-                  </span>
-                  <span className="text-[13px] flex items-center justify-center space-x-[4px]">
-                    <span>{tokenAmount}</span>
-                    <span className="text-stieglitz">{tokenSymbol}</span>
-                  </span>
-                </div>
-              ))}
-            </Disclosure.Panel>
+            <Transition
+              enter="transition duration-100 ease-out"
+              enterFrom="transform scale-95 opacity-0"
+              enterTo="transform scale-100 opacity-100"
+              leave="transition duration-75 ease-out"
+              leaveFrom="transform scale-100 opacity-100"
+              leaveTo="transform scale-95 opacity-0"
+            >
+              <Disclosure.Panel className="w-full h-fit p-[12px] flex flex-col space-y-[12px] items-center justify-center">
+                {totalItems.map(
+                  ({ strike, tokenAmount, tokenSymbol }, index) => (
+                    <div
+                      key={index}
+                      className="w-full flex items-center justify-between"
+                    >
+                      <span className="text-[13px] flex items-center justify-center space-x-[2px]">
+                        <span className="text-stieglitz">$</span>
+                        <span>{strike}</span>
+                      </span>
+                      <span className="text-[13px] flex items-center justify-center space-x-[4px]">
+                        <span>{tokenAmount}</span>
+                        <span className="text-stieglitz">{tokenSymbol}</span>
+                      </span>
+                    </div>
+                  ),
+                )}
+              </Disclosure.Panel>
+            </Transition>
           </>
         )}
       </Disclosure>

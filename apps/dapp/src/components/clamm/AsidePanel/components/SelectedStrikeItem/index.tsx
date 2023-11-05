@@ -13,6 +13,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/solid';
 import axios from 'axios';
+import { useDebounce } from 'use-debounce';
 import { useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
@@ -45,7 +46,8 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
     useClammTransactionsStore();
   const [premium, setPremium] = useState(0n);
   const { chain } = useNetwork();
-  const [inputAmount, setInputAmount] = useState<number | string>('');
+  const [inputAmount, setInputAmount] = useState<number | string>('0');
+  const [amountDebounced] = useDebounce(inputAmount, 1500);
 
   const tokenDecimals = useMemo(() => {
     if (!selectedOptionsPool)
@@ -80,7 +82,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
     const decimalsInContext = isCall ? callToken.decimals : putToken.decimals;
     const totalPremium =
       (BigInt(amountInToken) *
-        parseUnits(Number(inputAmount).toString(), decimalsInContext)) /
+        parseUnits(Number(amountDebounced).toString(), decimalsInContext)) /
       parseUnits('1', decimalsInContext);
 
     setPremium(BigInt(totalPremium));
@@ -90,7 +92,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
     selectedOptionsPool,
     strikeData,
     selectedTTL,
-    inputAmount,
+    amountDebounced,
   ]);
 
   const updateDepositTransaction = useCallback(async () => {
@@ -99,7 +101,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
     const { callToken, putToken } = selectedOptionsPool;
     const { isCall, meta } = strikeData;
     const depositAmount = parseUnits(
-      Number(inputAmount).toString(),
+      Number(amountDebounced).toString(),
       isCall ? tokenDecimals.callToken : tokenDecimals.putToken,
     );
     if (depositAmount === 0n) return;
@@ -137,7 +139,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
     setDeposit,
     strikeIndex,
     chain,
-    inputAmount,
+    amountDebounced,
     isTrade,
     selectedOptionsPool,
     strikeData,
@@ -146,7 +148,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
   const updatePurchases = useCallback(() => {
     if (!isTrade || !chain || !selectedOptionsPool) return;
 
-    if (Number(inputAmount) > strikeData.amount1) {
+    if (Number(amountDebounced) > strikeData.amount1) {
       return;
     }
 
@@ -171,7 +173,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
     const tokenAddressInContext = isCall ? callToken.address : putToken.address;
 
     const optionsAmount = parseUnits(
-      Number(inputAmount).toString(),
+      Number(amountDebounced).toString(),
       decimalsInContext,
     );
 
@@ -240,7 +242,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
     setPurchase,
     strikeIndex,
     chain,
-    inputAmount,
+    amountDebounced,
     isTrade,
     selectedOptionsPool,
     strikeData,
@@ -321,7 +323,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
           type="number"
           min="0"
           placeholder="0.0"
-          className="w-full text-left text-white bg-umbra focus:outline-none focus:border-mineshaft rounded-md"
+          className="w-full text-[13px] text-left text-white bg-umbra focus:outline-none focus:border-mineshaft rounded-md"
         />
         <img
           onClick={handleMax}

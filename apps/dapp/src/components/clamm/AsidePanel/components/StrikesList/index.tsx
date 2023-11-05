@@ -66,7 +66,7 @@ const StrikesList = () => {
   }, [strikesChain, isTrade, generatedStrikes]);
 
   return (
-    <div className="w-full">
+    <div className="w-full z-20">
       <Listbox
         value={strikesInContext[Math.floor(strikesInContext.length - 1)]}
         onChange={({ key, strikeData }: { key: number; strikeData: any }) => {
