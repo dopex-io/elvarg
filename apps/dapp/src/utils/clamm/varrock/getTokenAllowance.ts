@@ -2,7 +2,7 @@ import { Address } from 'viem';
 
 import axios from 'axios';
 
-import { VARROCK_BASE_API_URL } from 'constants/clamm';
+import { VARROCK_BASE_API_URL } from 'constants/env';
 
 async function getTokenAllowance(
   chainId: number,

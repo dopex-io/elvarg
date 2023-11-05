@@ -31,7 +31,8 @@ import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
 import getPremium from 'utils/clamm/varrock/getPremium';
 import { formatAmount } from 'utils/general';
 
-import { optionPoolsAbi, VARROCK_BASE_API_URL } from 'constants/clamm';
+import { optionPoolsAbi } from 'constants/clamm';
+import { VARROCK_BASE_API_URL } from 'constants/env';
 
 type Props = {
   key: number;

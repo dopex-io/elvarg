@@ -19,7 +19,6 @@ export const EXPIRIES_TO_KEY: { [key: number]: string } = {
 export const EXPIRIES_MENU = Object.keys(EXPIRIES);
 export const EXPIRIES_BY_INDEX = Object.values(EXPIRIES);
 
-export const VARROCK_BASE_API_URL = 'https://varrock-production.up.railway.app';
 export const MULTI_CALL_FN_SIG =
   'function multicall(bytes[] calldata data) external returns (bytes[] memory results)';
 

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { VARROCK_BASE_API_URL } from 'constants/clamm';
+import { VARROCK_BASE_API_URL } from 'constants/env';
 
 async function getStrikesChain(
   chainId: number,

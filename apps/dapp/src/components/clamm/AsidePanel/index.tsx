@@ -5,7 +5,7 @@ import { useAccount } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 
-import { VARROCK_BASE_API_URL } from 'constants/clamm';
+import { VARROCK_BASE_API_URL } from 'constants/env';
 
 import InfoPanel from './components/InfoPanel';
 import StrikesSection from './components/StrikesSection';

@@ -1,4 +1,4 @@
-import { VARROCK_BASE_API_URL } from 'constants/clamm';
+import { VARROCK_BASE_API_URL } from 'constants/env';
 
 const PRICES_URLS: Record<number, Record<string, string>> = {
   42161: {
