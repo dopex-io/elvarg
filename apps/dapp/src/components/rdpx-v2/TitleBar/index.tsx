@@ -70,21 +70,20 @@ const TitleBar = () => {
   }, [updateRdpxV2CoreState]);
 
   useEffect(() => {
-    updatePerpetualVaultState();
-  }, [updatePerpetualVaultState]);
+    if (rdpxV2CoreState.discount > 0n) updatePerpetualVaultState();
+  }, [rdpxV2CoreState.discount, updatePerpetualVaultState]);
 
   const memoizedLpTvl = useMemo(() => {
     return (
-      (perpetualVaultState.totalLpShares * parseUnits('1', DECIMALS_TOKEN)) /
-        (perpetualVaultState.oneLpShare[0] || 1n) /
-        parseUnits('1', DECIMALS_TOKEN) +
       (perpetualVaultState.totalLpShares * rdpxV2CoreState.rdpxPriceInEth) /
-        (perpetualVaultState.oneLpShare[1] || 1n) /
-        parseUnits('1', DECIMALS_TOKEN * 2)
+        (perpetualVaultState.oneLpShare[1] || 1n) +
+      (perpetualVaultState.totalLpShares * rdpxV2CoreState.ethPrice) /
+        (perpetualVaultState.oneLpShare[0] || 1n)
     );
   }, [
     perpetualVaultState.oneLpShare,
     perpetualVaultState.totalLpShares,
+    rdpxV2CoreState.ethPrice,
     rdpxV2CoreState.rdpxPriceInEth,
   ]);
 
@@ -145,7 +144,10 @@ const TitleBar = () => {
               />
               <Stat
                 name="TVL"
-                value={`${formatBigint(memoizedLpTvl, 0)} WETH`}
+                value={`${formatBigint(
+                  memoizedLpTvl,
+                  DECIMALS_STRIKE + DECIMALS_TOKEN,
+                )} WETH`}
               />
             </div>
           ),

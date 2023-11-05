@@ -3,9 +3,8 @@ import { useCallback, useState } from 'react';
 import ButtonGroup from '@mui/material/ButtonGroup';
 
 import Stake from 'components/rdpx-v2/AsidePanel/StakePanel/Stake';
+import Unstake from 'components/rdpx-v2/AsidePanel/StakePanel/Unstake';
 import Typography2 from 'components/UI/Typography2';
-
-import Unstake from './Unstake';
 
 const BUTTON_LABELS = ['Stake', 'Unstake'] as const;
 

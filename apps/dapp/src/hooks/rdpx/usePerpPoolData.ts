@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { Address, parseUnits } from 'viem';
 
 import request from 'graphql-request';
+// todo: replace readContracts with multicall on mainnet
 import { multicall, readContract, readContracts } from 'wagmi/actions';
 
 import queryClient from 'queryClient';
@@ -141,7 +142,7 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
         {
           ...lpConfig,
           functionName: 'redeemPreview',
-          args: [parseUnits('10', DECIMALS_TOKEN)],
+          args: [parseUnits('1', DECIMALS_TOKEN)],
         },
       ],
     });
@@ -265,7 +266,8 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
     }
 
     const shareComposition = vaultState.oneLpShare.map(
-      (tokenShare) => (tokenShare * userLpShares) / parseUnits('10', 18),
+      (tokenShare) =>
+        (tokenShare * userLpShares) / parseUnits('1', DECIMALS_TOKEN),
     ) as [bigint, bigint];
 
     const data = await queryClient
