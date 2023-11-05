@@ -9,11 +9,12 @@ const StrikesSection = () => {
   const { selectedStrikes } = useStrikesChainStore();
 
   return (
-    <div className="bg-umbra rounded-b-lg w-full flex flex-col">
-      <span className="text-stieglitz px-[12px] pt-[12px] font-medium">
-        Options
+    <div className="bg-umbra rounded-b-lg w-full flex flex-col space-y-[10px]">
+      <span className="flex w-full items-center justify-between text-stieglitz px-[12px] pt-[12px] font-medium text-[13px]">
+        <span>Strikes</span>
+        <span>Amount</span>
       </span>
-      <div className="flex flex-col w-full space-y-[8px] divide-y-4 divide-cod-gray">
+      <div className="flex flex-col w-full space-y-[10px] px-[12px]">
         {Array.from(selectedStrikes).map(([strikeIndex, strikeData], index) => (
           <SelectedStrikeItem
             key={index}

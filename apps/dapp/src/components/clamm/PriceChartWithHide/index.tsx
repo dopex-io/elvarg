@@ -27,8 +27,12 @@ const PriceChartWithHide = () => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col rounded-lg py-1 bg-cod-gray">
-      {!hideChart && <TVChart />}
+    <div className="w-full h-full flex flex-col rounded-lg py-1 bg-cod-gray ">
+      {!hideChart && (
+        <div className="h-[30rem] rounded">
+          <TVChart />{' '}
+        </div>
+      )}
       <div
         role="button"
         onClick={handleToggle}

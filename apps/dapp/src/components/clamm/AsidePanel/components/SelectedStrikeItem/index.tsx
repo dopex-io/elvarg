@@ -1,16 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  Address,
-  encodeFunctionData,
-  formatUnits,
-  hexToBigInt,
-  parseUnits,
-} from 'viem';
+import { Address, encodeFunctionData, hexToBigInt, parseUnits } from 'viem';
 
 import {
   ArrowDownRightIcon,
   ArrowUpRightIcon,
-  ExclamationCircleIcon,
   XMarkIcon,
 } from '@heroicons/react/24/solid';
 import axios from 'axios';
@@ -259,133 +252,44 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
   }, [updatePurchases]);
 
   return (
-    <div className="w-full h-full flex-col items-center justify-center">
-      <div className="w-full relative space-y-[4px] px-[10px]">
-        <div className="flex items-center justify-end space-x-[4px] p-[4px]">
-          {/* <CalculatorIcon
-            role="button"
-            className="text-stieglitz ml-[2px]rounded-full w-[14px] h-[14px]"
-          /> */}
-          <XMarkIcon
-            onClick={() => {
-              deselectStrike(strikeIndex);
-              unsetDeposit(strikeIndex);
-              unsetPurchase(strikeIndex);
-            }}
-            role="button"
-            className="text-stieglitz hover:text-white ml-[2px]rounded-full w-[14px] h-[14px]"
+    <div className="w-full flex items-center h-[30px] space-x-[10px]">
+      <XMarkIcon
+        onClick={() => {
+          deselectStrike(strikeIndex);
+          unsetDeposit(strikeIndex);
+          unsetPurchase(strikeIndex);
+        }}
+        role="button"
+        className="text-stieglitz hover:text-white rounded-full w-[18px] h-[18px] flex-[0.075]"
+      />
+      <div className="w-[34px] h-[30px] flex items-center justify-center bg-carbon rounded-md flex-[0.125]">
+        {strikeData.isCall ? (
+          <ArrowUpRightIcon
+            className={'h-[18px] w-[18px] p-[2px] text-up-only'}
           />
-        </div>
-        <div className="w-full h-full flex items-center justify-center bg-cod-gray space-x-[4px] border border-umbra rounded-lg py-[4px]">
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="p-[6px]">
-              <div className="flex flex-col bg-mineshaft w-[100px] rounded-md py-[4px] px-[8px]">
-                <span className="text-xs text-stieglitz flex items-center justify-start space-x-[4px]">
-                  <span className="font-medium">{`${
-                    strikeData.isCall ? 'Call' : 'Put'
-                  } Strike`}</span>
-                  {strikeData.isCall ? (
-                    <ArrowUpRightIcon
-                      className={'h-[12px] w-[12px] text-up-only'}
-                    />
-                  ) : (
-                    <ArrowDownRightIcon
-                      className={'h-[12px] w-[12px] text-down-bad'}
-                    />
-                  )}
-                </span>
-                <div className="flex items-center justify-start space-x-[3px]">
-                  <span className="text-stieglitz text-sm">$</span>
-                  <span className="text-sm">
-                    {Number(strikeData.strike ?? 0).toFixed(4)}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="w-full flex flex-col items-end p-[4px]">
-              <input
-                onChange={(event: any) => {
-                  setInputAmount(event.target.value);
-                }}
-                value={inputAmount}
-                type="number"
-                min="0"
-                placeholder="0.0"
-                className="w-full text-right text-white bg-cod-gray focus:outline-none focus:border-mineshaft rounded-md py-[4px] "
-              />
-              <div className="flex items-center justify-center space-x-[4px] ">
-                <span className="text-[10px] text-stieglitz">
-                  Balance: {'      '}
-                  {!isTrade
-                    ? formatAmount(
-                        formatUnits(
-                          strikeData.isCall
-                            ? tokenBalances.callToken
-                            : tokenBalances.putToken,
-                          strikeData.isCall
-                            ? tokenDecimals.callToken
-                            : tokenDecimals.putToken,
-                        ),
-                        5,
-                      )
-                    : 0}
-                </span>
-                <img
-                  onClick={() => {
-                    const balance = strikeData.isCall
-                      ? tokenBalances.callToken
-                      : tokenBalances.putToken;
-                    setInputAmount(
-                      formatUnits(
-                        balance,
-                        strikeData.isCall
-                          ? tokenDecimals.callToken
-                          : tokenDecimals.putToken,
-                      ),
-                    );
-                  }}
-                  role="button"
-                  src="/assets/max.svg"
-                  className="hover:bg-silver rounded-[4px] h-[14px]"
-                  alt="max"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="flex flex-col w-full px-[6px] py-[4px] space-y-[4px]">
-          {isTrade && (
-            <div className="w-full flex items-center justify-between text-xs">
-              <span className="text-stieglitz font-normal">Premium</span>
-              <div className="flex space-x-[4px]">
-                <span className="font-normal">
-                  {formatAmount(
-                    Number(
-                      formatUnits(
-                        premium,
-                        strikeData.isCall
-                          ? tokenDecimals.callToken
-                          : tokenDecimals.putToken,
-                      ),
-                    ),
-                    5,
-                  )}
-                </span>
-                <span className="text-stieglitz font-normal">
-                  {strikeData.tokenSymbol}
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
+        ) : (
+          <ArrowDownRightIcon
+            className={'h-[18px] w-[18px] p-[2px] text-down-bad'}
+          />
+        )}
       </div>
-      <div className="w-full flex items-center justify-between px-[12px] py-[6px]">
-        <div className="flex items-center justify-center space-x-[4px]">
-          {Boolean(statusMessage) && (
-            <ExclamationCircleIcon className="text-jaffa ml-[4px] rounded-full w-[14px] h-[14px]" />
-          )}
-          <span className="text-xs">{statusMessage}</span>
-        </div>
+      <div className="flex items-center justify-center space-x-[4px] bg-mineshaft h-[30px] w-[100px] rounded-md flex-[0.375]">
+        <span className="text-stieglitz text-[13px]">$</span>
+        <span className="text-[13px]">
+          {Number(strikeData.strike ?? 0).toFixed(4)}
+        </span>
+      </div>
+      <div className="h-[30px] w-[160px] p-[8px] flex items-center justfiy-center border border-mineshaft rounded-md flex-[0.425]">
+        <input
+          onChange={(event: any) => {
+            setInputAmount(event.target.value);
+          }}
+          value={inputAmount}
+          type="number"
+          min="0"
+          placeholder="0.0"
+          className="w-full text-left text-white bg-umbra focus:outline-none focus:border-mineshaft rounded-md"
+        />
       </div>
     </div>
   );

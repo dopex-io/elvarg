@@ -111,12 +111,12 @@ const StrikesList = () => {
           }
         }}
       >
-        <div className="relative w-full px-[12px] pb-[12px] py-[4px] flex  justify-center">
-          <Listbox.Button className="bg-mineshaft text-white w-[90%] text-[14px]font-medium flex items-center justify-center space-x-[8px] rounded-md px-[4px] py-[6px]">
+        <div className="relative w-full px-[12px] pb-[12px] flex  justify-center">
+          <Listbox.Button className="bg-mineshaft text-white w-full text-[14px] font-medium flex items-center justify-center space-x-[8px] rounded-md px-[4px] py-[6px]">
             <span>{selectedStrikes.size} Selected</span>
             <ChevronDownIcon className="w-[18px] h-[18px] pt-[3px]" />
           </Listbox.Button>
-          <Listbox.Options className="absolute flex flex-col w-[90%] max-h-[240px] rounded-md overflow-y-scroll mt-1 border border-umbra drop-shadow-md divide-y-[0.1px] divide-carbon">
+          <Listbox.Options className="absolute flex flex-col w-full max-h-[240px] rounded-md overflow-y-scroll mt-1 border border-umbra drop-shadow-md divide-y-[0.1px] divide-carbon">
             {strikesInContext.map((strikeData: any, index: number) => (
               <Listbox.Option
                 className="bg-mineshaft hover:cursor-pointer hover:bg-carbon z-10 py-[8px]"
