@@ -16,7 +16,7 @@ const TTLSelector = () => {
 
   return (
     <div className="bg-umbra w-full p-[12px] rounded-t-lg space-y-[12px]">
-      <span className="text-stieglitz font-medium">Expiry</span>
+      <span className="text-stieglitz text-[13px] font-medium">Expiry</span>
       <div className="bg-mineshaft w-full h-[30px] rounded-md flex items-center justify-center p-[3px] space-x-[4px]">
         {ttls.map((ttl, index) => (
           <div

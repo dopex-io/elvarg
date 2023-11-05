@@ -16,6 +16,7 @@ import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
 import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 
 import getTokenAllowance from 'utils/clamm/varrock/getTokenAllowance';
+import { formatAmount } from 'utils/general';
 
 import { MULTI_CALL_FN_SIG } from 'constants/clamm';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
@@ -24,7 +25,7 @@ type Props = {
   updateTokenBalances: () => Promise<void>;
 };
 const InfoPanel = ({ updateTokenBalances }: Props) => {
-  const { isTrade, selectedOptionsPool } = useClammStore();
+  const { isTrade, selectedOptionsPool, tokenBalances } = useClammStore();
   const { selectedStrikes, setSelectedStrikesError } = useStrikesChainStore();
   const { deposits, purchases } = useClammTransactionsStore();
   const { chain } = useNetwork();
@@ -228,15 +229,27 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
   }, [checkApproved, deposits]);
 
   return (
-    <div className="flex flex-col bg-umbra p-[12px] rounded-lg w-full space-y-[12px]">
-      <div className="text-sm font-medium flex items-center justify-between">
-        <span className="text-stieglitz">
-          {isTrade ? 'Total Cost' : 'Total Deposit'}
-        </span>{' '}
-        <span>-</span>
-      </div>
-      <div className="text-sm font-medium flex items-center justify-between">
-        <span className="text-stieglitz">Balance</span> <span>-</span>
+    <div className="flex flex-col bg-umbra p-[12px] rounded-b-lg w-full space-y-[12px]">
+      <div className="text-[13px] font-medium flex items-center justify-between">
+        <span className="text-stieglitz">Balance</span>
+        <span className="flex items-center justify-center space-x-[8px]">
+          <span className="text-[13px] flex items-center justify-center space-x-[4px]">
+            <span className="text-white">
+              {formatAmount(tokenBalances.readableCallToken, 5)}
+            </span>
+            <span className="text-stieglitz">
+              {tokenBalances.callTokenSymbol}
+            </span>
+          </span>{' '}
+          <span className="text-[13px] flex items-center justify-center space-x-[4px]">
+            <span className="text-white">
+              {formatAmount(tokenBalances.readablePutToken, 5)}
+            </span>
+            <span className="text-stieglitz">
+              {tokenBalances.putTokenSymbol}
+            </span>
+          </span>
+        </span>
       </div>
       <Button
         onClick={buttonProps?.onClick}

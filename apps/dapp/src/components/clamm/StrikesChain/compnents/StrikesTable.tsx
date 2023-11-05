@@ -238,7 +238,7 @@ const StrikesTable = () => {
                   ? deselectStrike(index)
                   : selectStrike(index, {
                       amount0: 0,
-                      amount1: 0,
+                      amount1: optionsAvailable,
                       isCall: type === 'call' ? true : false,
                       strike: strike,
                       ttl: '24h',
@@ -262,7 +262,7 @@ const StrikesTable = () => {
                   ? deselectStrike(index)
                   : selectStrike(index, {
                       amount0: 0,
-                      amount1: 0,
+                      amount1: optionsAvailable,
                       isCall: type === 'call' ? true : false,
                       strike: strike,
                       ttl: '24h',

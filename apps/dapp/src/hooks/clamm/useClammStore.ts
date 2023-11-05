@@ -1,7 +1,8 @@
 import { Address } from 'viem';
 
-import { OptionsPoolsAPIResponse } from 'pages/v2/clamm/utils/varrock/getOptionsPools';
 import { create } from 'zustand';
+
+import { OptionsPoolsAPIResponse } from 'utils/clamm/varrock/getOptionsPools';
 
 export type OptionsPool = {
   pairName: string;
@@ -26,6 +27,10 @@ export type OptionsPool = {
 type TokenBalances = {
   callToken: bigint;
   putToken: bigint;
+  callTokenSymbol: string;
+  putTokenSymbol: string;
+  readableCallToken: string;
+  readablePutToken: string;
 };
 
 type ClammStore = {
@@ -62,6 +67,10 @@ const useClammStore = create<ClammStore>((set, get) => ({
   tokenBalances: {
     callToken: 0n,
     putToken: 0n,
+    callTokenSymbol: '-',
+    putTokenSymbol: '-',
+    readableCallToken: '0',
+    readablePutToken: '0',
   },
   setTokenBalances: (tokenBalances: TokenBalances) => {
     set((prev) => ({

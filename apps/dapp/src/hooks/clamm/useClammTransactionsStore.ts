@@ -2,19 +2,23 @@ import { Address, Hex } from 'viem';
 
 import { create } from 'zustand';
 
-type DepositTransaction = {
+export type DepositTransaction = {
+  strike: number;
   tokenAddress: Address;
   positionManager: Address;
   tokenSymbol: string;
   amount: bigint;
+  tokenDecimals: number;
   txData: Hex;
 };
 
-type PurchaseTransaction = {
+export type PurchaseTransaction = {
+  strike: number;
   tokenAddress: Address;
   optionsPool: Address;
   premium: bigint;
   tokenSymbol: string;
+  tokenDecimals: number;
   txData: Hex;
 };
 
@@ -25,11 +29,25 @@ type ClammTransactionsStore = {
   purchases: Map<number, PurchaseTransaction>;
   setPurchase: (key: number, tx: PurchaseTransaction) => void;
   unsetPurchase: (key: number) => void;
+  resetPurchases: () => void;
+  resetDeposits: () => void;
 };
 const useClammTransactionsStore = create<ClammTransactionsStore>(
   (set, get) => ({
     deposits: new Map(),
     purchases: new Map(),
+    resetPurchases() {
+      set((prev) => ({
+        ...prev,
+        purchases: new Map(),
+      }));
+    },
+    resetDeposits() {
+      set((prev) => ({
+        ...prev,
+        deposits: new Map(),
+      }));
+    },
     setPurchase(key, tx) {
       const { purchases } = get();
       purchases.set(key, tx);

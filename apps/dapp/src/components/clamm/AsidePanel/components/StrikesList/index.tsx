@@ -71,11 +71,10 @@ const StrikesList = () => {
         value={strikesInContext[Math.floor(strikesInContext.length - 1)]}
         onChange={({ key, strikeData }: { key: number; strikeData: any }) => {
           const isCall = strikeData.type === 'call' ? true : false;
-
           if (isTrade) {
             selectStrike(key, {
               amount0: 0,
-              amount1: 0,
+              amount1: strikeData.optionsAvailable,
               isCall: isCall,
               strike: strikeData.strike,
               tokenDecimals: strikeData.tokenDecimals,

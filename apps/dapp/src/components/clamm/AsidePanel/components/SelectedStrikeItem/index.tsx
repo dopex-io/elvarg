@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Address, encodeFunctionData, hexToBigInt, parseUnits } from 'viem';
+import {
+  Address,
+  encodeFunctionData,
+  formatUnits,
+  hexToBigInt,
+  parseUnits,
+} from 'viem';
 
 import {
   ArrowDownRightIcon,
@@ -7,7 +13,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/solid';
 import axios from 'axios';
-import { useAccount, useNetwork } from 'wagmi';
+import { useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
@@ -22,7 +28,6 @@ import {
 } from 'utils/clamm/liquidityAmountMath';
 import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
 import getPremium from 'utils/clamm/varrock/getPremium';
-import { formatAmount } from 'utils/general';
 
 import { optionPoolsAbi } from 'constants/clamm';
 import { VARROCK_BASE_API_URL } from 'constants/env';
@@ -34,14 +39,13 @@ type Props = {
 };
 const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
   const { deselectStrike } = useStrikesChainStore();
-  const { isTrade, selectedOptionsPool, tokenBalances, selectedTTL } =
+  const { isTrade, selectedOptionsPool, selectedTTL, tokenBalances } =
     useClammStore();
   const { setDeposit, unsetDeposit, setPurchase, unsetPurchase } =
     useClammTransactionsStore();
   const [premium, setPremium] = useState(0n);
   const { chain } = useNetwork();
   const [inputAmount, setInputAmount] = useState<number | string>('');
-  const { address: userAddress } = useAccount();
 
   const tokenDecimals = useMemo(() => {
     if (!selectedOptionsPool)
@@ -60,6 +64,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
     if (!selectedOptionsPool || !chain || !isTrade) return;
     const { isCall, meta } = strikeData;
     const { callToken, putToken } = selectedOptionsPool;
+
     const tick = isCall ? meta.tickUpper : meta.tickLower;
     const ttl = selectedTTL;
     const { amountInToken } = await getPremium(
@@ -90,6 +95,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
 
   const updateDepositTransaction = useCallback(async () => {
     if (isTrade || !chain || !selectedOptionsPool) return;
+
     const { callToken, putToken } = selectedOptionsPool;
     const { isCall, meta } = strikeData;
     const depositAmount = parseUnits(
@@ -97,6 +103,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
       isCall ? tokenDecimals.callToken : tokenDecimals.putToken,
     );
     if (depositAmount === 0n) return;
+
     axios
       .get(`${VARROCK_BASE_API_URL}/clamm/deposit`, {
         params: {
@@ -113,15 +120,20 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
       .then(({ data }) => {
         if (data) {
           setDeposit(strikeIndex, {
+            strike: strikeData.strike,
             amount: depositAmount,
             tokenSymbol: data.tokenSymbol,
             tokenAddress: data.tokenAddress,
             positionManager: '0x672436dB2468D9B736f4Ec8300CAc3532303f88b',
             txData: data.txData,
+            tokenDecimals: isCall
+              ? tokenDecimals.callToken
+              : tokenDecimals.putToken,
           });
         }
       });
   }, [
+    tokenDecimals,
     setDeposit,
     strikeIndex,
     chain,
@@ -129,20 +141,15 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
     isTrade,
     selectedOptionsPool,
     strikeData,
-    tokenDecimals.callToken,
-    tokenDecimals.putToken,
   ]);
-
-  const statusMessage = useMemo(() => {
-    if (isTrade && Number(inputAmount) !== 0 && premium === 0n) {
-      return 'Premium is zero. Try a later expiry';
-    }
-
-    return '';
-  }, [premium, isTrade, inputAmount]);
 
   const updatePurchases = useCallback(() => {
     if (!isTrade || !chain || !selectedOptionsPool) return;
+
+    if (Number(inputAmount) > strikeData.amount1) {
+      return;
+    }
+
     const { callToken, putToken, optionsPoolAddress } = selectedOptionsPool;
     const { isCall, meta } = strikeData;
     const { tickLower, tickUpper } = meta;
@@ -221,11 +228,13 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
     });
 
     setPurchase(strikeIndex, {
+      strike: strikeData.strike,
       premium: totalPremium,
       optionsPool: optionsPoolAddress,
       txData,
       tokenSymbol: symbolInContext,
       tokenAddress: tokenAddressInContext,
+      tokenDecimals: decimalsInContext,
     });
   }, [
     setPurchase,
@@ -237,6 +246,30 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
     strikeData,
     premium,
     selectedTTL,
+  ]);
+
+  const handleMax = useCallback(() => {
+    if (isTrade) {
+      setInputAmount(strikeData.amount1 * 0.9999);
+    } else {
+      const balance = strikeData.isCall
+        ? tokenBalances.callToken
+        : tokenBalances.putToken;
+      setInputAmount(
+        formatUnits(
+          balance,
+          strikeData.isCall ? tokenDecimals.callToken : tokenDecimals.putToken,
+        ),
+      );
+    }
+  }, [
+    isTrade,
+    strikeData.isCall,
+    strikeData.amount1,
+    tokenBalances.callToken,
+    tokenBalances.putToken,
+    tokenDecimals.callToken,
+    tokenDecimals.putToken,
   ]);
 
   useEffect(() => {
@@ -289,6 +322,13 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
           min="0"
           placeholder="0.0"
           className="w-full text-left text-white bg-umbra focus:outline-none focus:border-mineshaft rounded-md"
+        />
+        <img
+          onClick={handleMax}
+          role="button"
+          src="/assets/max.svg"
+          className="hover:bg-silver rounded-[4px] h-[14px]"
+          alt="max"
         />
       </div>
     </div>

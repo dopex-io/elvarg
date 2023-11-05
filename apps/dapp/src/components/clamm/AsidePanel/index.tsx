@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { formatUnits } from 'viem';
 
 import axios from 'axios';
 import { useAccount } from 'wagmi';
@@ -7,6 +8,7 @@ import useClammStore from 'hooks/clamm/useClammStore';
 
 import { VARROCK_BASE_API_URL } from 'constants/env';
 
+import CostSummary from './components/CostSummary';
 import InfoPanel from './components/InfoPanel';
 import StrikesSection from './components/StrikesSection';
 import TradeSideSelector from './components/TradeSideSelector';
@@ -35,9 +37,21 @@ const AsidePanel = () => {
       }),
     ]);
 
+    const callTokenBalance = balances[0].data
+      ? BigInt(balances[0].data.balance)
+      : 0n;
+    const putTokenBalance = balances[1].data
+      ? BigInt(balances[1].data.balance)
+      : 0n;
+    const readableCallToken = formatUnits(callTokenBalance, callToken.decimals);
+    const readablePutToken = formatUnits(putTokenBalance, putToken.decimals);
     setTokenBalances({
-      callToken: balances[0].data ? BigInt(balances[0].data.balance) : 0n,
-      putToken: balances[1].data ? BigInt(balances[1].data.balance) : 0n,
+      callToken: callTokenBalance,
+      putToken: putTokenBalance,
+      readableCallToken,
+      readablePutToken,
+      callTokenSymbol: callToken.symbol,
+      putTokenSymbol: putToken.symbol,
     });
   }, [selectedOptionsPool, userAddress, setTokenBalances]);
 
@@ -50,6 +64,7 @@ const AsidePanel = () => {
       <TradeSideSelector />
       {isTrade && <TTLSelector />}
       <StrikesSection />
+      <CostSummary />
       <InfoPanel updateTokenBalances={updateTokenBalances} />
     </div>
   );
