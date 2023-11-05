@@ -2,14 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { format } from 'date-fns';
 import request from 'graphql-request';
-import {
-  Area,
-  AreaChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 
 import queryClient from 'queryClient';
 
@@ -19,15 +12,13 @@ import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { DOPEX_RDPX_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
-import CustomTooltip from './CustomTooltip';
-
 interface LiquidityLineChartProps {
   data: any[];
   width: number;
   height: number;
 }
 
-const PriceChart = (props: LiquidityLineChartProps) => {
+const RewardsChart = (props: LiquidityLineChartProps) => {
   const { height, width } = props;
 
   const [data, setData] = useState<
@@ -68,35 +59,23 @@ const PriceChart = (props: LiquidityLineChartProps) => {
 
   return (
     <div className="relative h-full">
-      <h6 className="absolute top-3 left-3 text-xs text-stieglitz align-center">
-        rtETH Supply
+      <h6 className="absolute z-10 text-xs text-stieglitz align-center">
+        Rewards History
       </h6>
-      <ResponsiveContainer width="100%" height={height} className="top-6">
+      <ResponsiveContainer width="100%" height={height} className="top-0">
         <AreaChart
           width={500}
           height={400}
           data={data}
           margin={{
             top: 0,
-            right: 10,
-            left: 10,
+            right: 0,
+            left: 0,
             bottom: 0,
           }}
         >
           <XAxis dataKey="time" hide />
           <YAxis hide />
-          <Tooltip
-            contentStyle={{
-              borderColor: '#2D2D2D',
-              backgroundColor: '#2D2D2D',
-              color: '#2D2D2D',
-            }}
-            wrapperClassName="rounded-xl flex text-right h-auto"
-            cursor={{
-              fill: '#151515',
-            }}
-            content={<CustomTooltip datapointKeys={['dscTotalSupplies']} />}
-          />
           <defs>
             <linearGradient id="colorUv4" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0.5%" stopColor="#C3F8FF" stopOpacity={0.3} />
@@ -106,7 +85,7 @@ const PriceChart = (props: LiquidityLineChartProps) => {
               id="pattern2"
               x="0"
               y="0"
-              width={0.025}
+              width={0.0125}
               height={0.05}
               fill="url(#colorUv4)"
             >
@@ -120,36 +99,12 @@ const PriceChart = (props: LiquidityLineChartProps) => {
             stroke="#C3F8FF"
             fill="url(#pattern2)"
             dot={false}
+            className="hover:cursor-not-allowed"
           />
-          <defs>
-            <linearGradient id="colorUv2" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0.5%" stopColor="#7B61FF" stopOpacity={0.6} />
-              <stop offset="99.5%" stopColor="#7B61FF" stopOpacity={0} />
-            </linearGradient>
-            <pattern
-              id="pattern"
-              x="0"
-              y="0"
-              width={0.025}
-              height={0.05}
-              fill="url(#colorUv2)"
-            >
-              <circle cx="1" cy="1" r="1" />
-            </pattern>
-          </defs>
-          {/* <Area
-            fill="url(#pattern)"
-            type="linear"
-            strokeWidth={1}
-            dataKey="rdpxTotalSupplies"
-            stackId="1"
-            stroke="#7B61FF"
-            dot={false}
-          /> */}
         </AreaChart>
       </ResponsiveContainer>
     </div>
   );
 };
 
-export default PriceChart;
+export default RewardsChart;

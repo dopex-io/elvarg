@@ -7,7 +7,7 @@ import Typography2 from 'components/UI/Typography2';
 interface Props {
   text: string;
   iconSymbol: string;
-  url: string;
+  url: string | undefined;
   body?: string;
 }
 

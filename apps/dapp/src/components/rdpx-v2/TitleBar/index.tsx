@@ -164,7 +164,6 @@ const TitleBar = () => {
           <TitleItem
             onClick={() => onClick(index)}
             key={action}
-            disabled={rdpxStateToLabelMapping[action] === 'Staking'}
             active={index === titleBarContent.index}
             label={rdpxStateToLabelMapping[action]}
           />

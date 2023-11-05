@@ -1,6 +1,7 @@
 import { /*useEffect, */ useMemo } from 'react';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
+
+// import { useRouter } from 'next/router';
 
 import { NextSeo } from 'next-seo';
 
@@ -8,8 +9,10 @@ import useStore from 'hooks/rdpx/useStore';
 
 import PageLayout from 'components/common/PageLayout';
 import BondPanel from 'components/rdpx-v2/AsidePanel/BondPanel';
+import StakePanel from 'components/rdpx-v2/AsidePanel/StakePanel';
 import StrategyVaultPanel from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel';
 import BondsBody from 'components/rdpx-v2/Body/BondsBody';
+import StakingBody from 'components/rdpx-v2/Body/StakingBody';
 import StrategyVaultBody from 'components/rdpx-v2/Body/StrategyVault';
 import QuickLink from 'components/rdpx-v2/QuickLink';
 import TitleBar from 'components/rdpx-v2/TitleBar';
@@ -18,7 +21,7 @@ import { quickLinks } from 'constants/rdpx';
 import seo from 'constants/seo';
 
 const Main = () => {
-  const router = useRouter();
+  // const router = useRouter();
   const rdpxPageState = useStore((vault) => vault.state);
 
   const renderContent = useMemo(() => {
@@ -27,14 +30,20 @@ const Main = () => {
         return {
           asidePanel: <BondPanel />,
           body: <BondsBody />,
+          blockscannerContent: quickLinks.arbiscanV2Core,
         };
       case 'lp':
         return {
           asidePanel: <StrategyVaultPanel />,
           body: <StrategyVaultBody />,
+          blockscannerContent: quickLinks.arbiscanPerpVault,
         };
       case 'stake':
-        return { asidePanel: null, body: null };
+        return {
+          asidePanel: <StakePanel />,
+          body: <StakingBody />,
+          blockscannerContent: quickLinks.arbiscanStaking,
+        };
     }
   }, [rdpxPageState]);
 
@@ -78,8 +87,7 @@ const Main = () => {
           <div className="flex flex-col w-full lg:w-[390px] h-full space-y-3">
             {renderContent.asidePanel}
             <div className="flex flex-col space-y-3">
-              <QuickLink {...quickLinks.etherscan} />
-              {/* <QuickLink {...quickLinks.dune} /> */}
+              <QuickLink {...renderContent.blockscannerContent} />
             </div>
           </div>
         </div>

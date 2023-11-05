@@ -1,11 +1,10 @@
 // todo: D.R.Y alerts across panels
 import { AlertSeverity } from 'components/common/Alert';
-
-import { AlertType } from '../StrategyVaultPanel/alerts';
+import { AlertType } from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/alerts';
 
 const alerts: Record<string, AlertType> = {
   insufficientBalance: {
-    label: 'Delegate',
+    label: 'Stake',
     header: 'Insufficient Balance',
     body: 'You have insufficient balance to perform this transaction.',
     severity: AlertSeverity.error,
@@ -19,17 +18,17 @@ const alerts: Record<string, AlertType> = {
     disabled: false,
   },
   zeroAmount: {
-    label: 'Delegate',
+    label: 'Stake',
     header: 'Enter an amount',
     body: null,
     severity: AlertSeverity.info,
     disabled: true,
   },
   default: {
-    label: 'Delegate',
-    header: 'What does delegating do?',
-    body: `Receive 75% share of rtETH minted using your collateral plus 
-          an additional fee from the delegatee’s bonding discount.`,
+    label: 'Stake',
+    header: 'What does staking do?',
+    body: `Accrue rewards from the MultiRewards contract by staking 
+          your rtETH.`,
     severity: AlertSeverity.info,
     disabled: true,
   },

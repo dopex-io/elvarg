@@ -6,11 +6,11 @@ interface Props {
   onClick: () => void;
   active: boolean;
   label: string;
-  disabled: boolean;
+  disabled?: boolean;
 }
 
 const TitleItem = (props: Props) => {
-  const { label, active, onClick, disabled } = props;
+  const { label, active, onClick, disabled = false } = props;
 
   return (
     <Button

@@ -3,6 +3,7 @@ import { formatUnits, parseUnits } from 'viem';
 
 import { Button, Input } from '@dopex-io/ui';
 import { erc20ABI, useAccount, useContractWrite, useNetwork } from 'wagmi';
+import { writeContract } from 'wagmi/actions';
 
 import useTokenData from 'hooks/helpers/useTokenData';
 import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
@@ -39,13 +40,6 @@ const Withdraw = () => {
     spender: addresses.perpPool || '0x',
     token: addresses.perpPoolLp,
   });
-  const { write: redeemRequest, isSuccess: isDepositSuccess } =
-    useContractWrite({
-      abi: PerpVault,
-      address: addresses.perpPool,
-      functionName: 'redeemRequest',
-      args: [parseUnits(amount, DECIMALS_TOKEN)],
-    });
   const { write: approve, isSuccess: isApproveSuccess } = useContractWrite({
     abi: erc20ABI,
     address: addresses.perpPoolLp,
@@ -56,6 +50,20 @@ const Withdraw = () => {
   const onChange = useCallback((e: any) => {
     setAmount(Number(e.target.value) < 0 ? '' : e.target.value);
   }, []);
+
+  const handleRedeemRequest = useCallback(
+    async (_amount: bigint) => {
+      const write = async () =>
+        await writeContract({
+          abi: PerpVault,
+          address: addresses.perpPool,
+          functionName: 'redeemRequest',
+          args: [_amount],
+        });
+      await write().then(async () => await updateUserPerpetualVaultData());
+    },
+    [updateUserPerpetualVaultData],
+  );
 
   const panelState: AlertType & { handler: () => void | null } = useMemo(() => {
     const doNothing = () => null;
@@ -72,7 +80,6 @@ const Withdraw = () => {
         ...alerts.insufficientAllowance,
         handler: () => {
           approve();
-          updateAllowance();
         },
       };
     } else if (Number(amount) === 0) {
@@ -87,25 +94,20 @@ const Withdraw = () => {
         disabled: false,
         severity: null,
         body: null,
-        handler: () => {
-          redeemRequest();
-          updateUserPerpetualVaultData();
-        },
+        handler: () => handleRedeemRequest(parseUnits(amount, DECIMALS_TOKEN)),
       };
     }
   }, [
     amount,
     approve,
     approved,
-    redeemRequest,
-    updateAllowance,
-    updateUserPerpetualVaultData,
+    handleRedeemRequest,
     userPerpetualVaultData.totalUserShares,
   ]);
 
   useEffect(() => {
     updateBalance();
-  }, [updateBalance, isDepositSuccess]);
+  }, [updateBalance]);
 
   useEffect(() => {
     updateAllowance();
@@ -114,6 +116,7 @@ const Withdraw = () => {
   useEffect(() => {
     updatePerpetualVaultState();
   }, [updatePerpetualVaultState]);
+
   useEffect(() => {
     updateUserPerpetualVaultData();
   }, [updateUserPerpetualVaultData]);

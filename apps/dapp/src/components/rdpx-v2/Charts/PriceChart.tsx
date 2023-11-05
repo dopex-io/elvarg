@@ -83,7 +83,7 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
   return (
     <div className="relative h-full">
       <h6 className="absolute top-3 left-3 text-xs text-stieglitz align-center">
-        Staking Rewards
+        rDPX Price
       </h6>
       <ResponsiveContainer width="100%" height={height} className="top-6">
         <AreaChart
@@ -118,18 +118,10 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
           />
           <Area
             type="natural"
-            strokeWidth={2}
+            strokeWidth={1}
             dataKey="rdpxPrices"
             stroke="#7B61FF"
             fill="url(#pattern)"
-            dot={false}
-          />
-          <Area
-            type="natural"
-            strokeWidth={2}
-            dataKey="dscPrices"
-            stroke="#C3F8FF"
-            fill="url(#pattern2)"
             dot={false}
           />
         </AreaChart>
