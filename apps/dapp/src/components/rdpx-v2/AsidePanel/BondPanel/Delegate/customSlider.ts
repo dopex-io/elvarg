@@ -1,10 +1,10 @@
 export const STEP = 0.1;
-export const MIN_VAL = 0.1;
+export const MIN_VAL = 0;
 export const MAX_VAL = 100;
 export const MARKS = [
   {
-    value: 2.5,
-    label: '2.5%',
+    value: 5,
+    label: '5%',
   },
   {
     value: 25,
@@ -19,8 +19,8 @@ export const MARKS = [
     label: '75%',
   },
   {
-    value: 100,
-    label: '100%',
+    value: 95,
+    label: '95%',
   },
 ];
 

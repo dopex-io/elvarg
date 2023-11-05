@@ -105,7 +105,7 @@ const Delegate = () => {
           label="Balance"
           symbol="WETH"
         />
-        <div className="flex flex-col bg-umbra pt-3 px-3 pb-9 rounded-b-xl space-y-2 mb-6">
+        <div className="flex flex-col bg-umbra p-3 rounded-b-xl space-y-2">
           <div>
             <Typography2 variant="subtitle2" color="stieglitz">
               Delegate Fee
@@ -128,19 +128,21 @@ const Delegate = () => {
             }
             rightElement={<p className="text-stieglitz pl-2">%</p>}
           />
-          <Slider
-            sx={customSliderStyle}
-            value={Number(fee)}
-            onChange={handleChangeFee}
-            className="w-auto my-auto mx-4"
-            aria-label="steps"
-            defaultValue={0.1}
-            step={STEP}
-            min={MIN_VAL}
-            max={MAX_VAL}
-            valueLabelDisplay="auto"
-            marks={MARKS}
-          />
+          <div className="flex w-full">
+            <Slider
+              sx={customSliderStyle}
+              value={Number(fee)}
+              onChange={handleChangeFee}
+              className="w-full mx-2"
+              aria-label="steps"
+              defaultValue={0.1}
+              step={STEP}
+              min={MIN_VAL}
+              max={MAX_VAL}
+              valueLabelDisplay="auto"
+              marks={MARKS}
+            />
+          </div>
         </div>
       </div>
       {panelState.header ? (
