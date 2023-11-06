@@ -90,7 +90,7 @@ const Stake = () => {
           symbol="rtETH"
         />
       </div>
-      {panelState.severity !== null ? (
+      {panelState.severity ? (
         <Alert
           header={panelState.header}
           severity={panelState.severity}

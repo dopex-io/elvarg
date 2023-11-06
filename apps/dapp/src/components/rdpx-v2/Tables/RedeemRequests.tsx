@@ -77,7 +77,7 @@ const RedeemRequests = () => {
     handleClaim,
   ]);
 
-  return (
+  return data.length > 0 ? (
     <div className="space-y-2">
       <Typography2 variant="subtitle2" className="px-2">
         Withdrawals Queued
@@ -89,7 +89,7 @@ const RedeemRequests = () => {
         fill="bg-umbra"
       />
     </div>
-  );
+  ) : null;
 };
 
 export default RedeemRequests;

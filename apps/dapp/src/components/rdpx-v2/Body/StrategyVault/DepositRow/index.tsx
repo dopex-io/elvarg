@@ -35,7 +35,7 @@ const DepositRow = () => {
   return (
     <div className="space-y-2">
       <Typography2 variant="subtitle2" className="px-2">
-        Your Deposits
+        Your Position
       </Typography2>
       {loading ? (
         <div className="py-6 text-center w-full text-white">Loading...</div>
