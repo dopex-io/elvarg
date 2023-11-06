@@ -6,6 +6,8 @@ type LoadingStates = {
   isLoading: (key: string) => boolean;
 };
 
+export const ASIDE_PANEL_BUTTON_KEY = 'ASIDE_PANEL_BUTTON_KEY';
+
 const useLoadingStates = create<LoadingStates>((set, get) => ({
   loadingStates: new Map<string, boolean>(),
   setLoading(key, setAs) {
