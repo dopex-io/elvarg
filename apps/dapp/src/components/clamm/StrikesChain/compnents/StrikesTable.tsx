@@ -23,7 +23,7 @@ type StrikeDisclosureItem = {
   rewardsApy: number;
   utilization: number;
   totalDeposits: {
-    amount: string;
+    amount: number;
     symbol: string;
   };
 };
