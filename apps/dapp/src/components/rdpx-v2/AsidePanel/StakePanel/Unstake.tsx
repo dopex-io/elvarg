@@ -8,9 +8,8 @@ import { useAccount, useContractRead, useContractWrite } from 'wagmi';
 import useTokenData from 'hooks/helpers/useTokenData';
 
 import Alert from 'components/common/Alert';
+import alerts, { AlertType } from 'components/rdpx-v2/AsidePanel/alerts';
 import PanelInput from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/PanelInput';
-import alerts from 'components/rdpx-v2/AsidePanel/StakePanel/alerts';
-import { AlertType } from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/alerts';
 import InfoRow from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/InfoRow';
 import Typography2 from 'components/UI/Typography2';
 

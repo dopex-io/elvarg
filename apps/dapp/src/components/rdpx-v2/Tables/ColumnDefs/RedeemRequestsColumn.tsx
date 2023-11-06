@@ -42,7 +42,7 @@ const columns = [
   columnHelper.accessor('breakdown', {
     header: 'Breakdown',
     cell: (info) => {
-      const [rdpxAmount, wethAmount] = info.getValue();
+      const [wethAmount, rdpxAmount] = info.getValue();
       return (
         <td className="flex space-x-1">
           <span className="flex space-x-1">

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { parseUnits } from 'viem';
 
-import alerts from 'components/rdpx-v2/AsidePanel/BondPanel/alerts';
+import alerts from 'components/rdpx-v2/AsidePanel/alerts';
 
 import { DECIMALS_TOKEN } from 'constants/index';
 
@@ -30,7 +30,7 @@ const useDelegatePanelState = (props: Props) => {
     const doNothing = () => null;
     if (Number(amount) === 0 || isNaN(Number(amount))) {
       return {
-        ...alerts.default,
+        ...alerts.zeroAmount,
         handler: doNothing,
       };
     } else if (balance < parseUnits(amount, DECIMALS_TOKEN)) {
@@ -48,8 +48,7 @@ const useDelegatePanelState = (props: Props) => {
       };
     } else {
       return {
-        ...alerts.default,
-        disabled: false,
+        ...alerts.defaultDelegate,
         handler: () => {
           delegate();
           updateUserDelegatePositions();

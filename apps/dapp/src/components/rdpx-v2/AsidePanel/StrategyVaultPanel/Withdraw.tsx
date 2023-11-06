@@ -10,9 +10,7 @@ import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 
 import Alert from 'components/common/Alert';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
-import alerts, {
-  AlertType,
-} from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/alerts';
+import alerts, { AlertType } from 'components/rdpx-v2/AsidePanel/alerts';
 import InfoRow from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/InfoRow';
 import Typography2 from 'components/UI/Typography2';
 
@@ -35,7 +33,7 @@ const Withdraw = () => {
   } = usePerpPoolData({
     user,
   });
-  const { updateAllowance, approved, balance, updateBalance } = useTokenData({
+  const { updateAllowance, approved } = useTokenData({
     amount,
     spender: addresses.perpPool || '0x',
     token: addresses.perpPoolLp,
@@ -106,10 +104,6 @@ const Withdraw = () => {
   ]);
 
   useEffect(() => {
-    updateBalance();
-  }, [updateBalance]);
-
-  useEffect(() => {
     updateAllowance();
   }, [updateAllowance, isApproveSuccess]);
 
@@ -149,9 +143,20 @@ const Withdraw = () => {
               src="/assets/max.svg"
               className="hover:bg-silver rounded-[4px]"
               alt="max"
+              onClick={() =>
+                setAmount(
+                  formatUnits(
+                    userPerpetualVaultData.totalUserShares,
+                    DECIMALS_TOKEN,
+                  ),
+                )
+              }
             />
             <Typography2 variant="caption">
-              {formatBigint(balance, DECIMALS_TOKEN)}
+              {formatBigint(
+                userPerpetualVaultData.totalUserShares,
+                DECIMALS_TOKEN,
+              )}
             </Typography2>
             <Typography2 variant="caption" color="stieglitz">
               LP

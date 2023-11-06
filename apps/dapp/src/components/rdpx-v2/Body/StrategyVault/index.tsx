@@ -1,9 +1,8 @@
+import DepositRow from 'components/rdpx-v2/Body/StrategyVault/DepositRow';
 import QuickLink from 'components/rdpx-v2/QuickLink';
 import RedeemRequests from 'components/rdpx-v2/Tables/RedeemRequests';
 
 import { quickLinks } from 'constants/rdpx';
-
-import DepositRow from './DepositRow';
 
 const StrategyVaultBody = () => {
   return (

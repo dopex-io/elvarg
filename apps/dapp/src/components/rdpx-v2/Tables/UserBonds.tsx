@@ -6,12 +6,13 @@ import { writeContract } from 'wagmi/actions';
 import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 
 import TableLayout from 'components/common/TableLayout';
+import columns, {
+  UserBonds as UserBondsType,
+} from 'components/rdpx-v2/Tables/ColumnDefs/BondsColumn';
 
 import RdpxV2Bond from 'constants/rdpx/abis/RdpxV2Bond';
 import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
 import addresses from 'constants/rdpx/addresses';
-
-import columns, { UserBonds as UserBondsType } from './ColumnDefs/BondsColumn';
 
 const UserBonds = () => {
   const { address: account } = useAccount();
@@ -41,11 +42,7 @@ const UserBonds = () => {
         functionName: 'redeemReceiptTokenBonds',
         args: [id, account || '0x'],
       });
-      try {
-        await write.then(() => updateUserBonds());
-      } catch (e) {
-        console.error(e);
-      }
+      await write.then(() => updateUserBonds()).catch((e) => console.error(e));
     },
     [account, updateUserBonds],
   );

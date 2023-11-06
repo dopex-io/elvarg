@@ -8,17 +8,17 @@ export const quickLinks = {
   arbiscanV2Core: {
     text: 'RDPX V2 Core',
     iconSymbol: '/assets/etherscan.svg',
-    url: 'https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713',
+    url: 'https://goerli.arbiscan.io/address/0x1784f23e6e054AEe050308AA88f2ae85C77150a1',
   },
   arbiscanPerpVault: {
     text: 'Perpetual Vault',
     iconSymbol: '/assets/etherscan.svg',
-    url: 'https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713',
+    url: 'https://goerli.arbiscan.io/address/0x04ef82C73106c8771AdF0c79FD6fB455a44A28Dc',
   },
   arbiscanStaking: {
     text: 'MultiRewards',
     iconSymbol: '/assets/etherscan.svg',
-    url: 'https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713',
+    url: 'https://goerli.arbiscan.io/address/0x696c33d47D770c943E47521e23dA7a01F18c4fd4',
   },
   dune: {
     text: 'Dune Analytics',

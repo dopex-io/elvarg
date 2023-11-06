@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { AlertSeverity } from 'components/common/Alert';
+import alerts from 'components/rdpx-v2/AsidePanel/alerts';
 
 interface Props {
   amount: string;
@@ -30,38 +30,25 @@ const useBondPanelState = (props: Props) => {
   } = props;
 
   return useMemo(() => {
-    const defaultState = {
-      label: 'Bond rtETH',
-      handler: () => null,
-      header: null,
-      body: null,
-      severity: AlertSeverity.info,
-      disabled: false,
-    };
+    const doNothing = () => null;
+    const defaultState = { ...alerts.defaultBond, handler: doNothing };
     const approveRdpxState = {
-      ...defaultState,
+      ...alerts.insufficientAllowance,
       header: 'Approve rDPX',
-      severity: AlertSeverity.warning,
-      label: 'Approve rDPX',
       handler: () => approveRdpx(),
     };
     if (Number(amount) === 0 || isNaN(Number(amount))) {
-      return { ...defaultState, disabled: true };
+      return { ...alerts.zeroAmount, handler: doNothing };
     } else if (!delegated) {
       if (isTotalBondCostBreakdownLessThanUserBalance) {
         return {
-          ...defaultState,
-          disabled: true,
-          severity: AlertSeverity.error,
-          header: 'Insufficient Balance',
-          body: 'You do not have sufficient tokens to perform this transaction.',
+          ...alerts.insufficientBalance,
+          handler: doNothing,
         };
       } else if (!isWethApproved && !isRdpxApproved) {
         return {
-          ...defaultState,
+          ...alerts.insufficientAllowance,
           header: 'Approve WETH & rDPX',
-          severity: AlertSeverity.warning,
-          label: 'Approve WETH & rDPX',
           handler: () => {
             approveWeth();
             approveRdpx();
@@ -69,10 +56,8 @@ const useBondPanelState = (props: Props) => {
         };
       } else if (!isWethApproved) {
         return {
-          ...defaultState,
+          ...alerts.insufficientAllowance,
           header: 'Approve WETH',
-          severity: AlertSeverity.warning,
-          label: 'Approve',
           handler: () => approveWeth(),
         };
       } else if (!isRdpxApproved) {
@@ -81,12 +66,10 @@ const useBondPanelState = (props: Props) => {
     } else {
       if (isInsufficientWeth) {
         return {
-          ...defaultState,
-          label: 'Bond',
+          ...alerts.insufficientBalance,
           header: 'Insufficient WETH',
-          severity: AlertSeverity.error,
           body: 'Insufficient WETH from delegates to perform this action.',
-          disabled: true,
+          handler: doNothing,
         };
       } else if (!isRdpxApproved) {
         return approveRdpxState;

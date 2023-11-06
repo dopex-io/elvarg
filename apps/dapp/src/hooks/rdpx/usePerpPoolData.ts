@@ -1,21 +1,21 @@
 import { useCallback, useState } from 'react';
 import { Address, parseUnits } from 'viem';
 
-import request from 'graphql-request';
+import range from 'lodash/range';
 // todo: replace readContracts with multicall on mainnet
-import { multicall, readContract, readContracts } from 'wagmi/actions';
+import { /*multicall,*/ readContract, readContracts } from 'wagmi/actions';
 
-import queryClient from 'queryClient';
-
-import { getUserRedeemRequestsDocument } from 'graphql/rdpx-v2';
+// todo: prune redeemRequests after claim(); requires claim event
+// import request from 'graphql-request';
+// import queryClient from 'queryClient';
+// import { getUserRedeemRequestsDocument } from 'graphql/rdpx-v2';
+// import { DOPEX_RDPX_V2_SUBGRAPH_API_URL } from '../../../codegen';
 
 import { DECIMALS_TOKEN } from 'constants/index';
 import PerpVault from 'constants/rdpx/abis/PerpVault';
 import PerpVaultLp from 'constants/rdpx/abis/PerpVaultLp';
 import addresses from 'constants/rdpx/addresses';
 import initialContractStates from 'constants/rdpx/initialStates';
-
-import { DOPEX_RDPX_V2_SUBGRAPH_API_URL } from '../../../codegen';
 
 interface VaultState {
   currentEpoch: bigint;
@@ -118,7 +118,7 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
 
     const [
       { result: fundingRate = 0n },
-      { result: epochExpiry = 0n },
+      { result: expiry = 0n },
       { result: totalFundingForCurrentEpoch = 0n },
       { result: oneLpShare = [0n, 0n] as readonly [bigint, bigint] },
     ] = await readContracts({
@@ -148,14 +148,14 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
     });
 
     const strike = rdpxPriceInEth - rdpxPriceInEth / 4n;
-    let ttl = epochExpiry - BigInt(Math.ceil(new Date().getTime() / 1000));
+    let ttl = expiry - BigInt(Math.ceil(new Date().getTime() / 1000));
     if (ttl < 0n) {
       ttl = 0n;
     }
     const premium = await readContract({
       ...config,
       functionName: 'calculatePremium',
-      args: [strike, parseUnits('10', DECIMALS_TOKEN), ttl, rdpxPriceInEth],
+      args: [strike, parseUnits('1', DECIMALS_TOKEN), ttl, rdpxPriceInEth],
     });
 
     setVaultState((prev) => ({
@@ -166,7 +166,7 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
       lastFundingUpdateTime,
       premiumPerOption: premium,
       underlyingPrice: rdpxPriceInEth,
-      expiry: epochExpiry,
+      expiry,
       totalActiveOptions,
       totalLpShares,
       totalFundingForCurrentEpoch,
@@ -222,12 +222,7 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
   );
 
   const updateUserData = useCallback(async () => {
-    if (user === '0x') return;
-
-    let targetEpoch = vaultState.currentEpoch;
-    if (targetEpoch === 0n) {
-      targetEpoch = 1n;
-    }
+    if (user === '0x' || vaultState.expiry === 0n) return;
 
     const [{ result: userSharesLocked = 0n }, { result: userLpShares = 0n }] =
       await readContracts({
@@ -270,28 +265,55 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
         (tokenShare * userLpShares) / parseUnits('1', DECIMALS_TOKEN),
     ) as [bigint, bigint];
 
-    const data = await queryClient
-      .fetchQuery({
-        queryKey: ['getRedeemRequests'],
-        queryFn: () =>
-          request(
-            DOPEX_RDPX_V2_SUBGRAPH_API_URL,
-            getUserRedeemRequestsDocument,
-            {
-              sender: user,
-            },
-          ),
-      })
-      .then((res) => res.redeemRequests)
-      .catch(() => []);
+    // todo: prune redeemRequests after claim(); requires claim event
+    // const data = await queryClient
+    //   .fetchQuery({
+    //     queryKey: ['getRedeemRequests'],
+    //     queryFn: () =>
+    //       request(
+    //         DOPEX_RDPX_V2_SUBGRAPH_API_URL,
+    //         getUserRedeemRequestsDocument,
+    //         {
+    //           sender: user,
+    //         },
+    //       ),
+    //   })
+    //   .then((res) => res.redeemRequests.sort((a, b) => a.epoch - b.epoch))
+    //   .catch(() => []);
 
-    const redeemRequestsFormatted = data.map((rr) => ({
-      sender: rr.sender,
-      amount: BigInt(rr.amount),
-      ethAmount: BigInt(rr.ethAmount),
-      rdpxAmount: BigInt(rr.rdpxAmount),
-      epoch: BigInt(rr.epoch),
-    }));
+    const _userSharesPromises = [];
+    const allEpochs = range(Number(vaultState.currentEpoch + 1n));
+    for (const i of allEpochs) {
+      const userSharesForEpoch = readContract({
+        ...config,
+        functionName: 'userSharesLocked',
+        args: [user, BigInt(i)],
+      });
+      _userSharesPromises.push(userSharesForEpoch);
+    }
+    const redeemRequests = (await Promise.all(_userSharesPromises)).map(
+      (amount, i) => ({ amount, epoch: BigInt(allEpochs[i]) }),
+    );
+    const previewRedeemPromises = [];
+    for (let i = 0; i < redeemRequests.length; i++) {
+      previewRedeemPromises.push(
+        readContract({
+          ...lpConfig,
+          functionName: 'redeemPreview',
+          args: [redeemRequests[i].amount],
+        }),
+      );
+    }
+
+    const resolved = (await Promise.all(previewRedeemPromises))
+      .map((preview, i) => ({
+        ethAmount: preview[0],
+        rdpxAmount: preview[1],
+        amount: redeemRequests[i].amount, // shares
+        epoch: redeemRequests[i].epoch,
+        sender: user,
+      }))
+      .filter((rr) => rr.amount > 0n);
 
     setUserData((prev) => ({
       ...prev,
@@ -301,7 +323,7 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
       shareComposition,
       claimableTime,
       userShareOfFunding,
-      redeemRequests: redeemRequestsFormatted,
+      redeemRequests: resolved,
     }));
     setLoading(false);
   }, [user, vaultState]);

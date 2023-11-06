@@ -9,6 +9,8 @@ import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 
 import Alert from 'components/common/Alert';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import alerts, { AlertType } from 'components/rdpx-v2/AsidePanel/alerts';
+import InfoRow from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/InfoRow';
 import Typography2 from 'components/UI/Typography2';
 
 import formatBigint from 'utils/general/formatBigint';
@@ -16,9 +18,6 @@ import formatBigint from 'utils/general/formatBigint';
 import { DECIMALS_TOKEN } from 'constants/index';
 import PerpVaultLp from 'constants/rdpx/abis/PerpVaultLp';
 import addresses from 'constants/rdpx/addresses';
-
-import alerts, { AlertType } from './alerts';
-import InfoRow from './InfoRow';
 
 const Deposit = () => {
   const [amount, setAmount] = useState<string>('');

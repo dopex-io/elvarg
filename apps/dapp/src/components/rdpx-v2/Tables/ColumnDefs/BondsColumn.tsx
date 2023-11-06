@@ -2,7 +2,7 @@ import Tooltip from '@mui/material/Tooltip';
 
 import { Button } from '@dopex-io/ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { format } from 'date-fns';
+import Countdown from 'react-countdown';
 
 import Typography2 from 'components/UI/Typography2';
 
@@ -50,9 +50,33 @@ const columns = [
     },
   }),
   columnHelper.accessor('maturity', {
-    header: 'Expiry',
+    header: 'Maturation',
     cell: (info) => (
-      <p>{format(new Date(Number(info.getValue() || 0n)), 'd LLL yyyy')}</p>
+      <Countdown
+        date={new Date(Number(info.getValue() || 0n))}
+        renderer={({ days, hours, minutes, seconds }) => (
+          <div className="flex space-x-1 text-stieglitz">
+            <div className="space-x-1">
+              <Typography2 variant="caption" color="white">
+                {days}
+              </Typography2>
+              d
+              <Typography2 variant="caption" color="white">
+                {hours}
+              </Typography2>
+              h
+              <Typography2 variant="caption" color="white">
+                {minutes}
+              </Typography2>
+              m
+              <Typography2 variant="caption" color="white">
+                {seconds}
+              </Typography2>
+              s
+            </div>
+          </div>
+        )}
+      />
     ),
   }),
   columnHelper.accessor('button', {

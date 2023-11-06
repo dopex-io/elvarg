@@ -1,4 +1,4 @@
-import { rdpxV2ContractKeys } from './addresses';
+import { rdpxV2ContractKeys } from 'constants/rdpx/addresses';
 
 const initialContractStates: {
   [key in (typeof rdpxV2ContractKeys)[number]]?: any;

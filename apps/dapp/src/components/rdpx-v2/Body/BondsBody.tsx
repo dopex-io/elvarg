@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import ButtonGroup from '@mui/material/ButtonGroup';
 
 import { Button } from '@dopex-io/ui';
 
+import Charts from 'components/rdpx-v2/Charts';
+import QuickLink from 'components/rdpx-v2/QuickLink';
+import DelegatePositions from 'components/rdpx-v2/Tables/DelegatePositions';
+import UserBonds from 'components/rdpx-v2/Tables/UserBonds';
 import Typography2 from 'components/UI/Typography2';
 
 import { quickLinks } from 'constants/rdpx';
-
-import Charts from '../Charts';
-import QuickLink from '../QuickLink';
-import DelegatePositions from '../Tables/DelegatePositions';
-import UserBonds from '../Tables/UserBonds';
 
 const actions = ['bonds', 'delegatePositions' /*, 'history'*/] as const;
 type ActionType = (typeof actions)[number];

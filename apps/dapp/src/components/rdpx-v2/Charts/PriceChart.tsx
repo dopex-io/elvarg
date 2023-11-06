@@ -16,11 +16,11 @@ import queryClient from 'queryClient';
 
 import { getPricesDocument } from 'graphql/rdpx';
 
+import CustomTooltip from 'components/rdpx-v2/Charts/CustomTooltip';
+
 import { getUserReadableAmount } from 'utils/contracts';
 
 import { DOPEX_RDPX_SUBGRAPH_API_URL } from 'constants/subgraphs';
-
-import CustomTooltip from './CustomTooltip';
 
 interface LiquidityBarGraphProps {
   data: any[];

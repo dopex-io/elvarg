@@ -205,14 +205,14 @@ const Bond = () => {
           bondingMethod={bondType}
         />
       </div>
-      {panelState.header ? (
+      {panelState.severity ? (
         <Alert
           header={panelState.header}
           severity={panelState.severity}
           body={panelState.body || undefined}
         />
       ) : null}
-      <InfoBox value={amount} delegated={delegated} />
+      <InfoBox />
       <div className="flex flex-col rounded-xl p-3 w-full bg-umbra space-y-3">
         <InfoRow
           label="rDPX Balance"

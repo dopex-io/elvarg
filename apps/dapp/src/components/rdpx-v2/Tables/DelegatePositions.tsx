@@ -5,13 +5,12 @@ import { useAccount, useContractWrite } from 'wagmi';
 import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 
 import TableLayout from 'components/common/TableLayout';
+import columns, {
+  DelegatePositions as DelegatePositionsType,
+} from 'components/rdpx-v2/Tables/ColumnDefs/DelegatePositionsColumn';
 
 import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
 import addresses from 'constants/rdpx/addresses';
-
-import columns, {
-  DelegatePositions as DelegatePositionsType,
-} from './ColumnDefs/DelegatePositionsColumn';
 
 const DelegatePositions = () => {
   const [delegateId, setDelegateId] = useState<bigint>(0n);

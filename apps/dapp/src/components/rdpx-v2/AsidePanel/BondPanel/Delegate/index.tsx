@@ -14,21 +14,20 @@ import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 
 import Alert, { AlertSeverity } from 'components/common/Alert';
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
+import PanelInput from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/PanelInput';
+import customSliderStyle, {
+  MARKS,
+  MAX_VAL,
+  MIN_VAL,
+  STEP,
+} from 'components/rdpx-v2/AsidePanel/BondPanel/Delegate/customSlider';
+import useDelegatePanelState from 'components/rdpx-v2/AsidePanel/hooks/useDelegatePanelState';
 import Typography2 from 'components/UI/Typography2';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
 import addresses from 'constants/rdpx/addresses';
-
-import useDelegatePanelState from '../../hooks/useDelegatePanelState';
-import PanelInput from '../Bond/PanelInput';
-import customSliderStyle, {
-  MARKS,
-  MAX_VAL,
-  MIN_VAL,
-  STEP,
-} from './customSlider';
 
 const Delegate = () => {
   const [amount, setAmount] = useState<string>('');

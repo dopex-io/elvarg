@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Address, parseUnits } from 'viem';
 
-import { DECIMALS_TOKEN } from 'constants/index';
+import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 
-import useRdpxV2CoreData from './useRdpxV2CoreData';
+import { DECIMALS_TOKEN } from 'constants/index';
 
 interface Props {
   user: Address;
@@ -33,7 +33,7 @@ const useSqueezeDelegatedWeth = ({
 
   const squeezeAndFetchDelegates = useCallback(async () => {
     if (delegatePositions.length === 0) return null;
-    let requiredBalance = collateralRequired; // todo: bug: 1e19 precision instead of 1e18
+    let requiredBalance = collateralRequired;
     let accumulator = {
       amounts: [] as bigint[],
       wethToBeUsed: 0n as bigint,
@@ -65,13 +65,13 @@ const useSqueezeDelegatedWeth = ({
 
     const wethToBeUsed = accumulator.amounts.reduce(
       (prev, curr) => prev + curr,
-      0n
+      0n,
     );
 
     accumulator = {
       ...accumulator,
       ids: accumulator.ids.filter(
-        (_, index) => accumulator.amounts[index] > 100n
+        (_, index) => accumulator.amounts[index] > 100n,
       ),
     }; // skip dust balances
 
@@ -88,7 +88,7 @@ const useSqueezeDelegatedWeth = ({
               ? 0n
               : (amount * parseUnits(bondsToMint, DECIMALS_TOKEN)) /
                   (collateralRequired + 1n) -
-                100n // todo: some precision is lost; calculateBondCost(A) + cbc(B) + cbc(C) !== cbc(A + B + C)
+                100n, // todo: some precision is lost; calculateBondCost(A) + cbc(B) + cbc(C) !== cbc(A + B + C)
         )
         .filter((amount) => amount > 100n),
     };

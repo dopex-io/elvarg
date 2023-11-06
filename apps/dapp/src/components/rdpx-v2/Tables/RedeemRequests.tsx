@@ -6,15 +6,16 @@ import { writeContract } from 'wagmi/actions';
 import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 
 import TableLayout from 'components/common/TableLayout';
+import columns, {
+  RedeemRequestType,
+} from 'components/rdpx-v2/Tables/ColumnDefs/RedeemRequestsColumn';
 import Typography2 from 'components/UI/Typography2';
 
 import PerpVault from 'constants/rdpx/abis/PerpVault';
 import addresses from 'constants/rdpx/addresses';
 
-import columns, { RedeemRequestType } from './ColumnDefs/RedeemRequestsColumn';
-
 const RedeemRequests = () => {
-  const { address: account } = useAccount();
+  const { address: account = '0x' } = useAccount();
   const {
     updateUserPerpetualVaultData,
     userPerpetualVaultData,
@@ -26,23 +27,24 @@ const RedeemRequests = () => {
   });
 
   useEffect(() => {
+    if (userPerpetualVaultData.claimableTime > 0n) return;
     updatePerpetualVaultState();
-  }, [updatePerpetualVaultState]);
+  }, [updatePerpetualVaultState, userPerpetualVaultData.claimableTime]);
 
   useEffect(() => {
     updateUserPerpetualVaultData();
   }, [updateUserPerpetualVaultData]);
 
   const handleClaim = useCallback(
-    (epoch: bigint) => {
-      const write = async () =>
-        await writeContract({
-          abi: PerpVault,
-          address: addresses.perpPool,
-          functionName: 'claim',
-          args: [epoch],
-        });
-      write()
+    async (epoch: bigint) => {
+      const write = writeContract({
+        abi: PerpVault,
+        address: addresses.perpPool,
+        functionName: 'claim',
+        args: [epoch],
+      });
+
+      await write
         .then(() => updateUserPerpetualVaultData())
         .catch((e) => console.error(e));
     },
@@ -60,7 +62,7 @@ const RedeemRequests = () => {
         return {
           epoch: rr.epoch,
           amount: rr.amount,
-          breakdown: [rr.rdpxAmount, rr.ethAmount] as readonly [bigint, bigint],
+          breakdown: [rr.ethAmount, rr.rdpxAmount] as readonly [bigint, bigint],
           button: {
             disabled: rr.epoch === perpetualVaultState.currentEpoch,
             label: 'Withdraw',

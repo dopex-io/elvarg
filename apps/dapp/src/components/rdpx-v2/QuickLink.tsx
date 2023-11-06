@@ -19,7 +19,7 @@ const QuickLink = (props: Props) => {
   return (
     <a
       className={`p-3 w-full border rounded-xl transform ease-in-out duration-200 bg-umbra ${
-        active ? 'border-mineshaft' : 'border-umbra'
+        active && url ? 'border-mineshaft' : 'border-umbra'
       }`}
       onMouseEnter={() => setActive(true)}
       onMouseLeave={() => setActive(false)}
@@ -35,7 +35,9 @@ const QuickLink = (props: Props) => {
             {text}
           </Typography2>
         </div>
-        <LaunchOutlinedIcon className="fill-current text-white opacity-40 w-[1.2rem]" />
+        {url ? (
+          <LaunchOutlinedIcon className="fill-current text-white opacity-40 w-[1.2rem]" />
+        ) : null}
       </span>
       <span className="text-stieglitz text-sm">{body}</span>
     </a>
