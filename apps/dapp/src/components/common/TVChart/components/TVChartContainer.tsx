@@ -101,7 +101,6 @@ export const TVChartContainer = () => {
         'header_in_fullscreen_mode',
         'hide_resolution_in_legend',
         'items_favoriting',
-        'hide_left_toolbar_by_default',
       ],
       loading_screen: {
         backgroundColor: '#1E1E1E',
@@ -117,9 +116,9 @@ export const TVChartContainer = () => {
         'mainSeriesProperties.candleStyle.borderUpColor': '#6DFFB9',
         'mainSeriesProperties.candleStyle.wickUpColor': '#6DFFB9', // Up only
         'mainSeriesProperties.statusViewStyle.showExchange': false,
-        'paneProperties.background': '#1E1E1E', // Carbon
-        'paneProperties.horzGridProperties.color': '#3E3E3E', // Mineshaft
-        'paneProperties.vertGridProperties.color': '#3E3E3E', // Mineshaft
+        'paneProperties.background': '#151515', // Carbon
+        'paneProperties.horzGridProperties.color': '#1E1E1E', // Mineshaft
+        'paneProperties.vertGridProperties.color': '#1E1E1E', // Mineshaft
         'paneProperties.legendProperties.showStudyArguments': false,
         'paneProperties.legendProperties.showStudyTitles': false,
         'paneProperties.legendProperties.showVolume': false,
