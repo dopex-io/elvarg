@@ -173,7 +173,7 @@ const useTVDataFeed = (dataProvider: TVDataProvider) => {
               onTick(bar);
             }
             dataProvider?.setLastBar(bar);
-          }, 3000);
+          }, 5000);
         },
         unsubscribeBars: (listenerGuid: string) => {
           intervalRef.current && clearInterval(intervalRef.current);

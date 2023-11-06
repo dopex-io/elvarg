@@ -20,14 +20,18 @@ const OverViewStats = () => {
 
   useEffect(() => {
     if (!selectedOptionsPool) return;
-    getMarkPrice(
-      selectedOptionsPool.pairTicker,
-      ({ price, tick }) => {
-        setMarkPrice(price);
-        setTick(tick);
-      },
-      toast.error,
-    );
+    const interval = setInterval(async () => {
+      await getMarkPrice(
+        selectedOptionsPool.pairTicker,
+        ({ price, tick }) => {
+          setMarkPrice(price);
+          setTick(tick);
+        },
+        toast.error,
+      );
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, [selectedOptionsPool, setMarkPrice, setTick]);
 
   useEffect(() => {
