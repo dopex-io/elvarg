@@ -44,7 +44,7 @@
     "use-debounce": "^9.0.4",
     "viem": "^1.16.6",
     "wagmi": "^1.4.5",
-    "zustand": "^4.4.3"
+    "zustand": "^4.4.6"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.0",
