@@ -4,6 +4,7 @@ import {
   encodeFunctionData,
   formatUnits,
   hexToBigInt,
+  maxUint256,
   parseUnits,
 } from 'viem';
 
@@ -18,6 +19,9 @@ import { useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
+import useLoadingStates, {
+  ASIDE_PANEL_BUTTON_KEY,
+} from 'hooks/clamm/useLoadingStates';
 import useStrikesChainStore, {
   SelectedStrike,
 } from 'hooks/clamm/useStrikesChainStore';
@@ -46,8 +50,9 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
     useClammTransactionsStore();
   const [premium, setPremium] = useState(0n);
   const { chain } = useNetwork();
-  const [inputAmount, setInputAmount] = useState<number | string>('0');
+  const [inputAmount, setInputAmount] = useState<number | string>(0);
   const [amountDebounced] = useDebounce(inputAmount, 1500);
+  const { setLoading, isLoading } = useLoadingStates();
 
   const tokenDecimals = useMemo(() => {
     if (!selectedOptionsPool)
@@ -67,26 +72,28 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
     const { isCall, meta } = strikeData;
     const { callToken, putToken } = selectedOptionsPool;
 
+    if (Number(amountDebounced) === 0) return;
+
     const tick = isCall ? meta.tickUpper : meta.tickLower;
     const ttl = selectedTTL;
+    setLoading(ASIDE_PANEL_BUTTON_KEY, true);
     const { amountInToken } = await getPremium(
       callToken.address,
       putToken.address,
       tick,
       ttl,
+      Number(amountDebounced),
       isCall,
       chain.id,
     );
+    setLoading(ASIDE_PANEL_BUTTON_KEY, false);
     if (!amountInToken) return;
 
-    const decimalsInContext = isCall ? callToken.decimals : putToken.decimals;
-    const totalPremium =
-      (BigInt(amountInToken) *
-        parseUnits(Number(amountDebounced).toString(), decimalsInContext)) /
-      parseUnits('1', decimalsInContext);
+    const totalPremium = amountInToken;
 
     setPremium(BigInt(totalPremium));
   }, [
+    setLoading,
     chain,
     isTrade,
     selectedOptionsPool,
@@ -105,7 +112,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
       isCall ? tokenDecimals.callToken : tokenDecimals.putToken,
     );
     if (depositAmount === 0n) return;
-
+    setLoading(ASIDE_PANEL_BUTTON_KEY, true);
     axios
       .get(`${VARROCK_BASE_API_URL}/clamm/deposit`, {
         params: {
@@ -113,7 +120,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
           callToken: callToken.address,
           putToken: putToken.address,
           pool: '0xC31E54c7a869B9FcBEcc14363CF510d1c41fa443' as Address,
-          handler: '0xfe30F2e6cDcEA6815EF396d81Db5bE2B5C43166c' as Address,
+          handler: '0xBdAd87fFcB972E55A94C0aDca42E2c21441070A1' as Address,
           amount: depositAmount,
           tickLower: meta.tickLower,
           tickUpper: meta.tickUpper,
@@ -126,20 +133,25 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
             amount: depositAmount,
             tokenSymbol: data.tokenSymbol,
             tokenAddress: data.tokenAddress,
-            positionManager: '0x672436dB2468D9B736f4Ec8300CAc3532303f88b',
+            positionManager: '0x1e3d4725dB1062b88962bFAb8B2D31eAa8f63e45',
             txData: data.txData,
             tokenDecimals: isCall
               ? tokenDecimals.callToken
               : tokenDecimals.putToken,
           });
         }
+      })
+      .catch((err) => {
+        setLoading(ASIDE_PANEL_BUTTON_KEY, false);
       });
+    setLoading(ASIDE_PANEL_BUTTON_KEY, false);
   }, [
+    setLoading,
+    amountDebounced,
     tokenDecimals,
     setDeposit,
     strikeIndex,
     chain,
-    amountDebounced,
     isTrade,
     selectedOptionsPool,
     strikeData,
@@ -148,9 +160,9 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
   const updatePurchases = useCallback(() => {
     if (!isTrade || !chain || !selectedOptionsPool) return;
 
-    if (Number(amountDebounced) > strikeData.amount1) {
-      return;
-    }
+    // if (Number(amountDebounced) > strikeData.amount1) {
+    //   return;
+    // }
 
     const { callToken, putToken, optionsPoolAddress } = selectedOptionsPool;
     const { isCall, meta } = strikeData;
@@ -161,8 +173,8 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
     const strike = parseUnits(
       getPriceFromTick(
         isCall ? tickUpper : tickLower,
-        token0IsCallToken ? callToken.decimals * 10 : putToken.decimals,
-        token0IsCallToken ? putToken.decimals * 10 : callToken.decimals,
+        10 ** (token0IsCallToken ? callToken.decimals : putToken.decimals),
+        10 ** (token0IsCallToken ? putToken.decimals : callToken.decimals),
         !token0IsCallToken,
       ).toString(),
       8,
@@ -202,7 +214,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
 
     const optTicks = [
       {
-        _handler: '0xfe30F2e6cDcEA6815EF396d81Db5bE2B5C43166c' as Address,
+        _handler: '0xBdAd87fFcB972E55A94C0aDca42E2c21441070A1' as Address,
         pool: '0xC31E54c7a869B9FcBEcc14363CF510d1c41fa443' as Address,
         tickLower: tickLower,
         tickUpper: tickUpper,
@@ -210,9 +222,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
       },
     ];
 
-    let premiumWithBuffer = (premium * 10005n) / 10000n;
-    const totalPremium =
-      (premiumWithBuffer * optionsAmount) / parseUnits('1', decimalsInContext);
+    let premiumWithBuffer = (premium * 10100n) / 10000n;
 
     const txData = encodeFunctionData({
       abi: optionPoolsAbi,
@@ -224,14 +234,14 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
           tickUpper,
           ttl: BigInt(selectedTTL),
           isCall,
-          maxFeeAllowed: totalPremium,
+          maxFeeAllowed: maxUint256,
         },
       ],
     });
 
     setPurchase(strikeIndex, {
       strike: strikeData.strike,
-      premium: totalPremium,
+      premium: premiumWithBuffer,
       optionsPool: optionsPoolAddress,
       txData,
       tokenSymbol: symbolInContext,

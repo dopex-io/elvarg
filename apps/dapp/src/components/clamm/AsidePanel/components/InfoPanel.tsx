@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { encodeFunctionData, Hex, parseAbi } from 'viem';
 
 import { Button } from '@dopex-io/ui';
+import { LoaderIcon } from 'react-hot-toast';
 import {
   Address,
   erc20ABI,
@@ -13,6 +14,9 @@ import wagmiConfig from 'wagmi-config';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
+import useLoadingStates, {
+  ASIDE_PANEL_BUTTON_KEY,
+} from 'hooks/clamm/useLoadingStates';
 import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 
 import getTokenAllowance from 'utils/clamm/varrock/getTokenAllowance';
@@ -24,23 +28,22 @@ import { DEFAULT_CHAIN_ID } from 'constants/env';
 type Props = {
   updateTokenBalances: () => Promise<void>;
 };
+
+type ApprovedRequiredInfo = {
+  tokenSymbol: string;
+  tokenAddress: Address;
+  txData: Hex;
+};
 const InfoPanel = ({ updateTokenBalances }: Props) => {
-  const { isTrade, selectedOptionsPool, tokenBalances } = useClammStore();
-  const { selectedStrikes, setSelectedStrikesError } = useStrikesChainStore();
+  const { isLoading, setLoading } = useLoadingStates();
+  const { isTrade, tokenBalances } = useClammStore();
   const { deposits, purchases } = useClammTransactionsStore();
   const { chain } = useNetwork();
   const { data: walletClient } = useWalletClient({
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
   });
   const { address: userAddress } = useAccount();
-  const [buttonDisabled, setButtonDisabled] = useState(false);
-  const [buttonLoading, setButtonLoading] = useState(false);
 
-  type ApprovedRequiredInfo = {
-    tokenSymbol: string;
-    tokenAddress: Address;
-    txData: Hex;
-  };
   const [approvalsRequired, setApprovalsRequired] = useState<
     ApprovedRequiredInfo[]
   >([]);
@@ -72,8 +75,8 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     }
 
     const spender = isTrade
-      ? '0x58c4d160b33aC1fE89c136c598CEdc9C299D8a0f'
-      : '0x672436dB2468D9B736f4Ec8300CAc3532303f88b';
+      ? '0x7d6BA9528A1449Fa944D81Ea16089D0db01F2A20'
+      : '0x1e3d4725dB1062b88962bFAb8B2D31eAa8f63e45';
 
     const _approvals: ApprovedRequiredInfo[] = [];
     for await (const [k, v] of symbolToAmounts) {
@@ -105,6 +108,8 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     const { publicClient } = wagmiConfig;
 
     const depositsArray = Array.from(deposits);
+    setLoading(ASIDE_PANEL_BUTTON_KEY, true);
+
     if (depositsArray.length > 1) {
       if (depositsArray[0]) {
         const pm = depositsArray[0][1].positionManager;
@@ -142,13 +147,25 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
       }
     }
 
+    setLoading(ASIDE_PANEL_BUTTON_KEY, false);
+
     await checkApproved();
-  }, [userAddress, walletClient, deposits, isTrade, checkApproved]);
+    await updateTokenBalances();
+  }, [
+    userAddress,
+    walletClient,
+    deposits,
+    isTrade,
+    checkApproved,
+    setLoading,
+    updateTokenBalances,
+  ]);
 
   const handlePurchase = useCallback(async () => {
     if (!userAddress || !walletClient || !isTrade) return;
     const { publicClient } = wagmiConfig;
     const purchasesArray = Array.from(purchases);
+    setLoading(ASIDE_PANEL_BUTTON_KEY, true);
     if (purchasesArray.length > 1 && purchasesArray[0]) {
       const optionsPool = purchasesArray[0][1].optionsPool;
       const encodedTxData = encodeFunctionData({
@@ -182,28 +199,48 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
         });
       }
     }
-
     await checkApproved();
-  }, [isTrade, purchases, userAddress, walletClient, checkApproved]);
+    await updateTokenBalances();
+    setLoading(ASIDE_PANEL_BUTTON_KEY, false);
+  }, [
+    isTrade,
+    purchases,
+    userAddress,
+    walletClient,
+    checkApproved,
+    setLoading,
+    updateTokenBalances,
+  ]);
 
   const handleApprove = useCallback(async () => {
     if (!userAddress || !walletClient) return;
     const { publicClient } = wagmiConfig;
 
+    let nonce = await publicClient.getTransactionCount({
+      address: userAddress,
+    });
     for await (const approval of approvalsRequired) {
-      const request = await walletClient.prepareTransactionRequest({
-        account: walletClient.account,
-        to: approval.tokenAddress,
-        data: approval.txData,
-        type: 'legacy',
-      });
-      const hash = await walletClient.sendTransaction(request);
-      const reciept = await publicClient.waitForTransactionReceipt({
-        hash,
-      });
+      try {
+        setLoading(ASIDE_PANEL_BUTTON_KEY, true);
+        const request = await walletClient.prepareTransactionRequest({
+          account: walletClient.account,
+          to: approval.tokenAddress,
+          data: approval.txData,
+          type: 'legacy',
+        });
+        const hash = await walletClient.sendTransaction(request);
+        await publicClient.waitForTransactionReceipt({
+          hash,
+        });
+        nonce++;
+        setLoading(ASIDE_PANEL_BUTTON_KEY, false);
+      } catch (err) {
+        console.error(err);
+        setLoading(ASIDE_PANEL_BUTTON_KEY, false);
+      }
       await checkApproved();
     }
-  }, [userAddress, walletClient, approvalsRequired, checkApproved]);
+  }, [userAddress, walletClient, approvalsRequired, checkApproved, setLoading]);
 
   const buttonProps = useMemo(() => {
     if (approvalsRequired.length > 0) {
@@ -251,12 +288,17 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
           </span>
         </span>
       </div>
+
       <Button
         onClick={buttonProps?.onClick}
-        className="animte-pulse animate-bg"
-        // disabled={}
+        className="flex items-center justify-center"
+        disabled={isLoading(ASIDE_PANEL_BUTTON_KEY)}
       >
-        {buttonProps?.text}
+        {isLoading(ASIDE_PANEL_BUTTON_KEY) ? (
+          <LoaderIcon className="w-[18px] h-[18px] bg-primary text-white border border-white" />
+        ) : (
+          buttonProps?.text
+        )}
       </Button>
     </div>
   );
