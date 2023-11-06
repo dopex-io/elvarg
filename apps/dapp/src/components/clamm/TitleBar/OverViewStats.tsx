@@ -57,7 +57,7 @@ const OverViewStats = () => {
           Mark Price
         </h6>
       </div>
-      <div className="flex flex-col">
+      {/* <div className="flex flex-col">
         <h6 className="flex text-sm md:text-md font-medium text-white items-center space-x-2">
           <span className="text-stieglitz">$</span>{' '}
           <span>{formatAmount(stats.oi, 5)}</span>
@@ -74,7 +74,7 @@ const OverViewStats = () => {
         <h6 className="text-sm md:text-md font-medium text-stieglitz">
           Total Value Locked
         </h6>
-      </div>
+      </div> */}
     </div>
   );
 };
