@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
 import { BigNumber } from 'ethers';
 
 import { ERC20__factory } from '@dopex-io/sdk';
-import useSendTx from 'hooks/useSendTx';
+import { Dialog } from '@dopex-io/ui';
+
 import { useBoundStore } from 'store';
 
-import Dialog from 'components/UI/Dialog';
+import useSendTx from 'hooks/useSendTx';
+
 import FillPositionDialog from 'components/olp/FillPosition/FillPositionDialog';
 
 import {
@@ -20,11 +21,11 @@ import { DECIMALS_TOKEN, DECIMALS_USD, MAX_VALUE } from 'constants/index';
 const CHAIN_ID: number = 5;
 
 export interface Props {
-  anchorEl: null | HTMLElement;
-  setAnchorEl: Function;
+  isOpen: boolean;
+  handleClose: () => void;
 }
 
-const FillPosition = ({ anchorEl, setAnchorEl }: Props) => {
+const FillPosition = ({ isOpen, handleClose }: Props) => {
   const sendTx = useSendTx();
   const {
     accountAddress,
@@ -45,7 +46,7 @@ const FillPosition = ({ anchorEl, setAnchorEl }: Props) => {
 
   const [approved, setApproved] = useState<boolean>(false);
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
-    BigNumber.from(0)
+    BigNumber.from(0),
   );
   const [rawFillAmount, setRawFillAmount] = useState<string>('1');
   const [outUsd, setOutUsd] = useState<boolean>(false);
@@ -73,7 +74,7 @@ const FillPosition = ({ anchorEl, setAnchorEl }: Props) => {
       return fillAmount
         ? getUserReadableAmount(
             lpPositionSelected?.underlyingPremium,
-            DECIMALS_TOKEN
+            DECIMALS_TOKEN,
           ) * fillAmount
         : 0;
     } catch (err) {
@@ -88,11 +89,11 @@ const FillPosition = ({ anchorEl, setAnchorEl }: Props) => {
       const strikeTokenAddress = await olpContract.getSsovOptionToken(
         olpData?.ssov,
         olpData?.currentEpoch,
-        lpPositionSelected?.strike
+        lpPositionSelected?.strike,
       );
       const strikeToken = await ERC20__factory.connect(
         strikeTokenAddress,
-        signer
+        signer,
       );
       await sendTx(strikeToken, 'approve', [olpContract.address, MAX_VALUE]);
       setApproved(true);
@@ -115,7 +116,7 @@ const FillPosition = ({ anchorEl, setAnchorEl }: Props) => {
       const strikeTokenAddress = await olpContract.getSsovOptionToken(
         olpData?.ssov,
         olpData?.currentEpoch,
-        lpPositionSelected?.strike
+        lpPositionSelected?.strike,
       );
 
       await sendTx(olpContract.connect(signer), 'fillLpPosition', [
@@ -162,7 +163,7 @@ const FillPosition = ({ anchorEl, setAnchorEl }: Props) => {
         const strikeTokenAddress = await olpContract.getSsovOptionToken(
           olpData?.ssov,
           olpData?.currentEpoch,
-          lpPositionSelected?.strike
+          lpPositionSelected?.strike,
         );
         // TODO: verify
         allowanceApproval(
@@ -172,7 +173,7 @@ const FillPosition = ({ anchorEl, setAnchorEl }: Props) => {
           signer,
           getContractReadableAmount(rawFillAmount, DECIMALS_TOKEN),
           setApproved,
-          setUserTokenBalance
+          setUserTokenBalance,
         );
       } catch (err) {
         console.log(err);
@@ -206,7 +207,7 @@ const FillPosition = ({ anchorEl, setAnchorEl }: Props) => {
       underlyingToReceive >
         getUserReadableAmount(
           lpPositionSelected?.underlyingLiquidity!,
-          DECIMALS_TOKEN
+          DECIMALS_TOKEN,
         )
     )
       return 'Insufficient liquidity';
@@ -221,17 +222,7 @@ const FillPosition = ({ anchorEl, setAnchorEl }: Props) => {
   ]);
 
   return (
-    <Dialog
-      open={anchorEl != null}
-      handleClose={() => setAnchorEl(null)}
-      disableScrollLock={true}
-      sx={{
-        '.MuiPaper-root': {
-          padding: '12px',
-        },
-      }}
-      width={368}
-    >
+    <Dialog isOpen={isOpen} handleClose={handleClose} title="Fill LP">
       <FillPositionDialog
         isPut={olpData?.isPut!}
         lpPositionSelected={lpPositionSelected!}

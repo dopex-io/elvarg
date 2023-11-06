@@ -66,11 +66,7 @@ const StyleTableCellHeader = (props: HeaderCellInterface) => {
   );
 };
 
-const FEATURED_OLPS: string[] = [
-  'DPX-MONTHLY',
-  'RDPX-MONTHLY',
-  'STETH-MONTHLY',
-];
+const FEATURED_OLPS: string[] = ['DPX-MONTHLY', 'ARB-MONTHLY', 'DPX-WEEKLY'];
 
 export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
   const chainIds: string[] = Object.keys(olps ?? []);
@@ -87,7 +83,7 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
       ...new Set(
         Object.keys(olps)
           .map((chainId) => olps[chainId]?.map((o) => o.underlyingSymbol) ?? '')
-          .flat()
+          .flat(),
       ),
     ];
   }, [olps]);
@@ -115,7 +111,7 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
 
     if (!isEmpty(selectedOlpNetworks)) {
       filtered = filtered.filter((o) =>
-        selectedOlpNetworks.includes(CHAINS[o.chainId!]?.name || '')
+        selectedOlpNetworks.includes(CHAINS[o.chainId!]?.name || ''),
       );
     }
 
@@ -127,7 +123,7 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
 
     if (!isEmpty(selectedOlpMarkets)) {
       filtered = filtered.filter((o) =>
-        selectedOlpMarkets.includes(o.underlyingSymbol)
+        selectedOlpMarkets.includes(o.underlyingSymbol),
       );
     }
 
@@ -146,7 +142,7 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
     (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
       setPage(newPage);
     },
-    [setPage]
+    [setPage],
   );
 
   return (
@@ -156,10 +152,8 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
       </Typography>
       <Box className="flex mt-2 flex-col space-x-0 space-y-6 lg:flex-row lg:space-x-6 lg:space-y-0">
         {olps[DEFAULT_CHAIN_ID]?.filter((o) =>
-          FEATURED_OLPS.includes(o.symbol)
-        ).map((o, idx) => (
-          <FeaturedOlp key={idx} olp={o} />
-        ))}
+          FEATURED_OLPS.includes(o.symbol),
+        ).map((o, idx) => <FeaturedOlp key={idx} olp={o} />)}
       </Box>
       <Typography variant="h5" color="white" className="my-3 mt-8">
         All Options LP
@@ -234,7 +228,7 @@ export const OlpHome = ({ olps }: { olps: Record<string, IOlpApi[]> }) => {
             {filteredMarket
               ?.slice(
                 page * ROWS_PER_PAGE,
-                page * ROWS_PER_PAGE + ROWS_PER_PAGE
+                page * ROWS_PER_PAGE + ROWS_PER_PAGE,
               )
               ?.map((olp, idx) => (
                 <OlpTableRow key={idx} olp={olp} idx={idx} />

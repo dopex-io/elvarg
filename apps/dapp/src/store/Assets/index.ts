@@ -141,7 +141,7 @@ export const createAssetsSlice: StateCreator<
 
       // Include veDPX
       if (chainId === 42161) {
-        assets.push('veDEPX');
+        assets.push('veDPX');
         assetAddresses.push(vedpxAddress);
       }
 

@@ -72,7 +72,7 @@ const appLinks: {
           description: 'Liquidity pools for SSOV options',
         },
         {
-          name: 'Straddles',
+          name: 'Straddles DEPRECATED',
           to: '/straddles',
           description: 'Buy/write straddles for crypto assets',
         },
@@ -81,22 +81,6 @@ const appLinks: {
     {
       name: 'Trade',
       subLinks: [
-        {
-          name: 'Insured Perps',
-          to: '/atlantics/manage/insured-perps/WETH-USDC',
-          description: 'Open liquidation-free longs',
-        },
-        {
-          name: 'Insured Perps LP',
-          to: '/atlantics',
-          description: 'Write weekly atlantic puts to earn premium + funding',
-        },
-        {
-          name: 'Scalps',
-          to: '/scalps/ETH',
-          description:
-            'Scalp market moves with short term positions & high leverage',
-        },
         {
           name: 'DPX Bonds',
           to: '/dpx-bonds',
@@ -130,16 +114,14 @@ const menuLinks = [
   { name: 'Discord', to: 'https://discord.gg/dopex' },
   { name: 'Github', to: 'https://github.com/dopex-io' },
   { name: 'Bug Bounty', to: 'https://github.com/dopex-io/bug-bounty' },
-  { name: 'Price Oracles', to: '/oracles' },
+  { name: 'Fees', to: '/fees' },
   { name: 'Diamond Pepe NFTs', to: '/nfts/diamondpepes' },
   { name: 'Dopex NFTs', to: '/nfts/dopex' },
-  { name: 'Community NFTs', to: '/nfts/community' },
 ];
 
 export default function AppBar() {
   const {
     accountAddress,
-    tokenPrices,
     updateTokenPrices,
     updateAssetBalances,
     setOpenComplianceDialog,

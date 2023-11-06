@@ -11,12 +11,9 @@ import getCurrentTime from 'utils/date/getCurrentTime';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import {
-  ASC,
   DECIMALS_STRIKE,
   DECIMALS_TOKEN,
   DECIMALS_USD,
-  DESC,
-  PERCENT,
   ZERO_ADDRESS,
 } from '../../../constants';
 
@@ -114,7 +111,7 @@ export const createOlpSlice: StateCreator<
     try {
       return SsovLp__factory.connect(
         Addresses[42161].OLP.SsovLp[selectedPoolName],
-        provider
+        provider,
       );
     } catch (err) {
       console.log(err);
@@ -222,7 +219,7 @@ export const createOlpSlice: StateCreator<
             .div(oneEBigNumber(DECIMALS_STRIKE))
             .div(oneEBigNumber(DECIMALS_TOKEN));
           return usdLiquidity.add(underLiqToUsd);
-        }
+        },
       );
 
       const expiry = olpData?.expiries[selectedEpoch] || BigNumber.from(0);
@@ -235,16 +232,18 @@ export const createOlpSlice: StateCreator<
           .map(async (pos, idx) => {
             let impliedVol: BigNumber = await olpContract?.getSsovVolatility(
               olpData?.ssov,
-              pos?.strike
+              pos?.strike,
             );
-            impliedVol = impliedVol.mul(PERCENT.sub(pos.discount)).div(PERCENT);
+            impliedVol = impliedVol
+              .mul(BigNumber.from(100).sub(pos.discount))
+              .div(BigNumber.from(100));
             const premium: BigNumber = await olpContract?.calculatePremium(
               olpData?.isPut,
               pos.strike,
               expiry,
               oneEBigNumber(DECIMALS_TOKEN),
               impliedVol,
-              olpData?.ssov
+              olpData?.ssov,
             );
             const underlyingPremium: BigNumber =
               await olpContract?.getPremiumInUnderlying(olpData?.ssov, premium);
@@ -257,7 +256,7 @@ export const createOlpSlice: StateCreator<
               pos.strike.toString()
             ]
               ? strikeToUtilization[pos.strike.toString()]!.add(
-                  pos.usdLiquidityUsed.add(underlyingUsedInUsd)
+                  pos.usdLiquidityUsed.add(underlyingUsedInUsd),
                 )
               : pos.usdLiquidityUsed.add(underlyingUsedInUsd);
             return {
@@ -268,7 +267,7 @@ export const createOlpSlice: StateCreator<
               underlyingPremium: underlyingPremium,
               impliedVol: impliedVol,
             };
-          })
+          }),
       );
 
       set((prevState) => ({
@@ -285,7 +284,7 @@ export const createOlpSlice: StateCreator<
                 return pos.discount.toNumber();
               },
             ],
-            olpData?.isPut ? [DESC, ASC] : [ASC, ASC]
+            olpData?.isPut ? ['desc', 'asc'] : ['asc', 'asc'],
           ).map((pos, idx) => ({ ...pos, idx: idx })),
           strikes: strikes,
           strikeToUtilization: strikeToUtilization,
@@ -307,7 +306,7 @@ export const createOlpSlice: StateCreator<
       const { accountAddress, olpEpochData } = get();
 
       const currentPositions = olpEpochData?.lpPositions.filter(
-        ({ buyer }) => buyer === accountAddress
+        ({ buyer }) => buyer === accountAddress,
       );
 
       set((prevState) => ({

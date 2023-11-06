@@ -3,11 +3,11 @@ import { BigNumber } from 'ethers';
 
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
-import { styled } from '@mui/material/styles';
-import Switch from '@mui/material/Switch';
 import Tooltip from '@mui/material/Tooltip';
 
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
+import { Switch } from '@dopex-io/ui';
 
 import { LpPosition } from 'store/Vault/olp';
 
@@ -44,57 +44,6 @@ interface Props {
   underlyingSymbol: string;
 }
 
-interface SwitchProps {
-  theme?: any;
-  underlyingImg: string;
-}
-
-const MaterialUISwitch = styled(Switch)(
-  ({ theme, underlyingImg }: SwitchProps) => ({
-    width: 62,
-    height: 34,
-    padding: 5,
-    '& .MuiSwitch-switchBase': {
-      margin: 1,
-      padding: 0,
-      transform: 'translateX(6px)',
-      '&.Mui-checked': {
-        color: '#fff',
-        transform: 'translateX(22px)',
-        '& .MuiSwitch-thumb:before': {
-          backgroundImage: `url(${'/images/tokens/usdc.svg'})`,
-        },
-        '& + .MuiSwitch-track': {
-          opacity: 1,
-          backgroundColor:
-            theme.palette.mode === 'dark' ? '#8796A5' : '#aab4be',
-        },
-      },
-    },
-    '& .MuiSwitch-thumb': {
-      backgroundColor: theme.palette.mode === 'dark' ? '#003892' : '#001e3c',
-      width: 32,
-      height: 32,
-      '&:before': {
-        content: "''",
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        left: 0,
-        top: 0,
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center',
-        backgroundImage: `url(${underlyingImg})`,
-      },
-    },
-    '& .MuiSwitch-track': {
-      opacity: 1,
-      backgroundColor: theme.palette.mode === 'dark' ? '#8796A5' : '#aab4be',
-      borderRadius: 20 / 2,
-    },
-  })
-);
-
 export default function FillPositionDialog(props: Props) {
   const {
     lpPositionSelected,
@@ -117,7 +66,7 @@ export default function FillPositionDialog(props: Props) {
   let name: string = underlyingSymbol;
   name += `-${getUserReadableAmount(
     lpPositionSelected?.strike,
-    DECIMALS_STRIKE
+    DECIMALS_STRIKE,
   )}`;
   name += isPut ? '-P' : '-C';
 
@@ -126,7 +75,7 @@ export default function FillPositionDialog(props: Props) {
     const beforeDecimals = strInput.substring(0, strInput.length - decimals);
     const afterDecimals = strInput.substring(
       strInput.length - decimals,
-      strInput.length
+      strInput.length,
     );
     return (beforeDecimals ? beforeDecimals : '0') + ('.' + afterDecimals);
   }
@@ -136,7 +85,7 @@ export default function FillPositionDialog(props: Props) {
     userTokenBalance: BigNumber,
     rawFillAmount: string,
     setRawFillAmount: Function,
-    underlyingSymbol: string
+    underlyingSymbol: string,
   ) {
     return (
       <Box>
@@ -160,7 +109,7 @@ export default function FillPositionDialog(props: Props) {
                 color="mineshaft"
                 onClick={() => {
                   setRawFillAmount(
-                    addDecimals(userTokenBalance, DECIMALS_TOKEN)
+                    addDecimals(userTokenBalance, DECIMALS_TOKEN),
                   );
                 }}
                 className="rounded-md my-auto text-stieglitz h-2/3"
@@ -195,7 +144,7 @@ export default function FillPositionDialog(props: Props) {
               >
                 <span className="text-white">{`${formatAmount(
                   getUserReadableAmount(userTokenBalance, DECIMALS_TOKEN),
-                  2
+                  2,
                 )}`}</span>
                 <span className="text-stieglitz"> tokens</span>
               </Typography>
@@ -213,7 +162,7 @@ export default function FillPositionDialog(props: Props) {
             data={'Premium per token'}
             value={`$${formatAmount(
               getUserReadableAmount(lpPositionSelected.premium, DECIMALS_USD),
-              2
+              2,
             )}`}
           />
           <LiquidityDialogRow
@@ -244,27 +193,19 @@ export default function FillPositionDialog(props: Props) {
             <InfoOutlinedIcon className="mt-2" />
           </Tooltip>
         </Box>
-        <MaterialUISwitch
-          underlyingImg={`/images/tokens/${underlyingSymbol.toLowerCase()}.svg`}
-          checked={outUsd}
-          onChange={handleOutUsd}
-          className="-mr-2"
-        />
+        <Switch checked={outUsd} onChange={handleOutUsd} />
       </Box>
     ) : null;
   }
 
   return (
-    <Box className="bg-cod-gray rounded-lg">
-      <Box className="flex justify-between items-center mb-2">
-        <Typography variant="h5">Fill LP</Typography>
-      </Box>
+    <Box className="bg-cod-gray rounded-lg mt-4">
       {getOptionTokenAmountBalance(
         lpPositionSelected,
         userTokenBalance,
         rawFillAmount,
         setRawFillAmount,
-        underlyingSymbol
+        underlyingSymbol,
       )}
 
       <Box className="bg-umbra rounded-xl p-3">

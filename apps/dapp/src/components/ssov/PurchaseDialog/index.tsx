@@ -469,7 +469,7 @@ const PurchaseDialog = ({
 
       const strike = epochStrikes[strikeIndex];
 
-      const expiry = ssovEpochData.epochTimes[1]!.toNumber();
+      const expiry = ssovEpochData.epochTimes[1].toNumber();
 
       const timeToExpirationInYears = getTimeToExpirationInYears(expiry);
 

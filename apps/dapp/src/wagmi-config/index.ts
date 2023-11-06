@@ -10,12 +10,12 @@ import { publicProvider } from 'wagmi/providers/public';
 
 import { INFURA_PROJECT_ID, WALLETCONNECT_PROJECT_ID } from 'constants/env';
 
-import { BitKeepConnector } from './BitKeepConnector';
+import { OkxConnector } from './OkxConnector';
 import { RabbyConnector } from './RabbyConnector';
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [arbitrum, polygon, mainnet, foundry],
-  [infuraProvider({ apiKey: INFURA_PROJECT_ID || '' }), publicProvider()],
+  [arbitrum, polygon, mainnet],
+  [infuraProvider({ apiKey: INFURA_PROJECT_ID || '' })],
 );
 
 const wagmiConfig = createConfig({
@@ -24,8 +24,8 @@ const wagmiConfig = createConfig({
   webSocketPublicClient,
   connectors: [
     new MetaMaskConnector({ chains }),
-    new BitKeepConnector({ chains }),
     new RabbyConnector({ chains }),
+    new OkxConnector({ chains }),
     new CoinbaseWalletConnector({
       chains,
       options: {

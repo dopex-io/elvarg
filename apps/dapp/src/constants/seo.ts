@@ -27,23 +27,6 @@ const seo = {
     title: 'veDPX | Escrowed DPX',
     description: 'Lock $DPX to earn yield, fees, and vote',
   },
-  insuredPerpsLP: {
-    url: `${HOST_URL}/atlantics`,
-    banner:
-      'https://res.cloudinary.com/dxitdndu3/image/upload/v1684326257/dopex_images/preview_images/insured-perps-lp_raxiiq.png',
-    alt: 'Insured Perps',
-    title: 'Dopex Atlantic Insured Perps LP',
-    description:
-      'Set a maximum price you are willing to buy $ETH for while earning premiums and funding',
-  },
-  insuredPerps: {
-    url: `${HOST_URL}/atlantics`,
-    banner:
-      'https://res.cloudinary.com/dxitdndu3/image/upload/v1685374223/dopex_images/preview_images/insured-perps_ak7l2z.png',
-    alt: 'Insured Perps',
-    title: 'Dopex Atlantic Insured Perps',
-    description: 'Open non-liquidatable longs using up to 10x leverage',
-  },
   portfolio: {
     url: `${HOST_URL}/portfolio`,
     banner:
@@ -77,14 +60,6 @@ const seo = {
     title: 'OLP | Dopex Option Liquidity Pools',
     description:
       'Exit your SSOV positions mid-epoch or provide liquidity to purchase calls and puts at a discount',
-  },
-  scalps: {
-    url: `${HOST_URL}/scalps`,
-    banner:
-      'https://res.cloudinary.com/dxitdndu3/image/upload/v1685374223/dopex_images/preview_images/scalps_k7mnxe.png',
-    alt: 'Scalps',
-    title: 'Dopex Option Scalps',
-    description: 'Trade short time frames using high leverage at a fixed cost',
   },
   bonds: {
     url: `${HOST_URL}/dpx-bonds`,
