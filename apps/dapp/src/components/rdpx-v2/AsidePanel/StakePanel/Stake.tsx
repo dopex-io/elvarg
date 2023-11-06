@@ -97,17 +97,15 @@ const Stake = () => {
           body={panelState.body || undefined}
         />
       ) : null}
-      <div className="flex flex-col rounded-xl p-3 w-full bg-umbra space-y-3">
-        <Button
-          size="medium"
-          className="w-full rounded-md"
-          color="primary"
-          disabled={panelState.disabled}
-          onClick={panelState.handler}
-        >
-          {panelState.label}
-        </Button>
-      </div>
+      <Button
+        size="medium"
+        className="w-full rounded-md"
+        color="primary"
+        disabled={panelState.disabled}
+        onClick={panelState.handler}
+      >
+        {panelState.label}
+      </Button>
     </div>
   );
 };

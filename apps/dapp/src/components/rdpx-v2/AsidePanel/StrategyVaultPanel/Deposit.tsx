@@ -2,13 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { formatUnits, parseUnits } from 'viem';
 
 import { Button, Input } from '@dopex-io/ui';
-import { erc20ABI, useAccount, useContractWrite, useNetwork } from 'wagmi';
+import { erc20ABI, useAccount, useContractRead, useContractWrite } from 'wagmi';
 
 import useTokenData from 'hooks/helpers/useTokenData';
 import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 
 import Alert from 'components/common/Alert';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import alerts, { AlertType } from 'components/rdpx-v2/AsidePanel/alerts';
 import InfoRow from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/InfoRow';
 import Typography2 from 'components/UI/Typography2';
@@ -23,11 +22,9 @@ const Deposit = () => {
   const [amount, setAmount] = useState<string>('');
 
   const { address: user = '0x' } = useAccount();
-  const { chain } = useNetwork();
-  const { userPerpetualVaultData, updateUserPerpetualVaultData } =
-    usePerpPoolData({
-      user,
-    });
+  const { updateUserPerpetualVaultData } = usePerpPoolData({
+    user,
+  });
   const { write: deposit, isSuccess: isDepositSuccess } = useContractWrite({
     abi: PerpVaultLp,
     address: addresses.perpPoolLp,
@@ -39,6 +36,12 @@ const Deposit = () => {
     address: addresses.weth,
     functionName: 'approve',
     args: [addresses.perpPoolLp, parseUnits(amount, DECIMALS_TOKEN)],
+  });
+  const { data: sharesReceived = 0n } = useContractRead({
+    abi: PerpVaultLp,
+    address: addresses.perpPoolLp,
+    functionName: 'previewDeposit',
+    args: [parseUnits(amount, DECIMALS_TOKEN)],
   });
   const { updateAllowance, approved, balance, updateBalance } = useTokenData({
     amount,
@@ -157,42 +160,25 @@ const Deposit = () => {
       ) : null}
       <div className="flex flex-col rounded-xl p-3 space-y-3 w-full bg-umbra">
         <InfoRow
-          label="Balance"
+          label="Shares Received"
           value={
             <Typography2 variant="caption">
-              {formatBigint(balance, DECIMALS_TOKEN)}{' '}
+              {formatBigint(sharesReceived)}{' '}
               <Typography2 variant="caption" color="stieglitz">
-                WETH
+                LP
               </Typography2>
             </Typography2>
           }
         />
-        <InfoRow
-          label="You will receive"
-          value={
-            <Typography2 variant="caption">
-              {formatBigint(
-                userPerpetualVaultData.totalUserShares || 0n,
-                DECIMALS_TOKEN,
-              )}{' '}
-              <Typography2 variant="caption" color="stieglitz">
-                ESV
-              </Typography2>
-            </Typography2>
-          }
-        />
-        <div className="rounded-md flex flex-col p-3 w-full bg-neutral-800 space-y-2">
-          <EstimatedGasCostButton gas={500000} chainId={chain?.id || 42161} />
-          <Button
-            size="small"
-            color={panelState.disabled ? 'mineshaft' : 'primary'}
-            className="w-full"
-            disabled={panelState.disabled}
-            onClick={panelState.handler}
-          >
-            {panelState.label}
-          </Button>
-        </div>
+        <Button
+          size="small"
+          color={panelState.disabled ? 'mineshaft' : 'primary'}
+          className="w-full"
+          disabled={panelState.disabled}
+          onClick={panelState.handler}
+        >
+          {panelState.label}
+        </Button>
       </div>
     </div>
   );

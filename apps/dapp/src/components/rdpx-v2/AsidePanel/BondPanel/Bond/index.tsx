@@ -4,14 +4,13 @@ import { parseUnits } from 'viem';
 import ButtonGroup from '@mui/material/ButtonGroup';
 
 import { Button } from '@dopex-io/ui';
-import { erc20ABI, useAccount, useContractWrite, useNetwork } from 'wagmi';
+import { erc20ABI, useAccount, useContractWrite } from 'wagmi';
 
 import useTokenData from 'hooks/helpers/useTokenData';
 import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 import useSqueezeDelegatedWeth from 'hooks/rdpx/useSqueezeDelegatedWeth';
 
 import Alert from 'components/common/Alert';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CollateralInputPanel from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/CollateralInputPanel';
 import InfoBox from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/InfoBox';
 import PanelInput from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/PanelInput';
@@ -22,7 +21,6 @@ import Typography2 from 'components/UI/Typography2';
 
 import formatBigint from 'utils/general/formatBigint';
 
-import { DEFAULT_CHAIN_ID } from 'constants/env';
 import { DECIMALS_TOKEN } from 'constants/index';
 import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
 import addresses from 'constants/rdpx/addresses';
@@ -53,7 +51,6 @@ const Bond = () => {
   const [amount, setAmount] = useState<string>('');
   const [delegated, setDelegated] = useState<boolean>(false);
 
-  const { chain } = useNetwork();
   const { address: account } = useAccount();
   const { updateRdpxV2CoreState, rdpxV2CoreState } = useRdpxV2CoreData({
     user: account || '0x',
@@ -238,12 +235,6 @@ const Bond = () => {
           label="rtETH to be received"
           value={<Typography2 variant="caption">-</Typography2>}
         />
-        <div className="rounded-md p-3 bg-carbon">
-          <EstimatedGasCostButton
-            gas={500000}
-            chainId={chain?.id || DEFAULT_CHAIN_ID}
-          />
-        </div>
         <Button
           size="medium"
           className="w-full rounded-md"

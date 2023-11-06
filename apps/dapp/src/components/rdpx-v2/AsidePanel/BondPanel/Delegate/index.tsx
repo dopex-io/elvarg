@@ -151,23 +151,15 @@ const Delegate = () => {
           severity={panelState.severity || AlertSeverity.info}
         />
       ) : null}
-      <div className="rounded-xl p-3 w-full bg-umbra">
-        <div className="rounded-md flex flex-col p-4 pt-2 pb-2.5 border border-neutral-800 w-full bg-neutral-800 space-y-2">
-          <EstimatedGasCostButton
-            gas={500000}
-            chainId={chain?.id || DEFAULT_CHAIN_ID}
-          />
-        </div>
-        <Button
-          size="medium"
-          className="w-full mt-2 rounded-md"
-          color="primary"
-          onClick={panelState.handler}
-          disabled={panelState.disabled}
-        >
-          {panelState.label}
-        </Button>
-      </div>
+      <Button
+        size="medium"
+        className="w-full mt-2 rounded-md"
+        color="primary"
+        onClick={panelState.handler}
+        disabled={panelState.disabled}
+      >
+        {panelState.label}
+      </Button>
     </div>
   );
 };

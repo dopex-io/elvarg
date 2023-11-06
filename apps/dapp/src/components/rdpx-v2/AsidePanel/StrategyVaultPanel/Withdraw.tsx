@@ -2,19 +2,17 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { formatUnits, parseUnits } from 'viem';
 
 import { Button, Input } from '@dopex-io/ui';
-import { erc20ABI, useAccount, useContractWrite, useNetwork } from 'wagmi';
+import { erc20ABI, useAccount, useContractWrite } from 'wagmi';
 import { writeContract } from 'wagmi/actions';
 
 import useTokenData from 'hooks/helpers/useTokenData';
 import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 
 import Alert from 'components/common/Alert';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import alerts, { AlertType } from 'components/rdpx-v2/AsidePanel/alerts';
 import InfoRow from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/InfoRow';
 import Typography2 from 'components/UI/Typography2';
 
-import formatAmount from 'utils/general/formatAmount';
 import formatBigint from 'utils/general/formatBigint';
 
 import { DECIMALS_TOKEN } from 'constants/index';
@@ -25,7 +23,6 @@ const Withdraw = () => {
   const [amount, setAmount] = useState<string>('');
 
   const { address: user = '0x' } = useAccount();
-  const { chain } = useNetwork();
   const {
     userPerpetualVaultData,
     updateUserPerpetualVaultData,
@@ -189,24 +186,18 @@ const Withdraw = () => {
           value={
             <div className="flex space-x-1">
               <Typography2 variant="caption">
-                {formatAmount(
-                  Number(
-                    formatUnits(
-                      userPerpetualVaultData.shareComposition[0],
-                      DECIMALS_TOKEN,
-                    ),
-                  ),
+                {formatBigint(
+                  userPerpetualVaultData.shareComposition[0],
+                  DECIMALS_TOKEN,
                 )}
               </Typography2>
               <Typography2 variant="caption" color="stieglitz">
                 ETH
               </Typography2>
               <Typography2 variant="caption">
-                {formatAmount(
-                  formatUnits(
-                    userPerpetualVaultData.shareComposition[1],
-                    DECIMALS_TOKEN,
-                  ),
+                {formatBigint(
+                  userPerpetualVaultData.shareComposition[1],
+                  DECIMALS_TOKEN,
                 )}{' '}
               </Typography2>
               <Typography2 variant="caption" color="stieglitz">
@@ -215,18 +206,15 @@ const Withdraw = () => {
             </div>
           }
         />
-        <div className="rounded-md flex flex-col p-3 w-full bg-neutral-800 space-y-2">
-          <EstimatedGasCostButton gas={500000} chainId={chain?.id || 42161} />
-          <Button
-            size="medium"
-            className="w-full"
-            color={panelState.disabled ? 'mineshaft' : 'primary'}
-            disabled={panelState.disabled}
-            onClick={panelState.handler}
-          >
-            {panelState.label}
-          </Button>
-        </div>
+        <Button
+          size="medium"
+          className="w-full"
+          color={panelState.disabled ? 'mineshaft' : 'primary'}
+          disabled={panelState.disabled}
+          onClick={panelState.handler}
+        >
+          {panelState.label}
+        </Button>
       </div>
     </div>
   );
