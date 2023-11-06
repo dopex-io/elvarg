@@ -96,7 +96,7 @@ const columns = [
     ),
   }),
   columnHelper.accessor('premium', {
-    header: 'premium',
+    header: 'Premium',
     cell: (info) => {
       const { amount, symbol } = info.getValue();
       return (
@@ -140,7 +140,7 @@ const columns = [
           onClick={info.getValue().handleExercise}
           disabled={info.getValue().disabled}
         >
-          Exericse
+          Exercise
         </Button>
       );
     },
