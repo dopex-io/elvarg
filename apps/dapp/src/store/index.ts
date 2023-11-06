@@ -7,11 +7,6 @@ import { createDuelSlice, DuelSlice } from './Duel';
 import { createFarmingSlice, FarmingSlice } from './Farming';
 import { createNftsSlice, NftsSlice } from './Nfts';
 import { createPortfolioSlice, PortfolioSlice } from './Portfolio';
-import {
-  createDpxusdBondingSlice,
-  DpxusdBondingSlice,
-} from './RdpxV2/dpxeth-bonding';
-import { APPSlice, createAppSlice } from './RdpxV2/perpetual-pools';
 import { createTokenSaleSlice, TokenSaleSlice } from './TokenSale';
 import { CommonSlice, createCommonSlice } from './Vault/common';
 import { createRateVaultSlice, RateVaultSlice } from './Vault/ir';
@@ -34,9 +29,7 @@ type T = WalletSlice &
   VeDPXSlice &
   StraddlesSlice &
   DpxBondsSlice &
-  OlpSlice &
-  APPSlice &
-  DpxusdBondingSlice;
+  OlpSlice;
 
 export const useBoundStore = create<T>()(
   devtools((...a) => ({
@@ -53,8 +46,6 @@ export const useBoundStore = create<T>()(
     ...createVedpxSlice(...a),
     ...createStraddlesSlice(...a),
     ...createDpxBondsSlice(...a),
-    ...createAppSlice(...a),
-    ...createDpxusdBondingSlice(...a),
     ...createOlpSlice(...a),
   })),
 );
