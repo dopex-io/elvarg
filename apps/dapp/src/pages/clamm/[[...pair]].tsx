@@ -10,7 +10,7 @@ import useTradingViewChartStore from 'hooks/tradingViewChart/useTradingViewChart
 
 import AsidePanel from 'components/clamm/AsidePanel';
 import PositionsTable from 'components/clamm/PositionsTable';
-import PriceChartWithHide from 'components/clamm/PriceChartWithHide';
+import PriceChart from 'components/clamm/PriceChart';
 import StrikesChain from 'components/clamm/StrikesChain';
 import OverViewStats from 'components/clamm/TitleBar/OverViewStats';
 import PairSelector from 'components/clamm/TitleBar/PairSelector';
@@ -70,7 +70,7 @@ const Page = () => {
         </div>
         <div className="w-full flex flex-col xl:flex-row xl:space-x-[12px] xl:space-y-[0px] space-y-[12px]">
           <div className="max-w-[1530px] h-fit sm:w-full w-[96vw] space-y-[12px]">
-            <PriceChartWithHide />
+            <PriceChart />
             <StrikesChain />
             <PositionsTable />
           </div>
