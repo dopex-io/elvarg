@@ -54,12 +54,12 @@ interface UserData {
   }[];
 }
 
-const config = {
+const perpPoolConfig = {
   abi: PerpVault,
   address: addresses.perpPool,
 };
 
-const lpConfig = {
+const perpLpConfig = {
   abi: PerpVaultLp,
   address: addresses.perpPoolLp,
 };
@@ -90,27 +90,27 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
       // multicall
       contracts: [
         {
-          ...config,
+          ...perpPoolConfig,
           functionName: 'currentEpoch',
         },
         {
-          ...config,
+          ...perpPoolConfig,
           functionName: 'fundingDuration',
         },
         {
-          ...config,
+          ...perpPoolConfig,
           functionName: 'totalActiveOptions',
         },
         {
-          ...config,
+          ...perpPoolConfig,
           functionName: 'lastUpdateTime',
         },
         {
-          ...config,
+          ...perpPoolConfig,
           functionName: 'getUnderlyingPrice',
         },
         {
-          ...lpConfig,
+          ...perpLpConfig,
           functionName: 'totalSupply',
         },
       ],
@@ -125,22 +125,22 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
       // multicall
       contracts: [
         {
-          ...config,
+          ...perpPoolConfig,
           functionName: 'fundingRates',
           args: [currentEpoch],
         },
         {
-          ...config,
+          ...perpPoolConfig,
           functionName: 'getEpochExpiry',
           args: [currentEpoch],
         },
         {
-          ...config,
+          ...perpPoolConfig,
           functionName: 'totalFundingForEpoch',
           args: [currentEpoch],
         },
         {
-          ...lpConfig,
+          ...perpLpConfig,
           functionName: 'redeemPreview',
           args: [parseUnits('1', DECIMALS_TOKEN)],
         },
@@ -153,7 +153,7 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
       ttl = 0n;
     }
     const premium = await readContract({
-      ...config,
+      ...perpPoolConfig,
       functionName: 'calculatePremium',
       args: [strike, parseUnits('1', DECIMALS_TOKEN), ttl, rdpxPriceInEth],
     });
@@ -194,17 +194,17 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
       ] = await readContracts({
         contracts: [
           {
-            ...config,
+            ...perpPoolConfig,
             functionName: 'epochExpiries',
             args: [epoch],
           },
           {
-            ...config,
+            ...perpPoolConfig,
             functionName: 'totalFundingForEpoch',
             args: [epoch],
           },
           {
-            ...config,
+            ...perpPoolConfig,
             functionName: 'totalSharesLocked',
             args: [epoch],
           },
@@ -229,12 +229,12 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
         // multicall
         contracts: [
           {
-            ...config,
+            ...perpPoolConfig,
             functionName: 'userSharesLocked',
             args: [user, vaultState.currentEpoch],
           },
           {
-            ...lpConfig,
+            ...perpLpConfig,
             functionName: 'balanceOf',
             args: [user],
           },
@@ -285,7 +285,7 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
     const allEpochs = range(Number(vaultState.currentEpoch + 1n));
     for (const i of allEpochs) {
       const userSharesForEpoch = readContract({
-        ...config,
+        ...perpPoolConfig,
         functionName: 'userSharesLocked',
         args: [user, BigInt(i)],
       });
@@ -298,7 +298,7 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
     for (let i = 0; i < redeemRequests.length; i++) {
       previewRedeemPromises.push(
         readContract({
-          ...lpConfig,
+          ...perpLpConfig,
           functionName: 'redeemPreview',
           args: [redeemRequests[i].amount],
         }),

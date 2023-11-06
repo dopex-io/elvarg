@@ -8,10 +8,11 @@ interface Props {
   token: Address;
   amount: bigint | string;
   spender?: Address;
+  owner?: Address;
 }
 
 const useTokenData = (props: Props) => {
-  const { token, spender = '0x', amount } = props;
+  const { token, spender = '0x', owner, amount } = props;
 
   const { address: account = '0x' } = useAccount();
 
@@ -36,13 +37,13 @@ const useTokenData = (props: Props) => {
         abi: erc20ABI,
         address: token,
         functionName: 'balanceOf',
-        args: [account],
+        args: [owner ?? account],
       });
       setBalance(balance);
     } catch (e) {
       console.error(e);
     }
-  }, [token, account]);
+  }, [account, token, owner]);
 
   const updateAllowance = useCallback(async () => {
     if (spender === '0x') {
@@ -54,7 +55,7 @@ const useTokenData = (props: Props) => {
         abi: erc20ABI,
         address: token,
         functionName: 'allowance',
-        args: [account, spender],
+        args: [owner ?? account, spender],
       });
       setAllowance(allowance);
       if (typeof amount === 'bigint') {
@@ -66,7 +67,7 @@ const useTokenData = (props: Props) => {
     } catch (e) {
       console.error(e);
     }
-  }, [amount, getDecimals, spender, token, account]);
+  }, [spender, token, owner, account, amount, getDecimals]);
 
   return {
     balance,

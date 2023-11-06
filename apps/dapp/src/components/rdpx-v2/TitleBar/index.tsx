@@ -4,6 +4,7 @@ import { parseUnits } from 'viem';
 
 import { useAccount } from 'wagmi';
 
+import useTokenData from 'hooks/helpers/useTokenData';
 import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 import useStore, { rdpxV2Actions } from 'hooks/rdpx/useStore';
@@ -14,6 +15,7 @@ import Typography2 from 'components/UI/Typography2';
 import formatBigint from 'utils/general/formatBigint';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
+import addresses from 'constants/rdpx/addresses';
 
 export const rdpxStateToLabelMapping: {
   [key in (typeof rdpxV2Actions)[number]]: string;
@@ -45,11 +47,17 @@ const Stat = ({
 );
 
 const TitleBar = () => {
-  const router = useRouter();
   const state = useStore((store) => store.state);
   const update = useStore((store) => store.update);
-  const { address: _user } = useAccount();
 
+  const router = useRouter();
+  const { address: _user } = useAccount();
+  const { balance: lpWethBalance, updateBalance: updateLpWethBalance } =
+    useTokenData({
+      owner: addresses.perpPoolLp,
+      token: addresses.weth,
+      amount: 0n,
+    });
   const { updateRdpxV2CoreState, rdpxV2CoreState } = useRdpxV2CoreData({
     user: _user || '0x',
   });
@@ -70,22 +78,12 @@ const TitleBar = () => {
   }, [updateRdpxV2CoreState]);
 
   useEffect(() => {
+    updateLpWethBalance();
+  }, [updateLpWethBalance]);
+
+  useEffect(() => {
     if (rdpxV2CoreState.discount > 0n) updatePerpetualVaultState();
   }, [rdpxV2CoreState.discount, updatePerpetualVaultState]);
-
-  const memoizedLpTvl = useMemo(() => {
-    return (
-      (perpetualVaultState.totalLpShares * rdpxV2CoreState.rdpxPriceInEth) /
-        (perpetualVaultState.oneLpShare[1] || 1n) +
-      (perpetualVaultState.totalLpShares * rdpxV2CoreState.ethPrice) /
-        (perpetualVaultState.oneLpShare[0] || 1n)
-    );
-  }, [
-    perpetualVaultState.oneLpShare,
-    perpetualVaultState.totalLpShares,
-    rdpxV2CoreState.ethPrice,
-    rdpxV2CoreState.rdpxPriceInEth,
-  ]);
 
   const titleBarContent = useMemo(() => {
     const defaultIndex = 0;
@@ -144,10 +142,7 @@ const TitleBar = () => {
               />
               <Stat
                 name="TVL"
-                value={`${formatBigint(
-                  memoizedLpTvl,
-                  DECIMALS_STRIKE + DECIMALS_TOKEN,
-                )} WETH`}
+                value={`${formatBigint(lpWethBalance, DECIMALS_TOKEN)} WETH`}
               />
             </div>
           ),
@@ -157,7 +152,7 @@ const TitleBar = () => {
       default:
         return { index: defaultIndex, renderComponent: <></> };
     }
-  }, [perpetualVaultState, rdpxV2CoreState, state, memoizedLpTvl]);
+  }, [perpetualVaultState, rdpxV2CoreState, state, lpWethBalance]);
 
   return (
     <div className="flex flex-col space-y-6">
