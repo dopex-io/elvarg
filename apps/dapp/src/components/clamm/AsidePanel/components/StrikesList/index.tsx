@@ -62,7 +62,11 @@ const StrikesList = () => {
   }, [selectedOptionsPool]);
 
   const strikesInContext = useMemo(() => {
-    return isTrade ? (strikesChain ? strikesChain : []) : generatedStrikes;
+    return isTrade
+      ? strikesChain
+        ? strikesChain.sort((a, b) => b.strike - a.strike)
+        : []
+      : generatedStrikes;
   }, [strikesChain, isTrade, generatedStrikes]);
 
   return (
