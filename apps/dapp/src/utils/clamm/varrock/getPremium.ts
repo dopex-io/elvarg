@@ -7,12 +7,14 @@ async function getPremium(
   putToken: string,
   tick: number,
   ttl: number,
+  amount: number,
   isCall: boolean,
   chainId: number,
 ) {
   return axios
     .get(`${VARROCK_BASE_API_URL}/clamm/premium`, {
       params: {
+        amount,
         callToken,
         putToken,
         tick,
