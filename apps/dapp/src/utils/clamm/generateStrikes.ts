@@ -13,7 +13,7 @@ function generateStrikes(
   inversePrice: boolean,
   range: number,
 ) {
-  const tickSpacing = 20;
+  const tickSpacing = 10;
   const rounded = Math.round(tick / 10) * 10;
   const currentPrice = getPriceFromTick(
     tick,
