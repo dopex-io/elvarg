@@ -9,18 +9,18 @@ import { PriceInterval } from './types';
 const RangeSelector = () => {
   const ref = useRef<HTMLDivElement>(null);
 
-  const { ticksData } = useBoundStore();
-  const formattedData: PriceInterval[] = useMemo(() => {
-    return ticksData
-      .map((d) => ({
-        priceRange: [d.tickLowerPrice, d.tickLowerPrice],
-        availableAssets: d.liquidityAvailable.token0Amount,
-      }))
-      .filter((d) => d.availableAssets !== 0n) as PriceInterval[];
-  }, [ticksData]);
+  // const { ticksData } = useBoundStore();
+  // const formattedData: PriceInterval[] = useMemo(() => {
+  //   return ticksData
+  //     .map((d) => ({
+  //       priceRange: [d.tickLowerPrice, d.tickLowerPrice],
+  //       availableAssets: d.liquidityAvailable.token0Amount,
+  //     }))
+  //     .filter((d) => d.availableAssets !== 0n) as PriceInterval[];
+  // }, [ticksData]);
   return (
     <div className="bg-umbra my-2" ref={ref}>
-      <Chart
+      {/* <Chart
         data={formattedData}
         height={200}
         width={ref.current?.offsetWidth || 300}
@@ -30,7 +30,7 @@ const RangeSelector = () => {
           bottom: 10,
           right: 10,
         }}
-      />
+      /> */}
     </div>
   );
 };
