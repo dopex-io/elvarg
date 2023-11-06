@@ -1,5 +1,6 @@
-import { StrikesChainAPIResponse } from 'pages/v2/clamm/utils/varrock/getStrikesChain';
 import { create } from 'zustand';
+
+import { StrikesChainAPIResponse } from 'utils/clamm/varrock/getStrikesChain';
 
 type StrikesChain = StrikesChainAPIResponse;
 export type SelectedStrike = {
@@ -26,20 +27,7 @@ export interface StrikesChainStore {
   deselectStrike: (index: number) => void;
   initialize: (data: StrikesChain) => void;
   strikesChain: StrikesChain;
-  selectedStrikesErrors: Map<
-    number,
-    {
-      isError: boolean;
-      message: string;
-    }
-  >;
-  setSelectedStrikesError: (key: number, error: SelectedStrikeError) => void;
 }
-
-type SelectedStrikeError = {
-  isError: boolean;
-  message: string;
-};
 
 const useStrikesChainStore = create<StrikesChainStore>((set) => ({
   strikesChain: [],
@@ -69,16 +57,6 @@ const useStrikesChainStore = create<StrikesChainStore>((set) => ({
       return {
         ...prev,
         selectedStrikes: selectedStrikes,
-      };
-    });
-  },
-  setSelectedStrikesError(key: number, error: SelectedStrikeError) {
-    set((prev) => {
-      const strikeError = new Map(prev.selectedStrikesErrors);
-      strikeError.set(key, error);
-      return {
-        ...prev,
-        selectedStrikesErrors: strikeError,
       };
     });
   },
