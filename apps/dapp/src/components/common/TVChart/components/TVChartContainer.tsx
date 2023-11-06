@@ -149,16 +149,20 @@ export const TVChartContainer = () => {
   }, [dataFeedV2, selectedTicker]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (chartReady) {
-        if (tvWidgetRef.current) {
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') {
+        if (chartReady && tvWidgetRef.current) {
           resetCache();
           tvWidgetRef.current.activeChart?.().resetData();
         }
       }
-    }, 60000);
+    };
 
-    return () => clearInterval(interval);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [chartReady, resetCache]);
 
   return (
