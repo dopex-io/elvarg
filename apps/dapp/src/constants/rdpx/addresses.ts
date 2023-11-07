@@ -13,7 +13,10 @@ export const rdpxV2ContractKeys = [
   'dbrdpx',
   'bond',
   'rdpxReserve',
-  'multirewards',
+  'multirewards1',
+  'multirewards2',
+  'rewardToken1',
+  'rewardToken2',
 ] as const;
 
 type AddressKey = (typeof rdpxV2ContractKeys)[number];
@@ -30,7 +33,10 @@ const addresses: { [key in AddressKey]: Address } = {
   dpxeth: '0x5F7B21c3e819FbE92ebe446397Ce851b0353E49E', // 421613
   dbrdpx: '0x265290a30a00AD5353cFE7B3bFa56722D7f5b273', // 421613
   bond: '0xf9D5622a71949Bc38d35805f4dBeC58Bf651141A', // 421613
-  multirewards: '0x696c33d47D770c943E47521e23dA7a01F18c4fd4', // 421613
+  multirewards1: '0x4e8ce4a166710D0110De85669Fe0B5A3d1B71c7B', // 421613
+  multirewards2: '0xE364E758b8A018d05f5ae72f4ea4373D8Adf28D2', // 421613
+  rewardToken1: '0x6005F3DA8B31daDd15688e6247dFAC0d71c11dB5', // 421613
+  rewardToken2: '0x28DA5Ec3e00C4B5F454526Ecb437eC95F5239902', // 421613
 };
 
 export default addresses;

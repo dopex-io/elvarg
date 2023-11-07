@@ -8,10 +8,10 @@ interface Props {
 const InfoRow = ({ label, value }: Props) => {
   return (
     <div className="flex justify-between">
-      <Typography2 variant="caption" color="stieglitz">
+      <Typography2 variant="caption" color="stieglitz" className="my-auto">
         {label}
       </Typography2>
-      {value}
+      <Typography2 variant="caption">{value}</Typography2>
     </div>
   );
 };

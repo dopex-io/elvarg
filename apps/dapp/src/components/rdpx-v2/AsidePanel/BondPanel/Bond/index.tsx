@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { parseUnits } from 'viem';
+import { useCallback, useEffect, useState } from 'react';
+import { formatUnits, parseUnits } from 'viem';
 
 import ButtonGroup from '@mui/material/ButtonGroup';
 
@@ -139,6 +139,10 @@ const Bond = () => {
     setAmount(Number(e.target.value) < 0 ? '' : e.target.value);
   };
 
+  const handleMax = useCallback(() => {
+    setAmount(formatUnits(rdpxV2CoreState.maxMintableBonds, DECIMALS_TOKEN));
+  }, [rdpxV2CoreState.maxMintableBonds]);
+
   useEffect(() => {
     updateBalanceWeth();
   }, [updateBalanceWeth]);
@@ -166,6 +170,7 @@ const Bond = () => {
           amount={amount}
           handleChange={handleChange}
           maxAmount={rdpxV2CoreState.maxMintableBonds}
+          handleMax={handleMax}
           iconPath="/images/tokens/dpxeth.svg"
           label="Bond Amount"
           symbol="rtETH"

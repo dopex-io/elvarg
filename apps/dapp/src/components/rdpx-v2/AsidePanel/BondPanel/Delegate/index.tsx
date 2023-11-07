@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { parseUnits } from 'viem';
+import { formatUnits, parseUnits } from 'viem';
 
 import Slider from '@mui/material/Slider';
 import Tooltip from '@mui/material/Tooltip';
@@ -77,6 +77,10 @@ const Delegate = () => {
     setFee(newValue.toString());
   };
 
+  const onClickMax = useCallback(() => {
+    setAmount(formatUnits(balance, DECIMALS_TOKEN));
+  }, [balance]);
+
   useEffect(() => {
     updateAllowance();
   }, [updateAllowance, approveSuccess]);
@@ -99,6 +103,7 @@ const Delegate = () => {
         <PanelInput
           amount={amount}
           handleChange={handleChange}
+          handleMax={onClickMax}
           maxAmount={balance}
           iconPath="/images/tokens/weth.svg"
           label="Balance"

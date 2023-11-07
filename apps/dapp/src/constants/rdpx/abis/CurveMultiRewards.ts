@@ -12,7 +12,6 @@ const CurveMultiRewards = [
         type: 'address',
       },
     ],
-    payable: false,
     stateMutability: 'nonpayable',
     type: 'constructor',
   },
@@ -176,16 +175,13 @@ const CurveMultiRewards = [
     type: 'event',
   },
   {
-    constant: false,
     inputs: [],
     name: 'acceptOwnership',
     outputs: [],
-    payable: false,
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    constant: false,
     inputs: [
       {
         internalType: 'address',
@@ -205,12 +201,10 @@ const CurveMultiRewards = [
     ],
     name: 'addReward',
     outputs: [],
-    payable: false,
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    constant: true,
     inputs: [
       {
         internalType: 'address',
@@ -226,12 +220,10 @@ const CurveMultiRewards = [
         type: 'uint256',
       },
     ],
-    payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
-    constant: true,
     inputs: [
       {
         internalType: 'address',
@@ -252,30 +244,24 @@ const CurveMultiRewards = [
         type: 'uint256',
       },
     ],
-    payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
-    constant: false,
     inputs: [],
     name: 'exit',
     outputs: [],
-    payable: false,
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    constant: false,
     inputs: [],
     name: 'getReward',
     outputs: [],
-    payable: false,
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    constant: true,
     inputs: [
       {
         internalType: 'address',
@@ -291,12 +277,10 @@ const CurveMultiRewards = [
         type: 'uint256',
       },
     ],
-    payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
-    constant: true,
     inputs: [],
     name: 'lastPauseTime',
     outputs: [
@@ -306,12 +290,10 @@ const CurveMultiRewards = [
         type: 'uint256',
       },
     ],
-    payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
-    constant: true,
     inputs: [
       {
         internalType: 'address',
@@ -327,12 +309,10 @@ const CurveMultiRewards = [
         type: 'uint256',
       },
     ],
-    payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
-    constant: false,
     inputs: [
       {
         internalType: 'address',
@@ -342,12 +322,10 @@ const CurveMultiRewards = [
     ],
     name: 'nominateNewOwner',
     outputs: [],
-    payable: false,
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    constant: true,
     inputs: [],
     name: 'nominatedOwner',
     outputs: [
@@ -357,12 +335,10 @@ const CurveMultiRewards = [
         type: 'address',
       },
     ],
-    payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
-    constant: false,
     inputs: [
       {
         internalType: 'address',
@@ -377,12 +353,10 @@ const CurveMultiRewards = [
     ],
     name: 'notifyRewardAmount',
     outputs: [],
-    payable: false,
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    constant: true,
     inputs: [],
     name: 'owner',
     outputs: [
@@ -392,12 +366,10 @@ const CurveMultiRewards = [
         type: 'address',
       },
     ],
-    payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
-    constant: true,
     inputs: [],
     name: 'paused',
     outputs: [
@@ -407,12 +379,10 @@ const CurveMultiRewards = [
         type: 'bool',
       },
     ],
-    payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
-    constant: false,
     inputs: [
       {
         internalType: 'address',
@@ -427,12 +397,10 @@ const CurveMultiRewards = [
     ],
     name: 'recoverERC20',
     outputs: [],
-    payable: false,
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    constant: true,
     inputs: [
       {
         internalType: 'address',
@@ -473,12 +441,10 @@ const CurveMultiRewards = [
         type: 'uint256',
       },
     ],
-    payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
-    constant: true,
     inputs: [
       {
         internalType: 'address',
@@ -494,12 +460,10 @@ const CurveMultiRewards = [
         type: 'uint256',
       },
     ],
-    payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
-    constant: true,
     inputs: [
       {
         internalType: 'uint256',
@@ -515,12 +479,10 @@ const CurveMultiRewards = [
         type: 'address',
       },
     ],
-    payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
-    constant: true,
     inputs: [
       {
         internalType: 'address',
@@ -541,12 +503,10 @@ const CurveMultiRewards = [
         type: 'uint256',
       },
     ],
-    payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
-    constant: false,
     inputs: [
       {
         internalType: 'bool',
@@ -556,12 +516,10 @@ const CurveMultiRewards = [
     ],
     name: 'setPaused',
     outputs: [],
-    payable: false,
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    constant: false,
     inputs: [
       {
         internalType: 'address',
@@ -576,12 +534,10 @@ const CurveMultiRewards = [
     ],
     name: 'setRewardsDistributor',
     outputs: [],
-    payable: false,
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    constant: false,
     inputs: [
       {
         internalType: 'address',
@@ -596,12 +552,10 @@ const CurveMultiRewards = [
     ],
     name: 'setRewardsDuration',
     outputs: [],
-    payable: false,
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    constant: false,
     inputs: [
       {
         internalType: 'uint256',
@@ -611,12 +565,10 @@ const CurveMultiRewards = [
     ],
     name: 'stake',
     outputs: [],
-    payable: false,
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    constant: true,
     inputs: [],
     name: 'stakingToken',
     outputs: [
@@ -626,12 +578,10 @@ const CurveMultiRewards = [
         type: 'address',
       },
     ],
-    payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
-    constant: true,
     inputs: [],
     name: 'totalSupply',
     outputs: [
@@ -641,12 +591,10 @@ const CurveMultiRewards = [
         type: 'uint256',
       },
     ],
-    payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
-    constant: true,
     inputs: [
       {
         internalType: 'address',
@@ -667,12 +615,10 @@ const CurveMultiRewards = [
         type: 'uint256',
       },
     ],
-    payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
-    constant: false,
     inputs: [
       {
         internalType: 'uint256',
@@ -682,7 +628,6 @@ const CurveMultiRewards = [
     ],
     name: 'withdraw',
     outputs: [],
-    payable: false,
     stateMutability: 'nonpayable',
     type: 'function',
   },

@@ -25,18 +25,18 @@ const Unstake = () => {
 
   const { write: withdraw, isSuccess: stakeSuccess } = useContractWrite({
     abi: CurveMultiRewards,
-    address: addresses.multirewards,
+    address: addresses.multirewards2,
     functionName: 'withdraw',
     args: [parseUnits(amount, DECIMALS_TOKEN)],
   });
   const { data: stakedAmount = 0n } = useContractRead({
     abi: CurveMultiRewards,
-    address: addresses.multirewards,
+    address: addresses.multirewards2,
     functionName: 'balanceOf',
     args: [_user],
   });
   const { balance, updateBalance } = useTokenData({
-    spender: addresses.multirewards || '0x',
+    spender: addresses.multirewards2 || '0x',
     token: addresses.receiptToken,
     amount,
   });
@@ -83,7 +83,7 @@ const Unstake = () => {
           handleChange={onChange}
           maxAmount={stakedAmount}
           iconPath="/images/tokens/dpxeth.svg"
-          label="Stake Amount"
+          label="Staked Amount"
           symbol="rtETH"
         />
       </div>

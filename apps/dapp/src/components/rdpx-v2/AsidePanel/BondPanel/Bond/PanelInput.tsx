@@ -11,6 +11,7 @@ interface Props {
   handleChange: (e: {
     target: { value: React.SetStateAction<string> };
   }) => void;
+  handleMax?: () => void;
   maxAmount: bigint;
   iconPath: string;
   symbol: string;
@@ -18,7 +19,15 @@ interface Props {
 }
 
 const PanelInput = (props: Props) => {
-  const { amount, handleChange, maxAmount, iconPath, symbol, label } = props;
+  const {
+    amount,
+    handleChange,
+    handleMax = () => null,
+    maxAmount,
+    iconPath,
+    symbol,
+    label,
+  } = props;
 
   return (
     <div className="bg-umbra rounded-xl w-full h-fit">
@@ -45,11 +54,18 @@ const PanelInput = (props: Props) => {
         color="stieglitz"
       >
         {label}
-        <div>
+        <div className="flex space-x-1">
+          <img
+            src="/assets/max.svg"
+            className="hover:bg-silver rounded-[4px] mr-1"
+            alt="max"
+            // @ts-ignore todo fix
+            onClick={handleMax}
+          />
           <Typography2 variant="caption">
             {formatBigint(maxAmount, DECIMALS_TOKEN)}
           </Typography2>{' '}
-          {symbol}
+          <span>{symbol}</span>
         </div>
       </Typography2>
     </div>

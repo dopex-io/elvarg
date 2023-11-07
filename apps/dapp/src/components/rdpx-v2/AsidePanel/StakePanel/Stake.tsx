@@ -1,15 +1,19 @@
 // todo: D.R.Y strategy vault panel
-import { useEffect, useMemo, useState } from 'react';
-import { parseUnits } from 'viem';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { formatUnits, parseUnits } from 'viem';
 
 import { Button } from '@dopex-io/ui';
-import { useAccount, useContractWrite } from 'wagmi';
+import { format } from 'date-fns';
+import { useAccount, useContractRead, useContractWrite } from 'wagmi';
 
 import useTokenData from 'hooks/helpers/useTokenData';
 
 import Alert from 'components/common/Alert';
 import alerts, { AlertType } from 'components/rdpx-v2/AsidePanel/alerts';
 import PanelInput from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/PanelInput';
+import InfoRow from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/InfoRow';
+
+import formatBigint from 'utils/general/formatBigint';
 
 import { DECIMALS_TOKEN } from 'constants/index';
 import CurveMultiRewards from 'constants/rdpx/abis/CurveMultiRewards';
@@ -20,20 +24,32 @@ const Stake = () => {
   const { address: _user } = useAccount();
   const [amount, setAmount] = useState<string>('');
 
+  const { data: rewardPerToken = 0n } = useContractRead({
+    abi: CurveMultiRewards,
+    address: addresses.multirewards2,
+    functionName: 'rewardPerToken',
+    args: [addresses.rewardToken2],
+  });
+  const { data: rewardData = [] } = useContractRead({
+    abi: CurveMultiRewards,
+    address: addresses.multirewards2,
+    functionName: 'rewardData',
+    args: [addresses.rewardToken2],
+  });
   const { write: approve, isSuccess: isApproveSuccess } = useContractWrite({
     abi: ReceiptToken,
     address: addresses.receiptToken,
     functionName: 'approve',
-    args: [addresses.multirewards, parseUnits(amount, DECIMALS_TOKEN)],
+    args: [addresses.multirewards2, parseUnits(amount, DECIMALS_TOKEN)],
   });
   const { write: stake, isSuccess: stakeSuccess } = useContractWrite({
     abi: CurveMultiRewards,
-    address: addresses.multirewards,
+    address: addresses.multirewards2,
     functionName: 'stake',
     args: [parseUnits(amount, DECIMALS_TOKEN)],
   });
   const { balance, updateBalance, approved, updateAllowance } = useTokenData({
-    spender: addresses.multirewards || '0x',
+    spender: addresses.multirewards2 || '0x',
     token: addresses.receiptToken,
     amount,
   });
@@ -41,6 +57,10 @@ const Stake = () => {
   const onChange = (e: any) => {
     setAmount(Number(e.target.value) < 0 ? '' : e.target.value);
   };
+
+  const onClickMax = useCallback(() => {
+    setAmount(formatUnits(balance, DECIMALS_TOKEN));
+  }, [balance]);
 
   const panelState: AlertType & { handler: () => void | null } = useMemo(() => {
     const doNothing = () => null;
@@ -84,9 +104,10 @@ const Stake = () => {
         <PanelInput
           amount={amount}
           handleChange={onChange}
+          handleMax={onClickMax}
           maxAmount={balance}
           iconPath="/images/tokens/dpxeth.svg"
-          label="Stake Amount"
+          label="Balance"
           symbol="rtETH"
         />
       </div>
@@ -97,15 +118,33 @@ const Stake = () => {
           body={panelState.body || undefined}
         />
       ) : null}
-      <Button
-        size="medium"
-        className="w-full rounded-md"
-        color="primary"
-        disabled={panelState.disabled}
-        onClick={panelState.handler}
-      >
-        {panelState.label}
-      </Button>
+      <div className="bg-umbra p-3 rounded-lg space-y-3">
+        <InfoRow
+          label="Reward Rate"
+          value={
+            <span className="flex text-stieglitz">
+              <p className="text-white">{formatBigint(rewardPerToken)}</p>{' '}
+              /rtETH
+            </span>
+          }
+        />
+        <InfoRow
+          label="Reward End"
+          value={format(
+            new Date(Number(rewardData[2] || 0n)).getTime() * 1000,
+            'd LLL yyyy',
+          )}
+        />
+        <Button
+          size="medium"
+          className="w-full rounded-md"
+          color="primary"
+          disabled={panelState.disabled}
+          onClick={panelState.handler}
+        >
+          {panelState.label}
+        </Button>
+      </div>
     </div>
   );
 };

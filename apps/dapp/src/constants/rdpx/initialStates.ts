@@ -12,6 +12,8 @@ const initialContractStates: {
     maxMintableBonds: 0n,
     bondComposition: [0n, 0n] as readonly [bigint, bigint],
     discount: 0n,
+    receiptTokenSupply: 0n,
+    receiptTokenBacking: [0n, 0n] as readonly [bigint, bigint],
   },
   perpPool: {
     state: {

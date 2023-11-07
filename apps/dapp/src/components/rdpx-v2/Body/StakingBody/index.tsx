@@ -1,10 +1,12 @@
 import dynamic from 'next/dynamic';
 
 import { Button } from '@dopex-io/ui';
-import { useAccount, useContractRead } from 'wagmi';
+import { useAccount, useContractRead, useContractWrite } from 'wagmi';
 
 import QuickLink from 'components/rdpx-v2/QuickLink';
 import Typography2 from 'components/UI/Typography2';
+
+import formatBigint from 'utils/general/formatBigint';
 
 import { quickLinks } from 'constants/rdpx';
 import CurveMultiRewards from 'constants/rdpx/abis/CurveMultiRewards';
@@ -17,14 +19,33 @@ const ClientRenderedRewardsChart = dynamic(
   },
 );
 
+const rewardTokenSymbol = 'tRT-RT';
+
 const StakingBody = () => {
   const { address: account } = useAccount();
-  const { data: earned } = useContractRead({
+  const { data: earned = 0n } = useContractRead({
     abi: CurveMultiRewards,
-    address: addresses.multirewards,
+    address: addresses.multirewards2,
     functionName: 'earned',
-    args: [account || '0x', addresses.multirewards],
+    args: [account || '0x', addresses.rewardToken2],
   });
+  const { data: staked = 0n } = useContractRead({
+    abi: CurveMultiRewards,
+    address: addresses.multirewards2,
+    functionName: 'balanceOf',
+    args: [account || '0x'],
+  });
+  const { write: claim } = useContractWrite({
+    abi: CurveMultiRewards,
+    address: addresses.multirewards2,
+    functionName: 'getReward',
+  });
+  const { write: unstake } = useContractWrite({
+    abi: CurveMultiRewards,
+    address: addresses.multirewards2,
+    functionName: 'exit',
+  });
+
   return (
     <div className="p-3 bg-cod-gray rounded-xl space-y-3">
       <div className="flex w-full">
@@ -33,13 +54,17 @@ const StakingBody = () => {
       <div className=" bg-umbra rounded-xl divide-y-2 divide-cod-gray">
         <div className="flex w-full divide-x-2 divide-cod-gray">
           <span className="w-1/2 p-3 flex flex-col space-y-1">
-            <Typography2 variant="caption">-</Typography2>
+            <Typography2 variant="caption">
+              {formatBigint(staked)} rtETH
+            </Typography2>
             <Typography2 variant="caption" color="stieglitz">
               Staked
             </Typography2>
           </span>
           <span className="w-1/2 p-3 flex flex-col space-y-1">
-            <Typography2 variant="caption">-</Typography2>
+            <Typography2 variant="caption">
+              {formatBigint(earned)} {rewardTokenSymbol}
+            </Typography2>
             <Typography2 variant="caption" color="stieglitz">
               Earnings
             </Typography2>
@@ -50,10 +75,21 @@ const StakingBody = () => {
         </div>
         {earned ? (
           <div className="p-3 flex space-x-2">
-            <Button color="primary" size="medium" className="w-full">
+            <Button
+              color="primary"
+              size="medium"
+              className="w-full"
+              onClick={() => claim()}
+            >
               Claim
             </Button>
-            <Button color="mineshaft" size="medium" className="w-full">
+            <Button
+              color="mineshaft"
+              size="medium"
+              className="w-full"
+              disabled={!unstake}
+              onClick={() => unstake()}
+            >
               Unstake
             </Button>
           </div>

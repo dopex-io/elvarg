@@ -9,6 +9,7 @@ import { DECIMALS_TOKEN } from 'constants/index';
 import RdpxReserve from 'constants/rdpx/abis/RdpxReserve';
 import RdpxV2Bond from 'constants/rdpx/abis/RdpxV2Bond';
 import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
+import ReceiptToken from 'constants/rdpx/abis/ReceiptToken';
 import addresses from 'constants/rdpx/addresses';
 import initialContractStates from 'constants/rdpx/initialStates';
 
@@ -21,6 +22,8 @@ interface RdpxV2CoreState {
   maxMintableBonds: bigint;
   bondComposition: readonly [bigint, bigint];
   discount: bigint;
+  receiptTokenSupply: bigint;
+  receiptTokenBacking: readonly [bigint, bigint];
 }
 
 interface UserBond {
@@ -52,6 +55,11 @@ const bondConfig = {
   address: addresses.bond,
 };
 
+const receiptTokenConfig = {
+  abi: ReceiptToken,
+  address: addresses.receiptToken,
+};
+
 const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
   const [rdpxV2CoreState, setRdpxV2CoreState] = useState<RdpxV2CoreState>(
     initialContractStates.v2core,
@@ -78,6 +86,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
       { result: wethBalance = 0n },
       { result: rdpxBalance = 0n },
       { result: rdpxReserve = 0n },
+      { result: receiptTokenSupply = 0n },
     ] = await readContracts({
       // multicall
       contracts: [
@@ -114,6 +123,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
           address: addresses.rdpxReserve,
           functionName: 'rdpxReserve',
         },
+        { ...receiptTokenConfig, functionName: 'totalSupply' },
       ],
     });
 
@@ -151,6 +161,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
       ethPrice,
       discount: parseUnits(discount.toString(), 0),
       maxMintableBonds,
+      receiptTokenSupply,
     }));
   }, [user]);
 

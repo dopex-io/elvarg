@@ -51,7 +51,7 @@ const alerts: Record<string, AlertType> = {
     body: `Accrue rewards from the MultiRewards contract by staking 
           your rtETH.`,
     severity: AlertSeverity.info,
-    disabled: true,
+    disabled: false,
   },
 };
 
