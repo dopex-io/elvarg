@@ -27,7 +27,7 @@ function _stdNormDensity(x) {
  * @param {Number} k Strike price
  * @param {Number} t Time to experiation in years
  * @param {Number} v Volatility as a decimal
- * @param {Number} r Anual risk-free interest rate as a decimal
+ * @param {Number} r Annual risk-free interest rate as a decimal
  * @param {String} callPut The type of option - "call" or "put"
  * @returns {Number} The delta of the option
  */
@@ -48,7 +48,7 @@ export function getDelta(s, k, t, v, r, callPut) {
  * @param {Number} k Strike price
  * @param {Number} t Time to experiation in years
  * @param {Number} v Volatility as a decimal
- * @param {Number} r Anual risk-free interest rate as a decimal
+ * @param {Number} r Annual risk-free interest rate as a decimal
  * @returns {Number} The delta of the call option
  */
 function _callDelta(s, k, t, v, r) {
@@ -71,7 +71,7 @@ function _callDelta(s, k, t, v, r) {
  * @param {Number} k Strike price
  * @param {Number} t Time to experiation in years
  * @param {Number} v Volatility as a decimal
- * @param {Number} r Anual risk-free interest rate as a decimal
+ * @param {Number} r Annual risk-free interest rate as a decimal
  * @returns {Number} The delta of the put option
  */
 function _putDelta(s, k, t, v, r) {
@@ -86,7 +86,7 @@ function _putDelta(s, k, t, v, r) {
  * @param {Number} k Strike price
  * @param {Number} t Time to experiation in years
  * @param {Number} v Volatility as a decimal
- * @param {Number} r Anual risk-free interest rate as a decimal
+ * @param {Number} r Annual risk-free interest rate as a decimal
  * @param {String} callPut The type of option - "call" or "put"
  * @param {String} [scale=100] The value to scale rho by (100=100BPS=1%, 10000=1BPS=.01%)
  * @returns {Number} The rho of the option
@@ -109,7 +109,7 @@ export function getRho(s, k, t, v, r, callPut, scale) {
  * @param {Number} k Strike price
  * @param {Number} t Time to experiation in years
  * @param {Number} v Volatility as a decimal
- * @param {Number} r Anual risk-free interest rate as a decimal
+ * @param {Number} r Annual risk-free interest rate as a decimal
  * @returns {Number} The rho of the call option
  */
 function _callRho(s, k, t, v, r) {
@@ -131,7 +131,7 @@ function _callRho(s, k, t, v, r) {
  * @param {Number} k Strike price
  * @param {Number} t Time to experiation in years
  * @param {Number} v Volatility as a decimal
- * @param {Number} r Anual risk-free interest rate as a decimal
+ * @param {Number} r Annual risk-free interest rate as a decimal
  * @returns {Number} The rho of the put option
  */
 function _putRho(s, k, t, v, r) {
@@ -156,7 +156,7 @@ function _putRho(s, k, t, v, r) {
  * @param {Number} k Strike price
  * @param {Number} t Time to experiation in years
  * @param {Number} v Volatility as a decimal
- * @param {Number} r Anual risk-free interest rate as a decimal
+ * @param {Number} r Annual risk-free interest rate as a decimal
  * @returns {Number} The vega of the option
  */
 export function getVega(s, k, t, v, r) {
@@ -171,7 +171,7 @@ export function getVega(s, k, t, v, r) {
  * @param {Number} k Strike price
  * @param {Number} t Time to experiation in years
  * @param {Number} v Volatility as a decimal
- * @param {Number} r Anual risk-free interest rate as a decimal
+ * @param {Number} r Annual risk-free interest rate as a decimal
  * @param {String} callPut The type of option - "call" or "put"
  * @param {String} [scale=365] The number of days to scale theta by - usually 365 or 252
  * @returns {Number} The theta of the option
@@ -194,7 +194,7 @@ export function getTheta(s, k, t, v, r, callPut, scale) {
  * @param {Number} k Strike price
  * @param {Number} t Time to experiation in years
  * @param {Number} v Volatility as a decimal
- * @param {Number} r Anual risk-free interest rate as a decimal
+ * @param {Number} r Annual risk-free interest rate as a decimal
  * @returns {Number} The theta of the call option
  */
 function _callTheta(s, k, t, v, r) {
@@ -217,7 +217,7 @@ function _callTheta(s, k, t, v, r) {
  * @param {Number} k Strike price
  * @param {Number} t Time to experiation in years
  * @param {Number} v Volatility as a decimal
- * @param {Number} r Anual risk-free interest rate as a decimal
+ * @param {Number} r Annual risk-free interest rate as a decimal
  * @returns {Number} The theta of the put option
  */
 function _putTheta(s, k, t, v, r) {
@@ -239,7 +239,7 @@ function _putTheta(s, k, t, v, r) {
  * @param {Number} k Strike price
  * @param {Number} t Time to experiation in years
  * @param {Number} v Volatility as a decimal
- * @param {Number} r Anual risk-free interest rate as a decimal
+ * @param {Number} r Annual risk-free interest rate as a decimal
  * @returns {Number} The gamma of the option
  */
 export function getGamma(s, k, t, v, r) {
