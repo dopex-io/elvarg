@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 
-import { Button } from '@dopex-io/ui';
 import { NextSeo } from 'next-seo';
 import toast from 'react-hot-toast';
 import { useNetwork } from 'wagmi';

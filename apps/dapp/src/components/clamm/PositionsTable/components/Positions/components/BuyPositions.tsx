@@ -179,64 +179,66 @@ const BuyPositions = ({
   );
 
   const buyPositions = useMemo(() => {
-    return positions.map(
-      (
-        { expiry, premium, profit, side, size, strike, meta }: any,
-        index: number,
-      ) => {
-        const readablePremium = formatUnits(
-          premium.amountInToken,
-          premium.decimals,
-        );
+    return positions
+      .map(
+        (
+          { expiry, premium, profit, side, size, strike, meta }: any,
+          index: number,
+        ) => {
+          const readablePremium = formatUnits(
+            premium.amountInToken,
+            premium.decimals,
+          );
 
-        const isSelected = Boolean(selectedPositions.get(index));
+          const isSelected = Boolean(selectedPositions.get(index));
 
-        return {
-          expiry,
-          premium: {
-            amount: readablePremium,
-            symbol: premium.symbol,
-            usdValue: premium.usdValue,
-          },
-          profit: {
-            amount: profit.amount,
-            usdValue: profit.usdValue,
-            symbol: profit.symbol,
-            percentage: Math.max(
-              getPercentageDifference(
-                Number(profit.amount),
-                Number(readablePremium),
+          return {
+            expiry,
+            premium: {
+              amount: readablePremium,
+              symbol: premium.symbol,
+              usdValue: premium.usdValue,
+            },
+            profit: {
+              amount: profit.amount,
+              usdValue: profit.usdValue,
+              symbol: profit.symbol,
+              percentage: Math.max(
+                getPercentageDifference(
+                  Number(profit.amount),
+                  Number(readablePremium),
+                ),
+                0,
               ),
-              0,
-            ),
-          },
-          side: side.charAt(0).toUpperCase() + side.slice(1),
-          size: {
-            amount: formatUnits(size.amountInToken, size.decimals),
-            symbol: size.symbol,
-            usdValue: 0,
-          },
-          strike: {
-            handleSelect: () => {
-              if (!isSelected) {
-                selectPosition(index, meta);
-              } else {
-                unselectPosition(index);
-              }
             },
-            isSelected: isSelected,
-            strikePrice: Number(strike),
-          },
-          exerciseButton: {
-            handleExercise: async () => {
-              const { txData, to } = meta.exerciseTx;
-              await handleExercise(txData, to);
+            side: side.charAt(0).toUpperCase() + side.slice(1),
+            size: {
+              amount: formatUnits(size.amountInToken, size.decimals),
+              symbol: size.symbol,
+              usdValue: 0,
             },
-            disabled: Number(profit.amount) === 0,
-          },
-        };
-      },
-    );
+            strike: {
+              handleSelect: () => {
+                if (!isSelected) {
+                  selectPosition(index, meta);
+                } else {
+                  unselectPosition(index);
+                }
+              },
+              isSelected: isSelected,
+              strikePrice: Number(strike),
+            },
+            exerciseButton: {
+              handleExercise: async () => {
+                const { txData, to } = meta.exerciseTx;
+                await handleExercise(txData, to);
+              },
+              disabled: Number(profit.amount) === 0,
+            },
+          };
+        },
+      )
+      .filter(({ size }: any) => Number(size.amount) > 0);
   }, [
     positions,
     handleExercise,

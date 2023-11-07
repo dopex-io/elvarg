@@ -207,6 +207,7 @@ const StrikesTable = () => {
   const strikes = useMemo(() => {
     if (!strikesChain) return [];
     return strikesChain
+      .sort((a, b) => b.strike - a.strike)
       .map(
         (
           {
