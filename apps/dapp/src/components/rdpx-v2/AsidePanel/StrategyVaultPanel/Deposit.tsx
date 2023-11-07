@@ -3,6 +3,7 @@ import { formatUnits, parseUnits } from 'viem';
 
 import { Button, Input } from '@dopex-io/ui';
 import { erc20ABI, useAccount, useContractRead, useContractWrite } from 'wagmi';
+import { writeContract } from 'wagmi/actions';
 
 import useTokenData from 'hooks/helpers/useTokenData';
 import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
@@ -10,6 +11,7 @@ import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 import Alert from 'components/common/Alert';
 import alerts, { AlertType } from 'components/rdpx-v2/AsidePanel/alerts';
 import InfoRow from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/InfoRow';
+import useRewardsState from 'components/rdpx-v2/Body/hooks/useRewardsState';
 import Typography2 from 'components/UI/Typography2';
 
 import formatBigint from 'utils/general/formatBigint';
@@ -24,12 +26,6 @@ const Deposit = () => {
   const { address: user = '0x' } = useAccount();
   const { updateUserPerpetualVaultData } = usePerpPoolData({
     user,
-  });
-  const { write: deposit, isSuccess: isDepositSuccess } = useContractWrite({
-    abi: PerpVaultLp,
-    address: addresses.perpPoolLp,
-    functionName: 'deposit',
-    args: [parseUnits(amount, DECIMALS_TOKEN), user],
   });
   const { write: approve, isSuccess: isApproveSuccess } = useContractWrite({
     abi: erc20ABI,
@@ -48,6 +44,23 @@ const Deposit = () => {
     spender: addresses.perpPoolLp || '0x',
     token: addresses.weth,
   });
+  const { stake } = useRewardsState({
+    user,
+    stakeAmount: parseUnits(amount, DECIMALS_TOKEN),
+  });
+
+  const handleDeposit = useCallback(async () => {
+    const write = async () =>
+      await writeContract({
+        abi: PerpVaultLp,
+        address: addresses.perpPoolLp,
+        functionName: 'deposit',
+        args: [parseUnits(amount, DECIMALS_TOKEN), user],
+      });
+    await write()
+      .then(() => stake())
+      .catch((e) => console.error(e));
+  }, [amount, stake, user]);
 
   const panelState: AlertType & { handler: () => void | null } = useMemo(() => {
     const doNothing = () => null;
@@ -77,7 +90,7 @@ const Deposit = () => {
         severity: null,
         body: null,
         handler: () => {
-          deposit();
+          handleDeposit();
           updateUserPerpetualVaultData();
         },
       };
@@ -87,7 +100,7 @@ const Deposit = () => {
     approve,
     approved,
     balance,
-    deposit,
+    handleDeposit,
     updateAllowance,
     updateUserPerpetualVaultData,
   ]);
@@ -102,7 +115,7 @@ const Deposit = () => {
 
   useEffect(() => {
     updateBalance();
-  }, [updateBalance, isDepositSuccess]);
+  }, [updateBalance]);
 
   useEffect(() => {
     updateAllowance();

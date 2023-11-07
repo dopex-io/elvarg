@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
 
+import { Button } from '@dopex-io/ui';
 import Countdown from 'react-countdown';
 import { useAccount } from 'wagmi';
 
 import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 
+import useRewardsState from 'components/rdpx-v2/Body/hooks/useRewardsState';
 import Cell from 'components/rdpx-v2/Body/StrategyVault/DepositRow/CustomCell';
 import Typography2 from 'components/UI/Typography2';
 
@@ -13,7 +15,7 @@ import formatBigint from 'utils/general/formatBigint';
 import { DECIMALS_TOKEN } from 'constants/index';
 
 const DepositRow = () => {
-  const { address: account } = useAccount();
+  const { address: user = '0x' } = useAccount();
   const {
     userPerpetualVaultData,
     updateUserPerpetualVaultData,
@@ -21,7 +23,11 @@ const DepositRow = () => {
     updatePerpetualVaultState,
     loading,
   } = usePerpPoolData({
-    user: account || '0x',
+    user,
+  });
+  const { buttonState, stake, unstake, earned } = useRewardsState({
+    user,
+    stakeAmount: userPerpetualVaultData.totalUserShares,
   });
 
   useEffect(() => {
@@ -82,6 +88,7 @@ const DepositRow = () => {
                 ),
                 'ETH',
               ],
+              [formatBigint(earned), ' rRT'],
             ]}
           />
           <Cell
@@ -116,10 +123,6 @@ const DepositRow = () => {
                           {minutes}
                         </Typography2>
                         m
-                        <Typography2 variant="caption" color="white">
-                          {seconds}
-                        </Typography2>
-                        s
                       </div>
                     </div>
                   )}
@@ -128,6 +131,21 @@ const DepositRow = () => {
               ],
             ]}
           />
+          {earned ? (
+            <>
+              <Button className="rounded-none" onClick={buttonState.handler}>
+                {buttonState.label}
+              </Button>
+              <Button className="rounded-none" onClick={() => unstake()}>
+                Withdraw
+              </Button>
+            </>
+          ) : null}
+          {userPerpetualVaultData.totalUserShares > 0n ? (
+            <Button className="rounded-none" onClick={() => stake()}>
+              Stake
+            </Button>
+          ) : null}
         </div>
       )}
     </div>
