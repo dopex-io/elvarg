@@ -225,49 +225,87 @@ export const createOlpSlice: StateCreator<
       const expiry = olpData?.expiries[selectedEpoch] || BigNumber.from(0);
       const strikeToUtilization: Record<string, BigNumber> = {};
 
-      const allLpPositions: LpPosition[] = await Promise.all(
-        strikeTokenLpPositions
-          .flat()
-          .filter(({ killed }) => !killed)
-          .map(async (pos, idx) => {
-            let impliedVol: BigNumber = await olpContract?.getSsovVolatility(
-              olpData?.ssov,
-              pos?.strike,
-            );
-            impliedVol = impliedVol
-              .mul(BigNumber.from(100).sub(pos.discount))
-              .div(BigNumber.from(100));
-            const premium: BigNumber = await olpContract?.calculatePremium(
+      const flattenedStrikeLpPositions = strikeTokenLpPositions
+        .flat()
+        .filter(({ killed }) => !killed);
+
+      let ivs = flattenedStrikeLpPositions.map(() => {
+        return BigNumber.from(0);
+      });
+
+      let premiums = flattenedStrikeLpPositions.map(() => {
+        return BigNumber.from(0);
+      });
+
+      let underlyingPremiums = flattenedStrikeLpPositions.map(() => {
+        return BigNumber.from(0);
+      });
+
+      if (olpData?.currentEpoch === BigNumber.from(selectedEpoch)) {
+        const ivPromises = flattenedStrikeLpPositions.map((position) => {
+          return olpContract?.getSsovVolatility(
+            olpData?.ssov,
+            position?.strike,
+          );
+        });
+
+        ivs = await Promise.all(ivPromises);
+        ivs = ivs.map((iv, index) => {
+          const position = flattenedStrikeLpPositions[index];
+
+          return iv
+            .mul(BigNumber.from(100).sub(position.discount))
+            .div(BigNumber.from(100));
+        });
+
+        const premiumPromises = flattenedStrikeLpPositions.map(
+          (position, index) => {
+            return olpContract?.calculatePremium(
               olpData?.isPut,
-              pos.strike,
+              position.strike,
               expiry,
               oneEBigNumber(DECIMALS_TOKEN),
-              impliedVol,
+              ivs[index],
               olpData?.ssov,
             );
-            const underlyingPremium: BigNumber =
-              await olpContract?.getPremiumInUnderlying(olpData?.ssov, premium);
-            const underlyingUsedInUsd = pos.underlyingLiquidityUsed
-              .mul(currentPrice)
-              .mul(oneEBigNumber(DECIMALS_USD))
-              .div(oneEBigNumber(DECIMALS_STRIKE))
-              .div(oneEBigNumber(DECIMALS_TOKEN));
-            strikeToUtilization[pos.strike.toString()] = strikeToUtilization[
-              pos.strike.toString()
-            ]
-              ? strikeToUtilization[pos.strike.toString()]!.add(
-                  pos.usdLiquidityUsed.add(underlyingUsedInUsd),
-                )
-              : pos.usdLiquidityUsed.add(underlyingUsedInUsd);
-            return {
-              ...pos,
-              idx: idx,
-              expiry: expiry,
-              premium: premium,
-              underlyingPremium: underlyingPremium,
-              impliedVol: impliedVol,
-            };
-          }),
+          },
+        );
+
+        premiums = await Promise.all(premiumPromises);
+
+        const underlyingPremiumPromises = flattenedStrikeLpPositions.map(
+          (_position, index) => {
+            const premium = premiums[index];
+            return olpContract?.getPremiumInUnderlying(olpData?.ssov, premium);
+          },
+        );
+
+        underlyingPremiums = await Promise.all(underlyingPremiumPromises);
+      }
+
+      const allLpPositions: LpPosition[] = flattenedStrikeLpPositions.map(
+        (pos, idx) => {
+          const underlyingUsedInUsd = pos.underlyingLiquidityUsed
+            .mul(currentPrice)
+            .mul(oneEBigNumber(DECIMALS_USD))
+            .div(oneEBigNumber(DECIMALS_STRIKE))
+            .div(oneEBigNumber(DECIMALS_TOKEN));
+          strikeToUtilization[pos.strike.toString()] = strikeToUtilization[
+            pos.strike.toString()
+          ]
+            ? strikeToUtilization[pos.strike.toString()]!.add(
+                pos.usdLiquidityUsed.add(underlyingUsedInUsd),
+              )
+            : pos.usdLiquidityUsed.add(underlyingUsedInUsd);
+          return {
+            ...pos,
+            idx: idx,
+            expiry: expiry,
+            premium: premiums[idx],
+            underlyingPremium: underlyingPremiums[idx],
+            impliedVol: ivs[idx],
+          };
+        },
       );
 
       set((prevState) => ({

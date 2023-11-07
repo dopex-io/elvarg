@@ -72,7 +72,7 @@ const appLinks: {
           description: 'Liquidity pools for SSOV options',
         },
         {
-          name: 'Straddles',
+          name: 'Straddles DEPRECATED',
           to: '/straddles',
           description: 'Buy/write straddles for crypto assets',
         },
@@ -114,7 +114,7 @@ const menuLinks = [
   { name: 'Discord', to: 'https://discord.gg/dopex' },
   { name: 'Github', to: 'https://github.com/dopex-io' },
   { name: 'Bug Bounty', to: 'https://github.com/dopex-io/bug-bounty' },
-  { name: 'Price Oracles', to: '/oracles' },
+  { name: 'Fees', to: '/fees' },
   { name: 'Diamond Pepe NFTs', to: '/nfts/diamondpepes' },
   { name: 'Dopex NFTs', to: '/nfts/dopex' },
 ];
