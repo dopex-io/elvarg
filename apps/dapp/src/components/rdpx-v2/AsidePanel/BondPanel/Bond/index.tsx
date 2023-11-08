@@ -115,7 +115,6 @@ const Bond = () => {
         0n,
       ],
     });
-
   const panelState = useBondPanelState({
     amount,
     isRdpxApproved,
@@ -203,7 +202,7 @@ const Bond = () => {
         <CollateralInputPanel
           inputAmount={amount}
           setInputAmount={setAmount}
-          delegated={delegated}
+          bondComposition={rdpxV2CoreState.bondComposition}
           bondingMethod={bondType}
         />
       </div>
@@ -214,7 +213,11 @@ const Bond = () => {
           body={panelState.body || undefined}
         />
       ) : null}
-      <InfoBox />
+      <InfoBox
+        bondAmount={Number(amount || '0')}
+        bondComposition={rdpxV2CoreState.bondComposition}
+        rdpxPrice={rdpxV2CoreState.rdpxPriceInEth}
+      />
       <div className="flex flex-col rounded-xl p-3 w-full bg-umbra space-y-3">
         <InfoRow
           label="rDPX Balance"
