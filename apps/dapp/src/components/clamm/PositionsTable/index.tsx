@@ -76,7 +76,11 @@ const PositionsTable = () => {
         <PositionsTypeSelector
           resetPositions={resetPositions}
           selectedIndex={positionsTypeIndex}
-          buyPositionsLength={buyPositions.length}
+          buyPositionsLength={
+            (buyPositions ?? []).filter(
+              ({ size }: any) => Number(size.amount) > 0,
+            ).length
+          }
           lpPositionsLength={lpPositions.length}
           setSelectedIndex={updatePositionsType}
         />
