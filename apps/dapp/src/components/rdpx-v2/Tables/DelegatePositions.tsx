@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
-import { useAccount, useContractWrite } from 'wagmi';
+import { useAccount } from 'wagmi';
+import { writeContract } from 'wagmi/actions';
 
 import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 
@@ -13,42 +14,47 @@ import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
 import addresses from 'constants/rdpx/addresses';
 
 const DelegatePositions = () => {
-  const [delegateId, setDelegateId] = useState<bigint>(0n);
   const { address: account } = useAccount();
   const { updateUserDelegatePositions, userDelegatePositions, loading } =
     useRdpxV2CoreData({
       user: account || '0x',
     });
 
-  const { write: withdraw, isSuccess: withdrawSuccess } = useContractWrite({
-    abi: RdpxV2Core,
-    address: addresses.v2core,
-    functionName: 'withdraw',
-    args: [delegateId],
-  });
-
   useEffect(() => {
     updateUserDelegatePositions();
-  }, [updateUserDelegatePositions, withdrawSuccess]);
+  }, [updateUserDelegatePositions]);
+
+  const handleWithdraw = useCallback(async (id: bigint) => {
+    const write = async () =>
+      await writeContract({
+        abi: RdpxV2Core,
+        address: addresses.v2core,
+        functionName: 'withdraw',
+        args: [id],
+      });
+
+    await write()
+      .then((tx) => console.log(tx.hash))
+      .catch((e) => console.error(e));
+  }, []);
 
   const delegatePositions = useMemo(() => {
     if (userDelegatePositions.length === 0) return [];
-    return userDelegatePositions.map((pos) => {
-      return {
-        amount: pos.amount,
-        activeCollateral: pos.activeCollateral,
-        balance: pos.amount - pos.activeCollateral,
-        fee: pos.fee,
-        button: {
-          handleWithdraw: () => {
-            setDelegateId(pos._id);
-            withdraw();
+    return userDelegatePositions
+      .map((pos) => {
+        return {
+          amount: pos.amount,
+          activeCollateral: pos.activeCollateral,
+          balance: pos.amount - pos.activeCollateral,
+          fee: pos.fee,
+          button: {
+            handleWithdraw: () => handleWithdraw(pos._id),
+            disabled: pos.activeCollateral === pos.amount,
           },
-          disabled: pos.activeCollateral === pos.amount,
-        },
-      };
-    });
-  }, [userDelegatePositions, withdraw]);
+        };
+      })
+      .filter((pos) => pos.balance > 1000n); // hide dust, if any
+  }, [userDelegatePositions]);
 
   return (
     <TableLayout<DelegatePositionsType>

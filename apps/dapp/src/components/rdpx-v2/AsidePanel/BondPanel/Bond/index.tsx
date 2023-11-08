@@ -116,6 +116,7 @@ const Bond = () => {
         0n,
       ],
     });
+
   const panelState = useBondPanelState({
     amount,
     isRdpxApproved,
@@ -224,14 +225,48 @@ const Bond = () => {
             </Typography2>
           }
         />
-        <InfoRow
-          label="WETH Balance"
-          value={
-            <Typography2 variant="caption">
-              {formatBigint(wethBalance, DECIMALS_TOKEN)} WETH
-            </Typography2>
-          }
-        />
+        {delegated ? (
+          <InfoRow
+            label="Delegate WETH used"
+            value={
+              <>
+                <Typography2
+                  variant="caption"
+                  color={
+                    squeezeDelegatesResult.wethToBeUsed >=
+                    squeezeDelegatesResult.totalWethAvailable
+                      ? 'down-bad'
+                      : 'white'
+                  }
+                >
+                  {formatBigint(
+                    (rdpxV2CoreState.bondComposition[1] *
+                      parseUnits(amount, DECIMALS_TOKEN)) /
+                      parseUnits('1', DECIMALS_TOKEN),
+                    DECIMALS_TOKEN,
+                  )}{' '}
+                </Typography2>
+                /{' '}
+                <Typography2 variant="caption">
+                  {formatBigint(
+                    squeezeDelegatesResult.totalWethAvailable,
+                    DECIMALS_TOKEN,
+                  )}{' '}
+                  WETH
+                </Typography2>
+              </>
+            }
+          />
+        ) : (
+          <InfoRow
+            label="WETH Balance"
+            value={
+              <Typography2 variant="caption">
+                {formatBigint(wethBalance, DECIMALS_TOKEN)} WETH
+              </Typography2>
+            }
+          />
+        )}
         <InfoRow
           label="Fees"
           value={<Typography2 variant="caption">-</Typography2>}

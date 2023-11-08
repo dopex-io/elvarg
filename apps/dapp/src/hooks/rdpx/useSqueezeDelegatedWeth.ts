@@ -45,8 +45,8 @@ const useSqueezeDelegatedWeth = ({
       totalWethAvailable +=
         delegatePositions[i].amount - delegatePositions[i].activeCollateral;
       if (
-        delegatePositions[i].amount - delegatePositions[i].activeCollateral <
-        100n
+        delegatePositions[i].amount - delegatePositions[i].activeCollateral ===
+        0n
       )
         continue;
       const delegateBalance =
@@ -82,13 +82,11 @@ const useSqueezeDelegatedWeth = ({
         .map(
           (amount) =>
             (amount * parseUnits(bondsToMint, DECIMALS_TOKEN)) /
-              (collateralRequired + 1n) -
-              100n <
+              (collateralRequired || 1n) <
             0n
               ? 0n
               : (amount * parseUnits(bondsToMint, DECIMALS_TOKEN)) /
-                  (collateralRequired + 1n) -
-                100n, // todo: some precision is lost; calculateBondCost(A) + cbc(B) + cbc(C) !== cbc(A + B + C)
+                (collateralRequired || 1n), // todo: note, calculateBondCost(A) + cbc(B) + cbc(C) !== cbc(A + B + C)
         )
         .filter((amount) => amount > 100n),
     };
@@ -100,8 +98,6 @@ const useSqueezeDelegatedWeth = ({
       totalWethAvailable,
     });
   }, [delegatePositions, collateralRequired, bondsToMint]);
-
-  const calculateDelegateData = useCallback(async () => {}, []);
 
   useEffect(() => {
     updateUserDelegatePositions();

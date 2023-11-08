@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { formatUnits, parseUnits } from 'viem';
 
 import Slider from '@mui/material/Slider';
@@ -7,13 +7,12 @@ import Tooltip from '@mui/material/Tooltip';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 
 import { Button, Input } from '@dopex-io/ui';
-import { erc20ABI, useAccount, useContractWrite, useNetwork } from 'wagmi';
+import { erc20ABI, useAccount, useContractWrite } from 'wagmi';
 
 import useTokenData from 'hooks/helpers/useTokenData';
 import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 
 import Alert, { AlertSeverity } from 'components/common/Alert';
-import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import PanelInput from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/PanelInput';
 import customSliderStyle, {
   MARKS,
@@ -24,7 +23,6 @@ import customSliderStyle, {
 import useDelegatePanelState from 'components/rdpx-v2/AsidePanel/hooks/useDelegatePanelState';
 import Typography2 from 'components/UI/Typography2';
 
-import { DEFAULT_CHAIN_ID } from 'constants/env';
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
 import addresses from 'constants/rdpx/addresses';
@@ -34,7 +32,6 @@ const Delegate = () => {
   const [fee, setFee] = useState<string>('0');
 
   const { address: account } = useAccount();
-  const { chain } = useNetwork();
   const { balance, updateBalance, approved, updateAllowance } = useTokenData({
     token: addresses.weth,
     spender: addresses.v2core || '0x',

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 
+import { AlertSeverity } from 'components/common/Alert';
 import alerts from 'components/rdpx-v2/AsidePanel/alerts';
 
 interface Props {
@@ -66,10 +67,12 @@ const useBondPanelState = (props: Props) => {
     } else {
       if (isInsufficientWeth) {
         return {
-          ...alerts.insufficientBalance,
+          ...defaultState,
+          label: 'Bond',
           header: 'Insufficient WETH',
+          severity: AlertSeverity.error,
           body: 'Insufficient WETH from delegates to perform this action.',
-          handler: doNothing,
+          disabled: true,
         };
       } else if (!isRdpxApproved) {
         return approveRdpxState;
