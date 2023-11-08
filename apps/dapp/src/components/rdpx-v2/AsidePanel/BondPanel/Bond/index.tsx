@@ -21,7 +21,7 @@ import Typography2 from 'components/UI/Typography2';
 
 import formatBigint from 'utils/general/formatBigint';
 
-import { DECIMALS_TOKEN } from 'constants/index';
+import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
 import addresses from 'constants/rdpx/addresses';
 
@@ -81,8 +81,7 @@ const Bond = () => {
   });
   const { squeezeDelegatesResult } = useSqueezeDelegatedWeth({
     user: account || '0x',
-    collateralRequired: inputAmountBreakdown[1],
-    bondsToMint: amount,
+    collateralRequired: inputAmountBreakdown[1], // WETH required
   });
   const { write: approveRdpx, isSuccess: approveRdpxSuccess } =
     useContractWrite({
@@ -124,7 +123,7 @@ const Bond = () => {
     delegated,
     isInsufficientWeth:
       squeezeDelegatesResult.wethToBeUsed >=
-      squeezeDelegatesResult.totalWethAvailable,
+      squeezeDelegatesResult.totalDelegatedWeth,
     isTotalBondCostBreakdownLessThanUserBalance:
       wethBalance < inputAmountBreakdown[1] ||
       rdpxBalance < inputAmountBreakdown[0],
@@ -208,7 +207,7 @@ const Bond = () => {
           bondingMethod={bondType}
         />
       </div>
-      {panelState.severity ? (
+      {panelState.severity !== null ? (
         <Alert
           header={panelState.header}
           severity={panelState.severity}
@@ -227,29 +226,27 @@ const Bond = () => {
         />
         {delegated ? (
           <InfoRow
-            label="Delegate WETH used"
+            label="Delegated WETH used"
             value={
               <>
                 <Typography2
                   variant="caption"
                   color={
                     squeezeDelegatesResult.wethToBeUsed >=
-                    squeezeDelegatesResult.totalWethAvailable
+                    squeezeDelegatesResult.totalDelegatedWeth
                       ? 'down-bad'
                       : 'white'
                   }
                 >
                   {formatBigint(
-                    (rdpxV2CoreState.bondComposition[1] *
-                      parseUnits(amount, DECIMALS_TOKEN)) /
-                      parseUnits('1', DECIMALS_TOKEN),
+                    squeezeDelegatesResult.wethToBeUsed,
                     DECIMALS_TOKEN,
                   )}{' '}
                 </Typography2>
                 /{' '}
                 <Typography2 variant="caption">
                   {formatBigint(
-                    squeezeDelegatesResult.totalWethAvailable,
+                    squeezeDelegatesResult.totalDelegatedWeth,
                     DECIMALS_TOKEN,
                   )}{' '}
                   WETH
@@ -268,8 +265,16 @@ const Bond = () => {
           />
         )}
         <InfoRow
-          label="Fees"
-          value={<Typography2 variant="caption">-</Typography2>}
+          label="Average Fee %"
+          value={
+            <Typography2 variant="caption">
+              {formatBigint(
+                squeezeDelegatesResult.avgFee,
+                DECIMALS_STRIKE + DECIMALS_TOKEN,
+              )}
+              %
+            </Typography2>
+          }
         />
         <InfoRow
           label="rtETH to be received"

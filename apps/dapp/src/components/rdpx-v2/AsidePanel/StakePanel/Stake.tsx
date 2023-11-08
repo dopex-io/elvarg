@@ -111,7 +111,7 @@ const Stake = () => {
           symbol="rtETH"
         />
       </div>
-      {panelState.severity ? (
+      {panelState.severity !== null ? (
         <Alert
           header={panelState.header}
           severity={panelState.severity}
@@ -119,15 +119,6 @@ const Stake = () => {
         />
       ) : null}
       <div className="bg-umbra p-3 rounded-lg space-y-3">
-        <InfoRow
-          label="Reward Rate"
-          value={
-            <span className="flex text-stieglitz">
-              <p className="text-white">{formatBigint(rewardPerToken)}</p>{' '}
-              /rtETH
-            </span>
-          }
-        />
         <InfoRow
           label="Reward End"
           value={format(

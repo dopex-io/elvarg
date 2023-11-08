@@ -333,6 +333,17 @@ const RdpxV2Core = [
     stateMutability: 'nonpayable',
     type: 'function',
   },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'RdpxV2CoreError',
+    type: 'error',
+  },
 ] as const;
 
 export default RdpxV2Core;

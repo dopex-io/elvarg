@@ -32,16 +32,22 @@ const useBondPanelState = (props: Props) => {
 
   return useMemo(() => {
     const doNothing = () => null;
-    const defaultState = { ...alerts.defaultBond, handler: doNothing };
+    const defaultState = {
+      ...alerts.defaultBond,
+      severity: null,
+      disabled: false,
+      handler: doNothing,
+    };
     const approveRdpxState = {
       ...alerts.insufficientAllowance,
       header: 'Approve rDPX',
       handler: () => approveRdpx(),
     };
-    if (Number(amount) === 0 || isNaN(Number(amount))) {
-      return { ...alerts.zeroAmount, handler: doNothing };
-    } else if (!delegated) {
-      if (isTotalBondCostBreakdownLessThanUserBalance) {
+    const isInputInvalid = Number(amount) === 0 || isNaN(Number(amount));
+    if (!delegated) {
+      if (isInputInvalid) {
+        return { ...alerts.defaultBond, handler: doNothing };
+      } else if (isTotalBondCostBreakdownLessThanUserBalance) {
         return {
           ...alerts.insufficientBalance,
           handler: doNothing,
@@ -63,9 +69,16 @@ const useBondPanelState = (props: Props) => {
         };
       } else if (!isRdpxApproved) {
         return approveRdpxState;
+      } else {
+        return { ...defaultState, handler: () => bond() };
       }
     } else {
-      if (isInsufficientWeth) {
+      if (isInputInvalid) {
+        return {
+          ...alerts.defaultBondWithDelegate,
+          handler: doNothing,
+        };
+      } else if (isInsufficientWeth) {
         return {
           ...defaultState,
           label: 'Bond',
@@ -79,12 +92,10 @@ const useBondPanelState = (props: Props) => {
       } else {
         return {
           ...defaultState,
-          label: 'Bond with delegate',
           handler: () => bondWithDelegate(),
         };
       }
     }
-    return { ...defaultState, handler: () => bond() };
   }, [
     amount,
     delegated,

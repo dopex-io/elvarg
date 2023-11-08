@@ -8,45 +8,55 @@ import { DECIMALS_TOKEN } from 'constants/index';
 interface Props {
   user: Address;
   collateralRequired: bigint;
-  bondsToMint: string;
 }
-const useSqueezeDelegatedWeth = ({
-  user,
-  collateralRequired,
-  bondsToMint,
-}: Props) => {
+const useSqueezeDelegatedWeth = ({ user, collateralRequired }: Props) => {
   const { delegatePositions, updateUserDelegatePositions } = useRdpxV2CoreData({
     user,
   });
 
   const [squeezeResult, setSqueezeResult] = useState<{
-    ids: bigint[];
-    wethToBeUsed: bigint;
-    amounts: bigint[];
-    totalWethAvailable: bigint;
+    ids: bigint[]; // breakdown of delegate ids to pass into bondWithDelegate()
+    wethToBeUsed: bigint; // sum of amounts: bigint[]
+    amounts: bigint[]; // breakdown of amounts to pass into bondWithDelegate()
+    totalWethAvailable: bigint; // sum of [amount - activeCollateral] across all **squeezed** delegates
+    totalDelegatedWeth: bigint; // total weth available from delegates
+    avgFee: bigint; // average weighted fee % across delegates' used weth
   }>({
     ids: [],
     wethToBeUsed: 0n,
     amounts: [],
     totalWethAvailable: 0n,
+    totalDelegatedWeth: 0n,
+    avgFee: 0n,
   });
 
   const squeezeAndFetchDelegates = useCallback(async () => {
     if (delegatePositions.length === 0) return null;
     let requiredBalance = collateralRequired;
+
+    const totalDelegatedWeth = delegatePositions.reduce(
+      (prev, curr) =>
+        curr.amount - curr.activeCollateral > parseUnits('1', 14)
+          ? prev + (curr.amount - curr.activeCollateral)
+          : 0n,
+      0n,
+    );
+
     let accumulator = {
       amounts: [] as bigint[],
       wethToBeUsed: 0n as bigint,
       ids: [] as bigint[],
+      fees: [] as bigint[],
       totalWethAvailable: 0n,
     };
+
     let totalWethAvailable = 0n;
     for (let i = 0; i < delegatePositions.length; i++) {
       totalWethAvailable +=
         delegatePositions[i].amount - delegatePositions[i].activeCollateral;
       if (
-        delegatePositions[i].amount - delegatePositions[i].activeCollateral ===
-        0n
+        delegatePositions[i].amount - delegatePositions[i].activeCollateral <
+        parseUnits('1', 14) // enforce _validate E4 in RdpxV2Core
       )
         continue;
       const delegateBalance =
@@ -56,9 +66,11 @@ const useSqueezeDelegatedWeth = ({
         requiredBalance = requiredBalance - delegateBalance;
         accumulator.amounts.push(delegateBalance);
         accumulator.ids.push(delegateId);
+        accumulator.fees.push(delegatePositions[i].fee);
       } else {
         accumulator.amounts.push(requiredBalance);
         accumulator.ids.push(delegateId);
+        accumulator.fees.push(delegatePositions[i].fee);
         break;
       }
     }
@@ -68,36 +80,23 @@ const useSqueezeDelegatedWeth = ({
       0n,
     );
 
-    accumulator = {
-      ...accumulator,
-      ids: accumulator.ids.filter(
-        (_, index) => accumulator.amounts[index] > 100n,
-      ),
-    }; // skip dust balances
-
-    accumulator = {
-      ...accumulator,
-      wethToBeUsed,
-      amounts: accumulator.amounts
-        .map(
-          (amount) =>
-            (amount * parseUnits(bondsToMint, DECIMALS_TOKEN)) /
-              (collateralRequired || 1n) <
-            0n
-              ? 0n
-              : (amount * parseUnits(bondsToMint, DECIMALS_TOKEN)) /
-                (collateralRequired || 1n), // todo: note, calculateBondCost(A) + cbc(B) + cbc(C) !== cbc(A + B + C)
-        )
-        .filter((amount) => amount > 100n),
-    };
+    const averageFee = accumulator.amounts.reduce(
+      (prev, curr, i) =>
+        prev +
+        (curr * parseUnits('1', DECIMALS_TOKEN) * accumulator.fees[i]) /
+          (wethToBeUsed + 1n),
+      0n,
+    );
 
     setSqueezeResult({
       ids: accumulator.ids,
       amounts: accumulator.amounts,
       wethToBeUsed,
       totalWethAvailable,
+      avgFee: averageFee,
+      totalDelegatedWeth,
     });
-  }, [delegatePositions, collateralRequired, bondsToMint]);
+  }, [delegatePositions, collateralRequired]);
 
   useEffect(() => {
     updateUserDelegatePositions();
