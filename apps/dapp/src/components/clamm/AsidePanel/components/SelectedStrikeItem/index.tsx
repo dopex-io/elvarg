@@ -222,8 +222,6 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
       },
     ];
 
-    let premiumWithBuffer = (premium * 10100n) / 10000n;
-
     const txData = encodeFunctionData({
       abi: optionPoolsAbi,
       functionName: 'mintOption',
@@ -241,7 +239,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
 
     setPurchase(strikeIndex, {
       strike: strikeData.strike,
-      premium: premiumWithBuffer,
+      premium: premium,
       optionsPool: optionsPoolAddress,
       txData,
       tokenSymbol: symbolInContext,
