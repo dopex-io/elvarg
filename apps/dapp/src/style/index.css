@@ -105,7 +105,8 @@ input[type='number'] {
 }
 
 .MuiDialog-container.MuiDialog-scrollPaper {
-  background: linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+  background:
+    linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
     radial-gradient(
         100% 197.75% at 0% 0%,
         rgba(34, 225, 255, 0.27) 0%,
@@ -130,7 +131,9 @@ input[type='number'] {
   overflow: hidden;
   white-space: nowrap;
   margin-right: auto;
-  animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+  animation:
+    typing 3.5s steps(40, end),
+    blink-caret 0.75s step-end infinite;
 }
 
 @keyframes typing {
@@ -165,4 +168,123 @@ input[type='number'] {
   top: 0;
   left: 0;
   border: 0;
+}
+
+.tilting-card-body {
+  display: grid;
+  place-content: center;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.mouse-position-tracker {
+  position: absolute;
+  width: calc(100% / 3);
+  height: calc(100% / 3);
+  z-index: 2;
+}
+.mouse-position-tracker {
+}
+
+/* 1st, 4th, 7th */
+.mouse-position-tracker:nth-child(3n - 2) {
+  left: 0;
+}
+/* 2nd, 5th, 8th */
+.mouse-position-tracker:nth-child(3n - 1) {
+  left: calc(100% / 3);
+}
+
+/* 2nd, 5th, 8th */
+.mouse-position-tracker:nth-child(3n) {
+  right: 0;
+}
+
+/* 4 to 6 */
+.mouse-position-tracker:nth-child(n + 4):nth-child(-n + 6) {
+  top: calc(100% / 3);
+}
+/* 7 to 9 */
+.mouse-position-tracker:nth-child(n + 7):nth-child(-n + 9) {
+  bottom: 0;
+}
+
+.tilting-card-wrapper {
+  position: relative;
+  width: 15rem;
+  aspect-ratio: 1 / 2;
+}
+
+.tilting-card-body {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+.tilting-card-body > :where(h1, p) {
+  background: white;
+  padding: 0.2rem;
+  margin: 0;
+}
+
+.tilting-card-body {
+  --perspective: 500px;
+  --rotationX: 0;
+  --rotationY: 0;
+  --rotationZ: 0;
+  --angle: 3deg;
+  transform: perspective(var(--perspective)) rotateX(var(--rotationX))
+    rotateY(var(--rotationY)) rotateZ(var(--rotationZ));
+  transition: transform 500ms ease;
+}
+
+.mouse-position-tracker:nth-child(1):hover ~ .tilting-card-body {
+  --rotationX: var(--angle);
+  --rotationY: calc(var(--angle) * -1);
+}
+
+.mouse-position-tracker:nth-child(2):hover ~ .tilting-card-body {
+  --rotationX: var(--angle);
+}
+
+.mouse-position-tracker:nth-child(3):hover ~ .tilting-card-body {
+  --rotationX: var(--angle);
+  --rotationY: var(--angle);
+}
+
+.mouse-position-tracker:nth-child(4):hover ~ .tilting-card-body {
+  --rotationY: calc(var(--angle) * -1);
+}
+
+.mouse-position-tracker:nth-child(6):hover ~ .tilting-card-body {
+  --rotationY: var(--angle);
+}
+
+.mouse-position-tracker:nth-child(7):hover ~ .tilting-card-body {
+  --rotationY: calc(var(--angle) * -1);
+  --rotationX: calc(var(--angle) * -1);
+}
+
+.mouse-position-tracker:nth-child(8):hover ~ .tilting-card-body {
+  --rotationX: calc(var(--angle) * -1);
+}
+
+.mouse-position-tracker:nth-child(9):hover ~ .tilting-card-body {
+  --rotationY: var(--angle);
+  --rotationX: calc(var(--angle) * -1);
+}
+
+/* general styling */
+:root {
+  --shadow: 0px 1px 2.2px rgba(0, 0, 0, 0.02),
+    0px 2.5px 5.3px rgba(0, 0, 0, 0.028), 0px 4.6px 10px rgba(0, 0, 0, 0.035),
+    0px 8.3px 17.9px rgba(0, 0, 0, 0.042), 0px 15.5px 33.4px rgba(0, 0, 0, 0.05),
+    0px 37px 80px rgba(0, 0, 0, 0.07);
+}
+
+body {
+  display: grid;
+  place-content: center;
+  min-height: 100vh;
 }

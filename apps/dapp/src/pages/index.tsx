@@ -1,48 +1,17 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
 
-import Box from '@mui/material/Box';
-
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import AgricultureIcon from '@mui/icons-material/Agriculture';
-import GavelIcon from '@mui/icons-material/Gavel';
-import PieChartIcon from '@mui/icons-material/PieChart';
-import SsidChartIcon from '@mui/icons-material/SsidChart';
-
+import { Button } from '@dopex-io/ui';
 import axios from 'axios';
 
 import AppBar from 'components/common/AppBar';
-import { Typography } from 'components/UI';
+import ClammCard from 'components/home/ClammCard';
+import RdpxV2Card from 'components/home/RdpxV2Card';
+import SsovCard from 'components/home/SsovCard';
 
 import { formatAmount } from 'utils/general';
 
 import { DOPEX_API_BASE_URL } from 'constants/env';
-
-interface CardProps {
-  name: string;
-  description: string;
-  href: string;
-  Icon: any;
-}
-
-const Card = ({ name, description, href, Icon }: CardProps) => {
-  return (
-    <Link href={href}>
-      <Box className="bg-umbra shadow-2xl p-4 rounded-2xl flex space-x-4 items-center hover:-translate-y-1 transition ease-in hover:backdrop-blur-sm hover:bg-opacity-60 cursor-pointer hover:border-wave-blue border-2 border-transparent">
-        <Icon className="w-8 h-8" />
-        <Box>
-          <Typography variant="h5" className="font-bold">
-            {name}
-          </Typography>
-          <Typography variant="h6" color="stieglitz" className="font-bold">
-            {description}
-          </Typography>
-        </Box>
-      </Box>
-    </Link>
-  );
-};
 
 const Home = () => {
   const [tvl, setTvl] = useState('0');
@@ -52,6 +21,8 @@ const Home = () => {
       let tvl = '--';
       try {
         const res = await axios.get(`${DOPEX_API_BASE_URL}/v2/tvl`);
+
+        console.log(res);
 
         tvl = res.data.tvl;
       } catch (err) {
@@ -64,77 +35,80 @@ const Home = () => {
   }, []);
 
   return (
-    <Box className="min-h-screen">
+    <div className="min-h-screen bg-[url('https://tailwindcss.com/_next/static/media/hero-dark@90.dba36cdf.jpg')]">
       <Head>
         <title>Home | Dopex</title>
       </Head>
       <AppBar />
-      <Box className="pb-28 pt-40 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 to-">
-        <Box className="flex space-x-8 mb-24">
-          <img
-            src="/images/brand/logo.svg"
-            alt="logo"
-            className="md:w-24 md:h-24 w-20 h-20"
-          />
-          <h1 className="md:text-8xl text-7xl font-mono font-bold">DOPEX</h1>
-        </Box>
-        <Box className="flex md:flex-row md:space-y-0 space-y-12 flex-col justify-between mb-24">
-          <Box className="flex flex-col max-w-fit">
-            <h1 className="md:text-7xl text-6xl  font-mono font-bold text-wave-blue">
-              $300M+
+      <div className="pb-28 pt-32 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0">
+        <div className="mb-16">
+          <div className="flex mb-4">
+            <img
+              src="/images/brand/logo.svg"
+              alt="logo"
+              className="md:w-16 md:h-16 w-20 h-20 mr-2"
+            />
+            <h1 className="md:text-6xl text-5xl font-mono font-bold">DOPEX</h1>
+          </div>
+
+          <div className="text-lg w-2/3 mb-4">
+            Arbitrum STIP Incentives are LIVE on Dopex now! Bond on rDPX V2 or
+            Deposit on CLAMM now to earn spectacular yield!
+          </div>
+          <div>
+            <Button className=" bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-green-300 via-blue-500 to-purple-600 shadow-2xl font-bold">
+              rDPX V2 Bond
+            </Button>
+            <span className="text-stieglitz mx-4">or</span>
+            <Button className="bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-pink-500 via-red-500 to-yellow-500 shadow-2xl">
+              Deposit CLAMM
+            </Button>
+          </div>
+        </div>
+
+        {/* <div className="flex md:flex-row md:space-y-0 space-y-12 flex-col justify-between mb-16 w-2/3">
+          <div className="flex flex-col max-w-fit">
+            <h1 className="md:text-5xl text-6xl font-mono font-bold text-transparent text-wave-blue">
+              $400M+
             </h1>
-            <span className="text-2xl text-white self-end font-bold font-mono">
+            <span className="text-base text-white self-end font-mono">
               All Time Open Interest
             </span>
-          </Box>
-          <Box className="flex flex-col max-w-fit">
-            <h1 className="md:text-7xl text-6xl  font-mono font-bold text-wave-blue">
+          </div>
+          <div className="flex flex-col max-w-fit">
+            <h1 className="md:text-5xl text-6xl font-mono font-bold text-transparent  text-wave-blue">
               {tvl === '--' ? tvl : `${formatAmount(tvl)}`}
             </h1>
-            <span className="text-2xl text-white self-end font-bold font-mono">
+            <span className="text-base text-white self-end font-mono">
               Total Value Locked
             </span>
-          </Box>
-        </Box>
-        <Box>
-          <Typography variant="h2" className="mb-8 font-bold">
-            Our Products
-          </Typography>
-          <Box className="grid md:grid-cols-2 grid-cols-1 gap-8">
-            <Card
-              name="Single Staking Option Vaults"
-              description="Sell covered options to earn yields"
-              href="/ssov"
-              Icon={PieChartIcon}
-            />
-            <Card
-              name="Farms"
-              description="Earn rewards for liquidity staking"
-              href="/farms"
-              Icon={AgricultureIcon}
-            />
-            <Card
-              name="Atlantic Straddles"
-              description="Apply a straddle strategy on ETH, DPX and rDPX"
-              href="/straddles"
-              Icon={SsidChartIcon}
-            />
-            <Card
-              name="Governance"
-              description="Lock DPX to earn protocol fees and rewards"
-              href="/governance/vedpx"
-              Icon={GavelIcon}
-            />
-            <Card
-              name="Option Liquidity Pools"
-              description="Purchase SSOV options at a discounted IV"
-              href="/olp"
-              Icon={AccountTreeIcon}
-            />
-          </Box>
-        </Box>
-      </Box>
-    </Box>
+          </div>
+        </div> */}
+        <div>
+          <div className="mb-8 font-bold text-3xl">Our Products</div>
+          <div className="grid md:grid-cols-2 grid-cols-1 gap-8">
+            <ClammCard />
+            <RdpxV2Card />
+            <SsovCard />
+            <div className="tilting-card-wrapper">
+              <div className="mouse-position-tracker"></div>
+              <div className="mouse-position-tracker"></div>
+              <div className="mouse-position-tracker"></div>
+              <div className="mouse-position-tracker"></div>
+              <div className="mouse-position-tracker"></div>
+              <div className="mouse-position-tracker"></div>
+              <div className="mouse-position-tracker"></div>
+              <div className="mouse-position-tracker"></div>
+              <div className="mouse-position-tracker"></div>
+              <div className="tilting-card-body">
+                <h1>Tilting Card</h1>
+                <p>With CSS only</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
