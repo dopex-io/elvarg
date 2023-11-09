@@ -65,7 +65,7 @@ const RedeemRequests = () => {
           breakdown: [rr.ethAmount, rr.rdpxAmount] as readonly [bigint, bigint],
           button: {
             disabled: rr.epoch === perpetualVaultState.currentEpoch,
-            label: 'Withdraw',
+            label: 'Redeem',
             handler: () => handleClaim(rr.epoch),
           },
         };
@@ -80,7 +80,7 @@ const RedeemRequests = () => {
   return data.length > 0 ? (
     <div className="space-y-2">
       <Typography2 variant="subtitle2" className="px-2">
-        Withdrawals Queued
+        Redemptions Queued
       </Typography2>
       <TableLayout<RedeemRequestType>
         data={data}
