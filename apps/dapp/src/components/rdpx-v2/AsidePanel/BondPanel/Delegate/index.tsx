@@ -29,16 +29,16 @@ import addresses from 'constants/rdpx/addresses';
 
 const Delegate = () => {
   const [amount, setAmount] = useState<string>('');
-  const [fee, setFee] = useState<string>('0');
+  const [fee, setFee] = useState<string>('1');
 
-  const { address: account } = useAccount();
+  const { address: account = '0x' } = useAccount();
   const { balance, updateBalance, approved, updateAllowance } = useTokenData({
     token: addresses.weth,
-    spender: addresses.v2core || '0x',
+    spender: addresses.v2core,
     amount,
   });
   const { updateUserBonds, updateUserDelegatePositions } = useRdpxV2CoreData({
-    user: account || '0x',
+    user: account,
   });
   const { write: approve, isSuccess: approveSuccess } = useContractWrite({
     abi: erc20ABI,

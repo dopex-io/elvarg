@@ -1,6 +1,6 @@
 export const STEP = 0.1;
-export const MIN_VAL = 0;
-export const MAX_VAL = 100;
+export const MIN_VAL = 1;
+export const MAX_VAL = 99.9;
 export const MARKS = [
   {
     value: 5,
