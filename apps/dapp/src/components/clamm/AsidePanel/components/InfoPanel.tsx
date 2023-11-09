@@ -95,7 +95,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
           txData: encodeFunctionData({
             abi: erc20ABI,
             functionName: 'approve',
-            args: [spender, v],
+            args: [spender, (v * 10100n) / 10000n],
           }),
         });
       }
