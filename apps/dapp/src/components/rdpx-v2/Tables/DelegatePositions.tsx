@@ -54,13 +54,13 @@ const DelegatePositions = () => {
         };
       })
       .filter((pos) => pos.balance > 1000n); // hide dust, if any
-  }, [userDelegatePositions]);
+  }, [handleWithdraw, userDelegatePositions]);
 
   return (
     <TableLayout<DelegatePositionsType>
       data={delegatePositions}
       columns={columns}
-      isContentLoading={loading}
+      isContentLoading={loading && !!account}
       fill="bg-umbra"
     />
   );

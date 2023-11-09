@@ -44,8 +44,16 @@ const DepositRow = () => {
       <Typography2 variant="subtitle2" className="px-2">
         Your Position
       </Typography2>
-      {loading ? (
-        <div className="py-6 text-center w-full text-white">Loading...</div>
+      {loading && !!user ? (
+        <div className="py-6 text-center w-full text-white">
+          <Typography2
+            variant="subtitle2"
+            color="stieglitz"
+            className="py-6 text-center w-full"
+          >
+            Your position will appear here
+          </Typography2>
+        </div>
       ) : (
         <div className="bg-umbra flex overflow-auto max-w-full divide-x divide-cod-gray rounded-lg">
           <Cell

@@ -85,7 +85,7 @@ const RedeemRequests = () => {
       <TableLayout<RedeemRequestType>
         data={data}
         columns={columns}
-        isContentLoading={loading}
+        isContentLoading={loading && !!account}
         fill="bg-umbra"
       />
     </div>

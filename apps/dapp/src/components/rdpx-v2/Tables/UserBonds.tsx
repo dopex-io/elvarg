@@ -80,7 +80,7 @@ const UserBonds = () => {
       data={userRdpxBonds}
       columns={columns}
       rowSpacing={2}
-      isContentLoading={loading}
+      isContentLoading={loading && !!account}
       fill="bg-umbra"
     />
   );
