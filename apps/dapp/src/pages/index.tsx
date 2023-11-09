@@ -46,7 +46,7 @@ const Home = () => {
             <img
               src="/images/brand/logo.svg"
               alt="logo"
-              className="md:w-16 md:h-16 w-20 h-20 mr-2"
+              className="md:w-14 md:h-14 w-20 h-20 mr-6"
             />
             <h1 className="md:text-6xl text-5xl font-mono font-bold">DOPEX</h1>
           </div>
