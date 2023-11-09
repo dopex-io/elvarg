@@ -58,9 +58,11 @@ const BondsBody = () => {
             </Typography2>
           </span>
           <span className="w-1/2 p-3 flex flex-col space-y-1">
-            <Typography2 variant="caption">Label 2</Typography2>
+            <Typography2 variant="caption">
+              {formatBigint(rdpxV2CoreState.rdpxSupply)}
+            </Typography2>
             <Typography2 variant="caption" color="stieglitz">
-              Description 2
+              rDPX Supply
             </Typography2>
           </span>
         </div>

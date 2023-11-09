@@ -14,6 +14,7 @@ const initialContractStates: {
     discount: 0n,
     receiptTokenSupply: 0n,
     receiptTokenBacking: [0n, 0n] as readonly [bigint, bigint],
+    rdpxSupply: 0n,
   },
   perpPool: {
     state: {

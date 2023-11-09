@@ -66,8 +66,8 @@ const alerts: Record<string, AlertType> = {
   defaultLp: {
     label: 'Deposit',
     header: 'What does depositing into this strategy do?',
-    body: `Deposit into this strategy for either a chance buy rDPX 25% below market price with your locked WETH, 
-          or passively accrue rewards.`,
+    body: `Deposit into this strategy to buy rDPX with your locked WETH if rDPX market price falls by 25%, 
+          while passively accruing rewards and premiums.`,
     severity: AlertSeverity.info,
     disabled: true,
   },
