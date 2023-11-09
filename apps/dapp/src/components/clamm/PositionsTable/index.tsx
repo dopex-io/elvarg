@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import toast from 'react-hot-toast';
 import { useAccount, useNetwork } from 'wagmi';
@@ -44,9 +44,30 @@ const PositionsTable = () => {
     setPositionsTypeIndex(index);
   };
 
-  useEffect(() => {
+  const updateBuyPositions = useCallback(async () => {
     if (!chain || !userAddress || !selectedOptionsPool) return;
-    getLPPositions(
+    await getBuyPositions(
+      chain.id,
+      userAddress,
+      selectedOptionsPool.callToken.address,
+      1000,
+      0,
+      (data) => {
+        setBuyPositions(
+          data
+            .filter(({ size }: any) => Number(size.amountInToken) > 0)
+            .filter(
+              ({ expiry }: any) => Number(expiry) > new Date().getTime() / 1000,
+            ),
+        );
+      },
+      toast.error,
+    );
+  }, [chain, selectedOptionsPool, userAddress]);
+
+  const updateLPPositions = useCallback(async () => {
+    if (!chain || !userAddress || !selectedOptionsPool) return;
+    await getLPPositions(
       chain.id,
       userAddress,
       selectedOptionsPool.callToken.address,
@@ -58,17 +79,14 @@ const PositionsTable = () => {
   }, [chain, selectedOptionsPool, userAddress]);
 
   useEffect(() => {
-    if (!chain || !userAddress || !selectedOptionsPool) return;
-    getBuyPositions(
-      chain.id,
-      userAddress,
-      selectedOptionsPool.callToken.address,
-      1000,
-      0,
-      setBuyPositions,
-      toast.error,
-    );
-  }, [chain, selectedOptionsPool, userAddress]);
+    const interval = setInterval(() => updateBuyPositions(), 5000);
+    return () => clearInterval(interval);
+  }, [updateBuyPositions]);
+
+  useEffect(() => {
+    const interval = setInterval(() => updateLPPositions(), 5000);
+    return () => clearInterval(interval);
+  }, [updateLPPositions]);
 
   return (
     <div className="w-full flex-col items-center justify-center space-y-[12px]">
@@ -76,17 +94,15 @@ const PositionsTable = () => {
         <PositionsTypeSelector
           resetPositions={resetPositions}
           selectedIndex={positionsTypeIndex}
-          buyPositionsLength={
-            (buyPositions ?? []).filter(
-              ({ size }: any) => Number(size.amount) > 0,
-            ).length
-          }
+          buyPositionsLength={buyPositions.length}
           lpPositionsLength={lpPositions.length}
           setSelectedIndex={updatePositionsType}
         />
         <ActionButton
           positionsTypeIndex={positionsTypeIndex}
           selectedPositions={selectedPositions}
+          updateLPPositions={updateLPPositions}
+          updateBuyPositions={updateBuyPositions}
         />
       </div>
       <div className="w-full h-fit">
@@ -96,6 +112,7 @@ const PositionsTable = () => {
             selectPosition={selectPosition}
             unselectPosition={unselectPosition}
             selectedPositions={selectedPositions}
+            updatePositions={updateBuyPositions}
           />
         ) : (
           <LPPositions
@@ -103,6 +120,7 @@ const PositionsTable = () => {
             selectPosition={selectPosition}
             unselectPosition={unselectPosition}
             selectedPositions={selectedPositions}
+            updatePositions={updateLPPositions}
           />
         )}
       </div>
