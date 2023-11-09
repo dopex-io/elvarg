@@ -19,7 +19,7 @@ import { DECIMALS_TOKEN } from 'constants/index';
 import PerpVault from 'constants/rdpx/abis/PerpVault';
 import addresses from 'constants/rdpx/addresses';
 
-const Withdraw = () => {
+const Redeem = () => {
   const [amount, setAmount] = useState<string>('');
 
   const { address: user = '0x' } = useAccount();
@@ -79,13 +79,13 @@ const Withdraw = () => {
       };
     } else if (Number(amount) === 0) {
       return {
-        ...alerts.zeroAmount,
+        ...alerts.defaultRedeem,
         handler: doNothing,
       };
     } else {
       return {
-        label: 'Request Withdrawal',
-        header: 'Request Withdrawal',
+        label: 'Request Redeem',
+        header: 'Request Redeem',
         disabled: false,
         severity: null,
         body: null,
@@ -133,7 +133,7 @@ const Withdraw = () => {
         />
         <div className="flex justify-between px-3 pb-3">
           <Typography2 variant="caption" color="stieglitz">
-            Withdrawal Amount
+            Redeem Amount
           </Typography2>
           <div className="flex space-x-1">
             <img
@@ -220,4 +220,4 @@ const Withdraw = () => {
   );
 };
 
-export default Withdraw;
+export default Redeem;

@@ -3,10 +3,10 @@ import { useCallback, useState } from 'react';
 import ButtonGroup from '@mui/material/ButtonGroup';
 
 import Deposit from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/Deposit';
-import Withdraw from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/Withdraw';
+import Redeem from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/Redeem';
 import Typography2 from 'components/UI/Typography2';
 
-const BUTTON_LABELS = ['Deposit', 'Withdraw'];
+const BUTTON_LABELS = ['Deposit', 'Redeem'];
 
 const StrategyVaultPanel = () => {
   const [active, setActive] = useState<string>('Deposit');
@@ -34,7 +34,7 @@ const StrategyVaultPanel = () => {
           </button>
         ))}
       </ButtonGroup>
-      {active === 'Deposit' ? <Deposit /> : <Withdraw />}
+      {active === 'Deposit' ? <Deposit /> : <Redeem />}
     </div>
   );
 };

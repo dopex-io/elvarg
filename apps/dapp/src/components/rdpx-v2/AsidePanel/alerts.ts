@@ -63,6 +63,21 @@ const alerts: Record<string, AlertType> = {
     severity: AlertSeverity.info,
     disabled: false,
   },
+  defaultLp: {
+    label: 'Deposit',
+    header: 'What does depositing into this strategy do?',
+    body: `Deposit into this strategy for either a chance buy rDPX 25% below market price with your locked WETH, 
+          or passively accrue rewards.`,
+    severity: AlertSeverity.info,
+    disabled: true,
+  },
+  defaultRedeem: {
+    label: 'Redeem',
+    header: 'Redeem your assets',
+    body: `Queue your redemptions now to be able to retrieve your locked assets at the end of the current period.`,
+    severity: AlertSeverity.info,
+    disabled: true,
+  },
 };
 
 export default alerts;

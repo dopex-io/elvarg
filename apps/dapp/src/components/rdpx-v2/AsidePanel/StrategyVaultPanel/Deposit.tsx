@@ -79,7 +79,7 @@ const Deposit = () => {
       };
     } else if (Number(amount) === 0) {
       return {
-        ...alerts.zeroAmount,
+        ...alerts.defaultLp,
         handler: doNothing,
       };
     } else {

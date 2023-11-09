@@ -1,11 +1,13 @@
+import { InfoTooltip } from 'components/UI';
 import Typography2 from 'components/UI/Typography2';
 
 interface Props {
   label?: string;
   data: readonly [string | React.ReactNode, string][];
+  tooltipInfo?: string;
 }
 
-const CustomCell = ({ label, data }: Props) => {
+const CustomCell = ({ label, data, tooltipInfo }: Props) => {
   return (
     <div className="flex flex-col flex-grow p-3 justify-between space-y-2 w-full">
       <div className="flex space-x-1 w-fit">
@@ -21,9 +23,14 @@ const CustomCell = ({ label, data }: Props) => {
         ))}
       </div>
       {label ? (
-        <Typography2 variant="caption" color="stieglitz">
-          {label}
-        </Typography2>
+        <div className="flex space-x-1">
+          <Typography2 variant="caption" color="stieglitz">
+            {label}
+          </Typography2>
+          {tooltipInfo ? (
+            <InfoTooltip title={tooltipInfo} className="h-3 w-3 my-auto" />
+          ) : null}
+        </div>
       ) : null}
     </div>
   );

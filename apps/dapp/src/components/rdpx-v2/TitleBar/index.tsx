@@ -94,7 +94,7 @@ const TitleBar = () => {
           renderComponent: (
             <div className="flex space-x-6 mx-auto">
               <Stat
-                name="Current Discount"
+                name="Bonding Discount"
                 value={`${formatBigint(
                   rdpxV2CoreState.discount,
                   DECIMALS_STRIKE,
@@ -123,20 +123,24 @@ const TitleBar = () => {
           index: 1,
           renderComponent: (
             <div className="flex space-x-6 mx-auto mt-3">
-              <Stat
+              {/* <Stat
                 name="Funding"
                 value={`${formatBigint(
                   perpetualVaultState.totalFundingForCurrentEpoch,
                   DECIMALS_TOKEN,
                 )} WETH`}
-              />
+              /> */}
               <Stat name="APR" value={'-'} />
               <Stat
                 name="Utilization"
                 value={`${formatBigint(
                   (perpetualVaultState.totalActiveOptions *
                     parseUnits('1', DECIMALS_TOKEN)) /
-                    (perpetualVaultState.totalLpShares || 1n),
+                    (perpetualVaultState.oneLpShare[0] +
+                      (perpetualVaultState.oneLpShare[1] *
+                        parseUnits('1', DECIMALS_TOKEN)) /
+                        (perpetualVaultState.underlyingPrice + 1n) || 1n),
+                  // total active options / rdpx + weth in strategy vault
                   DECIMALS_TOKEN,
                 )}%`}
               />

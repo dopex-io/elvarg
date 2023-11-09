@@ -8,6 +8,7 @@ import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 
 import useRewardsState from 'components/rdpx-v2/Body/hooks/useRewardsState';
 import Cell from 'components/rdpx-v2/Body/StrategyVault/DepositRow/CustomCell';
+import tooltips from 'components/rdpx-v2/Body/StrategyVault/DepositRow/tooltips';
 import Typography2 from 'components/UI/Typography2';
 
 import formatBigint from 'utils/general/formatBigint';
@@ -48,6 +49,7 @@ const DepositRow = () => {
       ) : (
         <div className="bg-umbra flex overflow-auto max-w-full divide-x divide-cod-gray rounded-lg">
           <Cell
+            tooltipInfo={tooltips.lp}
             label="Amount"
             data={[
               [
@@ -61,13 +63,14 @@ const DepositRow = () => {
           />
           <Cell
             label="Composition"
+            tooltipInfo={tooltips.composition}
             data={[
               [
                 formatBigint(
                   userPerpetualVaultData.shareComposition[0],
                   DECIMALS_TOKEN,
                 ),
-                'ETH',
+                'WETH',
               ],
               [
                 formatBigint(
@@ -80,6 +83,7 @@ const DepositRow = () => {
           />
           <Cell
             label="Earnings"
+            tooltipInfo={tooltips.earnings}
             data={[
               [
                 formatBigint(
@@ -92,7 +96,8 @@ const DepositRow = () => {
             ]}
           />
           <Cell
-            label="Withdrawable"
+            label="Redeemable"
+            tooltipInfo={tooltips.redeemable}
             data={[
               [
                 formatBigint(
