@@ -150,7 +150,7 @@ const DepositRow = () => {
                 {buttonState.label}
               </Button>
               <Button className="rounded-none" onClick={() => unstake()}>
-                Withdraw
+                Unstake
               </Button>
             </>
           ) : null}
