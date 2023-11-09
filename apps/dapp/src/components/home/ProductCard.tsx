@@ -6,8 +6,21 @@ interface ProductCardProps {
 
 const ProductCard = ({ children }: ProductCardProps) => {
   return (
-    <div className="bg-umbra bg-opacity-50 shadow-2xl p-6 rounded-2xl border-wave-blue border-2 border-transparent border-opacity-50 flex flex-col space-y-6">
-      {children}
+    <div className="tilting-card-wrapper">
+      <div className="mouse-position-tracker"></div>
+      <div className="mouse-position-tracker"></div>
+      <div className="mouse-position-tracker"></div>
+      <div className="mouse-position-tracker"></div>
+      <div className="mouse-position-tracker"></div>
+      {/* <div className="mouse-position-tracker"></div>
+      <div className="mouse-position-tracker"></div>
+      <div className="mouse-position-tracker"></div>
+      <div className="mouse-position-tracker"></div> */}
+      <div className="tilting-card-body">
+        <div className="bg-black bg-opacity-30 shadow-2xl p-6 rounded-2xl border-transparent border-opacity-50 flex flex-col space-y-6 w-[496px]">
+          {children}
+        </div>
+      </div>
     </div>
   );
 };

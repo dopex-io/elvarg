@@ -1,25 +1,9 @@
-import Box from '@mui/material/Box';
-
-import { Area, AreaChart, ResponsiveContainer, Tooltip, YAxis } from 'recharts';
-
-const CustomTooltip = ({ active, payload }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <Box className="bg-slate-900 p-4 rounded">
-        <p>{`$${payload[0].value}`}</p>
-        <p>{new Date(payload[0].payload.timestamp * 1000).toUTCString()}</p>
-      </Box>
-    );
-  }
-
-  return null;
-};
+import { Area, AreaChart, ResponsiveContainer, YAxis } from 'recharts';
 
 const Sparkline = ({ data }: any) => {
   return (
     <ResponsiveContainer>
       <AreaChart data={data} margin={{}}>
-        {/* <Tooltip content={<CustomTooltip />} /> */}
         <YAxis type="number" domain={['dataMin', 'dataMax']} hide />
         <defs>
           <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">

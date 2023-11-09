@@ -27,16 +27,15 @@ const fakeData = [
 const SsovCard = () => {
   return (
     <ProductCard>
-      <div>
-        <div className="flex justify-between">
+      <div className="flex w-full justify-between">
+        <div className="flex flex-col items-start">
           <div className="font-bold text-lg">Single Staking Option Vaults</div>
-          <div className="text-sm">
-            up to{' '}
-            <span className="text-up-only text-xl font-bold">76% APY</span>
+          <div className="text-sm text-stieglitz">
+            Sell covered options to earn yield{' '}
           </div>
         </div>
-        <div className="text-sm text-stieglitz">
-          Sell covered options to earn yield
+        <div className="text-sm">
+          up to <span className="text-up-only text-xl font-bold">76% APY</span>
         </div>
       </div>
       {/* <div className="grid grid-cols-3 items-center">
@@ -65,7 +64,12 @@ const SsovCard = () => {
           </span>
           <span>$1910</span>
           <span className="text-up-only">+5.9%</span>
-          <Button variant="outlined">Trade</Button>
+          <Button
+            variant="outlined"
+            className="!text-wave-blue border-wave-blue"
+          >
+            Trade
+          </Button>
         </div>
         <div className="grid grid-cols-4 items-center">
           <span className="flex space-x-2 items-center">
@@ -78,7 +82,12 @@ const SsovCard = () => {
           </span>
           <span>$1.2</span>
           <span className="text-down-bad">-3.1%</span>
-          <Button variant="outlined">Trade</Button>
+          <Button
+            variant="outlined"
+            className="!text-wave-blue border-wave-blue"
+          >
+            Trade
+          </Button>
         </div>
       </div>
     </ProductCard>

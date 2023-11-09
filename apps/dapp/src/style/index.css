@@ -183,8 +183,6 @@ input[type='number'] {
   height: calc(100% / 3);
   z-index: 2;
 }
-.mouse-position-tracker {
-}
 
 /* 1st, 4th, 7th */
 .mouse-position-tracker:nth-child(3n - 2) {
@@ -211,8 +209,8 @@ input[type='number'] {
 
 .tilting-card-wrapper {
   position: relative;
-  width: 15rem;
-  aspect-ratio: 1 / 2;
+  height: 220px;
+  /* aspect-ratio: 1000 / 1001; */
 }
 
 .tilting-card-body {
@@ -224,7 +222,6 @@ input[type='number'] {
 
 .tilting-card-body > :where(h1, p) {
   background: white;
-  padding: 0.2rem;
   margin: 0;
 }
 
@@ -233,7 +230,7 @@ input[type='number'] {
   --rotationX: 0;
   --rotationY: 0;
   --rotationZ: 0;
-  --angle: 3deg;
+  --angle: 5deg;
   transform: perspective(var(--perspective)) rotateX(var(--rotationX))
     rotateY(var(--rotationY)) rotateZ(var(--rotationZ));
   transition: transform 500ms ease;
@@ -273,18 +270,4 @@ input[type='number'] {
 .mouse-position-tracker:nth-child(9):hover ~ .tilting-card-body {
   --rotationY: var(--angle);
   --rotationX: calc(var(--angle) * -1);
-}
-
-/* general styling */
-:root {
-  --shadow: 0px 1px 2.2px rgba(0, 0, 0, 0.02),
-    0px 2.5px 5.3px rgba(0, 0, 0, 0.028), 0px 4.6px 10px rgba(0, 0, 0, 0.035),
-    0px 8.3px 17.9px rgba(0, 0, 0, 0.042), 0px 15.5px 33.4px rgba(0, 0, 0, 0.05),
-    0px 37px 80px rgba(0, 0, 0, 0.07);
-}
-
-body {
-  display: grid;
-  place-content: center;
-  min-height: 100vh;
 }

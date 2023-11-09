@@ -50,19 +50,37 @@ const Home = () => {
             />
             <h1 className="md:text-6xl text-5xl font-mono font-bold">DOPEX</h1>
           </div>
-
           <div className="text-lg w-2/3 mb-4">
             Arbitrum STIP Incentives are LIVE on Dopex now! Bond on rDPX V2 or
-            Deposit on CLAMM now to earn spectacular yield!
+            Deposit on CLAMM now to earn up to <b>182% APY!</b>
           </div>
           <div>
-            <Button className=" bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-green-300 via-blue-500 to-purple-600 shadow-2xl font-bold">
+            {/* <Button
+              variant="outlined"
+              className=" border-wave-blue !text-wave-blue"
+            >
               rDPX V2 Bond
             </Button>
             <span className="text-stieglitz mx-4">or</span>
-            <Button className="bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-pink-500 via-red-500 to-yellow-500 shadow-2xl">
+            <Button
+              variant="outlined"
+              className=" border-wave-blue !text-wave-blue"
+            >
+              Deposit CLAMM
+            </Button> */}
+            <Button className="  bg-green-500 shadow-2xl !d-black">
+              rDPX V2 Bond
+            </Button>
+            <span className="text-stieglitz mx-4">or</span>
+            <Button
+              // variant="outlined"
+              className="shadow-2xl"
+            >
               Deposit CLAMM
             </Button>
+            {/* <Button className="bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-pink-500 via-red-500 to-yellow-500 shadow-2xl">
+              Deposit CLAMM
+            </Button> */}
           </div>
         </div>
 
@@ -90,21 +108,6 @@ const Home = () => {
             <ClammCard />
             <RdpxV2Card />
             <SsovCard />
-            <div className="tilting-card-wrapper">
-              <div className="mouse-position-tracker"></div>
-              <div className="mouse-position-tracker"></div>
-              <div className="mouse-position-tracker"></div>
-              <div className="mouse-position-tracker"></div>
-              <div className="mouse-position-tracker"></div>
-              <div className="mouse-position-tracker"></div>
-              <div className="mouse-position-tracker"></div>
-              <div className="mouse-position-tracker"></div>
-              <div className="mouse-position-tracker"></div>
-              <div className="tilting-card-body">
-                <h1>Tilting Card</h1>
-                <p>With CSS only</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>

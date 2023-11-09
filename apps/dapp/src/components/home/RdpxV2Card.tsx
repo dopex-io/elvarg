@@ -29,7 +29,7 @@ const RdpxV2Card = () => {
     <ProductCard>
       <div className="flex w-full justify-between">
         <img src={`/images/tokens/rdpx.svg`} alt="rdpx-token-image" />
-        <div>
+        <div className="flex flex-col items-start">
           <div className="font-bold text-lg">rDPX V2</div>
           <div className="text-sm text-stieglitz">
             Bond rDPX & ETH to earn yield
@@ -48,7 +48,12 @@ const RdpxV2Card = () => {
           <span className="text-sm">
             <span className="text-up-only text-base">37.9%</span> APY
           </span>
-          <Button variant="contained">Bond</Button>
+          <Button
+            variant="outlined"
+            className="!text-wave-blue border-wave-blue"
+          >
+            Bond
+          </Button>
         </div>
         <div className="grid grid-cols-4 items-center">
           <span>ESV</span>
@@ -58,7 +63,12 @@ const RdpxV2Card = () => {
           <span className="text-sm">
             <span className="text-up-only text-base">32.1%</span> APY
           </span>
-          <Button variant="contained">Deposit</Button>
+          <Button
+            variant="outlined"
+            className="!text-wave-blue border-wave-blue"
+          >
+            Deposit
+          </Button>
         </div>
       </div>
     </ProductCard>
