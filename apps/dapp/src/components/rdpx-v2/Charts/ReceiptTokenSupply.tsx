@@ -13,13 +13,14 @@ import {
 
 import queryClient from 'queryClient';
 
-import { getSuppliesDocument } from 'graphql/rdpx';
+import { getReceiptTokenSupplyDocument } from 'graphql/rdpx-v2';
 
 import CustomTooltip from 'components/rdpx-v2/Charts/CustomTooltip';
 
-import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import formatBigint from 'utils/general/formatBigint';
 
-import { DOPEX_RDPX_SUBGRAPH_API_URL } from 'constants/subgraphs';
+import { DECIMALS_TOKEN } from 'constants/index';
+import { DOPEX_RDPX_V2_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
 interface LiquidityLineChartProps {
   data: any[];
@@ -28,39 +29,39 @@ interface LiquidityLineChartProps {
 }
 
 const PriceChart = (props: LiquidityLineChartProps) => {
-  const { height, width } = props;
+  const { height } = props;
 
   const [data, setData] = useState<
     {
       time: string;
-      dscTotalSupplies: number;
-      rdpxTotalSupplies: number;
+      rtTotalSupply: number;
     }[]
-  >();
+  >([]);
 
   useEffect(() => {
     (async () => {
-      const dscSupplies = await queryClient
+      const rtSupplies = await queryClient
         .fetchQuery({
-          queryKey: ['getSupplies'],
+          queryKey: ['getReceiptTokenSupplies'],
           queryFn: () =>
-            request(DOPEX_RDPX_SUBGRAPH_API_URL, getSuppliesDocument),
+            request(
+              DOPEX_RDPX_V2_SUBGRAPH_API_URL,
+              getReceiptTokenSupplyDocument,
+            ),
         })
-        .then((res) => [res.rdpxSupplies, res.dscSupplies]);
+        .then((res) => res.totalReceiptTokenSupplies)
+        .catch((_) => setData([]));
 
-      const formatted = dscSupplies[1]?.map((obj, i) => ({
-        time: format(new Date(Number(obj.id) * 1000), 'dd LLL YYY'),
-        rdpxTotalSupplies: Number(
-          getUserReadableAmount(dscSupplies[0]?.[i]?.totalSupply, 18).toFixed(
-            3,
-          ),
-        ),
-        dscTotalSupplies: Number(
-          getUserReadableAmount(dscSupplies[1]?.[i]?.totalSupply, 18).toFixed(
-            3,
-          ),
-        ),
-      }));
+      const formatted =
+        rtSupplies
+          ?.sort((a, b) => a.transaction.timestamp - b.transaction.timestamp)
+          .map((supply) => ({
+            time: format(
+              new Date(Number(supply.transaction.timestamp) * 1000),
+              'dd LLL YYY',
+            ),
+            rtTotalSupply: Number(formatBigint(supply.amount, DECIMALS_TOKEN)),
+          })) || [];
 
       setData(formatted);
     })();
@@ -95,7 +96,7 @@ const PriceChart = (props: LiquidityLineChartProps) => {
             cursor={{
               fill: '#151515',
             }}
-            content={<CustomTooltip datapointKeys={['dscTotalSupplies']} />}
+            content={<CustomTooltip datapointKeys={['rtTotalSupply']} />}
           />
           <defs>
             <linearGradient id="colorUv4" x1="0" y1="0" x2="0" y2="1">
@@ -116,7 +117,7 @@ const PriceChart = (props: LiquidityLineChartProps) => {
           <Area
             type="natural"
             strokeWidth={1}
-            dataKey="dscTotalSupplies"
+            dataKey="rtTotalSupply"
             stroke="#C3F8FF"
             fill="url(#pattern2)"
             dot={false}
@@ -137,15 +138,6 @@ const PriceChart = (props: LiquidityLineChartProps) => {
               <circle cx="1" cy="1" r="1" />
             </pattern>
           </defs>
-          {/* <Area
-            fill="url(#pattern)"
-            type="linear"
-            strokeWidth={1}
-            dataKey="rdpxTotalSupplies"
-            stackId="1"
-            stroke="#7B61FF"
-            dot={false}
-          /> */}
         </AreaChart>
       </ResponsiveContainer>
     </div>

@@ -12,3 +12,6 @@ export const DOPEX_POLYGON_SSOV_SUBGRAPH_API_URL =
 
 export const DOPEX_RDPX_SUBGRAPH_API_URL =
   'https://api.thegraph.com/subgraphs/name/psytama/rdpxv2';
+
+export const DOPEX_RDPX_V2_SUBGRAPH_API_URL =
+  'https://api.thegraph.com/subgraphs/name/hibou-de-nuit/rdpxv2';

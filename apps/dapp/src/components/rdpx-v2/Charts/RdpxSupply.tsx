@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { formatUnits } from 'viem';
 
 import axios from 'axios';
 import { format } from 'date-fns';
@@ -14,13 +15,12 @@ import {
 
 import queryClient from 'queryClient';
 
-import { getPricesDocument } from 'graphql/rdpx';
+import { getRdpxSuppliesDocument } from 'graphql/rdpx-v2';
 
 import CustomTooltip from 'components/rdpx-v2/Charts/CustomTooltip';
 
-import { getUserReadableAmount } from 'utils/contracts';
-
-import { DOPEX_RDPX_SUBGRAPH_API_URL } from 'constants/subgraphs';
+import { DECIMALS_TOKEN } from 'constants/index';
+import { DOPEX_RDPX_V2_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
 interface LiquidityBarGraphProps {
   data: any[];
@@ -34,36 +34,33 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
   const [data, setData] = useState<
     {
       time: string;
-      rdpxPrices: number;
-      dscPrices: number;
+      rdpxSupply: number;
     }[]
-  >();
+  >([]);
   const [ethPriceInUsd, setEthPriceInUsd] = useState<number>();
 
   useEffect(() => {
     (async () => {
       if (!ethPriceInUsd) return;
-      const prices = await queryClient
+      const rdpxSupplies = await queryClient
         .fetchQuery({
-          queryKey: ['getPrices'],
+          queryKey: ['getRdpxSupplies'],
           queryFn: () =>
-            request(DOPEX_RDPX_SUBGRAPH_API_URL, getPricesDocument),
+            request(DOPEX_RDPX_V2_SUBGRAPH_API_URL, getRdpxSuppliesDocument),
         })
-        .then((res) => [res.rdpxPrices, res.dscPrices]);
+        .then((res) => res.totalRdpxSupplies)
+        .catch((_) => setData([]));
 
-      const formatted = prices[0]?.map((obj, i) => ({
-        time: format(new Date(Number(obj.id) * 1000), 'dd LLL YYY'),
-        rdpxPrices: Number(
-          (
-            getUserReadableAmount(prices[0]?.[i]?.price, 8) * ethPriceInUsd
-          ).toFixed(3),
-        ),
-        dscPrices: Number(
-          (
-            getUserReadableAmount(prices[1]?.[i]?.price, 8) * ethPriceInUsd
-          ).toFixed(3),
-        ),
-      }));
+      const formatted =
+        rdpxSupplies
+          ?.sort((a, b) => a.transaction.timestamp - b.transaction.timestamp)
+          .map((supply) => ({
+            time: format(
+              new Date(Number(supply.transaction.timestamp) * 1000),
+              'dd LLL YYY',
+            ),
+            rdpxSupply: Number(formatUnits(supply.amount, DECIMALS_TOKEN)),
+          })) || [];
 
       setData(formatted);
     })();
@@ -83,7 +80,7 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
   return (
     <div className="relative h-full">
       <h6 className="absolute top-3 left-3 text-xs text-stieglitz align-center">
-        rDPX Price
+        rDPX Supply
       </h6>
       <ResponsiveContainer width="100%" height={height} className="top-6">
         <AreaChart
@@ -109,17 +106,12 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
             cursor={{
               fill: '#151515',
             }}
-            content={
-              <CustomTooltip
-                datapointKeys={['rdpxPrices', 'dscPrices']}
-                isTypePrice
-              />
-            }
+            content={<CustomTooltip datapointKeys={['rdpxSupply']} />}
           />
           <Area
             type="natural"
             strokeWidth={1}
-            dataKey="rdpxPrices"
+            dataKey="rdpxSupply"
             stroke="#7B61FF"
             fill="url(#pattern)"
             dot={false}

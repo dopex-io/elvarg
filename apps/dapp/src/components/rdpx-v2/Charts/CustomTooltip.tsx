@@ -4,6 +4,8 @@ import { TooltipProps } from 'recharts';
 
 import GridItem from 'components/rdpx-v2/Charts/GridItem';
 
+import { formatAmount } from 'utils/general';
+
 interface Props extends TooltipProps<number, string> {
   title?: string;
   datapointKeys: string[];
@@ -56,14 +58,14 @@ const CustomTooltip = (props: Props) => {
               <GridItem
                 key={key}
                 label={TITLE_LABELS[key] ?? ''}
-                value={`${
+                value={`${formatAmount(
                   isTypePrice
                     ? new Intl.NumberFormat('en-US', {
                         currency: 'USD',
                         style: 'currency',
                       }).format(formattedPayload?.[key] || 0)
-                    : formattedPayload?.[key]
-                }`}
+                    : formattedPayload?.[key],
+                )}`}
               />
             );
           })}

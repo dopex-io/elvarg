@@ -27,3 +27,29 @@ export const getUserRedeemRequestsDocument = graphql(`
     }
   }
 `);
+
+export const getReceiptTokenSupplyDocument = graphql(`
+  query getReceiptTokenSupply {
+    totalReceiptTokenSupplies {
+      id
+      amount
+      transaction {
+        sender
+        timestamp
+      }
+    }
+  }
+`);
+
+export const getRdpxSuppliesDocument = graphql(`
+  query getRdpxSupplies {
+    totalRdpxSupplies {
+      id
+      amount
+      transaction {
+        timestamp
+        sender
+      }
+    }
+  }
+`);
