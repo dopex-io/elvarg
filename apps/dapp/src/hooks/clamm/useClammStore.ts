@@ -60,7 +60,7 @@ type ClammStore = {
 };
 const useClammStore = create<ClammStore>((set, get) => ({
   isPut: false,
-  isTrade: false,
+  isTrade: true,
   markPrice: 0,
   selectedTTL: 86400,
   tick: 0,
