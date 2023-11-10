@@ -93,7 +93,8 @@ export class TVDataProvider {
       const prices = await fetch(queryUrl).then((response) => response.json());
       return prices;
     } catch (error) {
-      console.error('Failed to fetch prices for ', ticker);
+      console.log(error);
+      console.error('Failed to fetch prices for', ticker);
       return [];
     }
   }
