@@ -62,7 +62,7 @@ const Page = () => {
           ],
         }}
       />
-      <div className="flex flex-col w-full h-full p-[12px] space-y-[12px]">
+      <div className="flex flex-col w-full p-[12px] space-y-[12px] md:pb-[50px]">
         <div className="flex flex-col md:flex-row md:items-center h-fit space-y-[24px] md:space-y-[0px] md:space-x-[24px]">
           <PairSelector />
           <OverViewStats />
