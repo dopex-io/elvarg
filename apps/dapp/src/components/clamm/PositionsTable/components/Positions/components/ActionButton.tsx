@@ -11,9 +11,16 @@ import { DEFAULT_CHAIN_ID } from 'constants/env';
 type Props = {
   selectedPositions: Map<number, any | null>;
   positionsTypeIndex: number;
+  updateLPPositions: () => Promise<void>;
+  updateBuyPositions: () => Promise<void>;
 };
 const ActionButton = (props: Props) => {
-  const { positionsTypeIndex, selectedPositions } = props;
+  const {
+    positionsTypeIndex,
+    selectedPositions,
+    updateBuyPositions,
+    updateLPPositions,
+  } = props;
 
   const { chain } = useNetwork();
   const { data: walletClient } = useWalletClient({
@@ -27,6 +34,7 @@ const ActionButton = (props: Props) => {
 
     let to: Address = zeroAddress;
     let encodedTxData: Hex = '0x0';
+    let isExercise = false;
 
     const positionsArray = Array.from(selectedPositions);
     if (positionsTypeIndex === 1) {
@@ -37,6 +45,7 @@ const ActionButton = (props: Props) => {
         args: [positionsArray.map(([_, v]) => v.withdrawTx.txData)],
       });
     } else {
+      isExercise = true;
       to = positionsArray[0][1].exerciseTx.to;
       encodedTxData = encodeFunctionData({
         abi: parseAbi([MULTI_CALL_FN_SIG]),
@@ -44,6 +53,7 @@ const ActionButton = (props: Props) => {
         args: [positionsArray.map(([_, v]) => v.exerciseTx.txData)],
       });
     }
+
     const request = await walletClient.prepareTransactionRequest({
       account: walletClient.account,
       to: to,
@@ -54,7 +64,17 @@ const ActionButton = (props: Props) => {
     const reciept = await publicClient.waitForTransactionReceipt({
       hash,
     });
-  }, [chain, selectedPositions, userAddress, walletClient, positionsTypeIndex]);
+
+    isExercise ? await updateBuyPositions() : await updateLPPositions();
+  }, [
+    chain,
+    selectedPositions,
+    userAddress,
+    walletClient,
+    positionsTypeIndex,
+    updateBuyPositions,
+    updateLPPositions,
+  ]);
 
   const buttonProps = useMemo(() => {
     const isBuyPositions = positionsTypeIndex === 0;
