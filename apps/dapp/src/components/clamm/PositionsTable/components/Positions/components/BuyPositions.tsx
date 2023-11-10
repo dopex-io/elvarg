@@ -9,6 +9,8 @@ import { formatDistance } from 'date-fns';
 import { useNetwork, useWalletClient } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
 
+import useClammStore from 'hooks/clamm/useClammStore';
+
 import TableLayout from 'components/common/TableLayout';
 
 import { formatAmount } from 'utils/general';
@@ -154,6 +156,7 @@ const BuyPositions = ({
   unselectPosition,
 }: any) => {
   const { chain } = useNetwork();
+  const { markPrice } = useClammStore();
   const { data: walletClient } = useWalletClient({
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
   });
@@ -179,66 +182,64 @@ const BuyPositions = ({
   );
 
   const buyPositions = useMemo(() => {
-    return positions
-      .map(
-        (
-          { expiry, premium, profit, side, size, strike, meta }: any,
-          index: number,
-        ) => {
-          const readablePremium = formatUnits(
-            premium.amountInToken,
-            premium.decimals,
-          );
+    return positions.map(
+      (
+        { expiry, premium, profit, side, size, strike, meta }: any,
+        index: number,
+      ) => {
+        const readablePremium = formatUnits(
+          premium.amountInToken,
+          premium.decimals,
+        );
 
-          const isSelected = Boolean(selectedPositions.get(index));
+        const isSelected = Boolean(selectedPositions.get(index));
 
-          return {
-            expiry,
-            premium: {
-              amount: readablePremium,
-              symbol: premium.symbol,
-              usdValue: premium.usdValue,
-            },
-            profit: {
-              amount: profit.amount,
-              usdValue: profit.usdValue,
-              symbol: profit.symbol,
-              percentage: Math.max(
-                getPercentageDifference(
-                  Number(profit.amount),
-                  Number(readablePremium),
-                ),
-                0,
+        return {
+          expiry,
+          premium: {
+            amount: readablePremium,
+            symbol: premium.symbol,
+            usdValue: premium.usdValue,
+          },
+          profit: {
+            amount: profit.amount,
+            usdValue: profit.usdValue,
+            symbol: profit.symbol,
+            percentage: Math.max(
+              getPercentageDifference(
+                Number(profit.amount),
+                Number(readablePremium),
               ),
+              0,
+            ),
+          },
+          side: side.charAt(0).toUpperCase() + side.slice(1),
+          size: {
+            amount: formatUnits(size.amountInToken, size.decimals),
+            symbol: size.symbol,
+            usdValue: 0,
+          },
+          strike: {
+            handleSelect: () => {
+              if (!isSelected) {
+                selectPosition(index, meta);
+              } else {
+                unselectPosition(index);
+              }
             },
-            side: side.charAt(0).toUpperCase() + side.slice(1),
-            size: {
-              amount: formatUnits(size.amountInToken, size.decimals),
-              symbol: size.symbol,
-              usdValue: 0,
+            isSelected: isSelected,
+            strikePrice: Number(strike),
+          },
+          exerciseButton: {
+            handleExercise: async () => {
+              const { txData, to } = meta.exerciseTx;
+              await handleExercise(txData, to);
             },
-            strike: {
-              handleSelect: () => {
-                if (!isSelected) {
-                  selectPosition(index, meta);
-                } else {
-                  unselectPosition(index);
-                }
-              },
-              isSelected: isSelected,
-              strikePrice: Number(strike),
-            },
-            exerciseButton: {
-              handleExercise: async () => {
-                const { txData, to } = meta.exerciseTx;
-                await handleExercise(txData, to);
-              },
-              disabled: Number(profit.amount) === 0,
-            },
-          };
-        },
-      )
-      .filter(({ size }: any) => Number(size.amount) > 0);
+            disabled: Number(profit.amount) === 0,
+          },
+        };
+      },
+    );
   }, [
     positions,
     handleExercise,
