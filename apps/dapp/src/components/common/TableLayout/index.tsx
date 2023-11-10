@@ -23,7 +23,7 @@ interface Props<T> {
 const Placeholder = () => {
   return (
     <div className="flex justify-center my-auto w-full bg-cod-gray rounded-lg py-8">
-      <p className="text-sm text-stieglitz">Nothing to show</p>
+      <span className="mx-auto">There is nothing to show</span>
     </div>
   );
 };
@@ -101,7 +101,7 @@ const TableLayout = <T extends object>({
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                       </span>
                     </th>
@@ -167,7 +167,7 @@ const TableLayout = <T extends object>({
               {Math.min(
                 (getState().pagination.pageIndex + 1) *
                   getState().pagination.pageSize,
-                data.length
+                data.length,
               )}{' '}
               of {data.length}
             </span>
@@ -196,7 +196,7 @@ const TableLayout = <T extends object>({
                 >
                   {idx + 1}
                 </button>
-              )
+              ),
             )}
             <button
               onClick={() => nextPage()}
