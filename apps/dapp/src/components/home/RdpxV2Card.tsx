@@ -27,22 +27,26 @@ const fakeData = [
 const RdpxV2Card = () => {
   return (
     <ProductCard>
-      <div className="flex w-full justify-between">
-        <img src={`/images/tokens/rdpx.svg`} alt="rdpx-token-image" />
-        <div className="flex flex-col items-start">
+      <div className="flex w-full">
+        <img
+          src={`/images/tokens/rdpx.svg`}
+          alt="rdpx-token-image"
+          className="w-12 h-12 mr-4"
+        />
+        <div className="flex flex-col items-start flex-grow">
           <div className="font-bold text-lg">rDPX V2</div>
-          <div className="text-sm text-stieglitz">
+          <div className="text-sm text-stieglitz text-start">
             Bond rDPX & ETH to earn yield
           </div>
         </div>
-        <div className="text-sm">
+        <div className="text-sm float-right">
           up to <span className="text-up-only text-xl font-bold">38% APY</span>
         </div>
       </div>
       <div className="flex flex-col space-y-4">
-        <div className="grid grid-cols-4 items-center">
+        <div className="grid gap-4 grid-cols-3 xs:grid-cols-4 items-center">
           <span>rtETH</span>
-          <div className="w-20 h-8">
+          <div className="w-20 h-8 hidden xs:block">
             <Sparkline data={fakeData} />
           </div>
           <span className="text-sm">
@@ -55,9 +59,9 @@ const RdpxV2Card = () => {
             Bond
           </Button>
         </div>
-        <div className="grid grid-cols-4 items-center">
+        <div className="grid gap-4 grid-cols-3 xs:grid-cols-4 items-center">
           <span>ESV</span>
-          <div className="w-20 h-8">
+          <div className="w-20 h-8 hidden xs:block">
             <Sparkline data={fakeData} />
           </div>
           <span className="text-sm">
