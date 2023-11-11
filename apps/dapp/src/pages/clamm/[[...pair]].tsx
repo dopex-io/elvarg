@@ -73,7 +73,7 @@ const Page = () => {
             <StrikesChain />
             <PositionsTable />
           </div>
-          <div className="xl:max-w-[390px] relative sm:w-full w-[96vw]">
+          <div className="xl:max-w-[366px] relative sm:w-full w-[96vw]">
             <AsidePanel />
           </div>
         </div>
