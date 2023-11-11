@@ -1,12 +1,11 @@
 import { configureChains, createConfig } from 'wagmi';
-import { arbitrum, foundry, mainnet, polygon } from 'wagmi/chains';
+import { arbitrum, mainnet, polygon } from 'wagmi/chains';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import { LedgerConnector } from 'wagmi/connectors/ledger';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 import { infuraProvider } from 'wagmi/providers/infura';
-import { publicProvider } from 'wagmi/providers/public';
 
 import { INFURA_PROJECT_ID, WALLETCONNECT_PROJECT_ID } from 'constants/env';
 
