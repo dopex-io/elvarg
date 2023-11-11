@@ -111,14 +111,14 @@ export const TVChartContainer = () => {
         'crossHairProperties.color': '#8E8E8E',
         'mainSeriesProperties.candleStyle.downColor': '#FF617D',
         'mainSeriesProperties.candleStyle.wickDownColor': '#FF617D',
-        'mainSeriesProperties.candleStyle.borderDownColor': '#FF617D', // Down bad
+        'mainSeriesProperties.candleStyle.borderDownColor': '#FF617D',
         'mainSeriesProperties.candleStyle.upColor': '#6DFFB9',
         'mainSeriesProperties.candleStyle.borderUpColor': '#6DFFB9',
-        'mainSeriesProperties.candleStyle.wickUpColor': '#6DFFB9', // Up only
+        'mainSeriesProperties.candleStyle.wickUpColor': '#6DFFB9',
         'mainSeriesProperties.statusViewStyle.showExchange': false,
-        'paneProperties.background': '#151515', // Carbon
-        'paneProperties.horzGridProperties.color': '#1E1E1E', // Mineshaft
-        'paneProperties.vertGridProperties.color': '#1E1E1E', // Mineshaft
+        'paneProperties.background': 'black',
+        'paneProperties.horzGridProperties.color': '#1E1E1E',
+        'paneProperties.vertGridProperties.color': '#1E1E1E',
         'paneProperties.legendProperties.showStudyArguments': false,
         'paneProperties.legendProperties.showStudyTitles': false,
         'paneProperties.legendProperties.showVolume': false,
@@ -128,7 +128,7 @@ export const TVChartContainer = () => {
         'scalesProperties.showStudyLastValue': false,
         'scalesProperties.showStudyPlotLabels': false,
         'scalesProperties.showSymbolLabels': false,
-        'scalesProperties.textColor': '#8E8E8E', // stieglitz
+        'scalesProperties.textColor': '#8E8E8E',
       },
     };
     const tvWidget = new widget(widgetOptions);
