@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import toast from 'react-hot-toast';
+import toast, { LoaderIcon } from 'react-hot-toast';
 import { useAccount, useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
@@ -23,6 +23,7 @@ const PositionsTable = () => {
   const [selectedPositions, setSelectedPositions] = useState<Map<number, any>>(
     new Map(),
   );
+  const [loading, setLoading] = useState(true);
 
   const selectPosition = (key: number, positionInfo: any) => {
     setSelectedPositions((prev) => new Map(prev.set(key, positionInfo)));
@@ -46,6 +47,7 @@ const PositionsTable = () => {
 
   const updateBuyPositions = useCallback(async () => {
     if (!chain || !userAddress || !selectedOptionsPool) return;
+    setLoading(true);
     await getBuyPositions(
       chain.id,
       userAddress,
@@ -53,6 +55,7 @@ const PositionsTable = () => {
       1000,
       0,
       (data) => {
+        console.log(data);
         setBuyPositions(
           data
             .filter(({ size }: any) => Number(size.amountInToken) > 0)
@@ -63,10 +66,12 @@ const PositionsTable = () => {
       },
       toast.error,
     );
+    setLoading(false);
   }, [chain, selectedOptionsPool, userAddress]);
 
   const updateLPPositions = useCallback(async () => {
     if (!chain || !userAddress || !selectedOptionsPool) return;
+    setLoading(true);
     await getLPPositions(
       chain.id,
       userAddress,
@@ -76,6 +81,7 @@ const PositionsTable = () => {
       setLpPositions,
       toast.error,
     );
+    setLoading(false);
   }, [chain, selectedOptionsPool, userAddress]);
 
   useEffect(() => {
@@ -98,12 +104,17 @@ const PositionsTable = () => {
           lpPositionsLength={lpPositions.length}
           setSelectedIndex={updatePositionsType}
         />
-        <ActionButton
-          positionsTypeIndex={positionsTypeIndex}
-          selectedPositions={selectedPositions}
-          updateLPPositions={updateLPPositions}
-          updateBuyPositions={updateBuyPositions}
-        />
+        <div className="flex space-x-[4px]">
+          {loading && <LoaderIcon className="w-[14px] h-[14px]" />}
+          {positionsTypeIndex !== 0 && (
+            <ActionButton
+              positionsTypeIndex={positionsTypeIndex}
+              selectedPositions={selectedPositions}
+              updateLPPositions={updateLPPositions}
+              updateBuyPositions={updateBuyPositions}
+            />
+          )}
+        </div>
       </div>
       <div className="w-full h-fit">
         {positionsTypeIndex === 0 ? (
