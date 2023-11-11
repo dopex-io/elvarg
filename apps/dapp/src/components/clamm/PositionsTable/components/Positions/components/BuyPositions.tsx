@@ -57,12 +57,6 @@ const columns = [
     header: 'Strike Price',
     cell: (info) => (
       <span className="flex space-x-2 text-left items-center justify-start">
-        <Checkbox
-          checked={info.getValue().isSelected}
-          onChange={info.getValue().handleSelect}
-          className="text-mineshaft"
-          size="small"
-        />
         <p className="text-stieglitz inline-block">$</p>
         <p className="inline-block">{info.getValue().strikePrice.toFixed(5)}</p>
       </span>
@@ -76,9 +70,11 @@ const columns = [
           <span className="text-white">
             {formatAmount(info.getValue().amount, 5)}
           </span>
-          <span className="text-stieglitz">{info.getValue().symbol}</span>
+          <span className="text-stieglitz text-xs">
+            {info.getValue().symbol}
+          </span>
         </div>
-        <span className="text-stieglitz text-sm">
+        <span className="text-stieglitz text-xs">
           $ {formatAmount(info.getValue().usdValue, 5)}
         </span>
       </div>
@@ -107,9 +103,11 @@ const columns = [
             <span className="text-white">
               {formatAmount(info.getValue().amount, 5)}
             </span>
-            <span className="text-stieglitz">{info.getValue().symbol}</span>
+            <span className="text-stieglitz text-xs">
+              {info.getValue().symbol}
+            </span>
           </div>
-          <span className="text-stieglitz text-sm">
+          <span className="text-stieglitz text-xs">
             $ {formatAmount(info.getValue().usdValue, 5)}
           </span>
         </div>
@@ -124,12 +122,16 @@ const columns = [
 
       return (
         <div className="flex flex-col">
-          <span className={amountInNumber > 0 ? 'text-up-only' : 'stieglitz'}>
-            {amountInNumber > 0 && '+'}
-            {formatAmount(amountInNumber, 5)} {symbol}{' '}
-            {`(${formatAmount(percentage, 2)}%)`}
+          <span className="flex space-x-[3px]">
+            <span className={amountInNumber > 0 ? 'text-up-only' : 'stieglitz'}>
+              {amountInNumber > 0 && '+'}
+              {formatAmount(amountInNumber, 5)}
+            </span>
+            <span className="text-stieglitz text-xs">{symbol}</span>
           </span>
-          <span className="text-stieglitz">$ {formatAmount(usdValue, 5)}</span>
+          <span className="text-stieglitz text-xs">
+            $ {formatAmount(usdValue, 5)}
+          </span>
         </div>
       );
     },
