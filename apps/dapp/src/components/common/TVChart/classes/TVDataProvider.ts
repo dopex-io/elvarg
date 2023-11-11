@@ -110,7 +110,7 @@ export class TVDataProvider {
       return lastPrice;
     } catch {
       console.error('Failed to latest price for ', ticker);
-      return 0;
+      return this.lastBar.close ?? 0;
     }
   }
 

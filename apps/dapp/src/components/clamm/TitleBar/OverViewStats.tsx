@@ -14,8 +14,22 @@ const OverViewStats = () => {
   const { selectedOptionsPool, markPrice, setMarkPrice, setTick } =
     useClammStore();
   const [stats, setStats] = useState({
-    oi: 0,
-    tvl: 0,
+    openInterest: {
+      openInterest: '0',
+      symbol: '$',
+    },
+    tvl: {
+      tvl: '0',
+      symbol: '$',
+    },
+    volume: {
+      volume: '0',
+      symbol: '$',
+    },
+    fees: {
+      fees: '0',
+      symbol: '$',
+    },
   });
 
   useEffect(() => {
@@ -36,14 +50,17 @@ const OverViewStats = () => {
 
   useEffect(() => {
     if (!selectedOptionsPool || !chain) return;
-
-    getStats(
-      chain.id,
-      selectedOptionsPool.callToken.address,
-      selectedOptionsPool.putToken.address,
-      setStats,
-      toast.error,
+    getStats(selectedOptionsPool.optionsPoolAddress).then((data) =>
+      setStats(data),
     );
+
+    const interval = setInterval(() => {
+      getStats(selectedOptionsPool.optionsPoolAddress).then((data) =>
+        setStats(data),
+      );
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, [chain, selectedOptionsPool]);
 
   return (
@@ -57,10 +74,17 @@ const OverViewStats = () => {
           Mark Price
         </h6>
       </div>
-      {/* <div className="flex flex-col">
+      <div className="flex flex-col">
         <h6 className="flex text-sm md:text-md font-medium text-white items-center space-x-2">
-          <span className="text-stieglitz">$</span>{' '}
-          <span>{formatAmount(stats.oi, 5)}</span>
+          <span className="text-stieglitz">{stats.openInterest.symbol}</span>{' '}
+          <span>
+            {formatAmount(
+              stats.openInterest.openInterest
+                ? stats.openInterest.openInterest
+                : 0,
+              5,
+            )}
+          </span>
         </h6>
         <h6 className="text-sm md:text-md font-medium text-stieglitz">
           Open Interest
@@ -68,13 +92,31 @@ const OverViewStats = () => {
       </div>
       <div className="flex flex-col">
         <h6 className="flex text-sm md:text-md font-medium text-white items-center space-x-2">
-          <span className="text-stieglitz">$</span>{' '}
-          <span>{formatAmount(stats.tvl, 5)}</span>
+          <span className="text-stieglitz">{stats.tvl.symbol}</span>{' '}
+          <span>{formatAmount(stats.tvl.tvl ?? 0, 5)}</span>
         </h6>
         <h6 className="text-sm md:text-md font-medium text-stieglitz">
-          Total Value Locked
+          Total Deposits
         </h6>
-      </div> */}
+      </div>
+      <div className="flex flex-col">
+        <h6 className="flex text-sm md:text-md font-medium text-white items-center space-x-2">
+          <span className="text-stieglitz">{stats.volume.symbol}</span>{' '}
+          <span>{formatAmount(stats.volume.volume ?? 0, 5)}</span>
+        </h6>
+        <h6 className="text-sm md:text-md font-medium text-stieglitz">
+          Total Volume
+        </h6>
+      </div>
+      <div className="flex flex-col">
+        <h6 className="flex text-sm md:text-md font-medium text-white items-center space-x-2">
+          <span className="text-stieglitz">{stats.fees.symbol}</span>{' '}
+          <span>{formatAmount(stats.fees.fees ?? 0, 5)}</span>
+        </h6>
+        <h6 className="text-sm md:text-md font-medium text-stieglitz">
+          Total Fees
+        </h6>
+      </div>
     </div>
   );
 };

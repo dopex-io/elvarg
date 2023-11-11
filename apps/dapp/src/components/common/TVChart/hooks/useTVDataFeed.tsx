@@ -16,7 +16,7 @@ import { TVDataProvider } from '../classes/TVDataProvider';
 const configuration: DatafeedConfiguration = {
   currency_codes: [],
   exchanges: [],
-  supported_resolutions: ['5', '15', '60', '240'] as ResolutionString[],
+  supported_resolutions: ['5', '15', '60'] as ResolutionString[],
   supports_marks: false,
   supports_time: true,
   supports_timescale_marks: false,
@@ -29,14 +29,12 @@ export const CHART_PERIODS: Record<string, number> = {
   '5': 60 * 5,
   '15': 60 * 15,
   '60': 60 * 60,
-  '240': 60 * 60 * 4,
 };
 
 const SUPPORTED_RESOLUTIONS: Record<string, string> = {
   '5': '5m',
   '15': '15m',
   '60': '1h',
-  '240': '4h',
 };
 
 const supportedSymbols = ['ARB/USDC', 'WETH/USDC'];
@@ -179,8 +177,7 @@ const useTVDataFeed = (dataProvider: TVDataProvider) => {
           intervalRef.current && clearInterval(intervalRef.current);
         },
       },
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }; // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 };
 
