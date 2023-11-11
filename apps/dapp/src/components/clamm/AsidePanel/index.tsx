@@ -8,6 +8,7 @@ import useClammStore from 'hooks/clamm/useClammStore';
 
 import { VARROCK_BASE_API_URL } from 'constants/env';
 
+import AutoExercisers from './components/AutoExercisers';
 import CostSummary from './components/CostSummary';
 import InfoPanel from './components/InfoPanel';
 import StrikesSection from './components/StrikesSection';
@@ -65,6 +66,7 @@ const AsidePanel = () => {
       {isTrade && <TTLSelector />}
       <StrikesSection />
       <CostSummary />
+      <AutoExercisers />
       <InfoPanel updateTokenBalances={updateTokenBalances} />
     </div>
   );

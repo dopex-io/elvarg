@@ -92,7 +92,7 @@ const CostSummary = () => {
                 totalItems.length === 0 && 'cursor-not-allowed',
               )}
             >
-              <span className="text-steiglitz font-medium text-[13px]">
+              <span className="font-medium text-[13px]">
                 Total {isTrade ? 'premium' : 'deposit'}
               </span>
 

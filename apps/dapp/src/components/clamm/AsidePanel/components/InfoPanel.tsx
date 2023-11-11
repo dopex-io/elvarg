@@ -17,7 +17,6 @@ import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
 import useLoadingStates, {
   ASIDE_PANEL_BUTTON_KEY,
 } from 'hooks/clamm/useLoadingStates';
-import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 
 import getTokenAllowance from 'utils/clamm/varrock/getTokenAllowance';
 import { formatAmount } from 'utils/general';
@@ -295,7 +294,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
         disabled={isLoading(ASIDE_PANEL_BUTTON_KEY)}
       >
         {isLoading(ASIDE_PANEL_BUTTON_KEY) ? (
-          <LoaderIcon className="w-[18px] h-[18px] bg-primary text-white border border-white" />
+          <LoaderIcon className="w-[18px] h-[18px] bg-primary" />
         ) : (
           buttonProps?.text
         )}
