@@ -57,6 +57,8 @@ const AutoExercisers = () => {
         const reciept = await publicClient.waitForTransactionReceipt({
           hash,
         });
+        await updateDelegators();
+
         toast.success('Transaction submitted');
         toast.remove(toastLoadingId);
       } catch (err) {
@@ -64,7 +66,6 @@ const AutoExercisers = () => {
         toast.remove(toastLoadingId);
         toast.error(error.shortMessage);
       }
-      await updateDelegators();
     },
     [address, walletClient, updateDelegators],
   );

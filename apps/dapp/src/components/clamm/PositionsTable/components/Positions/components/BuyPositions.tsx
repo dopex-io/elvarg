@@ -124,8 +124,8 @@ const columns = [
       const amountInNumber = Number(amount);
 
       return (
-        <div className="flex flex-col">
-          <span className="flex space-x-[3px]">
+        <div className="flex flex-col items-center">
+          <span className="flex space-x-[3px] items-center">
             <span className={amountInNumber > 0 ? 'text-up-only' : 'stieglitz'}>
               {amountInNumber > 0 && '+'}
               {formatValue(amountInNumber)}
