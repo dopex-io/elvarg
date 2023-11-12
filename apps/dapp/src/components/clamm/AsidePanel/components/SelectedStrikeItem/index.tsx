@@ -56,7 +56,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
     useClammTransactionsStore();
   const [premium, setPremium] = useState(0n);
   const { chain } = useNetwork();
-  const [inputAmount, setInputAmount] = useState<string>('0');
+  const [inputAmount, setInputAmount] = useState<string>('');
   const [amountDebounced] = useDebounce(inputAmount, 1500);
   const { setLoading, isLoading } = useLoadingStates();
 
@@ -339,8 +339,8 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
           value={inputAmount}
           type="number"
           min="0"
-          placeholder="0.0"
-          className="w-full text-[13px] text-left text-white bg-umbra focus:outline-none focus:border-mineshaft rounded-md"
+          placeholder={`0.0 ${strikeData.tokenSymbol}`}
+          className="w-full text-[13px] text-left text-white bg-umbra focus:outline-none focus:border-mineshaft rounded-md placeholder-mineshaft"
         />
         <img
           onClick={handleMax}
