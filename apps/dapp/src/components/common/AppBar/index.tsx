@@ -258,7 +258,7 @@ export default function AppBar() {
               <IconButton
                 sx={{ mr: 1 }}
                 onClick={() => setIsNotifiCardOpen(!isNotifiCardOpen)}
-                className="text-white border-cod-gray bg-carbon rounded-md hover:bg-carbon hover:opacity-80"
+                className="text-white border-cod-gray bg-black bg-opacity-30  rounded-md hover:bg-carbon hover:opacity-80"
               >
                 <NotificationsIcon />
               </IconButton>
@@ -284,7 +284,7 @@ export default function AppBar() {
             {accountAddress ? (
               <RdpxAirdropButton account={accountAddress} />
             ) : null}
-            <NetworkButton className="inline-flex mr-2" />
+            <NetworkButton className="inline-flex mr-2 !bg-black !bg-opacity-30" />
             <ConnectButton />
             <IconButton
               aria-label="more"
@@ -292,7 +292,7 @@ export default function AppBar() {
               aria-haspopup="true"
               onClick={handleClickMenu}
               style={{ height: 38 }}
-              className="w-9 long-menu ml-2 rounded-md bg-carbon hover:bg-carbon hidden lg:flex"
+              className="w-9 long-menu ml-2 rounded-md !bg-black !bg-opacity-30 hidden lg:flex"
               size="large"
             >
               <MoreVertIcon className="text-silver" />

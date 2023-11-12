@@ -270,3 +270,48 @@ input[type='number'] {
   --rotationY: var(--angle);
   --rotationX: calc(var(--angle) * -1);
 }
+
+.gradientText {
+  background: linear-gradient(170deg, #22e1ff, #1d8fe1 51.79%, #625eb1);
+  background-clip: border-box;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-bg-effect {
+  position: relative;
+  width: 130px;
+  height: 30px;
+  border-radius: 10px;
+}
+
+.gradient-bg-effect:before,
+.gradient-bg-effect:after {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: -2px;
+  border-radius: 10px;
+  background: linear-gradient(45deg, #00eefb, #0000ff);
+  background-size: 400%;
+  width: calc(100% + 14px);
+  height: calc(100% + 14px);
+  z-index: 0;
+  animation: sassy 20s linear infinite;
+}
+
+@keyframes sassy {
+  0% {
+    background-position: 0 0;
+  }
+  50% {
+    background-position: 400% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
+
+.gradient-bg-effect:after {
+  filter: blur(5px);
+}

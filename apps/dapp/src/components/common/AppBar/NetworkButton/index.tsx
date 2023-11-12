@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 
 import { Button } from '@dopex-io/ui';
+
 import { useBoundStore } from 'store';
 
 import { CHAINS } from 'constants/chains';
@@ -14,11 +15,11 @@ export default function NetworkButton({
 
   const handleOpen = useCallback(
     () => setChangeNetwork && setChangeNetwork('user'),
-    [setChangeNetwork]
+    [setChangeNetwork],
   );
 
   return (
-    <Button className={className} color="carbon" onClick={handleOpen}>
+    <Button className={className} onClick={handleOpen}>
       <img
         src={CHAINS[chainId]?.icon}
         alt={CHAINS[chainId]?.name}
