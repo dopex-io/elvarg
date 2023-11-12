@@ -4,7 +4,7 @@ import { formatUnits } from 'viem';
 import { Checkbox } from '@mui/material';
 
 import { Button, Disclosure } from '@dopex-io/ui';
-import { MinusCircleIcon, PlusCircleIcon } from '@heroicons/react/24/solid';
+import { MinusIcon, PlusIcon } from '@heroicons/react/24/solid';
 import ChevronDownIcon from '@heroicons/react/24/solid/ChevronDownIcon';
 import { createColumnHelper } from '@tanstack/react-table';
 import cx from 'classnames';
@@ -59,12 +59,6 @@ const columns = [
     header: 'Strike',
     cell: (info) => (
       <span className="flex space-x-1 text-left items-center">
-        <Checkbox
-          checked={info.getValue().isSelected}
-          onChange={info.getValue().handleSelect}
-          className="text-mineshaft"
-          size="small"
-        />
         <p className="text-stieglitz inline-block">$</p>
         <p className="inline-block">{info.getValue().amount.toFixed(4)}</p>
       </span>
@@ -125,9 +119,9 @@ const columns = [
         >
           <div className="flex items-center space-x-1">
             {getValue().isSelected ? (
-              <MinusCircleIcon className="w-[14px]" />
+              <MinusIcon className="w-[14px]" />
             ) : (
-              <PlusCircleIcon className="w-[14px]" />
+              <PlusIcon className="w-[14px]" />
             )}
           </div>
         </Button>
