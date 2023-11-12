@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 type UNDERLYING_ASSETS = 'ARB' | 'WETH';
-type COLLATERAL_ASSETS = 'USDC';
+type COLLATERAL_ASSETS = 'USDC' | 'WETH';
 type TV_TICKER = `${UNDERLYING_ASSETS}/${COLLATERAL_ASSETS}`;
 type TradingViewChartStore = {
   selectedTicker: TV_TICKER;
@@ -9,7 +9,7 @@ type TradingViewChartStore = {
 };
 
 const useTradingViewChartStore = create<TradingViewChartStore>((set, get) => ({
-  selectedTicker: 'ARB/USDC',
+  selectedTicker: 'WETH/USDC',
   setSelectedTicker(ticker) {
     set((prev) => ({
       ...prev,

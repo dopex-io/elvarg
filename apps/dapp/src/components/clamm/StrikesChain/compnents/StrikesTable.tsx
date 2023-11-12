@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { formatUnits } from 'viem';
 
 import { Checkbox } from '@mui/material';
@@ -17,6 +17,7 @@ import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 import TableLayout from 'components/common/TableLayout';
 
 import getStrikesChain from 'utils/clamm/varrock/getStrikesChain';
+import { formatAmount } from 'utils/general';
 
 type StrikeDisclosureItem = {
   earningsApy: number;
@@ -38,7 +39,7 @@ type StrikeItem = {
     name: string;
     compositionPercentage: number;
   }[];
-  options: number;
+  options: string;
   button: {
     isSelected: boolean;
     handleSelect: () => void;
@@ -82,7 +83,7 @@ const columns = [
     header: 'Options',
     cell: (info) => (
       <span className="flex space-x-1 text-left items-center">
-        <p>{info.getValue().toFixed(4)}</p>
+        <p>{formatAmount(info.getValue(), 5)}</p>
       </span>
     ),
   }),
@@ -183,14 +184,14 @@ const StrikesTable = () => {
     selectedStrikes,
     initialize,
     strikesChain,
+    setUpdateStrikes,
   } = useStrikesChainStore();
 
   const { selectedOptionsPool, isPut } = useClammStore();
   const { chain } = useNetwork();
 
-  useEffect(() => {
+  const loadStrikes = useCallback(async () => {
     if (!selectedOptionsPool || !chain) return;
-
     getStrikesChain(
       chain.id,
       selectedOptionsPool.callToken.address,
@@ -203,6 +204,11 @@ const StrikesTable = () => {
       },
     );
   }, [chain, initialize, selectedOptionsPool]);
+
+  useEffect(() => {
+    setUpdateStrikes(loadStrikes);
+    loadStrikes();
+  }, [loadStrikes, setUpdateStrikes]);
 
   const strikes = useMemo(() => {
     if (!strikesChain) return [];
@@ -255,7 +261,7 @@ const StrikesTable = () => {
               },
             },
             sources,
-            options: Number(optionsAvailable),
+            options: optionsAvailable,
             button: {
               isSelected,
               handleSelect: () => {

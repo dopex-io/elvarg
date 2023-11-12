@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Menu } from '@dopex-io/ui';
 
 import useClammStore from 'hooks/clamm/useClammStore';
+import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 
 type Pair = {
   textContent: string;
@@ -15,13 +16,14 @@ const LAST_VISITED_CLAMM_POOL_KEY = 'last_clamm_pool';
 
 const PairSelector = () => {
   const { setSelectedOptionsPool, optionsPools } = useClammStore();
+  const { reset } = useStrikesChainStore();
   const params = useParams<{ pair: string[] }>();
   const router = useRouter();
 
   const [selectedPair, setSelectedPair] = useState<Pair>({
-    callToken: '-',
-    putToken: '-',
-    textContent: '-',
+    callToken: 'WETH',
+    putToken: 'USDC',
+    textContent: 'WETH - USDC',
   });
 
   const validPairs = useMemo(() => {
@@ -60,12 +62,13 @@ const PairSelector = () => {
         putToken: optionsPoolInfo.putToken.symbol,
         textContent: `${pairNameSplit[0]} - ${pairNameSplit[1]}`,
       });
+      setSelectedOptionsPool(optionsPoolInfo.pairName);
     } else {
       const defaultPool = optionsPools.entries().next().value[1];
       const pairNameSplit = defaultPool
         ? defaultPool.pairName.split('-')
         : null;
-
+      setSelectedOptionsPool(defaultPool.pairName);
       urlReplacement = defaultPool.pairName;
       setSelectedPair({
         callToken: defaultPool ? defaultPool.callToken.symbol : '-',
@@ -75,7 +78,7 @@ const PairSelector = () => {
           : '-',
       });
     }
-  }, [params, optionsPools]);
+  }, [params, optionsPools, setSelectedOptionsPool]);
 
   return (
     <div className="flex flex-col space-y-[8px]">
@@ -101,6 +104,7 @@ const PairSelector = () => {
             router.replace(pairName);
             setSelectedPair(T);
             setSelectedOptionsPool(pairName);
+            reset();
             localStorage.setItem(LAST_VISITED_CLAMM_POOL_KEY, pairName);
           }}
           selection={selectedPair}

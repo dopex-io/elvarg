@@ -49,7 +49,7 @@ export type StrikesChainAPIResponse = {
   liquidityAvailableUsd: string;
   liquidityInToken: string;
   liquidityAvailableInToken: string;
-  optionsAvailable: number;
+  optionsAvailable: string;
   optionsAvailableInLiquidity: string;
   tokenSymbol: string;
   tokenPrice: string;

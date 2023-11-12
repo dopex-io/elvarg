@@ -7,7 +7,7 @@ async function getPremium(
   putToken: string,
   tick: number,
   ttl: number,
-  amount: number,
+  amount: string,
   isCall: boolean,
   chainId: number,
 ) {

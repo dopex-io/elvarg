@@ -44,13 +44,18 @@ type Props = {
 };
 const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
   const { deselectStrike } = useStrikesChainStore();
-  const { isTrade, selectedOptionsPool, selectedTTL, tokenBalances } =
-    useClammStore();
+  const {
+    isTrade,
+    selectedOptionsPool,
+    selectedTTL,
+    tokenBalances,
+    addresses,
+  } = useClammStore();
   const { setDeposit, unsetDeposit, setPurchase, unsetPurchase } =
     useClammTransactionsStore();
   const [premium, setPremium] = useState(0n);
   const { chain } = useNetwork();
-  const [inputAmount, setInputAmount] = useState<number | string>(0);
+  const [inputAmount, setInputAmount] = useState<string>('0');
   const [amountDebounced] = useDebounce(inputAmount, 1500);
   const { setLoading, isLoading } = useLoadingStates();
 
@@ -82,7 +87,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
       putToken.address,
       tick,
       ttl,
-      Number(amountDebounced),
+      amountDebounced,
       isCall,
       chain.id,
     );
@@ -103,9 +108,9 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
   ]);
 
   const updateDepositTransaction = useCallback(async () => {
-    if (isTrade || !chain || !selectedOptionsPool) return;
+    if (isTrade || !chain || !selectedOptionsPool || !addresses) return;
 
-    const { callToken, putToken } = selectedOptionsPool;
+    const { callToken, putToken, primePool } = selectedOptionsPool;
     const { isCall, meta } = strikeData;
     const depositAmount = parseUnits(
       Number(amountDebounced).toString(),
@@ -119,8 +124,8 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
           chainId: chain.id,
           callToken: callToken.address,
           putToken: putToken.address,
-          pool: '0xC31E54c7a869B9FcBEcc14363CF510d1c41fa443' as Address,
-          handler: '0xBdAd87fFcB972E55A94C0aDca42E2c21441070A1' as Address,
+          pool: primePool,
+          handler: addresses.handler,
           amount: depositAmount,
           tickLower: meta.tickLower,
           tickUpper: meta.tickUpper,
@@ -133,7 +138,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
             amount: depositAmount,
             tokenSymbol: data.tokenSymbol,
             tokenAddress: data.tokenAddress,
-            positionManager: '0x1e3d4725dB1062b88962bFAb8B2D31eAa8f63e45',
+            positionManager: addresses.positionManager,
             txData: data.txData,
             tokenDecimals: isCall
               ? tokenDecimals.callToken
@@ -146,6 +151,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
       });
     setLoading(ASIDE_PANEL_BUTTON_KEY, false);
   }, [
+    addresses,
     setLoading,
     amountDebounced,
     tokenDecimals,
@@ -158,13 +164,14 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
   ]);
 
   const updatePurchases = useCallback(() => {
-    if (!isTrade || !chain || !selectedOptionsPool) return;
+    if (!isTrade || !chain || !selectedOptionsPool || !addresses) return;
 
     // if (Number(amountDebounced) > strikeData.amount1) {
     //   return;
     // }
 
-    const { callToken, putToken, optionsPoolAddress } = selectedOptionsPool;
+    const { callToken, putToken, optionsPoolAddress, primePool } =
+      selectedOptionsPool;
     const { isCall, meta } = strikeData;
     const { tickLower, tickUpper } = meta;
     const token0IsCallToken =
@@ -185,7 +192,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
     const tokenAddressInContext = isCall ? callToken.address : putToken.address;
 
     const optionsAmount = parseUnits(
-      Number(amountDebounced).toString(),
+      String(amountDebounced),
       decimalsInContext,
     );
 
@@ -214,8 +221,8 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
 
     const optTicks = [
       {
-        _handler: '0xBdAd87fFcB972E55A94C0aDca42E2c21441070A1' as Address,
-        pool: '0xC31E54c7a869B9FcBEcc14363CF510d1c41fa443' as Address,
+        _handler: addresses.handler,
+        pool: primePool,
         tickLower: tickLower,
         tickUpper: tickUpper,
         liquidityToUse,
@@ -247,6 +254,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
       tokenDecimals: decimalsInContext,
     });
   }, [
+    addresses,
     setPurchase,
     strikeIndex,
     chain,
@@ -260,7 +268,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
 
   const handleMax = useCallback(() => {
     if (isTrade) {
-      setInputAmount(strikeData.amount1 * 0.9999);
+      setInputAmount(strikeData.amount1);
     } else {
       const balance = strikeData.isCall
         ? tokenBalances.callToken

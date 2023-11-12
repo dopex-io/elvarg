@@ -33,6 +33,11 @@ type TokenBalances = {
   readablePutToken: string;
 };
 
+type Addresses = {
+  positionManager: Address;
+  handler: Address;
+};
+
 type ClammStore = {
   selectedOptionsPool: OptionsPool | null;
   setSelectedOptionsPool: any;
@@ -57,8 +62,12 @@ type ClammStore = {
 
   tick: number;
   setTick: (tick: number) => void;
+
+  addresses: Addresses | null;
+  setAddresses: (addresses: Addresses) => void;
 };
 const useClammStore = create<ClammStore>((set, get) => ({
+  addresses: null,
   isPut: false,
   isTrade: true,
   markPrice: 0,
@@ -153,6 +162,12 @@ const useClammStore = create<ClammStore>((set, get) => ({
     set((prev) => ({
       ...prev,
       tick: tick,
+    }));
+  },
+  setAddresses(addresses) {
+    set((prev) => ({
+      ...prev,
+      addresses: addresses,
     }));
   },
 }));

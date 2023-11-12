@@ -63,9 +63,9 @@ function generateStrikes(
       if (currentPrice > tickLowerPrice && currentPrice > tickUpperPrice) {
         strikes.push({
           type: 'put',
-          strike: tickUpperPrice,
-          tickLower: startTick,
-          tickUpper: startTick + 10,
+          strike: tickLowerPrice,
+          tickLower: tickLower,
+          tickUpper: tickUpper,
         });
       }
 
@@ -73,8 +73,8 @@ function generateStrikes(
         strikes.push({
           type: 'call',
           strike: tickUpperPrice,
-          tickLower: startTick,
-          tickUpper: startTick + 10,
+          tickLower: tickLower,
+          tickUpper: tickUpper,
         });
       }
     }

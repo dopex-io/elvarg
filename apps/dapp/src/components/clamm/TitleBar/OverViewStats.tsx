@@ -5,6 +5,7 @@ import { useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 
+import formatValue from 'utils/clamm/formatValue';
 import getMarkPrice from 'utils/clamm/varrock/getMarkPrice';
 import getStats from 'utils/clamm/varrock/getStats';
 import { formatAmount } from 'utils/general';
@@ -43,7 +44,7 @@ const OverViewStats = () => {
         },
         toast.error,
       );
-    }, 5000);
+    }, 2000);
 
     return () => clearInterval(interval);
   }, [selectedOptionsPool, setMarkPrice, setTick]);
@@ -58,17 +59,17 @@ const OverViewStats = () => {
       getStats(selectedOptionsPool.optionsPoolAddress).then((data) =>
         setStats(data),
       );
-    }, 5000);
+    }, 10000);
 
     return () => clearInterval(interval);
   }, [chain, selectedOptionsPool]);
 
   return (
-    <div className="flex space-x-[24px] md:w-fit w-full justify-between md:justify-normal flex-wrap">
+    <div className="flex space-x-[24px] md:w-fit w-full justify-between md:justify-center flex-wrap md:pt-[4px]">
       <div className="flex flex-col">
         <h6 className="flex text-xs sm:text-sm md:text-md font-medium text-white items-center space-x-2">
           <span className="text-stieglitz">$</span>
-          <span>{Number(markPrice).toFixed(4)}</span>
+          <span>{formatValue(markPrice)}</span>
         </h6>
         <h6 className="text-xs sm:text-sm md:text-md font-medium text-stieglitz">
           Mark Price

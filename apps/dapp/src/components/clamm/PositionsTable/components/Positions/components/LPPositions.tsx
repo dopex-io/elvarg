@@ -1,16 +1,24 @@
 import React, { useCallback, useMemo } from 'react';
-import { Address, encodeFunctionData, formatUnits, Hex, parseAbi } from 'viem';
+import {
+  Address,
+  BaseError,
+  encodeFunctionData,
+  formatUnits,
+  Hex,
+  parseAbi,
+} from 'viem';
 
 import { Checkbox } from '@mui/material';
 
 import { Button } from '@dopex-io/ui';
 import { createColumnHelper } from '@tanstack/react-table';
+import toast from 'react-hot-toast';
 import { useNetwork, useWalletClient } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
 
 import TableLayout from 'components/common/TableLayout';
 
-import { formatAmount } from 'utils/general';
+import formatValue from 'utils/clamm/formatValue';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
@@ -75,13 +83,13 @@ const columns = [
         <div className="flex flex-col items-start justify-center">
           {Number(callTokenAmount) !== 0 && (
             <span>
-              {formatAmount(callTokenAmount, 5)}{' '}
+              {formatValue(callTokenAmount)}{' '}
               <span className="text-stieglitz">{callTokenSymbol}</span>
             </span>
           )}
           {Number(putTokenAmount) !== 0 && (
             <span>
-              {formatAmount(putTokenAmount, 5)}{' '}
+              {formatValue(putTokenAmount)}{' '}
               <span className="text-stieglitz">{putTokenSymbol}</span>
             </span>
           )}
@@ -101,11 +109,11 @@ const columns = [
       return (
         <div className="flex flex-col items-start justify-center">
           <span>
-            {formatAmount(callTokenAmount, 5)}{' '}
+            {formatValue(callTokenAmount)}{' '}
             <span className="text-stieglitz">{callTokenSymbol}</span>
           </span>
           <span>
-            {formatAmount(putTokenAmount, 5)}{' '}
+            {formatValue(putTokenAmount)}{' '}
             <span className="text-stieglitz">{putTokenSymbol}</span>
           </span>
         </div>
@@ -124,11 +132,11 @@ const columns = [
       return (
         <div className="flex flex-col items-start justify-center">
           <span>
-            {formatAmount(callTokenAmount, 5)}{' '}
+            {formatValue(callTokenAmount)}{' '}
             <span className="text-stieglitz">{callTokenSymbol}</span>
           </span>
           <span>
-            {formatAmount(putTokenAmount, 5)}{' '}
+            {formatValue(putTokenAmount)}{' '}
             <span className="text-stieglitz">{putTokenSymbol}</span>
           </span>
         </div>
@@ -159,17 +167,26 @@ const LPPositions = ({
       if (!walletClient) return;
       const { publicClient } = wagmiConfig;
 
-      const request = await walletClient.prepareTransactionRequest({
-        account: walletClient.account,
-        to: to,
-        data: txData,
-        type: 'legacy',
-      });
+      const loadingToastId = toast.loading('Opening wallet');
+      try {
+        const request = await walletClient.prepareTransactionRequest({
+          account: walletClient.account,
+          to: to,
+          data: txData,
+          type: 'legacy',
+        });
 
-      const hash = await walletClient.sendTransaction(request);
-      const reciept = await publicClient.waitForTransactionReceipt({
-        hash,
-      });
+        const hash = await walletClient.sendTransaction(request);
+        const reciept = await publicClient.waitForTransactionReceipt({
+          hash,
+        });
+        toast.success('Transaction sent');
+      } catch (err) {
+        const error = err as BaseError;
+        console.error(err);
+        toast.error(error.shortMessage);
+      }
+      toast.remove(loadingToastId);
     },
     [walletClient],
   );

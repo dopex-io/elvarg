@@ -7,6 +7,7 @@ import useClammStore from 'hooks/clamm/useClammStore';
 
 import getBuyPositions from 'utils/clamm/varrock/getBuyPosition';
 import getLPPositions from 'utils/clamm/varrock/getLPPositions';
+import { OptionsPositionsResponse } from 'utils/clamm/varrock/types';
 
 import ActionButton from './components/Positions/components/ActionButton';
 import BuyPositions from './components/Positions/components/BuyPositions';
@@ -19,7 +20,9 @@ const PositionsTable = () => {
   const { selectedOptionsPool } = useClammStore();
   const [positionsTypeIndex, setPositionsTypeIndex] = useState(0);
   const [lpPositions, setLpPositions] = useState<any>([]);
-  const [buyPositions, setBuyPositions] = useState<any>([]);
+  const [buyPositions, setBuyPositions] = useState<OptionsPositionsResponse[]>(
+    [],
+  );
   const [selectedPositions, setSelectedPositions] = useState<Map<number, any>>(
     new Map(),
   );
@@ -28,7 +31,7 @@ const PositionsTable = () => {
   const selectPosition = (key: number, positionInfo: any) => {
     setSelectedPositions((prev) => new Map(prev.set(key, positionInfo)));
   };
-  const unselectPosition = (key: number, positionInfo: any) => {
+  const unselectPosition = (key: number) => {
     setSelectedPositions((prev) => {
       prev.delete(key);
       return new Map(prev);
@@ -47,15 +50,16 @@ const PositionsTable = () => {
 
   const updateBuyPositions = useCallback(async () => {
     if (!chain || !userAddress || !selectedOptionsPool) return;
+    const { optionsPoolAddress } = selectedOptionsPool;
     setLoading(true);
     await getBuyPositions(
-      chain.id,
-      userAddress,
-      selectedOptionsPool.callToken.address,
-      1000,
-      0,
+      {
+        account: userAddress,
+        optionMarket: optionsPoolAddress,
+        first: 1000,
+        skip: 0,
+      },
       (data) => {
-        console.log(data);
         setBuyPositions(
           data
             .filter(({ size }: any) => Number(size.amountInToken) > 0)
@@ -64,7 +68,7 @@ const PositionsTable = () => {
             ),
         );
       },
-      toast.error,
+      () => {},
     );
     setLoading(false);
   }, [chain, selectedOptionsPool, userAddress]);
@@ -123,7 +127,6 @@ const PositionsTable = () => {
             selectPosition={selectPosition}
             unselectPosition={unselectPosition}
             selectedPositions={selectedPositions}
-            updatePositions={updateBuyPositions}
           />
         ) : (
           <LPPositions

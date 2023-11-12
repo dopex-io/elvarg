@@ -2,7 +2,8 @@ import { VARROCK_BASE_API_URL } from 'constants/env';
 
 const PRICES_URLS: Record<number, Record<string, string>> = {
   42161: {
-    'ARB/USDC': `${VARROCK_BASE_API_URL}/uniswap-prices`,
+    'ARB/WETH': `${VARROCK_BASE_API_URL}/uniswap-prices`,
+    'WBTC/WETH': `${VARROCK_BASE_API_URL}/uniswap-prices`,
     'WETH/USDC': `${VARROCK_BASE_API_URL}/uniswap-prices`,
   },
 };
@@ -93,7 +94,6 @@ export class TVDataProvider {
       const prices = await fetch(queryUrl).then((response) => response.json());
       return prices;
     } catch (error) {
-      console.log(error);
       console.error('Failed to fetch prices for', ticker);
       return [];
     }

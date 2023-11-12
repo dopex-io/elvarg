@@ -8,6 +8,7 @@ import cx from 'classnames';
 import useClammStore from 'hooks/clamm/useClammStore';
 import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
 
+import bigintToReadable from 'utils/clamm/formatValue';
 import { formatAmount } from 'utils/general';
 
 const CostSummary = () => {
@@ -17,12 +18,10 @@ const CostSummary = () => {
   const total = useMemo(() => {
     const _total = new Map<string, number>();
     if (purchases.size > 0) {
-      // setTotal((prev) => {
       purchases.forEach(({ premium, tokenSymbol, tokenDecimals }) => {
         const curr = _total.get(tokenSymbol);
-        const amountInNumber = Number(
-          formatAmount(formatUnits(premium, tokenDecimals), 5),
-        );
+        const amountInNumber = Number(formatUnits(premium, tokenDecimals));
+
         if (curr) {
           _total.set(tokenSymbol, curr + amountInNumber);
           return _total;
@@ -35,9 +34,7 @@ const CostSummary = () => {
     if (deposits.size > 0) {
       deposits.forEach(({ amount, tokenSymbol, tokenDecimals }) => {
         const curr = _total.get(tokenSymbol);
-        const amountInNumber = Number(
-          formatAmount(formatUnits(amount, tokenDecimals), 5),
-        );
+        const amountInNumber = Number(bigintToReadable(amount, tokenDecimals));
         if (curr) {
           _total.set(tokenSymbol, curr + amountInNumber);
           return _total;
@@ -62,16 +59,16 @@ const CostSummary = () => {
       if (isTrade) {
         purchases.forEach(({ strike, premium, tokenDecimals, tokenSymbol }) => {
           _total.push({
-            strike: formatAmount(strike, 5),
-            tokenAmount: formatAmount(formatUnits(premium, tokenDecimals), 5),
+            strike: bigintToReadable(strike),
+            tokenAmount: bigintToReadable(premium, tokenDecimals),
             tokenSymbol: tokenSymbol,
           });
         });
       } else {
         deposits.forEach(({ strike, amount, tokenDecimals, tokenSymbol }) => {
           _total.push({
-            strike: formatAmount(strike, 5),
-            tokenAmount: formatAmount(formatUnits(amount, tokenDecimals), 5),
+            strike: bigintToReadable(strike),
+            tokenAmount: bigintToReadable(amount, tokenDecimals),
             tokenSymbol: tokenSymbol,
           });
         });
@@ -103,7 +100,9 @@ const CostSummary = () => {
                       key={index}
                       className="text-[13px] flex items-center justify-center space-x-[4px]"
                     >
-                      <span className="text-white">{amount}</span>
+                      <span className="text-white">
+                        {formatAmount(amount, 5)}
+                      </span>
                       <span className="text-stieglitz">{symbol}</span>
                     </span>
                   ))}
@@ -132,7 +131,6 @@ const CostSummary = () => {
                       className="w-full flex items-center justify-between"
                     >
                       <span className="text-[13px] flex items-center justify-center space-x-[2px]">
-                        <span className="text-stieglitz">$</span>
                         <span>{strike}</span>
                       </span>
                       <span className="text-[13px] flex items-center justify-center space-x-[4px]">

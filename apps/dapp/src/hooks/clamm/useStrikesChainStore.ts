@@ -8,7 +8,7 @@ export type SelectedStrike = {
   strike: number;
   isCall: boolean;
   amount0: number;
-  amount1: number;
+  amount1: string;
   tokenSymbol: string;
   tokenDecimals: number;
   meta: StrikeMeta;
@@ -27,9 +27,12 @@ export interface StrikesChainStore {
   deselectStrike: (index: number) => void;
   initialize: (data: StrikesChain) => void;
   strikesChain: StrikesChain;
+  updateStrikes: () => void;
+  setUpdateStrikes: (fn: () => void) => void;
 }
 
 const useStrikesChainStore = create<StrikesChainStore>((set) => ({
+  updateStrikes: () => {},
   strikesChain: [],
   selectedStrikesErrors: new Map(),
   initialize: (data: StrikesChain) => {
@@ -64,6 +67,12 @@ const useStrikesChainStore = create<StrikesChainStore>((set) => ({
     set((prev) => ({
       ...prev,
       selectedStrikes: new Map(),
+    }));
+  },
+  setUpdateStrikes(fn) {
+    set((prev) => ({
+      ...prev,
+      updateStrikes: fn,
     }));
   },
 }));

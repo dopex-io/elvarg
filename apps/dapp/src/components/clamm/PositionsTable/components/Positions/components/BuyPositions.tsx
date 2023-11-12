@@ -1,11 +1,12 @@
 import React, { useCallback, useMemo } from 'react';
-import { Address, formatUnits, Hex } from 'viem';
+import { BaseError, formatUnits } from 'viem';
 
 import { Checkbox } from '@mui/material';
 
 import { Button } from '@dopex-io/ui';
 import { createColumnHelper } from '@tanstack/react-table';
 import { formatDistance } from 'date-fns';
+import toast from 'react-hot-toast';
 import { useNetwork, useWalletClient } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
 
@@ -13,7 +14,9 @@ import useClammStore from 'hooks/clamm/useClammStore';
 
 import TableLayout from 'components/common/TableLayout';
 
-import { formatAmount } from 'utils/general';
+import formatValue from 'utils/clamm/formatValue';
+import getExerciseTxData from 'utils/clamm/varrock/getExerciseTxData';
+import { OptionsPositionsResponse } from 'utils/clamm/varrock/types';
 import getPercentageDifference from 'utils/math/getPercentageDifference';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
@@ -34,20 +37,20 @@ export type BuyPosition = {
   size: {
     amount: string;
     symbol: string;
-    usdValue: number;
+    usdValue: string;
   };
   side: string;
   premium: {
     amount: string;
     symbol: string;
-    usdValue: number;
+    usdValue: string;
   };
   expiry: number;
   profit: {
     percentage: number;
-    amount: number;
+    amount: string;
     symbol: string;
-    usdValue: number;
+    usdValue: string;
   };
 };
 
@@ -68,14 +71,14 @@ const columns = [
       <div className="flex flex-col items-start justfiy-start">
         <div className="flex items-center justify-start space-x-[3px]">
           <span className="text-white">
-            {formatAmount(info.getValue().amount, 5)}
+            {formatValue(info.getValue().amount)}
           </span>
           <span className="text-stieglitz text-xs">
             {info.getValue().symbol}
           </span>
         </div>
         <span className="text-stieglitz text-xs">
-          $ {formatAmount(info.getValue().usdValue, 5)}
+          $ {formatValue(info.getValue().usdValue)}
         </span>
       </div>
     ),
@@ -101,14 +104,14 @@ const columns = [
         <div className="flex flex-col items-start justfiy-start">
           <div className="flex items-center justify-start space-x-[3px]">
             <span className="text-white">
-              {formatAmount(info.getValue().amount, 5)}
+              {formatValue(info.getValue().amount)}
             </span>
             <span className="text-stieglitz text-xs">
               {info.getValue().symbol}
             </span>
           </div>
           <span className="text-stieglitz text-xs">
-            $ {formatAmount(info.getValue().usdValue, 5)}
+            $ {formatValue(info.getValue().usdValue)}
           </span>
         </div>
       );
@@ -125,12 +128,12 @@ const columns = [
           <span className="flex space-x-[3px]">
             <span className={amountInNumber > 0 ? 'text-up-only' : 'stieglitz'}>
               {amountInNumber > 0 && '+'}
-              {formatAmount(amountInNumber, 5)}
+              {formatValue(amountInNumber)}
             </span>
             <span className="text-stieglitz text-xs">{symbol}</span>
           </span>
           <span className="text-stieglitz text-xs">
-            $ {formatAmount(usdValue, 5)}
+            $ {formatValue(usdValue)}
           </span>
         </div>
       );
@@ -151,36 +154,62 @@ const columns = [
   }),
 ];
 
+type Props = {
+  positions: OptionsPositionsResponse[];
+  selectPosition: (key: number, positionInfo: any) => void;
+  selectedPositions: Map<number, any>;
+  unselectPosition: (key: number) => void;
+};
 const BuyPositions = ({
   positions,
   selectPosition,
   selectedPositions,
   unselectPosition,
-}: any) => {
+}: Props) => {
   const { chain } = useNetwork();
-  const { markPrice } = useClammStore();
+  const { markPrice, selectedOptionsPool } = useClammStore();
   const { data: walletClient } = useWalletClient({
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
   });
 
   const handleExercise = useCallback(
-    async (txData: Hex, to: Address) => {
-      if (!walletClient) return;
-      const { publicClient } = wagmiConfig;
+    async (positionId: string) => {
+      if (!selectedOptionsPool || !walletClient) return;
 
-      const request = await walletClient.prepareTransactionRequest({
-        account: walletClient.account,
-        to: to,
-        data: txData,
-        type: 'legacy',
-      });
+      const loadingToastId = toast.loading('Opening wallet');
+      try {
+        const exerciseTxData = await getExerciseTxData({
+          optionMarket: selectedOptionsPool.optionsPoolAddress,
+          positionId: positionId,
+          slippage: '3',
+        });
 
-      const hash = await walletClient.sendTransaction(request);
-      const reciept = await publicClient.waitForTransactionReceipt({
-        hash,
-      });
+        if (exerciseTxData.error) {
+          toast.error('Failed to exercise');
+          return;
+        }
+
+        const { publicClient } = wagmiConfig;
+        const request = await walletClient.prepareTransactionRequest({
+          account: walletClient.account,
+          to: exerciseTxData.to,
+          data: exerciseTxData.txData,
+          type: 'legacy',
+        });
+        const hash = await walletClient.sendTransaction(request);
+        const reciept = await publicClient.waitForTransactionReceipt({
+          hash,
+        });
+
+        toast.success('Transaction sent');
+      } catch (err) {
+        const error = err as BaseError;
+        console.error(err);
+        toast.error(error.shortMessage);
+      }
+      toast.remove(loadingToastId);
     },
-    [walletClient],
+    [selectedOptionsPool, walletClient],
   );
 
   const buyPositions = useMemo(() => {
@@ -194,6 +223,11 @@ const BuyPositions = ({
           premium.decimals,
         );
 
+        const readableProfit = formatUnits(
+          profit.amountInToken,
+          profit.decimals,
+        );
+
         const isSelected = Boolean(selectedPositions.get(index));
 
         return {
@@ -204,7 +238,7 @@ const BuyPositions = ({
             usdValue: premium.usdValue,
           },
           profit: {
-            amount: profit.amount,
+            amount: readableProfit,
             usdValue: profit.usdValue,
             symbol: profit.symbol,
             percentage: Math.max(
@@ -219,7 +253,7 @@ const BuyPositions = ({
           size: {
             amount: formatUnits(size.amountInToken, size.decimals),
             symbol: size.symbol,
-            usdValue: 0,
+            usdValue: size.usdValue,
           },
           strike: {
             handleSelect: () => {
@@ -234,10 +268,9 @@ const BuyPositions = ({
           },
           exerciseButton: {
             handleExercise: async () => {
-              const { txData, to } = meta.exerciseTx;
-              await handleExercise(txData, to);
+              await handleExercise(String(meta.tokenId));
             },
-            disabled: Number(profit.amount) === 0,
+            disabled: formatValue(readableProfit) === '0',
           },
         };
       },

@@ -1,28 +1,32 @@
+import { Address } from 'viem';
+
 import axios from 'axios';
 
 import { VARROCK_BASE_API_URL } from 'constants/env';
 
+import { OptionsPositionsResponse } from './types';
+
+type BuyPositionQuery = {
+  account: Address;
+  optionMarket: Address;
+  first: number;
+  skip: number;
+};
 async function getBuyPositions(
-  chainId: number,
-  user: string,
-  callToken: string,
-  first: number,
-  skip: number,
+  queryOptions: BuyPositionQuery,
   onSuccessCallback: (response: any) => void,
   onErrorCallback: (error: string) => void,
 ) {
+  const { account, optionMarket } = queryOptions;
   axios
     .get(`${VARROCK_BASE_API_URL}/clamm/positions/purchase`, {
       params: {
-        chainId,
-        callToken,
-        user,
-        first,
-        skip,
+        account,
+        optionMarket,
       },
     })
     .then(({ data }) => {
-      onSuccessCallback(data as any);
+      onSuccessCallback(data as OptionsPositionsResponse[]);
     })
     .catch((err) => {
       if (
@@ -34,7 +38,6 @@ async function getBuyPositions(
         console.error(err);
         return [];
       }
-      onErrorCallback?.(err.response.data.message);
       return [];
     });
 }

@@ -15,25 +15,28 @@ import OverViewStats from 'components/clamm/TitleBar/OverViewStats';
 import PairSelector from 'components/clamm/TitleBar/PairSelector';
 import PageLayout from 'components/common/PageLayout';
 
+import getAddresses from 'utils/clamm/varrock/getAddresses';
 import getOptionsPools from 'utils/clamm/varrock/getOptionsPools';
 
-import { DEFAULT_CHAIN_ID } from 'constants/env';
 import seo from 'constants/seo';
 
 const Page = () => {
-  const { initialize, selectedOptionsPool } = useClammStore();
+  const { initialize, selectedOptionsPool, setAddresses, addresses } =
+    useClammStore();
   const { setSelectedTicker } = useTradingViewChartStore();
   const { chain } = useNetwork();
 
   useEffect(() => {
-    getOptionsPools(
-      chain?.id ?? DEFAULT_CHAIN_ID,
-      initialize,
-      (error: string) => {
-        toast.error(error);
-      },
-    );
-  }, [chain?.id, initialize]);
+    if (!chain) return;
+
+    getOptionsPools(chain.id, initialize, (error: string) => {
+      toast.error(error);
+    });
+  }, [chain, initialize]);
+
+  useEffect(() => {
+    getAddresses().then((data) => setAddresses(data));
+  }, [setAddresses]);
 
   useEffect(() => {
     if (!selectedOptionsPool) return;
@@ -63,7 +66,7 @@ const Page = () => {
         }}
       />
       <div className="flex flex-col w-full p-[12px] space-y-[12px] md:pb-[50px]">
-        <div className="flex flex-col md:flex-row md:items-center h-fit space-y-[24px] md:space-y-[0px] md:space-x-[24px]">
+        <div className="flex flex-col md:flex-row md:items-center justify-start h-fit space-y-[24px] md:space-y-[0px] md:space-x-[24px]">
           <PairSelector />
           <OverViewStats />
         </div>
