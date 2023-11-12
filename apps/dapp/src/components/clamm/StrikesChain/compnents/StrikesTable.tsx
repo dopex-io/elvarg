@@ -196,7 +196,7 @@ const StrikesTable = () => {
       chain.id,
       selectedOptionsPool.callToken.address,
       selectedOptionsPool.putToken.address,
-      10,
+      50,
       0,
       initialize,
       (err) => {
