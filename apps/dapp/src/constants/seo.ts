@@ -82,7 +82,7 @@ const seo = {
     banner:
       'https://res.cloudinary.com/dxitdndu3/image/upload/v1684326255/dopex_images/preview_images/default_qfq5rc.png',
     alt: 'RDPX V2',
-    title: 'RDPX | Dopex',
+    title: 'RDPX V2 | Dopex',
     description: 'Bond, Redeem, Accrue Rewards with RDPX',
   },
   default: {

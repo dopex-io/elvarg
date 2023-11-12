@@ -12,6 +12,7 @@ import BondPanel from 'components/rdpx-v2/AsidePanel/BondPanel';
 import StakePanel from 'components/rdpx-v2/AsidePanel/StakePanel';
 import StrategyVaultPanel from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel';
 import BondsBody from 'components/rdpx-v2/Body/BondsBody';
+import Farm from 'components/rdpx-v2/Body/Farm';
 import StakingBody from 'components/rdpx-v2/Body/StakingBody';
 import StrategyVaultBody from 'components/rdpx-v2/Body/StrategyVault';
 import QuickLink from 'components/rdpx-v2/QuickLink';
@@ -44,6 +45,12 @@ const Main = () => {
           body: <StakingBody />,
           blockscannerContent: quickLinks.arbiscanStaking,
         };
+      case 'farm':
+        return {
+          asidePanel: null,
+          body: <Farm />,
+          blockscannerContent: null,
+        };
     }
   }, [rdpxPageState]);
 
@@ -54,9 +61,6 @@ const Main = () => {
 
   return (
     <div className="bg-contain min-h-screen">
-      <Head>
-        <title>Mint | Dopex</title>
-      </Head>
       <NextSeo
         title={seo.rdpxV2.title}
         description={seo.rdpxV2.description}
@@ -84,12 +88,14 @@ const Main = () => {
           <div className="flex flex-col w-full sm:w-full lg:w-[646px] h-full">
             {renderContent.body}
           </div>
-          <div className="flex flex-col w-full lg:w-[390px] h-full space-y-3">
-            {renderContent.asidePanel}
-            <div className="flex flex-col space-y-3">
-              <QuickLink {...renderContent.blockscannerContent} />
+          {renderContent.asidePanel ? (
+            <div className="flex flex-col w-full lg:w-[390px] h-full space-y-3">
+              {renderContent.asidePanel}
+              <div className="flex flex-col space-y-3">
+                <QuickLink {...renderContent.blockscannerContent} />
+              </div>
             </div>
-          </div>
+          ) : null}
         </div>
       </PageLayout>
     </div>

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
-export const rdpxV2Actions = ['bond', 'lp', 'stake'] as const;
+export const rdpxV2Actions = ['bond', 'lp', 'stake', 'farm'] as const;
 export type RdpxV2State = (typeof rdpxV2Actions)[number];
 
 interface Props {
