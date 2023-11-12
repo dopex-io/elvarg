@@ -9,7 +9,7 @@ import SsovCard from 'components/home/SsovCard';
 
 const Home = () => {
   return (
-    <div className="min-h-screen bg-[url('https://tailwindcss.com/_next/static/media/hero-dark@90.dba36cdf.jpg')]">
+    <div className="min-h-screen bg-[url('/images/backgrounds/darkness.jpg')]">
       <Head>
         <title>Home | Dopex</title>
       </Head>
@@ -28,12 +28,12 @@ const Home = () => {
               </h1>
             </div>
             <div className="text-lg mb-4">
-              Arbitrum STIP Incentives are LIVE on Dopex now! Bond on rDPX V2 or
-              Deposit on CLAMM now to earn up to <b>182% APY!</b>
+              Arbitrum STIP Incentives are LIVE on Dopex now! Deposit on CLAMM
+              now to earn up to <b>182% APY!</b>
             </div>
             <div>
-              <Button>rDPX V2 Bond</Button>
-              <span className="text-stieglitz mx-4">or</span>
+              {/* <Button>rDPX V2 Bond</Button>
+              <span className="text-stieglitz mx-4">or</span> */}
               <Button>Deposit CLAMM</Button>
             </div>
           </div>
@@ -43,32 +43,14 @@ const Home = () => {
             alt="rdpx-v2"
           />
         </div>
-        {/* <div className="flex md:flex-row md:space-y-0 space-y-12 flex-col justify-between mb-16 w-2/3">
-          <div className="flex flex-col max-w-fit">
-            <h1 className="md:text-5xl text-6xl font-mono font-bold text-transparent text-wave-blue">
-              $400M+
-            </h1>
-            <span className="text-base text-white self-end font-mono">
-              All Time Open Interest
-            </span>
-          </div>
-          <div className="flex flex-col max-w-fit">
-            <h1 className="md:text-5xl text-6xl font-mono font-bold text-transparent  text-wave-blue">
-              {tvl === '--' ? tvl : `${formatAmount(tvl)}`}
-            </h1>
-            <span className="text-base text-white self-end font-mono">
-              Total Value Locked
-            </span>
-          </div>
-        </div> */}
         <div>
           <div className="mb-8 font-bold text-3xl lg:block flex justify-center">
             <span>Our Products</span>
           </div>
           <div className="grid lg:grid-cols-2 grid-cols-1 gap-8">
             <ClammCard />
-            <RdpxV2Card />
             <SsovCard />
+            <RdpxV2Card />
           </div>
         </div>
       </div>
