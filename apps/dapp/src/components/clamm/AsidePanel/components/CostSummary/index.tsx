@@ -1,8 +1,6 @@
 import React, { useMemo } from 'react';
 import { formatUnits } from 'viem';
 
-import { Disclosure, Transition } from '@dopex-io/ui';
-import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import cx from 'classnames';
 
 import useClammStore from 'hooks/clamm/useClammStore';
@@ -77,74 +75,47 @@ const CostSummary = () => {
     return _total;
   }, [isTrade, purchases, deposits]);
 
-  return (
-    <div className="p-[12px] bg-umbra rounded-t-lg">
-      <Disclosure>
-        {({ open }) => (
-          <>
-            <Disclosure.Button
-              disabled={totalItems.length === 0}
-              className={cx(
-                'flex w-full items-center justify-between font-medium text-[13px] text-stieglitz',
-                totalItems.length === 0 && 'cursor-not-allowed',
-              )}
-            >
-              <span className="font-medium text-[13px]">
-                Total {isTrade ? 'premium' : 'deposit'}
-              </span>
+  if (totalItems.length === 0) return null;
 
-              <div className="flex items-center justify-center">
-                <span className="flex items-center justify-center space-x-[8px]">
-                  {Array.from(total).map(([symbol, amount], index) => (
-                    <span
-                      key={index}
-                      className="text-[13px] flex items-center justify-center space-x-[4px]"
-                    >
-                      <span className="text-white">
-                        {formatAmount(amount, 5)}
-                      </span>
-                      <span className="text-stieglitz">{symbol}</span>
-                    </span>
-                  ))}
-                </span>
-                <ChevronDownIcon
-                  className={cx(
-                    'w-[18px] h-[18px] text-stieglitz',
-                    open && 'rotate-180 transform',
-                  )}
-                />
-              </div>
-            </Disclosure.Button>
-            <Transition
-              enter="transition duration-100 ease-out"
-              enterFrom="transform scale-95 opacity-0"
-              enterTo="transform scale-100 opacity-100"
-              leave="transition duration-75 ease-out"
-              leaveFrom="transform scale-100 opacity-100"
-              leaveTo="transform scale-95 opacity-0"
-            >
-              <Disclosure.Panel className="w-full h-fit p-[12px] flex flex-col space-y-[12px] items-center justify-center">
-                {totalItems.map(
-                  ({ strike, tokenAmount, tokenSymbol }, index) => (
-                    <div
-                      key={index}
-                      className="w-full flex items-center justify-between"
-                    >
-                      <span className="text-[13px] flex items-center justify-center space-x-[2px]">
-                        <span>{strike}</span>
-                      </span>
-                      <span className="text-[13px] flex items-center justify-center space-x-[4px]">
-                        <span>{tokenAmount}</span>
-                        <span className="text-stieglitz">{tokenSymbol}</span>
-                      </span>
-                    </div>
-                  ),
-                )}
-              </Disclosure.Panel>
-            </Transition>
-          </>
+  return (
+    <div className="p-[12px] bg-umbra space-y-[4px]">
+      <div className="w-full h-fit flex flex-col space-y-[4px] items-center justify-center">
+        {totalItems.map(({ strike, tokenAmount, tokenSymbol }, index) => (
+          <div key={index} className="w-full flex items-center justify-between">
+            <span className="text-[13px] flex items-center justify-center space-x-[2px]">
+              <span className="text-stieglitz">$</span>
+              <span>{strike}</span>
+            </span>
+            <span className="text-[13px] flex items-center justify-center space-x-[4px]">
+              <span>{tokenAmount}</span>
+              <span className="text-stieglitz">{tokenSymbol}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+      <div
+        className={cx(
+          'flex w-full items-center justify-between font-medium text-[13px] text-stieglitz',
+          totalItems.length === 0 && 'cursor-not-allowed',
         )}
-      </Disclosure>
+      >
+        <span className="font-medium text-[13px]">
+          Total {isTrade ? 'premium' : 'deposit'}
+        </span>
+        <div className="flex items-center justify-center">
+          <span className="flex items-center justify-center space-x-[8px]">
+            {Array.from(total).map(([symbol, amount], index) => (
+              <span
+                key={index}
+                className="text-[13px] flex items-center justify-center space-x-[4px]"
+              >
+                <span className="text-white">{formatAmount(amount, 5)}</span>
+                <span className="text-stieglitz">{symbol}</span>
+              </span>
+            ))}
+          </span>
+        </div>
+      </div>
     </div>
   );
 };

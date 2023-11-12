@@ -20,7 +20,6 @@ import useLoadingStates, {
 import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 
 import getTokenAllowance from 'utils/clamm/varrock/getTokenAllowance';
-import { formatAmount } from 'utils/general';
 
 import { MULTI_CALL_FN_SIG } from 'constants/clamm';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
@@ -345,28 +344,6 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
 
   return (
     <div className="flex flex-col bg-umbra p-[12px] rounded-b-lg w-full space-y-[12px]">
-      <div className="text-[13px] font-medium flex items-center justify-between">
-        <span className="text-stieglitz">Balance</span>
-        <span className="flex items-center justify-center space-x-[8px]">
-          <span className="text-[13px] flex items-center justify-center space-x-[4px]">
-            <span className="text-white">
-              {formatAmount(tokenBalances.readableCallToken, 5)}
-            </span>
-            <span className="text-stieglitz">
-              {tokenBalances.callTokenSymbol}
-            </span>
-          </span>{' '}
-          <span className="text-[13px] flex items-center justify-center space-x-[4px]">
-            <span className="text-white">
-              {formatAmount(tokenBalances.readablePutToken, 5)}
-            </span>
-            <span className="text-stieglitz">
-              {tokenBalances.putTokenSymbol}
-            </span>
-          </span>
-        </span>
-      </div>
-
       <Button
         onClick={buttonProps?.onClick}
         className="flex items-center justify-center"

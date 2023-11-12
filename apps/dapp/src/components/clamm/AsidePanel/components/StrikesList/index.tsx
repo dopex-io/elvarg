@@ -116,7 +116,7 @@ const StrikesList = () => {
           }
         }}
       >
-        <div className="relative w-full px-[12px] pb-[12px] flex  justify-center">
+        <div className="relative w-full px-[12px] flex  justify-center">
           <Listbox.Button className="bg-mineshaft text-white w-full text-[14px] font-medium flex items-center justify-center space-x-[8px] rounded-md px-[4px] py-[6px]">
             {/* <span>{selectedStrikes.size} Selected</span> */}
             <span>
