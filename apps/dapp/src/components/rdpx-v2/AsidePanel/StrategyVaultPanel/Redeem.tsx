@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { formatUnits, parseUnits } from 'viem';
 
-import { Button, Input } from '@dopex-io/ui';
+import { Button } from '@dopex-io/ui';
 import { erc20ABI, useAccount, useContractWrite } from 'wagmi';
 import { writeContract } from 'wagmi/actions';
 
@@ -10,6 +10,7 @@ import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 
 import Alert from 'components/common/Alert';
 import alerts, { AlertType } from 'components/rdpx-v2/AsidePanel/alerts';
+import PanelInput from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/PanelInput';
 import InfoRow from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/InfoRow';
 import Typography2 from 'components/UI/Typography2';
 
@@ -100,6 +101,12 @@ const Redeem = () => {
     userPerpetualVaultData.totalUserShares,
   ]);
 
+  const onClickMax = () => {
+    setAmount(
+      formatUnits(userPerpetualVaultData.totalUserShares, DECIMALS_TOKEN),
+    );
+  };
+
   useEffect(() => {
     updateAllowance();
   }, [updateAllowance, isApproveSuccess]);
@@ -114,53 +121,15 @@ const Redeem = () => {
 
   return (
     <div className="space-y-3 relative">
-      <div className="bg-umbra rounded-xl w-full h-fit">
-        <Input
-          type="number"
-          variant="xl"
-          value={amount}
-          onChange={onChange}
-          placeholder="0.0"
-          leftElement={
-            <div className="flex my-auto space-x-2 w-2/3">
-              <img
-                src={`/images/tokens/${'weth'}.svg`}
-                alt={'weth'}
-                className="w-9 h-9 border border-mineshaft rounded-full"
-              />
-            </div>
-          }
-        />
-        <div className="flex justify-between px-3 pb-3">
-          <Typography2 variant="caption" color="stieglitz">
-            Redeem Amount
-          </Typography2>
-          <div className="flex space-x-1">
-            <img
-              src="/assets/max.svg"
-              className="hover:bg-silver rounded-[4px]"
-              alt="max"
-              onClick={() =>
-                setAmount(
-                  formatUnits(
-                    userPerpetualVaultData.totalUserShares,
-                    DECIMALS_TOKEN,
-                  ),
-                )
-              }
-            />
-            <Typography2 variant="caption">
-              {formatBigint(
-                userPerpetualVaultData.totalUserShares,
-                DECIMALS_TOKEN,
-              )}
-            </Typography2>
-            <Typography2 variant="caption" color="stieglitz">
-              LP
-            </Typography2>
-          </div>
-        </div>
-      </div>
+      <PanelInput
+        amount={amount}
+        handleChange={onChange}
+        maxAmount={userPerpetualVaultData.totalUserShares}
+        handleMax={onClickMax}
+        iconPath="/images/tokens/weth.svg"
+        label="Redeem Amount"
+        symbol="LP"
+      />
       {panelState.severity !== null ? (
         <Alert
           header={panelState.header}
