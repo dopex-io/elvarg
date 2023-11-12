@@ -1,3 +1,5 @@
+import { Address } from 'viem';
+
 export type OptionsPositionsResponse = {
   strike: number;
   side: 'call' | 'put';
@@ -28,4 +30,11 @@ export type OptionsPositionsResponse = {
     handlers: string[];
     tokenId: string;
   };
+};
+
+export type GetExerciseTxDataParam = {
+  optionMarket: Address;
+  positionId: string;
+  slippage: string;
+  type: 'uni-v3' | '1inch';
 };

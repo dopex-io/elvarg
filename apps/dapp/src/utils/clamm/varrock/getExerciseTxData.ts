@@ -1,24 +1,17 @@
-import { Address, Hex, zeroAddress } from 'viem';
+import { zeroAddress } from 'viem';
 
 import queryClient from 'queryClient';
 
 import { VARROCK_BASE_API_URL } from 'constants/env';
 
-type GetExerciseTxDataParam = {
-  optionMarket: Address;
-  positionId: string;
-  slippage: string;
-};
-async function getExerciseTxData(params: GetExerciseTxDataParam): Promise<{
-  txData: Hex;
-  to: Address;
-  error: boolean;
-}> {
-  const { optionMarket, positionId, slippage } = params;
+import { GetExerciseTxDataParam } from './types';
+
+async function getExerciseTxData(params: GetExerciseTxDataParam) {
+  const { optionMarket, positionId, slippage, type } = params;
   const response = await queryClient.fetchQuery({
     queryKey: ['CLAMM-EXERCISE-TX-DATA'],
     queryFn: async () => {
-      const url = new URL(`${VARROCK_BASE_API_URL}/clamm/exercise/`);
+      const url = new URL(`${VARROCK_BASE_API_URL}/clamm/exercise/${type}`);
       url.searchParams.set('optionMarket', optionMarket);
       url.searchParams.set('positionId', positionId);
       url.searchParams.set('slippage', slippage);
@@ -39,4 +32,5 @@ async function getExerciseTxData(params: GetExerciseTxDataParam): Promise<{
     };
   }
 }
+
 export default getExerciseTxData;

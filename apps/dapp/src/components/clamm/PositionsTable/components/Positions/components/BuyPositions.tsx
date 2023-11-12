@@ -177,11 +177,45 @@ const BuyPositions = ({
       if (!selectedOptionsPool || !walletClient) return;
 
       const loadingToastId = toast.loading('Opening wallet');
+      // try {
+      //   const exerciseTxData = await getExerciseTxData({
+      //     optionMarket: selectedOptionsPool.optionsPoolAddress,
+      //     positionId: positionId,
+      //     slippage: '3',
+      //     type: '1inch'
+      //   });
+
+      //   if (exerciseTxData.error) {
+      //     toast.error('Failed to exercise');
+      //     return;
+      //   }
+
+      //   const { publicClient } = wagmiConfig;
+      //   const request = await walletClient.prepareTransactionRequest({
+      //     account: walletClient.account,
+      //     to: exerciseTxData.to,
+      //     data: exerciseTxData.txData,
+      //     type: 'legacy',
+      //   });
+      //   const hash = await walletClient.sendTransaction(request);
+      //   const reciept = await publicClient.waitForTransactionReceipt({
+      //     hash,
+      //   });
+
+      //   toast.success('Transaction sent');
+      // } catch (err) {
+      //   const error = err as BaseError;
+      //   console.error(err);
+      //   toast.error('Failed to exercise through 1inch, using uniswap V3');
+      //   toast.error(error.shortMessage);
+      // }
+
       try {
         const exerciseTxData = await getExerciseTxData({
           optionMarket: selectedOptionsPool.optionsPoolAddress,
           positionId: positionId,
           slippage: '3',
+          type: 'uni-v3',
         });
 
         if (exerciseTxData.error) {
@@ -207,6 +241,7 @@ const BuyPositions = ({
         console.error(err);
         toast.error(error.shortMessage);
       }
+
       toast.remove(loadingToastId);
     },
     [selectedOptionsPool, walletClient],
