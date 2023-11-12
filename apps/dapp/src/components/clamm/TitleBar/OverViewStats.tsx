@@ -51,15 +51,13 @@ const OverViewStats = () => {
 
   useEffect(() => {
     if (!selectedOptionsPool || !chain) return;
-    getStats(selectedOptionsPool.optionsPoolAddress).then((data) =>
-      setStats(data),
-    );
-
     const interval = setInterval(() => {
       getStats(selectedOptionsPool.optionsPoolAddress).then((data) =>
         setStats(data),
       );
-    }, 10000);
+
+      return () => clearInterval(interval);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [chain, selectedOptionsPool]);
@@ -68,7 +66,6 @@ const OverViewStats = () => {
     <div className="flex space-x-[24px] md:w-fit w-full justify-between md:justify-center flex-wrap md:pt-[4px]">
       <div className="flex flex-col">
         <h6 className="flex text-xs sm:text-sm md:text-md font-medium text-white items-center space-x-2">
-          <span className="text-stieglitz">$</span>
           <span>{formatValue(markPrice)}</span>
         </h6>
         <h6 className="text-xs sm:text-sm md:text-md font-medium text-stieglitz">
