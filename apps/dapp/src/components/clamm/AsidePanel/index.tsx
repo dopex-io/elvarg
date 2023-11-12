@@ -66,7 +66,7 @@ const AsidePanel = () => {
       {isTrade && <TTLSelector />}
       <StrikesSection />
       <CostSummary />
-      <AutoExercisers />
+      {isTrade && <AutoExercisers />}
       <InfoPanel updateTokenBalances={updateTokenBalances} />
     </div>
   );
