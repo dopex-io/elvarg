@@ -4,6 +4,10 @@ import { BaseError, formatUnits } from 'viem';
 import { Checkbox } from '@mui/material';
 
 import { Button } from '@dopex-io/ui';
+import {
+  ArrowDownRightIcon,
+  ArrowUpRightIcon,
+} from '@heroicons/react/20/solid';
 import { createColumnHelper } from '@tanstack/react-table';
 import { formatDistance } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -85,7 +89,16 @@ const columns = [
   }),
   columnHelper.accessor('side', {
     header: 'Side',
-    cell: (info) => <p>{info.getValue()}</p>,
+    cell: (info) => (
+      <div className="flex items-center space-x-[2px]">
+        <span>{info.getValue()}</span>
+        {info.getValue().toLowerCase() === 'put' ? (
+          <ArrowDownRightIcon className="text-down-bad w-[14px] h-[14px]" />
+        ) : (
+          <ArrowUpRightIcon className="text-up-only w-[14px] h-[14px]" />
+        )}
+      </div>
+    ),
   }),
   columnHelper.accessor('expiry', {
     header: 'Expiry',
