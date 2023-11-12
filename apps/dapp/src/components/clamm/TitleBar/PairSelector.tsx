@@ -38,47 +38,47 @@ const PairSelector = () => {
     });
   }, [optionsPools]);
 
-  useEffect(() => {
-    /**
-     * checks for pool name in URL or local storage and accordingly
-     * selects a valid one or defaults to an existing one
-     */
-    if (!params || optionsPools.size === 0) return;
-    let { pair } = params;
-    if (!pair) {
-      const pairInStore = localStorage.getItem(LAST_VISITED_CLAMM_POOL_KEY);
-      if (pairInStore) {
-        pair = [pairInStore];
-      }
-    }
+  // useEffect(() => {
+  //   /**
+  //    * checks for pool name in URL or local storage and accordingly
+  //    * selects a valid one or defaults to an existing one
+  //    */
+  //   if (!params || optionsPools.size === 0) return;
+  //   let { pair } = params;
+  //   if (!pair) {
+  //     const pairInStore = localStorage.getItem(LAST_VISITED_CLAMM_POOL_KEY);
+  //     if (pairInStore) {
+  //       pair = [pairInStore];
+  //     }
+  //   }
 
-    const optionsPoolInfo = optionsPools.get(pair ? pair[0] : '');
-    let urlReplacement = '';
-    if (optionsPoolInfo) {
-      const pairNameSplit = optionsPoolInfo.pairName.split('-');
-      urlReplacement = optionsPoolInfo.pairName;
-      setSelectedPair({
-        callToken: optionsPoolInfo.callToken.symbol,
-        putToken: optionsPoolInfo.putToken.symbol,
-        textContent: `${pairNameSplit[0]} - ${pairNameSplit[1]}`,
-      });
-      setSelectedOptionsPool(optionsPoolInfo.pairName);
-    } else {
-      const defaultPool = optionsPools.entries().next().value[1];
-      const pairNameSplit = defaultPool
-        ? defaultPool.pairName.split('-')
-        : null;
-      setSelectedOptionsPool(defaultPool.pairName);
-      urlReplacement = defaultPool.pairName;
-      setSelectedPair({
-        callToken: defaultPool ? defaultPool.callToken.symbol : '-',
-        putToken: defaultPool ? defaultPool.putToken.symbol : '-',
-        textContent: pairNameSplit
-          ? `${pairNameSplit[0]} - ${pairNameSplit[1]}`
-          : '-',
-      });
-    }
-  }, [params, optionsPools, setSelectedOptionsPool]);
+  //   const optionsPoolInfo = optionsPools.get(pair ? pair[0] : '');
+  //   let urlReplacement = '';
+  //   if (optionsPoolInfo) {
+  //     const pairNameSplit = optionsPoolInfo.pairName.split('-');
+  //     urlReplacement = optionsPoolInfo.pairName;
+  //     setSelectedPair({
+  //       callToken: optionsPoolInfo.callToken.symbol,
+  //       putToken: optionsPoolInfo.putToken.symbol,
+  //       textContent: `${pairNameSplit[0]} - ${pairNameSplit[1]}`,
+  //     });
+  //     setSelectedOptionsPool(optionsPoolInfo.pairName);
+  //   } else {
+  //     const defaultPool = optionsPools.entries().next().value[1];
+  //     const pairNameSplit = defaultPool
+  //       ? defaultPool.pairName.split('-')
+  //       : null;
+  //     setSelectedOptionsPool(defaultPool.pairName);
+  //     urlReplacement = defaultPool.pairName;
+  //     setSelectedPair({
+  //       callToken: defaultPool ? defaultPool.callToken.symbol : '-',
+  //       putToken: defaultPool ? defaultPool.putToken.symbol : '-',
+  //       textContent: pairNameSplit
+  //         ? `${pairNameSplit[0]} - ${pairNameSplit[1]}`
+  //         : '-',
+  //     });
+  //   }
+  // }, [params, optionsPools, setSelectedOptionsPool]);
 
   return (
     <div className="flex flex-col space-y-[8px]">
