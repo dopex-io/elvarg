@@ -72,8 +72,8 @@ const OverViewStats = () => {
           Mark Price
         </h6>
       </div>
-      {/* <div className="flex flex-col">
-        <h6 className="flex text-xs sm:text-sm md:text-md font-medium text-white items-center space-x-2">
+      <div className="xl:flex flex-col hidden">
+        <h6 className="text-xs sm:text-sm md:text-md font-medium text-white items-center space-x-2">
           <span className="text-stieglitz">{stats.openInterest.symbol}</span>{' '}
           <span>
             {formatAmount(
@@ -87,16 +87,16 @@ const OverViewStats = () => {
         <h6 className="text-xs sm:text-sm md:text-md font-medium text-stieglitz">
           Open Interest
         </h6>
-      </div> */}
-      {/* <div className="flex flex-col">
-        <h6 className="flex text-xs sm:text-sm md:text-md font-medium text-white items-center space-x-2">
+      </div>
+      <div className="xl:flex flex-col hidden">
+        <h6 className=" text-xs sm:text-sm md:text-md font-medium text-white items-center space-x-2">
           <span className="text-stieglitz">{stats.tvl.symbol}</span>{' '}
           <span>{formatAmount(stats.tvl.tvl ?? 0, 5)}</span>
         </h6>
         <h6 className="text-xs sm:text-sm md:text-md font-medium text-stieglitz">
           Total Deposits
         </h6>
-      </div> */}
+      </div>
       <div className="flex flex-col">
         <h6 className="flex text-xs sm:text-sm md:text-md font-medium text-white items-center space-x-2">
           <span className="text-stieglitz">{stats.volume.symbol}</span>{' '}

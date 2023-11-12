@@ -39,8 +39,9 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
   const { isLoading, setLoading } = useLoadingStates();
   const { isTrade, tokenBalances, selectedOptionsPool, addresses } =
     useClammStore();
-  const { deposits, purchases } = useClammTransactionsStore();
-  const { updateStrikes } = useStrikesChainStore();
+  const { deposits, purchases, resetDeposits, resetPurchases } =
+    useClammTransactionsStore();
+  const { updateStrikes, reset } = useStrikesChainStore();
   const { chain } = useNetwork();
   const { data: walletClient } = useWalletClient({
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
@@ -159,6 +160,8 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
           });
         }
       }
+      reset();
+      resetDeposits();
       toast.success('Transaction sent');
     } catch (err) {
       const error = err as BaseError;
@@ -170,8 +173,10 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
 
     await checkApproved();
     await updateTokenBalances();
-    await updateStrikes();
+    updateStrikes();
   }, [
+    resetDeposits,
+    reset,
     updateStrikes,
     userAddress,
     walletClient,
@@ -224,6 +229,8 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
           toast.success('Transaction Sent');
         }
       }
+      resetPurchases();
+      reset();
     } catch (err) {
       const error = err as BaseError;
       console.error(err);
@@ -232,9 +239,12 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     toast.remove(loadingToastId);
     await checkApproved();
     await updateTokenBalances();
+
     updateStrikes();
     setLoading(ASIDE_PANEL_BUTTON_KEY, false);
   }, [
+    resetPurchases,
+    reset,
     updateStrikes,
     isTrade,
     purchases,
