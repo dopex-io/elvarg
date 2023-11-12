@@ -17,7 +17,7 @@ const StrikesSection = () => {
   return (
     <div
       className={cx(
-        'bg-umbra w-full flex flex-col space-y-[10px] rounded-b-lg',
+        'bg-umbra w-full flex flex-col space-y-[10px]',
         !isTrade && 'rounded-t-lg',
       )}
     >
