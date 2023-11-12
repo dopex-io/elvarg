@@ -26,6 +26,7 @@ import useStrikesChainStore, {
   SelectedStrike,
 } from 'hooks/clamm/useStrikesChainStore';
 
+import formatValue from 'utils/clamm/formatValue';
 import getPriceFromTick from 'utils/clamm/getPriceFromTick';
 import {
   getLiquidityForAmount0,
@@ -327,7 +328,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
       <div className="flex items-center justify-center space-x-[4px] bg-mineshaft h-[30px] w-[100px] rounded-md flex-[0.375]">
         <span className="text-stieglitz text-[13px]">$</span>
         <span className="text-[13px]">
-          {Number(strikeData.strike ?? 0).toFixed(4)}
+          {formatValue(strikeData.strike ?? 0)}
         </span>
       </div>
       <div className="h-[30px] w-[160px] p-[8px] flex items-center justfiy-center border border-mineshaft rounded-md flex-[0.425]">
