@@ -10,7 +10,7 @@ import { DECIMALS_TOKEN } from 'constants/index';
 export interface RedeemRequestType {
   epoch: bigint;
   amount: bigint;
-  breakdown: readonly [bigint, bigint];
+  composition: readonly [bigint, bigint];
   button: {
     label: string;
     disabled: boolean;
@@ -39,8 +39,8 @@ const columns = [
       );
     },
   }),
-  columnHelper.accessor('breakdown', {
-    header: 'Breakdown',
+  columnHelper.accessor('composition', {
+    header: 'Composition',
     cell: (info) => {
       const [wethAmount, rdpxAmount] = info.getValue();
       return (

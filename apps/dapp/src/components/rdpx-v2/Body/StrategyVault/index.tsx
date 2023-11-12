@@ -1,4 +1,4 @@
-import DepositRow from 'components/rdpx-v2/Body/StrategyVault/DepositRow';
+import UserDepositGrid from 'components/rdpx-v2/Body/StrategyVault/UserDepositGrid';
 import QuickLink from 'components/rdpx-v2/QuickLink';
 import RedeemRequests from 'components/rdpx-v2/Tables/RedeemRequests';
 
@@ -10,7 +10,7 @@ const StrategyVaultBody = () => {
       <div className="flex w-full">
         <QuickLink {...quickLinks.strategyVault} />
       </div>
-      <DepositRow />
+      <UserDepositGrid />
       <RedeemRequests />
     </div>
   );

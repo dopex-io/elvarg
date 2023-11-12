@@ -21,7 +21,7 @@ export const rdpxStateToLabelMapping: {
   [key in (typeof rdpxV2Actions)[number]]: string;
 } = {
   bond: 'Bonding',
-  lp: 'Strategy Vault',
+  lp: 'Perpetual Vault',
   stake: 'Staking',
 };
 
@@ -140,7 +140,7 @@ const TitleBar = () => {
                       (perpetualVaultState.oneLpShare[1] *
                         parseUnits('1', DECIMALS_TOKEN)) /
                         (perpetualVaultState.underlyingPrice + 1n) || 1n),
-                  // total active options / rdpx + weth in strategy vault
+                  // total active options / rdpx + weth in perpetual vault
                   DECIMALS_TOKEN,
                 )}%`}
               />

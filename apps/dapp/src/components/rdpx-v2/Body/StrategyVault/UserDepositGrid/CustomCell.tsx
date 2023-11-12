@@ -9,7 +9,7 @@ interface Props {
 
 const CustomCell = ({ label, data, tooltipInfo }: Props) => {
   return (
-    <div className="flex flex-col flex-grow p-3 justify-between space-y-2 w-full">
+    <div className="flex flex-col w-1/2 p-3 justify-between space-y-2">
       <div className="flex space-x-1 w-fit">
         {data.map((d, i) => (
           <div key={i} className="flex space-x-1 w-full">

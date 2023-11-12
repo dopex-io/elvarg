@@ -62,7 +62,10 @@ const RedeemRequests = () => {
         return {
           epoch: rr.epoch,
           amount: rr.amount,
-          breakdown: [rr.ethAmount, rr.rdpxAmount] as readonly [bigint, bigint],
+          composition: [rr.ethAmount, rr.rdpxAmount] as readonly [
+            bigint,
+            bigint,
+          ],
           button: {
             disabled: rr.epoch === perpetualVaultState.currentEpoch,
             label: 'Redeem',
