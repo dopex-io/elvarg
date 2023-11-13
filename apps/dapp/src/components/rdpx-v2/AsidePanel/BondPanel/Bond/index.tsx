@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { formatUnits, parseUnits } from 'viem';
 
-import ButtonGroup from '@mui/material/ButtonGroup';
-
 import { Button } from '@dopex-io/ui';
 import { erc20ABI, useAccount, useContractWrite } from 'wagmi';
 
@@ -179,7 +177,7 @@ const Bond = () => {
           <Typography2 variant="caption" color="stieglitz">
             Bonding Method
           </Typography2>
-          <ButtonGroup className="flex justify-between border border-mineshaft bg-mineshaft rounded-md p-0.5">
+          <div className="flex justify-between border border-mineshaft bg-mineshaft rounded-md p-0.5">
             {[BondType.Default, BondType.Delegate].map((label, index) => (
               <Button
                 key={index}
@@ -198,7 +196,7 @@ const Bond = () => {
                 {label === BondType.Default ? 'rDPX + WETH' : 'rDPX'}
               </Button>
             ))}
-          </ButtonGroup>
+          </div>
         </div>
         <CollateralInputPanel
           inputAmount={amount}

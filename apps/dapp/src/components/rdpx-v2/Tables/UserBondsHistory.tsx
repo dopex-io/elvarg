@@ -7,12 +7,12 @@ import useSubgraphQueries from 'hooks/rdpx/useSubgraphQueries';
 import TableLayout from 'components/common/TableLayout';
 import columns, {
   UserBondsHistoryType,
-} from 'components/rdpx-v2/Tables/ColumnDefs/UserBondsHistory';
+} from 'components/rdpx-v2/Tables/ColumnDefs/UserBondsHistoryColumn';
 
 const UserBondsHistory = () => {
   const { address: user = '0x' } = useAccount();
 
-  const { userAggregatedData, updateUserBondingHistory, loading } =
+  const { userBondsHistoryData, updateUserBondingHistory, loading } =
     useSubgraphQueries({
       user,
     });
@@ -22,7 +22,7 @@ const UserBondsHistory = () => {
   }, [updateUserBondingHistory]);
 
   const data = useMemo(() => {
-    return userAggregatedData.bonds
+    return userBondsHistoryData.bonds
       .map((bond) => ({
         owner: bond.owner,
         composition: [bond.wethRequired, bond.rdpxRequired] as readonly [
@@ -38,7 +38,7 @@ const UserBondsHistory = () => {
       .sort((a, b) =>
         Number(b.transaction.timestamp - a.transaction.timestamp),
       );
-  }, [userAggregatedData.bonds]);
+  }, [userBondsHistoryData.bonds]);
 
   return (
     <TableLayout<UserBondsHistoryType>
@@ -46,6 +46,7 @@ const UserBondsHistory = () => {
       columns={columns}
       rowSpacing={2}
       isContentLoading={loading && user !== '0x'}
+      fill="bg-umbra"
     />
   );
 };

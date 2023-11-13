@@ -80,19 +80,15 @@ const RedeemRequests = () => {
     handleClaim,
   ]);
 
-  return data.length > 0 ? (
-    <div className="space-y-2">
-      <Typography2 variant="subtitle2" className="px-2">
-        Redemptions Queued
-      </Typography2>
-      <TableLayout<RedeemRequestType>
-        data={data}
-        columns={columns}
-        isContentLoading={loading && !!account}
-        fill="bg-umbra"
-      />
-    </div>
-  ) : null;
+  return (
+    <TableLayout<RedeemRequestType>
+      data={data}
+      columns={columns}
+      rowSpacing={2}
+      isContentLoading={loading && !!account}
+      fill="bg-umbra"
+    />
+  );
 };
 
 export default RedeemRequests;

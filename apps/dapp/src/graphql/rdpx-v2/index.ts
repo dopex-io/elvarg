@@ -83,7 +83,7 @@ export const getDelegatesDocument = graphql(`
   }
 `);
 
-export const getHistoricDataDocument = graphql(`
+export const getHistoricBondsDocument = graphql(`
   query HistoricData {
     bonds {
       id
@@ -106,6 +106,19 @@ export const getHistoricDataDocument = graphql(`
         timestamp
         hash
       }
+    }
+  }
+`);
+
+export const getHistoricRedeemRequestsDocument = graphql(`
+  query UserRedeemRequestsHistory($sender: Bytes!) {
+    redeemRequests(where: { sender_contains: $sender }) {
+      id
+      amount
+      ethAmount
+      rdpxAmount
+      sender
+      epoch
     }
   }
 `);

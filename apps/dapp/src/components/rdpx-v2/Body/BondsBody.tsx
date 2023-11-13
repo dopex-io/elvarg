@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
 
-import ButtonGroup from '@mui/material/ButtonGroup';
-
 import { Button } from '@dopex-io/ui';
 import { useAccount } from 'wagmi';
 
@@ -70,7 +68,7 @@ const BondsBody = () => {
         <Charts />
       </div>
       <div className="space-y-1">
-        <ButtonGroup className="flex w-full">
+        <div className="flex w-full">
           {actions.map((label: ActionType, index) => {
             return (
               <Button
@@ -90,7 +88,7 @@ const BondsBody = () => {
               </Button>
             );
           })}
-        </ButtonGroup>
+        </div>
         {active === 'Bonds' ? <UserBonds /> : null}
         {active === 'Delegate Positions' ? <DelegatePositions /> : null}
         {active === 'History' ? <UserBondsHistory /> : null}

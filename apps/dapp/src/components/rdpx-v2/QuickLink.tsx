@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import LaunchOutlinedIcon from '@mui/icons-material/LaunchOutlined';
+import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/solid';
 
 import Typography2 from 'components/UI/Typography2';
 
@@ -36,7 +36,7 @@ const QuickLink = (props: Props) => {
           </Typography2>
         </div>
         {url ? (
-          <LaunchOutlinedIcon className="fill-current text-white opacity-40 w-[1.2rem]" />
+          <ArrowTopRightOnSquareIcon className="fill-current text-white opacity-40 w-[1.2rem]" />
         ) : null}
       </span>
       <span className="text-stieglitz text-sm">{body}</span>
