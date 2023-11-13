@@ -21,6 +21,7 @@ type Props = {
   positionsTypeIndex: number;
   updateLPPositions: () => Promise<void>;
   updateBuyPositions: () => Promise<void>;
+  resetPositions: () => void;
 };
 const ActionButton = (props: Props) => {
   const {
@@ -28,6 +29,7 @@ const ActionButton = (props: Props) => {
     selectedPositions,
     updateBuyPositions,
     updateLPPositions,
+    resetPositions,
   } = props;
 
   const { chain } = useNetwork();
@@ -42,27 +44,25 @@ const ActionButton = (props: Props) => {
 
     let to: Address = zeroAddress;
     let encodedTxData: Hex = '0x0';
-    let isExercise = false;
 
     const positionsArray = Array.from(selectedPositions);
     const toastLoadingId = toast.loading('Opening wallet');
     try {
-      if (positionsTypeIndex === 1) {
-        to = positionsArray[0][1].withdrawTx.to;
-        encodedTxData = encodeFunctionData({
-          abi: parseAbi([MULTI_CALL_FN_SIG]),
-          functionName: 'multicall',
-          args: [positionsArray.map(([_, v]) => v.withdrawTx.txData)],
-        });
-      } else {
-        isExercise = true;
-        to = positionsArray[0][1].exerciseTx.to;
-        encodedTxData = encodeFunctionData({
-          abi: parseAbi([MULTI_CALL_FN_SIG]),
-          functionName: 'multicall',
-          args: [positionsArray.map(([_, v]) => v.exerciseTx.txData)],
-        });
-      }
+      // if (positionsTypeIndex === 1) {
+      to = positionsArray[0][1].withdrawTx.to;
+      encodedTxData = encodeFunctionData({
+        abi: parseAbi([MULTI_CALL_FN_SIG]),
+        functionName: 'multicall',
+        args: [positionsArray.map(([_, v]) => v.withdrawTx.txData)],
+      });
+      // } else {
+      //   to = positionsArray[0][1].exerciseTx.to;
+      //   encodedTxData = encodeFunctionData({
+      //     abi: parseAbi([MULTI_CALL_FN_SIG]),
+      //     functionName: 'multicall',
+      //     args: [positionsArray.map(([_, v]) => v.exerciseTx.txData)],
+      //   });
+      // }
 
       const request = await walletClient.prepareTransactionRequest({
         account: walletClient.account,
@@ -75,20 +75,20 @@ const ActionButton = (props: Props) => {
         hash,
       });
       toast.success('Transaction sent');
+      resetPositions();
     } catch (err) {
       const error = err as BaseError;
       toast.error(error.shortMessage);
       console.error(err);
     }
     toast.remove(toastLoadingId);
-    isExercise ? await updateBuyPositions() : await updateLPPositions();
+    await updateLPPositions();
   }, [
+    resetPositions,
     chain,
     selectedPositions,
     userAddress,
     walletClient,
-    positionsTypeIndex,
-    updateBuyPositions,
     updateLPPositions,
   ]);
 

@@ -4,8 +4,7 @@ import { VARROCK_BASE_API_URL } from 'constants/env';
 
 async function getStrikesChain(
   chainId: number,
-  callToken: string,
-  putToken: string,
+  optionMarket: string,
   first: number,
   skip: number,
   onSuccessCallback: (data: StrikesChainAPIResponse) => void,
@@ -15,8 +14,7 @@ async function getStrikesChain(
     .get(`${VARROCK_BASE_API_URL}/clamm/strikes`, {
       params: {
         chainId,
-        callToken,
-        putToken,
+        optionMarket,
         first,
         skip,
       },

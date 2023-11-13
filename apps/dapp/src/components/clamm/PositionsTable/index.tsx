@@ -81,7 +81,7 @@ const PositionsTable = () => {
     await getLPPositions(
       chain.id,
       userAddress,
-      selectedOptionsPool.callToken.address,
+      selectedOptionsPool.optionsPoolAddress,
       1000,
       0,
       setLpPositions,
@@ -122,6 +122,7 @@ const PositionsTable = () => {
               selectedPositions={selectedPositions}
               updateLPPositions={updateLPPositions}
               updateBuyPositions={updateBuyPositions}
+              resetPositions={resetPositions}
             />
           )}
         </div>

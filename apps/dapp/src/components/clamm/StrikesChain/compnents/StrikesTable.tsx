@@ -173,8 +173,7 @@ const StrikesTable = () => {
     if (!selectedOptionsPool || !chain) return;
     await getStrikesChain(
       chain.id,
-      selectedOptionsPool.callToken.address,
-      selectedOptionsPool.putToken.address,
+      selectedOptionsPool.optionsPoolAddress,
       50,
       0,
       (data) => {

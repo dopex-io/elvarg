@@ -7,7 +7,7 @@ import { VARROCK_BASE_API_URL } from 'constants/env';
 async function getLPPositions(
   chainId: number,
   user: string,
-  callToken: string,
+  optionMarket: string,
   first: number,
   skip: number,
   onSuccessCallback: (response: any) => void,
@@ -18,7 +18,7 @@ async function getLPPositions(
       params: {
         chainId,
         user: user,
-        callToken,
+        optionMarket,
         first,
         skip,
       },
