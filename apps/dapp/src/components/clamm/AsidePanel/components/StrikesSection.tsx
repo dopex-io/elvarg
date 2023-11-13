@@ -47,14 +47,22 @@ const StrikesSection = () => {
 
   const putStrikes = useMemo(() => {
     return isTrade
-      ? strikesChain.filter(({ type }) => type === 'put')
-      : generatedStrikes.filter(({ type }) => type === 'put');
+      ? strikesChain
+          .filter(({ type }) => type === 'put')
+          .sort((a, b) => Number(b.strike) - Number(a.strike))
+      : generatedStrikes
+          .filter(({ type }) => type === 'put')
+          .sort((a, b) => Number(b.strike) - Number(a.strike));
   }, [generatedStrikes, isTrade, strikesChain]);
 
   const callStrikes = useMemo(() => {
     return isTrade
-      ? strikesChain.filter(({ type }) => type === 'call')
-      : generatedStrikes.filter(({ type }) => type === 'call');
+      ? strikesChain
+          .filter(({ type }) => type === 'call')
+          .sort((a, b) => Number(a.strike) - Number(b.strike))
+      : generatedStrikes
+          .filter(({ type }) => type === 'call')
+          .sort((a, b) => Number(a.strike) - Number(b.strike));
   }, [generatedStrikes, isTrade, strikesChain]);
 
   const selectedPutStrikesLength = useMemo(() => {

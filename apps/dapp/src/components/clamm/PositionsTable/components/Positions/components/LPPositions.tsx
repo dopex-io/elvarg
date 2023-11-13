@@ -1,20 +1,19 @@
 import React, { useCallback, useMemo } from 'react';
-import {
-  Address,
-  BaseError,
-  encodeFunctionData,
-  formatUnits,
-  Hex,
-  parseAbi,
-} from 'viem';
+import { Address, BaseError, formatUnits, Hex } from 'viem';
 
 import { Checkbox } from '@mui/material';
 
 import { Button } from '@dopex-io/ui';
+import {
+  ArrowDownRightIcon,
+  ArrowUpRightIcon,
+} from '@heroicons/react/20/solid';
 import { createColumnHelper } from '@tanstack/react-table';
 import toast from 'react-hot-toast';
 import { useNetwork, useWalletClient } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
+
+import useClammStore from 'hooks/clamm/useClammStore';
 
 import TableLayout from 'components/common/TableLayout';
 
@@ -28,6 +27,7 @@ export type LPPositionItem = {
     isSelected: boolean;
     handleSelect: () => void;
   };
+  side: string;
   size: {
     callTokenAmount: string;
     putTokenAmount: string;
@@ -66,7 +66,7 @@ const columns = [
           size="small"
         />
         <p className="text-stieglitz inline-block">$</p>
-        <p className="inline-block">{info.getValue().strikePrice.toFixed(5)}</p>
+        <p className="inline-block">{info.getValue().strikePrice.toFixed(3)}</p>
       </span>
     ),
   }),
@@ -84,19 +84,32 @@ const columns = [
         <div className="flex flex-col items-start justify-center">
           {Number(callTokenAmount) !== 0 && (
             <span>
-              {formatAmount(callTokenAmount, 5)}{' '}
+              {formatAmount(callTokenAmount, 3)}{' '}
               <span className="text-stieglitz">{callTokenSymbol}</span>
             </span>
           )}
           {Number(putTokenAmount) !== 0 && (
             <span>
-              {formatAmount(putTokenAmount, 5)}{' '}
+              {formatAmount(putTokenAmount, 3)}{' '}
               <span className="text-stieglitz">{putTokenSymbol}</span>
             </span>
           )}
         </div>
       );
     },
+  }),
+  columnHelper.accessor('side', {
+    header: 'Side',
+    cell: (info) => (
+      <div className="flex items-center space-x-[2px]">
+        <span>{info.getValue()}</span>
+        {info.getValue().toLowerCase() === 'put' ? (
+          <ArrowDownRightIcon className="text-down-bad w-[14px] h-[14px]" />
+        ) : (
+          <ArrowUpRightIcon className="text-up-only w-[14px] h-[14px]" />
+        )}
+      </div>
+    ),
   }),
   columnHelper.accessor('earned', {
     header: 'Earned',
@@ -110,11 +123,11 @@ const columns = [
       return (
         <div className="flex flex-col items-start justify-center">
           <span>
-            {formatAmount(callTokenAmount, 5)}{' '}
+            {formatAmount(callTokenAmount, 3)}{' '}
             <span className="text-stieglitz">{callTokenSymbol}</span>
           </span>
           <span>
-            {formatAmount(putTokenAmount, 5)}{' '}
+            {formatAmount(putTokenAmount, 3)}{' '}
             <span className="text-stieglitz">{putTokenSymbol}</span>
           </span>
         </div>
@@ -133,11 +146,11 @@ const columns = [
       return (
         <div className="flex flex-col items-start justify-center">
           <span>
-            {formatAmount(callTokenAmount, 5)}{' '}
+            {formatAmount(callTokenAmount, 3)}{' '}
             <span className="text-stieglitz">{callTokenSymbol}</span>
           </span>
           <span>
-            {formatAmount(putTokenAmount, 5)}{' '}
+            {formatAmount(putTokenAmount, 3)}{' '}
             <span className="text-stieglitz">{putTokenSymbol}</span>
           </span>
         </div>
@@ -166,6 +179,7 @@ const LPPositions = ({
   unselectPosition,
   loading,
 }: any) => {
+  const { tick } = useClammStore();
   const { chain } = useNetwork();
   const { data: walletClient } = useWalletClient({
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
@@ -201,86 +215,100 @@ const LPPositions = ({
   );
 
   const lpPositions = useMemo(() => {
-    return positions.map(
-      (
-        {
-          strikePrice,
-          token0LiquidityInToken,
-          token1LiquidityInToken,
-          token0Earned,
-          token1Earned,
-          token0Symbol,
-          token0Decimals,
-          token1Decimals,
-          token1Symbol,
-          token0Withdrawable,
-          token1Withdrawable,
-          meta,
-        }: any,
-        index: number,
-      ) => {
-        const isSelected = Boolean(selectedPositions.get(index));
+    return positions
+      .map(
+        (
+          {
+            strikePrice,
+            token0LiquidityInToken,
+            token1LiquidityInToken,
+            token0Earned,
+            token1Earned,
+            token0Symbol,
+            token0Decimals,
+            token1Decimals,
+            token1Symbol,
+            token0Withdrawable,
+            token1Withdrawable,
+            meta,
+          }: any,
+          index: number,
+        ) => {
+          const isSelected = Boolean(selectedPositions.get(index));
+          let side = 'Put';
+          if (Number(meta.tickLower) < tick) {
+            side = 'Put';
+          }
+          if (Number(meta.tickUpper) > tick) {
+            side = 'Call';
+          }
 
-        return {
-          earned: {
-            callTokenAmount: formatUnits(
-              BigInt(token0Earned),
-              Number(token0Decimals),
-            ),
-            putTokenAmount: formatUnits(
-              BigInt(token1Earned),
-              Number(token1Decimals),
-            ),
-            callTokenSymbol: token0Symbol,
-            putTokenSymbol: token1Symbol,
-          },
-          size: {
-            callTokenAmount: formatUnits(
-              BigInt(token0LiquidityInToken),
-              Number(token0Decimals),
-            ),
-            putTokenAmount: formatUnits(
-              BigInt(token1LiquidityInToken),
-              Number(token1Decimals),
-            ),
-            callTokenSymbol: token0Symbol,
-            putTokenSymbol: token1Symbol,
-          },
-          strike: {
-            handleSelect: () => {
-              if (BigInt(meta.withdrawableShares) === 0n) return;
-              if (!isSelected) {
-                selectPosition(index, meta);
-              } else {
-                unselectPosition(index);
-              }
+          return {
+            earned: {
+              callTokenAmount: formatUnits(
+                BigInt(token0Earned),
+                Number(token0Decimals),
+              ),
+              putTokenAmount: formatUnits(
+                BigInt(token1Earned),
+                Number(token1Decimals),
+              ),
+              callTokenSymbol: token0Symbol,
+              putTokenSymbol: token1Symbol,
             },
-            isSelected: isSelected,
-            strikePrice: strikePrice,
-          },
-          withdrawable: {
-            callTokenAmount: formatUnits(
-              BigInt(token0Withdrawable),
-              Number(token0Decimals),
-            ),
-            putTokenAmount: formatUnits(
-              BigInt(token1Withdrawable),
-              Number(token1Decimals),
-            ),
-            callTokenSymbol: token0Symbol,
-            putTokenSymbol: token1Symbol,
-          },
-          withdrawButton: {
-            disabled: BigInt(meta.withdrawableShares) === 0n,
-            handleWithdraw: () => {
-              const { txData, to } = meta.withdrawTx;
-              handleWithdraw(txData, to);
+            side: side,
+            size: {
+              callTokenAmount: formatUnits(
+                BigInt(token0LiquidityInToken),
+                Number(token0Decimals),
+              ),
+              putTokenAmount: formatUnits(
+                BigInt(token1LiquidityInToken),
+                Number(token1Decimals),
+              ),
+              callTokenSymbol: token0Symbol,
+              putTokenSymbol: token1Symbol,
             },
-          },
-        };
-      },
-    );
+            strike: {
+              handleSelect: () => {
+                if (BigInt(meta.withdrawableShares) === 0n) return;
+                if (!isSelected) {
+                  selectPosition(index, meta);
+                } else {
+                  unselectPosition(index);
+                }
+              },
+              isSelected: isSelected,
+              strikePrice: strikePrice,
+            },
+            withdrawable: {
+              callTokenAmount: formatUnits(
+                BigInt(token0Withdrawable),
+                Number(token0Decimals),
+              ),
+              putTokenAmount: formatUnits(
+                BigInt(token1Withdrawable),
+                Number(token1Decimals),
+              ),
+              callTokenSymbol: token0Symbol,
+              putTokenSymbol: token1Symbol,
+            },
+            withdrawButton: {
+              disabled: BigInt(meta.withdrawableShares) === 0n,
+              handleWithdraw: () => {
+                const { txData, to } = meta.withdrawTx;
+                handleWithdraw(txData, to);
+              },
+            },
+          };
+        },
+      )
+      .sort(
+        (a: any, b: any) =>
+          Number(a.strike.strikePrice) - Number(b.strike.strikePrice),
+      );
   }, [
+    tick,
     positions,
     selectPosition,
     selectedPositions,

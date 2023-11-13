@@ -1,8 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { BaseError, formatUnits } from 'viem';
 
-import { Checkbox } from '@mui/material';
-
 import { Button } from '@dopex-io/ui';
 import {
   ArrowDownRightIcon,

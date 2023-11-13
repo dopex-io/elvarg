@@ -69,7 +69,7 @@ const columns = [
     header: 'Options Available',
     cell: ({ getValue }) => (
       <span className="flex flex-col items-left">
-        <span className="flex items-center space-x-[4px] ">
+        <span className="flex items-center space-x-[4px]">
           <span> {formatAmount(getValue().available, 5)}</span>
 
           {Number(getValue().total) > 0.00001 && (
@@ -299,7 +299,8 @@ const StrikesTable = () => {
           };
         },
       )
-      .filter(({ type }) => (isPut ? type === 'put' : type === 'call'));
+      .filter(({ type }) => (isPut ? type === 'put' : type === 'call'))
+      .filter(({ liquidity: { usd } }) => usd > 1);
 
     if (isPut) {
       return _strikes.sort((a, b) => b.strike.amount - a.strike.amount);
