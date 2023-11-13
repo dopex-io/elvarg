@@ -17,6 +17,12 @@ import { useNetwork } from 'wagmi';
 import { useBoundStore } from 'store';
 
 import DisclaimerDialog from 'components/common/DisclaimerDialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from 'components/UI/Tooltip';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 import {
@@ -254,6 +260,25 @@ export default function AppBar() {
             </div>
           </div>
           <div className="flex items-center">
+            <div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <img
+                      src="/images/misc/magnifying-glass-peepo.png"
+                      alt="magnifying-peepo"
+                      className="w-10 h-auto mr-4"
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent className="w-72 bg-black/30 backdrop-blur-md">
+                    <p className="text-stieglitz">
+                      Your activity is being recorded for future{' '}
+                      <s>REDACTED.</s>
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             {accountAddress && chain?.network === 'arbitrum' ? (
               <IconButton
                 sx={{ mr: 1 }}
