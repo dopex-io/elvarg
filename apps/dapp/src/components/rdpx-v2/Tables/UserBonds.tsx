@@ -15,16 +15,16 @@ import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
 import addresses from 'constants/rdpx/addresses';
 
 const UserBonds = () => {
-  const { address: account } = useAccount();
+  const { address: user = '0x' } = useAccount();
   const { updateUserBonds, userBonds, loading } = useRdpxV2CoreData({
-    user: account || '0x',
+    user,
   });
 
   const { data: isApprovedForAll } = useContractRead({
     abi: RdpxV2Bond,
     address: addresses.bond,
     functionName: 'isApprovedForAll',
-    args: [account || '0x', addresses.v2core],
+    args: [user || '0x', addresses.v2core],
   });
 
   const { write: approve } = useContractWrite({
@@ -40,11 +40,11 @@ const UserBonds = () => {
         abi: RdpxV2Core,
         address: addresses.v2core,
         functionName: 'redeemReceiptTokenBonds',
-        args: [id, account || '0x'],
+        args: [id, user || '0x'],
       });
       await write.then(() => updateUserBonds()).catch((e) => console.error(e));
     },
-    [account, updateUserBonds],
+    [user, updateUserBonds],
   );
 
   const userRdpxBonds = useMemo(() => {
@@ -80,7 +80,7 @@ const UserBonds = () => {
       data={userRdpxBonds}
       columns={columns}
       rowSpacing={2}
-      isContentLoading={loading && !!account}
+      isContentLoading={loading && user !== '0x'}
       fill="bg-umbra"
     />
   );

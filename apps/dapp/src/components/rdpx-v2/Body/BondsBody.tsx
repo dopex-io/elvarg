@@ -11,19 +11,20 @@ import Charts from 'components/rdpx-v2/Charts';
 import QuickLink from 'components/rdpx-v2/QuickLink';
 import DelegatePositions from 'components/rdpx-v2/Tables/DelegatePositions';
 import UserBonds from 'components/rdpx-v2/Tables/UserBonds';
+import UserBondsHistory from 'components/rdpx-v2/Tables/UserBondsHistory';
 import Typography2 from 'components/UI/Typography2';
 
 import formatBigint from 'utils/general/formatBigint';
 
 import { quickLinks } from 'constants/rdpx';
 
-const actions = ['bonds', 'delegatePositions' /*, 'history'*/] as const;
+const actions = ['bonds', 'delegatePositions', 'history'] as const;
 type ActionType = (typeof actions)[number];
 
 const BUTTON_LABELS: { [key in ActionType]: string } = {
   bonds: 'Bonds',
   delegatePositions: 'Delegate Positions',
-  // history: 'History',
+  history: 'History',
 };
 
 const BondsBody = () => {
@@ -92,6 +93,7 @@ const BondsBody = () => {
         </ButtonGroup>
         {active === 'Bonds' ? <UserBonds /> : null}
         {active === 'Delegate Positions' ? <DelegatePositions /> : null}
+        {active === 'History' ? <UserBondsHistory /> : null}
       </div>
     </div>
   );

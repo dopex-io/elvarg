@@ -82,3 +82,30 @@ export const getDelegatesDocument = graphql(`
     }
   }
 `);
+
+export const getHistoricDataDocument = graphql(`
+  query HistoricData {
+    bonds {
+      id
+      receiptTokenAmount
+      rdpxRequired
+      wethRequired
+      transaction {
+        sender
+        timestamp
+        hash
+      }
+    }
+    redeemBonds {
+      id
+      bondId
+      receiptTokenAmount
+      to
+      transaction {
+        sender
+        timestamp
+        hash
+      }
+    }
+  }
+`);

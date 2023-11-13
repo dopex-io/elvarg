@@ -92,7 +92,8 @@ const useSqueezeDelegatedWeth = ({ user, collateralRequired }: Props) => {
     );
 
     const bondBreakdown = accumulator.amounts.map(
-      (amount) => (amount * parseUnits('1', DECIMALS_TOKEN)) / wethToBeUsed,
+      (amount) =>
+        (amount * parseUnits('1', DECIMALS_TOKEN)) / (wethToBeUsed + 1n),
     );
 
     setSqueezeResult({
