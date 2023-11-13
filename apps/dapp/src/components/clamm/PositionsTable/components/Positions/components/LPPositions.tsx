@@ -47,6 +47,7 @@ export type LPPositionItem = {
     putTokenSymbol: string;
   };
   withdrawButton: {
+    disabled: boolean;
     handleWithdraw: (meta: any) => void;
   };
 };
@@ -146,7 +147,14 @@ const columns = [
   columnHelper.accessor('withdrawButton', {
     header: '',
     cell: (info) => {
-      return <Button onClick={info.getValue().handleWithdraw}>Withdraw</Button>;
+      return (
+        <Button
+          disabled={info.getValue().disabled}
+          onClick={info.getValue().handleWithdraw}
+        >
+          Withdraw
+        </Button>
+      );
     },
   }),
 ];
@@ -240,6 +248,7 @@ const LPPositions = ({
           },
           strike: {
             handleSelect: () => {
+              if (BigInt(meta.withdrawableShares) === 0n) return;
               if (!isSelected) {
                 selectPosition(index, meta);
               } else {
@@ -262,6 +271,7 @@ const LPPositions = ({
             putTokenSymbol: token1Symbol,
           },
           withdrawButton: {
+            disabled: BigInt(meta.withdrawableShares) === 0n,
             handleWithdraw: () => {
               const { txData, to } = meta.withdrawTx;
               handleWithdraw(txData, to);

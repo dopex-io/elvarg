@@ -85,11 +85,7 @@ const PositionsTable = () => {
       1000,
       0,
       (data: any) => {
-        setLpPositions(
-          data.filter(({ meta }: any) => {
-            return BigInt(meta.withdrawableShares) > 1n;
-          }),
-        );
+        setLpPositions(data);
       },
       toast.error,
     );
