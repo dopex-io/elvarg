@@ -1,7 +1,6 @@
 import { Button } from '@dopex-io/ui';
 
 import Sparkline from '../Sparkline';
-import ProductCard from './ProductCard';
 
 const fakeData = [
   { price: 1, timestamp: '1/10/2023' },
@@ -59,12 +58,7 @@ const RdpxV2Card = () => {
             <span className="text-sm">
               <span className="text-up-only text-base">37.9%</span> APY
             </span>
-            <Button
-              variant="outlined"
-              className="!text-wave-blue border-wave-blue"
-            >
-              Bond
-            </Button>
+            <Button className="!bg-black !bg-opacity-30">Bond</Button>
           </div>
           <div className="grid gap-4 grid-cols-3 xs:grid-cols-4 items-center">
             <span>ESV</span>
@@ -74,12 +68,7 @@ const RdpxV2Card = () => {
             <span className="text-sm">
               <span className="text-up-only text-base">32.1%</span> APY
             </span>
-            <Button
-              variant="outlined"
-              className="!text-wave-blue border-wave-blue"
-            >
-              Deposit
-            </Button>
+            <Button className="!bg-black !bg-opacity-30">Deposit</Button>
           </div>
         </div>
       </div>

@@ -12,7 +12,7 @@ const CardHero = ({ name, description, apy }: CardHeroProps) => {
         <div className="xs:text-sm text-xs text-stieglitz">{description}</div>
       </div>
       <span className="text-up-only xs:text-xl text-lg font-bold">
-        {apy}% APY
+        {apy.toFixed(0)}% APY
       </span>
     </div>
   );
