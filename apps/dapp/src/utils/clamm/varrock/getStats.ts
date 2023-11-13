@@ -6,7 +6,7 @@ async function getStats(optionMarket: string) {
   const baseStatsPath = `${VARROCK_BASE_API_URL}/clamm/stats`;
   const statsResponse = await Promise.all([
     queryClient.fetchQuery({
-      queryKey: ['CLAMM-STATS-OI'],
+      queryKey: ['CLAMM-STATS-OI', optionMarket],
       queryFn: async () => {
         const url = new URL(`${baseStatsPath}/open-interest`);
         url.searchParams.set('optionMarket', optionMarket);
@@ -14,7 +14,7 @@ async function getStats(optionMarket: string) {
       },
     }),
     queryClient.fetchQuery({
-      queryKey: ['CLAMM-STATS-TVL'],
+      queryKey: ['CLAMM-STATS-TVL', optionMarket],
       queryFn: async () => {
         const url = new URL(`${baseStatsPath}/tvl`);
         url.searchParams.set('optionMarket', optionMarket);
@@ -22,7 +22,7 @@ async function getStats(optionMarket: string) {
       },
     }),
     queryClient.fetchQuery({
-      queryKey: ['CLAMM-STATS-VOLUME'],
+      queryKey: ['CLAMM-STATS-VOLUME', optionMarket],
       queryFn: async () => {
         const url = new URL(`${baseStatsPath}/volume`);
         url.searchParams.set('optionMarket', optionMarket);
@@ -30,7 +30,7 @@ async function getStats(optionMarket: string) {
       },
     }),
     queryClient.fetchQuery({
-      queryKey: ['CLAMM-STATS-FEE'],
+      queryKey: ['CLAMM-STATS-FEE', optionMarket],
       queryFn: async () => {
         const url = new URL(`${baseStatsPath}/fees`);
         url.searchParams.set('optionMarket', optionMarket);

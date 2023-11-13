@@ -300,7 +300,7 @@ const StrikesTable = () => {
         },
       )
       .filter(({ type }) => (isPut ? type === 'put' : type === 'call'))
-      .filter(({ liquidity: { usd } }) => usd > 1);
+      .filter(({ liquidity: { usd } }) => Number(usd) > 1);
 
     if (isPut) {
       return _strikes.sort((a, b) => b.strike.amount - a.strike.amount);
