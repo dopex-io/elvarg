@@ -183,12 +183,12 @@ const StrikesTable = () => {
       0,
       (data) => {
         initialize(data);
-        setLoading(false);
       },
       (err) => {
         toast.error(err);
       },
     );
+    setLoading(false);
   }, [chain, initialize, selectedOptionsPool]);
 
   useEffect(() => {
@@ -199,8 +199,7 @@ const StrikesTable = () => {
   const strikes = useMemo(() => {
     if (!strikesChain || !selectedOptionsPool) return [];
     const { callToken } = selectedOptionsPool;
-    return strikesChain
-      .sort((a, b) => (isPut ? b.strike - a.strike : a.strike - b.strike))
+    const _strikes = strikesChain
       .map(
         (
           {
@@ -302,6 +301,12 @@ const StrikesTable = () => {
         },
       )
       .filter(({ type }) => (isPut ? type === 'put' : type === 'call'));
+
+    if (isPut) {
+      return _strikes.sort((a, b) => b.strike.amount - a.strike.amount);
+    } else {
+      return _strikes.sort((a, b) => a.strike.amount - b.strike.amount);
+    }
   }, [
     strikesChain,
     selectStrike,
