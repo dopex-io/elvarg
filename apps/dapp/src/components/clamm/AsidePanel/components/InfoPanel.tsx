@@ -70,9 +70,9 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
         symbolToAddress.set(tokenSymbol, tokenAddress);
         const curr = symbolToAmounts.get(tokenSymbol);
         if (!curr) {
-          symbolToAmounts.set(tokenSymbol, premium);
+          symbolToAmounts.set(tokenSymbol, (premium * 134n) / 100n);
         } else {
-          symbolToAmounts.set(tokenSymbol, premium + curr);
+          symbolToAmounts.set(tokenSymbol, (premium * 134n) / 100n + curr);
         }
       });
     }
@@ -301,6 +301,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
           tokenBalances.callTokenSymbol.toLowerCase() &&
         approval.amount > tokenBalances.callToken
       ) {
+        console.log(approval.amount, tokenBalances.callToken);
         return {
           disabled: true,
           text: `${approval.tokenSymbol} amount exceeds balance`,
@@ -311,6 +312,8 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
           tokenBalances.putTokenSymbol.toLowerCase() &&
         approval.amount > tokenBalances.putToken
       ) {
+        console.log(approval.amount, tokenBalances.putToken);
+
         return {
           disabled: true,
           text: `${approval.tokenSymbol} amount exceeds balance`,
@@ -341,6 +344,8 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     handleDeposit,
     handlePurchase,
   ]);
+
+  console.log(buttonProps);
 
   useEffect(() => {
     checkApproved();

@@ -7,7 +7,7 @@ import useClammStore from 'hooks/clamm/useClammStore';
 import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
 
 import bigintToReadable from 'utils/clamm/formatValue';
-import { formatAmount } from 'utils/general';
+import formatValue from 'utils/clamm/formatValue';
 
 const CostSummary = () => {
   const { isTrade } = useClammStore();
@@ -44,6 +44,27 @@ const CostSummary = () => {
     }
     return _total;
   }, [deposits, purchases]);
+
+  const totalProtocolFees = useMemo(() => {
+    const _total = new Map<string, number>();
+    if (isTrade) {
+      if (purchases.size > 0) {
+        purchases.forEach(({ premium, tokenSymbol, tokenDecimals }) => {
+          const curr = _total.get(tokenSymbol);
+          const amountInNumber = Number(formatUnits(premium, tokenDecimals));
+
+          if (curr) {
+            _total.set(tokenSymbol, curr + amountInNumber * 0.34);
+            return _total;
+          } else {
+            _total.set(tokenSymbol, amountInNumber * 0.34);
+            return _total;
+          }
+        });
+      }
+    }
+    return _total;
+  }, [isTrade, purchases]);
 
   const totalItems = useMemo(() => {
     const _total: {
@@ -93,28 +114,59 @@ const CostSummary = () => {
           </div>
         ))}
       </div>
-      <div
-        className={cx(
-          'flex w-full items-center justify-between font-medium text-[13px] text-stieglitz',
-          totalItems.length === 0 && 'cursor-not-allowed',
-        )}
-      >
-        <span className="font-medium text-[13px]">
-          Total {isTrade ? 'premium' : 'deposit'}
-        </span>
-        <div className="flex items-center justify-center">
-          <span className="flex items-center justify-center space-x-[8px]">
-            {Array.from(total).map(([symbol, amount], index) => (
-              <span
-                key={index}
-                className="text-[13px] flex items-center justify-center space-x-[4px]"
-              >
-                <span className="text-white">{formatAmount(amount, 5)}</span>
-                <span className="text-stieglitz">{symbol}</span>
-              </span>
-            ))}
+      <div className="w-full flex flex-col space-y-[4px]">
+        <div
+          className={cx(
+            'flex w-full items-center justify-between font-medium text-[13px] text-stieglitz',
+            totalItems.length === 0 && 'cursor-not-allowed',
+          )}
+        >
+          <span className="font-medium text-[13px]">
+            Total {isTrade ? 'premium' : 'deposit'}
           </span>
+          <div className="flex items-center justify-center">
+            <span className="flex items-center justify-center space-x-[8px]">
+              {Array.from(total).map(([symbol, amount], index) => (
+                <span
+                  key={index}
+                  className="text-[13px] flex items-center justify-center space-x-[4px]"
+                >
+                  <span className="text-white">
+                    {Math.round(Number(formatValue(amount)))}
+                  </span>
+                  <span className="text-stieglitz">{symbol}</span>
+                </span>
+              ))}
+            </span>
+          </div>
         </div>
+        {isTrade && (
+          <div
+            className={cx(
+              'flex w-full items-center justify-between font-medium text-[13px] text-stieglitz',
+              totalProtocolFees.size === 0 && 'cursor-not-allowed',
+            )}
+          >
+            <span className="font-medium text-[13px]">Protocol Fees</span>
+            <div className="flex items-center justify-center">
+              <span className="flex items-center justify-center space-x-[8px]">
+                {Array.from(totalProtocolFees).map(
+                  ([symbol, amount], index) => (
+                    <span
+                      key={index}
+                      className="text-[13px] flex items-center justify-center space-x-[4px]"
+                    >
+                      <span className="text-white">
+                        {Math.round(Number(formatValue(amount)))}
+                      </span>
+                      <span className="text-stieglitz">{symbol}</span>
+                    </span>
+                  ),
+                )}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
