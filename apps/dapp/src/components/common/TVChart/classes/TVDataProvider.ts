@@ -92,7 +92,6 @@ export class TVDataProvider {
     try {
       let queryUrl = `${PRICES_URLS[chainId][ticker]}?interval=${interval}&ticker=${ticker}&from=${from}&to=${to}`;
       const prices = await fetch(queryUrl).then((response) => response.json());
-      console.log(prices);
       return prices;
     } catch (error) {
       console.error('Failed to fetch prices for', ticker);
