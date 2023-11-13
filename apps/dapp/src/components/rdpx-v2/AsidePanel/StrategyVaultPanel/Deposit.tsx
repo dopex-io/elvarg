@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { formatUnits, parseUnits } from 'viem';
 
-import { Button, Input } from '@dopex-io/ui';
+import { Button } from '@dopex-io/ui';
 import { erc20ABI, useAccount, useContractRead, useContractWrite } from 'wagmi';
 import { writeContract } from 'wagmi/actions';
 
@@ -10,6 +10,7 @@ import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 
 import Alert from 'components/common/Alert';
 import alerts, { AlertType } from 'components/rdpx-v2/AsidePanel/alerts';
+import PanelInput from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/PanelInput';
 import InfoRow from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/InfoRow';
 import useRewardsState from 'components/rdpx-v2/Body/hooks/useRewardsState';
 import Typography2 from 'components/UI/Typography2';
@@ -105,7 +106,7 @@ const Deposit = () => {
     updateUserPerpetualVaultData,
   ]);
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onChange = (e: React.ChangeEvent<HTMLInputElement> | any) => {
     setAmount(Number(e.target.value) < 0 ? '' : e.target.value);
   };
 
@@ -127,43 +128,15 @@ const Deposit = () => {
 
   return (
     <div className="space-y-3 relative">
-      <div className="bg-umbra rounded-xl w-full h-fit">
-        <Input
-          type="number"
-          variant="xl"
-          value={amount}
-          onChange={onChange}
-          placeholder="0.0"
-          leftElement={
-            <div className="flex my-auto space-x-2 w-2/3">
-              <img
-                src={`/images/tokens/weth.svg`}
-                alt="weth"
-                className="w-9 h-9 border border-mineshaft rounded-full"
-              />
-            </div>
-          }
-        />
-        <div className="flex justify-between px-3 pb-3">
-          <Typography2 variant="caption" weight="500" color="stieglitz">
-            Deposit Amount
-          </Typography2>
-          <div className="flex space-x-1">
-            <img
-              src="/assets/max.svg"
-              className="hover:bg-silver rounded-[4px] mr-1"
-              alt="max"
-              onClick={onClickMax}
-            />
-            <Typography2 variant="caption" weight="500">
-              {formatBigint(balance, DECIMALS_TOKEN)}
-            </Typography2>
-            <Typography2 variant="caption" weight="500" color="stieglitz">
-              WETH
-            </Typography2>
-          </div>
-        </div>
-      </div>
+      <PanelInput
+        amount={amount}
+        handleChange={onChange}
+        handleMax={onClickMax}
+        maxAmount={balance}
+        iconPath="/images/tokens/weth.svg"
+        label="Deposit Amount"
+        symbol="WETH"
+      />
       {panelState.severity !== null ? (
         <Alert
           header={panelState.header}

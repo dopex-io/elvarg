@@ -70,13 +70,13 @@ const StakingBody = () => {
             </Typography2>
           </span>
         </div>
-        <div className="flex flex-col w-full sm:w-full p-2">
+        {/* <div className="flex flex-col w-full sm:w-full p-2">
           <ClientRenderedRewardsChart data={[]} width={620} height={170} />
-        </div>
+        </div> */}
         {earned ? (
           <div className="p-3 flex space-x-2">
             <Button
-              color="primary"
+              color="mineshaft"
               size="medium"
               className="w-full"
               onClick={() => claim()}
