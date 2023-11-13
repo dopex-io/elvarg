@@ -273,7 +273,7 @@ export default function AppBar() {
                   <TooltipContent className="w-80 bg-black/30 backdrop-blur-md">
                     <p className="text-stieglitz">
                       Your activity is being recorded for a future retroactive{' '}
-                      <s>REDACTED.</s>
+                      <s>REDACTED</s>.
                     </p>
                   </TooltipContent>
                 </Tooltip>
