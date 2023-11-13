@@ -84,7 +84,13 @@ const PositionsTable = () => {
       selectedOptionsPool.optionsPoolAddress,
       1000,
       0,
-      setLpPositions,
+      (data: any) => {
+        setLpPositions(
+          data.filter(({ meta }: any) => {
+            return BigInt(meta.withdrawableShares) > 1n;
+          }),
+        );
+      },
       toast.error,
     );
     setLoading((prev) => ({ ...prev, lpPositions: false }));
