@@ -1,11 +1,8 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { formatUnits } from 'viem';
 
-import { Checkbox } from '@mui/material';
-
-import { Button, Disclosure } from '@dopex-io/ui';
+import { Button } from '@dopex-io/ui';
 import { MinusIcon, PlusIcon } from '@heroicons/react/24/solid';
-import ChevronDownIcon from '@heroicons/react/24/solid/ChevronDownIcon';
 import { createColumnHelper } from '@tanstack/react-table';
 import cx from 'classnames';
 import toast from 'react-hot-toast';
@@ -16,18 +13,9 @@ import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 
 import TableLayout from 'components/common/TableLayout';
 
+import formatValue from 'utils/clamm/formatValue';
 import getStrikesChain from 'utils/clamm/varrock/getStrikesChain';
 import { formatAmount } from 'utils/general';
-
-type StrikeDisclosureItem = {
-  earningsApy: number;
-  rewardsApy: number;
-  utilization: number;
-  totalDeposits: {
-    amount: number;
-    symbol: string;
-  };
-};
 
 type StrikeItem = {
   strike: {
@@ -35,11 +23,17 @@ type StrikeItem = {
     isSelected: boolean;
     handleSelect: () => void;
   };
+  apr: string;
   sources: {
     name: string;
     compositionPercentage: number;
   }[];
-  options: string;
+  options: {
+    available: string;
+    total: string;
+    symbol: string;
+    usd: string;
+  };
   button: {
     isSelected: boolean;
     handleSelect: () => void;
@@ -49,7 +43,6 @@ type StrikeItem = {
     usd: number;
     amount: number;
   };
-  disclosure: StrikeDisclosureItem;
 };
 
 const columnHelper = createColumnHelper<StrikeItem>();
@@ -74,13 +67,38 @@ const columns = [
     ),
   }),
   columnHelper.accessor('options', {
-    header: 'Options',
-    cell: (info) => (
-      <span className="flex space-x-1 text-left items-center">
-        <p>{formatAmount(info.getValue(), 5)}</p>
+    header: 'Options Available',
+    cell: ({ getValue }) => (
+      <span className="flex flex-col items-left">
+        <span className="flex items-center space-x-[4px] ">
+          <span> {formatAmount(getValue().available, 5)}</span>
+          <span className="text-stieglitz">/</span>
+          <span>{formatAmount(getValue().total, 5)}</span>
+          <span className="text-stieglitz text-xs">{getValue().symbol}</span>
+        </span>
+        <span className="text-xs text-stieglitz">
+          $ {formatAmount(getValue().usd, 5)}
+        </span>
       </span>
     ),
   }),
+  columnHelper.accessor('apr', {
+    header: 'Fees APR',
+    cell: (info) => (
+      <span className="flex space-x-1 text-left items-center">
+        <span>{formatValue(info.getValue())}</span>
+        <span className="text-stieglitz">%</span>
+      </span>
+    ),
+  }),
+  // columnHelper.accessor('apr', {
+  //   header: 'Rewards APR',
+  //   cell: (info) => (
+  //     <span className="flex space-x-1 text-left items-center">
+  //       <p>-</p>
+  //     </span>
+  //   ),
+  // }),
   columnHelper.accessor('sources', {
     header: 'Sources',
     cell: (info) => {
@@ -125,11 +143,6 @@ const columns = [
             )}
           </div>
         </Button>
-        <Disclosure.Button className="w-6">
-          <ChevronDownIcon
-            className={`text-stieglitz text-2xl cursor-pointer`}
-          />
-        </Disclosure.Button>
       </div>
     ),
   }),
@@ -141,35 +154,6 @@ export const StatItem = ({ name, value }: { name: string; value: string }) => (
     <span className="text-stieglitz text-xs">{name}</span>
   </div>
 );
-
-const TableDisclosure = (props: StrikeDisclosureItem) => {
-  return (
-    <Disclosure.Panel as="tr" className="bg-umbra">
-      <td colSpan={6}>
-        <div className="grid grid-cols-6 gap-6 p-3">
-          <StatItem
-            name="Utilization"
-            value={`${props.utilization.toFixed(3)}%`}
-          />
-          <StatItem
-            name="Reward APY"
-            value={`${props.earningsApy.toFixed(3)}%`}
-          />
-          <StatItem
-            name="Premium APY"
-            value={`${props.rewardsApy.toFixed(3)}%`}
-          />
-          <StatItem
-            name="Total Deposits"
-            value={`${Number(props.totalDeposits.amount).toFixed(3)} ${
-              props.totalDeposits.symbol
-            }`}
-          />
-        </div>
-      </td>
-    </Disclosure.Panel>
-  );
-};
 
 const StrikesTable = () => {
   const {
@@ -183,9 +167,11 @@ const StrikesTable = () => {
 
   const { selectedOptionsPool, isPut } = useClammStore();
   const { chain } = useNetwork();
+  const [loading, setLoading] = useState(false);
 
   const loadStrikes = useCallback(async () => {
     if (!selectedOptionsPool || !chain) return;
+    setLoading(true);
     getStrikesChain(
       chain.id,
       selectedOptionsPool.callToken.address,
@@ -197,6 +183,7 @@ const StrikesTable = () => {
         toast.error(err);
       },
     );
+    setLoading(false);
   }, [chain, initialize, selectedOptionsPool]);
 
   useEffect(() => {
@@ -205,9 +192,10 @@ const StrikesTable = () => {
   }, [loadStrikes, setUpdateStrikes]);
 
   const strikes = useMemo(() => {
-    if (!strikesChain) return [];
+    if (!strikesChain || !selectedOptionsPool) return [];
+    const { callToken } = selectedOptionsPool;
     return strikesChain
-      .sort((a, b) => b.strike - a.strike)
+      .sort((a, b) => (isPut ? b.strike - a.strike : a.strike - b.strike))
       .map(
         (
           {
@@ -223,6 +211,7 @@ const StrikesTable = () => {
             tokenDecimals,
             tokenSymbol,
             utilization,
+            totalOptions,
             type,
           },
           index,
@@ -231,6 +220,7 @@ const StrikesTable = () => {
 
           return {
             type,
+            apr: earningsApy,
             strike: {
               amount: strike,
               isSelected,
@@ -255,7 +245,12 @@ const StrikesTable = () => {
               },
             },
             sources,
-            options: optionsAvailable,
+            options: {
+              available: optionsAvailable,
+              total: totalOptions,
+              symbol: callToken.symbol,
+              usd: liquidityAvailableUsd,
+            },
             button: {
               isSelected,
               handleSelect: () => {
@@ -300,18 +295,20 @@ const StrikesTable = () => {
         },
       )
       .filter(({ type }) => (isPut ? type === 'put' : type === 'call'));
-  }, [strikesChain, selectStrike, deselectStrike, selectedStrikes, isPut]);
+  }, [
+    strikesChain,
+    selectStrike,
+    deselectStrike,
+    selectedStrikes,
+    isPut,
+    selectedOptionsPool,
+  ]);
 
   return (
     <TableLayout<StrikeItem>
       data={strikes}
       columns={columns}
-      rowSpacing={3}
-      disclosure={strikes.map((s, index) => (
-        <TableDisclosure key={index} {...s.disclosure} />
-      ))}
-      isContentLoading={false}
-      pageSize={10}
+      isContentLoading={loading}
     />
   );
 };
