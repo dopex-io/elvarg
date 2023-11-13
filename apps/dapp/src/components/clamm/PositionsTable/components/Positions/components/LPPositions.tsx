@@ -156,6 +156,7 @@ const LPPositions = ({
   selectPosition,
   selectedPositions,
   unselectPosition,
+  loading,
 }: any) => {
   const { chain } = useNetwork();
   const { data: walletClient } = useWalletClient({
@@ -281,7 +282,7 @@ const LPPositions = ({
       data={lpPositions}
       columns={columns}
       rowSpacing={3}
-      isContentLoading={false}
+      isContentLoading={loading}
       pageSize={10}
     />
   );

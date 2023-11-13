@@ -172,12 +172,14 @@ type Props = {
   selectPosition: (key: number, positionInfo: any) => void;
   selectedPositions: Map<number, any>;
   unselectPosition: (key: number) => void;
+  loading: boolean;
 };
 const BuyPositions = ({
   positions,
   selectPosition,
   selectedPositions,
   unselectPosition,
+  loading,
 }: Props) => {
   const { chain } = useNetwork();
   const { selectedOptionsPool } = useClammStore();
@@ -340,7 +342,7 @@ const BuyPositions = ({
       data={buyPositions}
       columns={columns}
       rowSpacing={3}
-      isContentLoading={false}
+      isContentLoading={loading}
       pageSize={10}
     />
   );

@@ -167,23 +167,24 @@ const StrikesTable = () => {
 
   const { selectedOptionsPool, isPut } = useClammStore();
   const { chain } = useNetwork();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const loadStrikes = useCallback(async () => {
     if (!selectedOptionsPool || !chain) return;
-    setLoading(true);
-    getStrikesChain(
+    await getStrikesChain(
       chain.id,
       selectedOptionsPool.callToken.address,
       selectedOptionsPool.putToken.address,
       50,
       0,
-      initialize,
+      (data) => {
+        initialize(data);
+        setLoading(false);
+      },
       (err) => {
         toast.error(err);
       },
     );
-    setLoading(false);
   }, [chain, initialize, selectedOptionsPool]);
 
   useEffect(() => {

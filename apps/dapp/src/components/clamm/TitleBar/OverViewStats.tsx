@@ -42,7 +42,7 @@ const OverViewStats = () => {
           setMarkPrice(price);
           setTick(tick);
         },
-        toast.error,
+        () => {},
       );
     }, 2000);
 

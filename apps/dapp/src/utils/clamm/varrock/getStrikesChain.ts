@@ -11,7 +11,7 @@ async function getStrikesChain(
   onSuccessCallback: (data: StrikesChainAPIResponse) => void,
   onErrorCallback?: (error: string) => void,
 ) {
-  axios
+  await axios
     .get(`${VARROCK_BASE_API_URL}/clamm/strikes`, {
       params: {
         chainId,
