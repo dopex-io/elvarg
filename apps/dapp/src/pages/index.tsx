@@ -1,12 +1,32 @@
 import Head from 'next/head';
 
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+
 import AppBar from 'components/common/AppBar';
 import Footer from 'components/common/Footer';
+import PageLoader from 'components/common/PageLoader';
 import ClammCard from 'components/home/Card/ClammCard';
 import RdpxV2Card from 'components/home/Card/RdpxV2Card';
 import SsovCard from 'components/home/Card/SsovCard';
 
 const Home = () => {
+  const query = useQuery({
+    queryKey: ['tvl_eth_market'],
+    queryFn: () => {
+      return axios.get(
+        'https://varrock.dopex.io/clamm/stats/tvl?optionMarket=0x764fA09d0B3de61EeD242099BD9352C1C61D3d27',
+      );
+    },
+  });
+
+  if (query.isLoading) {
+    return <PageLoader />;
+  }
+
+  // Calc for ETH since its allocated the highest amount of rewards
+  const clammAPY = (3600 / query.data?.data.tvl) * 100 * 365;
+
   return (
     <div>
       <div className="min-h-screen bg-[url('/images/backgrounds/darkness.jpg')]">
@@ -32,11 +52,17 @@ const Home = () => {
               </div>
               <div className="text-lg mb-4">
                 Arbitrum STIP Incentives are LIVE on Dopex now! Deposit on CLAMM
-                now to earn up to <b>182% APY!</b>
+                now to earn up to{' '}
+                <b className="gradientText">{clammAPY.toFixed()}% APY!</b>
               </div>
-              <div className="absolute z-20 bg-[#0b1121] rounded-md p-2">
+              <a
+                href="/clamm/WETH-USDC"
+                rel="noopener noreferer"
+                target="_blank"
+                className="absolute z-20 bg-[#0b1121] rounded-md p-2"
+              >
                 Deposit CLAMM
-              </div>
+              </a>
               <div className="gradient-bg-effect" />
             </div>
             <img
@@ -50,7 +76,7 @@ const Home = () => {
               <span>Our Products</span>
             </div>
             <div className="grid lg:grid-cols-2 grid-cols-1 gap-8 justify-items-center">
-              <ClammCard />
+              <ClammCard apy={clammAPY} />
               <SsovCard />
               <RdpxV2Card />
             </div>
