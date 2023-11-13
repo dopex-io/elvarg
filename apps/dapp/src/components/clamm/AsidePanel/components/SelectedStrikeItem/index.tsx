@@ -14,6 +14,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/solid';
 import axios from 'axios';
+import cx from 'classnames';
 import { useDebounce } from 'use-debounce';
 import { useNetwork } from 'wagmi';
 
@@ -59,6 +60,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
   const [inputAmount, setInputAmount] = useState<string>('');
   const [amountDebounced] = useDebounce(inputAmount, 1500);
   const { setLoading, isLoading } = useLoadingStates();
+  const [error, setError] = useState('');
 
   const tokenDecimals = useMemo(() => {
     if (!selectedOptionsPool)
@@ -117,7 +119,11 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
       Number(amountDebounced).toString(),
       isCall ? tokenDecimals.callToken : tokenDecimals.putToken,
     );
-    if (depositAmount === 0n) return;
+
+    if (depositAmount === 0n) {
+      unsetDeposit(strikeIndex);
+      return;
+    }
     setLoading(ASIDE_PANEL_BUTTON_KEY, true);
     axios
       .get(`${VARROCK_BASE_API_URL}/clamm/deposit`, {
@@ -152,6 +158,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
       });
     setLoading(ASIDE_PANEL_BUTTON_KEY, false);
   }, [
+    unsetDeposit,
     addresses,
     setLoading,
     amountDebounced,
@@ -167,9 +174,18 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
   const updatePurchases = useCallback(() => {
     if (!isTrade || !chain || !selectedOptionsPool || !addresses) return;
 
-    // if (Number(amountDebounced) > strikeData.amount1) {
-    //   return;
-    // }
+    if (Number(amountDebounced) > Number(strikeData.amount1)) {
+      setError(
+        `Amount exceeds available options (${strikeData.amount1} Available)`,
+      );
+    } else {
+      setError('');
+    }
+
+    if (Number(amountDebounced) === 0) {
+      unsetPurchase(strikeIndex);
+      return;
+    }
 
     const { callToken, putToken, optionsPoolAddress, primePool } =
       selectedOptionsPool;
@@ -253,8 +269,11 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
       tokenSymbol: symbolInContext,
       tokenAddress: tokenAddressInContext,
       tokenDecimals: decimalsInContext,
+      error: Boolean(error),
     });
   }, [
+    unsetPurchase,
+    error,
     addresses,
     setPurchase,
     strikeIndex,
@@ -304,52 +323,62 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
   }, [updatePurchases]);
 
   return (
-    <div className="w-full flex items-center h-[30px] space-x-[10px]">
-      <XMarkIcon
-        onClick={() => {
-          deselectStrike(strikeIndex);
-          unsetDeposit(strikeIndex);
-          unsetPurchase(strikeIndex);
-        }}
-        role="button"
-        className="text-stieglitz hover:text-white rounded-full w-[18px] h-[18px] flex-[0.075]"
-      />
-      <div className="w-[34px] h-[30px] flex items-center justify-center bg-carbon rounded-md flex-[0.125]">
-        {strikeData.isCall ? (
-          <ArrowUpRightIcon
-            className={'h-[18px] w-[18px] p-[2px] text-up-only'}
-          />
-        ) : (
-          <ArrowDownRightIcon
-            className={'h-[18px] w-[18px] p-[2px] text-down-bad'}
-          />
-        )}
-      </div>
-      <div className="flex items-center justify-center space-x-[4px] bg-mineshaft h-[30px] w-[100px] rounded-md flex-[0.375]">
-        <span className="text-stieglitz text-[13px]">$</span>
-        <span className="text-[13px]">
-          {formatValue(strikeData.strike ?? 0)}
-        </span>
-      </div>
-      <div className="h-[30px] w-[160px] p-[8px] flex items-center justfiy-center border border-mineshaft rounded-md flex-[0.425]">
-        <input
-          onChange={(event: any) => {
-            setInputAmount(event.target.value);
+    <div className="w-full flex flex-col">
+      <div className="w-full flex items-center h-[30px] space-x-[10px]">
+        <XMarkIcon
+          onClick={() => {
+            deselectStrike(strikeIndex);
+            unsetDeposit(strikeIndex);
+            unsetPurchase(strikeIndex);
           }}
-          value={inputAmount}
-          type="number"
-          min="0"
-          placeholder={`0.0 ${strikeData.tokenSymbol}`}
-          className="w-full text-[13px] text-left text-white bg-umbra focus:outline-none focus:border-mineshaft rounded-md placeholder-mineshaft"
-        />
-        <img
-          onClick={handleMax}
           role="button"
-          src="/assets/max.svg"
-          className="hover:bg-silver rounded-[4px] h-[14px]"
-          alt="max"
+          className="text-stieglitz hover:text-white rounded-full w-[18px] h-[18px] flex-[0.075]"
         />
+        <div className="w-[34px] h-[30px] flex items-center justify-center bg-carbon rounded-md flex-[0.125]">
+          {strikeData.isCall ? (
+            <ArrowUpRightIcon
+              className={'h-[18px] w-[18px] p-[2px] text-up-only'}
+            />
+          ) : (
+            <ArrowDownRightIcon
+              className={'h-[18px] w-[18px] p-[2px] text-down-bad'}
+            />
+          )}
+        </div>
+        <div className="flex items-center justify-center space-x-[4px] bg-mineshaft h-[30px] w-[100px] rounded-md flex-[0.375]">
+          <span className="text-stieglitz text-[13px]">$</span>
+          <span className="text-[13px]">
+            {formatValue(strikeData.strike ?? 0)}
+          </span>
+        </div>
+        <div
+          className={cx(
+            'h-[30px] w-[160px] p-[8px] flex items-center justfiy-center border rounded-md flex-[0.425] border-mineshaft',
+            Boolean(error) ? 'border-down-bad' : 'border-mineshaft',
+          )}
+        >
+          <input
+            onChange={(event: any) => {
+              setInputAmount(event.target.value);
+            }}
+            value={inputAmount}
+            type="number"
+            min="0"
+            placeholder={`0.0 ${strikeData.tokenSymbol}`}
+            className={
+              'w-full text-[13px] text-left text-white bg-umbra focus:outline-none focus:border-mineshaft rounded-md placeholder-mineshaft'
+            }
+          />
+          <img
+            onClick={handleMax}
+            role="button"
+            src="/assets/max.svg"
+            className="hover:bg-silver rounded-[4px] h-[14px]"
+            alt="max"
+          />
+        </div>
       </div>
+      <span className="w-full text-right text-xs text-down-bad">{error}</span>
     </div>
   );
 };

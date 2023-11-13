@@ -66,13 +66,17 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
         }
       });
     } else {
-      purchases.forEach(({ premium, tokenSymbol, tokenAddress }) => {
+      purchases.forEach(({ premium, tokenSymbol, tokenAddress, error }) => {
         symbolToAddress.set(tokenSymbol, tokenAddress);
         const curr = symbolToAmounts.get(tokenSymbol);
         if (!curr) {
-          symbolToAmounts.set(tokenSymbol, (premium * 134n) / 100n);
+          if (!error) {
+            symbolToAmounts.set(tokenSymbol, (premium * 134n) / 100n);
+          }
         } else {
-          symbolToAmounts.set(tokenSymbol, (premium * 134n) / 100n + curr);
+          if (!error) {
+            symbolToAmounts.set(tokenSymbol, (premium * 134n) / 100n + curr);
+          }
         }
       });
     }

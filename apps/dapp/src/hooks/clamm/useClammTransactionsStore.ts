@@ -20,6 +20,7 @@ export type PurchaseTransaction = {
   tokenSymbol: string;
   tokenDecimals: number;
   txData: Hex;
+  error: boolean;
 };
 
 type ClammTransactionsStore = {
