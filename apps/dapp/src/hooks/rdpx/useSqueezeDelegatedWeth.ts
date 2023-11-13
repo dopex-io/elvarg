@@ -38,7 +38,7 @@ const useSqueezeDelegatedWeth = ({ user, collateralRequired }: Props) => {
       (prev, curr) =>
         curr.amount - curr.activeCollateral > parseUnits('1', 14)
           ? prev + (curr.amount - curr.activeCollateral)
-          : 0n,
+          : prev + 0n,
       0n,
     );
 
