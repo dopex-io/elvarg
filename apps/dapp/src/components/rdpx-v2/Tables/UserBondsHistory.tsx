@@ -36,7 +36,7 @@ const UserBondsHistory = () => {
         },
       }))
       .sort((a, b) =>
-        Number(a.transaction.timestamp - b.transaction.timestamp),
+        Number(b.transaction.timestamp - a.transaction.timestamp),
       );
   }, [userAggregatedData.bonds]);
 
