@@ -180,7 +180,7 @@ const BuyPositions = ({
   unselectPosition,
 }: Props) => {
   const { chain } = useNetwork();
-  const { markPrice, selectedOptionsPool } = useClammStore();
+  const { selectedOptionsPool } = useClammStore();
   const { data: walletClient } = useWalletClient({
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
   });
