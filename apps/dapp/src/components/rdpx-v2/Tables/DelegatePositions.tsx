@@ -24,19 +24,22 @@ const DelegatePositions = () => {
     updateUserDelegatePositions();
   }, [updateUserDelegatePositions]);
 
-  const handleWithdraw = useCallback(async (id: bigint) => {
-    const write = async () =>
-      await writeContract({
-        abi: RdpxV2Core,
-        address: addresses.v2core,
-        functionName: 'withdraw',
-        args: [id],
-      });
+  const handleWithdraw = useCallback(
+    async (id: bigint) => {
+      const write = async () =>
+        await writeContract({
+          abi: RdpxV2Core,
+          address: addresses.v2core,
+          functionName: 'withdraw',
+          args: [id],
+        });
 
-    await write()
-      .then((tx) => console.log(tx.hash))
-      .catch((e) => console.error(e));
-  }, []);
+      await write()
+        .then(() => updateUserDelegatePositions())
+        .catch((e) => console.error(e));
+    },
+    [updateUserDelegatePositions],
+  );
 
   const delegatePositions = useMemo(() => {
     if (userDelegatePositions.length === 0) return [];
