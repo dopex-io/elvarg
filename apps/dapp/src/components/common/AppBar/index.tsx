@@ -265,14 +265,14 @@ export default function AppBar() {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <img
-                      src="/images/misc/magnifying-glass-peepo.png"
-                      alt="magnifying-peepo"
-                      className="w-10 h-auto mr-4"
+                      src="/images/misc/camera-pepe-hd.png"
+                      alt="camera-pepe-hd"
+                      className="w-8 h-auto mr-4"
                     />
                   </TooltipTrigger>
-                  <TooltipContent className="w-72 bg-black/30 backdrop-blur-md">
+                  <TooltipContent className="w-80 bg-black/30 backdrop-blur-md">
                     <p className="text-stieglitz">
-                      Your activity is being recorded for future retroactive{' '}
+                      Your activity is being recorded for a future retroactive{' '}
                       <s>REDACTED.</s>
                     </p>
                   </TooltipContent>
