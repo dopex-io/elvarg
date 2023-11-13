@@ -12,13 +12,6 @@ import { quickLinks } from 'constants/rdpx';
 import CurveMultiRewards from 'constants/rdpx/abis/CurveMultiRewards';
 import addresses from 'constants/rdpx/addresses';
 
-const ClientRenderedRewardsChart = dynamic(
-  () => import('../../Charts/RewardsChart'),
-  {
-    ssr: false,
-  },
-);
-
 const rewardTokenSymbol = 'tRT-RT';
 
 const StakingBody = () => {
@@ -70,9 +63,6 @@ const StakingBody = () => {
             </Typography2>
           </span>
         </div>
-        {/* <div className="flex flex-col w-full sm:w-full p-2">
-          <ClientRenderedRewardsChart data={[]} width={620} height={170} />
-        </div> */}
         {earned ? (
           <div className="p-3 flex space-x-2">
             <Button
