@@ -11,9 +11,12 @@ const CardHero = ({ name, description, apy }: CardHeroProps) => {
         <div className="font-bold xs:text-lg">{name}</div>
         <div className="xs:text-sm text-xs text-stieglitz">{description}</div>
       </div>
-      <span className="text-up-only xs:text-xl text-lg font-bold">
-        {apy.toFixed(0)}% APY
-      </span>
+      <div className="text-sm">
+        up to{' '}
+        <span className="text-up-only xs:text-xl text-lg font-bold">
+          {apy.toFixed(0)}% APY
+        </span>
+      </div>
     </div>
   );
 };

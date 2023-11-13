@@ -27,8 +27,8 @@ const RdpxV2Card = () => {
   return (
     <div className="sm:w-[496px] w-[85vw] h-[220px] relative">
       <div className="bg-black bg-opacity-30 shadow-2xl z-20 rounded-2xl absolute backdrop-blur-[6px] flex items-center justify-center w-full h-full">
-        <p className="text-lg font-bold">
-          Coming Soon<sup>TM</sup>
+        <p className="text-xl">
+          <s>REDACTED</s>
         </p>
       </div>
       <div className="p-6">

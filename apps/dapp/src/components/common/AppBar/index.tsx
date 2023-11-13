@@ -272,7 +272,7 @@ export default function AppBar() {
                   </TooltipTrigger>
                   <TooltipContent className="w-72 bg-black/30 backdrop-blur-md">
                     <p className="text-stieglitz">
-                      Your activity is being recorded for future{' '}
+                      Your activity is being recorded for future retroactive{' '}
                       <s>REDACTED.</s>
                     </p>
                   </TooltipContent>

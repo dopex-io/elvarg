@@ -40,7 +40,7 @@ const Home = () => {
               <div className="gradient-bg-effect" />
             </div>
             <img
-              className="w-64 h-auto hidden lg:block"
+              className="w-80 h-auto hidden lg:block"
               src="/images/brand/rdpx-v2.svg"
               alt="rdpx-v2"
             />
