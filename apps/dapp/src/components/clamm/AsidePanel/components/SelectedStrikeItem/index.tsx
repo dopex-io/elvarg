@@ -1,6 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  Address,
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import {
   encodeFunctionData,
   formatUnits,
   hexToBigInt,
@@ -35,6 +41,7 @@ import {
 } from 'utils/clamm/liquidityAmountMath';
 import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
 import getPremium from 'utils/clamm/varrock/getPremium';
+import { formatAmount } from 'utils/general';
 
 import { optionPoolsAbi } from 'constants/clamm';
 import { VARROCK_BASE_API_URL } from 'constants/env';
@@ -43,8 +50,19 @@ type Props = {
   key: number;
   strikeIndex: number;
   strikeData: SelectedStrike;
+  editAllMode: boolean;
+  commonInputAmount: string;
+  disabledInput: boolean;
+  commonSetInputAmount: Dispatch<SetStateAction<string>>;
 };
-const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
+const SelectedStrikeItem = ({
+  strikeData,
+  strikeIndex,
+  commonInputAmount,
+  commonSetInputAmount,
+  editAllMode,
+  disabledInput,
+}: Props) => {
   const { deselectStrike } = useStrikesChainStore();
   const {
     isTrade,
@@ -58,7 +76,10 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
   const [premium, setPremium] = useState(0n);
   const { chain } = useNetwork();
   const [inputAmount, setInputAmount] = useState<string>('');
-  const [amountDebounced] = useDebounce(inputAmount, 1500);
+  const [amountDebounced] = useDebounce(
+    editAllMode ? commonInputAmount : inputAmount,
+    1500,
+  );
   const { setLoading, isLoading } = useLoadingStates();
   const [error, setError] = useState('');
 
@@ -176,7 +197,10 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
 
     if (Number(amountDebounced) > Number(strikeData.amount1)) {
       setError(
-        `Amount exceeds available options (${strikeData.amount1} Available)`,
+        `Amount exceeds available options (${formatAmount(
+          strikeData.amount1,
+          5,
+        )} Available)`,
       );
     } else {
       setError('');
@@ -287,13 +311,16 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
   ]);
 
   const handleMax = useCallback(() => {
+    const handleInputChange = editAllMode
+      ? commonSetInputAmount
+      : setInputAmount;
     if (isTrade) {
-      setInputAmount(strikeData.amount1);
+      handleInputChange(strikeData.amount1);
     } else {
       const balance = strikeData.isCall
         ? tokenBalances.callToken
         : tokenBalances.putToken;
-      setInputAmount(
+      handleInputChange(
         formatUnits(
           balance,
           strikeData.isCall ? tokenDecimals.callToken : tokenDecimals.putToken,
@@ -301,6 +328,8 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
       );
     }
   }, [
+    commonSetInputAmount,
+    editAllMode,
     isTrade,
     strikeData.isCall,
     strikeData.amount1,
@@ -348,7 +377,7 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
         <div className="flex items-center justify-center space-x-[4px] bg-mineshaft h-[30px] w-[100px] rounded-md flex-[0.375]">
           <span className="text-stieglitz text-[13px]">$</span>
           <span className="text-[13px]">
-            {formatValue(strikeData.strike ?? 0)}
+            {formatAmount(strikeData.strike, 5)}
           </span>
         </div>
         <div
@@ -358,16 +387,22 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
           )}
         >
           <input
+            disabled={disabledInput}
             onChange={(event: any) => {
-              setInputAmount(event.target.value);
+              const handleInputChange = editAllMode
+                ? commonSetInputAmount
+                : setInputAmount;
+
+              handleInputChange(event.target.value);
             }}
-            value={inputAmount}
+            value={editAllMode ? commonInputAmount : inputAmount}
             type="number"
             min="0"
             placeholder={`0.0 ${strikeData.tokenSymbol}`}
-            className={
-              'w-full text-[13px] text-left text-white bg-umbra focus:outline-none focus:border-mineshaft rounded-md placeholder-mineshaft'
-            }
+            className={cx(
+              'w-full text-[13px] text-left bg-umbra focus:outline-none focus:border-mineshaft rounded-md placeholder-mineshaft',
+              disabledInput ? 'text-stieglitz' : 'text-white',
+            )}
           />
           <img
             onClick={handleMax}
@@ -378,7 +413,9 @@ const SelectedStrikeItem = ({ strikeData, strikeIndex }: Props) => {
           />
         </div>
       </div>
-      <span className="w-full text-right text-xs text-down-bad">{error}</span>
+      <span className="w-full text-right text-[11.6px] text-down-bad p-[1px]">
+        {error}
+      </span>
     </div>
   );
 };

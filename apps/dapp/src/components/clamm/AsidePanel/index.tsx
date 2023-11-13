@@ -61,13 +61,29 @@ const AsidePanel = () => {
   }, [updateTokenBalances]);
 
   return (
-    <div className="w-full bg-cod-gray p-[12px] rounded-lg space-y-[4px] sticky top-0">
-      <TradeSideSelector />
-      {isTrade && <TTLSelector />}
-      <StrikesSection />
-      <CostSummary />
-      {isTrade && <AutoExercisers />}
-      <InfoPanel updateTokenBalances={updateTokenBalances} />
+    <div className="sticky top-0 flex flex-col items-center justify-center w-full space-y-[12px]">
+      <div className="w-full bg-cod-gray p-[12px] rounded-lg space-y-[4px]">
+        <TradeSideSelector />
+        {isTrade && <TTLSelector />}
+        <StrikesSection />
+        <CostSummary />
+        {isTrade && <AutoExercisers />}
+        <InfoPanel updateTokenBalances={updateTokenBalances} />
+      </div>
+      <div className="flex flex-col bg-umbra rounded-md space-y-2 p-3">
+        <span className="flex w-full justify-between">
+          <h6 className="flex items-center justify-center space-x-[4px] text-xs">
+            <img src="/images/tokens/arb.svg" alt="ARB" className="h-[14px]" />
+            <span>ARB STIP rewards</span>
+          </h6>
+        </span>
+        <p className="text-stieglitz text-xs">
+          <b className="text-up-only">600,000 ARB</b> in STIP rewards are
+          allocated for strikes in range of{' '}
+          <b className="text-white ">+/-2.5%</b> from spot price across all
+          option markets.
+        </p>
+      </div>
     </div>
   );
 };

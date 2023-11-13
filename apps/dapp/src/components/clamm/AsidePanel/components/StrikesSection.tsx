@@ -1,18 +1,73 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
+import { hexToBigInt } from 'viem';
 
+import { Switch } from '@dopex-io/ui';
+import { CheckCircleIcon, CheckIcon } from '@heroicons/react/20/solid';
 import cx from 'classnames';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 
+import generateStrikes from 'utils/clamm/generateStrikes';
 import { formatAmount } from 'utils/general';
 
 import SelectedStrikeItem from './SelectedStrikeItem';
 import StrikesList from './StrikesList';
 
 const StrikesSection = () => {
-  const { selectedStrikes } = useStrikesChainStore();
-  const { isTrade, tokenBalances } = useClammStore();
+  const { selectedStrikes, strikesChain } = useStrikesChainStore();
+  const { isTrade, tokenBalances, tick, selectedOptionsPool } = useClammStore();
+  const [editForAll, setEditForAll] = useState(true);
+  const [inputAmount, setInputAmount] = useState<string>('');
+
+  const handleEditForAll = () => {
+    setEditForAll((prev) => !prev);
+  };
+
+  const generatedStrikes = useMemo(() => {
+    if (!selectedOptionsPool) return [];
+    const { callToken, putToken } = selectedOptionsPool;
+
+    const token0IsCallToken =
+      hexToBigInt(callToken.address) < hexToBigInt(putToken.address);
+
+    const token0Precision =
+      10 ** (token0IsCallToken ? callToken.decimals : putToken.decimals);
+    const token1Precision =
+      10 ** (token0IsCallToken ? putToken.decimals : callToken.decimals);
+
+    return generateStrikes(
+      tick,
+      token0Precision,
+      token1Precision,
+      !token0IsCallToken,
+      15,
+    );
+  }, [tick, selectedOptionsPool]);
+
+  const putStrikes = useMemo(() => {
+    return isTrade
+      ? strikesChain.filter(({ type }) => type === 'put')
+      : generatedStrikes.filter(({ type }) => type === 'put');
+  }, [generatedStrikes, isTrade, strikesChain]);
+
+  const callStrikes = useMemo(() => {
+    return isTrade
+      ? strikesChain.filter(({ type }) => type === 'call')
+      : generatedStrikes.filter(({ type }) => type === 'call');
+  }, [generatedStrikes, isTrade, strikesChain]);
+
+  const selectedPutStrikesLength = useMemo(() => {
+    return Array.from(selectedStrikes).filter(
+      ([key, { isCall }]) => isCall === false,
+    ).length;
+  }, [selectedStrikes]);
+
+  const selectedCallStrikesLength = useMemo(() => {
+    return Array.from(selectedStrikes).filter(
+      ([key, { isCall }]) => isCall === true,
+    ).length;
+  }, [selectedStrikes]);
 
   return (
     <div
@@ -23,18 +78,44 @@ const StrikesSection = () => {
     >
       <span className="flex w-full items-center justify-between text-stieglitz px-[12px] pt-[12px] font-medium text-[13px]">
         <span>Strikes</span>
-        <span>Amount</span>
+        {isTrade ? (
+          <span>Options amount</span>
+        ) : (
+          <span className="flex items-center justify-center space-x-2">
+            <span>Edit amounts for all</span>
+            <Switch
+              checked={editForAll}
+              color="primary"
+              onChange={handleEditForAll}
+            />
+          </span>
+        )}
       </span>
       <div className="flex flex-col w-full space-y-[10px] px-[12px]">
         {Array.from(selectedStrikes).map(([strikeIndex, strikeData], index) => (
           <SelectedStrikeItem
+            disabledInput={editForAll && index !== 0}
             key={index}
             strikeData={strikeData}
             strikeIndex={strikeIndex}
+            editAllMode={editForAll}
+            commonInputAmount={inputAmount}
+            commonSetInputAmount={setInputAmount}
           />
         ))}
       </div>
-      <StrikesList />
+      <div className="w-full flex">
+        <StrikesList
+          strikes={callStrikes}
+          isPut={false}
+          selectedLength={selectedCallStrikesLength}
+        />
+        <StrikesList
+          strikes={putStrikes}
+          isPut={true}
+          selectedLength={selectedPutStrikesLength}
+        />
+      </div>
       <div className="text-[13px] p-[13px] font-medium flex items-center justify-between">
         <span className="text-stieglitz">Balance</span>
         <span className="flex items-center justify-center space-x-[8px]">

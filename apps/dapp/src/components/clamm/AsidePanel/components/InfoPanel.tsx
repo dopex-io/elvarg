@@ -305,7 +305,6 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
           tokenBalances.callTokenSymbol.toLowerCase() &&
         approval.amount > tokenBalances.callToken
       ) {
-        console.log(approval.amount, tokenBalances.callToken);
         return {
           disabled: true,
           text: `${approval.tokenSymbol} amount exceeds balance`,
@@ -316,8 +315,6 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
           tokenBalances.putTokenSymbol.toLowerCase() &&
         approval.amount > tokenBalances.putToken
       ) {
-        console.log(approval.amount, tokenBalances.putToken);
-
         return {
           disabled: true,
           text: `${approval.tokenSymbol} amount exceeds balance`,

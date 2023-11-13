@@ -1,6 +1,6 @@
 import getPriceFromTick from 'utils/clamm/getPriceFromTick';
 
-type GenerateStrike = {
+export type GenerateStrike = {
   strike: number;
   tickLower: number;
   tickUpper: number;

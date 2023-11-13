@@ -7,7 +7,7 @@ import useClammStore from 'hooks/clamm/useClammStore';
 import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
 
 import bigintToReadable from 'utils/clamm/formatValue';
-import formatValue from 'utils/clamm/formatValue';
+import { formatAmount } from 'utils/general';
 
 const CostSummary = () => {
   const { isTrade } = useClammStore();
@@ -78,8 +78,8 @@ const CostSummary = () => {
       if (isTrade) {
         purchases.forEach(({ strike, premium, tokenDecimals, tokenSymbol }) => {
           _total.push({
-            strike: bigintToReadable(strike),
-            tokenAmount: bigintToReadable(premium, tokenDecimals),
+            strike: formatAmount(strike, 5),
+            tokenAmount: formatUnits(premium, tokenDecimals),
             tokenSymbol: tokenSymbol,
           });
         });
@@ -131,9 +131,7 @@ const CostSummary = () => {
                   key={index}
                   className="text-[13px] flex items-center justify-center space-x-[4px]"
                 >
-                  <span className="text-white">
-                    {Number(formatValue(amount))}
-                  </span>
+                  <span className="text-white">{formatAmount(amount, 6)}</span>
                   <span className="text-stieglitz">{symbol}</span>
                 </span>
               ))}
@@ -157,7 +155,7 @@ const CostSummary = () => {
                       className="text-[13px] flex items-center justify-center space-x-[4px]"
                     >
                       <span className="text-white">
-                        {Number(formatValue(amount))}
+                        {formatAmount(amount, 6)}
                       </span>
                       <span className="text-stieglitz">{symbol}</span>
                     </span>
