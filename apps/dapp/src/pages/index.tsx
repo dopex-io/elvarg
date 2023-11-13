@@ -2,9 +2,9 @@ import Head from 'next/head';
 
 import AppBar from 'components/common/AppBar';
 import Footer from 'components/common/Footer';
-import ClammCard from 'components/home/ClammCard';
-import RdpxV2Card from 'components/home/RdpxV2Card';
-import SsovCard from 'components/home/SsovCard';
+import ClammCard from 'components/home/Card/ClammCard';
+import RdpxV2Card from 'components/home/Card/RdpxV2Card';
+import SsovCard from 'components/home/Card/SsovCard';
 
 const Home = () => {
   return (
@@ -40,7 +40,7 @@ const Home = () => {
               <div className="gradient-bg-effect" />
             </div>
             <img
-              className="w-64 h-auto"
+              className="w-64 h-auto hidden lg:block"
               src="/images/brand/rdpx-v2.svg"
               alt="rdpx-v2"
             />
@@ -49,7 +49,7 @@ const Home = () => {
             <div className="mb-8 font-bold text-3xl lg:block flex justify-center">
               <span>Our Products</span>
             </div>
-            <div className="grid lg:grid-cols-2 grid-cols-1 gap-8">
+            <div className="grid lg:grid-cols-2 grid-cols-1 gap-8 justify-items-center">
               <ClammCard />
               <SsovCard />
               <RdpxV2Card />

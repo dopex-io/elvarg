@@ -30,9 +30,9 @@ const FooterLink: FC<{
 
 const Footer = () => {
   return (
-    <div className="flex flex-col m-auto md:flex-row mx-auto w-full py-24 bg-black bg-opacity-30">
-      <div className="mx-auto flex">
-        <div className="flex flex-col mb-6 md:mr-16">
+    <div className="flex w-full py-20 bg-black bg-opacity-30">
+      <div className="mx-auto flex flex-col md:flex-row">
+        <div className="flex flex-col mb-12 md:mr-16">
           <img
             src="/images/brand/logo.svg"
             alt="logo"
@@ -40,7 +40,7 @@ const Footer = () => {
           />
           <p>© Dopex 2023</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-28">
+        <div className="grid grid-cols-1 md:grid-cols-3 md:gap-24 gap-12">
           <div className="flex flex-col">
             <p className="text-lg mb-2 gradientText">Knowledge</p>
             <ul>

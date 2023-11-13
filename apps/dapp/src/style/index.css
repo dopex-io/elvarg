@@ -210,6 +210,7 @@ input[type='number'] {
 .tilting-card-wrapper {
   position: relative;
   height: 220px;
+  width: 496px;
 }
 
 .tilting-card-body {
