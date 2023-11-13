@@ -72,8 +72,13 @@ const columns = [
       <span className="flex flex-col items-left">
         <span className="flex items-center space-x-[4px] ">
           <span> {formatAmount(getValue().available, 5)}</span>
-          <span className="text-stieglitz">/</span>
-          <span>{formatAmount(getValue().total, 5)}</span>
+
+          {Number(getValue().total) > 0.00001 && (
+            <span className="text-stieglitz">/</span>
+          )}
+          {Number(getValue().total) > 0.00001 && (
+            <span>{formatAmount(getValue().total, 5)}</span>
+          )}
           <span className="text-stieglitz text-xs">{getValue().symbol}</span>
         </span>
         <span className="text-xs text-stieglitz">
@@ -229,7 +234,8 @@ const StrikesTable = () => {
                   ? deselectStrike(index)
                   : selectStrike(index, {
                       amount0: 0,
-                      amount1: optionsAvailable,
+                      amount1:
+                        Number(optionsAvailable) < 0 ? '0' : optionsAvailable,
                       isCall: type === 'call' ? true : false,
                       strike: strike,
                       ttl: '24h',
@@ -246,7 +252,7 @@ const StrikesTable = () => {
             },
             sources,
             options: {
-              available: optionsAvailable,
+              available: Number(optionsAvailable) < 0 ? '0' : optionsAvailable,
               total: totalOptions,
               symbol: callToken.symbol,
               usd: liquidityAvailableUsd,
@@ -258,7 +264,8 @@ const StrikesTable = () => {
                   ? deselectStrike(index)
                   : selectStrike(index, {
                       amount0: 0,
-                      amount1: optionsAvailable,
+                      amount1:
+                        Number(optionsAvailable) < 0 ? '0' : optionsAvailable,
                       isCall: type === 'call' ? true : false,
                       strike: strike,
                       ttl: '24h',
