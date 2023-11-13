@@ -43,12 +43,13 @@ export type StrikesChainAPIResponse = {
   type: string;
   strike: number;
   utilization: number;
-  earningsApy: number;
+  earningsApy: string;
   rewardsApy: number;
   liquidityUsd: string;
   liquidityAvailableUsd: string;
   liquidityInToken: string;
   liquidityAvailableInToken: string;
+  totalOptions: string;
   optionsAvailable: string;
   optionsAvailableInLiquidity: string;
   tokenSymbol: string;
