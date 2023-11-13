@@ -23,13 +23,12 @@ import { DECIMALS_TOKEN } from 'constants/index';
 import { DOPEX_RDPX_V2_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
 interface LiquidityBarGraphProps {
-  data: any[];
   width: number;
   height: number;
 }
 
 const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
-  const { /*data,*/ height } = props;
+  const { height } = props;
 
   const [data, setData] = useState<
     {
