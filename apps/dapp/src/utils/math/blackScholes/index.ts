@@ -57,7 +57,7 @@ function _doubleFactorial(n) {
  * @param   {Number} k       Strike price
  * @param   {Number} t       Time to experiation in years
  * @param   {Number} v       Volatility as a decimal
- * @param   {Number} r       Anual risk-free interest rate as a decimal
+ * @param   {Number} r       Annual risk-free interest rate as a decimal
  * @param   {String} callPut The type of option to be priced - "call" or "put"
  * @returns {Number}         Price of the option
  */
@@ -92,7 +92,7 @@ export function blackScholes(
  * @param   {Number} k Strike price
  * @param   {Number} t Time to experiation in years
  * @param   {Number} v Volatility as a decimal
- * @param   {Number} r Anual risk-free interest rate as a decimal
+ * @param   {Number} r Annual risk-free interest rate as a decimal
  * @returns {Number} The value of omega
  */
 export function getW(
