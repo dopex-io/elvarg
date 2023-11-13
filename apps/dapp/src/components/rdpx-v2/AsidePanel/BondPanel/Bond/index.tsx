@@ -82,6 +82,7 @@ const Bond = () => {
   const { squeezeDelegatesResult } = useSqueezeDelegatedWeth({
     user: account || '0x',
     collateralRequired: inputAmountBreakdown[1], // WETH required
+    bonds: amount,
   });
   const { write: approveRdpx, isSuccess: approveRdpxSuccess } =
     useContractWrite({
@@ -110,7 +111,7 @@ const Bond = () => {
       functionName: 'bondWithDelegate',
       args: [
         account || '0x',
-        squeezeDelegatesResult.amounts,
+        squeezeDelegatesResult.bondBreakdown,
         squeezeDelegatesResult.ids,
         0n,
       ],
