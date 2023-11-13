@@ -132,7 +132,7 @@ const CostSummary = () => {
                   className="text-[13px] flex items-center justify-center space-x-[4px]"
                 >
                   <span className="text-white">
-                    {Math.round(Number(formatValue(amount)))}
+                    {Number(formatValue(amount))}
                   </span>
                   <span className="text-stieglitz">{symbol}</span>
                 </span>
@@ -157,7 +157,7 @@ const CostSummary = () => {
                       className="text-[13px] flex items-center justify-center space-x-[4px]"
                     >
                       <span className="text-white">
-                        {Math.round(Number(formatValue(amount)))}
+                        {Number(formatValue(amount))}
                       </span>
                       <span className="text-stieglitz">{symbol}</span>
                     </span>

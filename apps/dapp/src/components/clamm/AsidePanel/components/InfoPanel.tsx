@@ -345,8 +345,6 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     handlePurchase,
   ]);
 
-  console.log(buttonProps);
-
   useEffect(() => {
     checkApproved();
   }, [checkApproved, deposits]);
