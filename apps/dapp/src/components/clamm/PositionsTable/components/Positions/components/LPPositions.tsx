@@ -18,7 +18,7 @@ import wagmiConfig from 'wagmi-config';
 
 import TableLayout from 'components/common/TableLayout';
 
-import formatValue from 'utils/clamm/formatValue';
+import { formatAmount } from 'utils/general';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
@@ -84,13 +84,13 @@ const columns = [
         <div className="flex flex-col items-start justify-center">
           {Number(callTokenAmount) !== 0 && (
             <span>
-              {formatValue(callTokenAmount)}{' '}
+              {formatAmount(callTokenAmount, 5)}{' '}
               <span className="text-stieglitz">{callTokenSymbol}</span>
             </span>
           )}
           {Number(putTokenAmount) !== 0 && (
             <span>
-              {formatValue(putTokenAmount)}{' '}
+              {formatAmount(putTokenAmount, 5)}{' '}
               <span className="text-stieglitz">{putTokenSymbol}</span>
             </span>
           )}
@@ -110,11 +110,11 @@ const columns = [
       return (
         <div className="flex flex-col items-start justify-center">
           <span>
-            {formatValue(callTokenAmount)}{' '}
+            {formatAmount(callTokenAmount, 5)}{' '}
             <span className="text-stieglitz">{callTokenSymbol}</span>
           </span>
           <span>
-            {formatValue(putTokenAmount)}{' '}
+            {formatAmount(putTokenAmount, 5)}{' '}
             <span className="text-stieglitz">{putTokenSymbol}</span>
           </span>
         </div>
@@ -133,11 +133,11 @@ const columns = [
       return (
         <div className="flex flex-col items-start justify-center">
           <span>
-            {formatValue(callTokenAmount)}{' '}
+            {formatAmount(callTokenAmount, 5)}{' '}
             <span className="text-stieglitz">{callTokenSymbol}</span>
           </span>
           <span>
-            {formatValue(putTokenAmount)}{' '}
+            {formatAmount(putTokenAmount, 5)}{' '}
             <span className="text-stieglitz">{putTokenSymbol}</span>
           </span>
         </div>

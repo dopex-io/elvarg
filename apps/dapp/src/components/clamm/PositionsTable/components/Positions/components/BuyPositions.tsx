@@ -18,9 +18,9 @@ import useClammStore from 'hooks/clamm/useClammStore';
 
 import TableLayout from 'components/common/TableLayout';
 
-import formatValue from 'utils/clamm/formatValue';
 import getExerciseTxData from 'utils/clamm/varrock/getExerciseTxData';
 import { OptionsPositionsResponse } from 'utils/clamm/varrock/types';
+import { formatAmount } from 'utils/general';
 import getPercentageDifference from 'utils/math/getPercentageDifference';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
@@ -75,14 +75,14 @@ const columns = [
       <div className="flex flex-col items-start justfiy-start">
         <div className="flex items-center justify-start space-x-[3px]">
           <span className="text-white">
-            {formatValue(info.getValue().amount)}
+            {formatAmount(info.getValue().amount, 5)}
           </span>
           <span className="text-stieglitz text-xs">
             {info.getValue().symbol}
           </span>
         </div>
         <span className="text-stieglitz text-xs">
-          $ {formatValue(info.getValue().usdValue)}
+          $ {formatAmount(info.getValue().usdValue, 5)}
         </span>
       </div>
     ),
@@ -117,14 +117,14 @@ const columns = [
         <div className="flex flex-col items-start justfiy-start">
           <div className="flex items-center justify-start space-x-[3px]">
             <span className="text-white">
-              {formatValue(info.getValue().amount)}
+              {formatAmount(info.getValue().amount, 5)}
             </span>
             <span className="text-stieglitz text-xs">
               {info.getValue().symbol}
             </span>
           </div>
           <span className="text-stieglitz text-xs">
-            $ {formatValue(info.getValue().usdValue)}
+            $ {formatAmount(info.getValue().usdValue, 5)}
           </span>
         </div>
       );
@@ -141,12 +141,12 @@ const columns = [
           <span className="flex space-x-[3px] items-center">
             <span className={amountInNumber > 0 ? 'text-up-only' : 'stieglitz'}>
               {amountInNumber > 0 && '+'}
-              {formatValue(amountInNumber)}
+              {formatAmount(amountInNumber, 5)}
             </span>
             <span className="text-stieglitz text-xs">{symbol}</span>
           </span>
           <span className="text-stieglitz text-xs">
-            $ {formatValue(usdValue)}
+            $ {formatAmount(usdValue, 5)}
           </span>
         </div>
       );
@@ -324,7 +324,7 @@ const BuyPositions = ({
             handleExercise: async () => {
               await handleExercise(String(meta.tokenId));
             },
-            disabled: formatValue(readableProfit) === '0',
+            disabled: formatAmount(readableProfit) === '0, 5',
           },
         };
       },

@@ -1,12 +1,11 @@
 import React, { useMemo } from 'react';
-import { formatUnits } from 'viem';
+import { formatUnits, parseUnits } from 'viem';
 
 import cx from 'classnames';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
 
-import bigintToReadable from 'utils/clamm/formatValue';
 import { formatAmount } from 'utils/general';
 
 const CostSummary = () => {
@@ -32,7 +31,7 @@ const CostSummary = () => {
     if (deposits.size > 0) {
       deposits.forEach(({ amount, tokenSymbol, tokenDecimals }) => {
         const curr = _total.get(tokenSymbol);
-        const amountInNumber = Number(bigintToReadable(amount, tokenDecimals));
+        const amountInNumber = Number(formatUnits(amount, tokenDecimals));
         if (curr) {
           _total.set(tokenSymbol, curr + amountInNumber);
           return _total;
@@ -86,8 +85,8 @@ const CostSummary = () => {
       } else {
         deposits.forEach(({ strike, amount, tokenDecimals, tokenSymbol }) => {
           _total.push({
-            strike: bigintToReadable(strike),
-            tokenAmount: bigintToReadable(amount, tokenDecimals),
+            strike: formatAmount(strike, 5),
+            tokenAmount: formatUnits(amount, tokenDecimals),
             tokenSymbol: tokenSymbol,
           });
         });

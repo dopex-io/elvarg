@@ -13,7 +13,6 @@ import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 
 import TableLayout from 'components/common/TableLayout';
 
-import formatValue from 'utils/clamm/formatValue';
 import getStrikesChain from 'utils/clamm/varrock/getStrikesChain';
 import { formatAmount } from 'utils/general';
 
@@ -91,7 +90,7 @@ const columns = [
     header: 'Fees APR',
     cell: (info) => (
       <span className="flex space-x-1 text-left items-center">
-        <span>{formatValue(info.getValue())}</span>
+        <span>{formatAmount(info.getValue(), 5)}</span>
         <span className="text-stieglitz">%</span>
       </span>
     ),

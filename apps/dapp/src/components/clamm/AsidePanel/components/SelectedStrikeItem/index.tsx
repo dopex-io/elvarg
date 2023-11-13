@@ -33,7 +33,6 @@ import useStrikesChainStore, {
   SelectedStrike,
 } from 'hooks/clamm/useStrikesChainStore';
 
-import formatValue from 'utils/clamm/formatValue';
 import getPriceFromTick from 'utils/clamm/getPriceFromTick';
 import {
   getLiquidityForAmount0,

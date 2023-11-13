@@ -5,7 +5,6 @@ import { useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 
-import formatValue from 'utils/clamm/formatValue';
 import getMarkPrice from 'utils/clamm/varrock/getMarkPrice';
 import getStats from 'utils/clamm/varrock/getStats';
 import { formatAmount } from 'utils/general';
@@ -67,7 +66,7 @@ const OverViewStats = () => {
       <div className="flex flex-col">
         <h6 className="flex text-xs sm:text-sm md:text-md font-medium text-white items-center space-x-2">
           <span className="text-stieglitz">$</span>
-          <span>{formatValue(markPrice)}</span>
+          <span>{formatAmount(markPrice, 5)}</span>
         </h6>
         <h6 className="text-xs sm:text-sm md:text-md font-medium text-stieglitz">
           Mark Price
