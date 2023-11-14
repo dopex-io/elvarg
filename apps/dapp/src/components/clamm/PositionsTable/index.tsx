@@ -103,7 +103,7 @@ const PositionsTable = () => {
   useEffect(() => {
     setLoading((prev) => ({ ...prev, lpPositions: true }));
     updateLPPositions().finally(() =>
-      setLoading((prev) => ({ ...prev, buyPositions: false })),
+      setLoading((prev) => ({ ...prev, lpPositions: false })),
     );
   }, [updateLPPositions]);
 
