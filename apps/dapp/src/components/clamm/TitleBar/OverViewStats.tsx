@@ -29,7 +29,6 @@ type Stats = {
 };
 
 const OverViewStats = () => {
-  const { chain } = useNetwork();
   const { selectedOptionsPool, markPrice, setMarkPrice, setTick } =
     useClammStore();
   const [stats, setStats] = useState<Stats>({
@@ -69,19 +68,19 @@ const OverViewStats = () => {
   }, [selectedOptionsPool, setMarkPrice, setTick]);
 
   const updateStats = useCallback(async () => {
-    if (!selectedOptionsPool || !chain) return;
+    if (!selectedOptionsPool) return;
 
     await getStats(selectedOptionsPool.optionsPoolAddress).then((data) =>
       setStats((prev) => ({ ...prev, ...data })),
     );
-  }, [chain, selectedOptionsPool]);
+  }, [selectedOptionsPool]);
 
   useEffect(() => {
     updateStats();
   }, [updateStats]);
 
   useEffect(() => {
-    if (!selectedOptionsPool || !chain) return;
+    if (!selectedOptionsPool) return;
 
     if (stats.invoked) {
       const interval = setInterval(async () => updateStats(), 15000);
@@ -89,7 +88,7 @@ const OverViewStats = () => {
     } else {
       updateStats();
     }
-  }, [chain, selectedOptionsPool, stats.invoked, updateStats]);
+  }, [selectedOptionsPool, stats.invoked, updateStats]);
 
   return (
     <div className="flex space-x-[24px] md:w-fit w-full justify-between md:justify-center flex-wrap md:pt-[4px]">
