@@ -189,8 +189,9 @@ const StrikesTable = () => {
   useEffect(() => {
     setLoading(true);
     setUpdateStrikes(loadStrikes);
-    loadStrikes();
-    setLoading(false);
+    loadStrikes().finally(() => {
+      setLoading(false);
+    });
   }, [loadStrikes, setUpdateStrikes]);
 
   const strikes = useMemo(() => {
