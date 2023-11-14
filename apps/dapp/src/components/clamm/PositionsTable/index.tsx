@@ -95,17 +95,12 @@ const PositionsTable = () => {
   }, [chain, selectedOptionsPool, userAddress]);
 
   useEffect(() => {
-    const timeout = setTimeout(() => setInitialLoading(false), 3000);
-    return () => clearTimeout(timeout);
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => updateBuyPositions(), 5000);
+    const interval = setInterval(() => updateBuyPositions(), 15000);
     return () => clearInterval(interval);
   }, [updateBuyPositions]);
 
   useEffect(() => {
-    const interval = setInterval(() => updateLPPositions(), 5000);
+    const interval = setInterval(() => updateLPPositions(), 15000);
     return () => clearInterval(interval);
   }, [updateLPPositions]);
 
