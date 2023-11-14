@@ -43,7 +43,7 @@ const OverViewStats = () => {
         },
         () => {},
       );
-    }, 2000);
+    }, 10000);
 
     return () => clearInterval(interval);
   }, [selectedOptionsPool, setMarkPrice, setTick]);
@@ -56,7 +56,7 @@ const OverViewStats = () => {
       );
 
       return () => clearInterval(interval);
-    }, 5000);
+    }, 60000);
 
     return () => clearInterval(interval);
   }, [chain, selectedOptionsPool]);
