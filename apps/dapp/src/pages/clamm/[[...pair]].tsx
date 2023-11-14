@@ -18,6 +18,7 @@ import PageLayout from 'components/common/PageLayout';
 import getAddresses from 'utils/clamm/varrock/getAddresses';
 import getOptionsPools from 'utils/clamm/varrock/getOptionsPools';
 
+import { DEFAULT_CHAIN_ID } from 'constants/env';
 import seo from 'constants/seo';
 
 const Page = () => {
@@ -26,11 +27,13 @@ const Page = () => {
   const { chain } = useNetwork();
 
   useEffect(() => {
-    if (!chain) return;
-
-    getOptionsPools(chain.id, initialize, (error: string) => {
-      console.error(error);
-    });
+    getOptionsPools(
+      chain?.id ?? DEFAULT_CHAIN_ID,
+      initialize,
+      (error: string) => {
+        console.error(error);
+      },
+    );
   }, [chain, initialize]);
 
   useEffect(() => {
