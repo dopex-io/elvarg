@@ -95,6 +95,7 @@ const PositionsTable = () => {
   }, [chain, selectedOptionsPool, userAddress]);
 
   useEffect(() => {
+    setLoading((prev) => ({ ...prev, buyPositions: true }));
     updateBuyPositions().finally(() =>
       setLoading((prev) => ({ ...prev, buyPositions: false })),
     );
