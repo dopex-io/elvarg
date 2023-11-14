@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import toast from 'react-hot-toast';
 import { useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
@@ -9,11 +8,31 @@ import getMarkPrice from 'utils/clamm/varrock/getMarkPrice';
 import getStats from 'utils/clamm/varrock/getStats';
 import { formatAmount } from 'utils/general';
 
+type Stats = {
+  openInterest: {
+    openInterest: string;
+    symbol: string;
+  };
+  tvl: {
+    tvl: string;
+    symbol: string;
+  };
+  volume: {
+    volume: string;
+    symbol: string;
+  };
+  fees: {
+    fees: string;
+    symbol: string;
+  };
+  invoked: false;
+};
+
 const OverViewStats = () => {
   const { chain } = useNetwork();
   const { selectedOptionsPool, markPrice, setMarkPrice, setTick } =
     useClammStore();
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<Stats>({
     openInterest: {
       openInterest: '0',
       symbol: '$',
@@ -30,6 +49,7 @@ const OverViewStats = () => {
       fees: '0',
       symbol: '$',
     },
+    invoked: false,
   });
 
   useEffect(() => {
@@ -48,18 +68,28 @@ const OverViewStats = () => {
     return () => clearInterval(interval);
   }, [selectedOptionsPool, setMarkPrice, setTick]);
 
+  const updateStats = useCallback(async () => {
+    if (!selectedOptionsPool || !chain) return;
+
+    await getStats(selectedOptionsPool.optionsPoolAddress).then((data) =>
+      setStats((prev) => ({ ...prev, ...data })),
+    );
+  }, [chain, selectedOptionsPool]);
+
+  useEffect(() => {
+    updateStats();
+  }, [updateStats]);
+
   useEffect(() => {
     if (!selectedOptionsPool || !chain) return;
-    const interval = setInterval(() => {
-      getStats(selectedOptionsPool.optionsPoolAddress).then((data) =>
-        setStats(data),
-      );
 
+    if (stats.invoked) {
+      const interval = setInterval(async () => updateStats(), 15000);
       return () => clearInterval(interval);
-    }, 60000);
-
-    return () => clearInterval(interval);
-  }, [chain, selectedOptionsPool]);
+    } else {
+      updateStats();
+    }
+  }, [chain, selectedOptionsPool, stats.invoked, updateStats]);
 
   return (
     <div className="flex space-x-[24px] md:w-fit w-full justify-between md:justify-center flex-wrap md:pt-[4px]">
