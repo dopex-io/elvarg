@@ -1,19 +1,20 @@
-import Link from 'next/link';
-
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
+import { BigNumber } from 'ethers';
 
-import SearchIcon from '@mui/icons-material/Search';
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Input from '@mui/material/Input';
+
+import SearchIcon from '@mui/icons-material/Search';
+
 import cx from 'classnames';
+
 import { useBoundStore } from 'store';
 
+import Filter from 'components/common/Filter';
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
-import Filter from 'components/common/Filter';
-import SignerButton from 'components/common/SignerButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -86,6 +87,28 @@ const headerCells: { [key: string]: { span: number; title: string }[] } = {
       title: 'Action',
     },
   ],
+  CLAMM: [
+    {
+      span: 2,
+      title: 'Vault',
+    },
+    {
+      span: 2,
+      title: 'Market',
+    },
+    {
+      span: 2,
+      title: 'Amount',
+    },
+    {
+      span: 2,
+      title: 'Strike',
+    },
+    {
+      span: 2,
+      title: 'Action',
+    },
+  ],
 };
 
 export default function Positions() {
@@ -109,7 +132,7 @@ export default function Positions() {
         if (!selectedSides.includes(position.isPut ? 'PUT' : 'CALL'))
           toAdd = false;
         if (toAdd) _positions.push(position);
-      }
+      },
     );
     return _positions;
   }, [portfolioData, searchText, selectedSides]);
@@ -131,18 +154,34 @@ export default function Positions() {
         )
           toAdd = false;
         if (toAdd) _positions.push(position);
-      }
+      },
+    );
+    return _positions;
+  }, [portfolioData, searchText]);
+
+  const filteredCLAMMBuyPositions = useMemo(() => {
+    const _positions: any[] = [];
+    portfolioData?.userCLAMMBuyPositions?.map(
+      (position: { market: string | string[] }) => {
+        let toAdd = true;
+        if (
+          !position.market?.includes(searchText.toUpperCase()) &&
+          searchText !== ''
+        )
+          toAdd = false;
+        if (toAdd) _positions.push(position);
+      },
     );
     return _positions;
   }, [portfolioData, searchText]);
 
   return (
-    <Box>
-      <Box className="mt-9 ml-5 mr-5">
+    <div>
+      <div className="mt-9 ml-5 mr-5">
         <Typography variant="h4">Open Positions</Typography>
-        <Box className="bg-cod-gray mt-3 rounded-md text-center px-2 overflow-auto md:overflow-hidden">
-          <Box className="flex py-3 px-3 border-b-[1.5px] border-umbra">
-            <Box className="mr-3 mt-0.5">
+        <div className="bg-cod-gray mt-3 rounded-md text-center px-2 overflow-auto md:overflow-hidden">
+          <div className="flex py-3 px-3 border-b-[1.5px] border-umbra">
+            <div className="mr-3 mt-0.5">
               <Filter
                 activeFilters={selectedSides}
                 setActiveFilters={setSelectedSides}
@@ -151,8 +190,8 @@ export default function Positions() {
                 multiple={true}
                 showImages={false}
               />
-            </Box>
-            <Box className="ml-auto">
+            </div>
+            <div className="ml-auto">
               <Input
                 value={searchText}
                 onChange={(e) => setSearchText(String(e.target.value))}
@@ -162,25 +201,24 @@ export default function Positions() {
                 classes={{ input: 'text-right' }}
                 placeholder="Type something"
                 startAdornment={
-                  <Box className="mr-1.5 mt-1 opacity-80 w-18">
+                  <div className="mr-1.5 mt-1 opacity-80 w-18">
                     <SearchIcon />
-                  </Box>
+                  </div>
                 }
               />
-            </Box>
-          </Box>
+            </div>
+          </div>
           {loadingState > 0 ? (
             loadingState === 1 ? (
-              <Box className="flex">
+              <div className="flex">
                 <CircularProgress className="text-stieglitz p-2 my-8 mx-auto" />
-              </Box>
-            ) : (
-              <SignerButton className="my-4">Connect Wallet</SignerButton>
-            )
+              </div>
+            ) : null
           ) : filteredSSOVPositions.length === 0 &&
-            filteredStraddlesPositions.length === 0 ? (
-            <Box className="flex-col p-9 md:min-w-full min-w-[1500px]">
-              <Box className="mx-auto">You do not have any positions</Box>
+            filteredStraddlesPositions.length === 0 &&
+            filteredCLAMMBuyPositions.length === 0 ? (
+            <div className="flex-col p-9 md:min-w-full min-w-[1500px]">
+              <div className="mx-auto">You do not have any positions</div>
               <Link href="/ssov">
                 <Button
                   className={
@@ -190,30 +228,26 @@ export default function Positions() {
                   Open SSOVs page
                 </Button>
               </Link>
-            </Box>
+            </div>
           ) : (
-            <Box className="py-2 md:min-w-full min-w-[1500px]">
+            <div className="py-2 md:min-w-full min-w-[1500px]">
               {filteredSSOVPositions.length > 0 ? (
-                <Box className="grid grid-cols-12 px-4 py-2" gap={0}>
+                <div className="grid grid-cols-12 px-4 py-2">
                   {headerCells['ssov']!.map((cell, i) => (
-                    <Box
+                    <div
                       key={i}
                       className={`col-span-${cell['span']} text-left`}
                     >
                       <Typography variant="h5">
                         <span className="text-stieglitz">{cell['title']}</span>
                       </Typography>
-                    </Box>
+                    </div>
                   ))}
-                </Box>
+                </div>
               ) : null}
               {filteredSSOVPositions.map((position, i) => (
-                <Box
-                  key={i}
-                  className="grid grid-cols-12 px-4 pt-2 pb-4"
-                  gap={0}
-                >
-                  <Box className="col-span-2 text-left flex">
+                <div key={i} className="grid grid-cols-12 px-4 pt-2 pb-4">
+                  <div className="col-span-2 text-left flex">
                     <img
                       src={`/images/tokens/${position.assetName.toLowerCase()}.svg`}
                       className="w-8 h-8 mr-2 object-cover"
@@ -224,13 +258,13 @@ export default function Positions() {
                         {position.assetName.toUpperCase()}
                       </span>
                     </Typography>
-                  </Box>
-                  <Box className="col-span-2 text-left flex">
+                  </div>
+                  <div className="col-span-2 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">{position.vaultType}</span>
                     </Typography>
-                  </Box>
-                  <Box className="col-span-1 text-left">
+                  </div>
+                  <div className="col-span-1 text-left">
                     <Typography variant="h5" className="mt-1">
                       <span
                         className={
@@ -240,30 +274,30 @@ export default function Positions() {
                         {position.isPut ? 'PUT' : 'CALL'}
                       </span>
                     </Typography>
-                  </Box>
-                  <Box className="col-span-1 text-left flex">
+                  </div>
+                  <div className="col-span-1 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">{position.epoch}</span>
                     </Typography>
-                  </Box>
-                  <Box className="col-span-1 text-left flex">
+                  </div>
+                  <div className="col-span-1 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
                         {getUserReadableAmount(position.strike, 8)}
                       </span>
                     </Typography>
-                  </Box>
-                  <Box className="col-span-1 text-left flex">
+                  </div>
+                  <div className="col-span-1 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
                         {formatAmount(
                           getUserReadableAmount(position.amount, 18),
-                          4
+                          4,
                         )}
                       </span>
                     </Typography>
-                  </Box>
-                  <Box className="col-span-1 text-left flex">
+                  </div>
+                  <div className="col-span-1 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
                         <Typography
@@ -282,14 +316,14 @@ export default function Positions() {
                         </Typography>
                       </span>
                     </Typography>
-                  </Box>
-                  <Box className="col-span-2 text-left flex">
+                  </div>
+                  <div className="col-span-2 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">{position.expiry}</span>
                     </Typography>
-                  </Box>
-                  <Box className="col-span-1">
-                    <Box className="flex">
+                  </div>
+                  <div className="col-span-1">
+                    <div className="flex">
                       <a
                         target="_blank"
                         rel="noreferrer"
@@ -305,39 +339,34 @@ export default function Positions() {
                           Open
                         </CustomButton>
                       </a>
-                    </Box>
-                  </Box>
-                </Box>
+                    </div>
+                  </div>
+                </div>
               ))}
               {filteredStraddlesPositions.length > 0 ? (
-                <Box
+                <div
                   className={cx(
                     'grid grid-cols-12 px-4 py-2',
                     filteredSSOVPositions.length > 0
                       ? 'border-t-[1.5px] pt-6 border-umbra'
-                      : ''
+                      : '',
                   )}
-                  gap={0}
                 >
                   {headerCells['straddle']!.map((cell, i) => (
-                    <Box
+                    <div
                       key={i}
                       className={`col-span-${cell['span']} text-left`}
                     >
                       <Typography variant="h5">
                         <span className="text-stieglitz">{cell['title']}</span>
                       </Typography>
-                    </Box>
+                    </div>
                   ))}
-                </Box>
+                </div>
               ) : null}
               {filteredStraddlesPositions.map((position, i) => (
-                <Box
-                  key={i}
-                  className={'grid grid-cols-12 px-4 pt-2 pb-4'}
-                  gap={0}
-                >
-                  <Box className="col-span-2 text-left flex">
+                <div key={i} className={'grid grid-cols-12 px-4 pt-2 pb-4'}>
+                  <div className="col-span-2 text-left flex">
                     <img
                       src={`/images/tokens/${position.assetName.toLowerCase()}.svg`}
                       className="w-8 h-8 mr-2 object-cover"
@@ -348,39 +377,39 @@ export default function Positions() {
                         {position.assetName.toUpperCase()}
                       </span>
                     </Typography>
-                  </Box>
-                  <Box className="col-span-2 text-left flex">
+                  </div>
+                  <div className="col-span-2 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">Straddle</span>
                     </Typography>
-                  </Box>
-                  <Box className="col-span-2 text-left flex">
+                  </div>
+                  <div className="col-span-2 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
                         {formatAmount(
                           getUserReadableAmount(position.amount, 18),
-                          2
+                          2,
                         )}
                       </span>
                     </Typography>
-                  </Box>
-                  <Box className="col-span-2 text-left flex">
+                  </div>
+                  <div className="col-span-2 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">
                         {formatAmount(
                           getUserReadableAmount(position.strikePrice, 8),
-                          2
+                          2,
                         )}
                       </span>
                     </Typography>
-                  </Box>
-                  <Box className="col-span-2 text-left flex">
+                  </div>
+                  <div className="col-span-2 text-left flex">
                     <Typography variant="h5" className="mt-1">
                       <span className="text-white">{position.epoch}</span>
                     </Typography>
-                  </Box>
-                  <Box className="col-span-1">
-                    <Box className="flex">
+                  </div>
+                  <div className="col-span-1">
+                    <div className="flex">
                       <a target="_blank" rel="noreferrer" href={position.link}>
                         <CustomButton
                           size="medium"
@@ -390,14 +419,88 @@ export default function Positions() {
                           Open
                         </CustomButton>
                       </a>
-                    </Box>
-                  </Box>
-                </Box>
+                    </div>
+                  </div>
+                </div>
               ))}
-            </Box>
+              {filteredCLAMMBuyPositions.length > 0 ? (
+                <div
+                  className={cx(
+                    'grid grid-cols-12 px-4 py-2',
+                    filteredStraddlesPositions.length > 0
+                      ? 'border-t-[1.5px] pt-6 border-umbra'
+                      : '',
+                  )}
+                >
+                  {headerCells['CLAMM']!.map((cell, i) => (
+                    <div
+                      key={i}
+                      className={`col-span-${cell['span']} text-left`}
+                    >
+                      <Typography variant="h5">
+                        <span className="text-stieglitz">{cell['title']}</span>
+                      </Typography>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+              {filteredCLAMMBuyPositions.map((position, i) => (
+                <div key={i} className={'grid grid-cols-12 px-4 pt-2 pb-4'}>
+                  <div className="col-span-2 text-left flex">
+                    <img
+                      src={`/images/tokens/${position.assetName.toLowerCase()}.svg`}
+                      className="w-8 h-8 mr-2 object-cover"
+                      alt={position.market}
+                    />
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">
+                        {position.market.toUpperCase()}
+                      </span>
+                    </Typography>
+                  </div>
+                  <div className="col-span-2 text-left flex">
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">CLAMM LP</span>
+                    </Typography>
+                  </div>
+                  <div className="col-span-2 text-left flex">
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">{position.side}</span>
+                    </Typography>
+                  </div>
+                  <div className="col-span-2 text-left flex">
+                    <Typography variant="h5" className="mt-1">
+                      <span className="text-white">
+                        {formatAmount(position.strike, 2)}
+                      </span>
+                    </Typography>
+                  </div>
+                  <div className="col-span-2 text-left">
+                    <a
+                      target="_blank"
+                      rel="noreferrer"
+                      href={
+                        '/clamm/' +
+                        position.token0Symbol +
+                        '-' +
+                        position.token1Symbol
+                      }
+                    >
+                      <CustomButton
+                        size="medium"
+                        className="px-2"
+                        color="primary"
+                      >
+                        Open
+                      </CustomButton>
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
-        </Box>
-      </Box>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 }

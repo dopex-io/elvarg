@@ -8,6 +8,7 @@ import {
   ERC20__factory,
   SsovV3__factory,
 } from '@dopex-io/sdk';
+import axios from 'axios';
 import format from 'date-fns/format';
 import request from 'graphql-request';
 import { arbitrum, polygon } from 'wagmi/chains';
@@ -22,11 +23,14 @@ import { getStraddlesUserDataDocument } from 'graphql/straddles';
 import { AssetsSlice } from 'store/Assets';
 import { WalletSlice } from 'store/Wallet';
 
+import getOptionsPools, {
+  OptionsPoolsAPIResponse,
+} from 'utils/clamm/varrock/getOptionsPools';
 import getLinkFromVaultName from 'utils/contracts/getLinkFromVaultName';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { CHAINS } from 'constants/chains';
-import { DEFAULT_CHAIN_ID } from 'constants/env';
+import { DEFAULT_CHAIN_ID, VARROCK_BASE_API_URL } from 'constants/env';
 import {
   DOPEX_POLYGON_SSOV_SUBGRAPH_API_URL,
   DOPEX_POLYGON_STRADDLE_SUBGRAPH_API_URL,
@@ -92,6 +96,8 @@ export interface PortfolioData {
   userSSOVDeposits: UserSSOVDeposit[];
   userStraddlesPositions: UserStraddlesPosition[];
   userStraddlesDeposits: UserStraddlesDeposit[];
+  userCLAMMLpPositions: any[];
+  userCLAMMBuyPositions: any[];
   isLoading: boolean;
 }
 
@@ -105,6 +111,8 @@ const initialPortfolioData = {
   userSSOVDeposits: [],
   userStraddlesPositions: [],
   userStraddlesDeposits: [],
+  userCLAMMLpPositions: [],
+  userCLAMMBuyPositions: [],
   isLoading: true,
 };
 
@@ -137,7 +145,7 @@ export const createPortfolioSlice: StateCreator<
 > = (set, get) => ({
   portfolioData: initialPortfolioData,
   updatePortfolioData: async () => {
-    const { accountAddress } = get();
+    const { accountAddress, chainId } = get();
 
     const polygonContractAddresses = Addresses[polygon.id]['SSOV-V3']['VAULTS'];
     const arbContractAddresses = Addresses[arbitrum.id]['SSOV-V3']['VAULTS'];
@@ -456,6 +464,89 @@ export const createPortfolioSlice: StateCreator<
       return ssovPositions;
     }
 
+    const updateCLAMMLpPositions = async (optionsPoolAddresses: string[]) => {
+      let positions: any[] = [];
+
+      for (let j in optionsPoolAddresses) {
+        await axios
+          .get(`${VARROCK_BASE_API_URL}/clamm/positions/deposit`, {
+            params: {
+              chainId,
+              user: accountAddress,
+              optionMarket: optionsPoolAddresses[j],
+              first: 1000,
+              skip: 0,
+            },
+          })
+          .then(({ data }) => {
+            for (let i in data) {
+              data[i]['assetName'] = data[i]['token0Symbol'];
+              data[i]['market'] =
+                data[i]['token0Symbol'] + data[i]['token1Symbol'];
+              positions.push(data[i]);
+            }
+          });
+      }
+
+      return positions;
+    };
+
+    const updateCLAMMBuyPositions = async (optionsPoolAddresses: string[]) => {
+      let buys: any[] = [];
+
+      for (let j in optionsPoolAddresses) {
+        await axios
+          .get(`${VARROCK_BASE_API_URL}/clamm/positions/purchase`, {
+            params: {
+              account: accountAddress,
+              optionMarket: optionsPoolAddresses[j],
+            },
+          })
+          .then(({ data }) => {
+            for (let i in data) {
+              console.log(data);
+
+              if (data[i]['side'] === 'put') {
+                data[i]['token0Symbol'] = data[i]['profit']['symbol'];
+                data[i]['token1Symbol'] = data[i]['premium']['symbol'];
+              } else {
+                data[i]['token1Symbol'] = data[i]['profit']['symbol'];
+                data[i]['token0Symbol'] = data[i]['premium']['symbol'];
+              }
+              data[i]['assetName'] = data[i]['token0Symbol'];
+              data[i]['market'] =
+                data[i]['token0Symbol'] + data[i]['token1Symbol'];
+
+              console.log('push');
+
+              buys.push(data[i]);
+            }
+          })
+          .catch((e) => console.log(e));
+      }
+
+      return buys;
+    };
+
+    let userCLAMMLpPositions: any[] = [];
+    let userCLAMMBuyPositions: any[] = [];
+
+    await getOptionsPools(
+      chainId,
+      async (initialData: OptionsPoolsAPIResponse) => {
+        const _optionsPoolAddresses: string[] = [];
+        initialData.forEach((record) => {
+          _optionsPoolAddresses.push(record['optionsPoolAddress']);
+        });
+        userCLAMMLpPositions = await updateCLAMMLpPositions(
+          _optionsPoolAddresses,
+        );
+        userCLAMMBuyPositions = await updateCLAMMBuyPositions(
+          _optionsPoolAddresses,
+        );
+      },
+    );
+
     const [ssovDeposits, ssovDepositsPolygon] = await Promise.all([
       getSSOVDeposits(data),
       getSSOVDeposits(dataPolygon),
@@ -560,6 +651,8 @@ export const createPortfolioSlice: StateCreator<
         userStraddlesPositions: straddlesPositionsArb.concat(
           straddlesPositionsPolygon,
         ),
+        userCLAMMLpPositions: userCLAMMLpPositions,
+        userCLAMMBuyPositions: userCLAMMBuyPositions,
         isLoading: false,
       },
     }));
