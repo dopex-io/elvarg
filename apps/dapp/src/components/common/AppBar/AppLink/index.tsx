@@ -9,7 +9,7 @@ interface AppLinkProps {
 
 const AppLink = ({ name, to, children }: AppLinkProps) => {
   const linkClassName =
-    'text-stieglitz hover:no-underline hover:text-white cursor-pointer';
+    'text-white hover:no-underline hover:text-frost cursor-pointer';
 
   if (to.startsWith('http')) {
     return (

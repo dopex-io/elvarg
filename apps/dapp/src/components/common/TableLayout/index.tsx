@@ -33,8 +33,8 @@ const TableLayout = <T extends object>({
   columns,
   disclosure,
   rowSpacing = 1,
+  // pageSize = 100,
   isContentLoading = true,
-  pageSize = 5,
   fill = 'bg-cod-gray',
 }: Props<T>) => {
   const table = useReactTable({
@@ -42,12 +42,12 @@ const TableLayout = <T extends object>({
     data,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    initialState: {
-      pagination: {
-        pageSize: pageSize,
-      },
-    },
+    // getPaginationRowModel: getPaginationRowModel(),
+    // initialState: {
+    //   pagination: {
+    //     pageSize: pageSize,
+    //   },
+    // },
   });
 
   const {
@@ -63,17 +63,21 @@ const TableLayout = <T extends object>({
   } = table;
 
   if (isContentLoading)
-    return Array.from(Array(4)).map((_, index) => {
-      return (
-        <Skeleton
-          key={index}
-          width="fitContent"
-          height={70}
-          color="carbon"
-          variant="rounded"
-        />
-      );
-    });
+    return (
+      <div className="w-full h-fit p-[12px] space-y-[12px]">
+        {Array.from(Array(4)).map((_, index) => {
+          return (
+            <Skeleton
+              key={index}
+              width="fitContent"
+              height={50}
+              color="carbon"
+              variant="rounded"
+            />
+          );
+        })}
+      </div>
+    );
 
   return data.length > 0 ? (
     <div className={`${fill} rounded-lg`}>
@@ -101,7 +105,7 @@ const TableLayout = <T extends object>({
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                       </span>
                     </th>
@@ -110,7 +114,7 @@ const TableLayout = <T extends object>({
               </tr>
             ))}
           </thead>
-          <tbody className="max-h-32 overflow-y-auto divide-y divide-umbra">
+          <tbody className="max-h-32 overflow-y-auto divide-y divide-umbra rounded-md">
             {getRowModel().rows.map((row, index) => {
               return (
                 <Disclosure key={row.id}>
@@ -152,7 +156,7 @@ const TableLayout = <T extends object>({
           </tbody>
         </table>
       </div>
-      {data.length > getState().pagination.pageSize ? (
+      {/* {data.length > getState().pagination.pageSize ? (
         <div className="sticky flex flex-wrap justify-center sm:justify-end border-t border-umbra py-3 px-3 text-xs text-stieglitz space-x-3">
           <div className="flex space-x-2">
             <span className="flex my-auto text-center space-x-1">
@@ -218,7 +222,7 @@ const TableLayout = <T extends object>({
             </button>
           </div>
         </div>
-      ) : null}
+      ) : null} */}
     </div>
   ) : (
     <Placeholder />

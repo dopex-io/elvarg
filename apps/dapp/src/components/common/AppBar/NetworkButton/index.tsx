@@ -19,7 +19,7 @@ export default function NetworkButton({
   );
 
   return (
-    <Button className={className} color="carbon" onClick={handleOpen}>
+    <Button className={className} onClick={handleOpen}>
       <img
         src={CHAINS[chainId]?.icon}
         alt={CHAINS[chainId]?.name}

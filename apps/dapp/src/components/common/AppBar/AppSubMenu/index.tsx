@@ -27,7 +27,7 @@ const AppSubMenu = ({ menuName, links }: AppSubMenuProps) => {
       <div
         role="button"
         onClick={handleClick}
-        className="cursor-pointer text-stieglitz"
+        className="cursor-pointer text-white hover:text-frost"
       >
         {menuName}
       </div>

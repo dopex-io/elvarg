@@ -6,6 +6,9 @@ module.exports = {
       mono: ['JetBrains Mono', 'monospace'],
     },
     extend: {
+      screens: {
+        xs: '420px',
+      },
       colors: {
         primary: '#002EFF',
         silver: '#C4C4C4',
