@@ -57,10 +57,9 @@ export function ConnectButton({ className }: { className?: string }) {
       {address ? (
         <Button
           className={cx(
-            'text-white border-cod-gray flex items-center',
+            'text-white !bg-black !bg-opacity-30 flex items-center',
             className,
           )}
-          color="carbon"
           onClick={handleClick}
         >
           {data && <img src={data} className="w-5 mr-2" alt="ens avatar" />}
