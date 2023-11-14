@@ -87,18 +87,15 @@ const StrikesSection = () => {
     >
       <span className="flex w-full items-center justify-between text-stieglitz px-[12px] pt-[12px] font-medium text-[13px]">
         <span>Strikes</span>
-        {isTrade ? (
-          <span>Options amount</span>
-        ) : (
-          <span className="flex items-center justify-center space-x-2">
-            <span>Edit amounts for all</span>
-            <Switch
-              checked={editForAll}
-              color="primary"
-              onChange={handleEditForAll}
-            />
-          </span>
-        )}
+
+        <span className="flex items-center justify-center space-x-2">
+          <span>Edit amounts for all</span>
+          <Switch
+            checked={editForAll}
+            color="primary"
+            onChange={handleEditForAll}
+          />
+        </span>
       </span>
       <div className="flex flex-col w-full space-y-[10px] px-[12px]">
         {Array.from(selectedStrikes).map(([strikeIndex, strikeData], index) => (
