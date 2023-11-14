@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import toast from 'react-hot-toast';
 import { useAccount, useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
@@ -8,6 +7,8 @@ import useClammStore from 'hooks/clamm/useClammStore';
 import getBuyPositions from 'utils/clamm/varrock/getBuyPosition';
 import getLPPositions from 'utils/clamm/varrock/getLPPositions';
 import { OptionsPositionsResponse } from 'utils/clamm/varrock/types';
+
+import { DEFAULT_CHAIN_ID } from 'constants/env';
 
 import ActionButton from './components/Positions/components/ActionButton';
 import BuyPositions from './components/Positions/components/BuyPositions';
@@ -27,10 +28,9 @@ const PositionsTable = () => {
     new Map(),
   );
   const [loading, setLoading] = useState({
-    buyPositions: true,
-    lpPositions: true,
+    buyPositions: false,
+    lpPositions: false,
   });
-  const [initialLoad, setInitialLoading] = useState(true);
 
   const selectPosition = (key: number, positionInfo: any) => {
     setSelectedPositions((prev) => new Map(prev.set(key, positionInfo)));
@@ -53,7 +53,7 @@ const PositionsTable = () => {
   };
 
   const updateBuyPositions = useCallback(async () => {
-    if (!chain || !userAddress || !selectedOptionsPool) return;
+    if (!userAddress || !selectedOptionsPool) return;
     const { optionsPoolAddress } = selectedOptionsPool;
     await getBuyPositions(
       {
@@ -71,15 +71,16 @@ const PositionsTable = () => {
             ),
         );
       },
-      () => {},
+      (err) => {
+        console.error(err);
+      },
     );
-    setLoading((prev) => ({ ...prev, buyPositions: false }));
-  }, [chain, selectedOptionsPool, userAddress]);
+  }, [selectedOptionsPool, userAddress]);
 
   const updateLPPositions = useCallback(async () => {
-    if (!chain || !userAddress || !selectedOptionsPool) return;
+    if (!userAddress || !selectedOptionsPool) return;
     await getLPPositions(
-      chain.id,
+      chain?.id ?? DEFAULT_CHAIN_ID,
       userAddress,
       selectedOptionsPool.optionsPoolAddress,
       1000,
@@ -91,8 +92,21 @@ const PositionsTable = () => {
         console.error(err);
       },
     );
-    setLoading((prev) => ({ ...prev, lpPositions: false }));
   }, [chain, selectedOptionsPool, userAddress]);
+
+  useEffect(() => {
+    setLoading((prev) => ({ ...prev, buyPositions: true }));
+    updateBuyPositions().finally(() =>
+      setLoading((prev) => ({ ...prev, buyPositions: false })),
+    );
+  }, [updateBuyPositions]);
+
+  useEffect(() => {
+    setLoading((prev) => ({ ...prev, lpPositions: true }));
+    updateLPPositions().finally(() =>
+      setLoading((prev) => ({ ...prev, lpPositions: false })),
+    );
+  }, [updateLPPositions]);
 
   useEffect(() => {
     const interval = setInterval(() => updateBuyPositions(), 15000);
