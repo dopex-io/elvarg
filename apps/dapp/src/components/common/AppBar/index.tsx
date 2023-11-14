@@ -52,21 +52,14 @@ const appLinks: {
     { name: 'Sale', to: '/sale' },
   ],
   42161: [
-    { name: 'Portfolio', to: '/portfolio' },
-    { name: 'Stake', to: '/farms' },
-    {
-      name: 'Governance',
-      subLinks: [
-        {
-          name: 'veDPX',
-          to: '/governance/vedpx',
-          description: 'Lock DPX to earn protocol fees & yield',
-        },
-      ],
-    },
     {
       name: 'Options',
       subLinks: [
+        {
+          name: 'CLAMM',
+          to: '/clamm/WETH-USDC',
+          description: 'American Options powered by CLAMMs',
+        },
         {
           name: 'SSOV',
           to: '/ssov',
@@ -84,18 +77,15 @@ const appLinks: {
         },
       ],
     },
+    { name: 'Portfolio', to: '/portfolio' },
+    { name: 'Stake', to: '/farms' },
     {
-      name: 'Trade',
+      name: 'Governance',
       subLinks: [
         {
-          name: 'DPX Bonds',
-          to: '/dpx-bonds',
-          description: 'Commit stables upfront to receive DPX at a discount',
-        },
-        {
-          name: 'Tzwap',
-          to: '/tzwap',
-          description: 'Open TWAP orders',
+          name: 'veDPX',
+          to: '/governance/vedpx',
+          description: 'Lock DPX to earn protocol fees & yield',
         },
       ],
     },
