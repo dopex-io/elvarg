@@ -6,6 +6,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 import { useBoundStore } from 'store';
 
+import SignerButton from 'components/common/SignerButton';
 import UsdcBalance from 'components/portfolio/Balances/UsdcBalance';
 import Typography from 'components/UI/Typography';
 
@@ -45,7 +46,9 @@ export default function Balances() {
             <Box className="flex">
               <CircularProgress className="text-stieglitz p-2 my-8 mx-auto" />
             </Box>
-          ) : null
+          ) : (
+            <SignerButton className="my-4">Connect Wallet</SignerButton>
+          )
         ) : (
           Object.keys(userAssetBalances)
             .filter(function (asset) {

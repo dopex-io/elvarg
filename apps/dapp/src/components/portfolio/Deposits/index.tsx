@@ -13,6 +13,7 @@ import cx from 'classnames';
 import { useBoundStore } from 'store';
 
 import Filter from 'components/common/Filter';
+import SignerButton from 'components/common/SignerButton';
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 
@@ -204,7 +205,9 @@ export default function Deposits() {
               <div className="flex">
                 <CircularProgress className="text-stieglitz p-2 my-8 mx-auto" />
               </div>
-            ) : null
+            ) : (
+              <SignerButton className="my-4">Connect Wallet</SignerButton>
+            )
           ) : filteredSSOVDeposits.length === 0 &&
             filteredStraddlesDeposits.length === 0 &&
             filteredCLAMMLpPositions.length ? (
