@@ -43,7 +43,7 @@ const TradeRow = ({ token, tradeURL }: TradeRowProps) => {
         {Math.abs(Number(query.data.data.change24h)).toFixed(2)}%
       </span>
       <Button
-        className="!bg-black !bg-opacity-30"
+        variant="outlined"
         onClick={() => {
           window.open(tradeURL, '_blank');
         }}
