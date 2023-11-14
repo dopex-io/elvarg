@@ -96,7 +96,8 @@ const AutoExercisers = () => {
                 <Button
                   size="xsmall"
                   variant={!approved ? 'contained' : 'text'}
-                  disabled={approved}
+                  // disabled={approved}
+                  disabled={true}
                   onClick={() => handleClick(approveTxData)}
                 >
                   <span
