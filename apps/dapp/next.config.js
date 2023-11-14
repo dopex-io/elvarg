@@ -20,11 +20,6 @@ const nextConfig = {
         permanent: false,
       },
       {
-        source: '/',
-        destination: '/ssov',
-        permanent: false,
-      },
-      {
         source: '/ssov-v3/:path*',
         destination: '/ssov/:path*',
         permanent: false,

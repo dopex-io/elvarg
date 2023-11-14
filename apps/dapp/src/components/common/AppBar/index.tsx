@@ -17,6 +17,12 @@ import { useNetwork } from 'wagmi';
 import { useBoundStore } from 'store';
 
 import DisclaimerDialog from 'components/common/DisclaimerDialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from 'components/UI/Tooltip';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 import {
@@ -254,11 +260,30 @@ export default function AppBar() {
             </div>
           </div>
           <div className="flex items-center">
+            <div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <img
+                      src="/images/misc/camera-pepe-hd.png"
+                      alt="camera-pepe-hd"
+                      className="w-8 h-auto mr-4"
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent className="w-80 bg-black/30 backdrop-blur-md">
+                    <p className="text-stieglitz">
+                      Your activity is being recorded for a future retroactive{' '}
+                      <s>REDACTED</s>.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             {accountAddress && chain?.network === 'arbitrum' ? (
               <IconButton
                 sx={{ mr: 1 }}
                 onClick={() => setIsNotifiCardOpen(!isNotifiCardOpen)}
-                className="text-white border-cod-gray bg-carbon rounded-md hover:bg-carbon hover:opacity-80"
+                className="text-white border-cod-gray bg-black bg-opacity-30  rounded-md hover:bg-carbon hover:opacity-80"
               >
                 <NotificationsIcon />
               </IconButton>
@@ -284,7 +309,7 @@ export default function AppBar() {
             {accountAddress ? (
               <RdpxAirdropButton account={accountAddress} />
             ) : null}
-            <NetworkButton className="inline-flex mr-2" />
+            <NetworkButton className="inline-flex mr-2 !bg-black !bg-opacity-30" />
             <ConnectButton />
             <IconButton
               aria-label="more"
@@ -292,7 +317,7 @@ export default function AppBar() {
               aria-haspopup="true"
               onClick={handleClickMenu}
               style={{ height: 38 }}
-              className="w-9 long-menu ml-2 rounded-md bg-carbon hover:bg-carbon hidden lg:flex"
+              className="w-9 long-menu ml-2 rounded-md !bg-black !bg-opacity-30 hidden lg:flex"
               size="large"
             >
               <MoreVertIcon className="text-silver" />
