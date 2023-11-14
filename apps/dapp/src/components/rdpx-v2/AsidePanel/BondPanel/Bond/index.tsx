@@ -19,6 +19,7 @@ import Typography2 from 'components/UI/Typography2';
 
 import formatBigint from 'utils/general/formatBigint';
 
+import { RDPX_V2_STATE } from 'constants/env';
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
 import addresses from 'constants/rdpx/addresses';
@@ -286,7 +287,7 @@ const Bond = () => {
           size="medium"
           className="w-full rounded-md"
           color="primary"
-          disabled={panelState.disabled}
+          disabled={panelState.disabled || RDPX_V2_STATE === 'BOOTSTRAP'}
           onClick={panelState.handler}
         >
           {panelState.label}

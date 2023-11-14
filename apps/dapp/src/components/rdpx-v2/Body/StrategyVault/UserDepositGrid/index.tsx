@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 
-import { Button } from '@dopex-io/ui';
 import Countdown from 'react-countdown';
 import { useAccount } from 'wagmi';
 
@@ -23,7 +22,6 @@ const UserDepositGrid = () => {
     updateUserPerpetualVaultData,
     perpetualVaultState,
     updatePerpetualVaultState,
-    loading,
   } = usePerpPoolData({
     user,
   });
@@ -134,15 +132,16 @@ const UserDepositGrid = () => {
           ]}
         />
       </div>
-      <GridButtons
-        hasEarned={!!earned}
-        hasLeftoverShares={userPerpetualVaultData.totalUserShares > 0n}
-        buttonStates={[
-          buttonState,
-          { label: 'Unstake', handler: () => unstake() },
-          { label: 'Stake', handler: () => stake() },
-        ]}
-      />
+      {earned ? (
+        <GridButtons
+          hasLeftoverShares={userPerpetualVaultData.totalUserShares > 0n}
+          buttonStates={[
+            buttonState,
+            { label: 'Unstake', handler: () => unstake() },
+            { label: 'Stake', handler: () => stake() },
+          ]}
+        />
+      ) : null}
     </div>
   );
 };
