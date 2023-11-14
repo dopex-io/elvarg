@@ -8,7 +8,7 @@ async function getStrikesChain(
   first: number,
   skip: number,
 ): Promise<StrikesChainAPIResponse> {
-  return await queryClient.fetchQuery({
+  const strikes = await queryClient.fetchQuery({
     queryKey: ['CLAMM-STRIKES-CHAIN', optionMarket],
     queryFn: async () => {
       const url = new URL(`${VARROCK_BASE_API_URL}/clamm/strikes`);
@@ -20,6 +20,8 @@ async function getStrikesChain(
       return await fetch(url).then((res) => res.json());
     },
   });
+
+  return strikes.message ? [] : strikes;
 }
 
 export default getStrikesChain;

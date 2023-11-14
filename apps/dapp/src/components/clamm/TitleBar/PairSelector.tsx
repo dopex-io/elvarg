@@ -45,12 +45,6 @@ const PairSelector = () => {
      */
     if (!params || optionsPools.size === 0) return;
     let { pair } = params;
-    if (!pair) {
-      const pairInStore = localStorage.getItem(LAST_VISITED_CLAMM_POOL_KEY);
-      if (pairInStore) {
-        pair = [pairInStore];
-      }
-    }
 
     const optionsPoolInfo = optionsPools.get(pair ? pair[0] : '');
     let urlReplacement = '';
@@ -80,6 +74,11 @@ const PairSelector = () => {
     }
   }, [params, optionsPools, setSelectedOptionsPool]);
 
+  useEffect(() => {
+    const pairName = selectedPair.textContent.replaceAll(' ', '');
+    setSelectedOptionsPool(pairName);
+  }, [selectedPair.textContent, setSelectedOptionsPool]);
+
   return (
     <div className="flex flex-col space-y-[8px]">
       {/* <span className="text-md font-normal text-stieglitz">Select Pair</span> */}
@@ -104,7 +103,7 @@ const PairSelector = () => {
             router.replace(pairName);
             setSelectedPair(T);
             setSelectedOptionsPool(pairName);
-            updateStrikes();
+            // updateStrikes();
             reset();
             localStorage.setItem(LAST_VISITED_CLAMM_POOL_KEY, pairName);
           }}

@@ -16,7 +16,8 @@ import StrikesList from './StrikesList';
 
 const StrikesSection = () => {
   const { selectedStrikes, strikesChain } = useStrikesChainStore();
-  const { isTrade, tokenBalances, tick, selectedOptionsPool } = useClammStore();
+  const { isTrade, tokenBalances, tick, selectedOptionsPool, markPrice } =
+    useClammStore();
   const [editForAll, setEditForAll] = useState(true);
   const [inputAmount, setInputAmount] = useState<string>('');
 
@@ -48,20 +49,20 @@ const StrikesSection = () => {
   const putStrikes = useMemo(() => {
     return isTrade
       ? strikesChain
-          .filter(({ type }) => type === 'put')
+          .filter(({ strike }) => markPrice > strike)
           .sort((a, b) => Number(b.strike) - Number(a.strike))
       : generatedStrikes
-          .filter(({ type }) => type === 'put')
+          .filter(({ strike }) => markPrice > strike)
           .sort((a, b) => Number(b.strike) - Number(a.strike));
-  }, [generatedStrikes, isTrade, strikesChain]);
+  }, [generatedStrikes, isTrade, strikesChain, markPrice]);
 
   const callStrikes = useMemo(() => {
     return isTrade
       ? strikesChain
-          .filter(({ type }) => type === 'call')
+          .filter(({ type }) => type.toLowerCase() === 'call')
           .sort((a, b) => Number(a.strike) - Number(b.strike))
       : generatedStrikes
-          .filter(({ type }) => type === 'call')
+          .filter(({ type }) => type.toLowerCase() === 'call')
           .sort((a, b) => Number(a.strike) - Number(b.strike));
   }, [generatedStrikes, isTrade, strikesChain]);
 

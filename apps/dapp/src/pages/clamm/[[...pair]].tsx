@@ -21,8 +21,7 @@ import getOptionsPools from 'utils/clamm/varrock/getOptionsPools';
 import seo from 'constants/seo';
 
 const Page = () => {
-  const { initialize, selectedOptionsPool, setAddresses, addresses } =
-    useClammStore();
+  const { initialize, selectedOptionsPool, setAddresses } = useClammStore();
   const { setSelectedTicker } = useTradingViewChartStore();
   const { chain } = useNetwork();
 
