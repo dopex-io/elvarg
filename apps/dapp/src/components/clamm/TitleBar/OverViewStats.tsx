@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
+import { Skeleton } from '@dopex-io/ui';
+
 import useClammStore from 'hooks/clamm/useClammStore';
 
 import Stat from 'components/clamm/TitleBar/Stat';
@@ -97,45 +99,58 @@ const OverViewStats = () => {
     } else updateStats();
   }, [selectedOptionsPool, stats, updateStats]);
 
-  return selectedOptionsPool ? (
+  return (
     <div className="grid grid-flow-col md:grid-rows-1 grid-rows-2 gap-y-4 w-full md:w-2/5">
-      <Stat
-        stat={{
-          symbol: '$',
-          value: markPrice.toString(),
-        }}
-        label="Mark Price"
-      />
-      <Stat
-        stat={{
-          symbol: stats.openInterest.symbol,
-          value: stats.openInterest.openInterest,
-        }}
-        label="Open Interest"
-      />
-      <Stat
-        stat={{
-          symbol: stats.tvl.symbol,
-          value: stats.tvl.tvl,
-        }}
-        label="Total Deposits"
-      />
-      <Stat
-        stat={{
-          symbol: stats.volume.symbol,
-          value: stats.volume.volume,
-        }}
-        label="Total Volume"
-      />
-      <Stat
-        stat={{
-          symbol: stats.fees.symbol,
-          value: stats.fees.fees,
-        }}
-        label="Total Fees"
-      />
+      {selectedOptionsPool ? (
+        <>
+          <Stat
+            stat={{
+              symbol: '$',
+              value: markPrice.toString(),
+            }}
+            label="Mark Price"
+          />
+          <Stat
+            stat={{
+              symbol: stats.openInterest.symbol,
+              value: stats.openInterest.openInterest,
+            }}
+            label="Open Interest"
+          />
+          <Stat
+            stat={{
+              symbol: stats.tvl.symbol,
+              value: stats.tvl.tvl,
+            }}
+            label="Total Deposits"
+          />
+          <Stat
+            stat={{
+              symbol: stats.volume.symbol,
+              value: stats.volume.volume,
+            }}
+            label="Total Volume"
+          />
+          <Stat
+            stat={{
+              symbol: stats.fees.symbol,
+              value: stats.fees.fees,
+            }}
+            label="Total Fees"
+          />
+        </>
+      ) : (
+        <>
+          {Array.from(Array(5)).map((_, index) => (
+            <div key={index} className="flex flex-col space-y-2">
+              <Skeleton height={10} width={75} />
+              <Skeleton height={10} width={50} />
+            </div>
+          ))}
+        </>
+      )}
     </div>
-  ) : null;
+  );
 };
 
 export default OverViewStats;
