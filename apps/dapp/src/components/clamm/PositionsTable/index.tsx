@@ -27,10 +27,9 @@ const PositionsTable = () => {
     new Map(),
   );
   const [loading, setLoading] = useState({
-    buyPositions: true,
-    lpPositions: true,
+    buyPositions: false,
+    lpPositions: false,
   });
-  const [initialLoad, setInitialLoading] = useState(true);
 
   const selectPosition = (key: number, positionInfo: any) => {
     setSelectedPositions((prev) => new Map(prev.set(key, positionInfo)));
@@ -71,9 +70,10 @@ const PositionsTable = () => {
             ),
         );
       },
-      () => {},
+      (err) => {
+        console.error(err);
+      },
     );
-    setLoading((prev) => ({ ...prev, buyPositions: false }));
   }, [chain, selectedOptionsPool, userAddress]);
 
   const updateLPPositions = useCallback(async () => {
@@ -91,8 +91,20 @@ const PositionsTable = () => {
         console.error(err);
       },
     );
-    setLoading((prev) => ({ ...prev, lpPositions: false }));
   }, [chain, selectedOptionsPool, userAddress]);
+
+  useEffect(() => {
+    updateBuyPositions().finally(() =>
+      setLoading((prev) => ({ ...prev, buyPositions: false })),
+    );
+  }, [updateBuyPositions]);
+
+  useEffect(() => {
+    setLoading((prev) => ({ ...prev, lpPositions: true }));
+    updateLPPositions().finally(() =>
+      setLoading((prev) => ({ ...prev, buyPositions: false })),
+    );
+  }, [updateLPPositions]);
 
   useEffect(() => {
     const interval = setInterval(() => updateBuyPositions(), 15000);
