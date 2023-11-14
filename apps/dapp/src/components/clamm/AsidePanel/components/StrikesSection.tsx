@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import { hexToBigInt } from 'viem';
 
 import { Switch } from '@dopex-io/ui';
-import { CheckCircleIcon, CheckIcon } from '@heroicons/react/20/solid';
 import cx from 'classnames';
 
 import useClammStore from 'hooks/clamm/useClammStore';
