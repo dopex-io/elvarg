@@ -29,7 +29,7 @@ const Page = () => {
     if (!chain) return;
 
     getOptionsPools(chain.id, initialize, (error: string) => {
-      toast.error(error);
+      console.error(error);
     });
   }, [chain, initialize]);
 

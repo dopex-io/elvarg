@@ -87,7 +87,9 @@ const PositionsTable = () => {
       (data: any) => {
         setLpPositions(data);
       },
-      toast.error,
+      (err) => {
+        console.error(err);
+      },
     );
     setLoading((prev) => ({ ...prev, lpPositions: false }));
   }, [chain, selectedOptionsPool, userAddress]);
