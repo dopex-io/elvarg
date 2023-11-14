@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import toast from 'react-hot-toast';
 import { useAccount, useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
@@ -8,6 +7,8 @@ import useClammStore from 'hooks/clamm/useClammStore';
 import getBuyPositions from 'utils/clamm/varrock/getBuyPosition';
 import getLPPositions from 'utils/clamm/varrock/getLPPositions';
 import { OptionsPositionsResponse } from 'utils/clamm/varrock/types';
+
+import { DEFAULT_CHAIN_ID } from 'constants/env';
 
 import ActionButton from './components/Positions/components/ActionButton';
 import BuyPositions from './components/Positions/components/BuyPositions';
@@ -52,7 +53,7 @@ const PositionsTable = () => {
   };
 
   const updateBuyPositions = useCallback(async () => {
-    if (!chain || !userAddress || !selectedOptionsPool) return;
+    if (!userAddress || !selectedOptionsPool) return;
     const { optionsPoolAddress } = selectedOptionsPool;
     await getBuyPositions(
       {
@@ -74,12 +75,12 @@ const PositionsTable = () => {
         console.error(err);
       },
     );
-  }, [chain, selectedOptionsPool, userAddress]);
+  }, [selectedOptionsPool, userAddress]);
 
   const updateLPPositions = useCallback(async () => {
-    if (!chain || !userAddress || !selectedOptionsPool) return;
+    if (!userAddress || !selectedOptionsPool) return;
     await getLPPositions(
-      chain.id,
+      chain?.id ?? DEFAULT_CHAIN_ID,
       userAddress,
       selectedOptionsPool.optionsPoolAddress,
       1000,
