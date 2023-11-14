@@ -322,7 +322,7 @@ const BuyPositions = ({
             handleExercise: async () => {
               await handleExercise(String(meta.tokenId));
             },
-            disabled: formatAmount(readableProfit) === '0, 5',
+            disabled: Number(readableProfit) === 0,
           },
         };
       },

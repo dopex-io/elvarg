@@ -16,7 +16,7 @@ const LAST_VISITED_CLAMM_POOL_KEY = 'last_clamm_pool';
 
 const PairSelector = () => {
   const { setSelectedOptionsPool, optionsPools } = useClammStore();
-  const { reset } = useStrikesChainStore();
+  const { reset, updateStrikes } = useStrikesChainStore();
   const params = useParams<{ pair: string[] }>();
   const router = useRouter();
 
@@ -104,6 +104,7 @@ const PairSelector = () => {
             router.replace(pairName);
             setSelectedPair(T);
             setSelectedOptionsPool(pairName);
+            updateStrikes();
             reset();
             localStorage.setItem(LAST_VISITED_CLAMM_POOL_KEY, pairName);
           }}

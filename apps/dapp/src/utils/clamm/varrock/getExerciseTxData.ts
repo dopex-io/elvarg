@@ -9,7 +9,7 @@ import { GetExerciseTxDataParam } from './types';
 async function getExerciseTxData(params: GetExerciseTxDataParam) {
   const { optionMarket, positionId, slippage, type } = params;
   const response = await queryClient.fetchQuery({
-    queryKey: ['CLAMM-EXERCISE-TX-DATA'],
+    queryKey: ['CLAMM-EXERCISE-TX-DATA', optionMarket],
     queryFn: async () => {
       const url = new URL(`${VARROCK_BASE_API_URL}/clamm/exercise/${type}`);
       url.searchParams.set('optionMarket', optionMarket);

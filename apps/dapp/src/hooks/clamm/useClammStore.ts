@@ -148,8 +148,6 @@ const useClammStore = create<ClammStore>((set, get) => ({
     set((prev) => ({
       ...prev,
       optionsPools: poolsMapping,
-      selectedOptionsPool:
-        initialData.length > 0 ? poolsMapping.entries().next().value[1] : null,
     }));
   },
   setMarkPrice(price) {

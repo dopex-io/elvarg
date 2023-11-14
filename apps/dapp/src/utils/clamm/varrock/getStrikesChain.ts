@@ -1,4 +1,4 @@
-import axios from 'axios';
+import queryClient from 'queryClient';
 
 import { VARROCK_BASE_API_URL } from 'constants/env';
 
@@ -7,32 +7,19 @@ async function getStrikesChain(
   optionMarket: string,
   first: number,
   skip: number,
-  onSuccessCallback: (data: StrikesChainAPIResponse) => void,
-  onErrorCallback?: (error: string) => void,
-) {
-  await axios
-    .get(`${VARROCK_BASE_API_URL}/clamm/strikes`, {
-      params: {
-        chainId,
-        optionMarket,
-        first,
-        skip,
-      },
-    })
-    .then(({ data }) => onSuccessCallback(data as StrikesChainAPIResponse))
-    .catch((err) => {
-      if (
-        !err ||
-        !err.response ||
-        !err.response.data ||
-        !err.response.data.message
-      ) {
-        console.error(err);
-        return [];
-      }
-      onErrorCallback?.(err.response.data.message);
-      return [];
-    });
+): Promise<StrikesChainAPIResponse> {
+  return await queryClient.fetchQuery({
+    queryKey: ['CLAMM-STRIKES-CHAIN', optionMarket],
+    queryFn: async () => {
+      const url = new URL(`${VARROCK_BASE_API_URL}/clamm/strikes`);
+      url.searchParams.set('chainId', chainId.toString());
+      url.searchParams.set('optionMarket', optionMarket);
+      url.searchParams.set('first', first.toString());
+      url.searchParams.set('skip', skip.toString());
+
+      return await fetch(url).then((res) => res.json());
+    },
+  });
 }
 
 export default getStrikesChain;

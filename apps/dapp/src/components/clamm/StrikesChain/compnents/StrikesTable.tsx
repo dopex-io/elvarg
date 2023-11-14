@@ -175,18 +175,17 @@ const StrikesTable = () => {
 
   const loadStrikes = useCallback(async () => {
     if (!selectedOptionsPool || !chain) return;
-    await getStrikesChain(
+    setLoading(true);
+
+    const data = await getStrikesChain(
       chain.id,
       selectedOptionsPool.optionsPoolAddress,
       50,
       0,
-      (data) => {
-        initialize(data);
-      },
-      (err) => {
-        toast.error(err);
-      },
     );
+
+    initialize(data ?? []);
+
     setLoading(false);
   }, [chain, initialize, selectedOptionsPool]);
 
