@@ -55,7 +55,7 @@ const columns = [
     },
   }),
   columnHelper.accessor('transaction', {
-    header: 'Transaction ',
+    header: 'Transaction',
     cell: (info) => {
       const { hash } = info.getValue();
       return <Typography2 variant="caption">{smartTrim(hash, 8)}</Typography2>;
@@ -67,7 +67,7 @@ const columns = [
       const { hash } = info.getValue();
       return (
         <a
-          href={`https://goerli.arbiscan.io/tx/${hash}`}
+          href={`https://arbiscan.io/tx/${hash}`}
           className="flex justify-end"
           target="_blank"
           rel="noopener noreferrer"

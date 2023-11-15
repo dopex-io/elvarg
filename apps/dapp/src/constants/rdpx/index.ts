@@ -1,3 +1,5 @@
+import addresses from './addresses';
+
 export const quickLinks = {
   whitepaper: {
     text: 'What is rDPX v2',
@@ -8,22 +10,22 @@ export const quickLinks = {
   arbiscanV2Core: {
     text: 'RDPX V2 Core',
     iconSymbol: '/assets/etherscan.svg',
-    url: 'https://goerli.arbiscan.io/address/0x1784f23e6e054AEe050308AA88f2ae85C77150a1',
+    url: `https://arbiscan.io/address/${addresses.v2core}`,
   },
   arbiscanPerpVault: {
     text: 'Perpetual Vault',
     iconSymbol: '/assets/etherscan.svg',
-    url: 'https://goerli.arbiscan.io/address/0x04ef82C73106c8771AdF0c79FD6fB455a44A28Dc',
+    url: `https://arbiscan.io/address/${addresses.perpPool}`,
   },
   arbiscanStaking: {
     text: 'MultiRewards',
     iconSymbol: '/assets/etherscan.svg',
-    url: 'https://goerli.arbiscan.io/address/0x696c33d47D770c943E47521e23dA7a01F18c4fd4',
+    url: `https://arbiscan.io/address/${addresses.multirewards2}`,
   },
   dune: {
     text: 'Dune Analytics',
     iconSymbol: '/assets/dune-dashboard.svg',
-    url: 'https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713',
+    url: `https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713`,
   },
   strategyVault: {
     text: 'What is rDPX Perpetual Vault?',

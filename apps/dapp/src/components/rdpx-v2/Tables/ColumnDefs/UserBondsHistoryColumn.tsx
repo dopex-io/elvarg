@@ -83,7 +83,7 @@ const columns = [
       const { hash } = info.getValue();
       return (
         <a
-          href={`https://goerli.arbiscan.io/tx/${hash}`}
+          href={`https://arbiscan.io/tx/${hash}`}
           className="flex justify-end"
           target="_blank"
           rel="noopener noreferrer"
