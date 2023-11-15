@@ -1,0 +1,12 @@
+{
+  "extends": "tsconfig/nextjs.json",
+  "compilerOptions": {
+    "baseUrl": "src",
+    "paths": {
+      "public/*": ["../public/*"]
+    },
+    "target": "EsNext"
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.js", "**/*.tsx"],
+  "exclude": ["node_modules", "public"]
+}

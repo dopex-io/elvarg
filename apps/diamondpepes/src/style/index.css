@@ -1,0 +1,318 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap');
+
+@font-face {
+  font-family: Ilisarniq;
+  src: url('/fonts/Ilisarniq-Light.otf');
+  font-weight: 300;
+  ascent-override: 90%;
+}
+
+@font-face {
+  font-family: Ilisarniq;
+  src: url('/fonts/Ilisarniq-Regular.otf');
+  font-weight: 400;
+  ascent-override: 90%;
+}
+
+@font-face {
+  font-family: Ilisarniq;
+  src: url('/fonts/Ilisarniq-Demi.otf');
+  font-weight: 500;
+  ascent-override: 90%;
+}
+
+@font-face {
+  font-family: Ilisarniq;
+  src: url('/fonts/Ilisarniq-Bold.otf');
+  font-weight: 700;
+  ascent-override: 90%;
+}
+
+@font-face {
+  font-family: VT323;
+  src: url('/fonts/VT323-Regular.ttf');
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: PressStart2P;
+  src: url('/fonts/PressStart2P-Regular.ttf');
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: Minecraft;
+  src: url('/fonts/Minecraft.ttf');
+  font-weight: 400;
+}
+
+body {
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: white;
+  background: black;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+.w-fit {
+  width: fit-content;
+}
+
+.MuiTooltip-tooltip {
+  background: #1e1e1e;
+}
+
+.Mui-checked {
+  color: #22e1ff !important;
+}
+
+.MuiLinearProgress-barColorPrimary {
+  background-color: #22e1ff !important;
+}
+
+.MuiLinearProgress-colorPrimary {
+  background-color: #3e3e3e;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  background-color: #1e1e1e;
+  border-radius: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  background-color: #1e1e1e;
+  border-radius: 5px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #2f2d2d;
+  border-radius: 5px;
+}
+
+.MuiDialog-container.MuiDialog-scrollPaper {
+  background:
+    linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+    radial-gradient(
+        100% 197.75% at 0% 0%,
+        rgba(34, 225, 255, 0.27) 0%,
+        rgba(9, 10, 12, 0.21) 37.02%,
+        rgba(0, 46, 255, 0.03) 100%
+      )
+      /* warning: gradient uses a rotation that is not supported by CSS and may not behave as expected */;
+  backdrop-filter: blur(14px);
+}
+
+.custom-select-no-border fieldset {
+  border: none;
+}
+
+.custom-select-no-border > div > div {
+  padding: 12px;
+  padding-right: 29px;
+  padding-left: 17px;
+}
+
+.typewriter {
+  overflow: hidden;
+  white-space: nowrap;
+  margin-right: auto;
+  animation:
+    typing 3.5s steps(40, end),
+    blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink-caret {
+  from,
+  to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: orange;
+  }
+}
+
+#dexscreener-embed {
+  position: relative;
+  width: 100%;
+  padding-bottom: 33.5rem;
+}
+
+#dexscreener-embed iframe {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  border: 0;
+}
+
+.tilting-card-body {
+  display: grid;
+  place-content: center;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.mouse-position-tracker {
+  position: absolute;
+  width: calc(100% / 3);
+  height: calc(100% / 3);
+  z-index: 2;
+}
+
+/* 1st, 4th, 7th */
+.mouse-position-tracker:nth-child(3n - 2) {
+  left: 0;
+}
+/* 2nd, 5th, 8th */
+.mouse-position-tracker:nth-child(3n - 1) {
+  left: calc(100% / 3);
+}
+
+/* 2nd, 5th, 8th */
+.mouse-position-tracker:nth-child(3n) {
+  right: 0;
+}
+
+/* 4 to 6 */
+.mouse-position-tracker:nth-child(n + 4):nth-child(-n + 6) {
+  top: calc(100% / 3);
+}
+/* 7 to 9 */
+.mouse-position-tracker:nth-child(n + 7):nth-child(-n + 9) {
+  bottom: 0;
+}
+
+.tilting-card-wrapper {
+  position: relative;
+  height: 220px;
+  width: 496px;
+}
+
+.tilting-card-body {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+.tilting-card-body > :where(h1, p) {
+  background: white;
+  margin: 0;
+}
+
+.tilting-card-body {
+  --perspective: 500px;
+  --rotationX: 0;
+  --rotationY: 0;
+  --rotationZ: 0;
+  --angle: 5deg;
+  transform: perspective(var(--perspective)) rotateX(var(--rotationX))
+    rotateY(var(--rotationY)) rotateZ(var(--rotationZ));
+  transition: transform 500ms ease;
+}
+
+.mouse-position-tracker:nth-child(1):hover ~ .tilting-card-body {
+  --rotationX: var(--angle);
+  --rotationY: calc(var(--angle) * -1);
+}
+
+.mouse-position-tracker:nth-child(2):hover ~ .tilting-card-body {
+  --rotationX: var(--angle);
+}
+
+.mouse-position-tracker:nth-child(3):hover ~ .tilting-card-body {
+  --rotationX: var(--angle);
+  --rotationY: var(--angle);
+}
+
+.mouse-position-tracker:nth-child(4):hover ~ .tilting-card-body {
+  --rotationY: calc(var(--angle) * -1);
+}
+
+.mouse-position-tracker:nth-child(6):hover ~ .tilting-card-body {
+  --rotationY: var(--angle);
+}
+
+.mouse-position-tracker:nth-child(7):hover ~ .tilting-card-body {
+  --rotationY: calc(var(--angle) * -1);
+  --rotationX: calc(var(--angle) * -1);
+}
+
+.mouse-position-tracker:nth-child(8):hover ~ .tilting-card-body {
+  --rotationX: calc(var(--angle) * -1);
+}
+
+.mouse-position-tracker:nth-child(9):hover ~ .tilting-card-body {
+  --rotationY: var(--angle);
+  --rotationX: calc(var(--angle) * -1);
+}
+
+.gradientText {
+  background: linear-gradient(170deg, #22e1ff, #1d8fe1 51.79%, #625eb1);
+  background-clip: border-box;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-bg-effect {
+  position: relative;
+  width: 130px;
+  height: 30px;
+  border-radius: 10px;
+}
+
+.gradient-bg-effect:before,
+.gradient-bg-effect:after {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: -2px;
+  border-radius: 10px;
+  background: linear-gradient(45deg, #00eefb, #0000ff);
+  background-size: 400%;
+  width: calc(100% + 14px);
+  height: calc(100% + 14px);
+  z-index: 0;
+  animation: sassy 20s linear infinite;
+}
+
+@keyframes sassy {
+  0% {
+    background-position: 0 0;
+  }
+  50% {
+    background-position: 400% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
+
+.gradient-bg-effect:after {
+  filter: blur(5px);
+}
