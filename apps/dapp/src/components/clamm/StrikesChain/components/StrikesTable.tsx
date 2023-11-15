@@ -5,7 +5,6 @@ import { Button } from '@dopex-io/ui';
 import { MinusIcon, PlusIcon } from '@heroicons/react/24/solid';
 import { createColumnHelper } from '@tanstack/react-table';
 import cx from 'classnames';
-import toast from 'react-hot-toast';
 import { useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
@@ -22,6 +21,7 @@ type StrikeItem = {
     isSelected: boolean;
     handleSelect: () => void;
   };
+  isRewardsEligible: boolean;
   apr: string;
   sources: {
     name: string;
@@ -95,14 +95,21 @@ const columns = [
       </span>
     ),
   }),
-  // columnHelper.accessor('apr', {
-  //   header: 'Rewards APR',
-  //   cell: (info) => (
-  //     <span className="flex space-x-1 text-left items-center">
-  //       <p>-</p>
-  //     </span>
-  //   ),
-  // }),
+  columnHelper.accessor('isRewardsEligible', {
+    // @ts-ignore
+    header: <span className="text-wave-blue animate-pulse">Rewards</span>,
+    cell: (info) => (
+      <span className="flex items-center w-full pl-[12px]">
+        {info.getValue() && (
+          <img
+            src="/images/tokens/arb.svg"
+            alt="ARB"
+            className="w-[20px] h-[20px]"
+          />
+        )}
+      </span>
+    ),
+  }),
   columnHelper.accessor('sources', {
     header: 'Sources',
     cell: (info) => {
@@ -169,30 +176,37 @@ const StrikesTable = () => {
     setUpdateStrikes,
   } = useStrikesChainStore();
 
-  const { selectedOptionsPool, isPut } = useClammStore();
+  const { selectedOptionsPool, isPut, markPrice } = useClammStore();
   const { chain } = useNetwork();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const loadStrikes = useCallback(async () => {
-    if (!selectedOptionsPool || !chain) return;
-    setLoading(true);
+    if (!selectedOptionsPool) return;
 
     const data = await getStrikesChain(
-      chain.id,
+      chain?.id ?? 42161,
       selectedOptionsPool.optionsPoolAddress,
       50,
       0,
     );
 
     initialize(data ?? []);
-
-    setLoading(false);
-  }, [chain, initialize, selectedOptionsPool]);
+  }, [initialize, chain, , selectedOptionsPool]);
 
   useEffect(() => {
+    setLoading(true);
     setUpdateStrikes(loadStrikes);
-    loadStrikes();
+    loadStrikes().finally(() => {
+      setLoading(false);
+    });
   }, [loadStrikes, setUpdateStrikes]);
+
+  const rewardsStrikesLimit = useMemo(() => {
+    return {
+      upperLimit: markPrice * 1.024,
+      lowerLimit: markPrice * 0.976,
+    };
+  }, [markPrice]);
 
   const strikes = useMemo(() => {
     if (!strikesChain || !selectedOptionsPool) return [];
@@ -220,8 +234,13 @@ const StrikesTable = () => {
         ) => {
           const isSelected = Boolean(selectedStrikes.get(index));
 
+          const isRewardsEligible =
+            rewardsStrikesLimit.lowerLimit < Number(strike) &&
+            rewardsStrikesLimit.upperLimit > Number(strike);
+
           return {
             type,
+            isRewardsEligible,
             apr: earningsApy,
             strike: {
               amount: strike,
@@ -307,6 +326,7 @@ const StrikesTable = () => {
       return _strikes.sort((a, b) => a.strike.amount - b.strike.amount);
     }
   }, [
+    rewardsStrikesLimit,
     strikesChain,
     selectStrike,
     deselectStrike,

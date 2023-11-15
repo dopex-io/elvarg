@@ -265,68 +265,73 @@ const BuyPositions = ({
   );
 
   const buyPositions = useMemo(() => {
-    return positions.map(
-      (
-        { expiry, premium, profit, side, size, strike, meta }: any,
-        index: number,
-      ) => {
-        const readablePremium = formatUnits(
-          premium.amountInToken,
-          premium.decimals,
-        );
+    return positions
+      .map(
+        (
+          { expiry, premium, profit, side, size, strike, meta }: any,
+          index: number,
+        ) => {
+          const readablePremium = formatUnits(
+            premium.amountInToken,
+            premium.decimals,
+          );
 
-        const readableProfit = formatUnits(
-          profit.amountInToken,
-          profit.decimals,
-        );
+          const readableProfit = formatUnits(
+            profit.amountInToken,
+            profit.decimals,
+          );
 
-        const isSelected = Boolean(selectedPositions.get(index));
+          const isSelected = Boolean(selectedPositions.get(index));
 
-        return {
-          expiry,
-          premium: {
-            amount: readablePremium,
-            symbol: premium.symbol,
-            usdValue: premium.usdValue,
-          },
-          profit: {
-            amount: readableProfit,
-            usdValue: profit.usdValue,
-            symbol: profit.symbol,
-            percentage: Math.max(
-              getPercentageDifference(
-                Number(profit.amount),
-                Number(readablePremium),
+          return {
+            expiry,
+            premium: {
+              amount: readablePremium,
+              symbol: premium.symbol,
+              usdValue: premium.usdValue,
+            },
+            profit: {
+              amount: readableProfit,
+              usdValue: profit.usdValue,
+              symbol: profit.symbol,
+              percentage: Math.max(
+                getPercentageDifference(
+                  Number(profit.amount),
+                  Number(readablePremium),
+                ),
+                0,
               ),
-              0,
-            ),
-          },
-          side: side.charAt(0).toUpperCase() + side.slice(1),
-          size: {
-            amount: formatUnits(size.amountInToken, size.decimals),
-            symbol: size.symbol,
-            usdValue: size.usdValue,
-          },
-          strike: {
-            handleSelect: () => {
-              if (!isSelected) {
-                selectPosition(index, meta);
-              } else {
-                unselectPosition(index);
-              }
             },
-            isSelected: isSelected,
-            strikePrice: Number(strike),
-          },
-          exerciseButton: {
-            handleExercise: async () => {
-              await handleExercise(String(meta.tokenId));
+            side: side.charAt(0).toUpperCase() + side.slice(1),
+            size: {
+              amount: formatUnits(size.amountInToken, size.decimals),
+              symbol: size.symbol,
+              usdValue: size.usdValue,
             },
-            disabled: Number(readableProfit) === 0,
-          },
-        };
-      },
-    );
+            strike: {
+              handleSelect: () => {
+                if (!isSelected) {
+                  selectPosition(index, meta);
+                } else {
+                  unselectPosition(index);
+                }
+              },
+              isSelected: isSelected,
+              strikePrice: Number(strike),
+            },
+            exerciseButton: {
+              handleExercise: async () => {
+                await handleExercise(String(meta.tokenId));
+              },
+              disabled: Number(readableProfit) === 0,
+            },
+          };
+        },
+      )
+      .sort(
+        (a: any, b: any) =>
+          Number(a.strike.strikePrice) - Number(b.strike.strikePrice),
+      );
   }, [
     positions,
     handleExercise,

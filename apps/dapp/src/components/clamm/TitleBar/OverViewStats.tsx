@@ -1,19 +1,38 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import toast from 'react-hot-toast';
-import { useNetwork } from 'wagmi';
+import { Skeleton } from '@dopex-io/ui';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 
+import Stat from 'components/clamm/TitleBar/Stat';
+
 import getMarkPrice from 'utils/clamm/varrock/getMarkPrice';
 import getStats from 'utils/clamm/varrock/getStats';
-import { formatAmount } from 'utils/general';
+
+type Stats = {
+  openInterest: {
+    openInterest: string;
+    symbol: string;
+  };
+  tvl: {
+    tvl: string;
+    symbol: string;
+  };
+  volume: {
+    volume: string;
+    symbol: string;
+  };
+  fees: {
+    fees: string;
+    symbol: string;
+  };
+  activePair: string;
+};
 
 const OverViewStats = () => {
-  const { chain } = useNetwork();
   const { selectedOptionsPool, markPrice, setMarkPrice, setTick } =
     useClammStore();
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<Stats>({
     openInterest: {
       openInterest: '0',
       symbol: '$',
@@ -30,91 +49,106 @@ const OverViewStats = () => {
       fees: '0',
       symbol: '$',
     },
+    activePair: 'ARB-USDC',
   });
 
-  useEffect(() => {
+  const updateStats = useCallback(async () => {
     if (!selectedOptionsPool) return;
-    const interval = setInterval(async () => {
-      await getMarkPrice(
-        selectedOptionsPool.pairTicker,
-        ({ price, tick }) => {
-          setMarkPrice(price);
-          setTick(tick);
-        },
-        () => {},
-      );
-    }, 10000);
 
-    return () => clearInterval(interval);
+    await getStats(selectedOptionsPool.optionsPoolAddress).then((data) =>
+      setStats((prev) => ({
+        ...prev,
+        ...data,
+        activePair: selectedOptionsPool.pairName,
+      })),
+    );
+  }, [selectedOptionsPool]);
+
+  const updatePrice = useCallback(async () => {
+    if (!selectedOptionsPool) return;
+
+    return await getMarkPrice(
+      selectedOptionsPool.pairTicker,
+      ({ price, tick }) => {
+        setMarkPrice(price);
+        setTick(tick);
+      },
+      () => {},
+    );
   }, [selectedOptionsPool, setMarkPrice, setTick]);
 
   useEffect(() => {
-    if (!selectedOptionsPool || !chain) return;
-    const interval = setInterval(() => {
-      getStats(selectedOptionsPool.optionsPoolAddress).then((data) =>
-        setStats(data),
-      );
+    if (!selectedOptionsPool) return;
 
+    if (stats.activePair === selectedOptionsPool.pairName) {
+      // update every 5 seconds if token pair remains unchanged
+      const interval = setInterval(async () => {
+        await updatePrice();
+      }, 5000);
       return () => clearInterval(interval);
-    }, 60000);
+    } else updatePrice();
+    // else update on component mount
+  }, [selectedOptionsPool, stats.activePair, updatePrice]);
 
-    return () => clearInterval(interval);
-  }, [chain, selectedOptionsPool]);
+  useEffect(() => {
+    if (!selectedOptionsPool || !selectedOptionsPool.optionsPoolAddress) return;
+
+    if (stats.activePair === selectedOptionsPool.pairName) {
+      const interval = setInterval(async () => await updateStats(), 15000);
+      return () => clearInterval(interval);
+    } else updateStats();
+  }, [selectedOptionsPool, stats, updateStats]);
 
   return (
-    <div className="flex space-x-[24px] md:w-fit w-full justify-between md:justify-center flex-wrap md:pt-[4px]">
-      <div className="flex flex-col">
-        <h6 className="flex text-xs sm:text-sm md:text-md font-medium text-white items-center space-x-2">
-          <span className="text-stieglitz">$</span>
-          <span>{formatAmount(markPrice, 5)}</span>
-        </h6>
-        <h6 className="text-xs sm:text-sm md:text-md font-medium text-stieglitz">
-          Mark Price
-        </h6>
-      </div>
-      <div className="xl:flex flex-col hidden">
-        <h6 className="text-xs sm:text-sm md:text-md font-medium text-white items-center space-x-2">
-          <span className="text-stieglitz">{stats.openInterest.symbol}</span>
-          <span>
-            {formatAmount(
-              stats.openInterest.openInterest
-                ? stats.openInterest.openInterest
-                : 0,
-              5,
-            )}
-          </span>
-        </h6>
-        <h6 className="text-xs sm:text-sm md:text-md font-medium text-stieglitz">
-          Open Interest
-        </h6>
-      </div>
-      <div className="xl:flex flex-col hidden">
-        <h6 className="text-xs sm:text-sm md:text-md font-medium text-white items-center space-x-2">
-          <span className="text-stieglitz">{stats.tvl.symbol}</span>
-          <span>{formatAmount(stats.tvl.tvl ?? 0, 5)}</span>
-        </h6>
-        <h6 className="text-xs sm:text-sm md:text-md font-medium text-stieglitz">
-          Total Deposits
-        </h6>
-      </div>
-      <div className="flex flex-col">
-        <h6 className="flex text-xs sm:text-sm md:text-md font-medium text-white items-center space-x-2">
-          <span className="text-stieglitz">{stats.volume.symbol}</span>
-          <span>{formatAmount(stats.volume.volume ?? 0, 5)}</span>
-        </h6>
-        <h6 className="text-xs sm:text-sm md:text-md font-medium text-stieglitz">
-          Total Volume
-        </h6>
-      </div>
-      <div className="flex flex-col">
-        <h6 className="flex text-xs sm:text-sm md:text-md font-medium text-white items-center space-x-2">
-          <span className="text-stieglitz">{stats.fees.symbol}</span>
-          <span>{formatAmount(stats.fees.fees ?? 0, 5)}</span>
-        </h6>
-        <h6 className="text-xs sm:text-sm md:text-md font-medium text-stieglitz">
-          Total Fees
-        </h6>
-      </div>
+    <div className="grid grid-flow-col md:grid-rows-1 grid-rows-2 gap-y-4 w-full md:w-2/5">
+      {selectedOptionsPool ? (
+        <>
+          <Stat
+            stat={{
+              symbol: '$',
+              value: markPrice.toString(),
+            }}
+            label="Mark Price"
+          />
+          <Stat
+            stat={{
+              symbol: stats.openInterest.symbol,
+              value: stats.openInterest.openInterest,
+            }}
+            label="Open Interest"
+          />
+          <Stat
+            stat={{
+              symbol: stats.tvl.symbol,
+              value: stats.tvl.tvl,
+            }}
+            label="Total Deposits"
+          />
+          <Stat
+            stat={{
+              symbol: stats.volume.symbol,
+              value: stats.volume.volume,
+            }}
+            label="Total Volume"
+          />
+          <Stat
+            stat={{
+              symbol: stats.fees.symbol,
+              value: stats.fees.fees,
+            }}
+            label="Total Fees"
+          />
+        </>
+      ) : (
+        <>
+          {Array.from(Array(5)).map((_, index) => (
+            <div key={index} className="flex flex-col space-y-2">
+              <Skeleton height={10} width={75} />
+              <Skeleton height={10} width={50} />
+            </div>
+          ))}
+        </>
+      )}
     </div>
   );
 };

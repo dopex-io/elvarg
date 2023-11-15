@@ -3,10 +3,11 @@ export type TokenData = {
   imgSrc: string;
 };
 
-export type GmxCandleStick = {
-  time: number;
-  open: number;
-  close: number;
-  high: number;
-  low: number;
+export type Token = {
+  address: string;
+  chainId: number;
+  symbol: string;
+  name: string;
+  logoURI: string;
+  decimals: number;
 };
