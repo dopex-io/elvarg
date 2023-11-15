@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 
-import BigCrossIcon from 'svgs/icons/BigCrossIcon';
+import BigCrossIcon from 'icons/BigCrossIcon';
 
 import { useBoundStore } from 'store';
 

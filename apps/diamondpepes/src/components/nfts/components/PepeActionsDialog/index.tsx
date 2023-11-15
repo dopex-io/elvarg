@@ -6,7 +6,7 @@ import IconButton from '@mui/material/IconButton';
 import Input from '@mui/material/Input';
 
 import cx from 'classnames';
-import BigCrossIcon from 'svgs/icons/BigCrossIcon';
+import BigCrossIcon from 'icons/BigCrossIcon';
 
 import { useBoundStore } from 'store';
 
