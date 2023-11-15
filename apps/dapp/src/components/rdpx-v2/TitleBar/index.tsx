@@ -106,14 +106,14 @@ const TitleBar = () => {
                 name="rtETH Price"
                 value={`${formatBigint(
                   rdpxV2CoreState.dpxethPriceInEth,
-                  DECIMALS_STRIKE,
+                  DECIMALS_TOKEN,
                 )} WETH`}
               />
               <Stat
                 name="RDPX Price"
                 value={`${formatBigint(
                   rdpxV2CoreState.rdpxPriceInEth,
-                  DECIMALS_STRIKE,
+                  DECIMALS_TOKEN,
                 )} WETH`}
               />
             </div>

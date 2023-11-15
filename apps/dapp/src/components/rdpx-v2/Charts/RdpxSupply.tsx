@@ -73,7 +73,8 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
       .then((payload) => {
         const _ethPriceInUsd = Number(payload.data.ethereum.usd);
         setEthPriceInUsd(_ethPriceInUsd);
-      });
+      })
+      .catch(() => setEthPriceInUsd(0));
   }, []);
 
   return (

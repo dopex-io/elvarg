@@ -21,6 +21,7 @@ import formatBigint from 'utils/general/formatBigint';
 
 import { RDPX_V2_STATE } from 'constants/env';
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
+import DelegateBonds from 'constants/rdpx/abis/DelegateBonds';
 import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
 import addresses from 'constants/rdpx/addresses';
 
@@ -65,7 +66,7 @@ const Bond = () => {
     updateBalance: updateBalanceRdpx,
   } = useTokenData({
     amount: inputAmountBreakdown[0],
-    spender: addresses.v2core || '0x',
+    spender: delegated ? addresses.delegateBonds : addresses.v2core,
     token: addresses.rdpx,
   });
   const {
@@ -88,7 +89,10 @@ const Bond = () => {
       abi: erc20ABI,
       address: addresses.rdpx,
       functionName: 'approve',
-      args: [addresses.v2core, inputAmountBreakdown[0]],
+      args: [
+        delegated ? addresses.delegateBonds : addresses.v2core, // approve DelegateController if delegate bonding
+        inputAmountBreakdown[0],
+      ],
     });
   const { write: approveWeth, isSuccess: approveWethSuccess } =
     useContractWrite({
@@ -105,11 +109,10 @@ const Bond = () => {
   });
   const { write: delegateBond, isSuccess: delegateBondSuccess } =
     useContractWrite({
-      abi: RdpxV2Core,
-      address: addresses.v2core,
+      abi: DelegateBonds,
+      address: addresses.delegateBonds,
       functionName: 'bondWithDelegate',
       args: [
-        account || '0x',
         squeezeDelegatesResult.bondBreakdown,
         squeezeDelegatesResult.ids,
         0n,

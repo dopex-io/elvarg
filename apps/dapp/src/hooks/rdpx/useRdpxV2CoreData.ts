@@ -87,8 +87,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
     if (user === '0x' || user === zeroAddress) return;
 
     const [
-      { result: bondMaturity = 0n },
-      { result: bondDiscountFactor = 0n },
+      { result: coreParameters = [0n, 0n, 0n] as const },
       { result: rdpxPriceInEth = 0n },
       { result: dpxethPriceInEth = 0n },
       { result: ethPrice = 0n },
@@ -103,11 +102,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
       contracts: [
         {
           ...coreContractConfig,
-          functionName: 'bondMaturity',
-        },
-        {
-          ...coreContractConfig,
-          functionName: 'bondDiscountFactor',
+          functionName: 'getCoreParameters',
         },
         { ...coreContractConfig, functionName: 'getRdpxPrice' },
         { ...coreContractConfig, functionName: 'getDpxEthPrice' },
@@ -115,7 +110,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
         {
           ...coreContractConfig,
           functionName: 'calculateBondCost',
-          args: [parseUnits('1', DECIMALS_TOKEN), 0n],
+          args: [parseUnits('1', DECIMALS_TOKEN)],
         },
         {
           abi: erc20ABI,
@@ -160,13 +155,13 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
 
     const discount =
       Math.ceil(
-        Number(bondDiscountFactor) * Math.sqrt(Number(rdpxReserve)) * 1e2,
+        Number(coreParameters[1]) * Math.sqrt(Number(rdpxReserve)) * 1e2,
       ) / Math.sqrt(Number(parseUnits('1', DECIMALS_TOKEN)));
 
     setRdpxV2CoreState((prev) => ({
       ...prev,
-      bondMaturity,
-      bondDiscountFactor,
+      bondMaturity: coreParameters[2],
+      bondDiscountFactor: coreParameters[1],
       dpxethPriceInEth,
       bondComposition,
       rdpxPriceInEth,

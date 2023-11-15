@@ -10,7 +10,7 @@ import columns, {
   DelegatePositions as DelegatePositionsType,
 } from 'components/rdpx-v2/Tables/ColumnDefs/DelegatePositionsColumn';
 
-import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
+import DelegateBonds from 'constants/rdpx/abis/DelegateBonds';
 import addresses from 'constants/rdpx/addresses';
 
 const DelegatePositions = () => {
@@ -28,8 +28,8 @@ const DelegatePositions = () => {
     async (id: bigint) => {
       const write = async () =>
         await writeContract({
-          abi: RdpxV2Core,
-          address: addresses.v2core,
+          abi: DelegateBonds,
+          address: addresses.delegateBonds,
           functionName: 'withdraw',
           args: [id],
         });

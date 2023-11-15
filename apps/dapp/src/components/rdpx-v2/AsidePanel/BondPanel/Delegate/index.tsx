@@ -24,7 +24,7 @@ import useDelegatePanelState from 'components/rdpx-v2/AsidePanel/hooks/useDelega
 import Typography2 from 'components/UI/Typography2';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
-import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
+import DelegateBonds from 'constants/rdpx/abis/DelegateBonds';
 import addresses from 'constants/rdpx/addresses';
 
 const Delegate = () => {
@@ -34,7 +34,7 @@ const Delegate = () => {
   const { address: account = '0x' } = useAccount();
   const { balance, updateBalance, approved, updateAllowance } = useTokenData({
     token: addresses.weth,
-    spender: addresses.v2core,
+    spender: addresses.delegateBonds,
     amount,
   });
   const { updateUserBonds, updateUserDelegatePositions } = useRdpxV2CoreData({
@@ -44,11 +44,11 @@ const Delegate = () => {
     abi: erc20ABI,
     address: addresses.weth,
     functionName: 'approve',
-    args: [addresses.v2core, parseUnits(amount, DECIMALS_TOKEN)],
+    args: [addresses.delegateBonds, parseUnits(amount, DECIMALS_TOKEN)],
   });
   const { write: delegate, isSuccess: delegateSuccess } = useContractWrite({
-    abi: RdpxV2Core,
-    address: addresses.v2core,
+    abi: DelegateBonds,
+    address: addresses.delegateBonds,
     functionName: 'addToDelegate',
     args: [
       parseUnits(amount, DECIMALS_TOKEN),

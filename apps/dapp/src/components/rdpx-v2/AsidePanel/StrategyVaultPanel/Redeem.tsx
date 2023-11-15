@@ -56,7 +56,9 @@ const Redeem = () => {
           functionName: 'redeemRequest',
           args: [_amount],
         });
-      await write().then(async () => await updateUserPerpetualVaultData());
+      await write()
+        .then(async () => await updateUserPerpetualVaultData())
+        .catch((e) => console.error(e));
     },
     [updateUserPerpetualVaultData],
   );
