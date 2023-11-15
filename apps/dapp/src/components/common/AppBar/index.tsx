@@ -111,8 +111,7 @@ const menuLinks = [
   { name: 'Github', to: 'https://github.com/dopex-io' },
   { name: 'Bug Bounty', to: 'https://github.com/dopex-io/bug-bounty' },
   { name: 'Fees', to: '/fees' },
-  { name: 'Diamond Pepe NFTs', to: '/nfts/diamondpepes' },
-  { name: 'Dopex NFTs', to: '/nfts/dopex' },
+  { name: 'Dopex NFTs', to: '/nfts' },
 ];
 
 export default function AppBar() {
