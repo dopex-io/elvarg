@@ -45,12 +45,18 @@ const Main = () => {
           body: <StakingBody />,
           blockscannerContent: quickLinks.arbiscanStaking,
         };
-      case 'farm':
+      default:
         return {
-          asidePanel: null,
-          body: <Farm />,
-          blockscannerContent: null,
+          asidePanel: <BondPanel />,
+          body: <BondsBody />,
+          blockscannerContent: quickLinks.arbiscanV2Core,
         };
+      // case 'farm':
+      //   return {
+      //     asidePanel: null,
+      //     body: <Farm />,
+      //     blockscannerContent: null,
+      //   };
     }
   }, [rdpxPageState]);
 
