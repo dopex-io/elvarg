@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "start": "next start",
-    "build": "next build",
-    "lint": "next lint",
-    "export": "next export"
+    "dev-dp": "next dev",
+    "start-dp": "next start",
+    "build-dp": "next build",
+    "lint-dp": "next lint"
   },
   "dependencies": {
     "@0xsequence/multicall": "^0.43.34",

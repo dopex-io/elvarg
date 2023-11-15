@@ -23,6 +23,12 @@
     "build-share": {
       "outputs": [".next/**"]
     },
+    "dev-dp": {
+      "persistent": true
+    },
+    "build-dp": {
+      "outputs": [".next/**"]
+    },
     "build-storybook": {
       "outputs": ["storybook-static/**"]
     }
