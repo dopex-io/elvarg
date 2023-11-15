@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
+import { BigNumber } from 'ethers';
 import { Address, BaseError, formatUnits, Hex } from 'viem';
 
 import { Checkbox } from '@mui/material';
@@ -41,6 +42,12 @@ export type LPPositionItem = {
     token1Symbol: string;
   };
   earned: {
+    token0Amount: string;
+    token1Amount: string;
+    token0Symbol: string;
+    token1Symbol: string;
+  };
+  liquidityUsedPercentage: {
     token0Amount: string;
     token1Amount: string;
     token0Symbol: string;
@@ -123,6 +130,28 @@ const columns = [
             <span>{formatAmount(token1Amount, 3)}</span>
             <span className="text-stieglitz text-[13px]">{token1Symbol}</span>
             <span className="text-stieglitz text-[13px]"></span>
+          </span>
+        </div>
+      );
+    },
+  }),
+  columnHelper.accessor('liquidityUsedPercentage', {
+    header: 'Liquidity Used (%)',
+    cell: (info) => {
+      const { token0Symbol, token1Symbol, token0Amount, token1Amount } =
+        info.getValue();
+
+      return (
+        <div className="flex flex-col items-start justify-center">
+          <span>
+            {formatAmount(token0Amount, 2)}
+            {'% '}
+            <span className="text-stieglitz">{token0Symbol}</span>
+          </span>
+          <span>
+            {formatAmount(token1Amount, 2)}
+            {'% '}
+            <span className="text-stieglitz">{token1Symbol}</span>
           </span>
         </div>
       );
@@ -282,6 +311,14 @@ const LPPositions = ({
                 BigInt(token1Withdrawable),
                 Number(token1Decimals),
               ),
+              token0Symbol: token0Symbol,
+              token1Symbol: token1Symbol,
+            },
+            liquidityUsedPercentage: {
+              token0Amount:
+                100 - (100 * token0Withdrawable) / token0LiquidityInToken || 0,
+              token1Amount:
+                100 - (100 * token1Withdrawable) / token1LiquidityInToken || 0,
               token0Symbol: token0Symbol,
               token1Symbol: token1Symbol,
             },
