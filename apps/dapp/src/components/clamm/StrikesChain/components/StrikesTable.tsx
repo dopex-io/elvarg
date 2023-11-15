@@ -336,13 +336,11 @@ const StrikesTable = () => {
   ]);
 
   return (
-    <div>
-      <TableLayout<StrikeItem>
-        data={strikes}
-        columns={columns}
-        isContentLoading={loading}
-      />
-    </div>
+    <TableLayout<StrikeItem>
+      data={strikes}
+      columns={columns}
+      isContentLoading={loading}
+    />
   );
 };
 
