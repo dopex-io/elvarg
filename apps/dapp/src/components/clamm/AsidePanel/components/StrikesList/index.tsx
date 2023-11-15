@@ -22,7 +22,7 @@ type Prop = {
 const StrikesList = ({ strikes, isPut, selectedLength }: Prop) => {
   const { selectStrike, strikesChain, selectedStrikes } =
     useStrikesChainStore();
-  const { selectedOptionsPool, isTrade } = useClammStore();
+  const { selectedOptionsPool, isTrade, markPrice } = useClammStore();
 
   const tokenInfo = useMemo(() => {
     if (!selectedOptionsPool)
@@ -42,6 +42,13 @@ const StrikesList = ({ strikes, isPut, selectedLength }: Prop) => {
       putTokenSymbol: putToken.symbol,
     };
   }, [selectedOptionsPool]);
+
+  const rewardsStrikesLimit = useMemo(() => {
+    return {
+      upperLimit: markPrice * 1.024,
+      lowerLimit: markPrice * 0.976,
+    };
+  }, [markPrice]);
 
   return (
     <div className="w-full z-20">
@@ -114,6 +121,16 @@ const StrikesList = ({ strikes, isPut, selectedLength }: Prop) => {
               >
                 <div className="flex items-center w-full justify-center">
                   <div className="flex items-center justfiy-center space-x-[4px]">
+                    {rewardsStrikesLimit.lowerLimit <
+                      Number(strikeData.strike) &&
+                      rewardsStrikesLimit.upperLimit >
+                        Number(strikeData.strike) && (
+                        <img
+                          src="/images/tokens/arb.svg"
+                          alt="ARB"
+                          className="w-[10px] h-[10px]"
+                        />
+                      )}
                     <span
                       className={cx(
                         'text-sm',

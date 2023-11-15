@@ -29,22 +29,22 @@ export type LPPositionItem = {
   };
   side: string;
   size: {
-    callTokenAmount: string;
-    putTokenAmount: string;
-    callTokenSymbol: string;
-    putTokenSymbol: string;
+    token0Amount: string;
+    token1Amount: string;
+    token0Symbol: string;
+    token1Symbol: string;
   };
   withdrawable: {
-    callTokenAmount: string;
-    putTokenAmount: string;
-    callTokenSymbol: string;
-    putTokenSymbol: string;
+    token0Amount: string;
+    token1Amount: string;
+    token0Symbol: string;
+    token1Symbol: string;
   };
   earned: {
-    callTokenAmount: string;
-    putTokenAmount: string;
-    callTokenSymbol: string;
-    putTokenSymbol: string;
+    token0Amount: string;
+    token1Amount: string;
+    token0Symbol: string;
+    token1Symbol: string;
   };
   withdrawButton: {
     disabled: boolean;
@@ -73,25 +73,21 @@ const columns = [
   columnHelper.accessor('size', {
     header: 'Size',
     cell: (info) => {
-      const {
-        callTokenAmount,
-        putTokenAmount,
-        callTokenSymbol,
-        putTokenSymbol,
-      } = info.getValue();
+      const { token0Amount, token1Amount, token0Symbol, token1Symbol } =
+        info.getValue();
 
       return (
         <div className="flex flex-col items-start justify-center">
-          {Number(callTokenAmount) !== 0 && (
+          {Number(token0Amount) !== 0 && (
             <span>
-              {formatAmount(callTokenAmount, 3)}{' '}
-              <span className="text-stieglitz">{callTokenSymbol}</span>
+              {formatAmount(token0Amount, 3)}{' '}
+              <span className="text-stieglitz">{token0Symbol}</span>
             </span>
           )}
-          {Number(putTokenAmount) !== 0 && (
+          {Number(token1Amount) !== 0 && (
             <span>
-              {formatAmount(putTokenAmount, 3)}{' '}
-              <span className="text-stieglitz">{putTokenSymbol}</span>
+              {formatAmount(token1Amount, 3)}{' '}
+              <span className="text-stieglitz">{token1Symbol}</span>
             </span>
           )}
         </div>
@@ -114,21 +110,19 @@ const columns = [
   columnHelper.accessor('earned', {
     header: 'Earned',
     cell: (info) => {
-      const {
-        callTokenAmount,
-        putTokenAmount,
-        callTokenSymbol,
-        putTokenSymbol,
-      } = info.getValue();
+      const { token0Amount, token1Amount, token0Symbol, token1Symbol } =
+        info.getValue();
       return (
         <div className="flex flex-col items-start justify-center">
-          <span>
-            {formatAmount(callTokenAmount, 3)}{' '}
-            <span className="text-stieglitz">{callTokenSymbol}</span>
+          <span className="flex items-center justify-center space-x-[4px]">
+            <span>{formatAmount(token0Amount, 3)}</span>
+            <span className="text-stieglitz text-[13px]">{token0Symbol}</span>
+            <span className="text-stieglitz text-[13px]"></span>
           </span>
-          <span>
-            {formatAmount(putTokenAmount, 3)}{' '}
-            <span className="text-stieglitz">{putTokenSymbol}</span>
+          <span className="flex items-center justify-center space-x-[2px]">
+            <span>{formatAmount(token1Amount, 3)}</span>
+            <span className="text-stieglitz text-[13px]">{token1Symbol}</span>
+            <span className="text-stieglitz text-[13px]"></span>
           </span>
         </div>
       );
@@ -137,21 +131,17 @@ const columns = [
   columnHelper.accessor('withdrawable', {
     header: 'Withdrawable',
     cell: (info) => {
-      const {
-        callTokenAmount,
-        putTokenAmount,
-        callTokenSymbol,
-        putTokenSymbol,
-      } = info.getValue();
+      const { token0Amount, token1Amount, token0Symbol, token1Symbol } =
+        info.getValue();
       return (
         <div className="flex flex-col items-start justify-center">
           <span>
-            {formatAmount(callTokenAmount, 3)}{' '}
-            <span className="text-stieglitz">{callTokenSymbol}</span>
+            {formatAmount(token0Amount, 3)}{' '}
+            <span className="text-stieglitz">{token0Symbol}</span>
           </span>
           <span>
-            {formatAmount(putTokenAmount, 3)}{' '}
-            <span className="text-stieglitz">{putTokenSymbol}</span>
+            {formatAmount(token1Amount, 3)}{' '}
+            <span className="text-stieglitz">{token1Symbol}</span>
           </span>
         </div>
       );
@@ -179,7 +169,7 @@ const LPPositions = ({
   unselectPosition,
   loading,
 }: any) => {
-  const { tick } = useClammStore();
+  const { tick, selectedOptionsPool } = useClammStore();
   const { chain } = useNetwork();
   const { data: walletClient } = useWalletClient({
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
@@ -215,6 +205,8 @@ const LPPositions = ({
   );
 
   const lpPositions = useMemo(() => {
+    if (!selectedOptionsPool) return;
+
     return positions
       .map(
         (
@@ -245,29 +237,29 @@ const LPPositions = ({
 
           return {
             earned: {
-              callTokenAmount: formatUnits(
+              token0Amount: formatUnits(
                 BigInt(token0Earned),
                 Number(token0Decimals),
               ),
-              putTokenAmount: formatUnits(
+              token1Amount: formatUnits(
                 BigInt(token1Earned),
                 Number(token1Decimals),
               ),
-              callTokenSymbol: token0Symbol,
-              putTokenSymbol: token1Symbol,
+              token0Symbol: token0Symbol,
+              token1Symbol: token1Symbol,
             },
             side: side,
             size: {
-              callTokenAmount: formatUnits(
+              token0Amount: formatUnits(
                 BigInt(token0LiquidityInToken),
                 Number(token0Decimals),
               ),
-              putTokenAmount: formatUnits(
+              token1Amount: formatUnits(
                 BigInt(token1LiquidityInToken),
                 Number(token1Decimals),
               ),
-              callTokenSymbol: token0Symbol,
-              putTokenSymbol: token1Symbol,
+              token0Symbol: token0Symbol,
+              token1Symbol: token1Symbol,
             },
             strike: {
               handleSelect: () => {
@@ -282,16 +274,16 @@ const LPPositions = ({
               strikePrice: strikePrice,
             },
             withdrawable: {
-              callTokenAmount: formatUnits(
+              token0Amount: formatUnits(
                 BigInt(token0Withdrawable),
                 Number(token0Decimals),
               ),
-              putTokenAmount: formatUnits(
+              token1Amount: formatUnits(
                 BigInt(token1Withdrawable),
                 Number(token1Decimals),
               ),
-              callTokenSymbol: token0Symbol,
-              putTokenSymbol: token1Symbol,
+              token0Symbol: token0Symbol,
+              token1Symbol: token1Symbol,
             },
             withdrawButton: {
               disabled: BigInt(meta.withdrawableShares) === 0n,
@@ -314,6 +306,7 @@ const LPPositions = ({
     selectedPositions,
     unselectPosition,
     handleWithdraw,
+    selectedOptionsPool,
   ]);
   return (
     <TableLayout<LPPositionItem>
