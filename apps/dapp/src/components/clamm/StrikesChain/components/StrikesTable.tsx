@@ -38,6 +38,7 @@ type StrikeItem = {
     handleSelect: () => void;
   };
   liquidity: {
+    totalLiquidityUsd: string;
     symbol: string;
     usd: number;
     amount: number;
@@ -219,6 +220,7 @@ const StrikesTable = () => {
             liquidityAvailableUsd,
             liquidityInToken,
             meta,
+            liquidityUsd,
             liquidityAvailableInToken,
             optionsAvailable,
             rewardsApy,
@@ -297,6 +299,7 @@ const StrikesTable = () => {
               },
             },
             liquidity: {
+              totalLiquidityUsd: liquidityUsd,
               symbol: tokenSymbol,
               usd: Number(liquidityAvailableUsd),
               amount: Number(
@@ -318,7 +321,9 @@ const StrikesTable = () => {
         },
       )
       .filter(({ type }) => (isPut ? type === 'put' : type === 'call'))
-      .filter(({ liquidity: { usd } }) => Number(usd) > 1);
+      .filter(
+        ({ liquidity: { totalLiquidityUsd } }) => Number(totalLiquidityUsd) > 1,
+      );
 
     if (isPut) {
       return _strikes.sort((a, b) => b.strike.amount - a.strike.amount);
