@@ -79,7 +79,7 @@ const SelectedStrikeItem = ({
     editAllMode ? commonInputAmount : inputAmount,
     1500,
   );
-  const { setLoading, isLoading } = useLoadingStates();
+  const { setLoading } = useLoadingStates();
   const [error, setError] = useState('');
 
   const tokenDecimals = useMemo(() => {

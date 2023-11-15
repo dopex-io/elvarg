@@ -178,27 +178,27 @@ const StrikesTable = () => {
 
   const { selectedOptionsPool, isPut, markPrice } = useClammStore();
   const { chain } = useNetwork();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const loadStrikes = useCallback(async () => {
-    if (!selectedOptionsPool || !chain) return;
-    setLoading(true);
+    if (!selectedOptionsPool) return;
 
     const data = await getStrikesChain(
-      chain.id,
+      chain?.id ?? 42161,
       selectedOptionsPool.optionsPoolAddress,
       50,
       0,
     );
 
     initialize(data ?? []);
-
-    setLoading(false);
-  }, [chain, initialize, selectedOptionsPool]);
+  }, [initialize, chain, , selectedOptionsPool]);
 
   useEffect(() => {
+    setLoading(true);
     setUpdateStrikes(loadStrikes);
-    loadStrikes();
+    loadStrikes().finally(() => {
+      setLoading(false);
+    });
   }, [loadStrikes, setUpdateStrikes]);
 
   const rewardsStrikesLimit = useMemo(() => {

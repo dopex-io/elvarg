@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 
 import { NextSeo } from 'next-seo';
-import toast from 'react-hot-toast';
 import { useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
@@ -11,13 +10,13 @@ import AsidePanel from 'components/clamm/AsidePanel';
 import PositionsTable from 'components/clamm/PositionsTable';
 import PriceChart from 'components/clamm/PriceChart';
 import StrikesChain from 'components/clamm/StrikesChain';
-import OverViewStats from 'components/clamm/TitleBar/OverViewStats';
-import PairSelector from 'components/clamm/TitleBar/PairSelector';
+import TitleBar from 'components/clamm/TitleBar';
 import PageLayout from 'components/common/PageLayout';
 
 import getAddresses from 'utils/clamm/varrock/getAddresses';
 import getOptionsPools from 'utils/clamm/varrock/getOptionsPools';
 
+import { DEFAULT_CHAIN_ID } from 'constants/env';
 import seo from 'constants/seo';
 
 const Page = () => {
@@ -26,11 +25,13 @@ const Page = () => {
   const { chain } = useNetwork();
 
   useEffect(() => {
-    if (!chain) return;
-
-    getOptionsPools(chain.id, initialize, (error: string) => {
-      console.error(error);
-    });
+    getOptionsPools(
+      chain?.id ?? DEFAULT_CHAIN_ID,
+      initialize,
+      (error: string) => {
+        console.error(error);
+      },
+    );
   }, [chain, initialize]);
 
   useEffect(() => {
@@ -66,8 +67,7 @@ const Page = () => {
       />
       <div className="flex flex-col w-full p-[12px] space-y-[12px] md:pb-[50px]">
         <div className="flex flex-col md:flex-row md:items-center justify-start h-fit space-y-[24px] md:space-y-[0px] md:space-x-[24px]">
-          <PairSelector />
-          <OverViewStats />
+          <TitleBar />
         </div>
         <div className="w-full flex flex-col xl:flex-row xl:space-x-[12px] xl:space-y-[0px] space-y-[12px]">
           <div className="max-w-[1530px] sm:min-w-[590px] h-fit sm:w-full w-[96vw] space-y-[12px]">
