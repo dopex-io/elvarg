@@ -1,4 +1,6 @@
-import { TokenData } from 'types';
+import arbitrumOneTokens from 'token-list/arbitrum-one.json';
+import polygonMainnetTokens from 'token-list/polygon-mainnet.json';
+import { Token, TokenData } from 'types';
 
 // Note: all token addresses are lower cased
 export const TOKEN_ADDRESS_TO_DATA: { [key: string]: TokenData } = {
@@ -40,6 +42,11 @@ export const TOKEN_ADDRESS_TO_DATA: { [key: string]: TokenData } = {
   },
 };
 
+export const TOKENS: { [key: number]: Token[] } = {
+  42161: arbitrumOneTokens,
+  137: polygonMainnetTokens,
+};
+
 export const TOKEN_DATA: {
   [key: string]: {
     cgId?: string;
@@ -75,5 +82,3 @@ export const TOKEN_DATA: {
   VBNB: { name: 'Venus BNB' },
   METIS: { cgId: 'metis', name: 'Metis DAO' },
 };
-
-export const TOKENS = Object.keys(TOKEN_DATA);
