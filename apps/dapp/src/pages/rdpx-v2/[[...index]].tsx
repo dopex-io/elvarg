@@ -1,5 +1,4 @@
 import { /*useEffect, */ useMemo } from 'react';
-import Head from 'next/head';
 
 // import { useRouter } from 'next/router';
 
@@ -12,7 +11,6 @@ import BondPanel from 'components/rdpx-v2/AsidePanel/BondPanel';
 import StakePanel from 'components/rdpx-v2/AsidePanel/StakePanel';
 import StrategyVaultPanel from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel';
 import BondsBody from 'components/rdpx-v2/Body/BondsBody';
-import Farm from 'components/rdpx-v2/Body/Farm';
 import StakingBody from 'components/rdpx-v2/Body/StakingBody';
 import StrategyVaultBody from 'components/rdpx-v2/Body/StrategyVault';
 import QuickLink from 'components/rdpx-v2/QuickLink';

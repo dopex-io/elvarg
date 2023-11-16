@@ -5,6 +5,7 @@ import { useAccount } from 'wagmi';
 
 import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 
+import UserDataGrid from 'components/rdpx-v2/Body/BondsBody/UserDataGrid';
 import Charts from 'components/rdpx-v2/Charts';
 import QuickLink from 'components/rdpx-v2/QuickLink';
 import DelegatePositions from 'components/rdpx-v2/Tables/DelegatePositions';
@@ -67,6 +68,7 @@ const BondsBody = () => {
         </div>
         <Charts />
       </div>
+      <UserDataGrid />
       <div className="space-y-1">
         <div className="flex w-full">
           {actions.map((label: ActionType, index) => {
