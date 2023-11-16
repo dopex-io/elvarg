@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from 'react';
-import { BigNumber } from 'ethers';
 import { Address, BaseError, formatUnits, Hex } from 'viem';
 
 import { Checkbox } from '@mui/material';
