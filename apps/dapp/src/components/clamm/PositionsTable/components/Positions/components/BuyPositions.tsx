@@ -263,7 +263,7 @@ const BuyPositions = ({
 
       setTimeout(async () => {
         await updatePositions();
-      }, 2500);
+      }, 5000);
 
       toast.remove(loadingToastId);
     },
