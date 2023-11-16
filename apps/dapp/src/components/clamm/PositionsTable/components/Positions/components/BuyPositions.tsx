@@ -37,9 +37,9 @@ export type BuyPosition = {
     handleSelect: () => void;
   };
   size: {
-    amount: string;
+    amount: number;
     symbol: string;
-    usdValue: string;
+    usdValue: number;
   };
   side: string;
   premium: {
@@ -50,9 +50,9 @@ export type BuyPosition = {
   expiry: number;
   profit: {
     percentage: number;
-    amount: string;
+    amount: number;
     symbol: string;
-    usdValue: string;
+    usdValue: number;
   };
 };
 
@@ -170,6 +170,7 @@ type Props = {
   selectPosition: (key: number, positionInfo: any) => void;
   selectedPositions: Map<number, any>;
   unselectPosition: (key: number) => void;
+  updatePositions: () => Promise<void>;
   loading: boolean;
 };
 const BuyPositions = ({
@@ -178,9 +179,10 @@ const BuyPositions = ({
   selectedPositions,
   unselectPosition,
   loading,
+  updatePositions,
 }: Props) => {
   const { chain } = useNetwork();
-  const { selectedOptionsPool } = useClammStore();
+  const { selectedOptionsPool, markPrice } = useClammStore();
   const { data: walletClient } = useWalletClient({
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
   });
@@ -212,7 +214,7 @@ const BuyPositions = ({
           type: 'legacy',
         });
         const hash = await walletClient.sendTransaction(request);
-        const reciept = await publicClient.waitForTransactionReceipt({
+        await publicClient.waitForTransactionReceipt({
           hash,
         });
 
@@ -247,7 +249,7 @@ const BuyPositions = ({
             type: 'legacy',
           });
           const hash = await walletClient.sendTransaction(request);
-          const reciept = await publicClient.waitForTransactionReceipt({
+          await publicClient.waitForTransactionReceipt({
             hash,
           });
 
@@ -259,9 +261,13 @@ const BuyPositions = ({
         }
       }
 
+      setTimeout(async () => {
+        await updatePositions();
+      }, 2500);
+
       toast.remove(loadingToastId);
     },
-    [selectedOptionsPool, walletClient],
+    [selectedOptionsPool, walletClient, updatePositions],
   );
 
   const buyPositions = useMemo(() => {
@@ -276,12 +282,27 @@ const BuyPositions = ({
             premium.decimals,
           );
 
-          const readableProfit = formatUnits(
-            profit.amountInToken,
-            profit.decimals,
+          const isSelected = Boolean(selectedPositions.get(index));
+
+          const isPut = side.toLowerCase() === 'put';
+          const priceDifference = isPut
+            ? strike - markPrice
+            : markPrice - strike;
+
+          const optionsSize = Number(
+            formatUnits(size.amountInToken, size.decimals),
           );
 
-          const isSelected = Boolean(selectedPositions.get(index));
+          const optionsAmount = isPut ? optionsSize / strike : optionsSize;
+
+          const profitUsd =
+            priceDifference < 0 ? 0 : priceDifference * optionsAmount;
+          const profitAmount = isPut ? profitUsd / markPrice : profitUsd;
+
+          const sizeInNumber = Number(
+            formatUnits(size.amountInToken, size.decimals),
+          );
+          const sizeUsd = isPut ? sizeInNumber : sizeInNumber * markPrice;
 
           return {
             expiry,
@@ -291,8 +312,8 @@ const BuyPositions = ({
               usdValue: premium.usdValue,
             },
             profit: {
-              amount: readableProfit,
-              usdValue: profit.usdValue,
+              amount: profitAmount,
+              usdValue: profitUsd,
               symbol: profit.symbol,
               percentage: Math.max(
                 getPercentageDifference(
@@ -304,9 +325,9 @@ const BuyPositions = ({
             },
             side: side.charAt(0).toUpperCase() + side.slice(1),
             size: {
-              amount: formatUnits(size.amountInToken, size.decimals),
+              amount: sizeInNumber,
               symbol: size.symbol,
-              usdValue: size.usdValue,
+              usdValue: sizeUsd,
             },
             strike: {
               handleSelect: () => {
@@ -323,7 +344,7 @@ const BuyPositions = ({
               handleExercise: async () => {
                 await handleExercise(String(meta.tokenId));
               },
-              disabled: Number(readableProfit) === 0,
+              disabled: profitAmount === 0,
             },
           };
         },
@@ -333,6 +354,7 @@ const BuyPositions = ({
           Number(a.strike.strikePrice) - Number(b.strike.strikePrice),
       );
   }, [
+    markPrice,
     positions,
     handleExercise,
     selectPosition,
