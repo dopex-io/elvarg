@@ -42,6 +42,12 @@ const Redeem = () => {
     functionName: 'approve',
     args: [addresses.perpPool, parseUnits(amount, DECIMALS_TOKEN)],
   });
+  const { writeAsync: redeem, isSuccess: isRedeemSuccess } = useContractWrite({
+    abi: PerpVault,
+    address: addresses.perpPool,
+    functionName: 'redeemRequest',
+    args: [parseUnits(amount, DECIMALS_TOKEN)],
+  });
 
   const onChange = useCallback((e: any) => {
     setAmount(Number(e.target.value) < 0 ? '' : e.target.value);
@@ -92,14 +98,15 @@ const Redeem = () => {
         disabled: false,
         severity: null,
         body: null,
-        handler: () => handleRedeemRequest(parseUnits(amount, DECIMALS_TOKEN)),
+        handler: () => redeem().then(() => updateUserPerpetualVaultData()),
       };
     }
   }, [
     amount,
     approve,
     approved,
-    handleRedeemRequest,
+    redeem,
+    updateUserPerpetualVaultData,
     userPerpetualVaultData.totalUserShares,
   ]);
 
@@ -111,7 +118,7 @@ const Redeem = () => {
 
   useEffect(() => {
     updateAllowance();
-  }, [updateAllowance, isApproveSuccess]);
+  }, [updateAllowance, isApproveSuccess, isRedeemSuccess]);
 
   useEffect(() => {
     updatePerpetualVaultState();
@@ -119,7 +126,7 @@ const Redeem = () => {
 
   useEffect(() => {
     updateUserPerpetualVaultData();
-  }, [updateUserPerpetualVaultData]);
+  }, [updateUserPerpetualVaultData, isRedeemSuccess]);
 
   return (
     <div className="space-y-3 relative">

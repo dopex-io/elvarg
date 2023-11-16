@@ -18,7 +18,7 @@ const TitleItem = (props: Props) => {
       onClick={onClick}
       color={active ? 'carbon' : 'umbra'}
       disabled={disabled}
-      className={`w-1/3 ${disabled ? 'cursor-not-allowed' : 'cursor-default'}`}
+      className={`w-1/3 ${disabled ? 'cursor-not-allowed' : null}`}
     >
       <Typography2 variant="caption" color={active ? 'white' : 'stieglitz'}>
         {label}

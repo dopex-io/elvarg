@@ -147,11 +147,11 @@ const Bond = () => {
 
   useEffect(() => {
     updateBalanceWeth();
-  }, [updateBalanceWeth]);
+  }, [updateBalanceWeth, bondSuccess, delegateBondSuccess]);
 
   useEffect(() => {
     updateBalanceRdpx();
-  }, [updateBalanceRdpx]);
+  }, [updateBalanceRdpx, delegateBondSuccess]);
 
   useEffect(() => {
     updateAllowanceRdpx();
@@ -220,6 +220,8 @@ const Bond = () => {
         bondAmount={Number(amount || '0')}
         bondComposition={rdpxV2CoreState.bondComposition}
         rdpxPrice={rdpxV2CoreState.rdpxPriceInEth}
+        totalSupply={rdpxV2CoreState.receiptTokenSupply}
+        maxSupply={rdpxV2CoreState.receiptTokenMaxSupply}
       />
       <div className="flex flex-col rounded-xl p-3 w-full bg-umbra space-y-3">
         <InfoRow
@@ -231,35 +233,49 @@ const Bond = () => {
           }
         />
         {delegated ? (
-          <InfoRow
-            label="Delegated WETH used"
-            value={
-              <>
-                <Typography2
-                  variant="caption"
-                  color={
-                    squeezeDelegatesResult.wethToBeUsed >=
-                    squeezeDelegatesResult.totalDelegatedWeth
-                      ? 'down-bad'
-                      : 'white'
-                  }
-                >
-                  {formatBigint(
-                    squeezeDelegatesResult.wethToBeUsed,
-                    DECIMALS_TOKEN,
-                  )}{' '}
-                </Typography2>
-                /{' '}
+          <>
+            <InfoRow
+              label="Delegated WETH used"
+              value={
+                <>
+                  <Typography2
+                    variant="caption"
+                    color={
+                      squeezeDelegatesResult.wethToBeUsed >=
+                      squeezeDelegatesResult.totalDelegatedWeth
+                        ? 'down-bad'
+                        : 'white'
+                    }
+                  >
+                    {formatBigint(
+                      squeezeDelegatesResult.wethToBeUsed,
+                      DECIMALS_TOKEN,
+                    )}{' '}
+                  </Typography2>
+                  /{' '}
+                  <Typography2 variant="caption">
+                    {formatBigint(
+                      squeezeDelegatesResult.totalDelegatedWeth,
+                      DECIMALS_TOKEN,
+                    )}{' '}
+                    WETH
+                  </Typography2>
+                </>
+              }
+            />
+            <InfoRow
+              label="Average Fee %"
+              value={
                 <Typography2 variant="caption">
                   {formatBigint(
-                    squeezeDelegatesResult.totalDelegatedWeth,
-                    DECIMALS_TOKEN,
-                  )}{' '}
-                  WETH
+                    squeezeDelegatesResult.avgFee,
+                    DECIMALS_STRIKE + DECIMALS_TOKEN,
+                  )}
+                  %
                 </Typography2>
-              </>
-            }
-          />
+              }
+            />
+          </>
         ) : (
           <InfoRow
             label="WETH Balance"
@@ -270,22 +286,6 @@ const Bond = () => {
             }
           />
         )}
-        <InfoRow
-          label="Average Fee %"
-          value={
-            <Typography2 variant="caption">
-              {formatBigint(
-                squeezeDelegatesResult.avgFee,
-                DECIMALS_STRIKE + DECIMALS_TOKEN,
-              )}
-              %
-            </Typography2>
-          }
-        />
-        <InfoRow
-          label="rtETH to be received"
-          value={<Typography2 variant="caption">-</Typography2>}
-        />
         <Button
           size="medium"
           className="w-full rounded-md"

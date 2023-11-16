@@ -13,6 +13,7 @@ const initialContractStates: {
     bondComposition: [0n, 0n] as readonly [bigint, bigint],
     discount: 0n,
     receiptTokenSupply: 0n,
+    receiptTokenMaxSupply: 0n,
     receiptTokenBacking: [0n, 0n] as readonly [bigint, bigint],
     rdpxSupply: 0n,
   },

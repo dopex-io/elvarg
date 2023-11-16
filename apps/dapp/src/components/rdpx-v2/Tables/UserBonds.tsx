@@ -20,14 +20,14 @@ const UserBonds = () => {
     user,
   });
 
-  const { data: isApprovedForAll } = useContractRead({
+  const { data: isApprovedForAll, refetch } = useContractRead({
     abi: RdpxV2Bond,
     address: addresses.bond,
     functionName: 'isApprovedForAll',
     args: [user || '0x', addresses.v2core],
   });
 
-  const { write: approve } = useContractWrite({
+  const { writeAsync: approve, isSuccess: approveSuccess } = useContractWrite({
     abi: RdpxV2Bond,
     address: addresses.bond,
     functionName: 'setApprovalForAll',
@@ -64,16 +64,20 @@ const UserBonds = () => {
           id: bond.id,
           redeemable,
           handleRedeem: () => {
-            !!isApprovedForAll ? handleRedeem(bond.id) : approve();
+            !!isApprovedForAll
+              ? handleRedeem(bond.id)
+              : approve()
+                  .then(() => refetch())
+                  .catch((e) => console.error(e));
           },
         },
       };
     });
-  }, [userBonds, isApprovedForAll, handleRedeem, approve]);
+  }, [userBonds, isApprovedForAll, handleRedeem, approve, refetch]);
 
   useEffect(() => {
     updateUserBonds();
-  }, [updateUserBonds]);
+  }, [updateUserBonds, approveSuccess]);
 
   return (
     <TableLayout<UserBondsType>

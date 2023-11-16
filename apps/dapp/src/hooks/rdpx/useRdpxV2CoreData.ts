@@ -32,6 +32,7 @@ interface RdpxV2CoreState {
   bondComposition: readonly [bigint, bigint];
   discount: bigint;
   receiptTokenSupply: bigint;
+  receiptTokenMaxSupply: bigint;
   receiptTokenBacking: readonly [bigint, bigint];
   rdpxSupply: bigint;
 }
@@ -96,8 +97,9 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
       { result: rdpxBalance = 0n },
       { result: rdpxReserve = 0n },
       { result: receiptTokenSupply = 0n },
+      { result: receiptTokenMaxSupply = 0n },
       { result: rdpxSupply = 0n },
-    ] = await readContracts({
+    ] = await multicall({
       // multicall
       contracts: [
         {
@@ -130,6 +132,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
           functionName: 'rdpxReserve',
         },
         { ...receiptTokenConfig, functionName: 'totalSupply' },
+        { ...receiptTokenConfig, functionName: 'maxSupply' },
         { abi: erc20ABI, address: addresses.rdpx, functionName: 'totalSupply' },
       ],
     });
@@ -169,6 +172,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
       discount: parseUnits(discount.toString(), 0),
       maxMintableBonds,
       receiptTokenSupply,
+      receiptTokenMaxSupply,
       rdpxSupply,
     }));
   }, [user]);
