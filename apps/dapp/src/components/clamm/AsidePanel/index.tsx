@@ -94,7 +94,12 @@ const AsidePanel = () => {
         <p className="text-stieglitz text-xs">
           Need help understanding how to use CLAMM to purchase options and
           deposit to earn premiums and swap fees? Check out the{' '}
-          <a className="text-wave-blue font-semi underline">
+          <a
+            className="text-wave-blue font-semi underline"
+            rel="noopener noreferrer"
+            target="_blank"
+            href="https://learn.dopex.io/quick-start/clamm-walkthrough"
+          >
             CLAMM: Walkthrough
           </a>
         </p>
