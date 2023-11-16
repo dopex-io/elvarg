@@ -108,16 +108,6 @@ const PositionsTable = () => {
     );
   }, [updateLPPositions]);
 
-  useEffect(() => {
-    const interval = setInterval(() => updateBuyPositions(), 15000);
-    return () => clearInterval(interval);
-  }, [updateBuyPositions]);
-
-  useEffect(() => {
-    const interval = setInterval(() => updateLPPositions(), 15000);
-    return () => clearInterval(interval);
-  }, [updateLPPositions]);
-
   return (
     <div className="w-full flex-col items-center justify-center space-y-[12px]">
       <div className="w-full flex flex-row items-center justify-between">
@@ -148,6 +138,7 @@ const PositionsTable = () => {
             unselectPosition={unselectPosition}
             selectedPositions={selectedPositions}
             loading={loading.buyPositions}
+            updatePositions={updateBuyPositions}
           />
         ) : (
           <LPPositions
