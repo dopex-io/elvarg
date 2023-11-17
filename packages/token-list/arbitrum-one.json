@@ -86,5 +86,13 @@
     "name": "Wrapped Ether",
     "logoURI": "BASE_URL/images/tokens/weth.svg",
     "decimals": 18
+  },
+  {
+    "address": "0x80789D252A288E93b01D82373d767D71a75D9F16",
+    "chainId": 42161,
+    "symbol": "veDPX",
+    "name": "Vote Escrowed DPX",
+    "logoURI": "BASE_URL/images/tokens/vedpx.svg",
+    "decimals": 18
   }
 ]
