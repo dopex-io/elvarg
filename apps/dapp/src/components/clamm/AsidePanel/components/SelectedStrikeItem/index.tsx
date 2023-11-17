@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react';
 import {
+  encodeAbiParameters,
   encodeFunctionData,
   formatUnits,
   hexToBigInt,
@@ -19,7 +20,7 @@ import {
   ArrowUpRightIcon,
   XMarkIcon,
 } from '@heroicons/react/24/solid';
-import axios from 'axios';
+import DopexV2PositionManager from 'abis/clamm/DopexV2PositionManager';
 import cx from 'classnames';
 import { useDebounce } from 'use-debounce';
 import { useNetwork } from 'wagmi';
@@ -37,6 +38,7 @@ import getPriceFromTick from 'utils/clamm/getPriceFromTick';
 import {
   getLiquidityForAmount0,
   getLiquidityForAmount1,
+  getLiquidityForAmounts,
 } from 'utils/clamm/liquidityAmountMath';
 import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
 import getPremium from 'utils/clamm/varrock/getPremium';
@@ -134,48 +136,74 @@ const SelectedStrikeItem = ({
     if (isTrade || !chain || !selectedOptionsPool || !addresses) return;
 
     const { callToken, putToken, primePool } = selectedOptionsPool;
-    const { isCall, meta } = strikeData;
+    const {
+      isCall,
+      meta: { tickLower, tickUpper },
+    } = strikeData;
     const depositAmount = parseUnits(
       Number(amountDebounced).toString(),
       isCall ? tokenDecimals.callToken : tokenDecimals.putToken,
     );
 
-    if (depositAmount === 0n) {
-      unsetDeposit(strikeIndex);
-      return;
+    if (depositAmount === 0n) unsetDeposit(strikeIndex);
+
+    const token0isCall =
+      hexToBigInt(callToken.address) < hexToBigInt(putToken.address);
+
+    let liquidityToProvide = 0n;
+
+    if (isCall) {
+      liquidityToProvide = token0isCall
+        ? getLiquidityForAmount0(
+            getSqrtRatioAtTick(BigInt(tickLower)),
+            getSqrtRatioAtTick(BigInt(tickUpper)),
+            depositAmount,
+          )
+        : getLiquidityForAmount1(
+            getSqrtRatioAtTick(BigInt(tickLower)),
+            getSqrtRatioAtTick(BigInt(tickUpper)),
+            depositAmount,
+          );
+    } else {
+      liquidityToProvide = token0isCall
+        ? getLiquidityForAmount1(
+            getSqrtRatioAtTick(BigInt(tickLower)),
+            getSqrtRatioAtTick(BigInt(tickUpper)),
+            depositAmount,
+          )
+        : getLiquidityForAmount0(
+            getSqrtRatioAtTick(BigInt(tickLower)),
+            getSqrtRatioAtTick(BigInt(tickUpper)),
+            depositAmount,
+          );
     }
-    setLoading(ASIDE_PANEL_BUTTON_KEY, true);
-    axios
-      .get(`${VARROCK_BASE_API_URL}/clamm/deposit`, {
-        params: {
-          chainId: chain.id,
-          callToken: callToken.address,
-          putToken: putToken.address,
-          pool: primePool,
-          handler: addresses.handler,
-          amount: depositAmount,
-          tickLower: meta.tickLower,
-          tickUpper: meta.tickUpper,
-        },
-      })
-      .then(({ data }) => {
-        if (data) {
-          setDeposit(strikeIndex, {
-            strike: strikeData.strike,
-            amount: depositAmount,
-            tokenSymbol: data.tokenSymbol,
-            tokenAddress: data.tokenAddress,
-            positionManager: addresses.positionManager,
-            txData: data.txData,
-            tokenDecimals: isCall
-              ? tokenDecimals.callToken
-              : tokenDecimals.putToken,
-          });
-        }
-      })
-      .catch((err) => {
-        setLoading(ASIDE_PANEL_BUTTON_KEY, false);
-      });
+
+    const handlerDepositData = encodeAbiParameters(
+      [
+        { name: 'pool', type: 'address' },
+        { name: 'tickLower', type: 'int24' },
+        { name: 'tickUpper', type: 'int24' },
+        { name: 'liquidity', type: 'uint128' },
+      ],
+      [primePool, tickLower, tickUpper, liquidityToProvide],
+    );
+
+    const mintPositionTxData = encodeFunctionData({
+      abi: DopexV2PositionManager,
+      functionName: 'mintPosition',
+      args: [addresses.handler, handlerDepositData],
+    });
+
+    setDeposit(strikeIndex, {
+      strike: strikeData.strike,
+      amount: depositAmount,
+      tokenSymbol: isCall ? callToken.symbol : putToken.symbol,
+      tokenAddress: isCall ? callToken.address : putToken.address,
+      positionManager: addresses.positionManager,
+      txData: mintPositionTxData,
+      tokenDecimals: isCall ? tokenDecimals.callToken : tokenDecimals.putToken,
+    });
+
     setLoading(ASIDE_PANEL_BUTTON_KEY, false);
   }, [
     unsetDeposit,
@@ -265,7 +293,7 @@ const SelectedStrikeItem = ({
         pool: primePool,
         tickLower: tickLower,
         tickUpper: tickUpper,
-        liquidityToUse,
+        liquidityToUse: liquidityToUse,
       },
     ];
 
@@ -310,11 +338,12 @@ const SelectedStrikeItem = ({
   ]);
 
   const handleMax = useCallback(() => {
+    setLoading(ASIDE_PANEL_BUTTON_KEY, true);
     const handleInputChange = editAllMode
       ? commonSetInputAmount
       : setInputAmount;
     if (isTrade) {
-      handleInputChange(strikeData.amount1);
+      handleInputChange((Number(strikeData.amount1) * 0.993).toString());
     } else {
       const balance = strikeData.isCall
         ? tokenBalances.callToken
@@ -326,7 +355,9 @@ const SelectedStrikeItem = ({
         ),
       );
     }
+    setLoading(ASIDE_PANEL_BUTTON_KEY, false);
   }, [
+    setLoading,
     commonSetInputAmount,
     editAllMode,
     isTrade,
@@ -388,6 +419,7 @@ const SelectedStrikeItem = ({
           <input
             disabled={disabledInput}
             onChange={(event: any) => {
+              setLoading(ASIDE_PANEL_BUTTON_KEY, true);
               const handleInputChange = editAllMode
                 ? commonSetInputAmount
                 : setInputAmount;
