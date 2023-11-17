@@ -171,6 +171,7 @@ type Props = {
   selectedPositions: Map<number, any>;
   unselectPosition: (key: number) => void;
   updatePositions: () => Promise<void>;
+  removePosition: (index: number) => void;
   loading: boolean;
 };
 const BuyPositions = ({
@@ -180,6 +181,7 @@ const BuyPositions = ({
   unselectPosition,
   loading,
   updatePositions,
+  removePosition,
 }: Props) => {
   const { chain } = useNetwork();
   const { selectedOptionsPool, markPrice } = useClammStore();
@@ -188,7 +190,7 @@ const BuyPositions = ({
   });
 
   const handleExercise = useCallback(
-    async (positionId: string) => {
+    async (positionId: string, index: number) => {
       if (!selectedOptionsPool || !walletClient) return;
 
       const loadingToastId = toast.loading('Opening wallet');
@@ -217,7 +219,8 @@ const BuyPositions = ({
         await publicClient.waitForTransactionReceipt({
           hash,
         });
-
+        removePosition(index);
+        await updatePositions();
         toast.success('Transaction sent');
       } catch (err) {
         const error = err as BaseError;
@@ -253,6 +256,8 @@ const BuyPositions = ({
             hash,
           });
 
+          removePosition(index);
+          await updatePositions();
           toast.success('Transaction sent');
         } catch (err) {
           const error = err as BaseError;
@@ -260,14 +265,9 @@ const BuyPositions = ({
           toast.error(error.shortMessage);
         }
       }
-
-      setTimeout(async () => {
-        await updatePositions();
-      }, 5000);
-
       toast.remove(loadingToastId);
     },
-    [selectedOptionsPool, walletClient, updatePositions],
+    [selectedOptionsPool, walletClient, updatePositions, removePosition],
   );
 
   const buyPositions = useMemo(() => {
@@ -342,7 +342,7 @@ const BuyPositions = ({
             },
             exerciseButton: {
               handleExercise: async () => {
-                await handleExercise(String(meta.tokenId));
+                await handleExercise(String(meta.tokenId), index);
               },
               disabled: profitAmount === 0,
             },

@@ -32,6 +32,18 @@ const PositionsTable = () => {
     lpPositions: false,
   });
 
+  const removeLpPosition = useCallback((indexToRemove: number) => {
+    setLpPositions((prev: any[]) =>
+      prev.filter((_, index) => indexToRemove !== index),
+    );
+  }, []);
+
+  const removeBuyPosition = useCallback((indexToRemove: number) => {
+    setBuyPositions((prev: any[]) =>
+      prev.filter((_, index) => indexToRemove !== index),
+    );
+  }, []);
+
   const selectPosition = (key: number, positionInfo: any) => {
     setSelectedPositions((prev) => new Map(prev.set(key, positionInfo)));
   };
@@ -139,6 +151,7 @@ const PositionsTable = () => {
             selectedPositions={selectedPositions}
             loading={loading.buyPositions}
             updatePositions={updateBuyPositions}
+            removePosition={removeBuyPosition}
           />
         ) : (
           <LPPositions
@@ -148,6 +161,7 @@ const PositionsTable = () => {
             selectedPositions={selectedPositions}
             updatePositions={updateLPPositions}
             loading={loading.lpPositions}
+            removePosition={removeLpPosition}
           />
         )}
       </div>

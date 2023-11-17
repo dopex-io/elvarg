@@ -167,6 +167,8 @@ const LPPositions = ({
   selectPosition,
   selectedPositions,
   unselectPosition,
+  updatePositions,
+  removePosition,
   loading,
 }: any) => {
   const { tick, selectedOptionsPool } = useClammStore();
@@ -176,7 +178,7 @@ const LPPositions = ({
   });
 
   const handleWithdraw = useCallback(
-    async (txData: Hex, to: Address) => {
+    async (txData: Hex, to: Address, index: number) => {
       if (!walletClient) return;
       const { publicClient } = wagmiConfig;
 
@@ -190,23 +192,24 @@ const LPPositions = ({
         });
 
         const hash = await walletClient.sendTransaction(request);
-        const reciept = await publicClient.waitForTransactionReceipt({
+        await publicClient.waitForTransactionReceipt({
           hash,
         });
+        removePosition(index);
+        await updatePositions();
         toast.success('Transaction sent');
       } catch (err) {
         const error = err as BaseError;
         console.error(err);
         toast.error(error.shortMessage);
       }
+
       toast.remove(loadingToastId);
     },
-    [walletClient],
+    [walletClient, updatePositions, removePosition],
   );
 
   const lpPositions = useMemo(() => {
-    if (!selectedOptionsPool) return;
-
     return positions
       .map(
         (
@@ -289,7 +292,7 @@ const LPPositions = ({
               disabled: BigInt(meta.withdrawableShares) === 0n,
               handleWithdraw: () => {
                 const { txData, to } = meta.withdrawTx;
-                handleWithdraw(txData, to);
+                handleWithdraw(txData, to, index);
               },
             },
           };
@@ -306,7 +309,6 @@ const LPPositions = ({
     selectedPositions,
     unselectPosition,
     handleWithdraw,
-    selectedOptionsPool,
   ]);
   return (
     <TableLayout<LPPositionItem>
