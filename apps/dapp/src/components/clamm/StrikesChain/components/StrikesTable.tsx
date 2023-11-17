@@ -173,7 +173,7 @@ const StrikesTable = () => {
     const data = await getStrikesChain(
       chain?.id ?? 42161,
       selectedOptionsPool.optionsPoolAddress,
-      50,
+      200,
       0,
     );
 
