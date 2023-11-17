@@ -23,7 +23,7 @@ export const rdpxV2ContractKeys = [
 type AddressKey = (typeof rdpxV2ContractKeys)[number];
 
 const addresses: { [key in AddressKey]: Address } = {
-  v2core: '0x95A0BcB581e596e78eE4C6AdAC4f076684364c0C',
+  v2core: '0xccBb719f2B0fad301bDF0F82F7e9A0f4E2c45C79',
   perpPool: '0x59AEB05305e71586f751A7d1945f25633164738a',
   delegateBonds: '0xA330e77410a02B53F5920cACd2d374B28D669b18',
   perpPoolLp: '0x043031e785F6E32C0Dbd7ba8167D5d021A34FF83',
