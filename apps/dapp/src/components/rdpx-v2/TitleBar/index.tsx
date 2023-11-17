@@ -83,8 +83,8 @@ const TitleBar = () => {
   }, [updateLpWethBalance]);
 
   useEffect(() => {
-    if (rdpxV2CoreState.discount > 0n) updatePerpetualVaultState();
-  }, [rdpxV2CoreState.discount, updatePerpetualVaultState]);
+    updatePerpetualVaultState();
+  }, [updatePerpetualVaultState]);
 
   const titleBarContent = useMemo(() => {
     const defaultIndex = 0;
@@ -135,13 +135,10 @@ const TitleBar = () => {
               <Stat
                 name="Utilization"
                 value={`${formatBigint(
-                  (perpetualVaultState.totalActiveOptions *
-                    parseUnits('1', DECIMALS_TOKEN)) /
-                    (perpetualVaultState.oneLpShare[0] +
-                      (perpetualVaultState.oneLpShare[1] *
-                        parseUnits('1', DECIMALS_TOKEN)) /
-                        (perpetualVaultState.underlyingPrice + 1n) || 1n),
-                  // total active options / rdpx + weth in perpetual vault
+                  (perpetualVaultState.activeCollateral *
+                    parseUnits('1', DECIMALS_TOKEN) *
+                    100n) /
+                    perpetualVaultState.totalLpShares,
                   DECIMALS_TOKEN,
                 )}%`}
               />

@@ -22,7 +22,7 @@ const initialContractStates: {
       currentEpoch: 0n,
       expiry: 0n,
       fundingRate: 0n,
-      totalActiveOptions: 0n,
+      activeCollateral: 0n,
       lastFundingUpdateTime: 0n,
       underlyingPrice: 0n,
       premiumPerOption: 0n,

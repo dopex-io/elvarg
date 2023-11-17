@@ -21,7 +21,7 @@ interface VaultState {
   currentEpoch: bigint;
   expiry: bigint;
   fundingRate: bigint;
-  totalActiveOptions: bigint;
+  activeCollateral: bigint;
   lastFundingUpdateTime: bigint;
   underlyingPrice: bigint;
   premiumPerOption: bigint;
@@ -82,7 +82,7 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
     const [
       { result: currentEpoch = 0n },
       { result: fundingDuration = 0n },
-      { result: totalActiveOptions = 0n },
+      { result: activeCollateral = 0n },
       { result: lastFundingUpdateTime = 0n },
       { result: rdpxPriceInEth = 0n },
       { result: totalLpShares = 0n },
@@ -98,8 +98,8 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
           functionName: 'fundingDuration',
         },
         {
-          ...perpPoolConfig,
-          functionName: 'totalActiveOptions',
+          ...perpLpConfig,
+          functionName: 'activeCollateral',
         },
         {
           ...perpPoolConfig,
@@ -167,12 +167,14 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
       premiumPerOption: premium,
       underlyingPrice: rdpxPriceInEth,
       expiry,
-      totalActiveOptions,
+      activeCollateral,
       totalLpShares,
       totalFundingForCurrentEpoch,
       oneLpShare,
     }));
   }, []);
+
+  console.log(vaultState.activeCollateral);
 
   const fetchEpochData = useCallback(
     async (epoch: bigint): Promise<EpochData> => {
