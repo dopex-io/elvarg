@@ -37,7 +37,9 @@ type StrikeItem = {
     isSelected: boolean;
     handleSelect: () => void;
   };
+  utilizationPercentage: number;
   liquidity: {
+    totalLiquidityUsd: string;
     symbol: string;
     usd: number;
     amount: number;
@@ -70,27 +72,39 @@ const columns = [
     cell: ({ getValue }) => (
       <span className="flex flex-col items-left">
         <span className="flex items-center space-x-[4px]">
-          <span> {formatAmount(getValue().available, 5)}</span>
+          <span> {formatAmount(getValue().available, 3)}</span>
 
           {Number(getValue().total) > 0.00001 && (
             <span className="text-stieglitz">/</span>
           )}
           {Number(getValue().total) > 0.00001 && (
-            <span>{formatAmount(getValue().total, 5)}</span>
+            <span>{formatAmount(getValue().total, 3)}</span>
           )}
           <span className="text-stieglitz text-xs">{getValue().symbol}</span>
         </span>
         <span className="text-xs text-stieglitz">
-          $ {formatAmount(getValue().usd, 5)}
+          $ {formatAmount(getValue().usd, 3)}
         </span>
       </span>
     ),
+  }),
+  columnHelper.accessor('utilizationPercentage', {
+    header: 'Utilization',
+    cell: (info) => {
+      const sources = info.getValue();
+      return (
+        <span className="flex space-x-1 text-left items-center">
+          <span>{formatAmount(info.getValue(), 3)}</span>
+          <span className="text-stieglitz">%</span>
+        </span>
+      );
+    },
   }),
   columnHelper.accessor('apr', {
     header: 'Fees APR',
     cell: (info) => (
       <span className="flex space-x-1 text-left items-center">
-        <span>{formatAmount(info.getValue(), 5)}</span>
+        <span>{formatAmount(info.getValue(), 3)}</span>
         <span className="text-stieglitz">%</span>
       </span>
     ),
@@ -109,33 +123,6 @@ const columns = [
         )}
       </span>
     ),
-  }),
-  columnHelper.accessor('sources', {
-    header: 'Sources',
-    cell: (info) => {
-      const sources = info.getValue();
-      return (
-        <span className="flex text-left items-center space-x-1">
-          {sources.map(
-            ({ name, compositionPercentage }: any, index: number) => (
-              <div
-                key={index}
-                className="flex flex-col items-center justify-center"
-              >
-                <img
-                  className={`w-[30px] h-[30px] z-10 border border-umbra rounded-full`}
-                  src={`/images/exchanges/${name.toLowerCase()}.svg`}
-                  alt={name.toLowerCase()}
-                />
-                <span className="text-xs text-stieglitz">
-                  {compositionPercentage}%
-                </span>
-              </div>
-            ),
-          )}
-        </span>
-      );
-    },
   }),
   columnHelper.accessor('button', {
     header: '',
@@ -219,6 +206,7 @@ const StrikesTable = () => {
             liquidityAvailableUsd,
             liquidityInToken,
             meta,
+            liquidityUsd,
             liquidityAvailableInToken,
             optionsAvailable,
             rewardsApy,
@@ -239,6 +227,11 @@ const StrikesTable = () => {
             rewardsStrikesLimit.upperLimit > Number(strike);
 
           return {
+            utilizationPercentage: Math.abs(
+              ((Number(totalOptions) - Number(optionsAvailable)) /
+                Number(totalOptions)) *
+                100,
+            ),
             type,
             isRewardsEligible,
             apr: earningsApy,
@@ -297,6 +290,7 @@ const StrikesTable = () => {
               },
             },
             liquidity: {
+              totalLiquidityUsd: liquidityUsd,
               symbol: tokenSymbol,
               usd: Number(liquidityAvailableUsd),
               amount: Number(
@@ -318,7 +312,9 @@ const StrikesTable = () => {
         },
       )
       .filter(({ type }) => (isPut ? type === 'put' : type === 'call'))
-      .filter(({ liquidity: { usd } }) => Number(usd) > 1);
+      .filter(
+        ({ liquidity: { totalLiquidityUsd } }) => Number(totalLiquidityUsd) > 1,
+      );
 
     if (isPut) {
       return _strikes.sort((a, b) => b.strike.amount - a.strike.amount);
