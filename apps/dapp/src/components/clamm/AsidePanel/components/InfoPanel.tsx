@@ -170,8 +170,6 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
       const error = err as BaseError;
       toast.error(error.shortMessage);
       console.error(err);
-      reset();
-      resetDeposits();
     }
     toast.remove(loadingToastId);
     setLoading(ASIDE_PANEL_BUTTON_KEY, false);
@@ -240,8 +238,6 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
       const error = err as BaseError;
       console.error(err);
       toast.error(error.shortMessage);
-      resetPurchases();
-      reset();
     }
     toast.remove(loadingToastId);
     await checkApproved();
