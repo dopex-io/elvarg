@@ -22,6 +22,8 @@ export const EXPIRIES_BY_INDEX = Object.values(EXPIRIES);
 export const MULTI_CALL_FN_SIG =
   'function multicall(bytes[] calldata data) external returns (bytes[] memory results)';
 
+export const PROTOCOL_FEES_MULTIPLIER = 1.0034;
+
 export const optionPoolsAbi = [
   {
     inputs: [
