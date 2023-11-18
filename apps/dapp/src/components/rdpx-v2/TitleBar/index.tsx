@@ -1,7 +1,9 @@
-import { ReactNode, useCallback, useEffect, useMemo } from 'react';
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { parseUnits } from 'viem';
 
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 import { useAccount } from 'wagmi';
 
 import useTokenData from 'hooks/helpers/useTokenData';
@@ -52,6 +54,15 @@ const TitleBar = () => {
   const update = useStore((store) => store.update);
 
   const router = useRouter();
+  const { data } = useQuery({
+    queryKey: ['eth_price'],
+    queryFn: async () =>
+      axios.get(
+        'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd',
+      ),
+    refetchInterval: 2000,
+  });
+
   const { address: _user } = useAccount();
   const { balance: lpWethBalance, updateBalance: updateLpWethBalance } =
     useTokenData({
@@ -103,18 +114,27 @@ const TitleBar = () => {
               />
               <Stat name="APR" value={'-'} />
               <Stat
-                name="rtETH Price"
-                value={`${formatBigint(
-                  rdpxV2CoreState.dpxethPriceInEth,
-                  DECIMALS_TOKEN,
-                )} WETH`}
+                name="dpxETH Price"
+                value={`$ ${(
+                  Number(
+                    formatBigint(
+                      rdpxV2CoreState.dpxethPriceInEth,
+                      DECIMALS_TOKEN,
+                      3,
+                    ),
+                  ) * (data?.data.ethereum.usd || 0)
+                ).toFixed(3)}`}
               />
               <Stat
                 name="RDPX Price"
-                value={`${formatBigint(
-                  rdpxV2CoreState.rdpxPriceInEth,
-                  DECIMALS_TOKEN,
-                )} WETH`}
+                value={`$ ${
+                  Number(
+                    formatBigint(
+                      rdpxV2CoreState.rdpxPriceInEth,
+                      DECIMALS_TOKEN,
+                    ),
+                  ) * (data?.data.ethereum.usd || 0)
+                }`}
               />
             </div>
           ),
@@ -138,7 +158,7 @@ const TitleBar = () => {
                   (perpetualVaultState.activeCollateral *
                     parseUnits('1', DECIMALS_TOKEN) *
                     100n) /
-                    perpetualVaultState.totalLpShares,
+                    (perpetualVaultState.totalLpShares + 1n),
                   DECIMALS_TOKEN,
                 )}%`}
               />
@@ -156,7 +176,7 @@ const TitleBar = () => {
       default:
         return { index: defaultIndex, renderComponent: <></> };
     }
-  }, [perpetualVaultState, rdpxV2CoreState, state, lpWethBalance]);
+  }, [state, rdpxV2CoreState, data, perpetualVaultState, lpWethBalance]);
 
   return (
     <div className="flex flex-col space-y-6">

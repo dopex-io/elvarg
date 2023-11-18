@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Address, parseUnits } from 'viem';
 
 import request from 'graphql-request';
@@ -6,6 +6,7 @@ import request from 'graphql-request';
 import queryClient from 'queryClient';
 
 import {
+  getDelegateBonds,
   getHistoricBondsDocument,
   getHistoricRedeemRequestsDocument,
 } from 'graphql/rdpx-v2';
@@ -38,6 +39,13 @@ interface RedeemRequest {
   txHash: string; // transaction hash is stored as entity id
 }
 
+interface DelegateBond {
+  amount: bigint;
+  ethAmount: bigint;
+  rdpxAmount: bigint;
+  txHash: String;
+}
+
 interface UserAggregate {
   bonds: Bond[];
   redeems: Redeem[];
@@ -56,6 +64,7 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
   const [userRedeemRequestsHistory, setUserRedeemRequestsHistory] = useState<
     RedeemRequest[]
   >([]);
+  const [delegateBonds, setDelegateBonds] = useState<DelegateBond[]>([]);
 
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -138,11 +147,39 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
     setLoading(false);
   }, [user]);
 
+  const updateDelegateBonds = useCallback(async () => {
+    const delegateBonds = await queryClient
+      .fetchQuery({
+        queryKey: ['getAllRedeems'],
+        queryFn: () =>
+          request(DOPEX_RDPX_V2_SUBGRAPH_API_URL, getDelegateBonds, {
+            sender: user.toLowerCase(),
+          }),
+      })
+      .then((res) =>
+        res.bonds.map((pos) => ({
+          amount: BigInt(pos.receiptTokenAmount),
+          ethAmount: parseUnits(pos.wethRequired, 0),
+          rdpxAmount: parseUnits(pos.rdpxRequired, 0),
+          txHash: pos.id, // transaction hash is stored as entity id
+        })),
+      )
+      .catch(() => []);
+
+    setDelegateBonds(delegateBonds);
+  }, [user]);
+
+  useEffect(() => {
+    updateDelegateBonds();
+  }, [updateDelegateBonds]);
+
   return {
     userBondsHistoryData,
     userRedeemRequestsHistory,
+    delegateBonds,
     updateUserBondingHistory,
     updateHistoricLpRedeemRequests,
+    updateDelegateBonds,
     loading,
   };
 };

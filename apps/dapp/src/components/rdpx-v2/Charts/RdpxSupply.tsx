@@ -36,11 +36,9 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
       rdpxSupply: number;
     }[]
   >([]);
-  const [ethPriceInUsd, setEthPriceInUsd] = useState<number>();
 
   useEffect(() => {
     (async () => {
-      if (!ethPriceInUsd) return;
       const rdpxSupplies = await queryClient
         .fetchQuery({
           queryKey: ['getRdpxSupplies'],
@@ -63,18 +61,6 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
 
       setData(formatted);
     })();
-  }, [ethPriceInUsd]);
-
-  useEffect(() => {
-    axios
-      .get(
-        'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd',
-      )
-      .then((payload) => {
-        const _ethPriceInUsd = Number(payload.data.ethereum.usd);
-        setEthPriceInUsd(_ethPriceInUsd);
-      })
-      .catch(() => setEthPriceInUsd(0));
   }, []);
 
   return (

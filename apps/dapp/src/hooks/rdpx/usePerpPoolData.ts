@@ -174,8 +174,6 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
     }));
   }, []);
 
-  console.log(vaultState.activeCollateral);
-
   const fetchEpochData = useCallback(
     async (epoch: bigint): Promise<EpochData> => {
       if (vaultState.expiry === 0n)
