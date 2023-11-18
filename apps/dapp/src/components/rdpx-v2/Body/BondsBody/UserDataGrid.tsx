@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 
-import { useContractWrite, useNetwork, usePublicClient } from 'wagmi';
+import { Button } from '@dopex-io/ui';
+import { useNetwork, usePublicClient } from 'wagmi';
 
 import useTokenData from 'hooks/helpers/useTokenData';
 
 import Cell from 'components/rdpx-v2/Body/StrategyVault/UserDepositGrid/CustomCell';
-import GridButtons from 'components/rdpx-v2/Body/StrategyVault/UserDepositGrid/GridButtons';
+import RedeemReceiptTokens from 'components/rdpx-v2/Dialogs/RedeemReceiptTokens';
 import Typography2 from 'components/UI/Typography2';
 
 import formatBigint from 'utils/general/formatBigint';
@@ -18,6 +19,7 @@ const UserDataGrid = () => {
   const [rtComposition, setRtComposition] = useState<
     readonly [bigint, bigint, bigint]
   >([0n, 0n, 0n]);
+  const [open, setOpen] = useState<boolean>(false);
 
   const { balance, updateBalance } = useTokenData({
     token: addresses.receiptToken,
@@ -29,13 +31,6 @@ const UserDataGrid = () => {
 
   const { simulateContract } = usePublicClient({
     chainId: chain?.id,
-  });
-
-  const { write: redeem, isSuccess: redeemSuccess } = useContractWrite({
-    abi: ReceiptToken,
-    address: addresses.receiptToken,
-    functionName: 'redeem',
-    args: [balance, [1n, 1n]],
   });
 
   useEffect(() => {
@@ -55,7 +50,11 @@ const UserDataGrid = () => {
 
   useEffect(() => {
     updateBalance();
-  }, [updateBalance, redeemSuccess]);
+  }, [updateBalance]);
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   return balance > 0n ? (
     <div className="space-y-2">
@@ -81,13 +80,18 @@ const UserDataGrid = () => {
             data={[[formatBigint(rtComposition[2], DECIMALS_TOKEN), 'WETH']]}
           />
         </div>
-        <GridButtons
-          hasLeftoverShares={false}
-          buttonStates={[{ label: 'Redeem', handler: () => redeem() }]}
-        />
+        <Button
+          color="primary"
+          className="w-full"
+          onClick={() => setOpen(true)}
+        >
+          Redeem
+        </Button>
       </div>
     </div>
-  ) : null;
+  ) : (
+    <RedeemReceiptTokens isOpen={open} handleClose={handleClose} />
+  );
 };
 
 export default UserDataGrid;
