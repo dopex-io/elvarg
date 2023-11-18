@@ -1,15 +1,13 @@
-import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ethers } from 'ethers';
 
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import Modal from '@mui/material/Modal';
 
 import MenuIcon from '@mui/icons-material/Menu';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 
 import axios from 'axios';
 import { useNetwork } from 'wagmi';
@@ -37,12 +35,6 @@ import NetworkButton from './NetworkButton';
 import NftClaims from './NftClaims';
 import RdpxAirdropButton from './RdpxAirdropButton';
 import { LinkType } from './types';
-
-const NotifiCard = lazy(() =>
-  import('components/NotifiCard').then((module) => ({
-    default: module.NotifiCard,
-  })),
-);
 
 const appLinks: {
   [key: number]: LinkType[];
@@ -133,7 +125,6 @@ export default function AppBar() {
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [anchorElSmall, setAnchorElSmall] = useState<null | HTMLElement>(null);
-  const [isNotifiCardOpen, setIsNotifiCardOpen] = useState(false);
 
   const links = (appLinks[chain?.id! || DEFAULT_CHAIN_ID] || []).concat(
     baseAppLinks,
@@ -268,32 +259,6 @@ export default function AppBar() {
                 </Tooltip>
               </TooltipProvider>
             </div>
-            {accountAddress && chain?.network === 'arbitrum' ? (
-              <IconButton
-                sx={{ mr: 1 }}
-                onClick={() => setIsNotifiCardOpen(!isNotifiCardOpen)}
-                className="text-white border-cod-gray bg-black bg-opacity-30  rounded-md hover:bg-carbon hover:opacity-80"
-              >
-                <NotificationsIcon />
-              </IconButton>
-            ) : null}
-            <Modal
-              sx={{
-                marginTop: '80px',
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'end',
-                right: '165px',
-                height: 'fit-content',
-              }}
-              open={isNotifiCardOpen}
-              onClose={() => setIsNotifiCardOpen(false)}
-              className="bg-opacity-10"
-            >
-              <Suspense fallback={<div>Loading...</div>}>
-                <NotifiCard />
-              </Suspense>
-            </Modal>
             {accountAddress ? <NftClaims account={accountAddress} /> : null}
             {accountAddress ? (
               <RdpxAirdropButton account={accountAddress} />
