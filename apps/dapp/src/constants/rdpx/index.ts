@@ -1,10 +1,10 @@
 import addresses from './addresses';
 
 export const quickLinks = {
-  whitepaper: {
+  core: {
     text: 'What is rDPX v2',
     iconSymbol: '/images/tokens/rdpx.svg',
-    url: 'https://docs.google.com/document/d/1005YPC8-tUJhuhzTZK__3KZss0o_-ix4/edit',
+    url: 'https://learn.dopex.io/product-explainers#block-e8011587ccb84ad3946d0c5bc9d7b2ef',
     body: 'rDPX v2 is a system that allows you to mint rtETH, a yield-bearing synthetic version of ETH.',
   },
   arbiscanV2Core: {
@@ -30,7 +30,7 @@ export const quickLinks = {
   strategyVault: {
     text: 'What is rDPX Perpetual Put Vault?',
     iconSymbol: '/images/tokens/rdpx.svg',
-    url: 'https://dopex.notion.site/rDPX-V2-RI-b45b5b402af54bcab758d62fb7c69cb4#c13cd86d4f054eec8f8d945596482b51',
+    url: 'https://learn.dopex.io/quick-start/rdpx-v2-using-the-perpetual-put-vaults',
     body: `Accrue premiums & earn rewards by depositing Wrapped Ether into the Perpetual Put Vault (PPV) to write 
     rDPX perpetual put options to the treasury. Options are asset-settled with rDPX.`,
   },

@@ -45,7 +45,7 @@ const BondsBody = () => {
   return (
     <div className="p-3 bg-cod-gray rounded-xl space-y-3">
       <div className="flex w-full">
-        <QuickLink {...quickLinks.whitepaper} />
+        <QuickLink {...quickLinks.core} />
       </div>
       <div className=" bg-umbra rounded-xl divide-y-2 divide-cod-gray">
         <div className="flex w-full divide-x-2 divide-cod-gray">
