@@ -33,8 +33,8 @@ const TableLayout = <T extends object>({
   columns,
   disclosure,
   rowSpacing = 1,
-  isContentLoading = true,
   pageSize = 5,
+  isContentLoading = true,
   fill = 'bg-cod-gray',
 }: Props<T>) => {
   const table = useReactTable({
@@ -45,7 +45,7 @@ const TableLayout = <T extends object>({
     getPaginationRowModel: getPaginationRowModel(),
     initialState: {
       pagination: {
-        pageSize: pageSize,
+        pageSize,
       },
     },
   });
@@ -110,7 +110,7 @@ const TableLayout = <T extends object>({
               </tr>
             ))}
           </thead>
-          <tbody className="max-h-32 overflow-y-auto divide-y divide-umbra">
+          <tbody className="max-h-32 overflow-y-auto divide-y divide-umbra rounded-md">
             {getRowModel().rows.map((row, index) => {
               return (
                 <Disclosure key={row.id}>

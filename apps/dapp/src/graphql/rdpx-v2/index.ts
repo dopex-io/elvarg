@@ -53,3 +53,72 @@ export const getRdpxSuppliesDocument = graphql(`
     }
   }
 `);
+
+export const getUserDelegatesDocument = graphql(`
+  query getUserDelegates($sender: Bytes) {
+    delegates(where: { user_contains: $sender }) {
+      delegateId
+      amount
+      activeCollateral
+      fee
+      transaction {
+        timestamp
+      }
+    }
+  }
+`);
+
+export const getDelegatesDocument = graphql(`
+  query getDelegates {
+    delegates {
+      delegateId
+      amount
+      activeCollateral
+      fee
+      transaction {
+        timestamp
+        sender
+      }
+    }
+  }
+`);
+
+export const getHistoricBondsDocument = graphql(`
+  query HistoricData {
+    bonds {
+      id
+      receiptTokenAmount
+      rdpxRequired
+      wethRequired
+      transaction {
+        sender
+        timestamp
+        hash
+      }
+    }
+    redeemBonds {
+      id
+      bondId
+      receiptTokenAmount
+      to
+      transaction {
+        sender
+        timestamp
+        hash
+      }
+    }
+  }
+`);
+
+export const getHistoricRedeemRequestsDocument = graphql(`
+  query UserRedeemRequestsHistory($sender: Bytes!) {
+    redeemRequests(where: { sender_contains: $sender }) {
+      id
+      amount
+      ethAmount
+      rdpxAmount
+      sender
+      epoch
+    }
+  }
+`);

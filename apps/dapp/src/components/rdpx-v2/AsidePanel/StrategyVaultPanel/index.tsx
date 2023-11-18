@@ -1,7 +1,5 @@
 import { useCallback, useState } from 'react';
 
-import ButtonGroup from '@mui/material/ButtonGroup';
-
 import Deposit from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/Deposit';
 import Redeem from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/Redeem';
 import Typography2 from 'components/UI/Typography2';
@@ -17,7 +15,7 @@ const StrategyVaultPanel = () => {
 
   return (
     <div className="space-y-2 bg-cod-gray rounded-xl p-3">
-      <ButtonGroup className="flex w-full">
+      <div className="flex w-full">
         {BUTTON_LABELS.map((label, index) => (
           <button
             key={index}
@@ -33,7 +31,7 @@ const StrategyVaultPanel = () => {
             </Typography2>
           </button>
         ))}
-      </ButtonGroup>
+      </div>
       {active === 'Deposit' ? <Deposit /> : <Redeem />}
     </div>
   );

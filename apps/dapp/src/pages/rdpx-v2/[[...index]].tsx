@@ -1,5 +1,4 @@
 import { /*useEffect, */ useMemo } from 'react';
-import Head from 'next/head';
 
 // import { useRouter } from 'next/router';
 
@@ -44,6 +43,18 @@ const Main = () => {
           body: <StakingBody />,
           blockscannerContent: quickLinks.arbiscanStaking,
         };
+      default:
+        return {
+          asidePanel: <BondPanel />,
+          body: <BondsBody />,
+          blockscannerContent: quickLinks.arbiscanV2Core,
+        };
+      // case 'farm':
+      //   return {
+      //     asidePanel: null,
+      //     body: <Farm />,
+      //     blockscannerContent: null,
+      //   };
     }
   }, [rdpxPageState]);
 
@@ -54,9 +65,6 @@ const Main = () => {
 
   return (
     <div className="bg-contain min-h-screen">
-      <Head>
-        <title>Mint | Dopex</title>
-      </Head>
       <NextSeo
         title={seo.rdpxV2.title}
         description={seo.rdpxV2.description}
@@ -84,12 +92,14 @@ const Main = () => {
           <div className="flex flex-col w-full sm:w-full lg:w-[646px] h-full">
             {renderContent.body}
           </div>
-          <div className="flex flex-col w-full lg:w-[390px] h-full space-y-3">
-            {renderContent.asidePanel}
-            <div className="flex flex-col space-y-3">
-              <QuickLink {...renderContent.blockscannerContent} />
+          {renderContent.asidePanel ? (
+            <div className="flex flex-col w-full lg:w-[390px] h-full space-y-3">
+              {renderContent.asidePanel}
+              <div className="flex flex-col space-y-3">
+                <QuickLink {...renderContent.blockscannerContent} />
+              </div>
             </div>
-          </div>
+          ) : null}
         </div>
       </PageLayout>
     </div>

@@ -3,6 +3,7 @@ import { Address } from 'viem';
 export const rdpxV2ContractKeys = [
   'v2core',
   'perpPool',
+  'delegateBonds',
   'perpPoolLp',
   'receiptToken',
   'rdpxReserve',
@@ -21,19 +22,19 @@ export const rdpxV2ContractKeys = [
 
 type AddressKey = (typeof rdpxV2ContractKeys)[number];
 
-// 421613
 const addresses: { [key in AddressKey]: Address } = {
-  v2core: '0x1784f23e6e054AEe050308AA88f2ae85C77150a1',
-  perpPool: '0x04ef82C73106c8771AdF0c79FD6fB455a44A28Dc',
-  perpPoolLp: '0x10A40c5fC09f686e760469Fea12c6733af47BED4',
-  receiptToken: '0xa03cc2AdA8f0ef94AD31d5290BffEab131521f3D',
-  rdpxReserve: '0x277C7c36bFD15BA1DacDc89524Fe8D80851580c9',
-  redeemDpxeth: '0xAD150b6Cb1B0DdcBD53f81C214766279a33130D6',
-  rdpx: '0x52192d240D4398e87C95A5b1779dfCfFd0B0a6b6',
-  weth: '0x8021eCCA584ba863922Fc9fa87F13fF7dBa74BA0',
-  dpxeth: '0x5F7B21c3e819FbE92ebe446397Ce851b0353E49E',
-  dbrdpx: '0x265290a30a00AD5353cFE7B3bFa56722D7f5b273',
-  bond: '0xf9D5622a71949Bc38d35805f4dBeC58Bf651141A',
+  v2core: '0xccBb719f2B0fad301bDF0F82F7e9A0f4E2c45C79',
+  perpPool: '0x59AEB05305e71586f751A7d1945f25633164738a',
+  delegateBonds: '0xA330e77410a02B53F5920cACd2d374B28D669b18',
+  perpPoolLp: '0x043031e785F6E32C0Dbd7ba8167D5d021A34FF83',
+  receiptToken: '0x592f0bD1027f1b6B1eaD290aaD958B88dd74e2f3',
+  rdpxReserve: '0x7c8d9F880E72B1915BEE710e514a60CF9Bd47667',
+  redeemDpxeth: '0xEdc6E4F717967f6F4584B94D9A03d7633739AdAE',
+  rdpx: '0x73E421392523CCdC45A84612EC56De2c0Ea06163',
+  weth: '0x7Da8b6eB1dd23EFE2a77bbdd4885Ac2538481583',
+  dpxeth: '0x75042A03D87c8aC2B5b035C1f05E506E3F6a6093',
+  dbrdpx: '0x2FeD783b22B80d658555Cc66F1c872F83727ca57',
+  bond: '0xB7C5f2A78ac434ecdfb448b4A7EE3922e3e5B66F',
   multirewards1: '0x4e8ce4a166710D0110De85669Fe0B5A3d1B71c7B',
   multirewards2: '0xE364E758b8A018d05f5ae72f4ea4373D8Adf28D2',
   rewardToken1: '0x6005F3DA8B31daDd15688e6247dFAC0d71c11dB5',

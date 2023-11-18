@@ -1,23 +1,64 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import ButtonGroup from '@mui/material/ButtonGroup';
+import { useAccount } from 'wagmi';
+
+import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 
 import Bond from 'components/rdpx-v2/AsidePanel/BondPanel/Bond';
 import Delegate from 'components/rdpx-v2/AsidePanel/BondPanel/Delegate';
 import Typography2 from 'components/UI/Typography2';
 
+import { RDPX_V2_STATE } from 'constants/env';
+
+import blockerMessages from './blockerMessages';
+import PanelBlocker from './PanelBlocker';
+
 const BUTTON_LABELS = ['Bond', 'Delegate'];
 
 const BondPanel = () => {
   const [active, setActive] = useState<string>('Bond');
+  const { address: user = '0x' } = useAccount();
+
+  const { updatePerpetualVaultState, perpetualVaultState } = usePerpPoolData({
+    user,
+  });
+
+  useEffect(() => {
+    updatePerpetualVaultState();
+  }, [updatePerpetualVaultState]);
 
   const handleClick = useCallback((e: any) => {
     setActive(e.target.textContent);
   }, []);
 
+  // Handle overlay of the panel for the bootstrap phase
+  const panelState = useMemo(() => {
+    if (perpetualVaultState.expiry === 0n) return null;
+    switch (RDPX_V2_STATE) {
+      case 'BOOTSTRAP':
+        return blockerMessages.bootstrapPhase;
+      case 'OVERRIDE':
+        return blockerMessages.override;
+      case undefined:
+        if (
+          perpetualVaultState.expiry <
+          BigInt(Math.floor(new Date().getTime() / 1000))
+        ) {
+          return blockerMessages.expired;
+        } else {
+          return null;
+        }
+      default:
+        return null;
+    }
+  }, [perpetualVaultState.expiry]);
+
   return (
-    <div className="space-y-2 bg-cod-gray rounded-xl p-3">
-      <ButtonGroup className="flex w-full">
+    <div className="space-y-2 bg-cod-gray rounded-xl p-3 relative">
+      {panelState ? (
+        <PanelBlocker title={panelState.title} body={panelState.body} />
+      ) : null}
+      <div className="flex w-full">
         {BUTTON_LABELS.map((label, index) => (
           <button
             key={index}
@@ -33,7 +74,7 @@ const BondPanel = () => {
             </Typography2>
           </button>
         ))}
-      </ButtonGroup>
+      </div>
       {active === 'Bond' ? <Bond /> : <Delegate />}
     </div>
   );

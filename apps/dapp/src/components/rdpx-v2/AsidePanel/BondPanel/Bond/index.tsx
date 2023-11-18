@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { formatUnits, parseUnits } from 'viem';
 
-import ButtonGroup from '@mui/material/ButtonGroup';
-
 import { Button } from '@dopex-io/ui';
 import { erc20ABI, useAccount, useContractWrite } from 'wagmi';
 
@@ -21,7 +19,9 @@ import Typography2 from 'components/UI/Typography2';
 
 import formatBigint from 'utils/general/formatBigint';
 
+import { RDPX_V2_STATE } from 'constants/env';
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
+import DelegateBonds from 'constants/rdpx/abis/DelegateBonds';
 import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
 import addresses from 'constants/rdpx/addresses';
 
@@ -66,7 +66,7 @@ const Bond = () => {
     updateBalance: updateBalanceRdpx,
   } = useTokenData({
     amount: inputAmountBreakdown[0],
-    spender: addresses.v2core || '0x',
+    spender: delegated ? addresses.delegateBonds : addresses.v2core,
     token: addresses.rdpx,
   });
   const {
@@ -82,13 +82,17 @@ const Bond = () => {
   const { squeezeDelegatesResult } = useSqueezeDelegatedWeth({
     user: account || '0x',
     collateralRequired: inputAmountBreakdown[1], // WETH required
+    bonds: amount,
   });
   const { write: approveRdpx, isSuccess: approveRdpxSuccess } =
     useContractWrite({
       abi: erc20ABI,
       address: addresses.rdpx,
       functionName: 'approve',
-      args: [addresses.v2core, inputAmountBreakdown[0]],
+      args: [
+        delegated ? addresses.delegateBonds : addresses.v2core, // approve DelegateController if delegate bonding
+        inputAmountBreakdown[0],
+      ],
     });
   const { write: approveWeth, isSuccess: approveWethSuccess } =
     useContractWrite({
@@ -105,12 +109,11 @@ const Bond = () => {
   });
   const { write: delegateBond, isSuccess: delegateBondSuccess } =
     useContractWrite({
-      abi: RdpxV2Core,
-      address: addresses.v2core,
+      abi: DelegateBonds,
+      address: addresses.delegateBonds,
       functionName: 'bondWithDelegate',
       args: [
-        account || '0x',
-        squeezeDelegatesResult.amounts,
+        squeezeDelegatesResult.bondBreakdown,
         squeezeDelegatesResult.ids,
         0n,
       ],
@@ -144,11 +147,11 @@ const Bond = () => {
 
   useEffect(() => {
     updateBalanceWeth();
-  }, [updateBalanceWeth]);
+  }, [updateBalanceWeth, bondSuccess, delegateBondSuccess]);
 
   useEffect(() => {
     updateBalanceRdpx();
-  }, [updateBalanceRdpx]);
+  }, [updateBalanceRdpx, delegateBondSuccess]);
 
   useEffect(() => {
     updateAllowanceRdpx();
@@ -178,7 +181,7 @@ const Bond = () => {
           <Typography2 variant="caption" color="stieglitz">
             Bonding Method
           </Typography2>
-          <ButtonGroup className="flex justify-between border border-mineshaft bg-mineshaft rounded-md p-0.5">
+          <div className="flex justify-between border border-mineshaft bg-mineshaft rounded-md p-0.5">
             {[BondType.Default, BondType.Delegate].map((label, index) => (
               <Button
                 key={index}
@@ -197,7 +200,7 @@ const Bond = () => {
                 {label === BondType.Default ? 'rDPX + WETH' : 'rDPX'}
               </Button>
             ))}
-          </ButtonGroup>
+          </div>
         </div>
         <CollateralInputPanel
           inputAmount={amount}
@@ -217,6 +220,8 @@ const Bond = () => {
         bondAmount={Number(amount || '0')}
         bondComposition={rdpxV2CoreState.bondComposition}
         rdpxPrice={rdpxV2CoreState.rdpxPriceInEth}
+        totalSupply={rdpxV2CoreState.receiptTokenSupply}
+        maxSupply={rdpxV2CoreState.receiptTokenMaxSupply}
       />
       <div className="flex flex-col rounded-xl p-3 w-full bg-umbra space-y-3">
         <InfoRow
@@ -228,35 +233,49 @@ const Bond = () => {
           }
         />
         {delegated ? (
-          <InfoRow
-            label="Delegated WETH used"
-            value={
-              <>
-                <Typography2
-                  variant="caption"
-                  color={
-                    squeezeDelegatesResult.wethToBeUsed >=
-                    squeezeDelegatesResult.totalDelegatedWeth
-                      ? 'down-bad'
-                      : 'white'
-                  }
-                >
-                  {formatBigint(
-                    squeezeDelegatesResult.wethToBeUsed,
-                    DECIMALS_TOKEN,
-                  )}{' '}
-                </Typography2>
-                /{' '}
+          <>
+            <InfoRow
+              label="Delegated WETH used"
+              value={
+                <>
+                  <Typography2
+                    variant="caption"
+                    color={
+                      squeezeDelegatesResult.wethToBeUsed >=
+                      squeezeDelegatesResult.totalDelegatedWeth
+                        ? 'down-bad'
+                        : 'white'
+                    }
+                  >
+                    {formatBigint(
+                      squeezeDelegatesResult.wethToBeUsed,
+                      DECIMALS_TOKEN,
+                    )}{' '}
+                  </Typography2>
+                  /{' '}
+                  <Typography2 variant="caption">
+                    {formatBigint(
+                      squeezeDelegatesResult.totalDelegatedWeth,
+                      DECIMALS_TOKEN,
+                    )}{' '}
+                    WETH
+                  </Typography2>
+                </>
+              }
+            />
+            <InfoRow
+              label="Average Fee %"
+              value={
                 <Typography2 variant="caption">
                   {formatBigint(
-                    squeezeDelegatesResult.totalDelegatedWeth,
-                    DECIMALS_TOKEN,
-                  )}{' '}
-                  WETH
+                    squeezeDelegatesResult.avgFee,
+                    DECIMALS_STRIKE + DECIMALS_TOKEN,
+                  )}
+                  %
                 </Typography2>
-              </>
-            }
-          />
+              }
+            />
+          </>
         ) : (
           <InfoRow
             label="WETH Balance"
@@ -267,27 +286,11 @@ const Bond = () => {
             }
           />
         )}
-        <InfoRow
-          label="Average Fee %"
-          value={
-            <Typography2 variant="caption">
-              {formatBigint(
-                squeezeDelegatesResult.avgFee,
-                DECIMALS_STRIKE + DECIMALS_TOKEN,
-              )}
-              %
-            </Typography2>
-          }
-        />
-        <InfoRow
-          label="rtETH to be received"
-          value={<Typography2 variant="caption">-</Typography2>}
-        />
         <Button
           size="medium"
           className="w-full rounded-md"
           color="primary"
-          disabled={panelState.disabled}
+          disabled={panelState.disabled || RDPX_V2_STATE === 'BOOTSTRAP'}
           onClick={panelState.handler}
         >
           {panelState.label}

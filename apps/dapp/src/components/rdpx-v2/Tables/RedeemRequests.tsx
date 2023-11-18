@@ -62,7 +62,10 @@ const RedeemRequests = () => {
         return {
           epoch: rr.epoch,
           amount: rr.amount,
-          breakdown: [rr.ethAmount, rr.rdpxAmount] as readonly [bigint, bigint],
+          composition: [rr.ethAmount, rr.rdpxAmount] as readonly [
+            bigint,
+            bigint,
+          ],
           button: {
             disabled: rr.epoch === perpetualVaultState.currentEpoch,
             label: 'Redeem',
@@ -77,19 +80,15 @@ const RedeemRequests = () => {
     handleClaim,
   ]);
 
-  return data.length > 0 ? (
-    <div className="space-y-2">
-      <Typography2 variant="subtitle2" className="px-2">
-        Redemptions Queued
-      </Typography2>
-      <TableLayout<RedeemRequestType>
-        data={data}
-        columns={columns}
-        isContentLoading={loading && !!account}
-        fill="bg-umbra"
-      />
-    </div>
-  ) : null;
+  return (
+    <TableLayout<RedeemRequestType>
+      data={data}
+      columns={columns}
+      rowSpacing={2}
+      isContentLoading={loading && !!account}
+      fill="bg-umbra"
+    />
+  );
 };
 
 export default RedeemRequests;

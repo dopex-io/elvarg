@@ -13,7 +13,9 @@ import { vedpxAddress } from 'store/VeDPX';
 import { WalletSlice } from 'store/Wallet';
 
 import { CHAINS } from 'constants/chains';
-import { TOKEN_DATA, TOKENS } from 'constants/tokens';
+import { TOKEN_DATA } from 'constants/tokens';
+
+const TOKENS = Object.keys(TOKEN_DATA);
 
 const initKeysToVal = (arr: Array<string>, val: any) => {
   return arr.reduce((acc, item) => {

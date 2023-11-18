@@ -8,6 +8,7 @@ import { DECIMALS_TOKEN } from 'constants/index';
 interface Props {
   user: Address;
   collateralRequired: bigint;
+  bonds: string;
 }
 const useSqueezeDelegatedWeth = ({ user, collateralRequired }: Props) => {
   const { delegatePositions, updateUserDelegatePositions } = useRdpxV2CoreData({
@@ -21,6 +22,7 @@ const useSqueezeDelegatedWeth = ({ user, collateralRequired }: Props) => {
     totalWethAvailable: bigint; // sum of [amount - activeCollateral] across all **squeezed** delegates
     totalDelegatedWeth: bigint; // total weth available from delegates
     avgFee: bigint; // average weighted fee % across delegates' used weth
+    bondBreakdown: bigint[];
   }>({
     ids: [],
     wethToBeUsed: 0n,
@@ -28,6 +30,7 @@ const useSqueezeDelegatedWeth = ({ user, collateralRequired }: Props) => {
     totalWethAvailable: 0n,
     totalDelegatedWeth: 0n,
     avgFee: 0n,
+    bondBreakdown: [],
   });
 
   const squeezeAndFetchDelegates = useCallback(async () => {
@@ -38,7 +41,7 @@ const useSqueezeDelegatedWeth = ({ user, collateralRequired }: Props) => {
       (prev, curr) =>
         curr.amount - curr.activeCollateral > parseUnits('1', 14)
           ? prev + (curr.amount - curr.activeCollateral)
-          : 0n,
+          : prev + 0n,
       0n,
     );
 
@@ -88,6 +91,11 @@ const useSqueezeDelegatedWeth = ({ user, collateralRequired }: Props) => {
       0n,
     );
 
+    const bondBreakdown = accumulator.amounts.map(
+      (amount) =>
+        (amount * parseUnits('1', DECIMALS_TOKEN)) / (wethToBeUsed + 1n),
+    );
+
     setSqueezeResult({
       ids: accumulator.ids,
       amounts: accumulator.amounts,
@@ -95,6 +103,7 @@ const useSqueezeDelegatedWeth = ({ user, collateralRequired }: Props) => {
       totalWethAvailable,
       avgFee: averageFee,
       totalDelegatedWeth,
+      bondBreakdown,
     });
   }, [delegatePositions, collateralRequired]);
 

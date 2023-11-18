@@ -23,7 +23,6 @@ import { DECIMALS_TOKEN } from 'constants/index';
 import { DOPEX_RDPX_V2_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
 interface LiquidityLineChartProps {
-  data: any[];
   width: number;
   height: number;
 }
@@ -78,10 +77,10 @@ const PriceChart = (props: LiquidityLineChartProps) => {
           height={400}
           data={data}
           margin={{
-            top: 0,
+            top: 10,
             right: 10,
             left: 10,
-            bottom: 0,
+            bottom: 10,
           }}
         >
           <XAxis dataKey="time" hide />

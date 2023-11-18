@@ -1,9 +1,17 @@
 import { useCallback, useState } from 'react';
 import { Address, parseUnits, zeroAddress } from 'viem';
 
+import request from 'graphql-request';
 import { range } from 'lodash';
 import { erc20ABI } from 'wagmi';
 import { multicall, readContract, readContracts } from 'wagmi/actions';
+
+import queryClient from 'queryClient';
+
+import {
+  getDelegatesDocument,
+  getUserDelegatesDocument,
+} from 'graphql/rdpx-v2';
 
 import { DECIMALS_TOKEN } from 'constants/index';
 import RdpxReserve from 'constants/rdpx/abis/RdpxReserve';
@@ -12,6 +20,7 @@ import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
 import ReceiptToken from 'constants/rdpx/abis/ReceiptToken';
 import addresses from 'constants/rdpx/addresses';
 import initialContractStates from 'constants/rdpx/initialStates';
+import { DOPEX_RDPX_V2_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
 interface RdpxV2CoreState {
   bondMaturity: bigint;
@@ -23,6 +32,7 @@ interface RdpxV2CoreState {
   bondComposition: readonly [bigint, bigint];
   discount: bigint;
   receiptTokenSupply: bigint;
+  receiptTokenMaxSupply: bigint;
   receiptTokenBacking: readonly [bigint, bigint];
   rdpxSupply: bigint;
 }
@@ -78,8 +88,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
     if (user === '0x' || user === zeroAddress) return;
 
     const [
-      { result: bondMaturity = 0n },
-      { result: bondDiscountFactor = 0n },
+      { result: coreParameters = [0n, 0n, 0n] as const },
       { result: rdpxPriceInEth = 0n },
       { result: dpxethPriceInEth = 0n },
       { result: ethPrice = 0n },
@@ -88,17 +97,14 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
       { result: rdpxBalance = 0n },
       { result: rdpxReserve = 0n },
       { result: receiptTokenSupply = 0n },
+      { result: receiptTokenMaxSupply = 0n },
       { result: rdpxSupply = 0n },
-    ] = await readContracts({
+    ] = await multicall({
       // multicall
       contracts: [
         {
           ...coreContractConfig,
-          functionName: 'bondMaturity',
-        },
-        {
-          ...coreContractConfig,
-          functionName: 'bondDiscountFactor',
+          functionName: 'getCoreParameters',
         },
         { ...coreContractConfig, functionName: 'getRdpxPrice' },
         { ...coreContractConfig, functionName: 'getDpxEthPrice' },
@@ -106,7 +112,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
         {
           ...coreContractConfig,
           functionName: 'calculateBondCost',
-          args: [parseUnits('1', DECIMALS_TOKEN), 0n],
+          args: [parseUnits('1', DECIMALS_TOKEN)],
         },
         {
           abi: erc20ABI,
@@ -126,6 +132,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
           functionName: 'rdpxReserve',
         },
         { ...receiptTokenConfig, functionName: 'totalSupply' },
+        { ...receiptTokenConfig, functionName: 'maxSupply' },
         { abi: erc20ABI, address: addresses.rdpx, functionName: 'totalSupply' },
       ],
     });
@@ -151,13 +158,13 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
 
     const discount =
       Math.ceil(
-        Number(bondDiscountFactor) * Math.sqrt(Number(rdpxReserve)) * 1e2,
+        Number(coreParameters[1]) * Math.sqrt(Number(rdpxReserve)) * 1e2,
       ) / Math.sqrt(Number(parseUnits('1', DECIMALS_TOKEN)));
 
     setRdpxV2CoreState((prev) => ({
       ...prev,
-      bondMaturity,
-      bondDiscountFactor,
+      bondMaturity: coreParameters[2],
+      bondDiscountFactor: coreParameters[1],
       dpxethPriceInEth,
       bondComposition,
       rdpxPriceInEth,
@@ -165,6 +172,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
       discount: parseUnits(discount.toString(), 0),
       maxMintableBonds,
       receiptTokenSupply,
+      receiptTokenMaxSupply,
       rdpxSupply,
     }));
   }, [user]);
@@ -223,36 +231,48 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
 
     setLoading(true);
 
-    const totalDelegates = await readContract({
-      ...coreContractConfig,
-      functionName: 'getDelegatesLength',
-    });
+    const userPositions = await queryClient
+      .fetchQuery({
+        queryKey: ['getUserDelegates'],
+        queryFn: () =>
+          request(DOPEX_RDPX_V2_SUBGRAPH_API_URL, getUserDelegatesDocument, {
+            sender: user,
+          }),
+      })
+      .then((res) =>
+        res.delegates
+          .sort((a, b) => Number(a.fee - b.fee))
+          .map((pos) => ({
+            _id: BigInt(pos.delegateId),
+            owner: user as Address,
+            amount: parseUnits(pos.amount, 0),
+            fee: parseUnits(pos.fee, 0),
+            activeCollateral: parseUnits(pos.activeCollateral, 0),
+          })),
+      )
+      .catch(() => []);
 
-    const delegateCalls = [];
-    for (const i of range(Number(totalDelegates))) {
-      const fnCall = readContract({
-        ...coreContractConfig,
-        functionName: 'delegates',
-        args: [BigInt(i)],
-      });
-      delegateCalls.push(fnCall);
-    }
+    const delegates = await queryClient
+      .fetchQuery({
+        queryKey: ['getDelegates'],
+        queryFn: () =>
+          request(DOPEX_RDPX_V2_SUBGRAPH_API_URL, getDelegatesDocument),
+      })
+      .then((res) =>
+        res.delegates
+          .sort((a, b) => Number(a.fee - b.fee)) // sort by fees
+          .map((pos) => ({
+            _id: BigInt(pos.delegateId),
+            owner: pos.transaction.sender as Address,
+            amount: parseUnits(pos.amount, 0),
+            fee: parseUnits(pos.fee, 0),
+            activeCollateral: parseUnits(pos.activeCollateral, 0),
+          })),
+      )
+      .catch(() => []);
 
-    const delegates = await Promise.all(delegateCalls);
-
-    const delegatePositions = delegates.map((delegate, index) => ({
-      _id: BigInt(index),
-      owner: delegate[0],
-      amount: delegate[1],
-      fee: delegate[2],
-      activeCollateral: delegate[3],
-    }));
-
-    const _userDelegatePositions = delegatePositions.filter(
-      (pos) => pos.owner === user && pos.amount - pos.activeCollateral !== 0n,
-    );
-    setUserDelegatePositions(_userDelegatePositions);
-    setDelegatePositions(delegatePositions);
+    setUserDelegatePositions(userPositions);
+    setDelegatePositions(delegates);
     setLoading(false);
   }, [user]);
 

@@ -1,6 +1,6 @@
 function formatAmount(
   amount: string | number = 0,
-  decimalPoints: number = 0,
+  decimalPoints: number = 3,
   showK: boolean = false,
   showDash: boolean = false,
 ): string {
@@ -18,7 +18,7 @@ function formatAmount(
     } else if (typecastedAmount >= 100000000000) {
       result = '∞';
     } else {
-      result = Number(typecastedAmount.toFixed(decimalPoints)).toLocaleString(); // if value < 1000, nothing to do
+      result = typecastedAmount.toFixed(decimalPoints); // if value < 1000, nothing to do
     }
   }
 

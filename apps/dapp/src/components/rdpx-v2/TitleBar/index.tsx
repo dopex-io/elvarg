@@ -21,8 +21,9 @@ export const rdpxStateToLabelMapping: {
   [key in (typeof rdpxV2Actions)[number]]: string;
 } = {
   bond: 'Bonding',
-  lp: 'Strategy Vault',
+  lp: 'Perpetual Put Vault',
   stake: 'Staking',
+  // farm: 'Farm',
 };
 
 const Stat = ({
@@ -82,8 +83,8 @@ const TitleBar = () => {
   }, [updateLpWethBalance]);
 
   useEffect(() => {
-    if (rdpxV2CoreState.discount > 0n) updatePerpetualVaultState();
-  }, [rdpxV2CoreState.discount, updatePerpetualVaultState]);
+    updatePerpetualVaultState();
+  }, [updatePerpetualVaultState]);
 
   const titleBarContent = useMemo(() => {
     const defaultIndex = 0;
@@ -105,14 +106,14 @@ const TitleBar = () => {
                 name="rtETH Price"
                 value={`${formatBigint(
                   rdpxV2CoreState.dpxethPriceInEth,
-                  DECIMALS_STRIKE,
+                  DECIMALS_TOKEN,
                 )} WETH`}
               />
               <Stat
                 name="RDPX Price"
                 value={`${formatBigint(
                   rdpxV2CoreState.rdpxPriceInEth,
-                  DECIMALS_STRIKE,
+                  DECIMALS_TOKEN,
                 )} WETH`}
               />
             </div>
@@ -134,13 +135,10 @@ const TitleBar = () => {
               <Stat
                 name="Utilization"
                 value={`${formatBigint(
-                  (perpetualVaultState.totalActiveOptions *
-                    parseUnits('1', DECIMALS_TOKEN)) /
-                    (perpetualVaultState.oneLpShare[0] +
-                      (perpetualVaultState.oneLpShare[1] *
-                        parseUnits('1', DECIMALS_TOKEN)) /
-                        (perpetualVaultState.underlyingPrice + 1n) || 1n),
-                  // total active options / rdpx + weth in strategy vault
+                  (perpetualVaultState.activeCollateral *
+                    parseUnits('1', DECIMALS_TOKEN) *
+                    100n) /
+                    perpetualVaultState.totalLpShares,
                   DECIMALS_TOKEN,
                 )}%`}
               />
@@ -153,6 +151,8 @@ const TitleBar = () => {
         };
       case 'stake':
         return { index: 2, renderComponent: <></> };
+      // case 'farm':
+      //   return { index: 3, renderComponent: <></> };
       default:
         return { index: defaultIndex, renderComponent: <></> };
     }

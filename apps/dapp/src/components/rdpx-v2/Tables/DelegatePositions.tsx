@@ -10,7 +10,7 @@ import columns, {
   DelegatePositions as DelegatePositionsType,
 } from 'components/rdpx-v2/Tables/ColumnDefs/DelegatePositionsColumn';
 
-import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
+import DelegateBonds from 'constants/rdpx/abis/DelegateBonds';
 import addresses from 'constants/rdpx/addresses';
 
 const DelegatePositions = () => {
@@ -24,19 +24,22 @@ const DelegatePositions = () => {
     updateUserDelegatePositions();
   }, [updateUserDelegatePositions]);
 
-  const handleWithdraw = useCallback(async (id: bigint) => {
-    const write = async () =>
-      await writeContract({
-        abi: RdpxV2Core,
-        address: addresses.v2core,
-        functionName: 'withdraw',
-        args: [id],
-      });
+  const handleWithdraw = useCallback(
+    async (id: bigint) => {
+      const write = async () =>
+        await writeContract({
+          abi: DelegateBonds,
+          address: addresses.delegateBonds,
+          functionName: 'withdraw',
+          args: [id],
+        });
 
-    await write()
-      .then((tx) => console.log(tx.hash))
-      .catch((e) => console.error(e));
-  }, []);
+      await write()
+        .then(() => updateUserDelegatePositions())
+        .catch((e) => console.error(e));
+    },
+    [updateUserDelegatePositions],
+  );
 
   const delegatePositions = useMemo(() => {
     if (userDelegatePositions.length === 0) return [];

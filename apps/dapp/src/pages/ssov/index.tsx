@@ -16,6 +16,7 @@ import { getSsovPurchasesFromTimestampDocument } from 'graphql/ssovs';
 
 import AppBar from 'components/common/AppBar';
 import NewSsovUIBanner from 'components/common/Banners/NewSsovUIBanner';
+import PageLoader from 'components/common/PageLoader';
 import SsovCard from 'components/ssov/SsovCard';
 import SsovFilter from 'components/ssov/SsovFilter';
 import SsovStat from 'components/ssov/Stats/SsovStat';
@@ -183,11 +184,7 @@ const SsovData = () => {
   }, [ssovs]);
 
   if (data.isLoading) {
-    return (
-      <Box className="absolute left-[49%] top-[49%]">
-        <CircularProgress />
-      </Box>
-    );
+    return <PageLoader />;
   } else if (data.error === undefined || data.error)
     return (
       <Box className="mt-4">

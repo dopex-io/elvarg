@@ -2,7 +2,7 @@
 // functionName: 'claim',
 // functionName: 'currentEpoch',
 // functionName: 'fundingDuration',
-// functionName: 'totalActiveOptions',
+// functionName: 'activeCollateral',
 // functionName: 'lastUpdateTime',
 // functionName: 'getUnderlyingPrice',
 // functionName: 'userSharesLocked'

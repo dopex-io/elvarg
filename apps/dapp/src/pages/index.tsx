@@ -1,140 +1,90 @@
-import { useEffect, useState } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
 
-import Box from '@mui/material/Box';
-
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import AgricultureIcon from '@mui/icons-material/Agriculture';
-import GavelIcon from '@mui/icons-material/Gavel';
-import PieChartIcon from '@mui/icons-material/PieChart';
-import SsidChartIcon from '@mui/icons-material/SsidChart';
-
+import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
 import AppBar from 'components/common/AppBar';
-import { Typography } from 'components/UI';
-
-import { formatAmount } from 'utils/general';
-
-import { DOPEX_API_BASE_URL } from 'constants/env';
-
-interface CardProps {
-  name: string;
-  description: string;
-  href: string;
-  Icon: any;
-}
-
-const Card = ({ name, description, href, Icon }: CardProps) => {
-  return (
-    <Link href={href}>
-      <Box className="bg-umbra shadow-2xl p-4 rounded-2xl flex space-x-4 items-center hover:-translate-y-1 transition ease-in hover:backdrop-blur-sm hover:bg-opacity-60 cursor-pointer hover:border-wave-blue border-2 border-transparent">
-        <Icon className="w-8 h-8" />
-        <Box>
-          <Typography variant="h5" className="font-bold">
-            {name}
-          </Typography>
-          <Typography variant="h6" color="stieglitz" className="font-bold">
-            {description}
-          </Typography>
-        </Box>
-      </Box>
-    </Link>
-  );
-};
+import Footer from 'components/common/Footer';
+import PageLoader from 'components/common/PageLoader';
+import ClammCard from 'components/home/Card/ClammCard';
+import RdpxV2Card from 'components/home/Card/RdpxV2Card';
+import SsovCard from 'components/home/Card/SsovCard';
 
 const Home = () => {
-  const [tvl, setTvl] = useState('0');
+  const query = useQuery({
+    queryKey: ['tvl_eth_market'],
+    queryFn: () => {
+      return axios.get(
+        'https://varrock.dopex.io/clamm/stats/tvl?optionMarket=0x764fA09d0B3de61EeD242099BD9352C1C61D3d27',
+      );
+    },
+  });
 
-  useEffect(() => {
-    async function getTvl() {
-      let tvl = '--';
-      try {
-        const res = await axios.get(`${DOPEX_API_BASE_URL}/v2/tvl`);
+  if (query.isLoading) {
+    return <PageLoader />;
+  }
 
-        tvl = res.data.tvl;
-      } catch (err) {
-        console.log(err);
-      }
-
-      setTvl(tvl);
-    }
-    getTvl();
-  }, []);
+  // Calc for ETH since its allocated the highest amount of rewards
+  const clammAPY = (3600 / query.data?.data.tvl) * 100 * 365;
 
   return (
-    <Box className="min-h-screen">
-      <Head>
-        <title>Home | Dopex</title>
-      </Head>
-      <AppBar />
-      <Box className="pb-28 pt-40 lg:max-w-5xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 to-">
-        <Box className="flex space-x-8 mb-24">
-          <img
-            src="/images/brand/logo.svg"
-            alt="logo"
-            className="md:w-24 md:h-24 w-20 h-20"
-          />
-          <h1 className="md:text-8xl text-7xl font-mono font-bold">DOPEX</h1>
-        </Box>
-        <Box className="flex md:flex-row md:space-y-0 space-y-12 flex-col justify-between mb-24">
-          <Box className="flex flex-col max-w-fit">
-            <h1 className="md:text-7xl text-6xl  font-mono font-bold text-wave-blue">
-              $300M+
-            </h1>
-            <span className="text-2xl text-white self-end font-bold font-mono">
-              All Time Open Interest
-            </span>
-          </Box>
-          <Box className="flex flex-col max-w-fit">
-            <h1 className="md:text-7xl text-6xl  font-mono font-bold text-wave-blue">
-              {tvl === '--' ? tvl : `${formatAmount(tvl)}`}
-            </h1>
-            <span className="text-2xl text-white self-end font-bold font-mono">
-              Total Value Locked
-            </span>
-          </Box>
-        </Box>
-        <Box>
-          <Typography variant="h2" className="mb-8 font-bold">
-            Our Products
-          </Typography>
-          <Box className="grid md:grid-cols-2 grid-cols-1 gap-8">
-            <Card
-              name="Single Staking Option Vaults"
-              description="Sell covered options to earn yields"
-              href="/ssov"
-              Icon={PieChartIcon}
+    <div>
+      <div className="min-h-screen bg-[url('/images/backgrounds/darkness.jpg')]">
+        <Head>
+          <title>Home | Dopex</title>
+        </Head>
+        <AppBar />
+        <div className="lg:max-w-5xl mx-auto lg:px-0 px-4 pb-28 pt-32">
+          <div className="flex items-start justify-between">
+            <div className="mb-16 lg:mx-0 lg:max-w-xl mx-auto max-w-lg">
+              <div className="flex mb-4 items-center">
+                <img
+                  src="/images/brand/logo.svg"
+                  alt="logo"
+                  className="md:w-14 md:h-14 w-12 h-12 md:mr-4 mr-2"
+                />
+                <h1 className="md:text-6xl text-5xl font-mono font-bold">
+                  DOPEX
+                  <span className="ml-1 font-light text-3xl gradientText">
+                    V2
+                  </span>
+                </h1>
+              </div>
+              <div className="text-lg mb-4">
+                Arbitrum STIP Incentives are LIVE on Dopex now! Deposit on CLAMM
+                now to earn up to{' '}
+                <b className="gradientText">{clammAPY.toFixed()}% APY!</b>
+              </div>
+              <a
+                href="/clamm/WETH-USDC"
+                rel="noopener noreferer"
+                target="_blank"
+                className="absolute z-20 bg-[#0b1121] rounded-md p-2"
+              >
+                Deposit CLAMM
+              </a>
+              <div className="gradient-bg-effect" />
+            </div>
+            <img
+              className="w-80 h-auto hidden lg:block"
+              src="/images/brand/rdpx-v2.svg"
+              alt="rdpx-v2"
             />
-            <Card
-              name="Farms"
-              description="Earn rewards for liquidity staking"
-              href="/farms"
-              Icon={AgricultureIcon}
-            />
-            <Card
-              name="Atlantic Straddles"
-              description="Apply a straddle strategy on ETH, DPX and rDPX"
-              href="/straddles"
-              Icon={SsidChartIcon}
-            />
-            <Card
-              name="Governance"
-              description="Lock DPX to earn protocol fees and rewards"
-              href="/governance/vedpx"
-              Icon={GavelIcon}
-            />
-            <Card
-              name="Option Liquidity Pools"
-              description="Purchase SSOV options at a discounted IV"
-              href="/olp"
-              Icon={AccountTreeIcon}
-            />
-          </Box>
-        </Box>
-      </Box>
-    </Box>
+          </div>
+          <div className="mb-24">
+            <div className="mb-8 font-bold text-3xl lg:block flex justify-center">
+              <span>Our Products</span>
+            </div>
+            <div className="grid lg:grid-cols-2 grid-cols-1 gap-8 justify-items-center">
+              <ClammCard apy={clammAPY} />
+              <SsovCard />
+              <RdpxV2Card />
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    </div>
   );
 };
 

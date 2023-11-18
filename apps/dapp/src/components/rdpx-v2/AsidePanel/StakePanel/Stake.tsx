@@ -1,4 +1,4 @@
-// todo: D.R.Y strategy vault panel
+// todo: D.R.Y perpetual vault panel
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { formatUnits, parseUnits } from 'viem';
 

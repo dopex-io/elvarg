@@ -23,13 +23,12 @@ import { DECIMALS_TOKEN } from 'constants/index';
 import { DOPEX_RDPX_V2_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
 interface LiquidityBarGraphProps {
-  data: any[];
   width: number;
   height: number;
 }
 
 const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
-  const { /*data,*/ height } = props;
+  const { height } = props;
 
   const [data, setData] = useState<
     {
@@ -74,7 +73,8 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
       .then((payload) => {
         const _ethPriceInUsd = Number(payload.data.ethereum.usd);
         setEthPriceInUsd(_ethPriceInUsd);
-      });
+      })
+      .catch(() => setEthPriceInUsd(0));
   }, []);
 
   return (
