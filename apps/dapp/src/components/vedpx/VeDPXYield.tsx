@@ -64,11 +64,7 @@ const VeDPXYield = () => {
       </div>
       <div className="bg-cod-gray rounded-2xl p-3 w-96">
         <div className="flex space-x-2 w-full items-center mb-3">
-          <img
-            className="w-10 h-10 border border-mineshaft rounded-full"
-            src="/images/tokens/dpx.svg"
-            alt="DPX"
-          />
+          <img className="w-12 h-12" src="/images/tokens/vedpx.svg" alt="DPX" />
           <div className="flex-grow font-">
             <div>veDPX</div>
             <div className="text-stieglitz text-sm">Earn DPX</div>
