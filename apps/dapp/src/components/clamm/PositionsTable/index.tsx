@@ -2,11 +2,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import { useAccount, useNetwork } from 'wagmi';
 
+import useClammPositions from 'hooks/clamm/useClammPositions';
 import useClammStore from 'hooks/clamm/useClammStore';
 
 import getBuyPositions from 'utils/clamm/varrock/getBuyPosition';
 import getLPPositions from 'utils/clamm/varrock/getLPPositions';
-import { OptionsPositionsResponse } from 'utils/clamm/varrock/types';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
@@ -15,15 +15,28 @@ import BuyPositions from './components/Positions/components/BuyPositions';
 import LPPositions from './components/Positions/components/LPPositions';
 import PositionsTypeSelector from './components/Positions/components/PositionsTypeSelector';
 
+export type PositionsTableProps = {
+  selectPosition: (key: number, positionInfo: any) => void;
+  selectedPositions: Map<number, any>;
+  unselectPosition: (key: number) => void;
+  removePosition: (index: number) => void;
+  loading: boolean;
+};
+
 const PositionsTable = () => {
   const { chain } = useNetwork();
   const { address: userAddress } = useAccount();
+  const {
+    setUpdateBuyPositions,
+    setUpdateLPPositions,
+    buyPositions,
+    lpPositions,
+    setBuyPositions,
+    setLPPositions,
+  } = useClammPositions();
   const { selectedOptionsPool } = useClammStore();
   const [positionsTypeIndex, setPositionsTypeIndex] = useState(0);
-  const [lpPositions, setLpPositions] = useState<any>([]);
-  const [buyPositions, setBuyPositions] = useState<OptionsPositionsResponse[]>(
-    [],
-  );
+
   const [selectedPositions, setSelectedPositions] = useState<Map<number, any>>(
     new Map(),
   );
@@ -32,17 +45,21 @@ const PositionsTable = () => {
     lpPositions: false,
   });
 
-  const removeLpPosition = useCallback((indexToRemove: number) => {
-    setLpPositions((prev: any[]) =>
-      prev.filter((_, index) => indexToRemove !== index),
-    );
-  }, []);
+  const removeLpPosition = useCallback(
+    (indexToRemove: number) => {
+      setLPPositions(lpPositions.filter((_, index) => indexToRemove !== index));
+    },
+    [setLPPositions, lpPositions],
+  );
 
-  const removeBuyPosition = useCallback((indexToRemove: number) => {
-    setBuyPositions((prev: any[]) =>
-      prev.filter((_, index) => indexToRemove !== index),
-    );
-  }, []);
+  const removeBuyPosition = useCallback(
+    (indexToRemove: number) => {
+      setBuyPositions(
+        buyPositions.filter((_, index) => indexToRemove !== index),
+      );
+    },
+    [setBuyPositions, buyPositions],
+  );
 
   const selectPosition = (key: number, positionInfo: any) => {
     setSelectedPositions((prev) => new Map(prev.set(key, positionInfo)));
@@ -87,7 +104,7 @@ const PositionsTable = () => {
         console.error(err);
       },
     );
-  }, [selectedOptionsPool, userAddress]);
+  }, [selectedOptionsPool, userAddress, setBuyPositions]);
 
   const updateLPPositions = useCallback(async () => {
     if (!userAddress || !selectedOptionsPool) return;
@@ -98,27 +115,29 @@ const PositionsTable = () => {
       1000,
       0,
       (data: any) => {
-        setLpPositions(data);
+        setLPPositions(data);
       },
       (err) => {
         console.error(err);
       },
     );
-  }, [chain, selectedOptionsPool, userAddress]);
+  }, [chain, selectedOptionsPool, userAddress, setLPPositions]);
 
   useEffect(() => {
     setLoading((prev) => ({ ...prev, buyPositions: true }));
+    setUpdateBuyPositions(updateBuyPositions);
     updateBuyPositions().finally(() =>
       setLoading((prev) => ({ ...prev, buyPositions: false })),
     );
-  }, [updateBuyPositions]);
+  }, [updateBuyPositions, setUpdateBuyPositions]);
 
   useEffect(() => {
     setLoading((prev) => ({ ...prev, lpPositions: true }));
+    setUpdateLPPositions(updateLPPositions);
     updateLPPositions().finally(() =>
       setLoading((prev) => ({ ...prev, lpPositions: false })),
     );
-  }, [updateLPPositions]);
+  }, [updateLPPositions, setUpdateLPPositions]);
 
   return (
     <div className="w-full flex-col items-center justify-center space-y-[12px]">
@@ -135,8 +154,6 @@ const PositionsTable = () => {
             <ActionButton
               positionsTypeIndex={positionsTypeIndex}
               selectedPositions={selectedPositions}
-              updateLPPositions={updateLPPositions}
-              updateBuyPositions={updateBuyPositions}
               resetPositions={resetPositions}
             />
           )}
@@ -145,21 +162,17 @@ const PositionsTable = () => {
       <div className="w-full h-fit  bg-cod-gray">
         {positionsTypeIndex === 0 ? (
           <BuyPositions
-            positions={buyPositions}
             selectPosition={selectPosition}
             unselectPosition={unselectPosition}
             selectedPositions={selectedPositions}
             loading={loading.buyPositions}
-            updatePositions={updateBuyPositions}
             removePosition={removeBuyPosition}
           />
         ) : (
           <LPPositions
-            positions={lpPositions}
             selectPosition={selectPosition}
             unselectPosition={unselectPosition}
             selectedPositions={selectedPositions}
-            updatePositions={updateLPPositions}
             loading={loading.lpPositions}
             removePosition={removeLpPosition}
           />

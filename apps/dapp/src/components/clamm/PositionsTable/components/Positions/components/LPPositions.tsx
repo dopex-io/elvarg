@@ -13,8 +13,10 @@ import toast from 'react-hot-toast';
 import { useNetwork, useWalletClient } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
 
+import useClammPositions from 'hooks/clamm/useClammPositions';
 import useClammStore from 'hooks/clamm/useClammStore';
 
+import { PositionsTableProps } from 'components/clamm/PositionsTable';
 import TableLayout from 'components/common/TableLayout';
 
 import { formatAmount } from 'utils/general';
@@ -163,15 +165,14 @@ const columns = [
 ];
 
 const LPPositions = ({
-  positions,
   selectPosition,
   selectedPositions,
   unselectPosition,
-  updatePositions,
   removePosition,
   loading,
-}: any) => {
+}: PositionsTableProps) => {
   const { tick, selectedOptionsPool } = useClammStore();
+  const { lpPositions, updateLPPositions } = useClammPositions();
   const { chain } = useNetwork();
   const { data: walletClient } = useWalletClient({
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
@@ -196,7 +197,7 @@ const LPPositions = ({
           hash,
         });
         removePosition(index);
-        await updatePositions();
+        await updateLPPositions?.();
         toast.success('Transaction sent');
       } catch (err) {
         const error = err as BaseError;
@@ -206,11 +207,11 @@ const LPPositions = ({
 
       toast.remove(loadingToastId);
     },
-    [walletClient, updatePositions, removePosition],
+    [walletClient, updateLPPositions, removePosition],
   );
 
-  const lpPositions = useMemo(() => {
-    return positions
+  const positions = useMemo(() => {
+    return lpPositions
       .map(
         (
           {
@@ -304,7 +305,7 @@ const LPPositions = ({
       );
   }, [
     tick,
-    positions,
+    lpPositions,
     selectPosition,
     selectedPositions,
     unselectPosition,
@@ -312,7 +313,7 @@ const LPPositions = ({
   ]);
   return (
     <TableLayout<LPPositionItem>
-      data={lpPositions}
+      data={positions}
       columns={columns}
       rowSpacing={3}
       isContentLoading={loading}

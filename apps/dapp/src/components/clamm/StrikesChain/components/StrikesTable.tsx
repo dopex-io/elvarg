@@ -110,8 +110,7 @@ const columns = [
     ),
   }),
   columnHelper.accessor('isRewardsEligible', {
-    // @ts-ignore
-    header: <span className="text-wave-blue animate-pulse">Rewards</span>,
+    header: 'Rewards',
     cell: (info) => (
       <span className="flex items-center w-full pl-[12px]">
         {info.getValue() && (

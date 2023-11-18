@@ -12,12 +12,13 @@ import toast from 'react-hot-toast';
 import { useNetwork, useWalletClient } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
 
+import useClammPositions from 'hooks/clamm/useClammPositions';
 import useClammStore from 'hooks/clamm/useClammStore';
 
+import { PositionsTableProps } from 'components/clamm/PositionsTable';
 import TableLayout from 'components/common/TableLayout';
 
 import getExerciseTxData from 'utils/clamm/varrock/getExerciseTxData';
-import { OptionsPositionsResponse } from 'utils/clamm/varrock/types';
 import { formatAmount } from 'utils/general';
 import getPercentageDifference from 'utils/math/getPercentageDifference';
 
@@ -175,25 +176,15 @@ const columns = [
   }),
 ];
 
-type Props = {
-  positions: OptionsPositionsResponse[];
-  selectPosition: (key: number, positionInfo: any) => void;
-  selectedPositions: Map<number, any>;
-  unselectPosition: (key: number) => void;
-  updatePositions: () => Promise<void>;
-  removePosition: (index: number) => void;
-  loading: boolean;
-};
 const BuyPositions = ({
-  positions,
   selectPosition,
   selectedPositions,
   unselectPosition,
   loading,
-  updatePositions,
   removePosition,
-}: Props) => {
+}: PositionsTableProps) => {
   const { chain } = useNetwork();
+  const { buyPositions, updateBuyPositions } = useClammPositions();
   const { selectedOptionsPool, markPrice } = useClammStore();
   const { data: walletClient } = useWalletClient({
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
@@ -230,7 +221,7 @@ const BuyPositions = ({
           hash,
         });
         removePosition(index);
-        await updatePositions();
+        await updateBuyPositions?.();
         toast.success('Transaction sent');
       } catch (err) {
         const error = err as BaseError;
@@ -267,7 +258,7 @@ const BuyPositions = ({
           });
 
           removePosition(index);
-          await updatePositions();
+          await updateBuyPositions?.();
           toast.success('Transaction sent');
         } catch (err) {
           const error = err as BaseError;
@@ -277,11 +268,11 @@ const BuyPositions = ({
       }
       toast.remove(loadingToastId);
     },
-    [selectedOptionsPool, walletClient, updatePositions, removePosition],
+    [selectedOptionsPool, walletClient, updateBuyPositions, removePosition],
   );
 
-  const buyPositions = useMemo(() => {
-    return positions
+  const positions = useMemo(() => {
+    return buyPositions
       .map(
         (
           { expiry, premium, profit, side, size, strike, meta }: any,
@@ -373,8 +364,8 @@ const BuyPositions = ({
           Number(a.strike.strikePrice) - Number(b.strike.strikePrice),
       );
   }, [
+    buyPositions,
     markPrice,
-    positions,
     handleExercise,
     selectPosition,
     selectedPositions,
@@ -383,7 +374,7 @@ const BuyPositions = ({
 
   return (
     <TableLayout<BuyPositionItem>
-      data={buyPositions}
+      data={positions}
       columns={columns}
       rowSpacing={3}
       isContentLoading={loading}

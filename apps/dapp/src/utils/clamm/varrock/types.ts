@@ -32,6 +32,32 @@ export type OptionsPositionsResponse = {
   };
 };
 
+export type LPPositionsResponse = {
+  strikePrice: number;
+  token0LiquidityInToken: string;
+  token1LiquidityInToken: string;
+  token0Earned: string;
+  token1Earned: string;
+  token0Symbol: string;
+  token1Symbol: string;
+  token0Decimals: number;
+  token1Decimals: number;
+  token0Withdrawable: string;
+  token1Withdrawable: string;
+  meta: {
+    pool: string;
+    handler: string;
+    withdrawableShares: string;
+    withdrawTx: {
+      txData: string;
+      to: string;
+    };
+    tickLower: number;
+    tickUpper: number;
+    shares: string;
+  };
+};
+
 export type GetExerciseTxDataParam = {
   optionMarket: Address;
   positionId: string;
