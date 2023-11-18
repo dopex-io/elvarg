@@ -126,14 +126,14 @@ const TitleBar = () => {
               />
               <Stat
                 name="RDPX Price"
-                value={`$${
+                value={`$${Number(
                   Number(
                     formatBigint(
                       rdpxV2CoreState.rdpxPriceInEth,
                       DECIMALS_TOKEN,
                     ),
-                  ) * (data?.data.ethereum.usd || 0)
-                }`}
+                  ) * (data?.data.ethereum.usd.toFixed(3) || 0),
+                ).toFixed(3)}`}
               />
             </div>
           ),
@@ -163,10 +163,10 @@ const TitleBar = () => {
               />
               <Stat
                 name="TVL"
-                value={`$${
+                value={`$${Number(
                   Number(formatBigint(lpWethBalance, DECIMALS_TOKEN)) *
-                  (data?.data.ethereum.usd || 0)
-                }`}
+                    (data?.data.ethereum.usd || 0),
+                ).toFixed(3)}`}
               />
             </div>
           ),
