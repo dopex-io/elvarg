@@ -178,13 +178,15 @@ const CostSummary = () => {
             </div>
           </div>
         )}
-        <div className="flex justify-between w-full">
-          <span className="text-stieglitz text-[13px]">Total Cost ($)</span>
-          <span className="text-[13px] flex items-center space-x-[2px]">
-            <span className="text-stieglitz">$</span>
-            <span className="text-white">{formatAmount(usdTotal, 3)}</span>
-          </span>
-        </div>
+        {isTrade && (
+          <div className="flex justify-between w-full">
+            <span className="text-stieglitz text-[13px]">Total Cost ($)</span>
+            <span className="text-[13px] flex items-center space-x-[2px]">
+              <span className="text-stieglitz">$</span>
+              <span className="text-white">{formatAmount(usdTotal, 3)}</span>
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
