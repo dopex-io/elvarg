@@ -20,6 +20,7 @@ import {
   ArrowUpRightIcon,
   XMarkIcon,
 } from '@heroicons/react/24/solid';
+import DopexV2OptionMarket from 'abis/clamm/DopexV2OptionMarket';
 import DopexV2PositionManager from 'abis/clamm/DopexV2PositionManager';
 import cx from 'classnames';
 import { useDebounce } from 'use-debounce';
@@ -42,8 +43,6 @@ import {
 import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
 import getPremium from 'utils/clamm/varrock/getPremium';
 import { formatAmount } from 'utils/general';
-
-import { optionPoolsAbi } from 'constants/clamm';
 
 type Props = {
   key: number;
@@ -296,7 +295,7 @@ const SelectedStrikeItem = ({
     ];
 
     const txData = encodeFunctionData({
-      abi: optionPoolsAbi,
+      abi: DopexV2OptionMarket,
       functionName: 'mintOption',
       args: [
         {
@@ -305,7 +304,7 @@ const SelectedStrikeItem = ({
           tickUpper,
           ttl: BigInt(selectedTTL),
           isCall,
-          maxFeeAllowed: maxUint256,
+          maxCostAllowance: maxUint256,
         },
       ],
     });
