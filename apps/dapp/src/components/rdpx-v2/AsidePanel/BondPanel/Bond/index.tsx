@@ -173,7 +173,7 @@ const Bond = () => {
           handleChange={handleChange}
           maxAmount={rdpxV2CoreState.maxMintableBonds}
           handleMax={handleMax}
-          iconPath="/images/tokens/dpxeth.svg"
+          iconPath="/images/tokens/rteth.svg"
           label="Bond Amount"
           symbol="rtETH"
         />

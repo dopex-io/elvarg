@@ -41,7 +41,7 @@ const PanelInput = (props: Props) => {
           <div className="flex my-auto space-x-2 w-2/3">
             <img
               src={iconPath}
-              alt="dpxeth"
+              alt="rteth"
               className="w-9 h-9 border border-mineshaft rounded-full"
             />
           </div>

@@ -2,7 +2,7 @@ import addresses from './addresses';
 
 export const quickLinks = {
   core: {
-    text: 'What is rDPX v2',
+    text: 'What is rDPX v2?',
     iconSymbol: '/images/tokens/rdpx.svg',
     url: 'https://learn.dopex.io/product-explainers#block-e8011587ccb84ad3946d0c5bc9d7b2ef',
     body: 'rDPX v2 is a system that allows you to mint rtETH, a yield-bearing synthetic version of ETH.',

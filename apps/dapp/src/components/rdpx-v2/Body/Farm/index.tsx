@@ -13,7 +13,7 @@ const Farm = () => {
       <Card
         title="rtETH-WETH"
         subtitle="LP Farm"
-        imgSrc={['/images/tokens/rdpx.svg', '/images/tokens/weth.svg']}
+        imgSrc={['/images/tokens/rteth.svg', '/images/tokens/weth.svg']}
         disable={true}
         url="https://arbiscan.io"
       />

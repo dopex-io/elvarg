@@ -82,7 +82,7 @@ const Unstake = () => {
           amount={amount}
           handleChange={onChange}
           maxAmount={stakedAmount}
-          iconPath="/images/tokens/dpxeth.svg"
+          iconPath="/images/tokens/rteth.svg"
           label="Staked Amount"
           symbol="rtETH"
         />
