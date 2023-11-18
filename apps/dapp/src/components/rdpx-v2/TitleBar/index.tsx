@@ -60,7 +60,7 @@ const TitleBar = () => {
       axios.get(
         'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd',
       ),
-    refetchInterval: 2000,
+    refetchInterval: 15000,
   });
 
   const { address: _user } = useAccount();
