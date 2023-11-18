@@ -21,7 +21,7 @@ export const rdpxStateToLabelMapping: {
   [key in (typeof rdpxV2Actions)[number]]: string;
 } = {
   bond: 'Bonding',
-  lp: 'Perpetual Vault',
+  lp: 'Perpetual Put Vault',
   stake: 'Staking',
   // farm: 'Farm',
 };

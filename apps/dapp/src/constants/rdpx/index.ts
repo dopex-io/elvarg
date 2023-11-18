@@ -13,7 +13,7 @@ export const quickLinks = {
     url: `https://arbiscan.io/address/${addresses.v2core}`,
   },
   arbiscanPerpVault: {
-    text: 'Perpetual Vault',
+    text: 'Perpetual Put Vault',
     iconSymbol: '/assets/etherscan.svg',
     url: `https://arbiscan.io/address/${addresses.perpPool}`,
   },
@@ -28,10 +28,10 @@ export const quickLinks = {
     url: `https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713`,
   },
   strategyVault: {
-    text: 'What is rDPX Perpetual Vault?',
+    text: 'What is rDPX Perpetual Put Vault?',
     iconSymbol: '/images/tokens/rdpx.svg',
     url: 'https://dopex.notion.site/rDPX-V2-RI-b45b5b402af54bcab758d62fb7c69cb4#c13cd86d4f054eec8f8d945596482b51',
-    body: `Accrue premiums & earn rewards by depositing Wrapped Ether into the Perpetual Vault to write 
+    body: `Accrue premiums & earn rewards by depositing Wrapped Ether into the Perpetual Put Vault (PPV) to write 
     rDPX perpetual put options to the treasury. Options are asset-settled with rDPX.`,
   },
   staking: {
