@@ -8,6 +8,7 @@ import cx from 'classnames';
 import { useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
+import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
 import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 
 import TableLayout from 'components/common/TableLayout';
@@ -19,7 +20,6 @@ type StrikeItem = {
   strike: {
     amount: number;
     isSelected: boolean;
-    handleSelect: () => void;
   };
   isRewardsEligible: boolean;
   apr: string;
@@ -163,7 +163,9 @@ const StrikesTable = () => {
     setUpdateStrikes,
   } = useStrikesChainStore();
 
-  const { selectedOptionsPool, isPut, markPrice } = useClammStore();
+  const { unsetDeposit, unsetPurchase } = useClammTransactionsStore();
+
+  const { selectedOptionsPool, isPut, markPrice, isTrade } = useClammStore();
   const { chain } = useNetwork();
   const [loading, setLoading] = useState(false);
 
@@ -238,26 +240,6 @@ const StrikesTable = () => {
             strike: {
               amount: strike,
               isSelected,
-              handleSelect: () => {
-                return isSelected
-                  ? deselectStrike(index)
-                  : selectStrike(index, {
-                      amount0: 0,
-                      amount1:
-                        Number(optionsAvailable) < 0 ? '0' : optionsAvailable,
-                      isCall: type === 'call' ? true : false,
-                      strike: strike,
-                      ttl: '24h',
-                      tokenDecimals: Number(tokenDecimals),
-                      tokenSymbol,
-                      meta: {
-                        tickLower: Number(meta.tickLower),
-                        tickUpper: Number(meta.tickUpper),
-                        amount0: 0n,
-                        amount1: 0n,
-                      },
-                    });
-              },
             },
             sources,
             options: {
@@ -269,24 +251,33 @@ const StrikesTable = () => {
             button: {
               isSelected,
               handleSelect: () => {
-                return isSelected
-                  ? deselectStrike(index)
-                  : selectStrike(index, {
-                      amount0: 0,
-                      amount1:
-                        Number(optionsAvailable) < 0 ? '0' : optionsAvailable,
-                      isCall: type === 'call' ? true : false,
-                      strike: strike,
-                      ttl: '24h',
-                      tokenDecimals: Number(tokenDecimals),
-                      tokenSymbol,
-                      meta: {
-                        tickLower: Number(meta.tickLower),
-                        tickUpper: Number(meta.tickUpper),
-                        amount0: 0n,
-                        amount1: 0n,
-                      },
-                    });
+                if (isSelected) {
+                  deselectStrike(index);
+                  if (isTrade) {
+                    unsetPurchase(index);
+                  } else {
+                    unsetDeposit(index);
+                  }
+                } else {
+                  selectStrike(index, {
+                    amount0: 0,
+                    amount1:
+                      Number(optionsAvailable) < 0
+                        ? '0'
+                        : (Number(optionsAvailable) * 0.9998).toString(),
+                    isCall: type === 'call' ? true : false,
+                    strike: strike,
+                    ttl: '24h',
+                    tokenDecimals: Number(tokenDecimals),
+                    tokenSymbol,
+                    meta: {
+                      tickLower: Number(meta.tickLower),
+                      tickUpper: Number(meta.tickUpper),
+                      amount0: 0n,
+                      amount1: 0n,
+                    },
+                  });
+                }
               },
             },
             liquidity: {
@@ -322,6 +313,9 @@ const StrikesTable = () => {
       return _strikes.sort((a, b) => a.strike.amount - b.strike.amount);
     }
   }, [
+    isTrade,
+    unsetDeposit,
+    unsetPurchase,
     rewardsStrikesLimit,
     strikesChain,
     selectStrike,
