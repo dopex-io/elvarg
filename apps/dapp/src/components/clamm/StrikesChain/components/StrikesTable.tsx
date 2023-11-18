@@ -332,11 +332,13 @@ const StrikesTable = () => {
   ]);
 
   return (
-    <TableLayout<StrikeItem>
-      data={strikes}
-      columns={columns}
-      isContentLoading={loading}
-    />
+    <div className="max-h-[400px] overflow-y-auto border-t border-t-carbon">
+      <TableLayout<StrikeItem>
+        data={strikes}
+        columns={columns}
+        isContentLoading={loading}
+      />
+    </div>
   );
 };
 
