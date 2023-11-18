@@ -31,6 +31,7 @@ type BuyPositionItem = BuyPosition & {
 };
 
 export type BuyPosition = {
+  breakEven: number;
   strike: {
     strikePrice: number;
     isSelected: boolean;
@@ -64,6 +65,15 @@ const columns = [
       <span className="flex space-x-2 text-left items-center justify-start">
         <p className="text-stieglitz inline-block">$</p>
         <p className="inline-block">{info.getValue().strikePrice.toFixed(5)}</p>
+      </span>
+    ),
+  }),
+  columnHelper.accessor('breakEven', {
+    header: 'Breakeven',
+    cell: (info) => (
+      <span className="flex space-x-2 text-left items-center justify-start">
+        <p className="text-stieglitz inline-block">$</p>
+        <p className="inline-block">{formatAmount(info.getValue(), 5)}</p>
       </span>
     ),
   }),
@@ -293,7 +303,10 @@ const BuyPositions = ({
             formatUnits(size.amountInToken, size.decimals),
           );
 
-          const optionsAmount = isPut ? optionsSize / strike : optionsSize;
+          const optionsAmount =
+            side.toLowerCase() === 'put'
+              ? Number(size.usdValue) / Number(strike)
+              : Number(formatUnits(size.amountInToken, size.decimals));
 
           const profitUsd =
             priceDifference < 0 ? 0 : priceDifference * optionsAmount;
@@ -304,7 +317,13 @@ const BuyPositions = ({
           );
           const sizeUsd = isPut ? sizeInNumber : sizeInNumber * markPrice;
 
+          const breakEven =
+            side.toLowerCase() === 'put'
+              ? Number(strike) - Number(premium.usdValue) / optionsAmount
+              : Number(strike) + Number(premium.usdValue) / optionsAmount;
+
           return {
+            breakEven,
             expiry,
             premium: {
               amount: readablePremium,

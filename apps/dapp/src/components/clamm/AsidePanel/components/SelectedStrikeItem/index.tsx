@@ -38,14 +38,12 @@ import getPriceFromTick from 'utils/clamm/getPriceFromTick';
 import {
   getLiquidityForAmount0,
   getLiquidityForAmount1,
-  getLiquidityForAmounts,
 } from 'utils/clamm/liquidityAmountMath';
 import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
 import getPremium from 'utils/clamm/varrock/getPremium';
 import { formatAmount } from 'utils/general';
 
 import { optionPoolsAbi } from 'constants/clamm';
-import { VARROCK_BASE_API_URL } from 'constants/env';
 
 type Props = {
   key: number;
