@@ -62,7 +62,7 @@ const UserBonds = () => {
         button: {
           label: !!isApprovedForAll ? 'Redeem' : 'Approve',
           id: bond.id,
-          redeemable,
+          redeemable: true,
           handleRedeem: () => {
             !!isApprovedForAll
               ? handleRedeem(bond.id)
