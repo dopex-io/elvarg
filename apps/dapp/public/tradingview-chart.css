@@ -1,10 +1,10 @@
 :root:not(.theme-dark) {
-  --dark-gray-bg: #151515;
+  --dark-gray-bg: #000;
 
-  --tv-color-platform-background: #151515;
-  --tv-color-pane-background: #151515;
+  --tv-color-platform-background: #000;
+  --tv-color-pane-background: #000;
   --tv-color-toolbar-button-background-hover: #2d2d2d;
-  --tv-color-toolbar-button-background-expanded: #151515;
+  --tv-color-toolbar-button-background-expanded: #000;
   --tv-color-toolbar-button-background-active: #2d2d2d;
   --tv-color-toolbar-button-background-active-hover: #2d2d2d;
   --tv-color-toolbar-button-text: #8e8e8e;

@@ -2,7 +2,7 @@ import TVChart from 'components/common/TVChart';
 
 const PriceChart = () => {
   return (
-    <div className="w-full lg:h-[500px] h-[300px] flex flex-col rounded-lg py-1 bg-cod-gray border border-umbra ">
+    <div className="w-full lg:h-[450px] h-[300px] flex flex-col">
       <TVChart />
     </div>
   );

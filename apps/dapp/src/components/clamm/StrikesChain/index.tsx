@@ -1,7 +1,7 @@
 import React from 'react';
 
-import FilterPanel from './compnents/FilterPanel';
-import StrikesTable from './compnents/StrikesTable';
+import FilterPanel from './components/FilterPanel';
+import StrikesTable from './components/StrikesTable';
 
 const StrikesChain = () => {
   return (
