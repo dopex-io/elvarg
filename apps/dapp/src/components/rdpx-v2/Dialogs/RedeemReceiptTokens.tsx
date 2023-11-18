@@ -42,7 +42,7 @@ const RedeemReceiptTokens = (props: Props) => {
     abi: ReceiptToken,
     address: addresses.receiptToken,
     functionName: 'redeem',
-    args: [balance, [1n, 1n]],
+    args: [balance, [0n, 0n]],
   });
 
   const onChange = (e: any) => {

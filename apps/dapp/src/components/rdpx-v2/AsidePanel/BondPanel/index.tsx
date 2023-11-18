@@ -4,16 +4,15 @@ import { useAccount } from 'wagmi';
 
 import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 
+import blockerMessages from 'components/rdpx-v2/AsidePanel/BondPanel/blockerMessages';
 import Bond from 'components/rdpx-v2/AsidePanel/BondPanel/Bond';
 import Delegate from 'components/rdpx-v2/AsidePanel/BondPanel/Delegate';
+import PanelBlocker from 'components/rdpx-v2/AsidePanel/BondPanel/PanelBlocker';
 import Typography2 from 'components/UI/Typography2';
 
 import { RDPX_V2_STATE } from 'constants/env';
 
-import blockerMessages from './blockerMessages';
-import PanelBlocker from './PanelBlocker';
-
-const BUTTON_LABELS = ['Bond', 'Delegate'];
+const BUTTON_LABELS = ['Bond' /*, 'Delegate' */];
 
 const BondPanel = () => {
   const [active, setActive] = useState<string>('Bond');

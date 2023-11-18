@@ -188,6 +188,7 @@ const Bond = () => {
                 size="xsmall"
                 className="text-white border-0 w-1/2 hover:text-white"
                 color={label === bondType ? 'carbon' : 'mineshaft'}
+                disabled={label === BondType.Delegate}
                 onClick={() => {
                   setBondType(
                     label === BondType.Delegate
