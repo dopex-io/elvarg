@@ -13,8 +13,10 @@ import toast from 'react-hot-toast';
 import { useNetwork, useWalletClient } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
 
+import useClammPositions from 'hooks/clamm/useClammPositions';
 import useClammStore from 'hooks/clamm/useClammStore';
 
+import { PositionsTableProps } from 'components/clamm/PositionsTable';
 import TableLayout from 'components/common/TableLayout';
 
 import { formatAmount } from 'utils/general';
@@ -163,20 +165,21 @@ const columns = [
 ];
 
 const LPPositions = ({
-  positions,
   selectPosition,
   selectedPositions,
   unselectPosition,
+  removePosition,
   loading,
-}: any) => {
+}: PositionsTableProps) => {
   const { tick, selectedOptionsPool } = useClammStore();
+  const { lpPositions, updateLPPositions } = useClammPositions();
   const { chain } = useNetwork();
   const { data: walletClient } = useWalletClient({
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
   });
 
   const handleWithdraw = useCallback(
-    async (txData: Hex, to: Address) => {
+    async (txData: Hex, to: Address, index: number) => {
       if (!walletClient) return;
       const { publicClient } = wagmiConfig;
 
@@ -190,24 +193,25 @@ const LPPositions = ({
         });
 
         const hash = await walletClient.sendTransaction(request);
-        const reciept = await publicClient.waitForTransactionReceipt({
+        await publicClient.waitForTransactionReceipt({
           hash,
         });
+        removePosition(index);
+        await updateLPPositions?.();
         toast.success('Transaction sent');
       } catch (err) {
         const error = err as BaseError;
         console.error(err);
         toast.error(error.shortMessage);
       }
+
       toast.remove(loadingToastId);
     },
-    [walletClient],
+    [walletClient, updateLPPositions, removePosition],
   );
 
-  const lpPositions = useMemo(() => {
-    if (!selectedOptionsPool) return;
-
-    return positions
+  const positions = useMemo(() => {
+    return lpPositions
       .map(
         (
           {
@@ -289,7 +293,7 @@ const LPPositions = ({
               disabled: BigInt(meta.withdrawableShares) === 0n,
               handleWithdraw: () => {
                 const { txData, to } = meta.withdrawTx;
-                handleWithdraw(txData, to);
+                handleWithdraw(txData, to, index);
               },
             },
           };
@@ -301,16 +305,15 @@ const LPPositions = ({
       );
   }, [
     tick,
-    positions,
+    lpPositions,
     selectPosition,
     selectedPositions,
     unselectPosition,
     handleWithdraw,
-    selectedOptionsPool,
   ]);
   return (
     <TableLayout<LPPositionItem>
-      data={lpPositions}
+      data={positions}
       columns={columns}
       rowSpacing={3}
       isContentLoading={loading}

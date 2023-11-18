@@ -12,12 +12,13 @@ import toast from 'react-hot-toast';
 import { useNetwork, useWalletClient } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
 
+import useClammPositions from 'hooks/clamm/useClammPositions';
 import useClammStore from 'hooks/clamm/useClammStore';
 
+import { PositionsTableProps } from 'components/clamm/PositionsTable';
 import TableLayout from 'components/common/TableLayout';
 
 import getExerciseTxData from 'utils/clamm/varrock/getExerciseTxData';
-import { OptionsPositionsResponse } from 'utils/clamm/varrock/types';
 import { formatAmount } from 'utils/general';
 import getPercentageDifference from 'utils/math/getPercentageDifference';
 
@@ -38,9 +39,9 @@ export type BuyPosition = {
     handleSelect: () => void;
   };
   size: {
-    amount: string;
+    amount: number;
     symbol: string;
-    usdValue: string;
+    usdValue: number;
   };
   side: string;
   premium: {
@@ -51,9 +52,9 @@ export type BuyPosition = {
   expiry: number;
   profit: {
     percentage: number;
-    amount: string;
+    amount: number;
     symbol: string;
-    usdValue: string;
+    usdValue: number;
   };
 };
 
@@ -175,28 +176,22 @@ const columns = [
   }),
 ];
 
-type Props = {
-  positions: OptionsPositionsResponse[];
-  selectPosition: (key: number, positionInfo: any) => void;
-  selectedPositions: Map<number, any>;
-  unselectPosition: (key: number) => void;
-  loading: boolean;
-};
 const BuyPositions = ({
-  positions,
   selectPosition,
   selectedPositions,
   unselectPosition,
   loading,
-}: Props) => {
+  removePosition,
+}: PositionsTableProps) => {
   const { chain } = useNetwork();
-  const { selectedOptionsPool } = useClammStore();
+  const { buyPositions, updateBuyPositions } = useClammPositions();
+  const { selectedOptionsPool, markPrice } = useClammStore();
   const { data: walletClient } = useWalletClient({
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
   });
 
   const handleExercise = useCallback(
-    async (positionId: string) => {
+    async (positionId: string, index: number) => {
       if (!selectedOptionsPool || !walletClient) return;
 
       const loadingToastId = toast.loading('Opening wallet');
@@ -222,16 +217,23 @@ const BuyPositions = ({
           type: 'legacy',
         });
         const hash = await walletClient.sendTransaction(request);
-        const reciept = await publicClient.waitForTransactionReceipt({
+        await publicClient.waitForTransactionReceipt({
           hash,
         });
-
+        removePosition(index);
+        await updateBuyPositions?.();
         toast.success('Transaction sent');
       } catch (err) {
         const error = err as BaseError;
         console.error(err);
-        oneInchExerciseFailed = true;
-        toast.error('Failed to exercise through 1inch, using uniswap V3');
+        if (error.shortMessage === 'User rejected the request.') {
+          toast.remove(loadingToastId);
+          toast.error(error.shortMessage);
+          return;
+        } else {
+          oneInchExerciseFailed = true;
+          toast.error('Failed to exercise through 1inch, using uniswap V3');
+        }
         toast.error(error.shortMessage);
       }
 
@@ -257,10 +259,12 @@ const BuyPositions = ({
             type: 'legacy',
           });
           const hash = await walletClient.sendTransaction(request);
-          const reciept = await publicClient.waitForTransactionReceipt({
+          await publicClient.waitForTransactionReceipt({
             hash,
           });
 
+          removePosition(index);
+          await updateBuyPositions?.();
           toast.success('Transaction sent');
         } catch (err) {
           const error = err as BaseError;
@@ -268,14 +272,13 @@ const BuyPositions = ({
           toast.error(error.shortMessage);
         }
       }
-
       toast.remove(loadingToastId);
     },
-    [selectedOptionsPool, walletClient],
+    [selectedOptionsPool, walletClient, updateBuyPositions, removePosition],
   );
 
-  const buyPositions = useMemo(() => {
-    return positions
+  const positions = useMemo(() => {
+    return buyPositions
       .map(
         (
           { expiry, premium, profit, side, size, strike, meta }: any,
@@ -286,16 +289,31 @@ const BuyPositions = ({
             premium.decimals,
           );
 
-          const readableProfit = formatUnits(
-            profit.amountInToken,
-            profit.decimals,
+          const isSelected = Boolean(selectedPositions.get(index));
+
+          const isPut = side.toLowerCase() === 'put';
+          const priceDifference = isPut
+            ? strike - markPrice
+            : markPrice - strike;
+
+          const optionsSize = Number(
+            formatUnits(size.amountInToken, size.decimals),
           );
 
-          const isSelected = Boolean(selectedPositions.get(index));
           const optionsAmount =
             side.toLowerCase() === 'put'
               ? Number(size.usdValue) / Number(strike)
               : Number(formatUnits(size.amountInToken, size.decimals));
+
+          const profitUsd =
+            priceDifference < 0 ? 0 : priceDifference * optionsAmount;
+          const profitAmount = isPut ? profitUsd / markPrice : profitUsd;
+
+          const sizeInNumber = Number(
+            formatUnits(size.amountInToken, size.decimals),
+          );
+          const sizeUsd = isPut ? sizeInNumber : sizeInNumber * markPrice;
+
           const breakEven =
             side.toLowerCase() === 'put'
               ? Number(strike) - Number(premium.usdValue) / optionsAmount
@@ -310,8 +328,8 @@ const BuyPositions = ({
               usdValue: premium.usdValue,
             },
             profit: {
-              amount: readableProfit,
-              usdValue: profit.usdValue,
+              amount: profitAmount,
+              usdValue: profitUsd,
               symbol: profit.symbol,
               percentage: Math.max(
                 getPercentageDifference(
@@ -323,9 +341,9 @@ const BuyPositions = ({
             },
             side: side.charAt(0).toUpperCase() + side.slice(1),
             size: {
-              amount: formatUnits(size.amountInToken, size.decimals),
+              amount: sizeInNumber,
               symbol: size.symbol,
-              usdValue: size.usdValue,
+              usdValue: sizeUsd,
             },
             strike: {
               handleSelect: () => {
@@ -340,9 +358,9 @@ const BuyPositions = ({
             },
             exerciseButton: {
               handleExercise: async () => {
-                await handleExercise(String(meta.tokenId));
+                await handleExercise(String(meta.tokenId), index);
               },
-              disabled: Number(readableProfit) === 0,
+              disabled: profitAmount === 0,
             },
           };
         },
@@ -352,7 +370,8 @@ const BuyPositions = ({
           Number(a.strike.strikePrice) - Number(b.strike.strikePrice),
       );
   }, [
-    positions,
+    buyPositions,
+    markPrice,
     handleExercise,
     selectPosition,
     selectedPositions,
@@ -361,7 +380,7 @@ const BuyPositions = ({
 
   return (
     <TableLayout<BuyPositionItem>
-      data={buyPositions}
+      data={positions}
       columns={columns}
       rowSpacing={3}
       isContentLoading={loading}
