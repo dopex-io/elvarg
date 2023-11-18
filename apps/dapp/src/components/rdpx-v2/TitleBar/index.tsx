@@ -62,7 +62,6 @@ const TitleBar = () => {
       ),
     refetchInterval: 15000,
   });
-
   const { address: _user } = useAccount();
   const { balance: lpWethBalance, updateBalance: updateLpWethBalance } =
     useTokenData({
@@ -115,7 +114,7 @@ const TitleBar = () => {
               <Stat name="APR" value={'-'} />
               <Stat
                 name="dpxETH Price"
-                value={`$ ${(
+                value={`$${(
                   Number(
                     formatBigint(
                       rdpxV2CoreState.dpxethPriceInEth,
@@ -127,7 +126,7 @@ const TitleBar = () => {
               />
               <Stat
                 name="RDPX Price"
-                value={`$ ${
+                value={`$${
                   Number(
                     formatBigint(
                       rdpxV2CoreState.rdpxPriceInEth,
@@ -164,7 +163,10 @@ const TitleBar = () => {
               />
               <Stat
                 name="TVL"
-                value={`${formatBigint(lpWethBalance, DECIMALS_TOKEN)} WETH`}
+                value={`$${
+                  Number(formatBigint(lpWethBalance, DECIMALS_TOKEN)) *
+                  (data?.data.ethereum.usd || 0)
+                }`}
               />
             </div>
           ),
