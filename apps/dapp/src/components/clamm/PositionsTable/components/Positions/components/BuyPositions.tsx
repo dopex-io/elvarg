@@ -226,8 +226,14 @@ const BuyPositions = ({
       } catch (err) {
         const error = err as BaseError;
         console.error(err);
-        oneInchExerciseFailed = true;
-        toast.error('Failed to exercise through 1inch, using uniswap V3');
+        if (error.shortMessage === 'User rejected the request.') {
+          toast.remove(loadingToastId);
+          toast.error(error.shortMessage);
+          return;
+        } else {
+          oneInchExerciseFailed = true;
+          toast.error('Failed to exercise through 1inch, using uniswap V3');
+        }
         toast.error(error.shortMessage);
       }
 
