@@ -20,8 +20,7 @@ type Prop = {
 };
 
 const StrikesList = ({ strikes, isPut, selectedLength }: Prop) => {
-  const { selectStrike, strikesChain, selectedStrikes } =
-    useStrikesChainStore();
+  const { selectStrike, selectedStrikes } = useStrikesChainStore();
   const { selectedOptionsPool, isTrade, markPrice } = useClammStore();
 
   const tokenInfo = useMemo(() => {
