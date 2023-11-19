@@ -4,7 +4,7 @@ import Head from 'next/head';
 import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';
-import NftCard from 'components/nfts/components/NftCard';
+import NftCard from 'components/nfts/NftCard';
 
 const Nfts = () => {
   const { provider, nftsData, updateUserNftsData, updateNftsData } =
