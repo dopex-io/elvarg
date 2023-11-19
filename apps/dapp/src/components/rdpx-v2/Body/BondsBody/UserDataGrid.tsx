@@ -88,10 +88,9 @@ const UserDataGrid = () => {
           Redeem
         </Button>
       </div>
+      <RedeemReceiptTokens isOpen={open} handleClose={handleClose} />
     </div>
-  ) : (
-    <RedeemReceiptTokens isOpen={open} handleClose={handleClose} />
-  );
+  ) : null;
 };
 
 export default UserDataGrid;
