@@ -229,12 +229,6 @@ const RdpxV2Core = [
       {
         indexed: false,
         internalType: 'uint256',
-        name: 'rdpxAmount',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
         name: 'wethAmount',
         type: 'uint256',
       },
@@ -686,6 +680,19 @@ const RdpxV2Core = [
   },
   {
     inputs: [],
+    name: 'PSM_ROLE',
+    outputs: [
+      {
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
     name: 'RDPX_RATIO_PERCENTAGE',
     outputs: [
       {
@@ -750,6 +757,19 @@ const RdpxV2Core = [
       },
     ],
     name: 'addAssetToTokenReserves',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address[]',
+        name: '_whitelistAddresses',
+        type: 'address[]',
+      },
+    ],
+    name: 'addToWhitelist',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -908,6 +928,11 @@ const RdpxV2Core = [
         name: 'timestamp',
         type: 'uint256',
       },
+      {
+        internalType: 'uint256',
+        name: 'lastUpdateTime',
+        type: 'uint256',
+      },
     ],
     stateMutability: 'view',
     type: 'function',
@@ -947,6 +972,19 @@ const RdpxV2Core = [
     name: 'emergencyWithdraw',
     outputs: [],
     stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'ethBacking',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
     type: 'function',
   },
   {
@@ -1042,19 +1080,6 @@ const RdpxV2Core = [
       {
         internalType: 'uint256',
         name: 'ethPrice',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'getLpPrice',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
         type: 'uint256',
       },
     ],
@@ -1200,17 +1225,7 @@ const RdpxV2Core = [
     inputs: [
       {
         internalType: 'uint256',
-        name: '_rdpxAmount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
         name: '_wethAmount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'minamountOfWeth',
         type: 'uint256',
       },
       {
@@ -1426,6 +1441,19 @@ const RdpxV2Core = [
     type: 'function',
   },
   {
+    inputs: [],
+    name: 'renounceWhitelist',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [
       {
         internalType: 'uint256',
@@ -1615,6 +1643,32 @@ const RdpxV2Core = [
   {
     inputs: [
       {
+        internalType: 'bool',
+        name: '_renounceWhitelist',
+        type: 'bool',
+      },
+    ],
+    name: 'setRenounceWhitelist',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bool',
+        name: '_whitelistPeriodActive',
+        type: 'bool',
+      },
+    ],
+    name: 'setWhitelistPeriodActive',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
         internalType: 'uint256[]',
         name: 'optionIds',
         type: 'uint256[]',
@@ -1691,6 +1745,19 @@ const RdpxV2Core = [
     inputs: [
       {
         internalType: 'uint256',
+        name: '_ethBacking',
+        type: 'uint256',
+      },
+    ],
+    name: 'updateEthBacking',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
         name: '_amount',
         type: 'uint256',
       },
@@ -1719,6 +1786,38 @@ const RdpxV2Core = [
         internalType: 'address',
         name: '',
         type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'whitelistPeriodActive',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    name: 'whitelisted',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
       },
     ],
     stateMutability: 'view',

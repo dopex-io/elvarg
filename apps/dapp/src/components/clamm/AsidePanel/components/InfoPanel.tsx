@@ -12,6 +12,7 @@ import {
 } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
 
+import useClammPositions from 'hooks/clamm/useClammPositions';
 import useClammStore from 'hooks/clamm/useClammStore';
 import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
 import useLoadingStates, {
@@ -38,6 +39,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
   const { isLoading, setLoading } = useLoadingStates();
   const { isTrade, tokenBalances, selectedOptionsPool, addresses } =
     useClammStore();
+  const { updateBuyPositions, updateLPPositions } = useClammPositions();
   const { deposits, purchases, resetDeposits, resetPurchases } =
     useClammTransactionsStore();
   const { updateStrikes, reset } = useStrikesChainStore();
@@ -176,8 +178,10 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
 
     await checkApproved();
     await updateTokenBalances();
+    await updateLPPositions?.();
     updateStrikes();
   }, [
+    updateLPPositions,
     resetDeposits,
     reset,
     updateStrikes,
@@ -242,10 +246,11 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     toast.remove(loadingToastId);
     await checkApproved();
     await updateTokenBalances();
-
+    await updateBuyPositions?.();
     updateStrikes();
     setLoading(ASIDE_PANEL_BUTTON_KEY, false);
   }, [
+    updateBuyPositions,
     resetPurchases,
     reset,
     updateStrikes,
