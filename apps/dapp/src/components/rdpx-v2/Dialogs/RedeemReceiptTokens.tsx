@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { formatUnits, parseUnits } from 'viem';
 
 import { Button, Dialog } from '@dopex-io/ui';
 import { useContractWrite, useNetwork, usePublicClient } from 'wagmi';
@@ -42,7 +43,7 @@ const RedeemReceiptTokens = (props: Props) => {
     abi: ReceiptToken,
     address: addresses.receiptToken,
     functionName: 'redeem',
-    args: [balance, [0n, 0n]],
+    args: [parseUnits(amount, DECIMALS_TOKEN), [0n, 0n]],
   });
 
   const onChange = (e: any) => {
@@ -68,6 +69,28 @@ const RedeemReceiptTokens = (props: Props) => {
     })();
   }, [balance, simulateContract]);
 
+  const panelState = useMemo(() => {
+    if (Number(amount) === 0) {
+      return {
+        label: 'Redeem',
+        disabled: true,
+        title: 'Enter a valid amount',
+        severity: AlertSeverity.info,
+      };
+    } else if (parseUnits(amount, DECIMALS_TOKEN) > balance) {
+      return {
+        label: 'Redeem',
+        disabled: true,
+        title: 'You have insufficient balance',
+      };
+    } else
+      return {
+        label: 'Redeem',
+        disabled: false,
+        title: 'A 5% fee is charged for redeeming your rDPX & WETH!',
+      };
+  }, [amount, balance]);
+
   return (
     <Dialog isOpen={isOpen} handleClose={handleClose} title="Redeem">
       <div className="flex flex-col space-y-2">
@@ -76,13 +99,14 @@ const RedeemReceiptTokens = (props: Props) => {
           iconPath="/images/tokens/rteth.svg"
           symbol="rtETH"
           maxAmount={balance}
+          handleMax={() => setAmount(formatUnits(balance, DECIMALS_TOKEN))}
           label="rtETH Balance"
           handleChange={onChange}
         />
         <Alert
           severity={AlertSeverity.warning}
-          header="Redemption Fee"
-          body="A 5% fee is charged for redeeming your rDPX & WETH."
+          header={panelState.title || 'Redemption Fee'}
+          body=""
         />
         <div className="p-2 border bg-umbra border-carbon rounded-lg space-y-2">
           <RowItem
@@ -114,9 +138,9 @@ const RedeemReceiptTokens = (props: Props) => {
           color="primary"
           className="w-full"
           onClick={() => redeem()}
-          disabled={Number(amount) === 0}
+          disabled={panelState.disabled}
         >
-          Redeem
+          {panelState.label}
         </Button>
       </div>
     </Dialog>
