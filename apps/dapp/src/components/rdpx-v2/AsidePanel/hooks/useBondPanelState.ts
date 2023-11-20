@@ -11,8 +11,10 @@ interface Props {
   delegated: boolean;
   isTotalBondCostBreakdownLessThanUserBalance: boolean;
   isInsufficientWeth: boolean;
+  hasInsufficientLiquidity: boolean;
   approveRdpx: () => void;
   approveWeth: () => void;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   bond: () => Promise<any>;
   bondWithDelegate: () => void;
 }
@@ -25,9 +27,11 @@ const useBondPanelState = (props: Props) => {
     approveWeth,
     bond,
     bondWithDelegate,
+    setOpen,
     isRdpxApproved,
     isWethApproved,
     isInsufficientWeth,
+    hasInsufficientLiquidity,
     delegated,
     isTotalBondCostBreakdownLessThanUserBalance,
   } = props;
@@ -71,6 +75,15 @@ const useBondPanelState = (props: Props) => {
         };
       } else if (!isRdpxApproved) {
         return approveRdpxState;
+      } else if (hasInsufficientLiquidity) {
+        return {
+          ...defaultState,
+          header: 'Insufficient Liquidity',
+          body: `There is insufficient liquidity in the Perpetual Put Vault to perform this action. 
+                 You can proceed to add liquidity and bond based on your input amount.`,
+          severity: AlertSeverity.warning,
+          handler: () => setOpen(true),
+        };
       } else {
         return {
           ...defaultState,

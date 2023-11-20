@@ -21,6 +21,7 @@ const initialContractStates: {
     state: {
       currentEpoch: 0n,
       expiry: 0n,
+      strike: 0n,
       fundingRate: 0n,
       activeCollateral: 0n,
       lastFundingUpdateTime: 0n,
@@ -28,6 +29,7 @@ const initialContractStates: {
       premiumPerOption: 0n,
       fundingDuration: 0n,
       totalLpShares: 0n,
+      totalCollateral: 0n,
       totalFundingForCurrentEpoch: 0n,
       oneLpShare: [0n, 0n] as const,
     },

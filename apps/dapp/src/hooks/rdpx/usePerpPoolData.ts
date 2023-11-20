@@ -20,6 +20,7 @@ import initialContractStates from 'constants/rdpx/initialStates';
 interface VaultState {
   currentEpoch: bigint;
   expiry: bigint;
+  strike: bigint;
   fundingRate: bigint;
   activeCollateral: bigint;
   lastFundingUpdateTime: bigint;
@@ -27,6 +28,7 @@ interface VaultState {
   premiumPerOption: bigint;
   fundingDuration: bigint;
   totalLpShares: bigint;
+  totalCollateral: bigint;
   totalFundingForCurrentEpoch: bigint;
   oneLpShare: readonly [bigint, bigint];
 }
@@ -86,6 +88,7 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
       { result: lastFundingUpdateTime = 0n },
       { result: rdpxPriceInEth = 0n },
       { result: totalLpShares = 0n },
+      { result: totalCollateral = 0n },
     ] = await readContracts({
       // multicall
       contracts: [
@@ -112,6 +115,10 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
         {
           ...perpLpConfig,
           functionName: 'totalSupply',
+        },
+        {
+          ...perpLpConfig,
+          functionName: 'totalCollateral',
         },
       ],
     });
@@ -167,7 +174,9 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
       premiumPerOption: premium,
       underlyingPrice: rdpxPriceInEth,
       expiry,
+      strike,
       activeCollateral,
+      totalCollateral,
       totalLpShares,
       totalFundingForCurrentEpoch,
       oneLpShare,

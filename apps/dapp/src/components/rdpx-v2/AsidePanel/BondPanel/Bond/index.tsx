@@ -5,6 +5,7 @@ import { Button } from '@dopex-io/ui';
 import { erc20ABI, useAccount, useContractWrite } from 'wagmi';
 
 import useTokenData from 'hooks/helpers/useTokenData';
+import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 import useSqueezeDelegatedWeth from 'hooks/rdpx/useSqueezeDelegatedWeth';
 
@@ -15,6 +16,7 @@ import PanelInput from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/PanelInput'
 import useBondBreakdownCalculator from 'components/rdpx-v2/AsidePanel/hooks/useBondBreakdownCalculator';
 import useBondPanelState from 'components/rdpx-v2/AsidePanel/hooks/useBondPanelState';
 import InfoRow from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/InfoRow';
+import LpAndBondStepper from 'components/rdpx-v2/Dialogs/LpAndBondStepper';
 import Typography2 from 'components/UI/Typography2';
 
 import formatBigint from 'utils/general/formatBigint';
@@ -50,10 +52,14 @@ const Bond = () => {
   const [bondType, setBondType] = useState<BondType>(BondType.Default);
   const [amount, setAmount] = useState<string>('');
   const [delegated, setDelegated] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
 
-  const { address: account } = useAccount();
+  const { address: account = '0x' } = useAccount();
   const { updateRdpxV2CoreState, rdpxV2CoreState } = useRdpxV2CoreData({
-    user: account || '0x',
+    user: account,
+  });
+  const { perpetualVaultState, updatePerpetualVaultState } = usePerpPoolData({
+    user: account,
   });
   const inputAmountBreakdown = useBondBreakdownCalculator({
     inputAmount: amount,
@@ -135,6 +141,12 @@ const Bond = () => {
     isTotalBondCostBreakdownLessThanUserBalance:
       wethBalance < inputAmountBreakdown[1] ||
       rdpxBalance < inputAmountBreakdown[0],
+    setOpen,
+    hasInsufficientLiquidity:
+      perpetualVaultState.totalCollateral -
+        perpetualVaultState.activeCollateral <
+      (inputAmountBreakdown[1] * parseUnits('1', DECIMALS_TOKEN)) /
+        parseUnits('4', DECIMALS_TOKEN),
     approveRdpx,
     approveWeth,
     bond,
@@ -150,6 +162,10 @@ const Bond = () => {
   const handleMax = useCallback(() => {
     setAmount(formatUnits(rdpxV2CoreState.maxMintableBonds, DECIMALS_TOKEN));
   }, [rdpxV2CoreState.maxMintableBonds]);
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   useEffect(() => {
     updateBalanceWeth();
@@ -170,6 +186,10 @@ const Bond = () => {
   useEffect(() => {
     updateRdpxV2CoreState();
   }, [updateRdpxV2CoreState, bondSuccess, delegateBondSuccess]);
+
+  useEffect(() => {
+    updatePerpetualVaultState();
+  }, [updatePerpetualVaultState, bondSuccess]);
 
   return (
     <div className="space-y-3 relative">
@@ -300,6 +320,20 @@ const Bond = () => {
             }
           />
         )}
+        <LpAndBondStepper
+          isOpen={open}
+          handleClose={handleClose}
+          lpRequired={
+            (inputAmountBreakdown[1] * parseUnits('1', DECIMALS_TOKEN)) /
+              parseUnits('4', DECIMALS_TOKEN) -
+            (perpetualVaultState.totalCollateral -
+              perpetualVaultState.activeCollateral)
+          }
+          wethRequired={inputAmountBreakdown[1]}
+          approve={approveRdpx}
+          approveSuccess={approveWethSuccess}
+          bonds={parseUnits(amount, DECIMALS_TOKEN)}
+        />
         <Button
           size="medium"
           className="w-full rounded-md"

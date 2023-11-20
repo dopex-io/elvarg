@@ -150,7 +150,7 @@ const TitleBar = () => {
                   (perpetualVaultState.activeCollateral *
                     parseUnits('1', DECIMALS_TOKEN) *
                     100n) /
-                    (perpetualVaultState.totalLpShares + 1n),
+                    (perpetualVaultState.totalCollateral + 1n),
                   DECIMALS_TOKEN,
                 )}%`}
               />
