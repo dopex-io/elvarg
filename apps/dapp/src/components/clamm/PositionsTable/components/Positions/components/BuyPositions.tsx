@@ -380,12 +380,13 @@ const BuyPositions = ({
   ]);
 
   const totalProfitUsd = useMemo(() => {
+    if (loading) return 0;
     return positions.reduce(
       (accumulator, currentValue) =>
         accumulator + Number(currentValue.profit.usdValue),
       0,
     );
-  }, []);
+  }, [positions]);
 
   return (
     <div className="w-full flex flex-col space-y-[12px] py-[12px]">
