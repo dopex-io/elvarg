@@ -8,8 +8,10 @@ import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
 
 import { formatAmount } from 'utils/general';
 
+import { PROTOCOL_FEES_MULTIPLIER } from 'constants/clamm';
+
 const CostSummary = () => {
-  const { isTrade } = useClammStore();
+  const { isTrade, markPrice } = useClammStore();
   const { purchases, deposits } = useClammTransactionsStore();
 
   const total = useMemo(() => {
@@ -95,6 +97,18 @@ const CostSummary = () => {
     return _total;
   }, [isTrade, purchases, deposits]);
 
+  const usdTotal = useMemo(() => {
+    let _usdTotal = 0;
+    totalItems.forEach(({ strike, tokenAmount }) => {
+      const isCall = Number(strike) > markPrice;
+      const usdValue = isCall
+        ? markPrice * Number(tokenAmount)
+        : Number(tokenAmount);
+      _usdTotal += usdValue;
+    });
+    return _usdTotal * PROTOCOL_FEES_MULTIPLIER;
+  }, [markPrice, totalItems]);
+
   if (totalItems.length === 0) return null;
 
   return (
@@ -162,6 +176,15 @@ const CostSummary = () => {
                 )}
               </span>
             </div>
+          </div>
+        )}
+        {isTrade && (
+          <div className="flex justify-between w-full">
+            <span className="text-stieglitz text-[13px]">Total Cost ($)</span>
+            <span className="text-[13px] flex items-center space-x-[2px]">
+              <span className="text-stieglitz">$</span>
+              <span className="text-white">{formatAmount(usdTotal, 3)}</span>
+            </span>
           </div>
         )}
       </div>

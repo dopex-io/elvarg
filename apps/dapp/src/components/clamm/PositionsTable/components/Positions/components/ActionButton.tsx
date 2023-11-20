@@ -13,24 +13,19 @@ import toast from 'react-hot-toast';
 import { useAccount, useNetwork, useWalletClient } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
 
+import useClammPositions from 'hooks/clamm/useClammPositions';
+
 import { MULTI_CALL_FN_SIG } from 'constants/clamm';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
 type Props = {
   selectedPositions: Map<number, any | null>;
   positionsTypeIndex: number;
-  updateLPPositions: () => Promise<void>;
-  updateBuyPositions: () => Promise<void>;
   resetPositions: () => void;
 };
 const ActionButton = (props: Props) => {
-  const {
-    positionsTypeIndex,
-    selectedPositions,
-    updateBuyPositions,
-    updateLPPositions,
-    resetPositions,
-  } = props;
+  const { positionsTypeIndex, selectedPositions, resetPositions } = props;
+  const { updateLPPositions } = useClammPositions();
 
   const { chain } = useNetwork();
   const { data: walletClient } = useWalletClient({
@@ -82,7 +77,7 @@ const ActionButton = (props: Props) => {
       console.error(err);
     }
     toast.remove(toastLoadingId);
-    await updateLPPositions();
+    await updateLPPositions?.();
   }, [
     resetPositions,
     chain,

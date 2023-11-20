@@ -17,7 +17,7 @@ const StrikesSection = () => {
   const { selectedStrikes, strikesChain } = useStrikesChainStore();
   const { isTrade, tokenBalances, tick, selectedOptionsPool, markPrice } =
     useClammStore();
-  const [editForAll, setEditForAll] = useState(true);
+  const [editForAll, setEditForAll] = useState(false);
   const [inputAmount, setInputAmount] = useState<string>('');
 
   const handleEditForAll = () => {
