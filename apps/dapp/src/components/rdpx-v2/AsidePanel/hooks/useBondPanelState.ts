@@ -1,5 +1,9 @@
 import { useMemo } from 'react';
 
+import { useAccount } from 'wagmi';
+
+import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
+
 import { AlertSeverity } from 'components/common/Alert';
 import alerts from 'components/rdpx-v2/AsidePanel/alerts';
 
@@ -35,6 +39,11 @@ const useBondPanelState = (props: Props) => {
     delegated,
     isTotalBondCostBreakdownLessThanUserBalance,
   } = props;
+
+  const { address: user = '0x' } = useAccount();
+  const { updateUserBonds } = useRdpxV2CoreData({
+    user,
+  });
 
   return useMemo(() => {
     const doNothing = () => null;
@@ -88,9 +97,12 @@ const useBondPanelState = (props: Props) => {
         return {
           ...defaultState,
           handler: () =>
-            bond().then(() => {
-              setAmount('');
-            }),
+            bond()
+              .then(async () => {
+                setAmount('');
+                updateUserBonds();
+              })
+              .catch((e) => console.error(e)),
         };
       }
     } else {

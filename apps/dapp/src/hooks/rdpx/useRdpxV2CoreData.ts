@@ -120,6 +120,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
       { ...receiptTokenConfig, functionName: 'totalSupply' },
       { ...receiptTokenConfig, functionName: 'maxSupply' },
       { abi: erc20ABI, address: addresses.rdpx, functionName: 'totalSupply' },
+      { ...bondConfig, functionName: 'balanceOf', args: [user] },
     ],
     allowFailure: true,
   });
@@ -200,11 +201,9 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
 
     setLoading(true);
 
-    const balance = await readContract({
-      ...bondConfig,
-      functionName: 'balanceOf',
-      args: [user],
-    });
+    if (!v2CoreData || !v2CoreData[11]) return;
+
+    const { result: balance = 0n } = v2CoreData[11];
 
     let multicallAggregate = [];
     for (const i of range(Number(balance))) {
@@ -242,7 +241,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
       console.error(e);
       throw new Error('Something went wrong updating user bonds...');
     }
-  }, [user]);
+  }, [user, v2CoreData]);
 
   const updateUserDelegatePositions = useCallback(async () => {
     if (user === '0x') return;

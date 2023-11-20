@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { parseUnits } from 'viem';
+import { useEffect, useMemo, useState } from 'react';
 
 import { useAccount } from 'wagmi';
 

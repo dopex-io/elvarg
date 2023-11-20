@@ -48,6 +48,7 @@ const TableLayout = <T extends object>({
         pageSize,
       },
     },
+    autoResetPageIndex: false,
   });
 
   const {
