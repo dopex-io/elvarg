@@ -3,7 +3,6 @@ import { devtools } from 'zustand/middleware';
 
 import { AssetsSlice, createAssetsSlice } from './Assets';
 import { createDpxBondsSlice, DpxBondsSlice } from './Bonds';
-import { createDuelSlice, DuelSlice } from './Duel';
 import { createFarmingSlice, FarmingSlice } from './Farming';
 import { createNftsSlice, NftsSlice } from './Nfts';
 import { createPortfolioSlice, PortfolioSlice } from './Portfolio';
@@ -21,7 +20,6 @@ type T = WalletSlice &
   PortfolioSlice &
   AssetsSlice &
   FarmingSlice &
-  DuelSlice &
   NftsSlice &
   CommonSlice &
   SsovV3Slice &
@@ -38,7 +36,6 @@ export const useBoundStore = create<T>()(
     ...createPortfolioSlice(...a),
     ...createAssetsSlice(...a),
     ...createFarmingSlice(...a),
-    ...createDuelSlice(...a),
     ...createNftsSlice(...a),
     ...createCommonSlice(...a),
     ...createSsovV3Slice(...a),

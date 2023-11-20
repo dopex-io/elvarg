@@ -6,7 +6,7 @@
     "dev-share": "next dev",
     "build-share": "next build",
     "start-share": "next start",
-    "lint": "next lint"
+    "lint-share": "next lint"
   },
   "dependencies": {
     "@types/node": "^18.18.8",
