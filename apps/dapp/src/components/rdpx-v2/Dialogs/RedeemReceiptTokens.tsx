@@ -140,7 +140,9 @@ const RedeemReceiptTokens = (props: Props) => {
             label="Fee"
             content={
               <span className="flex space-x-1 text-jaffa">
-                <p>{formatBigint(rtComposition[2], DECIMALS_TOKEN)}</p>
+                <p>{`${
+                  rtComposition[2] < parseUnits('1', 16) ? '<' : ''
+                }${formatBigint(rtComposition[2], DECIMALS_TOKEN, 5)}`}</p>
                 <p className="pr-1 text-stieglitz">WETH</p>
               </span>
             }

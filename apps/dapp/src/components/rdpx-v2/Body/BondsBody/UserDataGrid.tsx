@@ -93,7 +93,14 @@ const UserDataGrid = () => {
           />
           <Cell
             label="Redemption Fee"
-            data={[[formatBigint(rtComposition[2], DECIMALS_TOKEN), 'WETH']]}
+            data={[
+              [
+                `${
+                  rtComposition[2] < parseUnits('1', 16) ? '<' : ''
+                }${formatBigint(rtComposition[2], DECIMALS_TOKEN)}`,
+                'WETH',
+              ],
+            ]}
           />
         </div>
       </div>
