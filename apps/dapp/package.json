@@ -51,7 +51,7 @@
     "recharts": "^2.9.2",
     "token-list": "workspace:*",
     "use-debounce": "^10.0.0",
-    "viem": "^1.18.6",
+    "viem": "^1.19.4",
     "wagmi": "^1.4.5",
     "zustand": "^4.4.6"
   },
