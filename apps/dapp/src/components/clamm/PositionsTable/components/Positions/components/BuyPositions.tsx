@@ -7,6 +7,7 @@ import {
   ArrowUpRightIcon,
 } from '@heroicons/react/20/solid';
 import { createColumnHelper } from '@tanstack/react-table';
+import cx from 'classnames';
 import { formatDistance } from 'date-fns';
 import toast from 'react-hot-toast';
 import { useNetwork, useWalletClient } from 'wagmi';
@@ -378,14 +379,67 @@ const BuyPositions = ({
     unselectPosition,
   ]);
 
+  const totalProfitUsd = useMemo(() => {
+    return positions.reduce(
+      (accumulator, currentValue) =>
+        accumulator + Number(currentValue.profit.usdValue),
+      0,
+    );
+  }, []);
+
   return (
-    <TableLayout<BuyPositionItem>
-      data={positions}
-      columns={columns}
-      rowSpacing={3}
-      isContentLoading={loading}
-      pageSize={10}
-    />
+    <div className="w-full flex flex-col space-y-[12px] py-[12px]">
+      <div className="bg-cod-gray flex px-[12px] items-center justify-end space-x-[12px]">
+        <div className="flex items-center justify-center space-x-[4px]">
+          <span className="text-stieglitz text-xs">Total profit:</span>
+          <span className="text-xs flex items-center justify-center space-x-[2px]">
+            <span className="text-stieglitz">$</span>
+            <span className={cx(totalProfitUsd > 0 && 'text-up-only')}>
+              {formatAmount(totalProfitUsd, 3)}
+            </span>
+          </span>
+        </div>
+        <div className="flex items-center justify-center space-x-[4px]">
+          <span className="text-stieglitz text-xs">Total premium:</span>
+          <span className="text-xs flex items-center justify-center space-x-[2px]">
+            <span className="text-stieglitz">$</span>
+            <span>
+              {formatAmount(
+                positions.reduce(
+                  (accumulator, currentValue) =>
+                    accumulator + Number(currentValue.premium.usdValue),
+                  0,
+                ),
+                3,
+              )}
+            </span>
+          </span>
+        </div>
+        <div className="flex items-center justify-center space-x-[4px]">
+          <span className="text-stieglitz text-xs">Total size:</span>
+          <span className="text-xs flex items-center justify-center space-x-[2px]">
+            <span className="text-stieglitz">$</span>
+            <span>
+              {formatAmount(
+                positions.reduce(
+                  (accumulator, currentValue) =>
+                    accumulator + Number(currentValue.size.usdValue),
+                  0,
+                ),
+                3,
+              )}
+            </span>
+          </span>
+        </div>
+      </div>
+      <TableLayout<BuyPositionItem>
+        data={positions}
+        columns={columns}
+        rowSpacing={3}
+        isContentLoading={loading}
+        pageSize={10}
+      />
+    </div>
   );
 };
 
