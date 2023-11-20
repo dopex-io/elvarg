@@ -37,12 +37,12 @@ const Main = () => {
           body: <StrategyVaultBody />,
           blockscannerContent: quickLinks.arbiscanPerpVault,
         };
-      // case 'stake':
-      //   return {
-      //     asidePanel: <StakePanel />,
-      //     body: <StakingBody />,
-      //     blockscannerContent: quickLinks.arbiscanStaking,
-      //   };
+      case 'stake':
+        return {
+          asidePanel: <StakePanel />,
+          body: <StakingBody />,
+          blockscannerContent: quickLinks.arbiscanStaking,
+        };
       default:
         return {
           asidePanel: <BondPanel />,

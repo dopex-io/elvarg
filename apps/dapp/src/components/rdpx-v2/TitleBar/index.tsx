@@ -24,7 +24,7 @@ export const rdpxStateToLabelMapping: {
 } = {
   bond: 'Bonding',
   lp: 'Perpetual Put Vault',
-  // stake: 'Staking',
+  stake: 'Staking',
   // farm: 'Farm',
 };
 
@@ -62,7 +62,7 @@ const TitleBar = () => {
       ),
     refetchInterval: 15000,
   });
-  const { address: _user } = useAccount();
+  const { address: user = '0x' } = useAccount();
   const { balance: lpWethBalance, updateBalance: updateLpWethBalance } =
     useTokenData({
       owner: addresses.perpPoolLp,
@@ -70,10 +70,10 @@ const TitleBar = () => {
       amount: 0n,
     });
   const { updateRdpxV2CoreState, rdpxV2CoreState } = useRdpxV2CoreData({
-    user: _user || '0x',
+    user,
   });
   const { updatePerpetualVaultState, perpetualVaultState } = usePerpPoolData({
-    user: _user || '0x',
+    user,
   });
 
   const onClick = useCallback(
@@ -143,13 +143,6 @@ const TitleBar = () => {
           index: 1,
           renderComponent: (
             <div className="flex space-x-6 mx-auto mt-3">
-              {/* <Stat
-                name="Funding"
-                value={`${formatBigint(
-                  perpetualVaultState.totalFundingForCurrentEpoch,
-                  DECIMALS_TOKEN,
-                )} WETH`}
-              /> */}
               <Stat name="APR" value={'-'} />
               <Stat
                 name="Utilization"
@@ -171,8 +164,8 @@ const TitleBar = () => {
             </div>
           ),
         };
-      // case 'stake':
-      //   return { index: 2, renderComponent: <></> };
+      case 'stake':
+        return { index: 2, renderComponent: <></> };
       // case 'farm':
       //   return { index: 3, renderComponent: <></> };
       default:
