@@ -9,7 +9,6 @@ import TableLayout from 'components/common/TableLayout';
 import columns, {
   RedeemRequestType,
 } from 'components/rdpx-v2/Tables/ColumnDefs/RedeemRequestsColumn';
-import Typography2 from 'components/UI/Typography2';
 
 import PerpVault from 'constants/rdpx/abis/PerpVault';
 import addresses from 'constants/rdpx/addresses';

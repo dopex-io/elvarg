@@ -5,6 +5,7 @@ import { useAccount } from 'wagmi';
 
 import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 
+import CamelotData from 'components/rdpx-v2/Body/BondsBody/CamelotData';
 import UserDataGrid from 'components/rdpx-v2/Body/BondsBody/UserDataGrid';
 import Charts from 'components/rdpx-v2/Charts';
 import QuickLink from 'components/rdpx-v2/QuickLink';
@@ -43,57 +44,60 @@ const BondsBody = () => {
   }, [updateRdpxV2CoreState]);
 
   return (
-    <div className="p-3 bg-cod-gray rounded-xl space-y-3">
-      <div className="flex w-full">
-        <QuickLink {...quickLinks.core} />
-      </div>
-      <div className=" bg-umbra rounded-xl divide-y-2 divide-cod-gray">
-        <div className="flex w-full divide-x-2 divide-cod-gray">
-          <span className="w-1/2 p-3 flex flex-col space-y-1">
-            <Typography2 variant="caption">
-              {formatBigint(rdpxV2CoreState.receiptTokenSupply)} rtETH
-            </Typography2>
-            <Typography2 variant="caption" color="stieglitz">
-              rtETH Supply
-            </Typography2>
-          </span>
-          <span className="w-1/2 p-3 flex flex-col space-y-1">
-            <Typography2 variant="caption">
-              {formatBigint(rdpxV2CoreState.rdpxSupply)}
-            </Typography2>
-            <Typography2 variant="caption" color="stieglitz">
-              rDPX Supply
-            </Typography2>
-          </span>
-        </div>
-        <Charts />
-      </div>
-      <UserDataGrid />
-      <div className="space-y-1">
+    <div className="flex flex-col space-y-3">
+      <div className="p-3 bg-cod-gray rounded-xl space-y-3">
         <div className="flex w-full">
-          {actions.map((label: ActionType, index) => {
-            return (
-              <Button
-                key={index}
-                size="xsmall"
-                className="rounded-md bg-transparent hover:bg-transparent"
-                onClick={handleClick}
-              >
-                <Typography2
-                  variant="subtitle2"
-                  color={
-                    active === BUTTON_LABELS[label] ? 'white' : 'stieglitz'
-                  }
-                >
-                  {BUTTON_LABELS[label]}
-                </Typography2>
-              </Button>
-            );
-          })}
+          <QuickLink {...quickLinks.core} />
         </div>
-        {active === 'Bonds' ? <UserBonds /> : null}
-        {active === 'Delegate Positions' ? <DelegatePositions /> : null}
-        {active === 'History' ? <UserBondsHistory /> : null}
+        <CamelotData />
+        <div className=" bg-umbra rounded-xl divide-y-2 divide-cod-gray">
+          <div className="flex w-full divide-x-2 divide-cod-gray">
+            <span className="w-1/2 p-3 flex flex-col space-y-1">
+              <Typography2 variant="caption">
+                {formatBigint(rdpxV2CoreState.receiptTokenSupply)} rtETH
+              </Typography2>
+              <Typography2 variant="caption" color="stieglitz">
+                rtETH Supply
+              </Typography2>
+            </span>
+            <span className="w-1/2 p-3 flex flex-col space-y-1">
+              <Typography2 variant="caption">
+                {formatBigint(rdpxV2CoreState.rdpxSupply)}
+              </Typography2>
+              <Typography2 variant="caption" color="stieglitz">
+                rDPX Supply
+              </Typography2>
+            </span>
+          </div>
+          <Charts />
+        </div>
+        <UserDataGrid />
+        <div className="space-y-1">
+          <div className="flex w-full">
+            {actions.map((label: ActionType, index) => {
+              return (
+                <Button
+                  key={index}
+                  size="xsmall"
+                  className="rounded-md bg-transparent hover:bg-transparent"
+                  onClick={handleClick}
+                >
+                  <Typography2
+                    variant="subtitle2"
+                    color={
+                      active === BUTTON_LABELS[label] ? 'white' : 'stieglitz'
+                    }
+                  >
+                    {BUTTON_LABELS[label]}
+                  </Typography2>
+                </Button>
+              );
+            })}
+          </div>
+          {active === 'Bonds' ? <UserBonds /> : null}
+          {active === 'Delegate Positions' ? <DelegatePositions /> : null}
+          {active === 'History' ? <UserBondsHistory /> : null}
+        </div>
       </div>
     </div>
   );

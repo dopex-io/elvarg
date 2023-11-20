@@ -17,6 +17,7 @@ export const rdpxV2ContractKeys = [
   'perpVaultStaking',
   'receiptTokenStaking',
   'arb',
+  'camelotPositionManager',
 ] as const;
 
 type AddressKey = (typeof rdpxV2ContractKeys)[number];
@@ -38,6 +39,7 @@ const addresses: { [key in AddressKey]: Address } = {
   perpVaultStaking: '0x4e8ce4a166710D0110De85669Fe0B5A3d1B71c7B',
   receiptTokenStaking: '0xd9c79b111D2737013f1af210f6687a9Fa7852b49',
   arb: '0x912CE59144191C1204E64559FE8253a0e49E6548',
+  camelotPositionManager: '0x00c7f3082833e796A5b3e4Bd59f6642FF44DCD15',
 };
 
 export default addresses;
