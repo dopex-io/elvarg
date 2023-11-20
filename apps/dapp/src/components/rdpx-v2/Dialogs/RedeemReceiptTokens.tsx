@@ -2,7 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { formatUnits, parseUnits } from 'viem';
 
 import { Button, Dialog } from '@dopex-io/ui';
-import { useContractWrite, useNetwork, usePublicClient } from 'wagmi';
+import {
+  useAccount,
+  useContractWrite,
+  useNetwork,
+  usePublicClient,
+} from 'wagmi';
 
 import useTokenData from 'hooks/helpers/useTokenData';
 
@@ -30,6 +35,8 @@ const RedeemReceiptTokens = (props: Props) => {
   const [amount, setAmount] = useState<string>('');
 
   const { chain } = useNetwork();
+  const { address: account = '0x' } = useAccount();
+
   const { simulateContract } = usePublicClient({
     chainId: chain?.id ?? 42161,
   });
@@ -57,10 +64,11 @@ const RedeemReceiptTokens = (props: Props) => {
   useEffect(() => {
     (async () => {
       await simulateContract({
+        account,
         abi: ReceiptToken,
         address: addresses.receiptToken,
         functionName: 'redeem',
-        args: [balance, [100n, 100n]],
+        args: [balance, [0n, 0n]],
       })
         .then((res) => {
           setRtComposition(res.result);
@@ -114,11 +122,15 @@ const RedeemReceiptTokens = (props: Props) => {
             content={
               <div className="flex space-x-1">
                 <span className="flex space-x-1">
-                  <p>{formatBigint(rtComposition[0], DECIMALS_TOKEN)}</p>
+                  <p>{`${
+                    rtComposition[0] < parseUnits('1', 16) ? '<' : ''
+                  }${formatBigint(rtComposition[0], DECIMALS_TOKEN)}`}</p>
                   <p className="pr-1 text-stieglitz">WETH</p>
                 </span>
                 <span className="flex space-x-1">
-                  <p>{formatBigint(rtComposition[1], DECIMALS_TOKEN)}</p>
+                  <p>{`${
+                    rtComposition[1] < parseUnits('1', 16) ? '<' : ''
+                  }${formatBigint(rtComposition[1], DECIMALS_TOKEN)}`}</p>
                   <p className="pr-1 text-stieglitz">RDPX</p>
                 </span>
               </div>

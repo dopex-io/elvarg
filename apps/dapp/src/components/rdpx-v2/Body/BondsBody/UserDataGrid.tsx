@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
+import { parseUnits } from 'viem';
 
 import { Button } from '@dopex-io/ui';
-import { useNetwork, usePublicClient } from 'wagmi';
+import { useAccount, useNetwork, usePublicClient } from 'wagmi';
 
 import useTokenData from 'hooks/helpers/useTokenData';
 
@@ -28,6 +29,7 @@ const UserDataGrid = () => {
   });
 
   const { chain } = useNetwork();
+  const { address: account = '0x' } = useAccount();
 
   const { simulateContract } = usePublicClient({
     chainId: chain?.id,
@@ -35,16 +37,20 @@ const UserDataGrid = () => {
 
   useEffect(() => {
     (async () => {
+      if (account === '0x') return;
       await simulateContract({
+        account,
         abi: ReceiptToken,
         address: addresses.receiptToken,
         functionName: 'redeem',
-        args: [balance, [100n, 1000n]],
+        args: [balance, [0n, 0n]],
       })
         .then((res) => {
           setRtComposition(res.result);
         })
-        .catch(() => setRtComposition([0n, 0n, 0n]));
+        .catch(() => {
+          setRtComposition([0n, 0n, 0n]);
+        });
     })();
   }, [balance, simulateContract]);
 
@@ -71,8 +77,18 @@ const UserDataGrid = () => {
             label="Composition"
             tooltipInfo="Composition of rDPX & WETH received at the time of redemption."
             data={[
-              [formatBigint(rtComposition[0], DECIMALS_TOKEN), 'WETH'],
-              [formatBigint(rtComposition[1], DECIMALS_TOKEN), 'RDPX'],
+              [
+                `${
+                  rtComposition[0] < parseUnits('1', 16) ? '<' : ''
+                }${formatBigint(rtComposition[0], DECIMALS_TOKEN)}`,
+                'WETH',
+              ],
+              [
+                `${
+                  rtComposition[1] < parseUnits('1', 16) ? '<' : ''
+                }${formatBigint(rtComposition[1], DECIMALS_TOKEN)}`,
+                'RDPX',
+              ],
             ]}
           />
           <Cell
