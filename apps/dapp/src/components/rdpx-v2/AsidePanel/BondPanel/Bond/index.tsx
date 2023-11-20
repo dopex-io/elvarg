@@ -91,7 +91,8 @@ const Bond = () => {
       functionName: 'approve',
       args: [
         delegated ? addresses.delegateBonds : addresses.v2core, // approve DelegateController if delegate bonding
-        inputAmountBreakdown[0],
+        (inputAmountBreakdown[0] * parseUnits('1.01', DECIMALS_TOKEN)) /
+          parseUnits('1', DECIMALS_TOKEN), // approve 1% more as buffer
       ],
     });
   const { write: approveWeth, isSuccess: approveWethSuccess } =
@@ -99,7 +100,11 @@ const Bond = () => {
       abi: erc20ABI,
       address: addresses.weth,
       functionName: 'approve',
-      args: [addresses.v2core, inputAmountBreakdown[1]],
+      args: [
+        addresses.v2core,
+        (inputAmountBreakdown[1] * parseUnits('1.01', DECIMALS_TOKEN)) /
+          parseUnits('1', DECIMALS_TOKEN),
+      ], // approve 1% more as buffer
     });
   const { writeAsync: bond, isSuccess: bondSuccess } = useContractWrite({
     abi: RdpxV2Core,
