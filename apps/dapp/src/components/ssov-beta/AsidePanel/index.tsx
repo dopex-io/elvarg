@@ -175,7 +175,6 @@ const AsidePanel = ({ market }: { market: string }) => {
       };
 
     const strikeData = strikesData[activeStrikeIndex];
-    console.log(strikeData);
     const premiumInUSD =
       parseUnits(
         selectedVault.isPut ? '1' : selectedVault.currentPrice,
