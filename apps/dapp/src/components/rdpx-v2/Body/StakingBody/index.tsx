@@ -18,24 +18,24 @@ const StakingBody = () => {
   const { address: account } = useAccount();
   const { data: earned = 0n } = useContractRead({
     abi: CurveMultiRewards,
-    address: addresses.multirewards2,
+    address: addresses.receiptTokenStaking,
     functionName: 'earned',
-    args: [account || '0x', addresses.rewardToken2],
+    args: [account || '0x', addresses.arb],
   });
   const { data: staked = 0n } = useContractRead({
     abi: CurveMultiRewards,
-    address: addresses.multirewards2,
+    address: addresses.receiptTokenStaking,
     functionName: 'balanceOf',
     args: [account || '0x'],
   });
   const { write: claim } = useContractWrite({
     abi: CurveMultiRewards,
-    address: addresses.multirewards2,
+    address: addresses.receiptTokenStaking,
     functionName: 'getReward',
   });
   const { write: unstake } = useContractWrite({
     abi: CurveMultiRewards,
-    address: addresses.multirewards2,
+    address: addresses.receiptTokenStaking,
     functionName: 'exit',
   });
 

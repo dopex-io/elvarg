@@ -10,7 +10,7 @@ import addresses from 'constants/rdpx/addresses';
 
 const multiRewardsConfig = {
   abi: CurveMultiRewards,
-  address: addresses.multirewards1,
+  address: addresses.perpVaultStaking,
 };
 
 interface Props {
@@ -24,15 +24,15 @@ const useRewardsState = (props: Props) => {
   const { data: staked = 0n } = useContractRead({
     ...multiRewardsConfig,
     functionName: 'earned',
-    args: [user, addresses.rewardToken1],
+    args: [user, addresses.arb],
   });
   const { data: earned = 0n } = useContractRead({
     ...multiRewardsConfig,
     functionName: 'earned',
-    args: [user, addresses.rewardToken1],
+    args: [user, addresses.arb],
   });
   const { updateBalance, updateAllowance, allowance } = useTokenData({
-    spender: addresses.multirewards1,
+    spender: addresses.perpVaultStaking,
     token: addresses.perpPoolLp,
     amount: stakeAmount,
   });
@@ -57,7 +57,7 @@ const useRewardsState = (props: Props) => {
         abi: erc20ABI,
         address: addresses.perpPoolLp,
         functionName: 'approve',
-        args: [addresses.multirewards1, stakeAmount],
+        args: [addresses.perpVaultStaking, stakeAmount],
       });
     };
     if (allowance < stakeAmount)

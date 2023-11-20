@@ -14,14 +14,14 @@ export const rdpxV2ContractKeys = [
   'dbrdpx',
   'bond',
   'rdpxReserve',
-  'multirewards1',
-  'multirewards2',
-  'rewardToken1',
-  'rewardToken2',
+  'perpVaultStaking',
+  'receiptTokenStaking',
+  'arb',
 ] as const;
 
 type AddressKey = (typeof rdpxV2ContractKeys)[number];
 
+// @todo use tokenlist
 const addresses: { [key in AddressKey]: Address } = {
   v2core: '0xAe1De74153fb8f46f16A2cCFf6B922dD1dc7dD13',
   perpPool: '0x57AA1138BC3ede5A6320C452f2E4871A7dD002b5',
@@ -35,10 +35,9 @@ const addresses: { [key in AddressKey]: Address } = {
   dpxeth: '0x3EbBBD6F3320CFa4BEdae7500120bAe900f8126B',
   dbrdpx: '0x68951FbefD66BAb9BdcFEDD2a37Fb0b3635135a3',
   bond: '0x5Bd9362835ABE0E9be3742Be0Ba4011BF1229B67',
-  multirewards1: '0x4e8ce4a166710D0110De85669Fe0B5A3d1B71c7B',
-  multirewards2: '0xE364E758b8A018d05f5ae72f4ea4373D8Adf28D2',
-  rewardToken1: '0x6005F3DA8B31daDd15688e6247dFAC0d71c11dB5',
-  rewardToken2: '0x28DA5Ec3e00C4B5F454526Ecb437eC95F5239902',
+  perpVaultStaking: '0x4e8ce4a166710D0110De85669Fe0B5A3d1B71c7B',
+  receiptTokenStaking: '0xd9c79b111D2737013f1af210f6687a9Fa7852b49',
+  arb: '0x912CE59144191C1204E64559FE8253a0e49E6548',
 };
 
 export default addresses;

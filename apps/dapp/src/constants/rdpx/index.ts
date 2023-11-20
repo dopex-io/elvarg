@@ -20,7 +20,7 @@ export const quickLinks = {
   arbiscanStaking: {
     text: 'MultiRewards',
     iconSymbol: '/assets/etherscan.svg',
-    url: `https://arbiscan.io/address/${addresses.multirewards2}`,
+    url: `https://arbiscan.io/address/${addresses.receiptTokenStaking}`,
   },
   dune: {
     text: 'Dune Analytics',

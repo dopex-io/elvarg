@@ -26,30 +26,30 @@ const Stake = () => {
 
   const { data: rewardPerToken = 0n } = useContractRead({
     abi: CurveMultiRewards,
-    address: addresses.multirewards2,
+    address: addresses.receiptTokenStaking,
     functionName: 'rewardPerToken',
-    args: [addresses.rewardToken2],
+    args: [addresses.arb],
   });
   const { data: rewardData = [] } = useContractRead({
     abi: CurveMultiRewards,
-    address: addresses.multirewards2,
+    address: addresses.receiptTokenStaking,
     functionName: 'rewardData',
-    args: [addresses.rewardToken2],
+    args: [addresses.arb],
   });
   const { write: approve, isSuccess: isApproveSuccess } = useContractWrite({
     abi: ReceiptToken,
     address: addresses.receiptToken,
     functionName: 'approve',
-    args: [addresses.multirewards2, parseUnits(amount, DECIMALS_TOKEN)],
+    args: [addresses.receiptTokenStaking, parseUnits(amount, DECIMALS_TOKEN)],
   });
   const { write: stake, isSuccess: stakeSuccess } = useContractWrite({
     abi: CurveMultiRewards,
-    address: addresses.multirewards2,
+    address: addresses.receiptTokenStaking,
     functionName: 'stake',
     args: [parseUnits(amount, DECIMALS_TOKEN)],
   });
   const { balance, updateBalance, approved, updateAllowance } = useTokenData({
-    spender: addresses.multirewards2 || '0x',
+    spender: addresses.receiptTokenStaking || '0x',
     token: addresses.receiptToken,
     amount,
   });

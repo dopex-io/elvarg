@@ -25,18 +25,18 @@ const Unstake = () => {
 
   const { write: withdraw, isSuccess: stakeSuccess } = useContractWrite({
     abi: CurveMultiRewards,
-    address: addresses.multirewards2,
+    address: addresses.receiptTokenStaking,
     functionName: 'withdraw',
     args: [parseUnits(amount, DECIMALS_TOKEN)],
   });
   const { data: stakedAmount = 0n } = useContractRead({
     abi: CurveMultiRewards,
-    address: addresses.multirewards2,
+    address: addresses.receiptTokenStaking,
     functionName: 'balanceOf',
     args: [_user],
   });
   const { balance, updateBalance } = useTokenData({
-    spender: addresses.multirewards2 || '0x',
+    spender: addresses.receiptTokenStaking || '0x',
     token: addresses.receiptToken,
     amount,
   });
