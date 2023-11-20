@@ -18,8 +18,8 @@ const alerts: Record<string, AlertType> = {
   },
   insufficientAllowance: {
     label: 'Approve',
-    header: 'Insufficient Allowance',
-    body: 'You need to provide allowance to the contract to spend your tokens for this transaction.',
+    header: 'Approve Tokens',
+    body: 'You need to approve your tokens for this transaction.',
     severity: AlertSeverity.info,
     disabled: false,
   },
