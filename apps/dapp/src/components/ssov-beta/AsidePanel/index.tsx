@@ -36,6 +36,7 @@ import { getUserBalance, isApproved } from 'utils/contracts/getERC20Info';
 import formatAmount from 'utils/general/formatAmount';
 
 import { DECIMALS_TOKEN, DECIMALS_USD } from 'constants/index';
+import { MARKETS } from 'constants/ssov/markets';
 
 export const ButtonGroup = ({
   active,
@@ -174,11 +175,12 @@ const AsidePanel = ({ market }: { market: string }) => {
       };
 
     const strikeData = strikesData[activeStrikeIndex];
+    console.log(strikeData);
     const premiumInUSD =
       parseUnits(
         selectedVault.isPut ? '1' : selectedVault.currentPrice,
         DECIMALS_TOKEN,
-      ) * strikeData.premiumPerOption || 0n;
+      ) * (strikeData.premiumPerOption || 0n);
     const breakeven = formatUnits(
       selectedVault.isPut
         ? parseUnits(String(strikeData.strike), 2 * DECIMALS_TOKEN) -
@@ -411,8 +413,19 @@ const AsidePanel = ({ market }: { market: string }) => {
     userBalance,
   ]);
 
+  const disabled = useMemo(() => {
+    return MARKETS[market].disabled;
+  }, [market]);
+
   return renderCondition ? null : (
     <div className="flex flex-col space-y-3">
+      {disabled ? (
+        <div className="w-full h-full backdrop-blur-sm absolute bg-carbon z-50 bg-opacity-10 border-yellow-300 border-2 rounded-lg font-bold">
+          <div className="w-full h-full flex items-center justify-center">
+            ⚠️ Market is disabled
+          </div>
+        </div>
+      ) : null}
       <div className="flex flex-col bg-cod-gray rounded-lg p-3 space-y-3">
         <ButtonGroup
           active={activeIndex}
