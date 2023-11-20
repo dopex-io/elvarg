@@ -12,7 +12,7 @@ import Typography2 from 'components/UI/Typography2';
 
 import { RDPX_V2_STATE } from 'constants/env';
 
-const BUTTON_LABELS = ['Bond' /*, 'Delegate' */];
+const BUTTON_LABELS = ['Bond', 'Delegate'];
 
 const BondPanel = () => {
   const [active, setActive] = useState<string>('Bond');
