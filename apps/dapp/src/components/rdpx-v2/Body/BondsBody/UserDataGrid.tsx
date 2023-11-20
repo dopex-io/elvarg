@@ -80,14 +80,10 @@ const UserDataGrid = () => {
             data={[[formatBigint(rtComposition[2], DECIMALS_TOKEN), 'WETH']]}
           />
         </div>
-        <Button
-          color="primary"
-          className="w-full"
-          onClick={() => setOpen(true)}
-        >
-          Redeem
-        </Button>
       </div>
+      <Button color="primary" className="w-full" onClick={() => setOpen(true)}>
+        Redeem
+      </Button>
       <RedeemReceiptTokens isOpen={open} handleClose={handleClose} />
     </div>
   ) : null;

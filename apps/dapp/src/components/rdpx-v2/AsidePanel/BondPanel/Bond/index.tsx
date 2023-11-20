@@ -101,7 +101,7 @@ const Bond = () => {
       functionName: 'approve',
       args: [addresses.v2core, inputAmountBreakdown[1]],
     });
-  const { write: bond, isSuccess: bondSuccess } = useContractWrite({
+  const { writeAsync: bond, isSuccess: bondSuccess } = useContractWrite({
     abi: RdpxV2Core,
     address: addresses.v2core,
     functionName: 'bond',
@@ -120,6 +120,7 @@ const Bond = () => {
     });
   const panelState = useBondPanelState({
     amount,
+    setAmount,
     isRdpxApproved,
     isWethApproved,
     delegated,
@@ -225,6 +226,14 @@ const Bond = () => {
         maxSupply={rdpxV2CoreState.receiptTokenMaxSupply}
       />
       <div className="flex flex-col rounded-xl p-3 w-full bg-umbra space-y-3">
+        <InfoRow
+          label="Redemption Fee"
+          value={
+            <Typography2 variant="caption" color="jaffa">
+              5%
+            </Typography2>
+          }
+        />
         <InfoRow
           label="rDPX Balance"
           value={

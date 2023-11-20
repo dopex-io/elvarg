@@ -3,8 +3,8 @@ import { Address, parseUnits, zeroAddress } from 'viem';
 
 import request from 'graphql-request';
 import { range } from 'lodash';
-import { erc20ABI } from 'wagmi';
-import { multicall, readContract, readContracts } from 'wagmi/actions';
+import { erc20ABI, useContractReads } from 'wagmi';
+import { readContract } from 'wagmi/actions';
 
 import queryClient from 'queryClient';
 
@@ -72,6 +72,58 @@ const receiptTokenConfig = {
 };
 
 const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
+  const {
+    data: v2CoreData,
+    refetch: refetchCoreData,
+    isRefetching: isRefetchingCoreData,
+  } = useContractReads({
+    watch: true,
+    contracts: [
+      {
+        ...coreContractConfig,
+        functionName: 'getCoreParameters',
+      },
+      {
+        ...coreContractConfig,
+        functionName: 'getRdpxPrice',
+      },
+      {
+        ...coreContractConfig,
+        functionName: 'getDpxEthPrice',
+      },
+      {
+        ...coreContractConfig,
+        functionName: 'getEthPrice',
+      },
+      {
+        ...coreContractConfig,
+        functionName: 'calculateBondCost',
+        args: [parseUnits('1', DECIMALS_TOKEN)],
+      },
+      {
+        abi: erc20ABI,
+        address: addresses.weth,
+        functionName: 'balanceOf',
+        args: [user],
+      },
+      {
+        abi: erc20ABI,
+        address: addresses.rdpx,
+        functionName: 'balanceOf',
+        args: [user],
+      },
+      {
+        abi: RdpxReserve,
+        address: addresses.rdpxReserve,
+        functionName: 'rdpxReserve',
+      },
+      { ...receiptTokenConfig, functionName: 'totalSupply' },
+      { ...receiptTokenConfig, functionName: 'maxSupply' },
+      { abi: erc20ABI, address: addresses.rdpx, functionName: 'totalSupply' },
+    ],
+    allowFailure: true,
+  });
+
   const [rdpxV2CoreState, setRdpxV2CoreState] = useState<RdpxV2CoreState>(
     initialContractStates.v2core,
   );
@@ -87,6 +139,8 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
   const updateRdpxV2CoreState = useCallback(async () => {
     if (user === '0x' || user === zeroAddress) return;
 
+    if (!v2CoreData) return;
+
     const [
       { result: coreParameters = [0n, 0n, 0n] as const },
       { result: rdpxPriceInEth = 0n },
@@ -99,43 +153,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
       { result: receiptTokenSupply = 0n },
       { result: receiptTokenMaxSupply = 0n },
       { result: rdpxSupply = 0n },
-    ] = await multicall({
-      // multicall
-      contracts: [
-        {
-          ...coreContractConfig,
-          functionName: 'getCoreParameters',
-        },
-        { ...coreContractConfig, functionName: 'getRdpxPrice' },
-        { ...coreContractConfig, functionName: 'getDpxEthPrice' },
-        { ...coreContractConfig, functionName: 'getEthPrice' },
-        {
-          ...coreContractConfig,
-          functionName: 'calculateBondCost',
-          args: [parseUnits('1', DECIMALS_TOKEN)],
-        },
-        {
-          abi: erc20ABI,
-          address: addresses.weth,
-          functionName: 'balanceOf',
-          args: [user],
-        },
-        {
-          abi: erc20ABI,
-          address: addresses.rdpx,
-          functionName: 'balanceOf',
-          args: [user],
-        },
-        {
-          abi: RdpxReserve,
-          address: addresses.rdpxReserve,
-          functionName: 'rdpxReserve',
-        },
-        { ...receiptTokenConfig, functionName: 'totalSupply' },
-        { ...receiptTokenConfig, functionName: 'maxSupply' },
-        { abi: erc20ABI, address: addresses.rdpx, functionName: 'totalSupply' },
-      ],
-    });
+    ] = v2CoreData;
 
     // Math.min(Total RDPX / Cost of 1 bond in RDPX, Total ETH / Cost of 1 bond in ETH)
     const maxRdpxBondable =
@@ -175,7 +193,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
       receiptTokenMaxSupply,
       rdpxSupply,
     }));
-  }, [user]);
+  }, [user, v2CoreData]);
 
   const updateUserBonds = useCallback(async () => {
     if (user === '0x') return;
@@ -282,6 +300,8 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
     updateUserBonds,
     rdpxV2CoreState,
     updateRdpxV2CoreState,
+    refetchCoreData,
+    isRefetchingCoreData,
     userDelegatePositions,
     updateUserDelegatePositions,
     delegatePositions,

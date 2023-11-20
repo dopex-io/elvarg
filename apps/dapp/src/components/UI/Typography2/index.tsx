@@ -13,7 +13,14 @@ type Variant =
   | 'subtitle2'
   | 'caption';
 
-type Color = 'white' | 'stieglitz' | 'mineshaft' | 'up-only' | 'down-bad' | '';
+type Color =
+  | 'white'
+  | 'stieglitz'
+  | 'mineshaft'
+  | 'up-only'
+  | 'down-bad'
+  | 'jaffa'
+  | '';
 
 const CLASSES: { [key in FontWeight]: { [key in Variant]: string } } = {
   // font weight

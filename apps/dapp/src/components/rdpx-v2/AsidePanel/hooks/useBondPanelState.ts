@@ -5,6 +5,7 @@ import alerts from 'components/rdpx-v2/AsidePanel/alerts';
 
 interface Props {
   amount: string;
+  setAmount: React.Dispatch<React.SetStateAction<string>>;
   isRdpxApproved: boolean;
   isWethApproved: boolean;
   delegated: boolean;
@@ -12,12 +13,14 @@ interface Props {
   isInsufficientWeth: boolean;
   approveRdpx: () => void;
   approveWeth: () => void;
-  bond: () => void;
+  bond: () => Promise<any>;
   bondWithDelegate: () => void;
 }
 
 const useBondPanelState = (props: Props) => {
   const {
+    amount,
+    setAmount,
     approveRdpx,
     approveWeth,
     bond,
@@ -25,7 +28,6 @@ const useBondPanelState = (props: Props) => {
     isRdpxApproved,
     isWethApproved,
     isInsufficientWeth,
-    amount,
     delegated,
     isTotalBondCostBreakdownLessThanUserBalance,
   } = props;
@@ -70,7 +72,13 @@ const useBondPanelState = (props: Props) => {
       } else if (!isRdpxApproved) {
         return approveRdpxState;
       } else {
-        return { ...defaultState, handler: () => bond() };
+        return {
+          ...defaultState,
+          handler: () =>
+            bond().then(() => {
+              setAmount('');
+            }),
+        };
       }
     } else {
       if (isInputInvalid) {
@@ -104,9 +112,10 @@ const useBondPanelState = (props: Props) => {
     isWethApproved,
     isRdpxApproved,
     approveWeth,
+    bond,
+    setAmount,
     isInsufficientWeth,
     bondWithDelegate,
-    bond,
   ]);
 };
 
