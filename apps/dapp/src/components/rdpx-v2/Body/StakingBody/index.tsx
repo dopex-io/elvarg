@@ -12,7 +12,7 @@ import { quickLinks } from 'constants/rdpx';
 import CurveMultiRewards from 'constants/rdpx/abis/CurveMultiRewards';
 import addresses from 'constants/rdpx/addresses';
 
-const rewardTokenSymbol = 'tRT-RT';
+const rewardTokenSymbol = 'ARB';
 
 const StakingBody = () => {
   const { address: account } = useAccount();

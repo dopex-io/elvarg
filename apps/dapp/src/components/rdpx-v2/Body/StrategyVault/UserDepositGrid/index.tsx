@@ -85,9 +85,9 @@ const UserDepositGrid = () => {
                 userPerpetualVaultData.userShareOfFunding,
                 DECIMALS_TOKEN,
               ),
-              'ETH',
+              'WETH',
             ],
-            [formatBigint(earned), 'rRT'],
+            [formatBigint(earned), 'ARB'],
           ]}
         />
         <Cell
