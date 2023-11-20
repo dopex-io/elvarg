@@ -1,33 +1,24 @@
 import { Button } from '@dopex-io/ui';
 
 interface Props {
-  hasLeftoverShares: boolean;
-  buttonStates: { label: string; handler: () => void }[];
+  buttonStates: { label: string; handler: () => void; disabled?: boolean }[];
 }
 
 const GridButtons = (props: Props) => {
-  const { hasLeftoverShares, buttonStates } = props;
+  const { buttonStates } = props;
   return (
     <div className="flex w-full p-3 space-x-2">
       {buttonStates.map((state, index) => (
         <Button
           key={index}
-          color="mineshaft"
-          className="w-full"
+          color="primary"
+          className={`w-full ${state.disabled ? 'cursor-not-allowed' : null}`}
           onClick={state.handler}
+          disabled={state.disabled}
         >
           {state.label}
         </Button>
       ))}
-      {hasLeftoverShares ? (
-        <Button
-          color="mineshaft"
-          className="w-1/2"
-          onClick={buttonStates[2].handler}
-        >
-          {buttonStates[2].label}
-        </Button>
-      ) : null}
     </div>
   );
 };

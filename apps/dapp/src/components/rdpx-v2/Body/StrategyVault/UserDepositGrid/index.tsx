@@ -25,7 +25,7 @@ const UserDepositGrid = () => {
   } = usePerpPoolData({
     user,
   });
-  const { buttonState, stake, unstake, earned } = useRewardsState({
+  const { stake, unstake, earned, claim, stakedBalance } = useRewardsState({
     user,
     stakeAmount: userPerpetualVaultData.totalUserShares,
   });
@@ -132,16 +132,25 @@ const UserDepositGrid = () => {
           ]}
         />
       </div>
-      {earned ? (
-        <GridButtons
-          hasLeftoverShares={userPerpetualVaultData.totalUserShares > 0n}
-          buttonStates={[
-            buttonState,
-            { label: 'Unstake', handler: () => unstake() },
-            { label: 'Stake', handler: () => stake() },
-          ]}
-        />
-      ) : null}
+      <GridButtons
+        buttonStates={[
+          {
+            label: 'Stake',
+            handler: () => stake(),
+            disabled: userPerpetualVaultData.totalUserShares === 0n,
+          },
+          {
+            label: 'Claim',
+            handler: () => claim(),
+            disabled: !earned,
+          },
+          {
+            label: 'Unstake',
+            handler: () => unstake(),
+            disabled: stakedBalance === 0n,
+          },
+        ]}
+      />
     </div>
   );
 };

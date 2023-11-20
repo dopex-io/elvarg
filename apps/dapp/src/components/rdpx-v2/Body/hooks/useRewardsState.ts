@@ -31,6 +31,11 @@ const useRewardsState = (props: Props) => {
     functionName: 'earned',
     args: [user, addresses.arb],
   });
+  const { data: stakedBalance = 0n } = useContractRead({
+    ...multiRewardsConfig,
+    functionName: 'balanceOf',
+    args: [user],
+  });
   const { updateBalance, updateAllowance, allowance } = useTokenData({
     spender: addresses.perpVaultStaking,
     token: addresses.perpPoolLp,
@@ -94,7 +99,14 @@ const useRewardsState = (props: Props) => {
     updateAllowance();
   }, [updateAllowance]);
 
-  return { buttonState, unstake, earned, stake: handleStake };
+  return {
+    buttonState,
+    unstake,
+    earned,
+    stake: handleStake,
+    claim,
+    stakedBalance,
+  };
 };
 
 export default useRewardsState;
