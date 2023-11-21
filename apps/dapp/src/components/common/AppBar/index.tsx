@@ -192,11 +192,6 @@ export default function AppBar() {
 
   useEffect(() => {
     updateTokenPrices();
-    const intervalId = setInterval(updateTokenPrices, 60000);
-
-    return () => {
-      clearInterval(intervalId);
-    };
   }, [updateTokenPrices]);
 
   return (

@@ -13,8 +13,8 @@
       "outputs": ["src/gql/**"]
     },
     "build": {
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
-      "dependsOn": ["generate", "^build"]
+      "dependsOn": ["generate", "^build"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
     "export": {},
     "dev-share": {

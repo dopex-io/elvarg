@@ -32,6 +32,7 @@ export interface MenuProps<T>
   color?: colors;
   showArrow?: boolean;
   fullWidth?: boolean;
+  menuClassName?: string;
 }
 
 type dropdownVariants = 'basic' | 'icon' | 'dense';
@@ -74,6 +75,7 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
     showArrow = false,
     fullWidth = false,
     className,
+    menuClassName,
     ...rest
   } = props;
 
@@ -81,7 +83,7 @@ const Menu = <T extends ItemType>(props: MenuProps<T>) => {
 
   return (
     <Listbox value={selection} onChange={setSelection}>
-      <div className="relative mt-1">
+      <div className={cx('relative mt-1', menuClassName)}>
         <Listbox.Button
           className={cx(
             `bg-${color}`,

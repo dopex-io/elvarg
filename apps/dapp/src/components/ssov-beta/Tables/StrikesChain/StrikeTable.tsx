@@ -74,10 +74,6 @@ const TableDisclosure = (props: DisclosureStrikeItem) => {
           <StatItem name="Vega" value={formatAmount(props.vega, 5)} />
           <StatItem name="Gamma" value={formatAmount(props.gamma, 5)} />
           <StatItem name="Theta" value={formatAmount(props.theta, 5)} />
-          <StatItem
-            name="Utilization"
-            value={`${formatAmount(props.utilization, 5)}%`}
-          />
           <StatItem name="TVL" value={`$${formatAmount(props.tvl, 2, true)}`} />
           <StatItem
             name="Reward APY"

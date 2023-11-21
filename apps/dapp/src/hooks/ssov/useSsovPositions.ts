@@ -99,6 +99,7 @@ const useSsovPositions = (args: Args) => {
 
     if (!ssovQueryResult.users[0]) {
       setLoading(false);
+      return;
     }
 
     // Filter option token balances for ssov and flatten data
