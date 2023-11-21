@@ -25,7 +25,7 @@ export const rdpxStateToLabelMapping: {
   [key in (typeof rdpxV2Actions)[number]]: string;
 } = {
   bond: 'Bonding',
-  lp: 'Perpetual Put Vault',
+  lp: 'Perp Put Vault',
   stake: 'Staking',
   swap: 'Swap',
   // farm: 'Farm',
@@ -217,7 +217,20 @@ const TitleBar = () => {
       default:
         return { index: defaultIndex, renderComponent: <></> };
     }
-  }, [state, rdpxV2CoreState, data, perpetualVaultState, lpWethBalance]);
+  }, [
+    state,
+    rdpxV2CoreState.discount,
+    rdpxV2CoreState.dpxethPriceInEth,
+    rdpxV2CoreState.rdpxPriceInEth,
+    rewardPerTokenRT,
+    rewardsDataRT,
+    data?.cgPrice,
+    rewardPerTokenPPV,
+    rewardsDataPPV,
+    perpetualVaultState.activeCollateral,
+    perpetualVaultState.totalCollateral,
+    lpWethBalance,
+  ]);
 
   return (
     <div className="flex flex-col space-y-6">
