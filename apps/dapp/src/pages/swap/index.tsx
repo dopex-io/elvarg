@@ -124,7 +124,10 @@ const SwapBody = () => {
     <>
       <AppBar />
       <div className="p-4 bg-cod-gray rounded-xl w-1/4 mx-auto flex space-y-4 flex-col mt-32">
-        <div>Swap rDPX to WETH</div>
+        <div>
+          Swap rDPX to WETH
+          <span className="text-stieglitz text-sm"> (Camelot V3 Router)</span>
+        </div>
         <Input
           onChange={handleChange}
           leftElement={
@@ -161,6 +164,10 @@ const SwapBody = () => {
         >
           Swap
         </Button>
+        <div className="flex flex-col space-y-2">
+          <p>Slippage: 1%</p>
+          <p>Sell Tax: 10%</p>
+        </div>
       </div>
     </>
   );
