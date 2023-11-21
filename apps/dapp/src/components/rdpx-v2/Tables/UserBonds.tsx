@@ -1,6 +1,12 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { parseUnits } from 'viem';
 
-import { useAccount, useContractRead, useContractWrite } from 'wagmi';
+import {
+  useAccount,
+  useContractRead,
+  useContractWrite,
+  usePublicClient,
+} from 'wagmi';
 import { writeContract } from 'wagmi/actions';
 
 import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
@@ -10,11 +16,16 @@ import columns, {
   UserBonds as UserBondsType,
 } from 'components/rdpx-v2/Tables/ColumnDefs/BondsColumn';
 
+import { DECIMALS_TOKEN } from 'constants/index';
+import CurveMultiRewards from 'constants/rdpx/abis/CurveMultiRewards';
 import RdpxV2Bond from 'constants/rdpx/abis/RdpxV2Bond';
 import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
+import ReceiptToken from 'constants/rdpx/abis/ReceiptToken';
 import addresses from 'constants/rdpx/addresses';
 
 const UserBonds = () => {
+  const [rtReceived, setRtReceived] = useState<bigint>(0n);
+
   const { address: user = '0x' } = useAccount();
   const { updateUserBonds, userBonds, loading } = useRdpxV2CoreData({
     user,
@@ -26,26 +37,62 @@ const UserBonds = () => {
     functionName: 'isApprovedForAll',
     args: [user || '0x', addresses.v2core],
   });
-
-  const { writeAsync: approve, isSuccess: approveSuccess } = useContractWrite({
-    abi: RdpxV2Bond,
-    address: addresses.bond,
-    functionName: 'setApprovalForAll',
-    args: [addresses.v2core, true],
+  const { writeAsync: approveBond, isSuccess: approveSuccess } =
+    useContractWrite({
+      abi: RdpxV2Bond,
+      address: addresses.bond,
+      functionName: 'setApprovalForAll',
+      args: [addresses.v2core, true],
+    });
+  const { writeAsync: approveStaking } = useContractWrite({
+    abi: ReceiptToken,
+    address: addresses.receiptToken,
+    functionName: 'approve',
+    args: [addresses.receiptTokenStaking, rtReceived],
+  });
+  const { simulateContract } = usePublicClient({
+    chainId: 42161,
   });
 
-  const handleRedeem = useCallback(
+  const handleVest = useCallback(
     async (id: bigint) => {
-      const write = writeContract({
+      const vest = writeContract({
         abi: RdpxV2Core,
         address: addresses.v2core,
         functionName: 'redeemReceiptTokenBonds',
-        args: [id, user || '0x'],
+        args: [id, user],
       });
-      await write.then(() => updateUserBonds()).catch((e) => console.error(e));
+
+      const { result: receiptTokensReceived = 0n } = await simulateContract({
+        account: user,
+        abi: RdpxV2Core,
+        address: addresses.v2core,
+        functionName: 'redeemReceiptTokenBonds',
+        args: [id, user],
+      });
+
+      setRtReceived(receiptTokensReceived);
+      await vest.then(() => updateUserBonds()).catch((e) => console.error(e));
     },
     [user, updateUserBonds],
   );
+
+  const handleStake = useCallback(async () => {
+    if (rtReceived === 0n)
+      console.error('Something went wrong in rtETH stake()');
+
+    const stake = writeContract({
+      abi: CurveMultiRewards,
+      address: addresses.receiptTokenStaking,
+      functionName: 'stake',
+      args: [
+        (rtReceived * parseUnits('0.98', DECIMALS_TOKEN)) /
+          parseUnits('1', DECIMALS_TOKEN),
+      ],
+    });
+
+    stake.catch((e) => console.error(e));
+  }, [rtReceived]);
 
   const userRdpxBonds = useMemo(() => {
     if (userBonds.length === 0) return [];
@@ -60,20 +107,22 @@ const UserBonds = () => {
         redeemable,
         timestamp: bond.timestamp,
         button: {
-          label: !!isApprovedForAll ? 'Vest' : 'Approve',
+          label: !!isApprovedForAll ? 'Vest + Stake' : 'Approve',
           id: bond.id,
           redeemable: true,
           handleRedeem: () => {
             !!isApprovedForAll
-              ? handleRedeem(bond.id)
-              : approve()
+              ? handleVest(bond.id)
+                  .then(() => approveStaking().then(() => handleStake()))
+                  .catch((e) => console.error(e))
+              : approveBond()
                   .then(() => refetch())
                   .catch((e) => console.error(e));
           },
         },
       };
     });
-  }, [userBonds, isApprovedForAll, handleRedeem, approve, refetch]);
+  }, [userBonds, isApprovedForAll, handleVest, approveBond, refetch]);
 
   useEffect(() => {
     updateUserBonds();
