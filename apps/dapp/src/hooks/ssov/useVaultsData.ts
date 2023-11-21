@@ -71,8 +71,10 @@ interface AggregatedStats {
 export const fetchSsovs = async (keys: string[], cacheTime: number) => {
   const query = async () =>
     (await fetch(`${DOPEX_API_BASE_URL}/v2/ssov`)).json();
-  return await queryClient.fetchQuery(keys, query, {
-    cacheTime,
+  return await queryClient.fetchQuery({
+    queryKey: keys,
+    queryFn: query,
+    gcTime: cacheTime,
   });
 };
 

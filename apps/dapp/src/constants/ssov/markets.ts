@@ -90,6 +90,7 @@ export const MARKETS: { [key: string]: SsovMarket } = {
     },
   },
   RDPX: {
+    disabled: true,
     vaults: [
       {
         symbol: 'rDPX-WEEKLY-CALLS-SSOV-V3',
@@ -118,70 +119,6 @@ export const MARKETS: { [key: string]: SsovMarket } = {
     ],
     default: {
       isPut: false,
-      duration: 'WEEKLY',
-    },
-  },
-  WBTC: {
-    vaults: [
-      {
-        symbol: 'BTC-WEEKLY-PUTS-SSOV-V3-3',
-        isPut: true,
-        duration: 'WEEKLY',
-        underlyingSymbol: 'WBTC',
-        collateralTokenAddress: '0x7f90122bf0700f9e7e1f688fe926940e8839f353',
-        address: '0xa7507c48d78345475b85bc27B9CE9B84b354CaF7',
-      },
-    ],
-    default: {
-      isPut: true,
-      duration: 'WEEKLY',
-    },
-  },
-  GMX: {
-    vaults: [
-      {
-        symbol: 'GMX-WEEKLY-PUTS-SSOV-V3-3',
-        isPut: true,
-        duration: 'WEEKLY',
-        underlyingSymbol: 'GMX',
-        collateralTokenAddress: '0x7f90122bf0700f9e7e1f688fe926940e8839f353',
-        address: '0xf071F0c56543A2671a2Dfc5FF51d5d858Be91514',
-      },
-    ],
-    default: {
-      isPut: true,
-      duration: 'WEEKLY',
-    },
-  },
-  CRV: {
-    vaults: [
-      {
-        symbol: 'CRV-WEEKLY-PUTS-SSOV-V3-3',
-        isPut: true,
-        duration: 'WEEKLY',
-        underlyingSymbol: 'CRV',
-        collateralTokenAddress: '0x7f90122bf0700f9e7e1f688fe926940e8839f353',
-        address: '0x7C5aC7E4E352B733CF65721d9Fe28A17Da890159',
-      },
-    ],
-    default: {
-      isPut: true,
-      duration: 'WEEKLY',
-    },
-  },
-  CVX: {
-    vaults: [
-      {
-        symbol: 'CVX-WEEKLY-PUTS-SSOV-V3',
-        isPut: true,
-        duration: 'WEEKLY',
-        underlyingSymbol: 'CVX',
-        collateralTokenAddress: '0x7f90122bf0700f9e7e1f688fe926940e8839f353',
-        address: '0x3e138322b86897eDf4Ffc6060Edc0C1220b4F8B0',
-      },
-    ],
-    default: {
-      isPut: true,
       duration: 'WEEKLY',
     },
   },

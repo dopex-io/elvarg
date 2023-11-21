@@ -20,7 +20,8 @@ const computeOptionGreeks = ({
   ivInDecimals,
   isPut,
 }: Args) => {
-  const delta = getDelta(spot, strike, expiryInYears, ivInDecimals, 0, isPut);
+  const side = isPut ? 'put' : 'call';
+  const delta = getDelta(spot, strike, expiryInYears, ivInDecimals, 0, side);
   const gamma = getGamma(spot, strike, expiryInYears, ivInDecimals, 0);
   const vega = getVega(spot, strike, expiryInYears, ivInDecimals, 0);
   const theta = getTheta(
@@ -29,7 +30,7 @@ const computeOptionGreeks = ({
     expiryInYears,
     ivInDecimals,
     0,
-    isPut,
+    side,
     365,
   );
 

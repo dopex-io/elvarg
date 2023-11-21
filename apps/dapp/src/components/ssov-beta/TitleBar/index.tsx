@@ -1,47 +1,40 @@
-import { useRouter } from 'next/router';
-
 import { Menu } from '@dopex-io/ui';
 
 import useVaultsData from 'hooks/ssov/useVaultsData';
 
 import TitleItem from 'components/ssov-beta/TitleBar/TitleItem';
 
-import formatAmount from 'utils/general/formatAmount';
+import { formatAmount } from 'utils/general';
 
 import { MARKETS_MENU } from 'constants/ssov/markets';
 
 import { SsovMenuItem } from 'types/ssov';
 
 interface Props {
-  market: SsovMenuItem;
-  setSelection: (value: SsovMenuItem) => void;
+  market: string;
+  handleSelectMarket: (item: SsovMenuItem) => void;
 }
 
 const TitleBar = (props: Props) => {
-  const { market, setSelection } = props;
+  const { market, handleSelectMarket } = props;
 
-  const router = useRouter();
-
-  const { aggregatedStats } = useVaultsData({ market: market.textContent });
+  const { aggregatedStats } = useVaultsData({ market });
 
   return (
-    <div className="flex space-x-4 mb-4 relative z-10">
+    <div className="flex space-x-4 mb-4">
       <img
-        src={`/images/tokens/${market.textContent.toLowerCase()}.svg`}
+        src={`/images/tokens/${market.toLowerCase()}.svg`}
         className="w-[32px] h-[32px] my-auto border rounded-full border-carbon"
-        alt={market.textContent}
+        alt={market}
       />
       <Menu
         color="mineshaft"
         dropdownVariant="icon"
-        setSelection={(v: SsovMenuItem) => {
-          setSelection(v);
-          router.push(`/ssov-beta/${v.textContent}`);
-        }}
-        selection={market}
+        setSelection={handleSelectMarket}
+        selection={{ textContent: market, disabled: true }}
         data={MARKETS_MENU}
+        menuClassName="z-20"
         showArrow
-        className="bg-umbra rounded-[10px] w-[100px] h-[200px] overflow-auto"
       />
       <div className="flex space-x-6">
         <TitleItem
