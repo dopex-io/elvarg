@@ -60,7 +60,7 @@ const UserBonds = () => {
         redeemable,
         timestamp: bond.timestamp,
         button: {
-          label: !!isApprovedForAll ? 'Redeem' : 'Approve',
+          label: !!isApprovedForAll ? 'Vest' : 'Approve',
           id: bond.id,
           redeemable: true,
           handleRedeem: () => {
