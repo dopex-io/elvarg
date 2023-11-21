@@ -66,6 +66,7 @@ export const createAssetsSlice: StateCreator<
         axios.get(
           `https://api.coingecko.com/api/v3/simple/price?ids=${cgIds}&vs_currencies=usd&include_24hr_change=true`,
         ),
+      staleTime: 300000,
     });
 
     const data = Object.keys(payload.data)
