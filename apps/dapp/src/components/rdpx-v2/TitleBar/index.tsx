@@ -56,9 +56,7 @@ const TitleBar = () => {
   const update = useStore((store) => store.update);
 
   const router = useRouter();
-  const {
-    data: { cgPrice },
-  } = useQuery({
+  const { data } = useQuery({
     queryKey: ['eth_price'],
     queryFn: async () => {
       return await axios
@@ -129,7 +127,7 @@ const TitleBar = () => {
                       DECIMALS_TOKEN,
                       3,
                     ),
-                  ) * (cgPrice || 0)
+                  ) * (data?.cgPrice || 0)
                 ).toFixed(3)}`}
               />
               <Stat
@@ -140,7 +138,7 @@ const TitleBar = () => {
                       rdpxV2CoreState.rdpxPriceInEth,
                       DECIMALS_TOKEN,
                     ),
-                  ) * (cgPrice || 0),
+                  ) * (data?.cgPrice || 0),
                 ).toFixed(3)}`}
               />
             </div>
@@ -166,7 +164,7 @@ const TitleBar = () => {
                 name="TVL"
                 value={`$${Number(
                   Number(formatBigint(lpWethBalance, DECIMALS_TOKEN)) *
-                    (cgPrice || 0),
+                    (data?.cgPrice || 0),
                 ).toFixed(3)}`}
               />
             </div>
@@ -179,7 +177,7 @@ const TitleBar = () => {
       default:
         return { index: defaultIndex, renderComponent: <></> };
     }
-  }, [state, rdpxV2CoreState, cgPrice, perpetualVaultState, lpWethBalance]);
+  }, [state, rdpxV2CoreState, data, perpetualVaultState, lpWethBalance]);
 
   return (
     <div className="flex flex-col space-y-6">
