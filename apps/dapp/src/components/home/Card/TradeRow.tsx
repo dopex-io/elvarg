@@ -15,7 +15,7 @@ const TradeRow = ({ token, tradeURL }: TradeRowProps) => {
     queryFn: () => axios.get(`${DOPEX_API_BASE_URL}/v2/price/${token}`),
   });
 
-  if (query.isLoading) {
+  if (query.isLoading || !query.data) {
     return <Skeleton width={450} color="umbra" />;
   }
 
