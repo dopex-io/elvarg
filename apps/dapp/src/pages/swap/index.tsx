@@ -37,7 +37,10 @@ const SwapBody = () => {
     queryFn: () =>
       axios
         .get(
-          `https://apiv5.paraswap.io/prices?network=42161&srcToken=0x32eb7902d4134bf98a28b963d26de779af92a212&srcDecimals=18&destToken=0x82aF49447D8a07e3bd95BD0d56f35241523fBab1&destDecimals=18&side=SELL&amount=${debouncedAmount.toString()}&includeDEXS=CamelotV3,Camelot&userAddress=${address}&maxImpact=100&partner=Camelot`,
+          `https://apiv5.paraswap.io/prices?network=42161&srcToken=0x32eb7902d4134bf98a28b963d26de779af92a212&srcDecimals=18&destToken=0x82aF49447D8a07e3bd95BD0d56f35241523fBab1&destDecimals=18&side=SELL&amount=${(
+            (debouncedAmount * parseUnits('0.9', DECIMALS_TOKEN)) /
+            parseUnits('1', DECIMALS_TOKEN)
+          ).toString()}&includeDEXS=CamelotV3,Camelot&userAddress=${address}&maxImpact=100&partner=Camelot`,
         )
         .then((res) => res.data),
     queryKey: [],
@@ -217,9 +220,18 @@ const SwapBody = () => {
             </div>
           }
           disabled
-          value={Number(formatUnits(displayedOutput, 18)).toFixed(4)}
+          value={Number(formatUnits(displayedOutput, DECIMALS_TOKEN)).toFixed(
+            8,
+          )}
           onChange={noop}
         />
+        <div className="flex flex-col border rounded-md border-carbon p-3 text-sm text-jaffa">
+          <span className="text-center">Warning!</span>
+          <p className="text-sm">
+            Displayed amount of WETH received is only an estimate. The actual
+            WETH amount you receive may differ from the amount displayed above.
+          </p>
+        </div>
         <div className="flex flex-col space-y-2">
           <span className="flex justify-between">
             <p className="text-stieglitz">WETH Balance</p>
