@@ -1,10 +1,8 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Address, formatUnits, zeroAddress } from 'viem';
 
-import { Button } from '@dopex-io/ui';
 import { createColumnHelper } from '@tanstack/react-table';
 import format from 'date-fns/format';
-import Countdown from 'react-countdown';
 import { useAccount } from 'wagmi';
 
 import { RewardAccrued, WritePosition } from 'hooks/ssov/useSsovPositions';
@@ -18,9 +16,22 @@ import { formatAmount } from 'utils/general';
 
 import { DECIMALS_TOKEN } from 'constants/index';
 
+import WritePositionAction from './WritePositionAction';
+
 interface Props {
   positions?: WritePosition[];
   isLoading?: boolean;
+}
+
+export interface WritePositionActionButtonProps {
+  tokenId: number;
+  epoch: number;
+  currentEpoch: number;
+  handler: () => void;
+  expiry: number;
+  textContent: string;
+  disabled: boolean;
+  canStake: boolean;
 }
 
 interface WritePositionData {
@@ -30,16 +41,7 @@ interface WritePositionData {
   expiry: number;
   premium: { premium: number; symbol: string; isPut: boolean };
   rewardsAccrued: RewardAccrued[];
-  button: {
-    tokenId: number;
-    epoch: number;
-    currentEpoch: number;
-    handler: () => void;
-    expiry: number;
-    textContent: string;
-    disabled: boolean;
-    canStake: boolean;
-  };
+  button: WritePositionActionButtonProps;
 }
 
 const columnHelper = createColumnHelper<WritePositionData>();
@@ -115,30 +117,7 @@ const columns = [
     cell: (info) => {
       const value = info.getValue();
 
-      return (
-        <Button
-          key={value.tokenId}
-          color={value.disabled ? 'mineshaft' : 'primary'}
-          onClick={value.handler}
-          disabled={value.disabled}
-          className={value.disabled ? 'cursor-not-allowed' : ''}
-        >
-          {value.disabled ? (
-            <Countdown
-              date={new Date(value.expiry * 1000)}
-              renderer={({ days, hours, minutes }) => {
-                return (
-                  <span className="text-xs md:text-sm text-white pt-1">
-                    {days}d {hours}h {minutes}m
-                  </span>
-                );
-              }}
-            />
-          ) : (
-            value.textContent
-          )}
-        </Button>
-      );
+      return <WritePositionAction value={value} />;
     },
   }),
 ];

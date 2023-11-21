@@ -23,6 +23,7 @@ const PriceChart = ({
         `https://api.coingecko.com/api/v3/coins/${TOKEN_DATA[market].cgId}/market_chart?vs_currency=usd&days=30`,
       ),
     queryKey: [market, 'coingecko-historic-pricing'],
+    staleTime: 300000,
   });
 
   useEffect(() => {

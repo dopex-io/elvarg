@@ -4,7 +4,8 @@ type PopoverType = (typeof popovers)[number];
 type PopoverContent = {
   disabled: boolean;
   alertBg: string;
-  textContent: string;
+  header: string;
+  body?: string;
   buttonContent?: string;
   icon?: React.ReactNode;
 };
@@ -13,43 +14,37 @@ const alertsMapping: Record<PopoverType, Record<string, PopoverContent>> = {
   info: {
     enabled: {
       disabled: false,
-      textContent: '',
+      header: '',
       alertBg: 'bg-mineshaft text-white',
     },
     insufficientLiquidity: {
       disabled: true,
-      textContent: 'Insufficient Liquidity',
+      header: 'Insufficient Liquidity',
       alertBg: 'bg-mineshaft text-white',
       buttonContent: 'Purchase',
     },
     emptyInput: {
       disabled: true,
-      textContent: 'Enter an amount',
+      header: 'Enter an amount',
       alertBg: 'bg-mineshaft text-white',
     },
   },
-  warning: {
-    highIv: {
-      disabled: false,
-      textContent: 'IV is currently high.',
-      alertBg: 'bg-jaffa text-cod-gray',
-    },
-  },
+  warning: {},
   error: {
     insufficientBalance: {
       disabled: true,
-      textContent: 'Insufficient Balance.',
+      header: 'Insufficient Balance',
       alertBg: 'bg-down-bad text-cod-gray',
     },
     insufficientAllowance: {
       disabled: false,
-      textContent: 'Insufficient allowance. Please approve your token.',
+      header: 'Token Approval Required',
       alertBg: 'bg-down-bad text-cod-gray',
       buttonContent: 'Approve',
     },
     fallback: {
       disabled: true,
-      textContent: '',
+      header: '',
       alertBg: 'bg-down-bad',
     },
   },
