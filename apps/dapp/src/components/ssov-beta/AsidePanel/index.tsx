@@ -587,18 +587,23 @@ const AsidePanel = ({ market }: { market: string }) => {
           }}
         />
       </div>
-      <div className="bg-cod-gray p-3 rounded-lg">
-        <PnlChart
-          breakEven={Number(selectedStrike.breakeven)}
-          optionPrice={Number(
-            formatUnits(selectedStrike.premiumPerOption || 0n, DECIMALS_TOKEN),
-          )}
-          amount={Number(amountDebounced)}
-          isPut={vault.isPut}
-          price={Number(selectedVault?.currentPrice)}
-          symbol={vault.underlyingSymbol}
-        />
-      </div>
+      {activeIndex === 0 ? (
+        <div className="bg-cod-gray p-3 rounded-lg">
+          <PnlChart
+            breakEven={Number(selectedStrike.breakeven)}
+            optionPrice={Number(
+              formatUnits(
+                selectedStrike.premiumPerOption || 0n,
+                DECIMALS_TOKEN,
+              ),
+            )}
+            amount={Number(amountDebounced)}
+            isPut={vault.isPut}
+            price={Number(selectedVault?.currentPrice)}
+            symbol={vault.underlyingSymbol}
+          />
+        </div>
+      ) : null}
     </div>
   );
 };
