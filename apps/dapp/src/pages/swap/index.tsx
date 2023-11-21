@@ -2,15 +2,26 @@ import { useCallback, useEffect, useState } from 'react';
 import { formatUnits, getContract, maxUint256, parseUnits } from 'viem';
 
 import { Button, Input } from '@dopex-io/ui';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 import noop from 'lodash/noop';
 import { useDebounce } from 'use-debounce';
-import { erc20ABI, useAccount, usePublicClient, useWalletClient } from 'wagmi';
+import {
+  erc20ABI,
+  useAccount,
+  useContractRead,
+  usePublicClient,
+  useWalletClient,
+} from 'wagmi';
 
 import AppBar from 'components/common/AppBar';
+
+import { DECIMALS_TOKEN } from 'constants/index';
 
 const SwapBody = () => {
   const [amount, setAmount] = useState(0n);
   const [output, setOutput] = useState(0n);
+  const [displayedOutput, setDisplayedOutput] = useState(0n);
   const [allowance, setAllowance] = useState(0n);
   const [approved, setApproved] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -22,6 +33,34 @@ const SwapBody = () => {
   const publicClient = usePublicClient();
 
   const { address } = useAccount();
+  const { data, refetch: refetchPrice } = useQuery({
+    queryFn: () =>
+      axios
+        .get(
+          `https://apiv5.paraswap.io/prices?network=42161&srcToken=0x32eb7902d4134bf98a28b963d26de779af92a212&srcDecimals=18&destToken=0x82aF49447D8a07e3bd95BD0d56f35241523fBab1&destDecimals=18&side=SELL&amount=${debouncedAmount.toString()}&includeDEXS=CamelotV3,Camelot&userAddress=${address}&maxImpact=100&partner=Camelot`,
+        )
+        .then((res) => res.data),
+    queryKey: [],
+    staleTime: 5000,
+  });
+
+  const { data: rdpxBalance = 0n, refetch: refetchRdpxBalance } =
+    useContractRead({
+      staleTime: 10000,
+      abi: erc20ABI,
+      address: '0x32eb7902d4134bf98a28b963d26de779af92a212',
+      functionName: 'balanceOf',
+      args: [address || '0x'],
+    });
+
+  const { data: wethBalance = 0n, refetch: refetchWethBalance } =
+    useContractRead({
+      staleTime: 10000,
+      abi: erc20ABI,
+      address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+      functionName: 'balanceOf',
+      args: [address || '0x'],
+    });
 
   useEffect(() => {
     async function checkAllowance() {
@@ -45,10 +84,19 @@ const SwapBody = () => {
       } else {
         setApproved(true);
       }
+      refetchPrice();
+
+      if (data && data.priceRoute) {
+        setDisplayedOutput(
+          (BigInt(data.priceRoute.destAmount || 0n) *
+            parseUnits('0.90', DECIMALS_TOKEN)) / // 10% tax
+            parseUnits('1', DECIMALS_TOKEN),
+        );
+      }
 
       if (publicClient && address) {
         try {
-          const data = await publicClient.simulateContract({
+          const _data = await publicClient.simulateContract({
             abi: swapRouterAbi,
             address: '0x1F721E2E82F6676FCE4eA07A5958cF098D339e18',
             functionName: 'exactInputSingleSupportingFeeOnTransferTokens',
@@ -57,7 +105,7 @@ const SwapBody = () => {
               {
                 tokenIn: '0x32eb7902d4134bf98a28b963d26de779af92a212',
                 tokenOut: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
-                recipient: address,
+                recipient: address || '0x',
                 deadline: BigInt(
                   (new Date().getTime() / 1000 + 60000).toFixed(0),
                 ),
@@ -67,7 +115,7 @@ const SwapBody = () => {
               },
             ],
           });
-          setOutput(data.result);
+          setOutput(_data.result);
         } catch (err) {
           console.log(err);
         }
@@ -75,7 +123,7 @@ const SwapBody = () => {
       setLoading(false);
     }
     computeOutput();
-  }, [address, allowance, debouncedAmount, publicClient]);
+  }, [address, allowance, data, debouncedAmount, publicClient, refetchPrice]);
 
   const handleChange = useCallback(async (e: { target: { value: string } }) => {
     setLoading(true);
@@ -103,22 +151,37 @@ const SwapBody = () => {
       });
 
       try {
-        await contract.write.exactInputSingleSupportingFeeOnTransferTokens([
-          {
-            tokenIn: '0x32eb7902d4134bf98a28b963d26de779af92a212',
-            tokenOut: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
-            recipient: address,
-            deadline: BigInt((new Date().getTime() / 1000 + 60000).toFixed(0)),
-            amountIn: debouncedAmount,
-            amountOutMinimum: output - (output * 1n) / 100n,
-            limitSqrtPrice: 0n,
-          },
-        ]);
+        await contract.write
+          .exactInputSingleSupportingFeeOnTransferTokens([
+            {
+              tokenIn: '0x32eb7902d4134bf98a28b963d26de779af92a212',
+              tokenOut: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+              recipient: address,
+              deadline: BigInt(
+                (new Date().getTime() / 1000 + 60000).toFixed(0),
+              ),
+              amountIn: debouncedAmount,
+              amountOutMinimum: output - (output * 1n) / 100n,
+              limitSqrtPrice: 0n,
+            },
+          ])
+          .then(() => {
+            refetchWethBalance();
+            refetchRdpxBalance();
+          });
       } catch {}
 
       setLoading(false);
     }
-  }, [address, approved, debouncedAmount, output, walletClient]);
+  }, [
+    address,
+    approved,
+    debouncedAmount,
+    output,
+    refetchRdpxBalance,
+    refetchWethBalance,
+    walletClient,
+  ]);
 
   return (
     <>
@@ -154,9 +217,29 @@ const SwapBody = () => {
             </div>
           }
           disabled
-          value={Number(formatUnits(output, 18)).toFixed(4)}
+          value={Number(formatUnits(displayedOutput, 18)).toFixed(4)}
           onChange={noop}
         />
+        <div className="flex flex-col space-y-2">
+          <span className="flex justify-between">
+            <p className="text-stieglitz">WETH Balance</p>
+            <span className="flex space-x-2">
+              <p>{formatUnits(wethBalance, DECIMALS_TOKEN)}</p>
+              <p className="text-stieglitz">WETH</p>
+            </span>
+          </span>
+          <span className="flex justify-between">
+            <p className="text-stieglitz">rDPX Balance</p>
+            <span className="flex space-x-2">
+              <p>{formatUnits(rdpxBalance, DECIMALS_TOKEN)}</p>
+              <p className="text-stieglitz">rDPX</p>
+            </span>
+          </span>
+          <div className="flex flex-col space-y-2">
+            <p>Slippage: 1%</p>
+            <p>Sell Tax: 10%</p>
+          </div>
+        </div>
         <Button
           className="px-12 float-right"
           onClick={handleClick}
@@ -164,10 +247,6 @@ const SwapBody = () => {
         >
           Swap
         </Button>
-        <div className="flex flex-col space-y-2">
-          <p>Slippage: 1%</p>
-          <p>Sell Tax: 10%</p>
-        </div>
       </div>
     </>
   );
