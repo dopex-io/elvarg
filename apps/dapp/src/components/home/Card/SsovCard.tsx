@@ -20,7 +20,7 @@ const SsovCard = () => {
       return 0;
     } else if (isLoading) {
       return 0;
-    } else {
+    } else if (data) {
       const apys = data.data[42161]
         .map((ssov: { apy: string[] }) => {
           return ssov.apy;

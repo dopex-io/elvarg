@@ -91,9 +91,9 @@ const SsovData = () => {
 
   const [data, twentyFourHVol, openInterest] = queries;
 
-  const { data: tradesData } = useQuery(
-    ['getSsovPurchasesFromTimestamp'],
-    async () =>
+  const { data: tradesData } = useQuery({
+    queryKey: ['getSsovPurchasesFromTimestamp'],
+    queryFn: async () =>
       queryClient.fetchQuery({
         queryKey: ['getSsovPurchasesFromTimestamp'],
         queryFn: async () =>
@@ -105,7 +105,7 @@ const SsovData = () => {
             },
           ),
       }),
-  );
+  });
 
   const [selectedSsovTokens, setSelectedSsovTokens] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);

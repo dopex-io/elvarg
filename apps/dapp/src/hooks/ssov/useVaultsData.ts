@@ -71,8 +71,10 @@ interface AggregatedStats {
 export const fetchSsovs = async (keys: string[], cacheTime: number) => {
   const query = async () =>
     (await fetch(`${DOPEX_API_BASE_URL}/v2/ssov`)).json();
-  return await queryClient.fetchQuery(keys, query, {
-    cacheTime,
+  return await queryClient.fetchQuery({
+    queryKey: keys,
+    queryFn: query,
+    gcTime: cacheTime,
   });
 };
 
@@ -90,7 +92,7 @@ const useVaultsData = (props: Props) => {
     const filteredData: RawVaultQueryData[] = data[chainId].filter(
       (item: RawVaultQueryData) =>
         String(item.underlyingSymbol).toLowerCase() === market.toLowerCase() &&
-        !item.retired
+        !item.retired,
     );
 
     if (filteredData.length === 0) return;
@@ -154,11 +156,11 @@ const useVaultsData = (props: Props) => {
     const avgApy = vaults.reduce(
       (prev, curr) =>
         prev + (typeof curr.apy === 'string' ? Number(curr.apy) : 0),
-      0
+      0,
     );
     const totalPurchases = vaults.reduce(
       (prev, curr) => prev + Number(curr.totalEpochPurchases),
-      0
+      0,
     );
 
     setAggregatedStats({

@@ -67,7 +67,7 @@ export function blackScholes(
   t: number,
   v: number,
   r: number,
-  callPut: string
+  callPut: string,
 ): number {
   var price = null;
   var w =
@@ -100,7 +100,7 @@ export function getW(
   k: number,
   t: number,
   v: number,
-  r: number
+  r: number,
 ): number {
   var w =
     (r * t + (Math.pow(v, 2) * t) / 2 - Math.log(k / s)) / (v * Math.sqrt(t));
