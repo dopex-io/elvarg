@@ -27,7 +27,6 @@ export const rdpxStateToLabelMapping: {
   bond: 'Bonding',
   lp: 'Perp Put Vault',
   stake: 'Staking',
-  swap: 'Swap',
   // farm: 'Farm',
 };
 
