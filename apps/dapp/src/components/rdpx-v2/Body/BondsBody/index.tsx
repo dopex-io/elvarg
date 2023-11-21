@@ -71,7 +71,6 @@ const BondsBody = () => {
           </div>
           <Charts />
         </div>
-        <UserDataGrid />
         <div className="space-y-1">
           <div className="flex w-full">
             {actions.map((label: ActionType, index) => {
@@ -98,6 +97,7 @@ const BondsBody = () => {
           {active === 'Delegate Positions' ? <DelegatePositions /> : null}
           {active === 'History' ? <UserBondsHistory /> : null}
         </div>
+        <UserDataGrid />
       </div>
     </div>
   );
