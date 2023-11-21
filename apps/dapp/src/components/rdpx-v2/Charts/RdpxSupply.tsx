@@ -48,7 +48,7 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
 
       setData(formatted);
     })();
-  }, []);
+  }, [cumulativeRdpxBurned]);
 
   useEffect(() => {
     updateRdpxBurned();
