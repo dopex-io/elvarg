@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import { formatUnits } from 'viem';
 
-import axios from 'axios';
 import { format } from 'date-fns';
-import request from 'graphql-request';
 import {
   Area,
   AreaChart,
@@ -12,15 +10,13 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { useAccount } from 'wagmi';
 
-import queryClient from 'queryClient';
-
-import { getRdpxSuppliesDocument } from 'graphql/rdpx-v2';
+import useSubgraphQueries from 'hooks/rdpx/useSubgraphQueries';
 
 import CustomTooltip from 'components/rdpx-v2/Charts/CustomTooltip';
 
 import { DECIMALS_TOKEN } from 'constants/index';
-import { DOPEX_RDPX_V2_SUBGRAPH_API_URL } from 'constants/subgraphs';
 
 interface LiquidityBarGraphProps {
   width: number;
@@ -30,43 +26,38 @@ interface LiquidityBarGraphProps {
 const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
   const { height } = props;
 
+  const { address: user = '0x' } = useAccount();
+
   const [data, setData] = useState<
     {
       time: string;
-      rdpxSupply: number;
+      rdpxBurnt: number;
     }[]
   >([]);
 
+  const { cumulativeRdpxBurned, updateRdpxBurned } = useSubgraphQueries({
+    user,
+  });
+
   useEffect(() => {
     (async () => {
-      const rdpxSupplies = await queryClient
-        .fetchQuery({
-          queryKey: ['getRdpxSupplies'],
-          queryFn: () =>
-            request(DOPEX_RDPX_V2_SUBGRAPH_API_URL, getRdpxSuppliesDocument),
-        })
-        .then((res) => res.totalRdpxSupplies)
-        .catch((_) => setData([]));
-
-      const formatted =
-        rdpxSupplies
-          ?.sort((a, b) => a.transaction.timestamp - b.transaction.timestamp)
-          .map((supply) => ({
-            time: format(
-              new Date(Number(supply.transaction.timestamp) * 1000),
-              'dd LLL YYY',
-            ),
-            rdpxSupply: Number(formatUnits(supply.amount, DECIMALS_TOKEN)),
-          })) || [];
+      const formatted = cumulativeRdpxBurned.map((entry) => ({
+        time: format(new Date(Number(entry.timestamp) * 1000), 'dd LLL YYY'),
+        rdpxBurnt: Number(formatUnits(entry.amount, DECIMALS_TOKEN)),
+      }));
 
       setData(formatted);
     })();
   }, []);
 
+  useEffect(() => {
+    updateRdpxBurned();
+  }, [updateRdpxBurned]);
+
   return (
     <div className="relative h-full">
       <h6 className="absolute top-3 left-3 text-xs text-stieglitz align-center">
-        rDPX Supply
+        rDPX Burned
       </h6>
       <ResponsiveContainer width="100%" height={height} className="top-6">
         <AreaChart
@@ -92,12 +83,12 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
             cursor={{
               fill: '#151515',
             }}
-            content={<CustomTooltip datapointKeys={['rdpxSupply']} />}
+            content={<CustomTooltip datapointKeys={['rdpxBurnt']} />}
           />
           <Area
             type="natural"
             strokeWidth={1}
-            dataKey="rdpxSupply"
+            dataKey="rdpxBurnt"
             stroke="#7B61FF"
             fill="url(#pattern)"
             dot={false}

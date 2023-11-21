@@ -14,7 +14,7 @@ interface Props extends TooltipProps<number, string> {
 
 const TITLE_LABELS: Record<string, string> = {
   rtTotalSupply: 'rtETH Supply',
-  rdpxSupply: 'RDPX Supply',
+  rdpxBurnt: 'RDPX Burnt',
 };
 
 const CustomTooltip = (props: Props) => {
@@ -56,14 +56,14 @@ const CustomTooltip = (props: Props) => {
               <GridItem
                 key={key}
                 label={TITLE_LABELS[key] ?? ''}
-                value={`${formatAmount(
+                value={`${
                   isTypePrice
                     ? new Intl.NumberFormat('en-US', {
                         currency: 'USD',
                         style: 'currency',
                       }).format(formattedPayload?.[key] || 0)
-                    : formattedPayload?.[key],
-                )}`}
+                    : formattedPayload?.[key].toFixed(3)
+                }`}
               />
             );
           })}

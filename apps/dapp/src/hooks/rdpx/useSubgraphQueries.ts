@@ -9,6 +9,7 @@ import {
   getDelegateBonds,
   getHistoricBondsDocument,
   getHistoricRedeemRequestsDocument,
+  getRdpxSuppliesDocument,
 } from 'graphql/rdpx-v2';
 
 import { DOPEX_RDPX_V2_SUBGRAPH_API_URL } from 'constants/subgraphs';
@@ -65,6 +66,12 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
     RedeemRequest[]
   >([]);
   const [delegateBonds, setDelegateBonds] = useState<DelegateBond[]>([]);
+  const [cumulativeRdpxBurned, setCumulativeRdpxBurned] = useState<
+    {
+      amount: bigint;
+      timestamp: bigint;
+    }[]
+  >([]);
 
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -169,6 +176,31 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
     setDelegateBonds(delegateBonds);
   }, [user]);
 
+  const updateRdpxBurned = useCallback(async () => {
+    const supplies = (
+      await queryClient
+        .fetchQuery({
+          queryKey: ['getRdpxSupplies'],
+          queryFn: () =>
+            request(DOPEX_RDPX_V2_SUBGRAPH_API_URL, getRdpxSuppliesDocument),
+        })
+        .then((res) => res.totalRdpxSupplies)
+    )
+      .map((supplyEntity) => ({
+        supply: supplyEntity.amount,
+        timestamp: supplyEntity.transaction.timestamp,
+      }))
+      .sort((a, b) => b.timestamp - a.timestamp);
+
+    let sum = 0n;
+    const burnedCumulation = [];
+    for (let i = 1; i < supplies.length; i++) {
+      sum += BigInt(supplies[i].supply) - BigInt(supplies[i - 1].supply);
+      burnedCumulation.push({ amount: sum, timestamp: supplies[i].timestamp });
+    }
+    setCumulativeRdpxBurned(burnedCumulation);
+  }, []);
+
   useEffect(() => {
     updateDelegateBonds();
   }, [updateDelegateBonds]);
@@ -180,6 +212,8 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
     updateUserBondingHistory,
     updateHistoricLpRedeemRequests,
     updateDelegateBonds,
+    cumulativeRdpxBurned,
+    updateRdpxBurned,
     loading,
   };
 };
