@@ -16,6 +16,7 @@ import Typography2 from 'components/UI/Typography2';
 
 import formatBigint from 'utils/general/formatBigint';
 
+import { DOPEX_API_BASE_URL } from 'constants/env';
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 import addresses from 'constants/rdpx/addresses';
 
@@ -25,6 +26,7 @@ export const rdpxStateToLabelMapping: {
   bond: 'Bonding',
   lp: 'Perpetual Put Vault',
   stake: 'Staking',
+  swap: 'Swap',
   // farm: 'Farm',
 };
 
@@ -54,14 +56,20 @@ const TitleBar = () => {
   const update = useStore((store) => store.update);
 
   const router = useRouter();
-  const { data } = useQuery({
+  const {
+    data: { cgPrice },
+  } = useQuery({
     queryKey: ['eth_price'],
-    queryFn: async () =>
-      axios.get(
-        'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd',
-      ),
-    refetchInterval: 15000,
+    queryFn: async () => {
+      return await axios
+        .get(`${DOPEX_API_BASE_URL}/v2/price/eth`)
+        .then((data) => {
+          return data.data;
+        });
+    },
+    staleTime: 300000,
   });
+
   const { address: user = '0x' } = useAccount();
   const { balance: lpWethBalance, updateBalance: updateLpWethBalance } =
     useTokenData({
@@ -121,7 +129,7 @@ const TitleBar = () => {
                       DECIMALS_TOKEN,
                       3,
                     ),
-                  ) * (data?.data.ethereum.usd || 0)
+                  ) * (cgPrice || 0)
                 ).toFixed(3)}`}
               />
               <Stat
@@ -132,7 +140,7 @@ const TitleBar = () => {
                       rdpxV2CoreState.rdpxPriceInEth,
                       DECIMALS_TOKEN,
                     ),
-                  ) * (data?.data.ethereum.usd.toFixed(3) || 0),
+                  ) * (cgPrice || 0),
                 ).toFixed(3)}`}
               />
             </div>
@@ -158,7 +166,7 @@ const TitleBar = () => {
                 name="TVL"
                 value={`$${Number(
                   Number(formatBigint(lpWethBalance, DECIMALS_TOKEN)) *
-                    (data?.data.ethereum.usd || 0),
+                    (cgPrice || 0),
                 ).toFixed(3)}`}
               />
             </div>
@@ -171,7 +179,7 @@ const TitleBar = () => {
       default:
         return { index: defaultIndex, renderComponent: <></> };
     }
-  }, [state, rdpxV2CoreState, data, perpetualVaultState, lpWethBalance]);
+  }, [state, rdpxV2CoreState, cgPrice, perpetualVaultState, lpWethBalance]);
 
   return (
     <div className="flex flex-col space-y-6">
