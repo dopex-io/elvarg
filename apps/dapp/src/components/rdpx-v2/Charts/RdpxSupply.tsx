@@ -86,7 +86,7 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
             content={<CustomTooltip datapointKeys={['rdpxBurnt']} />}
           />
           <Area
-            type="natural"
+            type="monotone"
             strokeWidth={1}
             dataKey="rdpxBurnt"
             stroke="#7B61FF"

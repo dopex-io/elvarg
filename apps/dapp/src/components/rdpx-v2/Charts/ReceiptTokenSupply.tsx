@@ -114,7 +114,7 @@ const PriceChart = (props: LiquidityLineChartProps) => {
             </pattern>
           </defs>
           <Area
-            type="natural"
+            type="monotone"
             strokeWidth={1}
             dataKey="rtTotalSupply"
             stroke="#C3F8FF"
