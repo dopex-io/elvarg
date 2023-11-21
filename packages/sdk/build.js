@@ -1,5 +1,4 @@
 const { build } = require('esbuild');
-const { dependencies } = require('./package.json');
 
 const entryFile = 'src/index.ts';
 const shared = {

@@ -1,17 +1,18 @@
 {
   "name": "@dopex-io/ui",
   "author": "dopex",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/types/index.d.ts",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": "./dist"
+  },
   "version": "0.1.0",
   "description": "Dopex UI",
-  "files": [
-    "dist"
-  ],
   "license": "MIT",
   "scripts": {
-    "build": "pnpm clean && node build.js && tsc --emitDeclarationOnly --outDir dist",
+    "build": "tsup",
+    "lint": "eslint src/",
+    "dev": "tsup --watch",
+    "check-types": "tsc --noEmit",
     "clean": "rimraf dist",
     "storybook": "concurrently \"pnpm:watch:*\"",
     "build-storybook": "storybook build && npx tailwindcss -i ./styles/tailwind.css -o ./storybook-static/tailwind.css",
@@ -44,16 +45,17 @@
     "@types/react": "^18.2.36",
     "@types/react-dom": "^18.2.15",
     "concurrently": "^8.2.2",
-    "esbuild": "^0.19.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "rimraf": "^5.0.5",
     "storybook": "^7.5.3",
     "storybook-dark-mode": "^3.0.1",
     "tailwind-config": "workspace:*",
+    "eslint-config-custom": "workspace:*",
     "tailwindcss": "^3.3.5",
     "tsconfig": "workspace:*",
     "tslib": "^2.6.2",
+    "tsup": "^8.0.0",
     "typescript": "^5.2.2"
   },
   "dependencies": {
