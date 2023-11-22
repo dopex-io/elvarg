@@ -4,6 +4,7 @@ import { Button } from '@dopex-io/ui';
 import { useAccount } from 'wagmi';
 
 import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
+import useSubgraphQueries from 'hooks/rdpx/useSubgraphQueries';
 
 import CamelotData from 'components/rdpx-v2/Body/BondsBody/CamelotData';
 import UserDataGrid from 'components/rdpx-v2/Body/BondsBody/UserDataGrid';
@@ -30,6 +31,9 @@ const BUTTON_LABELS: { [key in ActionType]: string } = {
 const BondsBody = () => {
   const { address: user = '0x' } = useAccount();
 
+  const { totalRdpxBurned = 0n, updateRdpxBurned } = useSubgraphQueries({
+    user,
+  });
   const { rdpxV2CoreState, updateRdpxV2CoreState } = useRdpxV2CoreData({
     user,
   });
@@ -42,6 +46,10 @@ const BondsBody = () => {
   useEffect(() => {
     updateRdpxV2CoreState();
   }, [updateRdpxV2CoreState]);
+
+  useEffect(() => {
+    updateRdpxBurned();
+  }, [updateRdpxBurned]);
 
   return (
     <div className="flex flex-col space-y-3">
@@ -62,10 +70,10 @@ const BondsBody = () => {
             </span>
             <span className="w-1/2 p-3 flex flex-col space-y-1">
               <Typography2 variant="caption">
-                {formatBigint(rdpxV2CoreState.rdpxSupply)}
+                {formatBigint(totalRdpxBurned)}
               </Typography2>
               <Typography2 variant="caption" color="stieglitz">
-                rDPX Supply
+                rDPX Burnt
               </Typography2>
             </span>
           </div>
