@@ -166,8 +166,6 @@ const UserBonds = () => {
     updateDelegateBonds();
   }, [updateDelegateBonds, approveSuccess]);
 
-  console.log(delegateBonds);
-
   return (
     <TableLayout<UserBondsType>
       data={userRdpxBonds}
