@@ -1,11 +1,5 @@
 import { configureChains, createConfig } from 'wagmi';
-import {
-  arbitrum,
-  arbitrumGoerli,
-  hardhat,
-  mainnet,
-  polygon,
-} from 'wagmi/chains';
+import { arbitrum, hardhat, mainnet, polygon } from 'wagmi/chains';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import { LedgerConnector } from 'wagmi/connectors/ledger';
@@ -20,8 +14,8 @@ import { OkxConnector } from './OkxConnector';
 import { RabbyConnector } from './RabbyConnector';
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [arbitrum, polygon, mainnet, hardhat, arbitrumGoerli],
-  [infuraProvider({ apiKey: INFURA_PROJECT_ID || '' }), publicProvider()]
+  [arbitrum, polygon, mainnet, hardhat],
+  [infuraProvider({ apiKey: INFURA_PROJECT_ID || '' }), publicProvider()],
 );
 
 const wagmiConfig = createConfig({

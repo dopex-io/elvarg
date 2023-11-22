@@ -89,7 +89,6 @@ export const createFarmingSlice: StateCreator<
     const { provider, chainId, contractAddresses } = get();
 
     if (!provider) return;
-    if (chainId === 421613) return;
 
     const ethPriceFinal = (
       await axios.get(
