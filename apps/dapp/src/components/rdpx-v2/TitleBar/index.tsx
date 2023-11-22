@@ -4,11 +4,12 @@ import { parseUnits } from 'viem';
 
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { useAccount, useContractRead } from 'wagmi';
+import { useAccount } from 'wagmi';
 
 import useTokenData from 'hooks/helpers/useTokenData';
 import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
+import useRewardAPRs from 'hooks/rdpx/useRewardAPRs';
 import useStore, { rdpxV2Actions } from 'hooks/rdpx/useStore';
 
 import TitleItem from 'components/rdpx-v2/TitleBar/TitleItem';
@@ -18,7 +19,6 @@ import formatBigint from 'utils/general/formatBigint';
 
 import { DOPEX_API_BASE_URL } from 'constants/env';
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
-import CurveMultiRewards from 'constants/rdpx/abis/CurveMultiRewards';
 import addresses from 'constants/rdpx/addresses';
 
 export const rdpxStateToLabelMapping: {
@@ -67,32 +67,9 @@ const TitleBar = () => {
     },
     staleTime: 300000,
   });
-  const { data: rewardPerTokenPPV = 0n } = useContractRead({
-    abi: CurveMultiRewards,
-    address: addresses.perpVaultStaking,
-    functionName: 'rewardPerToken',
-    args: [addresses.arb],
-  });
-  const { data: rewardPerTokenRT = 0n } = useContractRead({
-    abi: CurveMultiRewards,
-    address: addresses.perpVaultStaking,
-    functionName: 'rewardPerToken',
-    args: [addresses.arb],
-  });
-  const { data: rewardsDataRT = ['0x', 1n, 0n, 0n, 0n, 0n] } = useContractRead({
-    abi: CurveMultiRewards,
-    address: addresses.perpVaultStaking,
-    functionName: 'rewardData',
-    args: [addresses.arb],
-  });
-  const { data: rewardsDataPPV = ['0x', 1n, 0n, 0n, 0n, 0n] } = useContractRead(
-    {
-      abi: CurveMultiRewards,
-      address: addresses.perpVaultStaking,
-      functionName: 'rewardData',
-      args: [addresses.arb],
-    },
-  );
+
+  const { rtRewardAPR, ppvRewardAPR } = useRewardAPRs();
+
   const { address: user = '0x' } = useAccount();
   const { balance: lpWethBalance, updateBalance: updateLpWethBalance } =
     useTokenData({
@@ -142,14 +119,7 @@ const TitleBar = () => {
                   DECIMALS_STRIKE,
                 )}%`}
               />
-              <Stat
-                name="Reward APR"
-                value={`${formatBigint(
-                  ((rewardPerTokenRT * 365n * 86400n) / rewardsDataRT[1]) *
-                    100n,
-                  DECIMALS_TOKEN,
-                )}%`}
-              />
+              <Stat name="Reward APR" value={`${rtRewardAPR}%`} />
               <Stat
                 name="dpxETH Price"
                 value={`$${(
@@ -181,14 +151,7 @@ const TitleBar = () => {
           index: 1,
           renderComponent: (
             <div className="flex space-x-6 mx-auto mt-3">
-              <Stat
-                name="Reward APR"
-                value={`${formatBigint(
-                  ((rewardPerTokenPPV * 365n * 86400n) / rewardsDataPPV[1]) *
-                    100n,
-                  DECIMALS_TOKEN,
-                )}%`}
-              />
+              <Stat name="Reward APR" value={`${ppvRewardAPR}%`} />
               <Stat
                 name="Utilization"
                 value={`${formatBigint(
@@ -221,11 +184,9 @@ const TitleBar = () => {
     rdpxV2CoreState.discount,
     rdpxV2CoreState.dpxethPriceInEth,
     rdpxV2CoreState.rdpxPriceInEth,
-    rewardPerTokenRT,
-    rewardsDataRT,
+    rtRewardAPR,
     data?.cgPrice,
-    rewardPerTokenPPV,
-    rewardsDataPPV,
+    ppvRewardAPR,
     perpetualVaultState.activeCollateral,
     perpetualVaultState.totalCollateral,
     lpWethBalance,
