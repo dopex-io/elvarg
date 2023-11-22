@@ -125,7 +125,12 @@ const LpAndBondStepper = ({
         approveWethForBondLoading ||
         bondLoading,
     );
-  }, []);
+  }, [
+    approveLpLoading,
+    approveWethForBondLoading,
+    bondLoading,
+    depositLoading,
+  ]);
 
   useEffect(() => {
     if (approveLpSuccess && depositSuccess) {
@@ -133,7 +138,12 @@ const LpAndBondStepper = ({
     } else if (approveWethForBondSuccess && bondSuccess) {
       setStep(2);
     } else setStep(0);
-  }, []);
+  }, [
+    approveLpSuccess,
+    approveWethForBondSuccess,
+    bondSuccess,
+    depositSuccess,
+  ]);
 
   return (
     <Dialog

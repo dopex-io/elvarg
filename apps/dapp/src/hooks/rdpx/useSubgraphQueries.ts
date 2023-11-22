@@ -74,6 +74,7 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
       timestamp: bigint;
     }[]
   >([]);
+  const [totalRdpxBurned, setTotalRdpxBurned] = useState<bigint>(0n);
 
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -165,16 +166,24 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
             sender: user.toLowerCase(),
           }),
       })
-      .then((res) =>
-        res.bonds.map((pos) => ({
-          amount: BigInt(pos.receiptTokenAmount),
-          ethAmount: parseUnits(pos.wethRequired, 0),
-          rdpxAmount: parseUnits(pos.rdpxRequired, 0),
-          txHash: pos.id, // transaction hash is stored as entity id
-          maturity: parseUnits(pos.transaction.timestamp, 0) + 86400n * 5n,
-          timestamp: parseUnits(pos.transaction.timestamp, 0),
+      .then((res) => [
+        ...res.delegatePositions.map((_pos1) => ({
+          amount: BigInt(_pos1.amount),
+          ethAmount: parseUnits(_pos1.wethRequired, 0),
+          rdpxAmount: 0n,
+          txHash: _pos1.id,
+          maturity: parseUnits(_pos1.transaction.timestamp, 0) + 86400n * 5n,
+          timestamp: parseUnits(_pos1.transaction.timestamp, 0),
         })),
-      )
+        ...res.delegateePositions.map((_pos2) => ({
+          amount: BigInt(_pos2.amount),
+          ethAmount: 0n,
+          rdpxAmount: parseUnits(_pos2.rdpxRequired, 0),
+          txHash: _pos2.id,
+          maturity: parseUnits(_pos2.transaction.timestamp, 0) + 86400n * 5n,
+          timestamp: parseUnits(_pos2.transaction.timestamp, 0),
+        })),
+      ])
       .catch(() => []);
 
     setDelegateBonds(delegateBonds);
@@ -202,13 +211,17 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
       sum += BigInt(supplies[i].supply) - BigInt(supplies[i - 1].supply);
       burnedCumulation.push({ amount: sum, timestamp: supplies[i].timestamp });
     }
+
+    setTotalRdpxBurned(
+      burnedCumulation[burnedCumulation.length - 1].amount || 0n,
+    );
+
     setCumulativeRdpxBurned(burnedCumulation);
   }, []);
 
   useEffect(() => {
     updateDelegateBonds();
   }, [updateDelegateBonds]);
-
   return {
     userBondsHistoryData,
     userRedeemRequestsHistory,
@@ -218,6 +231,7 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
     updateDelegateBonds,
     cumulativeRdpxBurned,
     updateRdpxBurned,
+    totalRdpxBurned,
     loading,
   };
 };

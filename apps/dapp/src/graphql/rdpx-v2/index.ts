@@ -125,18 +125,25 @@ export const getHistoricRedeemRequestsDocument = graphql(`
 
 export const getDelegateBonds = graphql(`
   query UserDelegateBonds($sender: Bytes) {
-    bonds(
-      where: {
-        and: [
-          { transaction_: { sender: $sender } }
-          { or: [{ rdpxRequired_lte: 0 }, { wethRequired_lte: 0 }] }
-        ]
-      }
+    delegatePositions: delegateBonds(
+      where: { transaction_: { sender: $sender } }
     ) {
       id
       wethRequired
+      amount
+      transaction {
+        id
+        sender
+        timestamp
+      }
+    }
+
+    delegateePositions: delegateeBonds(
+      where: { transaction_: { sender: $sender } }
+    ) {
+      id
       rdpxRequired
-      receiptTokenAmount
+      amount
       transaction {
         id
         sender

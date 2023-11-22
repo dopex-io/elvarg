@@ -1,6 +1,6 @@
 // todo: D.R.Y perpetual vault panel
 import { useEffect, useMemo, useState } from 'react';
-import { parseUnits } from 'viem';
+import { formatUnits, parseUnits } from 'viem';
 
 import { Button } from '@dopex-io/ui';
 import { useAccount, useContractRead, useContractWrite } from 'wagmi';
@@ -82,6 +82,9 @@ const Unstake = () => {
           amount={amount}
           handleChange={onChange}
           maxAmount={stakedAmount}
+          handleMax={() => {
+            setAmount(formatUnits(stakedAmount, DECIMALS_TOKEN));
+          }}
           iconPath="/images/tokens/rteth.svg"
           label="Staked Amount"
           symbol="rtETH"

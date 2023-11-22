@@ -106,7 +106,7 @@ const Stake = () => {
           handleChange={onChange}
           handleMax={onClickMax}
           maxAmount={balance}
-          iconPath="/images/tokens/dpxeth.svg"
+          iconPath="/images/tokens/rteth.svg"
           label="Balance"
           symbol="rtETH"
         />
