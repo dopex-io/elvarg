@@ -166,24 +166,26 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
             sender: user.toLowerCase(),
           }),
       })
-      .then((res) => [
-        ...res.delegatePositions.map((_pos1) => ({
-          amount: BigInt(_pos1.amount),
-          ethAmount: parseUnits(_pos1.wethRequired, 0),
-          rdpxAmount: 0n,
-          txHash: _pos1.id,
-          maturity: parseUnits(_pos1.transaction.timestamp, 0) + 86400n * 5n,
-          timestamp: parseUnits(_pos1.transaction.timestamp, 0),
-        })),
-        ...res.delegateePositions.map((_pos2) => ({
-          amount: BigInt(_pos2.amount),
-          ethAmount: 0n,
-          rdpxAmount: parseUnits(_pos2.rdpxRequired, 0),
-          txHash: _pos2.id,
-          maturity: parseUnits(_pos2.transaction.timestamp, 0) + 86400n * 5n,
-          timestamp: parseUnits(_pos2.transaction.timestamp, 0),
-        })),
-      ])
+      .then((res) =>
+        [
+          ...res.delegatePositions.map((_pos1) => ({
+            amount: BigInt(_pos1.amount),
+            ethAmount: parseUnits(_pos1.wethRequired, 0),
+            rdpxAmount: 0n,
+            txHash: _pos1.id,
+            maturity: parseUnits(_pos1.transaction.timestamp, 0) + 86400n * 5n,
+            timestamp: parseUnits(_pos1.transaction.timestamp, 0),
+          })),
+          ...res.delegateePositions.map((_pos2) => ({
+            amount: BigInt(_pos2.amount),
+            ethAmount: 0n,
+            rdpxAmount: parseUnits(_pos2.rdpxRequired, 0),
+            txHash: _pos2.id,
+            maturity: parseUnits(_pos2.transaction.timestamp, 0) + 86400n * 5n,
+            timestamp: parseUnits(_pos2.transaction.timestamp, 0),
+          })),
+        ].filter((pos) => pos.txHash.includes(user.toLowerCase())),
+      )
       .catch(() => []);
 
     setDelegateBonds(delegateBonds);
@@ -222,6 +224,7 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
   useEffect(() => {
     updateDelegateBonds();
   }, [updateDelegateBonds]);
+
   return {
     userBondsHistoryData,
     userRedeemRequestsHistory,
