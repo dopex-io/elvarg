@@ -62,6 +62,11 @@ const useBondPanelState = (props: Props) => {
     if (!delegated) {
       if (isInputInvalid) {
         return { ...alerts.defaultBond, handler: doNothing };
+      } else if (Number(amount) <= 0.01) {
+        return {
+          ...alerts.minimumBondAmount,
+          handler: doNothing,
+        };
       } else if (isTotalBondCostBreakdownLessThanUserBalance) {
         return {
           ...alerts.insufficientBalance,
@@ -136,9 +141,12 @@ const useBondPanelState = (props: Props) => {
     isTotalBondCostBreakdownLessThanUserBalance,
     isWethApproved,
     isRdpxApproved,
+    hasInsufficientLiquidity,
     approveWeth,
+    setOpen,
     bond,
     setAmount,
+    updateUserBonds,
     isInsufficientWeth,
     bondWithDelegate,
   ]);

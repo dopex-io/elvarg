@@ -55,6 +55,13 @@ const alerts: Record<string, AlertType> = {
     severity: AlertSeverity.info,
     disabled: true,
   },
+  minimumBondAmount: {
+    label: 'Bond',
+    header: 'Minimum bond amount must be greater than 0.01',
+    body: '',
+    severity: AlertSeverity.warning,
+    disabled: true,
+  },
   defaultStake: {
     label: 'Stake',
     header: 'What does staking do?',
