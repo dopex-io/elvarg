@@ -174,7 +174,7 @@ const StrikesTable = () => {
     const data = await getStrikesChain(
       chain?.id ?? 42161,
       selectedOptionsPool.optionsPoolAddress,
-      200,
+      500,
       0,
     );
 
@@ -325,11 +325,13 @@ const StrikesTable = () => {
   ]);
 
   return (
-    <div className="max-h-[400px] overflow-y-auto border-t border-t-carbon">
+    <div className="max-h-[500px] overflow-y-auto border-t border-t-carbon">
       <TableLayout<StrikeItem>
         data={strikes}
         columns={columns}
         isContentLoading={loading}
+        disablePagination={false}
+        pageSize={500}
       />
     </div>
   );
