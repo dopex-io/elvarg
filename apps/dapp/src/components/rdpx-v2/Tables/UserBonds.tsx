@@ -96,10 +96,10 @@ const UserBonds = () => {
 
     const formattedDelegateBonds: UserBond[] = delegateBonds.map((bond) => ({
       id: -1n,
-      maturity: 0n,
-      redeemable: true,
+      maturity: bond.maturity * 1000n,
+      // redeemable: bond.maturity * 1000n < BigInt(new Date().getTime()),
       amount: bond.amount,
-      timestamp: 0n,
+      timestamp: bond.timestamp * 1000n,
     }));
 
     return userBonds.concat(formattedDelegateBonds).map((bond) => {
