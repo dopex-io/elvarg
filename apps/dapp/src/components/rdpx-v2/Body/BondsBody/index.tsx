@@ -19,13 +19,13 @@ import formatBigint from 'utils/general/formatBigint';
 
 import { quickLinks } from 'constants/rdpx';
 
-const actions = ['bonds', 'delegatePositions', 'history'] as const;
+const actions = ['bonds', 'delegatePositions' /*, 'history' */] as const;
 type ActionType = (typeof actions)[number];
 
 const BUTTON_LABELS: { [key in ActionType]: string } = {
   bonds: 'Bonds',
   delegatePositions: 'Delegate Positions',
-  history: 'History',
+  // history: 'History',
 };
 
 const BondsBody = () => {
@@ -103,7 +103,7 @@ const BondsBody = () => {
           </div>
           {active === 'Bonds' ? <UserBonds /> : null}
           {active === 'Delegate Positions' ? <DelegatePositions /> : null}
-          {active === 'History' ? <UserBondsHistory /> : null}
+          {/* {active === 'History' ? <UserBondsHistory /> : null} */}
         </div>
         <UserDataGrid />
       </div>
