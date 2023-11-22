@@ -57,22 +57,32 @@ const BondPanel = () => {
       {panelState ? (
         <PanelBlocker title={panelState.title} body={panelState.body} />
       ) : null}
-      <div className="flex w-full">
-        {BUTTON_LABELS.map((label, index) => (
-          <button
-            key={index}
-            className="flex border-0 mr-2 transition ease-in-out duration-500 rounded-md bg-transparent hover:bg-transparent hover:text-white"
-            onClick={handleClick}
-          >
-            <Typography2
-              variant="subtitle2"
-              weight="400"
-              color={active === label ? 'white' : 'stieglitz'}
+      <div className="flex w-full justify-between">
+        <div className="flex">
+          {BUTTON_LABELS.map((label, index) => (
+            <button
+              key={index}
+              className="flex border-0 mr-2 transition ease-in-out duration-500 rounded-md bg-transparent hover:bg-transparent hover:text-white"
+              onClick={handleClick}
             >
-              {label}
-            </Typography2>
-          </button>
-        ))}
+              <Typography2
+                variant="subtitle2"
+                weight="400"
+                color={active === label ? 'white' : 'stieglitz'}
+              >
+                {label}
+              </Typography2>
+            </button>
+          ))}
+        </div>
+        <a
+          href="https://app.1inch.io/#/42161/simple/swap/ETH/WETH"
+          className="text-xs underline"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Wrap ETH
+        </a>
       </div>
       {active === 'Bond' ? <Bond /> : <Delegate />}
     </div>
