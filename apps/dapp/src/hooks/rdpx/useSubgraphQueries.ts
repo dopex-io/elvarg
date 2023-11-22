@@ -45,6 +45,8 @@ interface DelegateBond {
   ethAmount: bigint;
   rdpxAmount: bigint;
   txHash: String;
+  maturity: bigint;
+  timestamp: bigint;
 }
 
 interface UserAggregate {
@@ -169,6 +171,8 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
           ethAmount: parseUnits(pos.wethRequired, 0),
           rdpxAmount: parseUnits(pos.rdpxRequired, 0),
           txHash: pos.id, // transaction hash is stored as entity id
+          maturity: parseUnits(pos.transaction.timestamp, 0) + 86400n * 5n,
+          timestamp: parseUnits(pos.transaction.timestamp, 0),
         })),
       )
       .catch(() => []);

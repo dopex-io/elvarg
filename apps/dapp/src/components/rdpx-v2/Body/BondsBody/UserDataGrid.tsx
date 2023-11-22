@@ -52,7 +52,7 @@ const UserDataGrid = () => {
           setRtComposition([0n, 0n, 0n]);
         });
     })();
-  }, [balance, simulateContract]);
+  }, [account, balance, simulateContract]);
 
   useEffect(() => {
     updateBalance();

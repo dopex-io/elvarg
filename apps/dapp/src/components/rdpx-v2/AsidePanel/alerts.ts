@@ -49,7 +49,8 @@ const alerts: Record<string, AlertType> = {
     label: 'Bond',
     header: 'Bond rDPX',
     body: `You can bond only using rDPX by utilizing delegated WETH. You receive 25% of the bond's share for committing 25% of the bond's 
-          value, while the remaining is received by the delegate.`,
+          value, while the remaining is received by the delegate. Note that the fee shown below will go to the WETH delegator and reduce 
+          the amount of rtETH you receive. This bond is not linearly vested, and is redeemable only post-maturation.`,
     severity: AlertSeverity.info,
     disabled: true,
   },

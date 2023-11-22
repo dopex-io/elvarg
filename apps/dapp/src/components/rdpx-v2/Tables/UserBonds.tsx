@@ -1,12 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { parseUnits } from 'viem';
 
-import {
-  useAccount,
-  useContractRead,
-  useContractWrite,
-  usePublicClient,
-} from 'wagmi';
+import { useAccount, useContractRead, useContractWrite } from 'wagmi';
 import { writeContract } from 'wagmi/actions';
 
 import useRdpxV2CoreData, { UserBond } from 'hooks/rdpx/useRdpxV2CoreData';
@@ -46,8 +41,11 @@ const UserBonds = () => {
       functionName: 'setApprovalForAll',
       args: [addresses.v2core, true],
     });
-  const { simulateContract } = usePublicClient({
-    chainId: 42161,
+  const { data: userBalance = 0n, refetch: refetchBalance } = useContractRead({
+    abi: ReceiptToken,
+    address: addresses.receiptToken,
+    functionName: 'balanceOf',
+    args: [user],
   });
 
   const handleVest = useCallback(
@@ -60,20 +58,12 @@ const UserBonds = () => {
           args: [id, user],
         });
 
-      const { result: receiptTokensReceived = 0n } = await simulateContract({
-        account: user,
-        abi: RdpxV2Core,
-        address: addresses.v2core,
-        functionName: 'redeemReceiptTokenBonds',
-        args: [id, user],
-      });
-
       const approveStaking = async () =>
         await writeContract({
           abi: ReceiptToken,
           address: addresses.receiptToken,
           functionName: 'approve',
-          args: [addresses.receiptTokenStaking, receiptTokensReceived],
+          args: [addresses.receiptTokenStaking, userBalance],
         });
 
       const stake = async () =>
@@ -82,44 +72,44 @@ const UserBonds = () => {
           address: addresses.receiptTokenStaking,
           functionName: 'stake',
           args: [
-            (receiptTokensReceived * parseUnits('0.98', DECIMALS_TOKEN)) /
+            (userBalance * parseUnits('1', DECIMALS_TOKEN)) /
               parseUnits('1', DECIMALS_TOKEN),
           ],
         });
 
       await vest()
         .then(() =>
-          approveStaking()
-            .then(() => stake())
-            .catch((e) => console.error(e)),
+          refetchBalance().then(() =>
+            approveStaking()
+              .then(() => stake())
+              .catch((e) => console.error(e)),
+          ),
         )
-        .then(() => updateUserBonds().catch((e) => console.error(e)));
+        .then(() => updateUserBonds())
+        .catch((e) => console.error(e));
     },
-    [simulateContract, user, updateUserBonds],
+    [user, userBalance, refetchBalance, updateUserBonds],
   );
 
   const userRdpxBonds = useMemo(() => {
-    if (userBonds.length === 0) return [];
+    if (userBonds.length === 0 && delegateBonds.length === 0) return [];
 
     const formattedDelegateBonds: UserBond[] = delegateBonds.map((bond) => ({
       id: -1n,
-      maturity: 0n,
-      redeemable: true,
+      maturity: bond.maturity * 1000n,
+      // redeemable: bond.maturity * 1000n < BigInt(new Date().getTime()),
       amount: bond.amount,
-      timestamp: 0n,
+      timestamp: bond.timestamp * 1000n,
     }));
 
     return userBonds.concat(formattedDelegateBonds).map((bond) => {
-      const redeemable =
-        bond.maturity <= BigInt(Math.ceil(new Date().getTime()));
-
       let label = !!isApprovedForAll ? 'Vest + Stake' : 'Approve';
       if (bond.id === -1n) {
         label = 'Redeem';
       }
 
       return {
-        tokenId: bond.id,
+        tokenId: bond.id === -1n ? 'Delegated' : String(bond.id),
         maturity: bond.maturity,
         amount: bond.amount,
         redeemable: bond.id > 0n,
