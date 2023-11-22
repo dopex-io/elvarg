@@ -1,10 +1,9 @@
-import { /*useEffect, */ useMemo } from 'react';
-
-// import { useRouter } from 'next/router';
+import { useEffect, useMemo } from 'react';
+import { useRouter } from 'next/router';
 
 import { NextSeo } from 'next-seo';
 
-import useStore from 'hooks/rdpx/useStore';
+import useStore, { rdpxV2Actions, RdpxV2State } from 'hooks/rdpx/useStore';
 
 import PageLayout from 'components/common/PageLayout';
 import BondPanel from 'components/rdpx-v2/AsidePanel/BondPanel';
@@ -20,8 +19,9 @@ import { quickLinks } from 'constants/rdpx';
 import seo from 'constants/seo';
 
 const Main = () => {
-  // const router = useRouter();
+  const router = useRouter();
   const rdpxPageState = useStore((vault) => vault.state);
+  const updateRdpxPageState = useStore((vault) => vault.update);
 
   const renderContent = useMemo(() => {
     switch (rdpxPageState) {
@@ -59,9 +59,17 @@ const Main = () => {
   }, [rdpxPageState]);
 
   // reroute to default page state if slug is empty
-  // useEffect(() => {
-  //   if (router.asPath === '/rdpx-v2') router.push(`/rdpx-v2/${rdpxPageState}`);
-  // }, [rdpxPageState, router]);
+  useEffect(() => {
+    if (!router || !router.query || !router.query.index) return;
+
+    let page = router.query.index[0] as RdpxV2State;
+
+    if (rdpxV2Actions.includes(page)) {
+      updateRdpxPageState(page);
+    } else {
+      updateRdpxPageState('bond');
+    }
+  }, [router, updateRdpxPageState]);
 
   return (
     <div className="bg-contain min-h-screen">
