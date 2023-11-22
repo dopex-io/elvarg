@@ -148,10 +148,15 @@ const Delegate = () => {
         </div>
       </div>
       {panelState.header ? (
+        // <Alert
+        //   header={panelState.header}
+        //   body={panelState.body || ''}
+        //   severity={panelState.severity || AlertSeverity.info}
+        // />
         <Alert
-          header={panelState.header}
-          body={panelState.body || ''}
-          severity={panelState.severity || AlertSeverity.info}
+          header="WETH delegation is temporarily blocked."
+          body=""
+          severity={AlertSeverity.info}
         />
       ) : null}
       <Button
@@ -159,9 +164,10 @@ const Delegate = () => {
         className="w-full mt-2 rounded-md"
         color="primary"
         onClick={panelState.handler}
-        disabled={panelState.disabled}
+        disabled={true}
       >
-        {panelState.label}
+        Delegate
+        {/* {panelState.label} */}
       </Button>
     </div>
   );
