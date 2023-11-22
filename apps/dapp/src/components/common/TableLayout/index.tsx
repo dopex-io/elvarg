@@ -16,6 +16,7 @@ interface Props<T> {
   isContentLoading: boolean;
   rowSpacing?: number;
   pageSize?: number;
+  disablePagination?: boolean;
   disclosure?: React.ReactElement<Partial<T>>[];
   fill?: string;
 }
@@ -34,6 +35,7 @@ const TableLayout = <T extends object>({
   disclosure,
   rowSpacing = 1,
   pageSize = 5,
+  disablePagination = false,
   isContentLoading = true,
   fill = 'bg-cod-gray',
 }: Props<T>) => {
@@ -153,7 +155,7 @@ const TableLayout = <T extends object>({
           </tbody>
         </table>
       </div>
-      {data.length > getState().pagination.pageSize ? (
+      {!disablePagination && data.length > getState().pagination.pageSize ? (
         <div className="sticky flex flex-wrap justify-center sm:justify-end border-t border-umbra py-3 px-3 text-xs text-stieglitz space-x-3">
           <div className="flex space-x-2">
             <span className="flex my-auto text-center space-x-1">
