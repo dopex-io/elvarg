@@ -42,8 +42,7 @@ const alerts: Record<string, AlertType> = {
     label: 'Bond',
     header: 'Bond rDPX',
     body: `You can bond only using rDPX by utilizing delegated WETH. You receive 25% of the bond's share for committing 25% of the bond's 
-          value, while the remaining is received by the delegate. Note that a percentage of the discount on this bond is sent to the 
-          delegate(s).`,
+          value, while the remaining is received by the delegate.`,
     severity: AlertSeverity.info,
     disabled: true,
   },
