@@ -30,6 +30,13 @@ const alerts: Record<string, AlertType> = {
     severity: AlertSeverity.info,
     disabled: true,
   },
+  maxDelegateFee: {
+    label: 'Fee too high.',
+    header: 'You must set a fee between 0.1% and 20%.',
+    body: null,
+    severity: AlertSeverity.info,
+    disabled: true,
+  },
   defaultDelegate: {
     label: 'Delegate',
     header: 'What does delegating do?',

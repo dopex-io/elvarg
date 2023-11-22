@@ -13,6 +13,7 @@ interface Props {
   updateAllowance: () => void;
   delegate: () => void;
   updateUserDelegatePositions: () => void;
+  fee: string;
 }
 
 const useDelegatePanelState = (props: Props) => {
@@ -24,6 +25,7 @@ const useDelegatePanelState = (props: Props) => {
     updateAllowance,
     delegate,
     updateUserDelegatePositions,
+    fee,
   } = props;
 
   return useMemo(() => {
@@ -31,6 +33,11 @@ const useDelegatePanelState = (props: Props) => {
     if (Number(amount) === 0 || isNaN(Number(amount))) {
       return {
         ...alerts.defaultDelegate,
+        handler: doNothing,
+      };
+    } else if (Number(fee) > 20) {
+      return {
+        ...alerts.maxDelegateFee,
         handler: doNothing,
       };
     } else if (balance < parseUnits(amount, DECIMALS_TOKEN)) {
@@ -63,6 +70,7 @@ const useDelegatePanelState = (props: Props) => {
     approved,
     balance,
     delegate,
+    fee,
     updateAllowance,
     updateUserDelegatePositions,
   ]);
