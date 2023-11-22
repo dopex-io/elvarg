@@ -98,14 +98,14 @@ export const getLiquidityBodyCell = (
   underlying: string,
   usdValue: BigNumber,
   underlyingValue: BigNumber,
-  showUsd: boolean = true,
+  showUsd: boolean = true
 ) => {
   if (showUsd) {
     return (
       <BodyCell
         data={`$${formatAmount(
           getUserReadableAmount(usdValue, DECIMALS_USD),
-          2,
+          2
         )}`}
       />
     );
@@ -114,7 +114,7 @@ export const getLiquidityBodyCell = (
     <BodyCell
       data={`${formatAmount(
         getUserReadableAmount(underlyingValue, DECIMALS_TOKEN),
-        2,
+        2
       )} ${underlying.toUpperCase()}`}
     />
   );
@@ -138,7 +138,7 @@ export const getStrikeBodyCell = (strike: BigNumber) => {
     <BodyCell
       data={`$${formatAmount(
         getUserReadableAmount(strike, DECIMALS_STRIKE),
-        2,
+        2
       )}`}
     />
   );
@@ -180,7 +180,7 @@ export const LiquidityDialogRow = ({
         data={data}
         value={`${formatAmount(
           getUserReadableAmount(lpPositionSelected?.usdLiquidity, DECIMALS_USD),
-          2,
+          2
         )} USDC.e`}
       />
     );
@@ -191,9 +191,9 @@ export const LiquidityDialogRow = ({
       value={`${formatAmount(
         getUserReadableAmount(
           lpPositionSelected?.underlyingLiquidity,
-          DECIMALS_TOKEN,
+          DECIMALS_TOKEN
         ),
-        2,
+        2
       )} ${underlying}`}
     />
   );

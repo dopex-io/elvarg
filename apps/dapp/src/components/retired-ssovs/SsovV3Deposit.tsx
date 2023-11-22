@@ -1,13 +1,11 @@
 import { BigNumber, ethers } from 'ethers';
 
 import Box from '@mui/material/Box';
-
+import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
-import useSendTx from 'hooks/useSendTx';
-
-import SignerButton from 'components/common/SignerButton';
 import Typography from 'components/UI/Typography';
+import SignerButton from 'components/common/SignerButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 

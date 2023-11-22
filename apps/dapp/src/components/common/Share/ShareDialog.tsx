@@ -5,10 +5,9 @@ import DownloadIcon from '@mui/icons-material/Download';
 import TwitterIcon from '@mui/icons-material/Twitter';
 
 import { Button } from '@dopex-io/ui';
+import useShare from 'hooks/useShare';
 import { toPng } from 'html-to-image';
 import { toast } from 'react-hot-toast';
-
-import useShare from 'hooks/useShare';
 
 import Dialog from 'components/UI/Dialog';
 
@@ -57,9 +56,9 @@ const ShareDialog = () => {
     window.open(
       getTwitterIntentURL(
         'Latest trade on @dopex_io ',
-        getShareURL(_imageID, shareImageProps.customPath || '/'),
+        getShareURL(_imageID, shareImageProps.customPath || '/')
       ),
-      '_blank',
+      '_blank'
     );
   }, [imageID, uploadImage, shareImageProps.customPath]);
 
@@ -87,7 +86,7 @@ const ShareDialog = () => {
       _imageID = await uploadImage();
     }
     navigator.clipboard.writeText(
-      getShareURL(_imageID, shareImageProps.customPath || '/'),
+      getShareURL(_imageID, shareImageProps.customPath || '/')
     );
     toast.success('Copied!!! ');
   }, [imageID, uploadImage, shareImageProps.customPath]);

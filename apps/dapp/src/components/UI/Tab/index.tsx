@@ -21,7 +21,7 @@ const Tab = ({ active, title, onClick, disabled = false }: Props) => {
       className={cx(
         'text-center w-1/2 pt-0.5 pb-1 group rounded hover:opacity-80',
         active && 'bg-carbon hover:bg-mineshaft',
-        disabled && 'cursor-not-allowed',
+        disabled && 'cursor-not-allowed'
       )}
       onClick={disabled ? noop : onClick}
       role="button"

@@ -9,7 +9,6 @@ import Slide from '@mui/material/Slide';
 import SearchIcon from '@mui/icons-material/Search';
 
 import { Addresses } from '@dopex-io/sdk';
-
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
@@ -54,7 +53,7 @@ const TokenSelector = ({
       });
       return value;
     },
-    [tokenPrices, userAssetBalances, chainId],
+    [tokenPrices, userAssetBalances, chainId]
   );
 
   const handleClose = useCallback(() => setOpen(false), [setOpen]);
@@ -62,7 +61,7 @@ const TokenSelector = ({
   const handleSearch = useCallback(
     (e: { target: { value: SetStateAction<string> } }) =>
       setSearchTerm(e.target.value),
-    [],
+    []
   );
 
   return open ? (
@@ -141,9 +140,9 @@ const TokenSelector = ({
                       {formatAmount(
                         getUserReadableAmount(
                           BigNumber.from(userAssetBalances[symbol] ?? '0'),
-                          getTokenDecimals(symbol, chainId),
+                          getTokenDecimals(symbol, chainId)
                         ),
-                        3,
+                        3
                       )}{' '}
                     </Typography>
                     <Typography
@@ -154,7 +153,7 @@ const TokenSelector = ({
                     </Typography>
                   </Box>
                 </Box>
-              ) : null,
+              ) : null
             )}
         </Box>
       </Slide>

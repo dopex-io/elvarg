@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
+
 import { ethers } from 'ethers';
 
 import Box from '@mui/material/Box';
-
+import useSendTx from 'hooks/useSendTx';
 import { useBoundStore } from 'store';
 
-import useSendTx from 'hooks/useSendTx';
-
-import SignerButton from 'components/common/SignerButton';
 import Typography from 'components/UI/Typography';
+import SignerButton from 'components/common/SignerButton';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
@@ -28,7 +27,7 @@ const SsovV2Deposit = ({ deposit }: any) => {
       const _contract = new ethers.Contract(
         deposit.ssovAddress,
         v2Abi,
-        provider,
+        provider
       );
 
       const _strike = await _contract['getEpochStrikes'](deposit.epoch);

@@ -1,5 +1,4 @@
 import IconButton from '@mui/material/IconButton';
-
 import cx from 'classnames';
 
 interface WatchAssetOptions {
@@ -31,7 +30,7 @@ function AddTokenButton({
             console.log(`${options.symbol} successfully added to wallet!`);
           } else {
             throw new Error(
-              `Something went wrong when adding ${options.symbol} to wallet.`,
+              `Something went wrong when adding ${options.symbol} to wallet.`
             );
           }
         })
@@ -43,7 +42,7 @@ function AddTokenButton({
     <IconButton
       className={cx(
         'text-white border-transparent hover:border-wave-blue border rounded-full border-solid p-0',
-        className,
+        className
       )}
       onClick={addToken}
       size="large"

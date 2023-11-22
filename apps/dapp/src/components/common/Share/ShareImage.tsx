@@ -1,4 +1,4 @@
-import { forwardRef, ReactNode } from 'react';
+import { ReactNode, forwardRef } from 'react';
 
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -27,7 +27,7 @@ const Stat = ({ name, value }: StatProps) => {
 
 const ShareImage = (
   { title, percentage, stats, customPath = '/' }: ShareImageProps,
-  ref: any,
+  ref: any
 ) => {
   return (
     <div

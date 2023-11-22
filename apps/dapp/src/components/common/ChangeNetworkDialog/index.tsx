@@ -1,8 +1,7 @@
 import { useCallback, useEffect } from 'react';
 
-import { useSwitchNetwork } from 'wagmi';
-
 import { useBoundStore } from 'store';
+import { useSwitchNetwork } from 'wagmi';
 
 import Dialog from 'components/UI/Dialog';
 
@@ -52,7 +51,7 @@ const ChangeNetworkDialog = () => {
       if (reason === 'backdropClick') return;
       setChangeNetwork('close');
     },
-    [setChangeNetwork],
+    [setChangeNetwork]
   );
 
   return (

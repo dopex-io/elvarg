@@ -69,12 +69,12 @@ const PnlChart = (props: PnlChartProps) => {
       const { payload } = activePayload[0];
       setState({ price: payload.price, pnl: payload.value });
     },
-    [],
+    []
   );
 
   const handleMouseLeave = useCallback(
     () => setState({ price, pnl }),
-    [price, pnl],
+    [price, pnl]
   );
 
   return (

@@ -47,7 +47,7 @@ const Alert = (props: Props) => {
   const theme = useMemo(() => {
     switch (severity) {
       case 0:
-        return 'bg-carbon text-white';
+        return 'bg-umbra text-white';
       case 1:
         return 'bg-jaffa';
       case 2:
@@ -69,7 +69,7 @@ const Alert = (props: Props) => {
       </span>
       {body ? (
         <p
-          className={`text-xs break-inside-avoid-column ${
+          className={`text-xs break-all ${
             severity === AlertSeverity.info ? 'text-stieglitz' : null
           }`}
         >

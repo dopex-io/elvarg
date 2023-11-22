@@ -20,7 +20,7 @@ const RdpxAirdropButton = ({ account }: { account: string }) => {
     queryKey: ['rdpxAirdrop', account],
     queryFn: () =>
       fetch(`${DOPEX_API_BASE_URL}/v2/quest/rdpxAirdrop/${account}`).then(
-        (res) => res.json(),
+        (res) => res.json()
       ),
   });
 

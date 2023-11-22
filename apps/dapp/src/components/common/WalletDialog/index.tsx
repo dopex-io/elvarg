@@ -6,13 +6,12 @@ import Box from '@mui/material/Box';
 import LaunchIcon from '@mui/icons-material/Launch';
 
 import delay from 'lodash/delay';
+import { useBoundStore } from 'store';
 import { useDisconnect } from 'wagmi';
 
-import { useBoundStore } from 'store';
-
-import BalanceItem from 'components/common/BalanceItem';
 import Dialog from 'components/UI/Dialog';
 import Typography from 'components/UI/Typography';
+import BalanceItem from 'components/common/BalanceItem';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import displayAddress from 'utils/general/displayAddress';
@@ -102,7 +101,7 @@ const WalletDialog = ({ open, handleClose, userBalances }: Props) => {
                   key={index}
                   balance={getUserReadableAmount(
                     BigNumber.from(userBalances[key] ?? '0'),
-                    chainId === 56 ? 8 : 18,
+                    chainId === 56 ? 8 : 18
                   ).toString()}
                   decimals={18}
                   token={key}

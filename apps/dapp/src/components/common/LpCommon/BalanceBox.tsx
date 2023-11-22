@@ -34,7 +34,7 @@ const BalanceBox = ({
           <Typography variant="h6" className="text-sm pl-1 pt-2">
             {`${formatAmount(
               getUserReadableAmount(usdBalance, DECIMALS_USD),
-              2,
+              2
             )}`}
             <span className="text-stieglitz ml-1">USDC.e</span>
           </Typography>
@@ -42,7 +42,7 @@ const BalanceBox = ({
           <Typography variant="h6" className="text-sm pl-1 pt-2">
             {`${formatAmount(
               getUserReadableAmount(underlyingBalance, DECIMALS_TOKEN),
-              2,
+              2
             )}`}
             <span className="text-stieglitz ml-1">
               {underlyingSymbol?.toUpperCase()}

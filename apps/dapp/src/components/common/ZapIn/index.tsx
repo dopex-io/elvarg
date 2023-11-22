@@ -19,13 +19,12 @@ import Tooltip from '@mui/material/Tooltip';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 import { LoaderIcon } from 'react-hot-toast';
+import { useBoundStore } from 'store';
 import AlarmIcon from 'svgs/icons/AlarmIcon';
 import ArrowLeftIcon from 'svgs/icons/ArrowLeftIcon';
 import CrossIcon from 'svgs/icons/CrossIcon';
 import SettingsIcon from 'svgs/icons/SettingsIcon';
 import ZapIcon from 'svgs/icons/ZapIcon';
-
-import { useBoundStore } from 'store';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -117,19 +116,19 @@ const ZapIn = ({
 
   const handleOpenSettings = useCallback(
     (event) => setAnchorEl(event.currentTarget),
-    [],
+    []
   );
 
   const handleCloseSettings = useCallback(() => setAnchorEl(null), []);
 
   const handleSlippageSlider = useCallback(
     (_e, value: number) => setSlippageTolerance(value),
-    [setSlippageTolerance],
+    [setSlippageTolerance]
   );
 
   const handleOpenTokenSelector = useCallback(
     () => setIsTokenSelectorVisible(true),
-    [],
+    []
   );
 
   return (
@@ -238,7 +237,7 @@ const ZapIn = ({
                 className="h-12 text-2xl text-white ml-2 mr-3 font-mono"
                 value={getUserReadableAmount(
                   userAssetBalances[fromTokenSymbol.toLocaleUpperCase()],
-                  getTokenDecimals(fromTokenSymbol, chainId),
+                  getTokenDecimals(fromTokenSymbol, chainId)
                 ).toFixed(6)}
                 readOnly={true}
                 classes={{ input: 'text-right' }}
@@ -276,14 +275,14 @@ const ZapIn = ({
                         ? formatAmount(
                             getUserReadableAmount(
                               quote['toTokenAmount'],
-                              quote['toToken']['decimals'],
+                              quote['toToken']['decimals']
                             ) /
                               getUserReadableAmount(
                                 quote['fromTokenAmount'],
-                                quote['fromToken']['decimals'],
+                                quote['fromToken']['decimals']
                               ) /
                               lpPrice,
-                            8,
+                            8
                           )
                         : ''}{' '}
                       {isPut ? '2CRV' : toTokenSymbol}{' '}
@@ -310,14 +309,14 @@ const ZapIn = ({
                             ? formatAmount(
                                 getUserReadableAmount(
                                   quote['toTokenAmount'],
-                                  quote['toToken']['decimals'],
+                                  quote['toToken']['decimals']
                                 ) /
                                   getUserReadableAmount(
                                     quote['fromTokenAmount'],
-                                    quote['fromToken']['decimals'],
+                                    quote['fromToken']['decimals']
                                   ) /
                                   lpPrice,
-                                18,
+                                18
                               )
                             : '-'}
                         </Typography>
@@ -339,15 +338,15 @@ const ZapIn = ({
                             ? formatAmount(
                                 getUserReadableAmount(
                                   quote['toTokenAmount'],
-                                  quote['toToken']['decimals'],
+                                  quote['toToken']['decimals']
                                 ) /
                                   getUserReadableAmount(
                                     quote['fromTokenAmount'],
-                                    quote['fromToken']['decimals'],
+                                    quote['fromToken']['decimals']
                                   ) /
                                   lpPrice /
                                   (1 + slippageTolerance / 100),
-                                18,
+                                18
                               )
                             : '-'}
                         </Typography>

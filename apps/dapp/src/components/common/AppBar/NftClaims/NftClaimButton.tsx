@@ -23,7 +23,7 @@ const NftClaimButton = ({ account, name }: NftClaimButtonProps) => {
     queryKey: [name, account],
     queryFn: () =>
       fetch(
-        `${DOPEX_API_BASE_URL}/v2/quest/${name.toLowerCase()}/${account}`,
+        `${DOPEX_API_BASE_URL}/v2/quest/${name.toLowerCase()}/${account}`
       ).then((res) => res.json()),
   });
 

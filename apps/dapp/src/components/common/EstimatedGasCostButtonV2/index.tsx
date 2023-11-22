@@ -39,8 +39,8 @@ const EstimatedGasCostButton = ({ gas, chainId }: Props) => {
         setEstimatedGasCost(
           getUserReadableAmount(
             BigNumber.from(String(gas)).mul(feeData.gasPrice),
-            18,
-          ),
+            18
+          )
         );
     };
     updateEstimatedGasCost();
