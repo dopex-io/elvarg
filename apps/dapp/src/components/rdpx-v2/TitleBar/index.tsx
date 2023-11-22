@@ -9,7 +9,7 @@ import { useAccount } from 'wagmi';
 import useTokenData from 'hooks/helpers/useTokenData';
 import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
-import useRewardAPRs from 'hooks/rdpx/useRewardAPRs';
+import useRewardAPR from 'hooks/rdpx/useRewardAPR';
 import useStore, { rdpxV2Actions } from 'hooks/rdpx/useStore';
 
 import TitleItem from 'components/rdpx-v2/TitleBar/TitleItem';
@@ -68,7 +68,7 @@ const TitleBar = () => {
     staleTime: 300000,
   });
 
-  const { rtRewardAPR, ppvRewardAPR } = useRewardAPRs();
+  const { rtRewardAPR, ppvRewardAPR } = useRewardAPR();
 
   const { address: user = '0x' } = useAccount();
   const { balance: lpWethBalance, updateBalance: updateLpWethBalance } =

@@ -8,7 +8,7 @@ import { DECIMALS_TOKEN } from 'constants/index';
 import CurveMultiRewards from 'constants/rdpx/abis/CurveMultiRewards';
 import addresses from 'constants/rdpx/addresses';
 
-const useRewardAPRs = () => {
+const useRewardAPR = () => {
   const { data: rewardPerTokenPPV = 0n } = useContractRead({
     abi: CurveMultiRewards,
     address: addresses.perpVaultStaking,
@@ -55,4 +55,4 @@ const useRewardAPRs = () => {
   }, [rewardPerTokenPPV, rewardPerTokenRT, rewardsDataPPV, rewardsDataRT]);
 };
 
-export default useRewardAPRs;
+export default useRewardAPR;
