@@ -109,7 +109,7 @@ const UserBonds = () => {
       }
 
       return {
-        tokenId: bond.id,
+        tokenId: bond.id === -1n ? 'Delegated' : String(bond.id),
         maturity: bond.maturity,
         amount: bond.amount,
         redeemable: bond.id > 0n,
