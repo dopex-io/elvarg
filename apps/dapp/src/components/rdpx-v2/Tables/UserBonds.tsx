@@ -100,6 +100,8 @@ const UserBonds = () => {
       // redeemable: bond.maturity * 1000n < BigInt(new Date().getTime()),
       amount: bond.amount,
       timestamp: bond.timestamp * 1000n,
+      vestedAmount: 0n,
+      claimableBalance: 0n,
     }));
 
     return userBonds.concat(formattedDelegateBonds).map((bond) => {
@@ -111,9 +113,13 @@ const UserBonds = () => {
       return {
         tokenId: bond.id === -1n ? 'Delegated' : String(bond.id),
         maturity: bond.maturity,
-        amount: bond.amount,
         redeemable: bond.id > 0n,
         timestamp: bond.timestamp,
+        claimData: {
+          vested: bond.vestedAmount,
+          claimable: bond.claimableBalance,
+          amount: bond.amount,
+        },
         button: {
           label: label,
           id: bond.id,

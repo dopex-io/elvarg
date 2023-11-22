@@ -13,7 +13,7 @@ import {
   getUserDelegatesDocument,
 } from 'graphql/rdpx-v2';
 
-import { DECIMALS_TOKEN } from 'constants/index';
+import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
 import RdpxReserve from 'constants/rdpx/abis/RdpxReserve';
 import RdpxV2Bond from 'constants/rdpx/abis/RdpxV2Bond';
 import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
@@ -42,6 +42,8 @@ export interface UserBond {
   maturity: bigint;
   timestamp: bigint;
   id: bigint;
+  vestedAmount: bigint;
+  claimableBalance: bigint;
 }
 
 export interface DelegatePosition {
@@ -227,15 +229,33 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
     }
     let userBonds = await Promise.all(multicallAggregate);
 
+    const _userBonds = userBonds.map((bond, i) => {
+      const rate =
+        (bond[0] * parseUnits('1', DECIMALS_STRIKE)) / (bond[1] - bond[2]);
+
+      const vestedAmount =
+        (rate * (bond[3] - bond[2])) / parseUnits('1', DECIMALS_STRIKE);
+
+      const endTime =
+        bond[1] < BigInt((new Date().getTime() / 1000).toFixed(0))
+          ? bond[1]
+          : BigInt((new Date().getTime() / 1000).toFixed(0));
+
+      const claimableBalance =
+        (rate * (endTime - bond[3])) / parseUnits('1', DECIMALS_STRIKE);
+
+      return {
+        id: tokenIds[i],
+        amount: bond[0],
+        maturity: bond[1] * 1000n,
+        timestamp: bond[2],
+        vestedAmount,
+        claimableBalance,
+      };
+    });
+
     try {
-      setUserBonds(
-        userBonds.map((bond, index) => ({
-          amount: bond[0],
-          maturity: bond[1] * 1000n,
-          timestamp: bond[2],
-          id: tokenIds[index],
-        })),
-      );
+      setUserBonds(_userBonds);
       setLoading(false);
     } catch (e) {
       console.error(e);

@@ -12,7 +12,6 @@ import Charts from 'components/rdpx-v2/Charts';
 import QuickLink from 'components/rdpx-v2/QuickLink';
 import DelegatePositions from 'components/rdpx-v2/Tables/DelegatePositions';
 import UserBonds from 'components/rdpx-v2/Tables/UserBonds';
-import UserBondsHistory from 'components/rdpx-v2/Tables/UserBondsHistory';
 import Typography2 from 'components/UI/Typography2';
 
 import formatBigint from 'utils/general/formatBigint';
