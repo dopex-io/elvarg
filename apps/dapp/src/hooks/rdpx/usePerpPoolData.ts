@@ -12,6 +12,7 @@ import { /*multicall,*/ readContract, readContracts } from 'wagmi/actions';
 // import { DOPEX_RDPX_V2_SUBGRAPH_API_URL } from '../../../codegen';
 
 import { DECIMALS_TOKEN } from 'constants/index';
+import CurveMultiRewards from 'constants/rdpx/abis/CurveMultiRewards';
 import PerpVault from 'constants/rdpx/abis/PerpVault';
 import PerpVaultLp from 'constants/rdpx/abis/PerpVaultLp';
 import addresses from 'constants/rdpx/addresses';
@@ -47,6 +48,7 @@ interface UserData {
   isClaimQueued: boolean;
   claimableTime: bigint;
   userShareOfFunding: bigint;
+  userStakedLp: bigint;
   redeemRequests: {
     sender: string;
     amount: bigint;
@@ -233,29 +235,38 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
   const updateUserData = useCallback(async () => {
     if (user === '0x' || vaultState.expiry === 0n) return;
 
-    const [{ result: userSharesLocked = 0n }, { result: userLpShares = 0n }] =
-      await readContracts({
-        // multicall
-        contracts: [
-          {
-            ...perpPoolConfig,
-            functionName: 'userSharesLocked',
-            args: [user, vaultState.currentEpoch],
-          },
-          {
-            ...perpLpConfig,
-            functionName: 'balanceOf',
-            args: [user],
-          },
-        ],
-      });
-    const nonZeroDenominator = vaultState.totalLpShares || 1n;
+    const [
+      { result: userSharesLocked = 0n },
+      { result: userLpShares = 0n },
+      { result: userStakedLp = 0n },
+    ] = await readContracts({
+      // multicall
+      contracts: [
+        {
+          ...perpPoolConfig,
+          functionName: 'userSharesLocked',
+          args: [user, vaultState.currentEpoch],
+        },
+        {
+          ...perpLpConfig,
+          functionName: 'balanceOf',
+          args: [user],
+        },
+        {
+          abi: CurveMultiRewards,
+          address: addresses.perpVaultStaking,
+          functionName: 'balanceOf',
+          args: [user],
+        },
+      ],
+    });
+    const nonZeroDenominator = vaultState.totalLpShares + userStakedLp || 1n;
     const userShareOfFunding =
       (parseUnits(
         vaultState.totalFundingForCurrentEpoch.toString(),
         DECIMALS_TOKEN,
       ) *
-        parseUnits(userLpShares.toString(), DECIMALS_TOKEN)) /
+        parseUnits((userLpShares + userStakedLp).toString(), DECIMALS_TOKEN)) /
       parseUnits(
         nonZeroDenominator.toString(),
         nonZeroDenominator === 1n ? 1 : DECIMALS_TOKEN * 2,
@@ -271,7 +282,8 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
 
     const shareComposition = vaultState.oneLpShare.map(
       (tokenShare) =>
-        (tokenShare * userLpShares) / parseUnits('1', DECIMALS_TOKEN),
+        (tokenShare * (userLpShares + userStakedLp)) /
+        parseUnits('1', DECIMALS_TOKEN),
     ) as [bigint, bigint];
 
     // todo: prune redeemRequests after claim(); requires claim event
@@ -327,12 +339,13 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
     setUserData((prev) => ({
       ...prev,
       userSharesLocked,
-      totalUserShares: userLpShares,
+      totalUserShares: userLpShares + userStakedLp,
       isClaimQueued,
       shareComposition,
       claimableTime,
       userShareOfFunding,
       redeemRequests: resolved,
+      userStakedLp,
     }));
     setLoading(false);
   }, [user, vaultState]);

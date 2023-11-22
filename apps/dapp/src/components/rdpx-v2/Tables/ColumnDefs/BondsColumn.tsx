@@ -11,7 +11,7 @@ import formatBigint from 'utils/general/formatBigint';
 import { DECIMALS_TOKEN } from 'constants/index';
 
 export interface UserBonds {
-  tokenId: bigint;
+  tokenId: string;
   maturity: bigint;
   amount: bigint;
   redeemable: Boolean;
@@ -31,7 +31,7 @@ const columns = [
     header: 'Bond ID',
     cell: (info) => (
       <span className="space-x-2 text-left">
-        <p className="inline-block">{Number(info.getValue())}</p>
+        <p className="inline-block">{info.getValue()}</p>
       </span>
     ),
   }),

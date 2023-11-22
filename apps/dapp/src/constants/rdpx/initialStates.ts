@@ -46,6 +46,7 @@ const initialContractStates: {
       claimableTime: 0n,
       userShareOfFunding: 0n,
       shareComposition: [0n, 0n] as const,
+      userStakedLp: 0n,
       redeemRequests: [],
     },
   },

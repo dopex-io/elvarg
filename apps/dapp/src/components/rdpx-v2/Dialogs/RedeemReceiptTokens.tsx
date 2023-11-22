@@ -75,7 +75,7 @@ const RedeemReceiptTokens = (props: Props) => {
         })
         .catch(() => setRtComposition([0n, 0n, 0n]));
     })();
-  }, [balance, simulateContract]);
+  }, [account, balance, simulateContract]);
 
   const panelState = useMemo(() => {
     if (Number(amount) === 0) {
