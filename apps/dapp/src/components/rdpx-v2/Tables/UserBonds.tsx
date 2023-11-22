@@ -133,7 +133,7 @@ const UserBonds = () => {
           id: bond.id,
           redeemable: bond.id > 0n,
           handleRedeem: () => {
-            if (bond.maturity < 0n) {
+            if (bond.id > 0n) {
               !!isApprovedForAll
                 ? handleVest(bond.id)
                     .then(() => approveStaking().then(() => handleStake()))
