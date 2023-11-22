@@ -81,9 +81,9 @@ const seo = {
     url: `${HOST_URL}/rdpx-v2/mint`,
     banner:
       'https://res.cloudinary.com/dxitdndu3/image/upload/v1684326255/dopex_images/preview_images/default_qfq5rc.png',
-    alt: 'RDPX V2',
-    title: 'RDPX V2 | Dopex',
-    description: 'Bond, Redeem, Accrue Rewards with RDPX',
+    alt: 'rDPX V2',
+    title: 'rDPX V2 | Dopex',
+    description: 'Bond, Redeem, Accrue Rewards with rDPX',
   },
   clamm: {
     url: `${HOST_URL}/clamm`,
