@@ -1,78 +1,68 @@
 import { Button } from '@dopex-io/ui';
 
-import Sparkline from '../Sparkline';
+import { formatAmount } from 'utils/general';
 
-const fakeData = [
-  { price: 1, timestamp: '1/10/2023' },
-  { price: 1.2, timestamp: '8/20/2023' },
-  { price: 1.1, timestamp: '11/3/2023' },
-  { price: 1.12, timestamp: '4/6/2023' },
-  { price: 1.23, timestamp: '9/19/2023' },
-  { price: 1.19, timestamp: '2/11/2023' },
-  { price: 1.12, timestamp: '4/6/2023' },
-  { price: 1.15, timestamp: '4/6/2023' },
-  { price: 1.2, timestamp: '4/6/2023' },
-  { price: 1, timestamp: '1/10/2023' },
-  { price: 1.2, timestamp: '8/20/2023' },
-  { price: 1.1, timestamp: '11/3/2023' },
-  { price: 1.12, timestamp: '4/6/2023' },
-  { price: 1.23, timestamp: '9/19/2023' },
-  { price: 1.19, timestamp: '2/11/2023' },
-  { price: 1.12, timestamp: '4/6/2023' },
-  { price: 1.15, timestamp: '4/6/2023' },
-  { price: 1.2, timestamp: '4/6/2023' },
-];
+import CardHero from './CardHero';
+import ProductCard from './ProductCard';
+
+interface VaultRowProps {
+  name: string;
+  imageURL: string;
+  vaultURL: string;
+  tvl: number;
+  apy: number;
+}
+
+const VaultRow = ({ name, vaultURL, imageURL, apy, tvl }: VaultRowProps) => {
+  return (
+    <div className="grid grid-cols-4 items-center">
+      <span className="flex space-x-2 items-center">
+        <img src={imageURL} alt={`eth-token-image`} className="w-8 h-auto" />
+        <span>{name}</span>
+      </span>
+      <span className="text-wave-blue">
+        {formatAmount(tvl)} <span className="text-xs text-white">TVL</span>
+      </span>
+      <span className="text-up-only">
+        {apy.toFixed()}% <span className="text-xs text-white">APY</span>
+      </span>
+      <Button
+        variant="outlined"
+        onClick={() => {
+          window.open(vaultURL, '_blank');
+        }}
+      >
+        Deposit
+      </Button>
+    </div>
+  );
+};
 
 const RdpxV2Card = () => {
   return (
-    <div className="sm:w-[496px] w-[85vw] h-[220px] relative">
-      <div className="bg-black bg-opacity-30 shadow-2xl z-20 rounded-2xl absolute backdrop-blur-[6px] flex items-center justify-center w-full h-full">
-        <p className="text-xl">
-          <s>REDACTED</s>
-        </p>
+    <ProductCard>
+      <CardHero
+        name="rDPX V2"
+        description="Use rDPX & ETH to earn yield"
+        apy={57}
+      />
+      <div className="flex flex-col space-y-4">
+        <VaultRow
+          vaultURL="/rdpx-v2/bond"
+          name="rtETH"
+          imageURL="/images/tokens/rteth.svg"
+          apy={57}
+          tvl={9300000}
+        />
+        <VaultRow
+          vaultURL="/rdpx-v2/lp"
+          name="RPPV"
+          imageURL="/images/tokens/eth.svg"
+          apy={43}
+          tvl={3000000}
+        />
       </div>
-      <div className="p-6">
-        <div className="flex mb-6">
-          <img
-            src="/images/tokens/rdpx.svg"
-            alt="rdpx-token-image"
-            className="w-12 h-12 mr-4"
-          />
-          <div className="flex flex-col items-start flex-grow">
-            <div className="font-bold text-lg">rDPX V2</div>
-            <div className="text-sm text-stieglitz text-start">
-              Bond rDPX & ETH to earn yield
-            </div>
-          </div>
-          <div className="text-sm float-right">
-            up to{' '}
-            <span className="text-up-only text-xl font-bold">38% APY</span>
-          </div>
-        </div>
-        <div className="flex flex-col space-y-4">
-          <div className="grid gap-4 grid-cols-3 xs:grid-cols-4 items-center">
-            <span>rtETH</span>
-            <div className="w-20 h-8 hidden xs:block">
-              <Sparkline data={fakeData} />
-            </div>
-            <span className="text-sm">
-              <span className="text-up-only text-base">37.9%</span> APY
-            </span>
-            <Button className="!bg-black !bg-opacity-30">Bond</Button>
-          </div>
-          <div className="grid gap-4 grid-cols-3 xs:grid-cols-4 items-center">
-            <span>ESV</span>
-            <div className="w-20 h-8 hidden xs:block">
-              <Sparkline data={fakeData} />
-            </div>
-            <span className="text-sm">
-              <span className="text-up-only text-base">32.1%</span> APY
-            </span>
-            <Button className="!bg-black !bg-opacity-30">Deposit</Button>
-          </div>
-        </div>
-      </div>
-    </div>
+    </ProductCard>
   );
 };
 

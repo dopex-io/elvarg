@@ -14,3 +14,5 @@ export const HOST_URL = process.env['NEXT_PUBLIC_HOST_URL'];
 
 export const VARROCK_BASE_API_URL =
   process.env['NEXT_PUBLIC_VARROCK_API_BASE_URL'];
+
+export const RDPX_V2_STATE = process.env['NEXT_PUBLIC_RDPX_V2_STATE'];

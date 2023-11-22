@@ -69,20 +69,6 @@ export const CHAINS: {
     },
     displayTokens: ['ETH', 'DPX', 'RDPX'],
   },
-  421613: {
-    name: 'Testnet',
-    rpc: `https://arbitrum-goerli.infura.io/v3/${INFURA_PROJECT_ID}`,
-    publicRpc: 'https://arbitrum-goerli.infura.io/v3',
-    explorer: 'https://testnet.arbiscan.io/',
-    nativeToken: 'ETH',
-    icon: '/images/networks/arbitrum.svg',
-    tokenDecimals: {
-      USDT: 6,
-      USDC: 6,
-      WETH: 18,
-    },
-    displayTokens: ['ETH'],
-  },
 };
 
 export const CHAIN_PUBLIC_RPCS = Object.keys(CHAINS).reduce((acc, chainId) => {
