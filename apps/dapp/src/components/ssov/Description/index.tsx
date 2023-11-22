@@ -76,7 +76,7 @@ const Description = ({
   const apy = useMemo(() => {
     if (typeof APY !== 'string') {
       return `upto ${Math.max(
-        ...(APY as string[]).map((apy: string) => Number(apy)),
+        ...(APY as string[]).map((apy: string) => Number(apy))
       )}`;
     }
 
@@ -106,7 +106,7 @@ const Description = ({
           <span
             className={cx(
               'text-lg text-black p-1.5 rounded-md',
-              ssovData.isPut ? 'bg-down-bad' : 'bg-emerald-500',
+              ssovData.isPut ? 'bg-down-bad' : 'bg-emerald-500'
             )}
           >
             {type + 'S'}
@@ -119,7 +119,7 @@ const Description = ({
           $
           {formatAmount(
             getUserReadableAmount(BigNumber.from(ssovData.tokenPrice), 8),
-            2,
+            2
           )}
         </Typography>
         <SsovStat
@@ -131,7 +131,7 @@ const Description = ({
           value={`$${formatAmount(
             getUserReadableAmount(ssovEpochData.totalEpochPurchasesInUSD, 26),
             2,
-            true,
+            true
           )}`}
         />
       </div>
@@ -151,7 +151,7 @@ const Description = ({
             Settlement price was{' $'}
             {formatAmount(
               getUserReadableAmount(ssovEpochData.settlementPrice, 8),
-              2,
+              2
             )}
           </Typography>
         </div>

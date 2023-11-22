@@ -97,7 +97,7 @@ function SsovCard(props: any) {
       <Box
         className={cx(
           'flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto',
-          className,
+          className
         )}
       >
         <Box>

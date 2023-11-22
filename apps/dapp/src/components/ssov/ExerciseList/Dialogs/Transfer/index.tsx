@@ -14,10 +14,8 @@ import Input from '@mui/material/Input';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import { ERC20__factory } from '@dopex-io/sdk';
-
-import { useBoundStore } from 'store';
-
 import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
 import Dialog from 'components/UI/Dialog';
@@ -83,7 +81,7 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
     }
     const userEpochStrikeTokenBalance = await ERC20__factory.connect(
       epochStrikeToken,
-      provider,
+      provider
     ).balanceOf(accountAddress);
     setUserEpochStrikeTokenBalance(userEpochStrikeTokenBalance);
   }, [epochStrikeToken, accountAddress, provider]);
@@ -92,14 +90,14 @@ const Transfer = ({ open, handleClose, strikeIndex }: Props) => {
     (e: { target: { value: { toString: () => SetStateAction<string> } } }) => {
       setRecipient(e.target.value.toString());
     },
-    [],
+    []
   );
 
   const handleAmountChange = useCallback(
     (e: { target: { value: { toString: () => SetStateAction<string> } } }) => {
       setTransferAmount(e.target.value.toString());
     },
-    [],
+    []
   );
 
   const handleMax = useCallback(() => {

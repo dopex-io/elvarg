@@ -6,12 +6,11 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 import axios from 'axios';
 import { NextSeo } from 'next-seo';
-
 import { useBoundStore } from 'store';
 
+import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import { OlpHome } from 'components/olp/OlpHome';
-import Typography from 'components/UI/Typography';
 
 import { DOPEX_API_BASE_URL } from 'constants/env';
 import seo from 'constants/seo';

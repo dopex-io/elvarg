@@ -5,18 +5,16 @@ import Box from '@mui/material/Box';
 
 import { TokenSale__factory } from '@dopex-io/sdk';
 import c from 'classnames';
-
-import { useBoundStore } from 'store';
-
 import useEthPrice from 'hooks/useEthPrice';
 import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
 
+import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
 import AppBar from 'components/common/AppBar';
 import ClaimSection from 'components/sale/ClaimSection';
 import InfoSection from 'components/sale/InfoSection';
 import StatsSection from 'components/sale/StatsSection';
-import CustomButton from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
 
 import formatAmount from 'utils/general/formatAmount';
 
@@ -46,7 +44,7 @@ const TokenSale = () => {
       await sendTx(
         TokenSale__factory.connect(contractAddresses['TokenSale'], signer),
         'claim',
-        [accountAddress],
+        [accountAddress]
       );
       updateUserData();
     } catch (err) {
@@ -90,7 +88,7 @@ const TokenSale = () => {
             className={c(
               accountAddress
                 ? 'lg:w-5/12 mb-20 lg:mb-0'
-                : 'lg:w-5/12 mb-20 lg:mb-0 opacity-40',
+                : 'lg:w-5/12 mb-20 lg:mb-0 opacity-40'
             )}
           >
             <Box className="bg-cod-gray p-4 rounded-xl">

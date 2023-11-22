@@ -11,7 +11,6 @@ import Deposits from 'components/straddles/Deposits';
 import Positions from 'components/straddles/Positions';
 import Stats from 'components/straddles/Stats';
 import TopBar from 'components/straddles/TopBar';
-import Typography from 'components/UI/Typography';
 
 import seo from 'constants/seo';
 
@@ -34,7 +33,7 @@ const Straddles = ({ poolName }: { poolName: string }) => {
           updateStraddlesUserData().then(() => {
             setIsLoading(false);
           });
-        })
+        }),
       );
     }
   }, [

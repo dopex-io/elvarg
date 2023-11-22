@@ -7,10 +7,10 @@ import Input from '@mui/material/Input';
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
+import useSendTx from 'hooks/useSendTx';
+
 import { useBoundStore } from 'store';
 import { WritePositionInterface } from 'store/Vault/ssov';
-
-import useSendTx from 'hooks/useSendTx';
 
 import CustomButton from 'components/UI/Button';
 import Dialog from 'components/UI/Dialog';

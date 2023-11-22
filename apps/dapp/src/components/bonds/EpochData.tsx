@@ -6,7 +6,6 @@ import Box from '@mui/material/Box';
 import LaunchIcon from '@mui/icons-material/Launch';
 
 import format from 'date-fns/format';
-
 import { useBoundStore } from 'store';
 
 import SignerButton from 'components/common/SignerButton';
@@ -36,7 +35,7 @@ export const EpochData = ({
     if (!dpxBondsEpochData || dpxBondsEpochData.depositPerNft.eq('0')) return;
 
     const bondsIssued = Math.floor(
-      getUserReadableAmount(dpxBondsEpochData.bondsIssued, 18),
+      getUserReadableAmount(dpxBondsEpochData.bondsIssued, 18)
     );
 
     const totalBonds = dpxBondsEpochData.maxEpochDeposits
@@ -67,11 +66,11 @@ export const EpochData = ({
                   .div(
                     dpxBondsEpochData.bondPrice.isZero()
                       ? BigNumber.from(1)
-                      : dpxBondsEpochData.bondPrice,
+                      : dpxBondsEpochData.bondPrice
                   ),
-                6,
+                6
               ),
-              2,
+              2
             )}
             <span className="bg-[#C3F8FF] rounded-sm text-xs text-black font-bold p-0.5 ml-1">
               DPX
@@ -82,7 +81,7 @@ export const EpochData = ({
           <Box className="text-stieglitz mb-1">Max USDC.e Deposit</Box>$
           {formatAmount(
             getUserReadableAmount(dpxBondsEpochData.maxEpochDeposits, 6),
-            2,
+            2
           )}
         </Box>
         <Box className="p-3 md:flex-1">

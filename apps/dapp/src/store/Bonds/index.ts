@@ -299,8 +299,7 @@ export const createDpxBondsSlice: StateCreator<
   },
   updateBondsContracts: () => {
     const { contractAddresses, provider, signer } = get();
-    if (!provider || !contractAddresses || !contractAddresses['DPX'] || !signer)
-      return;
+    if (!provider || !contractAddresses || !signer) return;
 
     set((prevState) => ({
       ...prevState,

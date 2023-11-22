@@ -1,15 +1,11 @@
 import { useCallback, useEffect, useMemo } from 'react';
 
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
-
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-
 import format from 'date-fns/format';
-
-import { useBoundStore } from 'store';
-
 import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
 
 import CustomButton from 'components/UI/Button';
 import InfoTooltip from 'components/UI/InfoTooltip';
@@ -72,7 +68,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
     return (
       (userDpxBondsState &&
         userDpxBondsState.filter(
-          (bond: { redeemed: boolean }) => bond?.redeemed == false,
+          (bond: { redeemed: boolean }) => bond?.redeemed == false
         )) ||
       []
     );
@@ -151,7 +147,7 @@ export const UserBonds = ({ handleModal }: UserBondsProps) => {
                     {bond.maturityTime &&
                       format(
                         new Date(bond.maturityTime * 1000),
-                        'EEE d LLL h:mmbb',
+                        'EEE d LLL h:mmbb'
                       )}
                   </Typography>
                 </Box>

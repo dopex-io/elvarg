@@ -15,6 +15,7 @@ import {
 import { IosShare } from '@mui/icons-material';
 
 import request from 'graphql-request';
+import useShare from 'hooks/useShare';
 import { reverse } from 'lodash';
 
 import queryClient from 'queryClient';
@@ -22,8 +23,6 @@ import queryClient from 'queryClient';
 import { getStraddlesUserSettleDataDocument } from 'graphql/straddles';
 
 import { useBoundStore } from 'store';
-
-import useShare from 'hooks/useShare';
 
 import { TableHeader } from 'components/straddles/Deposits/DepositsTable';
 import { TablePaginationActions } from 'components/UI';
@@ -60,7 +59,7 @@ const ClosedPositionsTable = () => {
     (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
       setPage(newPage);
     },
-    [setPage],
+    [setPage]
   );
 
   const {
@@ -91,7 +90,7 @@ const ClosedPositionsTable = () => {
         ),
         percentage: getPercentageDifference(
           tokenPrice,
-          Number(position.strikePrice),
+          Number(position.strikePrice)
         ),
         customPath: '/straddles',
         stats: [
@@ -103,7 +102,7 @@ const ClosedPositionsTable = () => {
             name: 'Expiry Mark Price',
             value: `$${formatAmount(
               utils.formatUnits(epochData.settlementPrice, 8),
-              2,
+              2
             )}`,
           },
           {
@@ -113,7 +112,7 @@ const ClosedPositionsTable = () => {
         ],
       });
     },
-    [getStraddlesContract, straddlesData, tokenPrices, share],
+    [getStraddlesContract, straddlesData, tokenPrices, share]
   );
 
   useEffect(() => {
@@ -129,7 +128,7 @@ const ClosedPositionsTable = () => {
             {
               user: accountAddress,
               vault: straddlesData?.straddlesContract?.address,
-            },
+            }
           ),
       });
       setSettled(payloadArb?.settles);
@@ -147,11 +146,11 @@ const ClosedPositionsTable = () => {
         const txId = item.transaction.id;
         records[nftId] = {
           pnl: Number(utils.formatUnits(BigNumber.from(item.pnl), 6)).toFixed(
-            2,
+            2
           ),
           txId: txId,
         };
-      },
+      }
     );
   }
 
@@ -172,18 +171,18 @@ const ClosedPositionsTable = () => {
               Number(
                 utils.formatUnits(
                   BigNumber.from(item.amount).div(BigNumber.from(2)),
-                  18,
-                ),
+                  18
+                )
               ),
-              8,
+              8
             ),
             strikePrice: Number(
-              utils.formatUnits(BigNumber.from(item.strikePrice), 8),
+              utils.formatUnits(BigNumber.from(item.strikePrice), 8)
             ).toFixed(2),
             cost: Number(utils.formatUnits(item.cost, 18)).toFixed(2),
             epoch: item.epoch,
           };
-      },
+      }
     );
   }
 
@@ -206,7 +205,7 @@ const ClosedPositionsTable = () => {
               reverse(Object.keys(records))
                 ?.slice(
                   page * ROWS_PER_PAGE,
-                  page * ROWS_PER_PAGE + ROWS_PER_PAGE,
+                  page * ROWS_PER_PAGE + ROWS_PER_PAGE
                 )
                 .map((position, i) => (
                   <TableRow key={i}>

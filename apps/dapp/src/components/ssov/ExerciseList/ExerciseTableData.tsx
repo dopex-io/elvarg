@@ -11,10 +11,9 @@ import TableRow from '@mui/material/TableRow';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 import { format } from 'date-fns';
+import useShare from 'hooks/useShare';
 
 import { useBoundStore } from 'store';
-
-import useShare from 'hooks/useShare';
 
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
@@ -64,7 +63,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
 
   const handleClose = useCallback(
     () => setDialogState((prevState) => ({ ...prevState, open: false })),
-    [],
+    []
   );
 
   const handleTransfer = useCallback(
@@ -74,7 +73,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         type: 'TRANSFER',
         ssovData,
       }),
-    [ssovData],
+    [ssovData]
   );
   const handleSettle = useCallback(
     () =>
@@ -83,7 +82,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
         type: 'SETTLE',
         ssovData,
       }),
-    [ssovData],
+    [ssovData]
   );
 
   const handleShare = useCallback(() => {
@@ -107,7 +106,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
           name: 'Expiry',
           value: format(
             (ssovEpochData?.epochTimes[1]?.toNumber() || 0) * 1000,
-            'do MMM',
+            'do MMM'
           ),
         },
       ],
@@ -117,7 +116,7 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
   const handleClickMenu = useCallback(
     (event: { currentTarget: SetStateAction<HTMLElement | null> }) =>
       setAnchorEl(event.currentTarget),
-    [],
+    []
   );
 
   const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
@@ -167,10 +166,9 @@ const ExerciseTableData = (props: ExerciseTableDataProps) => {
       <TableCell align="left" className="border-0 py-1">
         <Typography variant="h6">
           {pnlAmount.gte(0)
-            ? `${formatAmount(
-                getUserReadableAmount(pnlAmount, 18),
-                5,
-              )} ${ssovData?.collateralSymbol}`
+            ? `${formatAmount(getUserReadableAmount(pnlAmount, 18), 5)} ${
+                ssovData?.collateralSymbol
+              }`
             : `0 ${ssovData?.collateralSymbol}`}
         </Typography>
       </TableCell>

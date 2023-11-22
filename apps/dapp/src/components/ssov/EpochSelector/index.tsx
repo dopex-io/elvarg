@@ -33,7 +33,7 @@ export default function EpochSelector({ className }: { className?: string }) {
       updateSsovV3UserData,
       updateSsovV3EpochData,
       updateSsovV3Signer,
-    ],
+    ]
   );
 
   const epochs = useMemo(() => {

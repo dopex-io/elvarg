@@ -14,11 +14,11 @@ import TableRow from '@mui/material/TableRow';
 
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
-import { useBoundStore } from 'store';
-import { StraddlePosition } from 'store/Vault/straddles';
-
 import useSendTx from 'hooks/useSendTx';
 import useShare from 'hooks/useShare';
+
+import { useBoundStore } from 'store';
+import { StraddlePosition } from 'store/Vault/straddles';
 
 import { TableHeader } from 'components/straddles/Deposits/DepositsTable';
 import CustomButton from 'components/UI/Button';
@@ -57,12 +57,12 @@ const OpenPositionsTable = () => {
             straddlesUserData?.straddlePositions![selectedPositionNftIndex!]![
               'id'
             ],
-          ],
+          ]
         );
         await updateStraddlesUserData!();
       }
     },
-    [straddlesData, straddlesUserData, signer, updateStraddlesUserData, sendTx],
+    [straddlesData, straddlesUserData, signer, updateStraddlesUserData, sendTx]
   );
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -70,7 +70,7 @@ const OpenPositionsTable = () => {
   const handleClickMenu = useCallback(
     (event: { currentTarget: SetStateAction<HTMLElement | null> }) =>
       setAnchorEl(event.currentTarget),
-    [],
+    []
   );
 
   const handleCloseMenu = useCallback(() => setAnchorEl(null), []);
@@ -90,7 +90,7 @@ const OpenPositionsTable = () => {
         ),
         percentage: getPercentageDifference(
           tokenPrice,
-          getUserReadableAmount(position.apStrike, DECIMALS_STRIKE),
+          getUserReadableAmount(position.apStrike, DECIMALS_STRIKE)
         ),
         customPath: '/straddles',
         stats: [
@@ -98,7 +98,7 @@ const OpenPositionsTable = () => {
             name: 'Strike Price',
             value: `$${formatAmount(
               getUserReadableAmount(position.apStrike, DECIMALS_STRIKE),
-              2,
+              2
             )}`,
           },
           { name: 'Mark Price', value: `$${formatAmount(tokenPrice, 2)}` },
@@ -109,7 +109,7 @@ const OpenPositionsTable = () => {
         ],
       });
     },
-    [share, tokenPrices, straddlesData?.straddlesContract],
+    [share, tokenPrices, straddlesData?.straddlesContract]
   );
 
   return (
@@ -138,9 +138,9 @@ const OpenPositionsTable = () => {
                           {formatAmount(
                             getUserReadableAmount(
                               position.amount.div(BigNumber.from(2)),
-                              18,
+                              18
                             ),
-                            8,
+                            8
                           )}
                         </Typography>
                       </Box>

@@ -59,7 +59,7 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
         <Typography variant="h6">
           {formatAmount(
             isPut ? totalAvailable / strikePrice : totalAvailable,
-            5,
+            5
           )}
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz border-0">
@@ -76,7 +76,7 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
                   (totalPurchased /
                     (isPut ? totalAvailable / strikePrice : totalAvailable))
               : 0,
-            5,
+            5
           )}
           {'%'}
         </Box>
@@ -121,7 +121,7 @@ const Stats = (props: { className?: string }) => {
 
   const price = useMemo(
     () => getUserReadableAmount(ssovData?.tokenPrice, 8),
-    [ssovData],
+    [ssovData]
   );
 
   const stats: any[] = useMemo(
@@ -134,17 +134,17 @@ const Stats = (props: { className?: string }) => {
             ssovEpochData?.totalEpochStrikeDeposits[strikeIndex] ??
             ethers.BigNumber.from(0)
           )?.div(ssovEpochData.collateralExchangeRate),
-          10,
+          10
         );
 
         const totalPurchased = getUserReadableAmount(
           ssovEpochData?.totalEpochOptionsPurchased[strikeIndex] ?? 0,
-          18,
+          18
         );
 
         const totalPremiums = getUserReadableAmount(
           ssovEpochData?.totalEpochPremium[strikeIndex] ?? 0,
-          18,
+          18
         );
 
         return {
@@ -157,7 +157,7 @@ const Stats = (props: { className?: string }) => {
           apy: ssovEpochData?.APY[strikeIndex] ?? 0,
         };
       }) ?? [],
-    [ssovEpochData],
+    [ssovEpochData]
   );
 
   return Number(selectedEpoch) > 0 ? (
@@ -260,7 +260,7 @@ const Stats = (props: { className?: string }) => {
                         }
                       />
                     );
-                  },
+                  }
                 )}
               </TableBody>
             </Table>

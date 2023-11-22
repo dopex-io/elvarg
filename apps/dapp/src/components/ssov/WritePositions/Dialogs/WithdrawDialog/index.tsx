@@ -1,13 +1,11 @@
 import { useCallback } from 'react';
 
-import IconButton from '@mui/material/IconButton';
-
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-
-import { useBoundStore } from 'store';
-import { WritePositionInterface } from 'store/Vault/ssov';
-
+import IconButton from '@mui/material/IconButton';
 import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
+
+import { WritePositionInterface } from 'store/Vault/ssov';
 
 import CustomButton from 'components/UI/Button';
 import Dialog from 'components/UI/Dialog';
@@ -74,10 +72,9 @@ const WithdrawDialog = ({ open, handleClose, data }: Props) => {
           />
           <Stat
             name="Deposit Amount"
-            value={`${getUserReadableAmount(
-              data.collateralAmount,
-              18,
-            )} ${ssovData?.collateralSymbol}`}
+            value={`${getUserReadableAmount(data.collateralAmount, 18)} ${
+              ssovData?.collateralSymbol
+            }`}
           />
           <Stat
             name="Accrued Premiums"

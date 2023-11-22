@@ -1,20 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { BigNumber, utils } from 'ethers';
 
-import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
+import { BigNumber, utils } from 'ethers';
 
 import {
   ERC20__factory,
-  StakingRewards__factory,
   StakingRewardsV3__factory,
+  StakingRewards__factory,
 } from '@dopex-io/sdk';
-import ArrowRightIcon from 'svgs/icons/ArrowRightIcon';
-import { useDebounce } from 'use-debounce';
-
-import { useBoundStore } from 'store';
-
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
+import ArrowRightIcon from 'svgs/icons/ArrowRightIcon';
+import { FarmStatus } from 'types/farms';
+import { useDebounce } from 'use-debounce';
 
 import CustomButton from 'components/UI/Button';
 import Dialog from 'components/UI/Dialog';
@@ -25,8 +24,6 @@ import Typography from 'components/UI/Typography';
 import formatAmount from 'utils/general/formatAmount';
 
 import { MAX_VALUE } from 'constants/index';
-
-import { FarmStatus } from 'types/farms';
 
 export interface BasicManageDialogProps {
   data: {
@@ -68,7 +65,7 @@ const ManageDialog = (props: Props) => {
     setValue(
       activeTab === 0
         ? utils.formatEther(data.userStakingTokenBalance)
-        : utils.formatEther(data.userStakingRewardsBalance),
+        : utils.formatEther(data.userStakingRewardsBalance)
     );
   }, [activeTab, data]);
 
@@ -99,7 +96,7 @@ const ManageDialog = (props: Props) => {
       const _accountAddress = await signer?.getAddress();
       let _allowance = await ERC20__factory.connect(
         data.stakingTokenAddress,
-        signer,
+        signer
       ).allowance(_accountAddress, data.stakingRewardsAddress);
 
       setAllowance(_allowance);
@@ -113,7 +110,7 @@ const ManageDialog = (props: Props) => {
       await sendTx(
         StakingRewards__factory.connect(data.stakingRewardsAddress, signer),
         'stake',
-        [utils.parseEther(amount)],
+        [utils.parseEther(amount)]
       );
       setLoading(false);
       handleClose();
@@ -130,7 +127,7 @@ const ManageDialog = (props: Props) => {
       await sendTx(
         ERC20__factory.connect(data.stakingTokenAddress, signer),
         'approve',
-        [data.stakingRewardsAddress, MAX_VALUE],
+        [data.stakingRewardsAddress, MAX_VALUE]
       );
       setAllowance(BigNumber.from(MAX_VALUE));
       setLoading(false);
@@ -148,14 +145,14 @@ const ManageDialog = (props: Props) => {
         await sendTx(
           StakingRewardsV3__factory.connect(data.stakingRewardsAddress, signer),
           'unstake',
-          [utils.parseEther(amount)],
+          [utils.parseEther(amount)]
         );
         handleClose();
       } else {
         await sendTx(
           StakingRewards__factory.connect(data.stakingRewardsAddress, signer),
           'withdraw',
-          [utils.parseEther(amount)],
+          [utils.parseEther(amount)]
         );
       }
       setLoading(false);
@@ -230,7 +227,7 @@ const ManageDialog = (props: Props) => {
             <Typography variant="h5" color="stieglitz">
               {formatAmount(
                 utils.formatEther(data.userStakingRewardsBalance),
-                2,
+                2
               )}
             </Typography>
             <ArrowRightIcon />
@@ -239,12 +236,12 @@ const ManageDialog = (props: Props) => {
                 ? formatAmount(
                     Number(utils.formatEther(data.userStakingRewardsBalance)) +
                       Number(value),
-                    2,
+                    2
                   )
                 : formatAmount(
                     Number(utils.formatEther(data.userStakingRewardsBalance)) -
                       Number(value),
-                    2,
+                    2
                   )}
             </Typography>
           </Box>

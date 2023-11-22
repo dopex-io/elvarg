@@ -20,6 +20,6 @@ export function useEthersSigner({ chainId }: { chainId?: number } = {}) {
   const { data: walletClient } = useWalletClient({ chainId });
   return React.useMemo(
     () => (walletClient ? walletClientToSigner(walletClient) : undefined),
-    [walletClient],
+    [walletClient]
   );
 }

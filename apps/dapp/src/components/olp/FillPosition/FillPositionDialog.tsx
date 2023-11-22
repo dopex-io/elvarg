@@ -66,7 +66,7 @@ export default function FillPositionDialog(props: Props) {
   let name: string = underlyingSymbol;
   name += `-${getUserReadableAmount(
     lpPositionSelected?.strike,
-    DECIMALS_STRIKE
+    DECIMALS_STRIKE,
   )}`;
   name += isPut ? '-P' : '-C';
 
@@ -75,7 +75,7 @@ export default function FillPositionDialog(props: Props) {
     const beforeDecimals = strInput.substring(0, strInput.length - decimals);
     const afterDecimals = strInput.substring(
       strInput.length - decimals,
-      strInput.length
+      strInput.length,
     );
     return (beforeDecimals ? beforeDecimals : '0') + ('.' + afterDecimals);
   }
@@ -85,7 +85,7 @@ export default function FillPositionDialog(props: Props) {
     userTokenBalance: BigNumber,
     rawFillAmount: string,
     setRawFillAmount: Function,
-    underlyingSymbol: string
+    underlyingSymbol: string,
   ) {
     return (
       <Box>
@@ -109,7 +109,7 @@ export default function FillPositionDialog(props: Props) {
                 color="mineshaft"
                 onClick={() => {
                   setRawFillAmount(
-                    addDecimals(userTokenBalance, DECIMALS_TOKEN)
+                    addDecimals(userTokenBalance, DECIMALS_TOKEN),
                   );
                 }}
                 className="rounded-md my-auto text-stieglitz h-2/3"
@@ -144,7 +144,7 @@ export default function FillPositionDialog(props: Props) {
               >
                 <span className="text-white">{`${formatAmount(
                   getUserReadableAmount(userTokenBalance, DECIMALS_TOKEN),
-                  2
+                  2,
                 )}`}</span>
                 <span className="text-stieglitz"> tokens</span>
               </Typography>
@@ -162,7 +162,7 @@ export default function FillPositionDialog(props: Props) {
             data={'Premium per token'}
             value={`$${formatAmount(
               getUserReadableAmount(lpPositionSelected.premium, DECIMALS_USD),
-              2
+              2,
             )}`}
           />
           <LiquidityDialogRow
@@ -205,7 +205,7 @@ export default function FillPositionDialog(props: Props) {
         userTokenBalance,
         rawFillAmount,
         setRawFillAmount,
-        underlyingSymbol
+        underlyingSymbol,
       )}
 
       <Box className="bg-umbra rounded-xl p-3">

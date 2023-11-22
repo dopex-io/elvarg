@@ -66,7 +66,7 @@ const ExerciseList = () => {
 
   const handleChangePage = (
     _event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number,
+    newPage: number
   ) => setPage(newPage);
 
   useEffect(() => {
@@ -81,7 +81,7 @@ const ExerciseList = () => {
                 if (isZeroAddress(token.address)) return null;
                 return token.balanceOf(accountAddress);
               })
-              .filter((c: any) => c),
+              .filter((c: any) => c)
           )
         : [];
 
@@ -91,7 +91,7 @@ const ExerciseList = () => {
 
           const purchasedAmount = getUserReadableAmount(
             userEpochStrikeTokenBalanceArray[strikeIndex],
-            18,
+            18
           );
           const settleableAmount =
             userEpochStrikeTokenBalanceArray[strikeIndex] || BigNumber.from(0);
@@ -133,7 +133,7 @@ const ExerciseList = () => {
             isSettleable,
             isPastEpoch,
           };
-        },
+        }
       );
 
       setUserExercisableOptions(userExercisableOptions);
@@ -231,7 +231,7 @@ const ExerciseList = () => {
                 {userExercisableOptions
                   .slice(
                     page * ROWS_PER_PAGE,
-                    page * ROWS_PER_PAGE + ROWS_PER_PAGE,
+                    page * ROWS_PER_PAGE + ROWS_PER_PAGE
                   )
                   ?.map(
                     ({
@@ -255,7 +255,7 @@ const ExerciseList = () => {
                           isPastEpoch={isPastEpoch}
                         />
                       );
-                    },
+                    }
                   )}
               </TableBody>
             </Table>

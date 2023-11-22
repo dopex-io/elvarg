@@ -47,7 +47,7 @@ const AllLpPositions = () => {
     let filterStrikes: string[] = ['Filter strikes'];
     olpEpochData.strikes.map((strike) => {
       filterStrikes.push(
-        `$${formatAmount(getUserReadableAmount(strike, DECIMALS_STRIKE), 2)}`
+        `$${formatAmount(getUserReadableAmount(strike, DECIMALS_STRIKE), 2)}`,
       );
     });
     return filterStrikes.map((strike, idx) => {
@@ -67,13 +67,13 @@ const AllLpPositions = () => {
     (e: SelectChangeEvent<number>) => {
       setSelectedStrikeIdx!(Number(e.target.value));
     },
-    [setSelectedStrikeIdx]
+    [setSelectedStrikeIdx],
   );
 
   function filterStrikes(
     strike: BigNumber,
     selectedStrikeIdx: number,
-    strikes: BigNumber[]
+    strikes: BigNumber[],
   ) {
     return (
       selectedStrikeIdx === 0 || strike.eq(strikes[selectedStrikeIdx - 1]!)
@@ -85,7 +85,7 @@ const AllLpPositions = () => {
       return filterStrikes(
         strike,
         selectedStrikeIdx || 0,
-        olpEpochData!.strikes
+        olpEpochData!.strikes,
       );
     });
   }, [olpEpochData, selectedStrikeIdx]);

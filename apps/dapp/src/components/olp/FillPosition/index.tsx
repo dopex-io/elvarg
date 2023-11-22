@@ -46,7 +46,7 @@ const FillPosition = ({ isOpen, handleClose }: Props) => {
 
   const [approved, setApproved] = useState<boolean>(false);
   const [userTokenBalance, setUserTokenBalance] = useState<BigNumber>(
-    BigNumber.from(0)
+    BigNumber.from(0),
   );
   const [rawFillAmount, setRawFillAmount] = useState<string>('1');
   const [outUsd, setOutUsd] = useState<boolean>(false);
@@ -74,7 +74,7 @@ const FillPosition = ({ isOpen, handleClose }: Props) => {
       return fillAmount
         ? getUserReadableAmount(
             lpPositionSelected?.underlyingPremium,
-            DECIMALS_TOKEN
+            DECIMALS_TOKEN,
           ) * fillAmount
         : 0;
     } catch (err) {
@@ -89,11 +89,11 @@ const FillPosition = ({ isOpen, handleClose }: Props) => {
       const strikeTokenAddress = await olpContract.getSsovOptionToken(
         olpData?.ssov,
         olpData?.currentEpoch,
-        lpPositionSelected?.strike
+        lpPositionSelected?.strike,
       );
       const strikeToken = await ERC20__factory.connect(
         strikeTokenAddress,
-        signer
+        signer,
       );
       await sendTx(strikeToken, 'approve', [olpContract.address, MAX_VALUE]);
       setApproved(true);
@@ -116,7 +116,7 @@ const FillPosition = ({ isOpen, handleClose }: Props) => {
       const strikeTokenAddress = await olpContract.getSsovOptionToken(
         olpData?.ssov,
         olpData?.currentEpoch,
-        lpPositionSelected?.strike
+        lpPositionSelected?.strike,
       );
 
       await sendTx(olpContract.connect(signer), 'fillLpPosition', [
@@ -163,7 +163,7 @@ const FillPosition = ({ isOpen, handleClose }: Props) => {
         const strikeTokenAddress = await olpContract.getSsovOptionToken(
           olpData?.ssov,
           olpData?.currentEpoch,
-          lpPositionSelected?.strike
+          lpPositionSelected?.strike,
         );
         // TODO: verify
         allowanceApproval(
@@ -173,7 +173,7 @@ const FillPosition = ({ isOpen, handleClose }: Props) => {
           signer,
           getContractReadableAmount(rawFillAmount, DECIMALS_TOKEN),
           setApproved,
-          setUserTokenBalance
+          setUserTokenBalance,
         );
       } catch (err) {
         console.log(err);
@@ -207,7 +207,7 @@ const FillPosition = ({ isOpen, handleClose }: Props) => {
       underlyingToReceive >
         getUserReadableAmount(
           lpPositionSelected?.underlyingLiquidity!,
-          DECIMALS_TOKEN
+          DECIMALS_TOKEN,
         )
     )
       return 'Insufficient liquidity';

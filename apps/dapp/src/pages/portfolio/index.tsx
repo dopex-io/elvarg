@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import Box from '@mui/material/Box';
 
 import { NextSeo } from 'next-seo';
-
 import { useBoundStore } from 'store';
 
 import AppBar from 'components/common/AppBar';

@@ -10,11 +10,9 @@ import LaunchIcon from '@mui/icons-material/Launch';
 
 import { ERC20__factory } from '@dopex-io/sdk';
 import axios from 'axios';
-import WhiteLockerIcon from 'svgs/icons/WhiteLockerIcon';
-
-import { useBoundStore } from 'store';
-
 import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
+import WhiteLockerIcon from 'svgs/icons/WhiteLockerIcon';
 
 import EstimatedGasCostButton from 'components/common/EstimatedGasCostButton';
 import CustomButton from 'components/UI/Button';
@@ -85,7 +83,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
 
   const percentageDiscount = useMemo(() => {
     const priceDiff = Math.abs(
-      getUserReadableAmount(bondPrice, 6) - dpxOraclePrice,
+      getUserReadableAmount(bondPrice, 6) - dpxOraclePrice
     );
     return (priceDiff / dpxOraclePrice) * 100;
   }, [bondPrice, dpxOraclePrice]);
@@ -118,11 +116,11 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
         const _amount = BigNumber.from(amount).mul(depositPerNft);
         const _usdc = ERC20__factory.connect(
           contractAddresses['USDC'],
-          provider,
+          provider
         );
         const allowance = await _usdc.allowance(
           accountAddress,
-          dpxBondsAddress,
+          dpxBondsAddress
         );
         setApproved(_amount.lte(allowance));
       } catch (e) {
@@ -151,7 +149,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
         const allowance = await usdc.allowance(accountAddress, dpxBondsAddress);
 
         setApproved(
-          allowance.gte(depositPerNft.mul(BigNumber.from(amount || '0'))),
+          allowance.gte(depositPerNft.mul(BigNumber.from(amount || '0')))
         );
       } catch (e) {
         console.log(e);
@@ -182,7 +180,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
         setErr('Cannot deposit more than wallet limit');
       }
     },
-    [depositPerNft, usableNfts.length, usdcBalance],
+    [depositPerNft, usableNfts.length, usdcBalance]
   );
 
   const handleApprove = useCallback(async () => {
@@ -215,7 +213,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
         console.log(e);
       }
     },
-    [bondsContracts, dpxBondsUserEpochData.usableNfts, sendTx, signer],
+    [bondsContracts, dpxBondsUserEpochData.usableNfts, sendTx, signer]
   );
 
   const handleDeposit = useCallback(async () => {
@@ -301,7 +299,7 @@ export const ModalBonds = ({ modalOpen, handleModal }: ModalBondsProps) => {
                 ? formatAmount(
                     (amount * getUserReadableAmount(depositPerNft, 6)) /
                       getUserReadableAmount(bondPrice, 6),
-                    3,
+                    3
                   )
                 : '-'}
             </Typography>

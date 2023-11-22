@@ -1,26 +1,23 @@
 import { useCallback, useState } from 'react';
+
 import { BigNumber, ethers } from 'ethers';
 
+import {
+  ERC20__factory,
+  StakingRewardsV3__factory,
+  StakingRewards__factory,
+} from '@dopex-io/sdk';
+import { Button } from '@dopex-io/ui';
 import CircularProgress from '@mui/material/CircularProgress';
 import Step from '@mui/material/Step';
 import StepContent from '@mui/material/StepContent';
 import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
-
-import {
-  ERC20__factory,
-  StakingRewards__factory,
-  StakingRewardsV3__factory,
-} from '@dopex-io/sdk';
-import { Button } from '@dopex-io/ui';
-
-import { useBoundStore } from 'store';
-
 import useSendTx from 'hooks/useSendTx';
+import { useBoundStore } from 'store';
+import { FarmStatus } from 'types/farms';
 
 import Dialog from 'components/UI/Dialog';
-
-import { FarmStatus } from 'types/farms';
 
 interface Props {
   data: {
@@ -60,13 +57,13 @@ export default function SushiMigrationStepper(props: Props) {
         await sendTx(
           StakingRewardsV3__factory.connect(data.stakingRewardsAddress, signer),
           'unstake',
-          [data.userStakingRewardsBalance],
+          [data.userStakingRewardsBalance]
         );
       } else {
         await sendTx(
           StakingRewards__factory.connect(data.stakingRewardsAddress, signer),
           'withdraw',
-          [data.userStakingRewardsBalance],
+          [data.userStakingRewardsBalance]
         );
       }
       handleNext();
@@ -84,14 +81,14 @@ export default function SushiMigrationStepper(props: Props) {
       if (data.version === 3) {
         const stakingRewardsContract = StakingRewardsV3__factory.connect(
           data.stakingRewardsAddress,
-          signer,
+          signer
         );
 
         await sendTx(stakingRewardsContract, 'claim', []);
       } else {
         const stakingRewardsContract = StakingRewards__factory.connect(
           data.stakingRewardsAddress,
-          signer,
+          signer
         );
 
         await sendTx(stakingRewardsContract, 'getReward', [2]);
@@ -110,7 +107,7 @@ export default function SushiMigrationStepper(props: Props) {
       setLoading(true);
       const stakingTokenContract = ERC20__factory.connect(
         data.stakingTokenAddress,
-        signer,
+        signer
       );
 
       await sendTx(stakingTokenContract, 'approve', [
@@ -132,7 +129,7 @@ export default function SushiMigrationStepper(props: Props) {
       const sushiMiniChefV2 = new ethers.Contract(
         SUSHI_MINICHEF_V2_ADDRESS,
         ['function deposit(uint256 pid, uint256 amount, address to)'],
-        signer,
+        signer
       );
 
       await sendTx(sushiMiniChefV2, 'deposit', [
@@ -216,7 +213,7 @@ export default function SushiMigrationStepper(props: Props) {
         onClick={() =>
           window.open(
             `https://sushi.com/earn/arb1:${data.stakingTokenAddress.toLowerCase()}`,
-            '_blank',
+            '_blank'
           )
         }
       >

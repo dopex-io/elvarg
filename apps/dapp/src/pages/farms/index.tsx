@@ -82,7 +82,7 @@ const Farms = () => {
       const _farms = FARMS[chainId] as Farm[];
       if (_farms) {
         const p = await Promise.all(
-          _farms.map((farm) => getFarmData(farm, lpData))
+          _farms.map((farm) => getFarmData(farm, lpData)),
         );
         setFarmsDataLoading(false);
         setFarmsData(p);
@@ -96,7 +96,7 @@ const Farms = () => {
     (async () => {
       setUserDataLoading(true);
       const p = await Promise.all(
-        FARMS[chainId]?.map((farm) => getUserData(farm)) || []
+        FARMS[chainId]?.map((farm) => getUserData(farm)) || [],
       );
 
       setUserData(p as UserData[]);

@@ -6,14 +6,13 @@ import {
   UniswapPair__factory,
 } from '@dopex-io/sdk';
 import axios from 'axios';
+import { Farm, LpData, UserData } from 'types/farms';
 import { StateCreator } from 'zustand';
 
 import { AssetsSlice } from 'store/Assets';
 import { WalletSlice } from 'store/Wallet';
 
 import oneEBigNumber from 'utils/math/oneEBigNumber';
-
-import { Farm, LpData, UserData } from 'types/farms';
 
 const initialLpData = {
   ethReserveOfDpxWethPool: 0,
@@ -46,12 +45,12 @@ export const createFarmingSlice: StateCreator<
     if (!accountAddress) return;
     const stakingTokenContract = ERC20__factory.connect(
       farm.stakingTokenAddress,
-      provider,
+      provider
     );
 
     const stakingRewardsContract = StakingRewardsV3__factory.connect(
       farm.stakingRewardsAddress,
-      provider,
+      provider
     );
 
     const [userStakingTokenBalance, userStakingRewardsBalance] =
@@ -89,21 +88,22 @@ export const createFarmingSlice: StateCreator<
     const { provider, chainId, contractAddresses } = get();
 
     if (!provider) return;
+    if (chainId === 421613) return;
 
     const ethPriceFinal = (
       await axios.get(
-        'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd',
+        'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd'
       )
     ).data.ethereum.usd;
 
     const dpxWethPair = UniswapPair__factory.connect(
       contractAddresses['DPX-WETH'],
-      provider,
+      provider
     );
 
     const rdpxWethPair = UniswapPair__factory.connect(
       contractAddresses['RDPX-WETH'],
-      provider,
+      provider
     );
 
     const [
@@ -121,16 +121,16 @@ export const createFarmingSlice: StateCreator<
       ethersUtils.formatEther(
         dpxWethReserve[1]
           .mul(ethersUtils.parseEther('1'))
-          .div(dpxWethReserve[0]),
-      ),
+          .div(dpxWethReserve[0])
+      )
     );
 
     let rdpxPrice: number = Number(
       ethersUtils.formatEther(
         rdpxWethReserve[1]
           .mul(ethersUtils.parseEther('1'))
-          .div(rdpxWethReserve[0]),
-      ),
+          .div(rdpxWethReserve[0])
+      )
     );
     let ethReserveOfRdpxWethPool: number;
     let rdpxReserveOfRdpxWethPool: number;
@@ -140,18 +140,18 @@ export const createFarmingSlice: StateCreator<
 
     // DPX and ETH from DPX-ETH pair
     ethReserveOfDpxWethPool = Number(
-      ethersUtils.formatEther(dpxWethReserve[1]),
+      ethersUtils.formatEther(dpxWethReserve[1])
     );
 
     dpxReserveOfDpxWethPool = Number(
-      ethersUtils.formatEther(dpxWethReserve[0]),
+      ethersUtils.formatEther(dpxWethReserve[0])
     );
     // RDPX and ETH from RDPX-ETH pair
     ethReserveOfRdpxWethPool = Number(
-      ethersUtils.formatEther(rdpxWethReserve[1]),
+      ethersUtils.formatEther(rdpxWethReserve[1])
     );
     rdpxReserveOfRdpxWethPool = Number(
-      ethersUtils.formatEther(rdpxWethReserve[0]),
+      ethersUtils.formatEther(rdpxWethReserve[0])
     );
 
     dpxPrice = Number(dpxPrice) * ethPriceFinal;
@@ -206,7 +206,7 @@ export const createFarmingSlice: StateCreator<
 
     const ethPriceFinal = (
       await axios.get(
-        'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd',
+        'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd'
       )
     ).data.ethereum.usd;
 
@@ -221,12 +221,12 @@ export const createFarmingSlice: StateCreator<
 
     const stakingTokenContract = ERC20__factory.connect(
       farm.stakingTokenAddress,
-      provider,
+      provider
     );
 
     const stakingRewardsContract = StakingRewardsV3__factory.connect(
       farm.stakingRewardsAddress,
-      provider,
+      provider
     );
 
     let [farmTotalSupply, tokenTotalSupply] = await Promise.all([

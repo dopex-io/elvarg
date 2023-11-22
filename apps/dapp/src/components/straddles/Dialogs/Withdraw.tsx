@@ -43,7 +43,7 @@ const WithdrawModal = ({
           {
             gasLimit: 1000000,
           },
-        ]
+        ],
       );
       await updateStraddlesUserData!();
     }
@@ -61,7 +61,7 @@ const WithdrawModal = ({
       await sendTx(
         straddlesData.straddlesContract.connect(signer),
         'toggleRollover',
-        [straddlesUserData?.writePositions![selectedPositionNftIndex!]!['id']]
+        [straddlesUserData?.writePositions![selectedPositionNftIndex!]!['id']],
       );
       await updateStraddlesUserData!();
     }
@@ -108,7 +108,7 @@ const WithdrawModal = ({
                   onClick={handleToggleRollover}
                   className={cx(
                     'rounded-md h-10 ml-1 hover:bg-opacity-70 pl-2 pr-2',
-                    'bg-primary hover:bg-primary text-white'
+                    'bg-primary hover:bg-primary text-white',
                   )}
                 >
                   {rolloverText}

@@ -62,7 +62,7 @@ export default function AllPositionsTable(props: Props) {
         underlyingSymbol,
         usdLiquidity,
         underlyingLiquidity,
-        usdLiquidity.gt(BigNumber.from(0))
+        usdLiquidity.gt(BigNumber.from(0)),
       )}
       {getUntransformedBodyCell(discount)}
       <StyleRightCell align="right" className="pt-2">

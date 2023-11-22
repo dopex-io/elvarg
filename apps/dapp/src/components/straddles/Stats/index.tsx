@@ -1,13 +1,12 @@
 import React, { useCallback, useMemo } from 'react';
+
 import { BigNumber } from 'ethers';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-
 import Countdown from 'react-countdown';
-
 import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
@@ -61,14 +60,14 @@ const Stats = () => {
       if (setSelectedEpoch) setSelectedEpoch(Number(e.target.value));
       updateStraddlesEpochData();
     },
-    [setSelectedEpoch, updateStraddlesEpochData],
+    [setSelectedEpoch, updateStraddlesEpochData]
   );
 
   const settlementPrice = useMemo(() => {
     return !straddlesEpochData?.settlementPrice.eq(BigNumber.from(0))
       ? formatAmount(
           getUserReadableAmount(straddlesEpochData?.settlementPrice!, 8),
-          2,
+          2
         )
       : 0;
   }, [straddlesEpochData]);
@@ -162,15 +161,16 @@ const Stats = () => {
             />
             <a
               className="cursor-pointer"
-              href={`${getExplorerUrl(chainId)}/address/${straddlesData
-                ?.straddlesContract?.address}`}
+              href={`${getExplorerUrl(chainId)}/address/${
+                straddlesData?.straddlesContract?.address
+              }`}
               target="_blank"
               rel="noreferrer noopener"
             >
               <Typography variant="h6">
                 {displayAddress(
                   straddlesData?.straddlesContract?.address,
-                  undefined,
+                  undefined
                 )}
               </Typography>
             </a>
@@ -206,7 +206,7 @@ const Stats = () => {
           $
           {formatAmount(
             getUserReadableAmount(straddlesEpochData?.usdDeposits!, 6),
-            6,
+            6
           )}
         </Typography>
       </Box>
@@ -233,7 +233,7 @@ const Stats = () => {
           $
           {formatAmount(
             getUserReadableAmount(straddlesEpochData?.activeUsdDeposits!, 26),
-            2,
+            2
           )}
         </Typography>
       </Box>
@@ -261,7 +261,7 @@ const Stats = () => {
           $
           {formatAmount(
             getUserReadableAmount(straddlesEpochData?.usdPremiums!, 18 + 6 + 2),
-            4,
+            4
           )}
         </Typography>
       </Box>

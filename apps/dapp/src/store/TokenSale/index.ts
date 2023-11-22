@@ -52,7 +52,7 @@ export const createTokenSaleSlice: StateCreator<
 
     const readTokenSaleContract = TokenSale__factory.connect(
       contractAddresses['TokenSale'],
-      provider,
+      provider
     );
 
     const [
@@ -73,7 +73,9 @@ export const createTokenSaleSlice: StateCreator<
       readTokenSaleContract.dpxTokensAllocated(),
     ]);
     const blockTime = await (async () =>
-      (await provider.getBlock('latest')).timestamp)();
+      (
+        await provider.getBlock('latest')
+      ).timestamp)();
     const token = contractAddresses['DPX'];
     const dpxTokenSaleAddress = contractAddresses['TokenSale'];
 
@@ -103,12 +105,12 @@ export const createTokenSaleSlice: StateCreator<
 
     const readTokenSaleContract = TokenSale__factory.connect(
       contractAddresses['TokenSale'],
-      provider,
+      provider
     );
 
     const readDPXTokenContract = ERC20__factory.connect(
       contractAddresses['DPX'],
-      provider,
+      provider
     );
 
     const [claimAmount, deposits, dpxBalance] = await Promise.all([

@@ -1,10 +1,10 @@
-import { useMemo } from 'react';
 import Link from 'next/link';
 
-import Box from '@mui/material/Box';
-import { styled } from '@mui/material/styles';
-import Tooltip from '@mui/material/Tooltip';
+import { useMemo } from 'react';
 
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
+import { styled } from '@mui/material/styles';
 import cx from 'classnames';
 import format from 'date-fns/format';
 import Coin from 'svgs/icons/Coin';
@@ -78,7 +78,7 @@ function VaultCard(props: Props) {
       <Box
         className={cx(
           'flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto',
-          className,
+          className
         )}
       >
         <Box>

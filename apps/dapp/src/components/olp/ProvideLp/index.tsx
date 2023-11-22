@@ -28,6 +28,7 @@ import getDepositMessage from 'utils/contracts/getDepositMessage';
 
 import { DECIMALS_TOKEN, DECIMALS_USD, MAX_VALUE } from 'constants/index';
 
+// For Goerli test net
 const CHAIN_ID: number = 5;
 
 const ProvideLp = () => {

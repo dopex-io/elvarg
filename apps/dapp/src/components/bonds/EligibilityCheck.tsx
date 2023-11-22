@@ -1,10 +1,6 @@
 import { useMemo, useState } from 'react';
-import { BigNumber } from 'ethers';
 
-import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
-import Dialog from '@mui/material/Dialog';
-import Tooltip from '@mui/material/Tooltip';
+import { BigNumber } from 'ethers';
 
 import AccessibleForwardIcon from '@mui/icons-material/AccessibleForward';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -12,7 +8,10 @@ import CloseIcon from '@mui/icons-material/Close';
 import ErrorIcon from '@mui/icons-material/Error';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import SearchIcon from '@mui/icons-material/Search';
-
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Dialog from '@mui/material/Dialog';
+import Tooltip from '@mui/material/Tooltip';
 import { useBoundStore } from 'store';
 
 import Input from 'components/UI/Input';
@@ -72,7 +71,7 @@ export const EligibilityCheck = ({
     return (
       (bridgoorNftIds &&
         bridgoorNftIds.filter(
-          (id: number) => usableNftsFormatted.indexOf(Number(id)) == -1,
+          (id: number) => usableNftsFormatted.indexOf(Number(id)) == -1
         )) ||
       []
     );

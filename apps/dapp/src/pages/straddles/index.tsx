@@ -68,11 +68,11 @@ const Straddles = () => {
                 epochTimes: vault['epochTimes'],
               }}
             />
-          ) : null
+          ) : null,
         );
       else return null;
     },
-    [vaults, selectedStates]
+    [vaults, selectedStates],
   );
 
   useEffect(() => {

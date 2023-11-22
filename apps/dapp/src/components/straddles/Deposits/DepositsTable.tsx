@@ -97,7 +97,7 @@ const DepositsTable = () => {
                       <Typography variant="h6" className="pt-[2px]">
                         {formatAmount(
                           getUserReadableAmount(position.usdDeposit, 6),
-                          2,
+                          2
                         )}
                       </Typography>
                       <Box className="rounded-sm bg-mineshaft">
@@ -128,7 +128,7 @@ const DepositsTable = () => {
                       $
                       {getUserReadableAmount(
                         position.premiumFunding,
-                        26,
+                        26
                       ).toFixed(2)}
                     </Typography>
                   </TableCell>

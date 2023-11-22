@@ -3,6 +3,8 @@ import { BigNumber } from 'ethers';
 
 import LaunchIcon from '@mui/icons-material/Launch';
 
+import { FarmStatus, LpData } from 'types/farms';
+
 import { useBoundStore } from 'store/index';
 
 import CustomButton from 'components/UI/Button';
@@ -11,8 +13,6 @@ import Skeleton from 'components/UI/Skeleton';
 
 import formatAmount from 'utils/general/formatAmount';
 import getExplorerUrl from 'utils/general/getExplorerUrl';
-
-import { FarmStatus, LpData } from 'types/farms';
 
 import Chip from './Chip';
 import LpRatios from './LpRatios';

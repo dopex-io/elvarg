@@ -11,9 +11,8 @@ import {
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 
-import { useBoundStore } from 'store';
-
 import useWindowSize from 'hooks/useWindowSize';
+import { useBoundStore } from 'store';
 
 import Typography from 'components/UI/Typography';
 
@@ -43,7 +42,7 @@ const TopBar = () => {
         await updateOlpUserData();
       }
     },
-    [setSelectedEpoch, updateOlpUserData, updateOlpEpochData],
+    [setSelectedEpoch, updateOlpUserData, updateOlpEpochData]
   );
 
   const underlyingSymbol = olpData?.underlyingSymbol;
