@@ -64,6 +64,7 @@ const Delegate = () => {
     updateAllowance,
     delegate,
     updateUserDelegatePositions,
+    fee,
   });
 
   const handleChange = useCallback((e: any) => {
@@ -125,11 +126,7 @@ const Delegate = () => {
             outline="mineshaft"
             value={fee}
             onChange={(e: any) =>
-              setFee(
-                Number(e.target.value) < 0 || Number(e.target.value) > 20
-                  ? '0'
-                  : e.target.value,
-              )
+              setFee(Number(e.target.value) < 0 ? '0' : e.target.value)
             }
             rightElement={<p className="text-stieglitz pl-2">%</p>}
           />
