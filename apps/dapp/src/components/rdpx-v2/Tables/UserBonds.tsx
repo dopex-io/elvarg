@@ -92,7 +92,7 @@ const UserBonds = () => {
   );
 
   const userRdpxBonds = useMemo(() => {
-    if (userBonds.length === 0) return [];
+    if (userBonds.length === 0 && delegateBonds.length === 0) return [];
 
     const formattedDelegateBonds: UserBond[] = delegateBonds.map((bond) => ({
       id: -1n,
@@ -103,9 +103,6 @@ const UserBonds = () => {
     }));
 
     return userBonds.concat(formattedDelegateBonds).map((bond) => {
-      const redeemable =
-        bond.maturity <= BigInt(Math.ceil(new Date().getTime()));
-
       let label = !!isApprovedForAll ? 'Vest + Stake' : 'Approve';
       if (bond.id === -1n) {
         label = 'Redeem';
