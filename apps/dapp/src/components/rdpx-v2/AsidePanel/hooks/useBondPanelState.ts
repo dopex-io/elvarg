@@ -116,6 +116,11 @@ const useBondPanelState = (props: Props) => {
           ...alerts.defaultBondWithDelegate,
           handler: doNothing,
         };
+      } else if (Number(amount) <= 0.01) {
+        return {
+          ...alerts.minimumBondAmount,
+          handler: doNothing,
+        };
       } else if (isInsufficientWeth) {
         return {
           ...defaultState,
