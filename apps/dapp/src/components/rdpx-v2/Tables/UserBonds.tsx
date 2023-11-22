@@ -105,7 +105,7 @@ const UserBonds = () => {
     }));
 
     return userBonds.concat(formattedDelegateBonds).map((bond) => {
-      let label = !!isApprovedForAll ? 'Vest + Stake' : 'Approve';
+      let label = !!isApprovedForAll ? 'Stake' : 'Approve';
       if (bond.id === -1n) {
         label = 'Redeem';
       }

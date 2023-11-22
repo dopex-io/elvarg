@@ -122,7 +122,7 @@ const columns = [
       const value = info.getValue();
       return (
         <Button
-          size="xsmall"
+          size="small"
           key={value.id}
           color={value.redeemable ? 'primary' : 'mineshaft'}
           onClick={value.handleRedeem}
