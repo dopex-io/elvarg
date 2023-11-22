@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
+import { formatUnits } from 'viem';
 
 import { useContractRead } from 'wagmi';
 
+import { formatAmount } from 'utils/general';
 import formatBigint from 'utils/general/formatBigint';
 
 import { DECIMALS_TOKEN } from 'constants/index';
@@ -9,42 +11,39 @@ import CurveMultiRewards from 'constants/rdpx/abis/CurveMultiRewards';
 import addresses from 'constants/rdpx/addresses';
 
 const useRewardAPR = () => {
-  const { data: rewardPerTokenPPV = 0n } = useContractRead({
+  const { data: totalSupplyperp } = useContractRead({
     abi: CurveMultiRewards,
     address: addresses.perpVaultStaking,
-    functionName: 'rewardPerToken',
-    args: [addresses.arb],
+    functionName: 'totalSupply',
   });
-  const { data: rewardPerTokenRT = 0n } = useContractRead({
+
+  const { data: totalSupplyrt } = useContractRead({
     abi: CurveMultiRewards,
-    address: addresses.perpVaultStaking,
-    functionName: 'rewardPerToken',
-    args: [addresses.arb],
+    address: addresses.receiptTokenStaking,
+    functionName: 'totalSupply',
   });
-  const { data: rewardsDataRT = ['0x', 1n, 0n, 0n, 0n, 0n] } = useContractRead({
-    abi: CurveMultiRewards,
-    address: addresses.perpVaultStaking,
-    functionName: 'rewardData',
-    args: [addresses.arb],
-  });
-  const { data: rewardsDataPPV = ['0x', 1n, 0n, 0n, 0n, 0n] } = useContractRead(
-    {
-      abi: CurveMultiRewards,
-      address: addresses.perpVaultStaking,
-      functionName: 'rewardData',
-      args: [addresses.arb],
-    },
-  );
 
   return useMemo(() => {
+    if (totalSupplyperp === undefined || totalSupplyrt === undefined) {
+      return {
+        ppvRewardAPR: '0',
+        rtRewardAPR: '0',
+      };
+    }
+
     const [ppvRewardAPR, rtRewardAPR] = [
-      formatBigint(
-        ((rewardPerTokenRT * (365n / 7n)) / rewardsDataRT[1]) * 100n,
-        DECIMALS_TOKEN,
+      formatAmount(
+        (3214 * 365) / (Number(formatUnits(1000000000000000000n, 18)) * 2020),
       ),
-      formatBigint(
-        ((rewardPerTokenPPV * (365n / 7n)) / rewardsDataPPV[1]) * 100n,
-        DECIMALS_TOKEN,
+      formatAmount(
+        (9624 * 365) /
+          (Number(
+            formatUnits(
+              totalSupplyrt === 0n ? 1000000000000000000n : totalSupplyrt!,
+              18,
+            ),
+          ) *
+            2020),
       ),
     ];
 
@@ -52,7 +51,7 @@ const useRewardAPR = () => {
       ppvRewardAPR,
       rtRewardAPR,
     };
-  }, [rewardPerTokenPPV, rewardPerTokenRT, rewardsDataPPV, rewardsDataRT]);
+  }, [totalSupplyperp, totalSupplyrt]);
 };
 
 export default useRewardAPR;

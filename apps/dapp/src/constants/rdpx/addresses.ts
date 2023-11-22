@@ -36,7 +36,7 @@ const addresses: { [key in AddressKey]: Address } = {
   dpxeth: '0x3EbBBD6F3320CFa4BEdae7500120bAe900f8126B',
   dbrdpx: '0x68951FbefD66BAb9BdcFEDD2a37Fb0b3635135a3',
   bond: '0x5Bd9362835ABE0E9be3742Be0Ba4011BF1229B67',
-  perpVaultStaking: '0x4e8ce4a166710D0110De85669Fe0B5A3d1B71c7B',
+  perpVaultStaking: '0x1DE544147ee3d2f3083951504ed82a514D4e9Af8',
   receiptTokenStaking: '0xd9c79b111D2737013f1af210f6687a9Fa7852b49',
   arb: '0x912CE59144191C1204E64559FE8253a0e49E6548',
   camelotPositionManager: '0x00c7f3082833e796A5b3e4Bd59f6642FF44DCD15',

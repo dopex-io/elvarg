@@ -17,14 +17,14 @@ interface VaultRowProps {
 
 const VaultRow = ({ name, vaultURL, imageURL, apy, tvl }: VaultRowProps) => {
   return (
-    <div className="grid grid-cols-4 items-center">
+    <div className="grid grid-cols-3 items-center">
       <span className="flex space-x-2 items-center">
         <img src={imageURL} alt={`eth-token-image`} className="w-8 h-auto" />
-        <span>{name}</span>
+        <span className="text-sm">{name}</span>
       </span>
-      <span className="text-wave-blue">
-        {/* {formatAmount(tvl)} <span className="text-xs text-white">TVL</span> */}
-      </span>
+      {/* <span className="text-wave-blue"> */}
+      {/* {formatAmount(tvl)} <span className="text-xs text-white">TVL</span> */}
+      {/* </span> */}
       <span className="text-up-only">
         {apy.toFixed()}% <span className="text-xs text-white">APY</span>
       </span>
@@ -64,7 +64,7 @@ const RdpxV2Card = () => {
         />
         <VaultRow
           vaultURL="/rdpx-v2/lp"
-          name="RPPV"
+          name="Perp PUT Vault"
           imageURL="/images/tokens/eth.svg"
           apy={Number(ppvRewardAPR)}
           tvl={0}
