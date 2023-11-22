@@ -129,6 +129,7 @@ const Bond = () => {
         0n,
       ],
     });
+
   const panelState = useBondPanelState({
     amount,
     setAmount,

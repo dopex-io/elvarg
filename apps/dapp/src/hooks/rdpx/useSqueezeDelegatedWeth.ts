@@ -10,7 +10,11 @@ interface Props {
   collateralRequired: bigint;
   bonds: string;
 }
-const useSqueezeDelegatedWeth = ({ user, collateralRequired }: Props) => {
+const useSqueezeDelegatedWeth = ({
+  user,
+  collateralRequired,
+  bonds,
+}: Props) => {
   const { delegatePositions, updateUserDelegatePositions } = useRdpxV2CoreData({
     user,
   });
@@ -93,7 +97,7 @@ const useSqueezeDelegatedWeth = ({ user, collateralRequired }: Props) => {
 
     const bondBreakdown = accumulator.amounts.map(
       (amount) =>
-        (amount * parseUnits('1', DECIMALS_TOKEN)) / (wethToBeUsed + 1n),
+        (amount * parseUnits(bonds, DECIMALS_TOKEN)) / (wethToBeUsed + 1n),
     );
 
     setSqueezeResult({
@@ -105,7 +109,7 @@ const useSqueezeDelegatedWeth = ({ user, collateralRequired }: Props) => {
       totalDelegatedWeth,
       bondBreakdown,
     });
-  }, [delegatePositions, collateralRequired]);
+  }, [delegatePositions, collateralRequired, bonds]);
 
   useEffect(() => {
     updateUserDelegatePositions();
