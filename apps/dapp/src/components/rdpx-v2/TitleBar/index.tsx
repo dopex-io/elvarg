@@ -4,7 +4,7 @@ import { parseUnits } from 'viem';
 
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { useAccount } from 'wagmi';
+import { useAccount, useContractRead, useContractReads } from 'wagmi';
 
 import useTokenData from 'hooks/helpers/useTokenData';
 import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
@@ -19,6 +19,7 @@ import formatBigint from 'utils/general/formatBigint';
 
 import { DOPEX_API_BASE_URL } from 'constants/env';
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
+import CurveMultiRewards from 'constants/rdpx/abis/CurveMultiRewards';
 import addresses from 'constants/rdpx/addresses';
 
 export const rdpxStateToLabelMapping: {
@@ -82,6 +83,17 @@ const TitleBar = () => {
   });
   const { updatePerpetualVaultState, perpetualVaultState } = usePerpPoolData({
     user,
+  });
+  const { data: totalSupply = 1n } = useContractRead({
+    abi: CurveMultiRewards,
+    address: addresses.receiptTokenStaking,
+    functionName: 'totalSupply',
+  });
+  const { data: userBalance = 0n } = useContractRead({
+    abi: CurveMultiRewards,
+    address: addresses.receiptTokenStaking,
+    functionName: 'balanceOf',
+    args: [user],
   });
 
   const onClick = useCallback(
@@ -173,7 +185,26 @@ const TitleBar = () => {
           ),
         };
       case 'stake':
-        return { index: 2, renderComponent: <></> };
+        return {
+          index: 2,
+          renderComponent: (
+            <div className="flex space-x-6 mx-auto mt-3">
+              <Stat name="Reward APR" value={`${ppvRewardAPR}%`} />
+              <Stat name="TVL" value={`${formatBigint(userBalance)} rtETH`} />
+              <Stat
+                name="Your Share"
+                value={`${
+                  Number(
+                    formatBigint(
+                      (userBalance * parseUnits('1', DECIMALS_TOKEN)) /
+                        totalSupply,
+                    ),
+                  ) * 100
+                }%`}
+              />
+            </div>
+          ),
+        };
       // case 'farm':
       //   return { index: 3, renderComponent: <></> };
       default:
@@ -190,6 +221,8 @@ const TitleBar = () => {
     perpetualVaultState.activeCollateral,
     perpetualVaultState.totalCollateral,
     lpWethBalance,
+    userBalance,
+    totalSupply,
   ]);
 
   return (
