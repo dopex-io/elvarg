@@ -9,8 +9,8 @@ const getMarketSides = (marketName: string) => {
     new Set(
       market.vaults.map((vault) => {
         return vault.isPut ? 'PUT' : 'CALL';
-      }),
-    ),
+      })
+    )
   );
 };
 

@@ -1,12 +1,10 @@
-import React from 'react';
-
-import { Meta } from '@storybook/react';
-
-import Tabs from '../src/Tab';
-import TabHeader from '../src/TabHeader';
+import Tabs from "../src/Tab";
+import TabHeader from "../src/TabHeader";
+import { Meta } from "@storybook/react";
+import React from "react";
 
 export default {
-  title: 'Tabs',
+  title: "Tabs",
   component: Tabs,
 } as Meta<typeof Tabs>;
 
@@ -28,7 +26,7 @@ const Template = (args) => {
 
 export const Sizes = Template.bind({});
 Sizes.args = {
-  array: ['large', 'medium', 'small'],
+  array: ["large", "medium", "small"],
 };
 
 export const Disabled = () => {

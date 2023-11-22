@@ -13,7 +13,7 @@ const getErrorBlobMessage = (message: string) => {
   const end = message.indexOf('code=UNPREDICTABLE_GAS_LIMIT');
 
   const jsonError = JSON.parse(
-    message.substring(start - START_OFFSET, end - END_OFFSET),
+    message.substring(start - START_OFFSET, end - END_OFFSET)
   );
 
   const reason = jsonError.data.data;

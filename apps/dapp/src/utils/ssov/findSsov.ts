@@ -1,11 +1,11 @@
-import { MARKETS } from 'constants/ssov/markets';
-
 import { SsovDuration } from 'types/ssov';
+
+import { MARKETS } from 'constants/ssov/markets';
 
 const findSsov = (
   marketName: string,
   isPut: boolean,
-  duration: SsovDuration,
+  duration: SsovDuration
 ) => {
   const market = MARKETS[marketName];
 

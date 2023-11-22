@@ -11,8 +11,8 @@ const getMarketDurations = (marketName: string, isPut: boolean) => {
         .filter((vault) => vault.isPut === isPut)
         .map((vault) => {
           return vault.duration;
-        }),
-    ),
+        })
+    )
   );
 };
 

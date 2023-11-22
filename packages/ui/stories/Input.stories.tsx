@@ -1,12 +1,11 @@
-import React, { useCallback } from 'react';
+import React, { useCallback } from "react";
+import { Meta } from "@storybook/react";
 
-import { Meta } from '@storybook/react';
-
-import Input from '../src/Input';
-import Menu from '../src/Menu';
+import Input from "../src/Input";
+import Menu from "../src/Menu";
 
 const meta: Meta<typeof Input> = {
-  title: 'Input',
+  title: "Input",
   component: Input,
 };
 
@@ -15,14 +14,14 @@ export default meta;
 export const Default = () => {
   const amount = 25;
   const handleChange = useCallback(() => {
-    console.log('Handle');
+    console.log("Handle");
   }, []);
 
   return (
     <div
       style={{
-        display: 'grid',
-        gap: '12px',
+        display: "grid",
+        gap: "12px",
       }}
     >
       <div className="fixed top-16 bg-cod-gray p-32">
@@ -73,7 +72,7 @@ export const Variant = () => {
 
   const data: ItemType[] = [
     {
-      textContent: 'USDC',
+      textContent: "USDC",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -105,14 +104,14 @@ export const Variant = () => {
   };
 
   const handleChange = useCallback(() => {
-    console.log('Handle');
+    console.log("Handle");
   }, []);
 
   return (
     <div
       style={{
-        display: 'grid',
-        gap: '12px',
+        display: "grid",
+        gap: "12px",
       }}
     >
       <div className="fixed top-16 bg-cod-gray p-32 flex flex-col space-y-8">
@@ -225,14 +224,14 @@ export const Variant = () => {
 
 export const Outlines = () => {
   const handleChange = useCallback(() => {
-    console.log('Handle');
+    console.log("Handle");
   }, []);
 
   return (
     <div
       style={{
-        display: 'grid',
-        gap: '12px',
+        display: "grid",
+        gap: "12px",
       }}
     >
       <div className="fixed top-16 bg-cod-gray p-32 flex flex-col space-y-8">
