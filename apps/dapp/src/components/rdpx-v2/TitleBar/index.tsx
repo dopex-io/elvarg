@@ -4,7 +4,7 @@ import { parseUnits } from 'viem';
 
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { useAccount, useContractRead, useContractReads } from 'wagmi';
+import { useAccount, useContractRead } from 'wagmi';
 
 import useTokenData from 'hooks/helpers/useTokenData';
 import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
@@ -69,7 +69,7 @@ const TitleBar = () => {
     staleTime: 300000,
   });
 
-  const { rtRewardAPR, ppvRewardAPR } = useRewardAPR();
+  const { rtRewardAPR = '0', ppvRewardAPR = '0' } = useRewardAPR();
 
   const { address: user = '0x' } = useAccount();
   const { balance: lpWethBalance, updateBalance: updateLpWethBalance } =
@@ -141,7 +141,7 @@ const TitleBar = () => {
                       DECIMALS_TOKEN,
                       3,
                     ),
-                  ) * (data?.cgPrice || 0)
+                  ) * (data?.oraclePrice || 0)
                 ).toFixed(3)}`}
               />
               <Stat
@@ -152,7 +152,7 @@ const TitleBar = () => {
                       rdpxV2CoreState.rdpxPriceInEth,
                       DECIMALS_TOKEN,
                     ),
-                  ) * (data?.cgPrice || 0),
+                  ) * (data?.oraclePrice || 0),
                 ).toFixed(3)}`}
               />
             </div>
@@ -178,7 +178,7 @@ const TitleBar = () => {
                 name="TVL"
                 value={`$${Number(
                   Number(formatBigint(lpWethBalance, DECIMALS_TOKEN)) *
-                    (data?.cgPrice || 0),
+                    (data?.oraclePrice || 0),
                 ).toFixed(3)}`}
               />
             </div>
@@ -189,8 +189,8 @@ const TitleBar = () => {
           index: 2,
           renderComponent: (
             <div className="flex space-x-6 mx-auto mt-3">
-              <Stat name="Reward APR" value={`${ppvRewardAPR}%`} />
-              <Stat name="TVL" value={`${formatBigint(userBalance)} rtETH`} />
+              <Stat name="Reward APR" value={`${rtRewardAPR}%`} />
+              <Stat name="TVL" value={`${formatBigint(totalSupply)} rtETH`} />
               <Stat
                 name="Your Share"
                 value={`${
@@ -216,7 +216,7 @@ const TitleBar = () => {
     rdpxV2CoreState.dpxethPriceInEth,
     rdpxV2CoreState.rdpxPriceInEth,
     rtRewardAPR,
-    data?.cgPrice,
+    data?.oraclePrice,
     ppvRewardAPR,
     perpetualVaultState.activeCollateral,
     perpetualVaultState.totalCollateral,
