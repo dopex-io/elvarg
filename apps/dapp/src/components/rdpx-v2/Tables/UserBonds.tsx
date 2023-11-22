@@ -9,7 +9,8 @@ import {
 } from 'wagmi';
 import { writeContract } from 'wagmi/actions';
 
-import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
+import useRdpxV2CoreData, { UserBond } from 'hooks/rdpx/useRdpxV2CoreData';
+import useSubgraphQueries from 'hooks/rdpx/useSubgraphQueries';
 
 import TableLayout from 'components/common/TableLayout';
 import columns, {
@@ -28,6 +29,13 @@ const UserBonds = () => {
 
   const { address: user = '0x' } = useAccount();
   const { updateUserBonds, userBonds, loading } = useRdpxV2CoreData({
+    user,
+  });
+  const {
+    delegateBonds,
+    updateDelegateBonds,
+    // loading: subgraphLoading,
+  } = useSubgraphQueries({
     user,
   });
 
@@ -74,7 +82,7 @@ const UserBonds = () => {
       setRtReceived(receiptTokensReceived);
       await vest.then(() => updateUserBonds()).catch((e) => console.error(e));
     },
-    [user, updateUserBonds],
+    [user, simulateContract, updateUserBonds],
   );
 
   const handleStake = useCallback(async () => {
@@ -97,36 +105,68 @@ const UserBonds = () => {
   const userRdpxBonds = useMemo(() => {
     if (userBonds.length === 0) return [];
 
-    return userBonds.map((bond) => {
+    const formattedDelegateBonds: UserBond[] = delegateBonds.map((bond) => ({
+      id: -1n,
+      maturity: 0n,
+      redeemable: true,
+      amount: bond.amount,
+      timestamp: 0n,
+    }));
+
+    return userBonds.concat(formattedDelegateBonds).map((bond) => {
       const redeemable =
         bond.maturity <= BigInt(Math.ceil(new Date().getTime()));
+
+      let label = !!isApprovedForAll ? 'Vest + Stake' : 'Approve';
+      if (bond.id === -1n) {
+        label = 'Redeem';
+      }
+
       return {
         tokenId: bond.id,
         maturity: bond.maturity,
         amount: bond.amount,
-        redeemable,
+        redeemable: bond.id > 0n,
         timestamp: bond.timestamp,
         button: {
-          label: !!isApprovedForAll ? 'Vest + Stake' : 'Approve',
+          label: label,
           id: bond.id,
-          redeemable: true,
+          redeemable: bond.id > 0n,
           handleRedeem: () => {
-            !!isApprovedForAll
-              ? handleVest(bond.id)
-                  .then(() => approveStaking().then(() => handleStake()))
-                  .catch((e) => console.error(e))
-              : approveBond()
-                  .then(() => refetch())
-                  .catch((e) => console.error(e));
+            if (bond.maturity < 0n) {
+              !!isApprovedForAll
+                ? handleVest(bond.id)
+                    .then(() => approveStaking().then(() => handleStake()))
+                    .catch((e) => console.error(e))
+                : approveBond()
+                    .then(() => refetch())
+                    .catch((e) => console.error(e));
+            } else {
+            }
           },
         },
       };
     });
-  }, [userBonds, isApprovedForAll, handleVest, approveBond, refetch]);
+  }, [
+    userBonds,
+    delegateBonds,
+    isApprovedForAll,
+    handleVest,
+    approveBond,
+    approveStaking,
+    handleStake,
+    refetch,
+  ]);
 
   useEffect(() => {
     updateUserBonds();
   }, [updateUserBonds, approveSuccess]);
+
+  useEffect(() => {
+    updateDelegateBonds();
+  }, [updateDelegateBonds, approveSuccess]);
+
+  console.log(delegateBonds);
 
   return (
     <TableLayout<UserBondsType>

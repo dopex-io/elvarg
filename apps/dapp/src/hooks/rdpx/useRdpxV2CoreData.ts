@@ -37,7 +37,7 @@ interface RdpxV2CoreState {
   rdpxSupply: bigint;
 }
 
-interface UserBond {
+export interface UserBond {
   amount: bigint;
   maturity: bigint;
   timestamp: bigint;
