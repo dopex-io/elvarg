@@ -64,6 +64,7 @@ const Delegate = () => {
     updateAllowance,
     delegate,
     updateUserDelegatePositions,
+    fee,
   });
 
   const handleChange = useCallback((e: any) => {
