@@ -63,7 +63,7 @@ const useSqueezeDelegatedWeth = ({
         delegatePositions[i].amount - delegatePositions[i].activeCollateral;
       if (
         delegatePositions[i].amount - delegatePositions[i].activeCollateral <
-        parseUnits('1', 14) // enforce _validate E4 in RdpxV2Core
+        parseUnits('1', 16)
       )
         continue;
       const delegateBalance =
