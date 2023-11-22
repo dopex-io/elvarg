@@ -141,7 +141,7 @@ const TitleBar = () => {
                       DECIMALS_TOKEN,
                       3,
                     ),
-                  ) * (data?.cgPrice || 0)
+                  ) * (data?.oraclePrice || 0)
                 ).toFixed(3)}`}
               />
               <Stat
@@ -152,7 +152,7 @@ const TitleBar = () => {
                       rdpxV2CoreState.rdpxPriceInEth,
                       DECIMALS_TOKEN,
                     ),
-                  ) * (data?.cgPrice || 0),
+                  ) * (data?.oraclePrice || 0),
                 ).toFixed(3)}`}
               />
             </div>
@@ -178,7 +178,7 @@ const TitleBar = () => {
                 name="TVL"
                 value={`$${Number(
                   Number(formatBigint(lpWethBalance, DECIMALS_TOKEN)) *
-                    (data?.cgPrice || 0),
+                    (data?.oraclePrice || 0),
                 ).toFixed(3)}`}
               />
             </div>
@@ -216,7 +216,7 @@ const TitleBar = () => {
     rdpxV2CoreState.dpxethPriceInEth,
     rdpxV2CoreState.rdpxPriceInEth,
     rtRewardAPR,
-    data?.cgPrice,
+    data?.oraclePrice,
     ppvRewardAPR,
     perpetualVaultState.activeCollateral,
     perpetualVaultState.totalCollateral,
