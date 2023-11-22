@@ -25,17 +25,11 @@ import ReceiptToken from 'constants/rdpx/abis/ReceiptToken';
 import addresses from 'constants/rdpx/addresses';
 
 const UserBonds = () => {
-  const [rtReceived, setRtReceived] = useState<bigint>(0n);
-
   const { address: user = '0x' } = useAccount();
   const { updateUserBonds, userBonds, loading } = useRdpxV2CoreData({
     user,
   });
-  const {
-    delegateBonds,
-    updateDelegateBonds,
-    // loading: subgraphLoading,
-  } = useSubgraphQueries({
+  const { delegateBonds, updateDelegateBonds } = useSubgraphQueries({
     user,
   });
 
@@ -52,24 +46,19 @@ const UserBonds = () => {
       functionName: 'setApprovalForAll',
       args: [addresses.v2core, true],
     });
-  const { writeAsync: approveStaking } = useContractWrite({
-    abi: ReceiptToken,
-    address: addresses.receiptToken,
-    functionName: 'approve',
-    args: [addresses.receiptTokenStaking, rtReceived],
-  });
   const { simulateContract } = usePublicClient({
     chainId: 42161,
   });
 
   const handleVest = useCallback(
     async (id: bigint) => {
-      const vest = writeContract({
-        abi: RdpxV2Core,
-        address: addresses.v2core,
-        functionName: 'redeemReceiptTokenBonds',
-        args: [id, user],
-      });
+      const vest = async () =>
+        await writeContract({
+          abi: RdpxV2Core,
+          address: addresses.v2core,
+          functionName: 'redeemReceiptTokenBonds',
+          args: [id, user],
+        });
 
       const { result: receiptTokensReceived = 0n } = await simulateContract({
         account: user,
@@ -79,28 +68,35 @@ const UserBonds = () => {
         args: [id, user],
       });
 
-      setRtReceived(receiptTokensReceived);
-      await vest.then(() => updateUserBonds()).catch((e) => console.error(e));
+      const approveStaking = async () =>
+        await writeContract({
+          abi: ReceiptToken,
+          address: addresses.receiptToken,
+          functionName: 'approve',
+          args: [addresses.receiptTokenStaking, receiptTokensReceived],
+        });
+
+      const stake = async () =>
+        await writeContract({
+          abi: CurveMultiRewards,
+          address: addresses.receiptTokenStaking,
+          functionName: 'stake',
+          args: [
+            (receiptTokensReceived * parseUnits('0.98', DECIMALS_TOKEN)) /
+              parseUnits('1', DECIMALS_TOKEN),
+          ],
+        });
+
+      await vest()
+        .then(() =>
+          approveStaking()
+            .then(() => stake())
+            .catch((e) => console.error(e)),
+        )
+        .then(() => updateUserBonds().catch((e) => console.error(e)));
     },
-    [user, simulateContract, updateUserBonds],
+    [simulateContract, user, updateUserBonds],
   );
-
-  const handleStake = useCallback(async () => {
-    if (rtReceived === 0n)
-      console.error('Something went wrong in rtETH stake()');
-
-    const stake = writeContract({
-      abi: CurveMultiRewards,
-      address: addresses.receiptTokenStaking,
-      functionName: 'stake',
-      args: [
-        (rtReceived * parseUnits('0.98', DECIMALS_TOKEN)) /
-          parseUnits('1', DECIMALS_TOKEN),
-      ],
-    });
-
-    stake.catch((e) => console.error(e));
-  }, [rtReceived]);
 
   const userRdpxBonds = useMemo(() => {
     if (userBonds.length === 0) return [];
@@ -135,9 +131,7 @@ const UserBonds = () => {
           handleRedeem: () => {
             if (bond.id > 0n) {
               !!isApprovedForAll
-                ? handleVest(bond.id)
-                    .then(() => approveStaking().then(() => handleStake()))
-                    .catch((e) => console.error(e))
+                ? handleVest(bond.id).catch((e) => console.error(e))
                 : approveBond()
                     .then(() => refetch())
                     .catch((e) => console.error(e));
@@ -153,8 +147,6 @@ const UserBonds = () => {
     isApprovedForAll,
     handleVest,
     approveBond,
-    approveStaking,
-    handleStake,
     refetch,
   ]);
 
