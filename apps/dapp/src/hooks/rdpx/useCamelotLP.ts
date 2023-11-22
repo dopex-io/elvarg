@@ -116,7 +116,6 @@ const useCamelotLP = ({ user = '0x' }: Props) => {
       throw new Error('Something went wrong updating user bonds...');
     }
   }, [user, balance, simulateContract]);
-  console.log(camelotPositionManagerState);
 
   return {
     camelotPositionManagerState,
