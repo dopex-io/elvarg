@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { parseUnits } from 'viem';
 
-import { useAccount, useContractRead, useContractWrite } from 'wagmi';
+import {
+  useAccount,
+  useContractRead,
+  useContractWrite,
+  usePublicClient,
+} from 'wagmi';
 import { writeContract } from 'wagmi/actions';
 
 import useRdpxV2CoreData, { UserBond } from 'hooks/rdpx/useRdpxV2CoreData';
@@ -27,7 +32,6 @@ const UserBonds = () => {
   const { delegateBonds, updateDelegateBonds } = useSubgraphQueries({
     user,
   });
-
   const { data: isApprovedForAll, refetch } = useContractRead({
     abi: RdpxV2Bond,
     address: addresses.bond,
@@ -47,6 +51,9 @@ const UserBonds = () => {
     functionName: 'balanceOf',
     args: [user],
   });
+  const { simulateContract } = usePublicClient({
+    chainId: 42161,
+  });
 
   const handleVest = useCallback(
     async (id: bigint) => {
@@ -58,12 +65,23 @@ const UserBonds = () => {
           args: [id, user],
         });
 
+      const { result: rtEthAmount = 0n } = await simulateContract({
+        account: user,
+        abi: RdpxV2Core,
+        address: addresses.v2core,
+        functionName: 'redeemReceiptTokenBonds',
+        args: [id, user],
+      });
+
       const approveStaking = async () =>
         await writeContract({
           abi: ReceiptToken,
           address: addresses.receiptToken,
           functionName: 'approve',
-          args: [addresses.receiptTokenStaking, userBalance],
+          args: [
+            addresses.receiptTokenStaking,
+            userBalance === 0n ? rtEthAmount : userBalance,
+          ],
         });
 
       const stake = async () =>
@@ -88,7 +106,7 @@ const UserBonds = () => {
         .then(() => updateUserBonds())
         .catch((e) => console.error(e));
     },
-    [user, userBalance, refetchBalance, updateUserBonds],
+    [simulateContract, user, userBalance, refetchBalance, updateUserBonds],
   );
 
   const userRdpxBonds = useMemo(() => {
