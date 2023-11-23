@@ -12,6 +12,8 @@ export interface CamelotPosition {
   id: bigint;
   liquidity: bigint;
   poolComposition: readonly [bigint, bigint];
+  token0: Address;
+  token1: Address;
 }
 
 interface Props {
@@ -90,9 +92,22 @@ const useCamelotLP = ({ user = '0x' }: Props) => {
           .map((position, index) => ({
             id: tokenIds[index],
             liquidity: position[6],
+            token0: position[2],
+            token1: position[3],
             poolComposition: poolCompositions[index].result,
           }))
-          .filter((position) => position.poolComposition[1] !== 0n),
+          .filter(
+            (position) =>
+              position.poolComposition[1] !== 0n &&
+              ((position.token0.toLowerCase() ===
+                addresses.rdpx.toLowerCase() &&
+                position.token1.toLowerCase() ===
+                  addresses.weth.toLowerCase()) ||
+                (position.token1.toLowerCase() ===
+                  addresses.rdpx.toLowerCase() &&
+                  position.token0.toLowerCase() ===
+                    addresses.weth.toLowerCase())),
+          ),
       );
 
       setLoading(false);

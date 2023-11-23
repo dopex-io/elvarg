@@ -69,6 +69,27 @@ const appLinks: {
         },
       ],
     },
+    {
+      name: 'rDPX V2',
+      subLinks: [
+        {
+          name: 'Bond',
+          to: '/rdpx-v2/bond',
+          description: 'Bond rDPX into the ecosystem to mint rtETH.',
+        },
+        {
+          name: 'Perpetual Put Vault',
+          to: '/rdpx-v2/lp',
+          description:
+            'Deposit into RDPX Perpetual Put Vault, earn premium & accrue rewards.',
+        },
+        {
+          name: 'Stake rtETH',
+          to: '/rdpx-v2/stake',
+          description: 'Stake your rtETH to accrue rewards.',
+        },
+      ],
+    },
     { name: 'Portfolio', to: '/portfolio' },
     { name: 'Stake', to: '/farms' },
     {

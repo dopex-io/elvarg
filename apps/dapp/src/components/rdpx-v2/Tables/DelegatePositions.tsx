@@ -43,20 +43,19 @@ const DelegatePositions = () => {
 
   const delegatePositions = useMemo(() => {
     if (userDelegatePositions.length === 0) return [];
-    return userDelegatePositions
-      .map((pos) => {
-        return {
-          amount: pos.amount,
-          activeCollateral: pos.activeCollateral,
-          balance: pos.amount - pos.activeCollateral,
-          fee: pos.fee,
-          button: {
-            handleWithdraw: () => handleWithdraw(pos._id),
-            disabled: pos.activeCollateral === pos.amount,
-          },
-        };
-      })
-      .filter((pos) => pos.balance > 1000n); // hide dust, if any
+    return userDelegatePositions.map((pos) => {
+      return {
+        amount: pos.amount,
+        activeCollateral: pos.activeCollateral,
+        balance: pos.amount - pos.activeCollateral,
+        fee: pos.fee,
+        button: {
+          handleWithdraw: () => handleWithdraw(pos._id),
+          disabled: pos.activeCollateral === pos.amount,
+        },
+      };
+    });
+    // .filter((pos) => pos.balance > 0n); // hide dust, if any
   }, [handleWithdraw, userDelegatePositions]);
 
   return (
