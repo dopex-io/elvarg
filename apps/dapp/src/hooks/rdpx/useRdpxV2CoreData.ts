@@ -296,7 +296,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
         queryKey: ['getUserV2Delegates'],
         queryFn: () =>
           request(DOPEX_RDPX_V2_SUBGRAPH_API_URL, getUserDelegatesV2Document, {
-            sender: user,
+            sender: user.toLowerCase(),
           }),
       })
       .then((res) =>

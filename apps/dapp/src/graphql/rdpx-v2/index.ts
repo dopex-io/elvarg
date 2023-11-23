@@ -32,12 +32,11 @@ export const getDelegatesV2Document = graphql(`
 
 export const getDelegateV2Bonds = graphql(`
   query UserV2DelegateBonds($sender: Bytes) {
-    v2DelegatePositions: v2DelegateBonds(
-      where: { transaction_: { sender: $sender } }
-    ) {
+    v2DelegatePositions: v2DelegateBonds(where: { user: $sender }) {
       id
       wethRequired
       amount
+      user
       transaction {
         id
         sender
@@ -92,9 +91,7 @@ export const getDelegatesDocument = graphql(`
 
 export const getDelegateBonds = graphql(`
   query UserDelegateBonds($sender: Bytes) {
-    delegatePositions: delegateBonds(
-      where: { transaction_: { sender: $sender } }
-    ) {
+    delegatePositions: delegateBonds(where: { user: $sender }) {
       id
       wethRequired
       amount
