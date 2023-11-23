@@ -256,7 +256,7 @@ const Bond = () => {
           label="Redemption Fee"
           value={
             <Typography2 variant="caption" color="jaffa">
-              5%
+              4%
             </Typography2>
           }
         />

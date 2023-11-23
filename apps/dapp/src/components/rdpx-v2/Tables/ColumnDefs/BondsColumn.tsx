@@ -29,14 +29,6 @@ export interface UserBonds {
 const columnHelper = createColumnHelper<UserBonds>();
 
 const columns = [
-  columnHelper.accessor('tokenId', {
-    header: 'Bond ID',
-    cell: (info) => (
-      <span className="space-x-2 text-left text-xs">
-        <p className="inline-block">{info.getValue()}</p>
-      </span>
-    ),
-  }),
   columnHelper.accessor('claimData', {
     header: 'Claimable',
     cell: (info) => {
@@ -103,7 +95,7 @@ const columns = [
           <div className="flex space-x-1 text-stieglitz text-xs">
             <div className="flex space-x-1">
               {days > 0 ? (
-                <div>
+                <div className="flex">
                   <p className="text-white">{days}</p>d
                 </div>
               ) : null}
