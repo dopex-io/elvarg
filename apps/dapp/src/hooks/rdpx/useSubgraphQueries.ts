@@ -7,6 +7,7 @@ import queryClient from 'queryClient';
 
 import {
   getDelegateBonds,
+  getDelegateV2Bonds,
   getHistoricBondsDocument,
   getHistoricRedeemRequestsDocument,
   getRdpxSuppliesDocument,
@@ -188,7 +189,37 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
       )
       .catch(() => []);
 
-    setDelegateBonds(delegateBonds);
+    const delegateBondsV2 = await queryClient
+      .fetchQuery({
+        queryKey: ['delegateBondsV2'],
+        queryFn: () =>
+          request(DOPEX_RDPX_V2_SUBGRAPH_API_URL, getDelegateV2Bonds, {
+            sender: user.toLowerCase(),
+          }),
+      })
+      .then((res) =>
+        [
+          ...res.v2DelegatePositions.map((_pos1) => ({
+            amount: BigInt(_pos1.amount),
+            ethAmount: parseUnits(_pos1.wethRequired, 0),
+            rdpxAmount: 0n,
+            txHash: _pos1.id,
+            maturity: parseUnits(_pos1.transaction.timestamp, 0) + 86400n * 5n,
+            timestamp: parseUnits(_pos1.transaction.timestamp, 0),
+          })),
+          ...res.v2DelegateePositions.map((_pos2) => ({
+            amount: BigInt(_pos2.amount),
+            ethAmount: 0n,
+            rdpxAmount: parseUnits(_pos2.rdpxRequired, 0),
+            txHash: _pos2.id,
+            maturity: parseUnits(_pos2.transaction.timestamp, 0) + 86400n * 5n,
+            timestamp: parseUnits(_pos2.transaction.timestamp, 0),
+          })),
+        ].filter((pos) => pos.txHash.includes(user.toLowerCase())),
+      )
+      .catch(() => []);
+
+    setDelegateBonds([...delegateBonds, ...delegateBondsV2]);
   }, [user]);
 
   const updateRdpxBurned = useCallback(async () => {

@@ -9,8 +9,10 @@ import { readContract } from 'wagmi/actions';
 import queryClient from 'queryClient';
 
 import {
-  getDelegatesDocument,
+  // getDelegatesDocument,
+  getDelegatesV2Document,
   getUserDelegatesDocument,
+  getUserDelegatesV2Document,
 } from 'graphql/rdpx-v2';
 
 import { DECIMALS_STRIKE, DECIMALS_TOKEN } from 'constants/index';
@@ -289,14 +291,35 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
       )
       .catch(() => []);
 
-    const delegates = await queryClient
+    const userPositionsV2 = await queryClient
       .fetchQuery({
-        queryKey: ['getDelegates'],
+        queryKey: ['getUserV2Delegates'],
         queryFn: () =>
-          request(DOPEX_RDPX_V2_SUBGRAPH_API_URL, getDelegatesDocument),
+          request(DOPEX_RDPX_V2_SUBGRAPH_API_URL, getUserDelegatesV2Document, {
+            sender: user,
+          }),
       })
       .then((res) =>
-        res.delegates
+        res.v2Delegates
+          .sort((a, b) => Number(a.fee - b.fee))
+          .map((pos) => ({
+            _id: BigInt(pos.delegateId),
+            owner: user as Address,
+            amount: parseUnits(pos.amount, 0),
+            fee: parseUnits(pos.fee, 0),
+            activeCollateral: parseUnits(pos.activeCollateral, 0),
+          })),
+      )
+      .catch(() => []);
+
+    const delegatesV2 = await queryClient
+      .fetchQuery({
+        queryKey: ['getDelegatesV2'],
+        queryFn: () =>
+          request(DOPEX_RDPX_V2_SUBGRAPH_API_URL, getDelegatesV2Document),
+      })
+      .then((res) =>
+        res.v2Delegates
           .sort((a, b) => Number(a.fee - b.fee)) // sort by fees
           .map((pos) => ({
             _id: BigInt(pos.delegateId),
@@ -308,8 +331,8 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
       )
       .catch(() => []);
 
-    setUserDelegatePositions(userPositions);
-    setDelegatePositions(delegates);
+    setUserDelegatePositions([...userPositions, ...userPositionsV2]);
+    setDelegatePositions([...delegatesV2]);
     setLoading(false);
   }, [user]);
 

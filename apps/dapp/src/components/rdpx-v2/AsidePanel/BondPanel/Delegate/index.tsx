@@ -31,14 +31,14 @@ const Delegate = () => {
   const [amount, setAmount] = useState<string>('');
   const [fee, setFee] = useState<string>('1');
 
-  const { address: account = '0x' } = useAccount();
+  const { address: user = '0x' } = useAccount();
   const { balance, updateBalance, approved, updateAllowance } = useTokenData({
     token: addresses.weth,
     spender: addresses.delegateBonds,
     amount,
   });
   const { updateUserBonds, updateUserDelegatePositions } = useRdpxV2CoreData({
-    user: account,
+    user,
   });
   const { write: approve, isSuccess: approveSuccess } = useContractWrite({
     abi: erc20ABI,
@@ -53,6 +53,7 @@ const Delegate = () => {
     args: [
       parseUnits(amount, DECIMALS_TOKEN),
       parseUnits(fee, DECIMALS_STRIKE),
+      user,
     ],
   });
 
@@ -148,15 +149,10 @@ const Delegate = () => {
         </div>
       </div>
       {panelState.header ? (
-        // <Alert
-        //   header={panelState.header}
-        //   body={panelState.body || ''}
-        //   severity={panelState.severity || AlertSeverity.info}
-        // />
         <Alert
-          header="WETH delegation is temporarily blocked."
-          body=""
-          severity={AlertSeverity.info}
+          header={panelState.header}
+          body={panelState.body || ''}
+          severity={panelState.severity || AlertSeverity.info}
         />
       ) : null}
       <Button
@@ -164,10 +160,9 @@ const Delegate = () => {
         className="w-full mt-2 rounded-md"
         color="primary"
         onClick={panelState.handler}
-        disabled={true}
+        disabled={panelState.disabled}
       >
-        Delegate
-        {/* {panelState.label} */}
+        {panelState.label}
       </Button>
     </div>
   );

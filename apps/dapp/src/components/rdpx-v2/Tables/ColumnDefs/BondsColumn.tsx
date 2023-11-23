@@ -29,18 +29,10 @@ export interface UserBonds {
 const columnHelper = createColumnHelper<UserBonds>();
 
 const columns = [
-  columnHelper.accessor('tokenId', {
-    header: 'Bond ID',
-    cell: (info) => (
-      <span className="space-x-2 text-left text-xs">
-        <p className="inline-block">{info.getValue()}</p>
-      </span>
-    ),
-  }),
-  columnHelper.accessor('claimData', {
+  columnHelper.accessor('claimData.claimable', {
     header: 'Claimable',
     cell: (info) => {
-      const { claimable } = info.getValue();
+      const claimable = info.getValue();
       return (
         <Tooltip title={`${formatBigint(claimable || 0n, DECIMALS_TOKEN, 8)}`}>
           <div className="flex space-x-1 text-xs">
@@ -57,7 +49,7 @@ const columns = [
     header: 'Claimed',
     cell: (info) => {
       const { vested, amount } = info.getValue();
-      const remainingVestedAmount = amount - vested;
+      const remainingVestedAmount = vested;
       return (
         <Tooltip
           title={`${formatBigint(
@@ -80,10 +72,10 @@ const columns = [
       );
     },
   }),
-  columnHelper.accessor('claimData', {
+  columnHelper.accessor('claimData.amount', {
     header: 'Amount',
     cell: (info) => {
-      const { amount } = info.getValue();
+      const amount = info.getValue();
       return (
         <Tooltip title={formatBigint(amount || 0n, DECIMALS_TOKEN, 8)}>
           <span className="text-xs flex space-x-1">
@@ -103,7 +95,7 @@ const columns = [
           <div className="flex space-x-1 text-stieglitz text-xs">
             <div className="flex space-x-1">
               {days > 0 ? (
-                <div>
+                <div className="flex">
                   <p className="text-white">{days}</p>d
                 </div>
               ) : null}

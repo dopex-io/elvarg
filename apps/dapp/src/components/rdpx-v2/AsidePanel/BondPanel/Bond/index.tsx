@@ -215,7 +215,6 @@ const Bond = () => {
                 size="xsmall"
                 className="text-white border-0 w-1/2 hover:text-white"
                 color={label === bondType ? 'carbon' : 'mineshaft'}
-                disabled={label === BondType.Delegate} // temporarily disable rdpx bonding
                 onClick={() => {
                   setBondType(
                     label === BondType.Delegate
@@ -256,7 +255,7 @@ const Bond = () => {
           label="Redemption Fee"
           value={
             <Typography2 variant="caption" color="jaffa">
-              5%
+              4%
             </Typography2>
           }
         />
