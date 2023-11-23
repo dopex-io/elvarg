@@ -56,7 +56,7 @@ const PanelInput = (props: Props) => {
         {label}
         <div className="flex space-x-1">
           <img
-            src="/assets/max.svg"
+            src="/images/misc/max.svg"
             className="hover:bg-silver rounded-[4px] mr-1"
             alt="max"
             // @ts-ignore todo fix

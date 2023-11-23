@@ -82,7 +82,7 @@ const CustomBottomElement = ({
     <p>{label}</p>
     <span className="flex">
       <img
-        src="/assets/max.svg"
+        src="/images/misc/max.svg"
         className="hover:bg-silver rounded-[4px]"
         alt="max"
       />

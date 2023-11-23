@@ -435,7 +435,7 @@ const SelectedStrikeItem = ({
           <img
             onClick={handleMax}
             role="button"
-            src="/assets/max.svg"
+            src="/images/misc/max.svg"
             className="hover:bg-silver rounded-[4px] h-[14px]"
             alt="max"
           />

@@ -14,17 +14,17 @@ export const quickLinks = {
   },
   arbiscanPerpVault: {
     text: 'Perpetual Put Vault',
-    iconSymbol: '/assets/etherscan.svg',
+    iconSymbol: '/images/misc/etherscan.svg',
     url: `https://arbiscan.io/address/${addresses.perpPool}`,
   },
   arbiscanStaking: {
     text: 'MultiRewards',
-    iconSymbol: '/assets/etherscan.svg',
+    iconSymbol: '/images/misc/etherscan.svg',
     url: `https://arbiscan.io/address/${addresses.receiptTokenStaking}`,
   },
   dune: {
     text: 'Dune Analytics',
-    iconSymbol: '/assets/dune-dashboard.svg',
+    iconSymbol: '/images/misc/dune-dashboard.svg',
     url: `https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713`,
   },
   strategyVault: {
