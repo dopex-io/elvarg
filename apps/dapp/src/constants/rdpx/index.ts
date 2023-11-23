@@ -9,7 +9,7 @@ export const quickLinks = {
   },
   arbiscanV2Core: {
     text: 'RDPX V2 Core',
-    iconSymbol: '/assets/etherscan.svg',
+    iconSymbol: '/images/misc/etherscan.svg',
     url: `https://arbiscan.io/address/${addresses.v2core}`,
   },
   arbiscanPerpVault: {
