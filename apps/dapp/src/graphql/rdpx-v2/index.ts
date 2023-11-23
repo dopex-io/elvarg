@@ -1,13 +1,27 @@
 import { graphql } from 'gql/rdpx-v2';
 
-export const getUserPurchasesDocument = graphql(`
-  query getUserPurchases {
-    purchases(first: 10) {
-      id
+// ============================== Delegation Controller V1.1 ==============================
+export const getUserDelegatesV2Document = graphql(`
+  query getV2UserDelegates($sender: Bytes) {
+    v2Delegates(where: { user_contains: $sender }) {
+      delegateId
       amount
-      strike
-      premium
-      tokenId
+      activeCollateral
+      fee
+      transaction {
+        timestamp
+      }
+    }
+  }
+`);
+
+export const getDelegatesV2Document = graphql(`
+  query getV2Delegates {
+    v2Delegates {
+      delegateId
+      amount
+      activeCollateral
+      fee
       transaction {
         timestamp
         sender
@@ -16,24 +30,29 @@ export const getUserPurchasesDocument = graphql(`
   }
 `);
 
-export const getUserRedeemRequestsDocument = graphql(`
-  query Query($sender: Bytes!) {
-    redeemRequests(where: { sender_contains: $sender }) {
-      sender
-      amount
-      ethAmount
-      rdpxAmount
-      epoch
-    }
-  }
-`);
-
-export const getReceiptTokenSupplyDocument = graphql(`
-  query getReceiptTokenSupply {
-    totalReceiptTokenSupplies {
+export const getDelegateV2Bonds = graphql(`
+  query UserV2DelegateBonds($sender: Bytes) {
+    v2DelegatePositions: v2DelegateBonds(
+      where: { transaction_: { sender: $sender } }
+    ) {
       id
+      wethRequired
       amount
       transaction {
+        id
+        sender
+        timestamp
+      }
+    }
+
+    v2DelegateePositions: v2DelegateeBonds(
+      where: { transaction_: { sender: $sender } }
+    ) {
+      id
+      rdpxRequired
+      amount
+      transaction {
+        id
         sender
         timestamp
       }
@@ -41,19 +60,7 @@ export const getReceiptTokenSupplyDocument = graphql(`
   }
 `);
 
-export const getRdpxSuppliesDocument = graphql(`
-  query getRdpxSupplies {
-    totalRdpxSupplies {
-      id
-      amount
-      transaction {
-        timestamp
-        sender
-      }
-    }
-  }
-`);
-
+// ============================== Delegation Controller V1 ==============================
 export const getUserDelegatesDocument = graphql(`
   query getUserDelegates($sender: Bytes) {
     delegates(where: { user_contains: $sender }) {
@@ -83,6 +90,37 @@ export const getDelegatesDocument = graphql(`
   }
 `);
 
+export const getDelegateBonds = graphql(`
+  query UserDelegateBonds($sender: Bytes) {
+    delegatePositions: delegateBonds(
+      where: { transaction_: { sender: $sender } }
+    ) {
+      id
+      wethRequired
+      amount
+      transaction {
+        id
+        sender
+        timestamp
+      }
+    }
+
+    delegateePositions: delegateeBonds(
+      where: { transaction_: { sender: $sender } }
+    ) {
+      id
+      rdpxRequired
+      amount
+      transaction {
+        id
+        sender
+        timestamp
+      }
+    }
+  }
+`);
+
+// RDPX V2 Core bonds
 export const getHistoricBondsDocument = graphql(`
   query HistoricData {
     bonds {
@@ -110,6 +148,35 @@ export const getHistoricBondsDocument = graphql(`
   }
 `);
 
+// ============================== Perpetual vaults ==============================
+export const getUserPurchasesDocument = graphql(`
+  query getUserPurchases {
+    purchases(first: 10) {
+      id
+      amount
+      strike
+      premium
+      tokenId
+      transaction {
+        timestamp
+        sender
+      }
+    }
+  }
+`);
+
+export const getUserRedeemRequestsDocument = graphql(`
+  query Query($sender: Bytes!) {
+    redeemRequests(where: { sender_contains: $sender }) {
+      sender
+      amount
+      ethAmount
+      rdpxAmount
+      epoch
+    }
+  }
+`);
+
 export const getHistoricRedeemRequestsDocument = graphql(`
   query UserRedeemRequestsHistory($sender: Bytes!) {
     redeemRequests(where: { sender_contains: $sender }) {
@@ -123,31 +190,28 @@ export const getHistoricRedeemRequestsDocument = graphql(`
   }
 `);
 
-export const getDelegateBonds = graphql(`
-  query UserDelegateBonds($sender: Bytes) {
-    delegatePositions: delegateBonds(
-      where: { transaction_: { sender: $sender } }
-    ) {
+// ============================== Token supplies ==============================
+export const getReceiptTokenSupplyDocument = graphql(`
+  query getReceiptTokenSupply {
+    totalReceiptTokenSupplies {
       id
-      wethRequired
       amount
       transaction {
-        id
         sender
         timestamp
       }
     }
+  }
+`);
 
-    delegateePositions: delegateeBonds(
-      where: { transaction_: { sender: $sender } }
-    ) {
+export const getRdpxSuppliesDocument = graphql(`
+  query getRdpxSupplies {
+    totalRdpxSupplies {
       id
-      rdpxRequired
       amount
       transaction {
-        id
-        sender
         timestamp
+        sender
       }
     }
   }

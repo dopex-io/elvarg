@@ -69,7 +69,7 @@ const Alert = (props: Props) => {
       </span>
       {body ? (
         <p
-          className={`text-xs break-all ${
+          className={`text-xs break-words ${
             severity === AlertSeverity.info ? 'text-stieglitz' : null
           }`}
         >
