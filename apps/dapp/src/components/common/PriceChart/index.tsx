@@ -96,7 +96,7 @@ const PriceChart = ({
           >
             Powered by
             <img
-              src="/images/brand/trading-view.svg"
+              src="/images/misc/trading-view.svg"
               alt="trading-view"
               height="18"
               width="18"

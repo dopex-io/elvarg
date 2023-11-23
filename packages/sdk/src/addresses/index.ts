@@ -152,8 +152,6 @@ const Addresses: { [key: number]: any } = {
       DopexBridgoorNFT: '0x4Ee9fe9500E7C4Fe849AdD9b14beEc5eC5b7d955',
       DopexHalloweenNFT: '0x9baDE4013a7601aA1f3e9f1361a4ebE60D91B1B5',
       DopexSantasNFT: '0xE5953Cd5C1046c5428aba3A1e8797218e5156E5d',
-      DiamondPepesNFT: '0xede855ceD3e5A59Aaa267aBdDdB0dB21CCFE5072',
-      DuelDiamondPepesNFT: '0x675CA5708c8dB099F3Db9Cdff06995c7653278FC',
     },
     'SSOV-V3': {
       'STAKING-REWARDS': '0x9d5FA385cd988d3F148F53a9A5C87B7C8540B62d',
