@@ -92,7 +92,7 @@ const UserBonds = () => {
   );
 
   const userRdpxBonds = useMemo(() => {
-    if (userBonds.length === 0 && delegateBonds.length === 0) return [];
+    if (userBonds.length === 0 || delegateBonds.length === 0) return [];
 
     const formattedDelegateBonds: UserBond[] = delegateBonds.map((bond) => ({
       id: -1n,
@@ -152,7 +152,7 @@ const UserBonds = () => {
 
   useEffect(() => {
     updateDelegateBonds();
-  }, [updateDelegateBonds, approveSuccess]);
+  }, [updateDelegateBonds, approveSuccess, userBonds]);
 
   return (
     <TableLayout<UserBondsType>
