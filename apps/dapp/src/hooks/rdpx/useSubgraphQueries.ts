@@ -240,9 +240,12 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
 
     let sum = 0n;
     const burnedCumulation = [];
-    for (let i = 1; i < supplies.length; i++) {
+    for (let i = supplies.length - 1; i > 0; i--) {
       sum += BigInt(supplies[i].supply) - BigInt(supplies[i - 1].supply);
-      burnedCumulation.push({ amount: sum, timestamp: supplies[i].timestamp });
+      burnedCumulation.push({
+        amount: sum,
+        timestamp: supplies[i].timestamp,
+      });
     }
 
     setTotalRdpxBurned(
