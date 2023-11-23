@@ -2,6 +2,7 @@ import { Address, erc20ABI } from 'wagmi';
 import { readContract, readContracts } from 'wagmi/actions';
 
 const fnNames = ['symbol', 'name', 'decimals', 'totalSupply'] as const;
+
 type Erc20InfoType = {
   [key in (typeof fnNames)[number]]: string | number | bigint | undefined;
 };

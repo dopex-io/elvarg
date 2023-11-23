@@ -22,7 +22,6 @@ import { getStraddlesUserDataDocument } from 'graphql/straddles';
 import { AssetsSlice } from 'store/Assets';
 import { WalletSlice } from 'store/Wallet';
 
-import getLinkFromVaultName from 'utils/contracts/getLinkFromVaultName';
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 
 import { CHAINS } from 'constants/chains';
@@ -182,7 +181,7 @@ export const createPortfolioSlice: StateCreator<
           assetName: assetName,
           isPut: isPut,
           ssovName: ssovName,
-          link: getLinkFromVaultName(ssovName) + '?epoch=' + userDeposit.epoch,
+          link: `/ssov/${ssovName}`,
           vaultType: 'SSOV',
           owner: owner,
         };
@@ -251,7 +250,7 @@ export const createPortfolioSlice: StateCreator<
           assetName: assetName,
           isPut: isPut,
           ssovName: ssovName,
-          link: getLinkFromVaultName(ssovName) + '?epoch=' + userPosition.epoch,
+          link: `/ssov/${ssovName}`,
           vaultType: 'SSOV',
           expiry: format(
             new Date(Number(epochData.expiry) * 1000),

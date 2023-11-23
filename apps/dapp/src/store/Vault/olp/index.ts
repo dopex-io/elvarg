@@ -7,7 +7,7 @@ import { StateCreator } from 'zustand';
 import { CommonSlice } from 'store/Vault/common';
 import { WalletSlice } from 'store/Wallet';
 
-import getCurrentTime from 'utils/date/getCurrentTime';
+import { getCurrentTimeInMS } from 'utils/date';
 import oneEBigNumber from 'utils/math/oneEBigNumber';
 
 import {
@@ -328,7 +328,9 @@ export const createOlpSlice: StateCreator<
           strikeToUtilization: strikeToUtilization,
           strikeTokens: strikeTokens,
           optionTokens: strikeTokensInfo,
-          isEpochExpired: expiry.lt(BigNumber.from(getCurrentTime().toFixed())),
+          isEpochExpired: expiry.lt(
+            BigNumber.from(getCurrentTimeInMS().toFixed()),
+          ),
           expiry: expiry,
         },
       }));
