@@ -43,7 +43,7 @@ const useSqueezeDelegatedWeth = ({
 
     const totalDelegatedWeth = delegatePositions.reduce(
       (prev, curr) =>
-        curr.amount - curr.activeCollateral > parseUnits('1', 14)
+        curr.amount - curr.activeCollateral > parseUnits('1', 16)
           ? prev + (curr.amount - curr.activeCollateral)
           : prev + 0n,
       0n,
