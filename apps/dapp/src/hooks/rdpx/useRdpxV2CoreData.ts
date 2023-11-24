@@ -46,6 +46,7 @@ export interface UserBond {
   id: bigint;
   vestedAmount: bigint;
   claimableBalance: bigint;
+  positionId?: bigint;
 }
 
 export interface DelegatePosition {
@@ -249,7 +250,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
       return {
         id: tokenIds[i],
         amount: bond[0],
-        maturity: bond[1] * 1000n,
+        maturity: bond[1],
         timestamp: bond[2],
         vestedAmount,
         claimableBalance,

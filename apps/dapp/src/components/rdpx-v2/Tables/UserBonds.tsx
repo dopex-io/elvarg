@@ -19,6 +19,7 @@ import columns, {
 
 import { DECIMALS_TOKEN } from 'constants/index';
 import CurveMultiRewards from 'constants/rdpx/abis/CurveMultiRewards';
+import DelegateBonds from 'constants/rdpx/abis/DelegateBonds';
 import RdpxV2Bond from 'constants/rdpx/abis/RdpxV2Bond';
 import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
 import ReceiptToken from 'constants/rdpx/abis/ReceiptToken';
@@ -109,29 +110,56 @@ const UserBonds = () => {
     [simulateContract, user, userBalance, refetchBalance, updateUserBonds],
   );
 
+  const redeemDelegateBond = useCallback(
+    async (posId: bigint) => {
+      const delegateBond = async () =>
+        await writeContract({
+          abi: DelegateBonds,
+          address: addresses.delegateBonds,
+          functionName: 'redeem',
+          args: [posId],
+        });
+
+      await delegateBond()
+        .then(() => refetchBalance())
+        .catch((e) => console.error(e));
+    },
+    [refetchBalance],
+  );
+
   const userRdpxBonds = useMemo(() => {
     if (userBonds.length === 0 && delegateBonds.length === 0) return [];
 
     const formattedDelegateBonds: UserBond[] = delegateBonds.map((bond) => ({
-      id: -1n,
-      maturity: bond.maturity * 1000n,
-      // redeemable: bond.maturity * 1000n < BigInt(new Date().getTime()),
+      id: BigInt(bond.positionId),
+      maturity: bond.maturity,
       amount: bond.amount,
-      timestamp: bond.timestamp * 1000n,
-      vestedAmount: 0n,
+      timestamp: bond.timestamp,
+      positionId: BigInt(bond.positionId),
+      vestedAmount:
+        bond.maturity * 1000n > BigInt(new Date().getTime()) ? bond.amount : 0n,
       claimableBalance: 0n,
     }));
 
     return userBonds.concat(formattedDelegateBonds).map((bond) => {
-      let label = !!isApprovedForAll ? 'Stake' : 'Approve';
-      if (bond.id === -1n) {
+      let label = !!isApprovedForAll ? 'Vest+Stake' : 'Approve';
+      if (bond.positionId) {
         label = 'Redeem';
       }
 
+      const handleRedeem = () => {
+        if (!bond.positionId) {
+          !!isApprovedForAll
+            ? handleVest(bond.id).catch((e) => console.error(e))
+            : approveBond()
+                .then(() => refetch())
+                .catch((e) => console.error(e));
+        } else redeemDelegateBond(bond.positionId);
+      };
+
       return {
-        tokenId: bond.id === -1n ? 'Delegated' : String(bond.id),
+        tokenId: String(bond.id),
         maturity: bond.maturity,
-        redeemable: bond.id > 0n,
         timestamp: bond.timestamp,
         claimData: {
           vested: bond.vestedAmount,
@@ -141,17 +169,8 @@ const UserBonds = () => {
         button: {
           label: label,
           id: bond.id,
-          redeemable: bond.id > 0n,
-          handleRedeem: () => {
-            if (bond.id > 0n) {
-              !!isApprovedForAll
-                ? handleVest(bond.id).catch((e) => console.error(e))
-                : approveBond()
-                    .then(() => refetch())
-                    .catch((e) => console.error(e));
-            } else {
-            }
-          },
+          disabled: !!bond.positionId, // todo: enable 5-day post-maturity of DelegationControllerV1
+          action: handleRedeem,
         },
       };
     });
@@ -162,6 +181,7 @@ const UserBonds = () => {
     handleVest,
     approveBond,
     refetch,
+    redeemDelegateBond,
   ]);
 
   useEffect(() => {
