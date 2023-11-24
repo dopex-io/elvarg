@@ -39,8 +39,8 @@ const EstimatedGasCostButton = ({ gas, chainId }: Props) => {
         setEstimatedGasCost(
           getUserReadableAmount(
             BigNumber.from(String(gas)).mul(feeData.gasPrice),
-            18
-          )
+            18,
+          ),
         );
     };
     updateEstimatedGasCost();
@@ -50,7 +50,7 @@ const EstimatedGasCostButton = ({ gas, chainId }: Props) => {
     <Box className={'flex'}>
       <Typography variant="h6" className="text-stieglitz ml-0 mr-auto flex">
         <img
-          src="/assets/gasicon.svg"
+          src="/images/misc/gasicon.svg"
           className="mt-1.5 mr-2 h-[0.8rem]"
           alt={'Gas'}
         />{' '}

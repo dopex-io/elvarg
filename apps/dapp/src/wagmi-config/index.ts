@@ -5,16 +5,27 @@ import { InjectedConnector } from 'wagmi/connectors/injected';
 import { LedgerConnector } from 'wagmi/connectors/ledger';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
-import { infuraProvider } from 'wagmi/providers/infura';
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
+import { publicProvider } from 'wagmi/providers/public';
 
-import { INFURA_PROJECT_ID, WALLETCONNECT_PROJECT_ID } from 'constants/env';
+import { CHAINS } from 'constants/chains';
+import { DRPC_API_KEY, WALLETCONNECT_PROJECT_ID } from 'constants/env';
 
 import { OkxConnector } from './OkxConnector';
 import { RabbyConnector } from './RabbyConnector';
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [arbitrum, polygon, mainnet],
-  [infuraProvider({ apiKey: INFURA_PROJECT_ID || '' })],
+  [
+    jsonRpcProvider({
+      rpc: (chain) => ({
+        http: `https://lb.drpc.org/ogrpc?network=${CHAINS[
+          chain.id
+        ].name.toLowerCase()}&dkey=${DRPC_API_KEY}`,
+      }),
+    }),
+    publicProvider(),
+  ],
 );
 
 const wagmiConfig = createConfig({

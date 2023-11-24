@@ -14,6 +14,7 @@ interface Vault {
 }
 
 export interface SsovMarket {
+  disabled?: boolean;
   vaults: Vault[];
   default: {
     isPut: boolean;

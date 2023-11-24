@@ -1,5 +1,3 @@
-export const DATE_FORMAT: string = 'd LLL yy';
-
 export const DECIMALS_TOKEN: number = 18;
 export const DECIMALS_STRIKE: number = 8;
 export const DECIMALS_USD: number = 6;
