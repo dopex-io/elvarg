@@ -1,4 +1,4 @@
-import { INFURA_PROJECT_ID } from './env';
+import { DRPC_API_KEY } from './env';
 
 export const CHAINS: {
   [key: number]: {
@@ -14,7 +14,7 @@ export const CHAINS: {
 } = {
   1: {
     name: 'Ethereum',
-    rpc: `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
+    rpc: `https://lb.drpc.org/ogrpc?network=ethereum&dkey=${DRPC_API_KEY}`,
     publicRpc: 'https://mainnet.infura.io/v3',
     explorer: 'https://etherscan.io/',
     nativeToken: 'ETH',
@@ -28,7 +28,7 @@ export const CHAINS: {
   },
   137: {
     name: 'Polygon',
-    rpc: `https://polygon-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
+    rpc: `https://lb.drpc.org/ogrpc?network=polygon&dkey=${DRPC_API_KEY}`,
     publicRpc: 'https://polygon-mainnet.infura.io/v3',
     explorer: 'https://polygonscan.com/',
     nativeToken: 'MATIC',
@@ -56,7 +56,7 @@ export const CHAINS: {
   },
   42161: {
     name: 'Arbitrum',
-    rpc: `https://arbitrum-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
+    rpc: `https://lb.drpc.org/ogrpc?network=arbitrum&dkey=${DRPC_API_KEY}`,
     publicRpc: 'https://arbitrum-mainnet.infura.io/v3',
     explorer: 'https://arbiscan.io/',
     nativeToken: 'ETH',
