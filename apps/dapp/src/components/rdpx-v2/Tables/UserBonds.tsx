@@ -85,7 +85,7 @@ const UserBonds = () => {
 
     return userBonds.concat(formattedDelegateBonds).map((bond) => {
       let label = 'Claim';
-      if (bond.positionId > -1n) {
+      if (bond.positionId !== -1n) {
         label = 'Redeem';
       }
 
