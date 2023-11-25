@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Address, parseUnits } from 'viem';
 
 import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
+
+import { AlertSeverity } from 'components/common/Alert';
 
 import { DECIMALS_TOKEN } from 'constants/index';
 
@@ -111,6 +113,18 @@ const useSqueezeDelegatedWeth = ({
     });
   }, [delegatePositions, collateralRequired, bonds]);
 
+  const averageFeeSeverity = useMemo(() => {
+    if (squeezeResult.avgFee > parseUnits('15', DECIMALS_TOKEN + 8)) {
+      return AlertSeverity.error;
+    } else if (squeezeResult.avgFee > parseUnits('5', DECIMALS_TOKEN + 8)) {
+      return AlertSeverity.warning;
+    } else {
+      return null;
+    }
+  }, [squeezeResult.avgFee]);
+
+  console.log(squeezeResult.avgFee);
+
   useEffect(() => {
     updateUserDelegatePositions();
   }, [updateUserDelegatePositions]);
@@ -119,7 +133,11 @@ const useSqueezeDelegatedWeth = ({
     squeezeAndFetchDelegates();
   }, [squeezeAndFetchDelegates]);
 
-  return { squeezeAndFetchDelegates, squeezeDelegatesResult: squeezeResult };
+  return {
+    squeezeAndFetchDelegates,
+    squeezeDelegatesResult: squeezeResult,
+    averageFeeSeverity,
+  };
 };
 
 export default useSqueezeDelegatedWeth;

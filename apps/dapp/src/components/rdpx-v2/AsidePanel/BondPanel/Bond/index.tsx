@@ -85,11 +85,12 @@ const Bond = () => {
     spender: addresses.v2core || '0x',
     token: addresses.weth,
   });
-  const { squeezeDelegatesResult } = useSqueezeDelegatedWeth({
-    user: account || '0x',
-    collateralRequired: inputAmountBreakdown[1], // WETH required
-    bonds: amount,
-  });
+  const { squeezeDelegatesResult, averageFeeSeverity } =
+    useSqueezeDelegatedWeth({
+      user: account || '0x',
+      collateralRequired: inputAmountBreakdown[1], // WETH required
+      bonds: amount,
+    });
   const { write: approveRdpx, isSuccess: approveRdpxSuccess } =
     useContractWrite({
       abi: erc20ABI,
@@ -241,6 +242,16 @@ const Bond = () => {
           header={panelState.header}
           severity={panelState.severity}
           body={panelState.body || undefined}
+        />
+      ) : null}
+      {delegated && averageFeeSeverity !== null ? (
+        <Alert
+          header="High Fee!"
+          severity={averageFeeSeverity}
+          body={`You are risking losing ${formatBigint(
+            squeezeDelegatesResult.avgFee,
+            DECIMALS_TOKEN + 8,
+          )}% of your rtETH share on fees.`}
         />
       ) : null}
       <InfoBox
