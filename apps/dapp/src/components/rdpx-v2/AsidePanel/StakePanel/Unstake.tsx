@@ -1,11 +1,10 @@
 // todo: D.R.Y perpetual vault panel
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { formatUnits, parseUnits } from 'viem';
 
 import { Button } from '@dopex-io/ui';
+import { noop } from 'lodash';
 import { useAccount, useContractRead, useContractWrite } from 'wagmi';
-
-import useTokenData from 'hooks/helpers/useTokenData';
 
 import Alert from 'components/common/Alert';
 import alerts, { AlertType } from 'components/rdpx-v2/AsidePanel/alerts';
@@ -23,22 +22,17 @@ const Unstake = () => {
   const { address: _user = '0x' } = useAccount();
   const [amount, setAmount] = useState<string>('');
 
-  const { write: withdraw, isSuccess: stakeSuccess } = useContractWrite({
+  const { writeAsync: withdraw } = useContractWrite({
     abi: CurveMultiRewards,
     address: addresses.receiptTokenStaking,
     functionName: 'withdraw',
     args: [parseUnits(amount, DECIMALS_TOKEN)],
   });
-  const { data: stakedAmount = 0n } = useContractRead({
+  const { data: stakedAmount = 0n, refetch: refetchBalance } = useContractRead({
     abi: CurveMultiRewards,
     address: addresses.receiptTokenStaking,
     functionName: 'balanceOf',
     args: [_user],
-  });
-  const { balance, updateBalance } = useTokenData({
-    spender: addresses.receiptTokenStaking || '0x',
-    token: addresses.receiptToken,
-    amount,
   });
 
   const onChange = (e: any) => {
@@ -46,16 +40,15 @@ const Unstake = () => {
   };
 
   const panelState: AlertType & { handler: () => void | null } = useMemo(() => {
-    const doNothing = () => null;
-    if (parseUnits(amount, DECIMALS_TOKEN) > balance)
+    if (parseUnits(amount, DECIMALS_TOKEN) > stakedAmount)
       return {
         ...alerts.insufficientBalance,
-        handler: doNothing,
+        handler: noop,
       };
     else if (Number(amount) === 0) {
       return {
         ...alerts.zeroAmount,
-        handler: doNothing,
+        handler: noop,
       };
     } else {
       return {
@@ -65,15 +58,13 @@ const Unstake = () => {
         severity: null,
         body: null,
         handler: () => {
-          withdraw();
+          withdraw()
+            .then(() => refetchBalance())
+            .catch((e) => console.error(e));
         },
       };
     }
-  }, [amount, balance, withdraw]);
-
-  useEffect(() => {
-    updateBalance();
-  }, [updateBalance, stakeSuccess]);
+  }, [amount, stakedAmount, refetchBalance, withdraw]);
 
   return (
     <div className="space-y-3 relative">
