@@ -36,3 +36,5 @@ export type {
 } from '@headlessui/react';
 
 export * from './icons';
+
+export * from './Tab2';

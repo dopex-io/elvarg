@@ -5,7 +5,13 @@
     "paths": {
       "public/*": ["../public/*"]
     },
-    "target": "EsNext"
+    "target": "EsNext",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "strictNullChecks": true
   },
   "include": [
     "next-env.d.ts",
@@ -14,7 +20,8 @@
     "**/*.tsx",
     "sentry.server.config.ts",
     "sentry.edge.config.ts",
-    "sentry.client.config.ts"
+    "sentry.client.config.ts",
+    ".next/types/**/*.ts"
   ],
   "exclude": ["node_modules", "public"]
 }
