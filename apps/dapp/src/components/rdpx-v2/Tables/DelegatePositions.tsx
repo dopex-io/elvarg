@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react';
+import { parseUnits } from 'viem';
 
 import { useAccount } from 'wagmi';
 import { writeContract } from 'wagmi/actions';
@@ -10,6 +11,7 @@ import columns, {
   DelegatePositions as DelegatePositionsType,
 } from 'components/rdpx-v2/Tables/ColumnDefs/DelegatePositionsColumn';
 
+import { DECIMALS_TOKEN } from 'constants/index';
 import DelegateBonds from 'constants/rdpx/abis/DelegateBonds';
 import addresses from 'constants/rdpx/addresses';
 
@@ -43,19 +45,20 @@ const DelegatePositions = () => {
 
   const delegatePositions = useMemo(() => {
     if (userDelegatePositions.length === 0) return [];
-    return userDelegatePositions.map((pos) => {
-      return {
-        amount: pos.amount,
-        activeCollateral: pos.activeCollateral,
-        balance: pos.amount - pos.activeCollateral,
-        fee: pos.fee,
-        button: {
-          handleWithdraw: () => handleWithdraw(pos._id),
-          disabled: pos.activeCollateral === pos.amount,
-        },
-      };
-    });
-    // .filter((pos) => pos.balance > 0n); // hide dust, if any
+    return userDelegatePositions
+      .map((pos) => {
+        return {
+          amount: pos.amount,
+          activeCollateral: pos.activeCollateral,
+          balance: pos.amount - pos.activeCollateral,
+          fee: pos.fee,
+          button: {
+            handleWithdraw: () => handleWithdraw(pos._id),
+            disabled: pos.activeCollateral === pos.amount,
+          },
+        };
+      })
+      .filter((pos) => pos.balance > parseUnits('1', DECIMALS_TOKEN - 5)); // hide dust less than 0.00001, if any
   }, [handleWithdraw, userDelegatePositions]);
 
   return (

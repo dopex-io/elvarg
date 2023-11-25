@@ -121,10 +121,7 @@ const Stake = () => {
       <div className="bg-umbra p-3 rounded-lg space-y-3">
         <InfoRow
           label="Reward End"
-          value={format(
-            new Date(Number(rewardData[2] || 0n)).getTime() * 1000,
-            'd LLL yyyy',
-          )}
+          value={format(new Date().setTime(1706659200000), 'd LLL yyyy')}
         />
         <Button
           size="medium"

@@ -40,8 +40,8 @@ const alerts: Record<string, AlertType> = {
   defaultDelegate: {
     label: 'Delegate',
     header: 'What does delegating do?',
-    body: `Provide only WETH as collateral to receive 75% share of the bonds minted by another user who bonds with only rDPX. You can 
-          charge a fee that is slashed from their bonding discount. Delegated collateral with lower fee is utilized first.`,
+    body: `Provide only WETH as collateral to receive 75% share + fee of the bonds minted by another user who bonds with only rDPX. 
+          Delegated collateral with lower fee is utilized first.`,
     severity: AlertSeverity.info,
     disabled: true,
   },

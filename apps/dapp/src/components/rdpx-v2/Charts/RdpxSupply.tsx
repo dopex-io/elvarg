@@ -57,7 +57,7 @@ const LiquidityBarGraph = (props: LiquidityBarGraphProps) => {
   return (
     <div className="relative h-full">
       <h6 className="absolute top-3 left-3 text-xs text-stieglitz align-center">
-        rDPX Burned
+        rDPX Burnt
       </h6>
       <ResponsiveContainer width="100%" height={height} className="top-6">
         <AreaChart
