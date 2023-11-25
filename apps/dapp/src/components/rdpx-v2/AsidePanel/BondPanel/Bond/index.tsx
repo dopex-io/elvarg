@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { formatUnits, parseUnits } from 'viem';
 
 import { Button } from '@dopex-io/ui';
@@ -9,7 +9,7 @@ import usePerpPoolData from 'hooks/rdpx/usePerpPoolData';
 import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 import useSqueezeDelegatedWeth from 'hooks/rdpx/useSqueezeDelegatedWeth';
 
-import Alert from 'components/common/Alert';
+import Alert, { AlertSeverity } from 'components/common/Alert';
 import CollateralInputPanel from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/CollateralInputPanel';
 import InfoBox from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/InfoBox';
 import PanelInput from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/PanelInput';
@@ -85,12 +85,15 @@ const Bond = () => {
     spender: addresses.v2core || '0x',
     token: addresses.weth,
   });
-  const { squeezeDelegatesResult, averageFeeSeverity } =
-    useSqueezeDelegatedWeth({
-      user: account || '0x',
-      collateralRequired: inputAmountBreakdown[1], // WETH required
-      bonds: amount,
-    });
+  const {
+    squeezeDelegatesResult,
+    averageFeeSeverity,
+    delegateeBondsReceivable,
+  } = useSqueezeDelegatedWeth({
+    user: account || '0x',
+    collateralRequired: inputAmountBreakdown[1], // WETH required
+    bonds: amount,
+  });
   const { write: approveRdpx, isSuccess: approveRdpxSuccess } =
     useContractWrite({
       abi: erc20ABI,
@@ -154,6 +157,19 @@ const Bond = () => {
     bond,
     bondWithDelegate: delegateBond,
   });
+
+  const textAlertHighlight = useMemo(() => {
+    switch (averageFeeSeverity) {
+      case null:
+        return 'white';
+      case AlertSeverity.error:
+        return 'down-bad';
+      case AlertSeverity.warning:
+        return 'jaffa';
+      default:
+        return 'white';
+    }
+  }, [averageFeeSeverity]);
 
   const handleChange = (e: {
     target: { value: React.SetStateAction<string> };
@@ -262,14 +278,6 @@ const Bond = () => {
       />
       <div className="flex flex-col rounded-xl p-3 w-full bg-umbra space-y-3">
         <InfoRow
-          label="Redemption Fee"
-          value={
-            <Typography2 variant="caption" color="jaffa">
-              4%
-            </Typography2>
-          }
-        />
-        <InfoRow
           label="rDPX Balance"
           value={
             <Typography2 variant="caption">
@@ -309,14 +317,30 @@ const Bond = () => {
               }
             />
             <InfoRow
-              label="Average Fee %"
+              label="Receivable without fee"
               value={
                 <Typography2 variant="caption">
+                  {!isNaN(Number(amount)) ? `${Number(amount) / 4} rtETH` : '-'}
+                </Typography2>
+              }
+            />
+            <InfoRow
+              label="Average Fee %"
+              value={
+                <Typography2 variant="caption" color={textAlertHighlight}>
                   {formatBigint(
                     squeezeDelegatesResult.avgFee,
                     DECIMALS_STRIKE + DECIMALS_TOKEN,
                   )}
                   %
+                </Typography2>
+              }
+            />
+            <InfoRow
+              label="You Receive"
+              value={
+                <Typography2 variant="caption" color={textAlertHighlight}>
+                  {formatBigint(delegateeBondsReceivable, DECIMALS_TOKEN)} rtETH
                 </Typography2>
               }
             />

@@ -123,6 +123,24 @@ const useSqueezeDelegatedWeth = ({
     }
   }, [squeezeResult.avgFee]);
 
+  const delegateeBondsReceivable = useMemo(() => {
+    const avgFeePercent =
+      squeezeResult.avgFee / parseUnits('1', DECIMALS_TOKEN); // avg fee % in 1e8 precision
+
+    const delegateeShareOfBond =
+      (parseUnits('0.25', DECIMALS_TOKEN) * parseUnits(bonds, DECIMALS_TOKEN)) /
+      parseUnits('1', DECIMALS_TOKEN); // 25% share in 1e18 precision w/o fee
+
+    // weighted average fee going to delegate(s)
+    const delegateeShareLostFromFees =
+      (delegateeShareOfBond * avgFeePercent) / parseUnits('1', 10); // fee % in 1e8 precision
+
+    const delegateeShareAfterFee =
+      delegateeShareOfBond - delegateeShareLostFromFees; // in 1e8 for better precision
+
+    return delegateeShareAfterFee;
+  }, [bonds, squeezeResult.avgFee]);
+
   useEffect(() => {
     updateUserDelegatePositions();
   }, [updateUserDelegatePositions]);
@@ -135,6 +153,7 @@ const useSqueezeDelegatedWeth = ({
     squeezeAndFetchDelegates,
     squeezeDelegatesResult: squeezeResult,
     averageFeeSeverity,
+    delegateeBondsReceivable,
   };
 };
 
