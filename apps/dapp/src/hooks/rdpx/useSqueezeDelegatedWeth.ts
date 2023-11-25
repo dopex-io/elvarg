@@ -123,8 +123,6 @@ const useSqueezeDelegatedWeth = ({
     }
   }, [squeezeResult.avgFee]);
 
-  console.log(squeezeResult.avgFee);
-
   useEffect(() => {
     updateUserDelegatePositions();
   }, [updateUserDelegatePositions]);
