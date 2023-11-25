@@ -65,7 +65,9 @@ const columns = [
     cell: (info) => (
       <span className="flex space-x-2 text-left items-center justify-start">
         <p className="text-stieglitz inline-block">$</p>
-        <p className="inline-block">{info.getValue().strikePrice.toFixed(5)}</p>
+        <p className="inline-block">
+          {formatAmount(info.getValue().strikePrice, 5)}
+        </p>
       </span>
     ),
   }),
