@@ -79,19 +79,19 @@ const UserBonds = () => {
       timestamp: bond.timestamp,
       positionId: BigInt(bond.positionId),
       vestedAmount:
-        bond.maturity * 1000n > BigInt(new Date().getTime()) ? bond.amount : 0n,
+        bond.maturity * 1000n > BigInt(new Date().getTime()) ? 0n : bond.amount,
       claimableBalance: 0n,
     }));
 
     return userBonds.concat(formattedDelegateBonds).map((bond) => {
       let label = 'Claim';
-      if (bond.positionId) {
+      if (bond.positionId > -1) {
         label = 'Redeem';
       }
 
       const handleRedeem = () => {
-        if (!bond.positionId) handleVest(bond.id);
-        else redeemDelegateBond(bond.positionId);
+        if (bond.positionId === -1n) handleVest(bond.id);
+        else redeemDelegateBond(BigInt(bond.positionId));
       };
 
       return {
@@ -106,7 +106,9 @@ const UserBonds = () => {
         button: {
           label: label,
           id: bond.id,
-          disabled: !!bond.positionId, // todo: enable 5-day post-maturity of DelegationControllerV1
+          disabled:
+            bond.maturity * 1000n < BigInt(new Date().getTime()) ||
+            bond.positionId !== -1n, // enable if either bond has matured or bond is vested
           action: handleRedeem,
         },
       };
