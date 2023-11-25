@@ -11,7 +11,7 @@ import { formatAmount } from 'utils/general';
 import { PROTOCOL_FEES_MULTIPLIER } from 'constants/clamm';
 
 const CostSummary = () => {
-  const { isTrade, markPrice } = useClammStore();
+  const { isTrade, markPrice, selectedOptionsPool } = useClammStore();
   const { purchases, deposits } = useClammTransactionsStore();
 
   const total = useMemo(() => {
@@ -109,6 +109,14 @@ const CostSummary = () => {
     return _usdTotal * PROTOCOL_FEES_MULTIPLIER;
   }, [markPrice, totalItems]);
 
+  const totalNotionalSize = useMemo(() => {
+    let size = 0;
+    purchases.forEach(({ amount }) => {
+      size += amount;
+    });
+    return size;
+  }, [purchases]);
+
   if (totalItems.length === 0) return null;
 
   return (
@@ -180,10 +188,23 @@ const CostSummary = () => {
         )}
         {isTrade && (
           <div className="flex justify-between w-full">
-            <span className="text-stieglitz text-[13px]">Total Cost ($)</span>
+            <span className="text-stieglitz text-[13px]">Total Cost</span>
             <span className="text-[13px] flex items-center space-x-[2px]">
               <span className="text-stieglitz">$</span>
               <span className="text-white">{formatAmount(usdTotal, 3)}</span>
+            </span>
+          </div>
+        )}
+        {isTrade && (
+          <div className="flex justify-between w-full">
+            <span className="text-stieglitz text-[13px]">Total Size</span>
+            <span className="text-[13px] flex items-center space-x-[4px]">
+              <span className="text-white">
+                {formatAmount(totalNotionalSize, 3)}
+              </span>
+              <span className="text-stieglitz text-xs">
+                {selectedOptionsPool?.callToken.symbol}
+              </span>
             </span>
           </div>
         )}
