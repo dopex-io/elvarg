@@ -297,10 +297,6 @@ const BuyPositions = ({
             ? strike - markPrice
             : markPrice - strike;
 
-          const optionsSize = Number(
-            formatUnits(size.amountInToken, size.decimals),
-          );
-
           const optionsAmount =
             side.toLowerCase() === 'put'
               ? Number(size.usdValue) / Number(strike)
@@ -380,12 +376,41 @@ const BuyPositions = ({
   ]);
 
   const totalProfitUsd = useMemo(() => {
-    if (loading) return 0;
     return positions.reduce(
       (accumulator, currentValue) =>
         accumulator + Number(currentValue.profit.usdValue),
       0,
     );
+  }, [positions]);
+
+  const optionsSummary = useMemo(() => {
+    const totalProfitUsd = positions.reduce(
+      (accumulator, currentValue) =>
+        accumulator + Number(currentValue.profit.usdValue),
+      0,
+    );
+
+    const totalOptions = positions.reduce((accumulator, currentValue) => {
+      return (
+        accumulator +
+        (currentValue.side.toLowerCase() === 'put'
+          ? Number(currentValue.size.amount) /
+            Number(currentValue.strike.strikePrice)
+          : Number(currentValue.size.amount))
+      );
+    }, 0);
+
+    const totalPremiumUsd = positions.reduce(
+      (accumulator, currentValue) =>
+        accumulator + Number(currentValue.premium.usdValue),
+      0,
+    );
+
+    return {
+      totalProfitUsd,
+      totalOptions,
+      totalPremiumUsd,
+    };
   }, [positions]);
 
   return (
@@ -396,7 +421,7 @@ const BuyPositions = ({
           <span className="text-xs flex items-center justify-center space-x-[2px]">
             <span className="text-stieglitz">$</span>
             <span className={cx(totalProfitUsd > 0 && 'text-up-only')}>
-              {formatAmount(totalProfitUsd, 3)}
+              {formatAmount(optionsSummary.totalProfitUsd, 3)}
             </span>
           </span>
         </div>
@@ -404,31 +429,15 @@ const BuyPositions = ({
           <span className="text-stieglitz text-xs">Total premium:</span>
           <span className="text-xs flex items-center justify-center space-x-[2px]">
             <span className="text-stieglitz">$</span>
-            <span>
-              {formatAmount(
-                positions.reduce(
-                  (accumulator, currentValue) =>
-                    accumulator + Number(currentValue.premium.usdValue),
-                  0,
-                ),
-                3,
-              )}
-            </span>
+            <span>{formatAmount(optionsSummary.totalPremiumUsd, 3)}</span>
           </span>
         </div>
         <div className="flex items-center justify-center space-x-[4px]">
           <span className="text-stieglitz text-xs">Total size:</span>
-          <span className="text-xs flex items-center justify-center space-x-[2px]">
-            <span className="text-stieglitz">$</span>
-            <span>
-              {formatAmount(
-                positions.reduce(
-                  (accumulator, currentValue) =>
-                    accumulator + Number(currentValue.size.usdValue),
-                  0,
-                ),
-                3,
-              )}
+          <span className="text-xs flex items-center justify-center space-x-[4px]">
+            <span>{formatAmount(optionsSummary.totalOptions, 3)}</span>
+            <span className="text-stieglitz text-xs">
+              {selectedOptionsPool?.callToken.symbol}
             </span>
           </span>
         </div>
