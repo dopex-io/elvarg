@@ -68,7 +68,9 @@ const columns = [
           size="small"
         />
         <p className="text-stieglitz inline-block">$</p>
-        <p className="inline-block">{info.getValue().strikePrice.toFixed(3)}</p>
+        <p className="inline-block">
+          {formatAmount(info.getValue().strikePrice, 4)}
+        </p>
       </span>
     ),
   }),
