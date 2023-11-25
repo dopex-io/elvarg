@@ -248,10 +248,9 @@ const Bond = () => {
         <Alert
           header="High Fee!"
           severity={averageFeeSeverity}
-          body={`You are risking losing ${formatBigint(
-            squeezeDelegatesResult.avgFee,
-            DECIMALS_TOKEN + 8,
-          )}% of your rtETH share on fees.`}
+          body={`You are risking losing ${Number(
+            formatBigint(squeezeDelegatesResult.avgFee, DECIMALS_TOKEN + 8),
+          ).toFixed(0)}% of your rtETH share on fees.`}
         />
       ) : null}
       <InfoBox
