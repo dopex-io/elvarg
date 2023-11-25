@@ -40,7 +40,7 @@ const RedeemAndStakeStepper = ({
 }: Props) => {
   const { address: user = '0x' } = useAccount();
 
-  const [_step, setStep] = useState<number>(0);
+  const [step, setStep] = useState<number>(0);
 
   const { data: balance = 0n, refetch: refetchBalance } = useContractRead({
     abi: ReceiptToken,
@@ -100,12 +100,7 @@ const RedeemAndStakeStepper = ({
     args: [balance],
   });
 
-  const {
-    stepperData,
-    errorMsg,
-    setErrorMsg,
-    /*,steps*/
-  } = useRedeemBondsSteps({
+  const { stepperData, errorMsg, setErrorMsg } = useRedeemBondsSteps({
     id,
     user,
     hooks: {
@@ -172,7 +167,7 @@ const RedeemAndStakeStepper = ({
       }}
       showCloseIcon
     >
-      <Stepper activeStep={_step} orientation="vertical">
+      <Stepper activeStep={step} orientation="vertical">
         {stepperData.map((_step) => (
           <Step key={_step.label}>
             <StepLabel>

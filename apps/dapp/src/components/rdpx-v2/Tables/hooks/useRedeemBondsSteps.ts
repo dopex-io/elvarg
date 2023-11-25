@@ -18,44 +18,41 @@ const useRedeemBondsSteps = (props: Props) => {
   const [errorMsg, setErrorMsg] = useState<string>('');
 
   const stepperData = useMemo(
-    () =>
-      [
-        {
-          label: 'Approve Bond',
-          description: 'Approval is required to claim your bond.',
-          disabled: false,
-          buttonLabel: 'Approve',
-          action: () =>
-            hooks.approveBond().catch((e) => setErrorMsg(String(e))),
-        },
-        {
-          label: 'Claim',
-          description: 'Claim rtETH that is vested to you over time.',
-          disabled: false,
-          buttonLabel: 'Claim',
-          action: () => hooks.vest().catch((e) => setErrorMsg(String(e))),
-        },
-        {
-          label: 'Approve rtETH',
-          description: 'Approval of rtETH is required for staking.',
-          disabled: false,
-          buttonLabel: 'Approve',
-          action: () =>
-            hooks.approveStaking().catch((e) => setErrorMsg(String(e))),
-        },
-        {
-          label: 'Stake',
-          description: 'Stake your rtETH to accrue rewards.',
-          disabled: false,
-          buttonLabel: 'Stake',
-          action: () => hooks.stake().catch((e) => setErrorMsg(String(e))),
-        },
-      ].filter((step) => step !== null),
+    () => [
+      {
+        label: 'Approve Bond',
+        description: 'Approval is required to claim your bond.',
+        disabled: false,
+        buttonLabel: 'Approve',
+        action: () => hooks.approveBond().catch((e) => setErrorMsg(String(e))),
+      },
+      {
+        label: 'Claim',
+        description: 'Claim rtETH that is vested to you over time.',
+        disabled: false,
+        buttonLabel: 'Claim',
+        action: () => hooks.vest().catch((e) => setErrorMsg(String(e))),
+      },
+      {
+        label: 'Approve rtETH',
+        description: 'Approval of rtETH is required for staking.',
+        disabled: false,
+        buttonLabel: 'Approve',
+        action: () =>
+          hooks.approveStaking().catch((e) => setErrorMsg(String(e))),
+      },
+      {
+        label: 'Stake',
+        description: 'Stake your rtETH to accrue rewards.',
+        disabled: false,
+        buttonLabel: 'Stake',
+        action: () => hooks.stake().catch((e) => setErrorMsg(String(e))),
+      },
+    ],
     [hooks],
   );
 
   return {
-    steps: stepperData.length,
     stepperData,
     errorMsg,
     setErrorMsg,

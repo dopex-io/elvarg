@@ -136,7 +136,7 @@ const useSqueezeDelegatedWeth = ({
       (delegateeShareOfBond * avgFeePercent) / parseUnits('1', 10); // fee % in 1e8 precision
 
     const delegateeShareAfterFee =
-      delegateeShareOfBond - delegateeShareLostFromFees; // in 1e8 for better precision
+      delegateeShareOfBond - delegateeShareLostFromFees;
 
     return delegateeShareAfterFee;
   }, [bonds, squeezeResult.avgFee]);
