@@ -47,7 +47,7 @@ const useRedeemBondsSteps = (props: Props) => {
           label: 'Stake',
           description: 'Stake your rtETH to accrue rewards.',
           disabled: false,
-          buttonLabel: 'Claim',
+          buttonLabel: 'Stake',
           action: () => hooks.stake().catch((e) => setErrorMsg(String(e))),
         },
       ].filter((step) => step !== null),

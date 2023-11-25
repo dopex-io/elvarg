@@ -42,7 +42,7 @@ const RedeemAndStakeStepper = ({
 
   const [_step, setStep] = useState<number>(0);
 
-  const { data: balance = 0n } = useContractRead({
+  const { data: balance = 0n, refetch: refetchBalance } = useContractRead({
     abi: ReceiptToken,
     address: addresses.receiptToken,
     functionName: 'balanceOf',
@@ -128,6 +128,7 @@ const RedeemAndStakeStepper = ({
     }
     if (vested) {
       setStep(2);
+      refetchBalance();
       updatePositions();
       setErrorMsg('');
     }
@@ -144,6 +145,7 @@ const RedeemAndStakeStepper = ({
     approved,
     approvedStaking,
     hasUserApproved,
+    refetchBalance,
     setErrorMsg,
     staked,
     updatePositions,
