@@ -14,6 +14,7 @@ export type DepositTransaction = {
 
 export type PurchaseTransaction = {
   strike: number;
+  amount: number;
   tokenAddress: Address;
   optionsPool: Address;
   premium: bigint;
