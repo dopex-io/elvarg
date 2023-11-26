@@ -25,9 +25,12 @@ const Page = () => {
   const { chain } = useNetwork();
 
   useEffect(() => {
+    const chainId = chain?.id ?? DEFAULT_CHAIN_ID;
     getOptionsPools(
-      chain?.id ?? DEFAULT_CHAIN_ID,
-      initialize,
+      chainId,
+      (data) => {
+        initialize(data, chainId);
+      },
       (error: string) => {
         console.error(error);
       },

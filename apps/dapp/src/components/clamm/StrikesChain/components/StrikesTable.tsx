@@ -174,15 +174,16 @@ const StrikesTable = () => {
 
   const loadStrikes = useCallback(async () => {
     if (!selectedOptionsPool) return;
+    const chainId = chain?.id ?? 42161;
 
     const data = await getStrikesChain(
-      chain?.id ?? 42161,
+      chainId,
       selectedOptionsPool.optionsPoolAddress,
       500,
       0,
     );
 
-    initialize(data ?? []);
+    initialize(data ?? [], chainId);
   }, [initialize, chain, , selectedOptionsPool]);
 
   useEffect(() => {
