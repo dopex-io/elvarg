@@ -4,18 +4,21 @@ export type OptionsPositionsResponse = {
   strike: number;
   side: 'call' | 'put';
   size: {
+    tokenAddress: Address;
     amountInToken: string;
     decimals: number;
     symbol: string;
     usdValue: string;
   };
   premium: {
+    tokenAddress: Address;
     amountInToken: string;
     decimals: number;
     symbol: string;
     usdValue: string;
   };
   profit: {
+    tokenAddress: Address;
     amountInToken: string;
     symbol: string;
     decimals: number;

@@ -1,3 +1,5 @@
+import { Address } from 'viem';
+
 import queryClient from 'queryClient';
 
 import { VARROCK_BASE_API_URL } from 'constants/env';
@@ -40,6 +42,7 @@ export type StrikesChainAPIResponse = {
   optionsAvailable: string;
   optionsAvailableInLiquidity: string;
   tokenSymbol: string;
+  tokenAddress: Address;
   tokenPrice: string;
   tokenDecimals: number;
   sources: { name: string; compositionPercentage: number }[];

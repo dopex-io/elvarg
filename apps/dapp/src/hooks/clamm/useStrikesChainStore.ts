@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 import { StrikesChainAPIResponse } from 'utils/clamm/varrock/getStrikesChain';
+import { getTokenSymbol } from 'utils/token';
 
 type StrikesChain = StrikesChainAPIResponse;
 export type SelectedStrike = {
@@ -25,7 +26,7 @@ export interface StrikesChainStore {
   selectedStrikes: Map<number, SelectedStrike>;
   selectStrike: (index: number, strike: SelectedStrike) => void;
   deselectStrike: (index: number) => void;
-  initialize: (data: StrikesChain) => void;
+  initialize: (data: StrikesChain, chainId: number) => void;
   strikesChain: StrikesChain;
   updateStrikes: () => void;
   setUpdateStrikes: (fn: () => void) => void;
@@ -35,10 +36,16 @@ const useStrikesChainStore = create<StrikesChainStore>((set) => ({
   updateStrikes: () => {},
   strikesChain: [],
   selectedStrikesErrors: new Map(),
-  initialize: (data: StrikesChain) => {
+  initialize: (data: StrikesChain, chainId: number) => {
     set((prev) => ({
       ...prev,
-      strikesChain: data,
+      strikesChain: data.map((strike) => ({
+        ...strike,
+        tokenSymbol: getTokenSymbol({
+          address: strike.tokenAddress,
+          chainId,
+        }),
+      })),
     }));
   },
   selectedStrikes: new Map(),
