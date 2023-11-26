@@ -10,7 +10,7 @@ const DOPEX_POLYGON_SSOV_SUBGRAPH_API_URL =
   'https://api.thegraph.com/subgraphs/name/garyunwin42/dopex-ssov-polygon';
 
 export const DOPEX_RDPX_V2_SUBGRAPH_API_URL =
-  'https://api.thegraph.com/subgraphs/name/hibou-de-nuit/rdpxv2';
+  'https://api.0xgraph.xyz/subgraphs/name/rdpx-v2-3';
 
 const config: CodegenConfig = {
   generates: {

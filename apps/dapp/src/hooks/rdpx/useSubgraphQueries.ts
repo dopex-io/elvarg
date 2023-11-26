@@ -9,6 +9,7 @@ import {
   getDelegateBonds,
   getDelegateV2Bonds,
   getHistoricBondsDocument,
+  getHistoricDepositsDocument,
   getHistoricRedeemRequestsDocument,
   getRdpxSuppliesDocument,
 } from 'graphql/rdpx-v2';
@@ -51,6 +52,14 @@ interface DelegateBond {
   timestamp: bigint;
 }
 
+interface UserDeposit {
+  owner: Address;
+  amount: bigint;
+  shares: bigint;
+  timestamp: bigint;
+  txHash: string;
+}
+
 interface UserAggregate {
   bonds: Bond[];
   redeems: Redeem[];
@@ -70,6 +79,7 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
     RedeemRequest[]
   >([]);
   const [delegateBonds, setDelegateBonds] = useState<DelegateBond[]>([]);
+  const [userDeposits, setUserDeposits] = useState<UserDeposit[]>([]);
   const [cumulativeRdpxBurned, setCumulativeRdpxBurned] = useState<
     {
       amount: bigint;
@@ -260,20 +270,52 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
     setCumulativeRdpxBurned(burnedCumulation);
   }, []);
 
+  const updateDepositHistory = useCallback(async () => {
+    setLoading(true);
+    const _userDeposits: UserDeposit[] = (
+      await queryClient
+        .fetchQuery({
+          queryKey: ['getUserDeposits'],
+          queryFn: () =>
+            request(
+              DOPEX_RDPX_V2_SUBGRAPH_API_URL,
+              getHistoricDepositsDocument,
+              {
+                owner: user.toLowerCase(),
+              },
+            ),
+        })
+        .then((res) => res.deposits)
+    )
+      .map((depositEntity) => ({
+        timestamp: depositEntity.transaction.timestamp,
+        txHash: depositEntity.transaction.hash,
+        owner: depositEntity.owner,
+        amount: depositEntity.assets,
+        shares: depositEntity.shares,
+      }))
+      .sort((a, b) => b.timestamp - a.timestamp);
+
+    setUserDeposits(_userDeposits);
+    setLoading(false);
+  }, [user]);
+
   useEffect(() => {
     updateDelegateBonds();
   }, [updateDelegateBonds]);
 
   return {
     userBondsHistoryData,
-    userRedeemRequestsHistory,
-    delegateBonds,
     updateUserBondingHistory,
+    userRedeemRequestsHistory,
     updateHistoricLpRedeemRequests,
+    delegateBonds,
     updateDelegateBonds,
     cumulativeRdpxBurned,
-    updateRdpxBurned,
     totalRdpxBurned,
+    updateRdpxBurned,
+    userDeposits,
+    updateDepositHistory,
     loading,
   };
 };

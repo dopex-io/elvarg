@@ -4,18 +4,24 @@ import { Button } from '@dopex-io/ui';
 
 import UserDepositGrid from 'components/rdpx-v2/Body/StrategyVault/UserDepositGrid';
 import QuickLink from 'components/rdpx-v2/QuickLink';
+import DepositHistory from 'components/rdpx-v2/Tables/DepositHistory';
 import RedeemRequests from 'components/rdpx-v2/Tables/RedeemRequests';
 import UserRedeemRequestsHistory from 'components/rdpx-v2/Tables/UserRedeemRequestsHistory';
 import Typography2 from 'components/UI/Typography2';
 
 import { quickLinks } from 'constants/rdpx';
 
-const actions = ['redeemRequests', 'history'] as const;
+const actions = [
+  'redeemRequests',
+  'redemptionHistory',
+  'depositHistory',
+] as const;
 type ActionType = (typeof actions)[number];
 
 const BUTTON_LABELS: { [key in ActionType]: string } = {
-  redeemRequests: 'Redeem Requests',
-  history: 'History',
+  redeemRequests: 'Pending Redemptions',
+  redemptionHistory: 'Redemptions',
+  depositHistory: 'Deposits',
 };
 
 const StrategyVaultBody = () => {
@@ -53,8 +59,9 @@ const StrategyVaultBody = () => {
             );
           })}
         </div>
-        {active === 'Redeem Requests' ? <RedeemRequests /> : null}
-        {active === 'History' ? <UserRedeemRequestsHistory /> : null}
+        {active === 'Pending Redemptions' ? <RedeemRequests /> : null}
+        {active === 'Redemptions' ? <UserRedeemRequestsHistory /> : null}
+        {active === 'Deposits' ? <DepositHistory /> : null}
       </div>
     </div>
   );
