@@ -91,6 +91,19 @@ const UserDepositGrid = () => {
           ]}
         />
         <Cell
+          label="Staked"
+          tooltipInfo={tooltips.staked}
+          data={[
+            [
+              formatBigint(userPerpetualVaultData.userStakedLp, DECIMALS_TOKEN),
+              'LP',
+            ],
+            ['', ''],
+          ]}
+        />
+      </div>
+      <div>
+        <Cell
           label="Redeemable"
           tooltipInfo={tooltips.redeemable}
           data={[
