@@ -46,7 +46,7 @@ export interface UserBond {
   id: bigint;
   vestedAmount: bigint;
   claimableBalance: bigint;
-  positionId?: bigint;
+  positionId: bigint;
 }
 
 export interface DelegatePosition {
@@ -232,7 +232,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
     }
     let userBonds = await Promise.all(multicallAggregate);
 
-    const _userBonds = userBonds.map((bond, i) => {
+    const _userBonds: UserBond[] = userBonds.map((bond, i) => {
       const rate =
         (bond[0] * parseUnits('1', DECIMALS_STRIKE)) / (bond[1] - bond[2]);
 
@@ -254,6 +254,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
         timestamp: bond[2],
         vestedAmount,
         claimableBalance,
+        positionId: -1n,
       };
     });
 
