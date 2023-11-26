@@ -187,6 +187,22 @@ export const getHistoricRedeemRequestsDocument = graphql(`
   }
 `);
 
+export const getHistoricDepositsDocument = graphql(`
+  query UserDepositHistory($owner: Bytes!) {
+    deposits(where: { owner: $owner }) {
+      id
+      shares
+      assets
+      caller
+      owner
+      transaction {
+        timestamp
+        hash
+      }
+    }
+  }
+`);
+
 // ============================== Token supplies ==============================
 export const getReceiptTokenSupplyDocument = graphql(`
   query getReceiptTokenSupply {
