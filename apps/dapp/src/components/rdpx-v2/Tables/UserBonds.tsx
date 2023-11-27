@@ -106,9 +106,7 @@ const UserBonds = () => {
         button: {
           label: label,
           id: bond.id,
-          disabled:
-            bond.maturity * 1000n < BigInt(new Date().getTime()) ||
-            bond.positionId !== -1n, // enable if either bond has matured or bond is vested
+          disabled: bond.positionId !== -1n, // enable if either bond has matured or bond is vested
           action: handleRedeem,
         },
       };
