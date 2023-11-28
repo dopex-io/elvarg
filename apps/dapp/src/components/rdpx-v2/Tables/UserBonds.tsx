@@ -73,17 +73,22 @@ const UserBonds = () => {
   const userRdpxBonds = useMemo(() => {
     if (userBonds.length === 0 && delegateBonds.length === 0) return [];
 
-    const formattedDelegateBonds = delegateBonds.map((bond) => ({
-      id: BigInt(bond.positionId),
-      maturity: bond.maturity,
-      contractAddress: bond.contractAddress,
-      amount: bond.amount,
-      timestamp: bond.timestamp,
-      positionId: BigInt(bond.positionId),
-      vestedAmount:
-        bond.maturity * 1000n > BigInt(new Date().getTime()) ? 0n : bond.amount,
-      claimableBalance: 0n,
-    }));
+    const formattedDelegateBonds = delegateBonds
+      .map((bond) => ({
+        id: BigInt(bond.positionId),
+        maturity: bond.maturity,
+        contractAddress: bond.contractAddress,
+        amount: bond.amount,
+        redeemed: bond.redeemed,
+        timestamp: bond.timestamp,
+        positionId: BigInt(bond.positionId),
+        vestedAmount:
+          bond.maturity * 1000n > BigInt(new Date().getTime())
+            ? 0n
+            : bond.amount,
+        claimableBalance: 0n,
+      }))
+      .filter((pos) => !pos.redeemed); // filter out redeemed bonds
 
     return userBonds.concat(formattedDelegateBonds).map((bond) => {
       let label = 'Claim';

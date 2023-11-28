@@ -47,6 +47,7 @@ interface DelegateBond {
   amount: bigint;
   ethAmount: bigint;
   rdpxAmount: bigint;
+  redeemed: boolean;
   txHash: string;
   positionId: string;
   maturity: bigint;
@@ -186,6 +187,7 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
             amount: BigInt(_pos1.amount),
             ethAmount: parseUnits(_pos1.wethRequired, 0),
             rdpxAmount: 0n,
+            redeemed: _pos1.redeemed,
             txHash: _pos1.id,
             positionId: _pos1.id.split('#')[1],
             maturity: parseUnits(_pos1.transaction.timestamp, 0) + 86400n * 5n,
@@ -196,6 +198,7 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
             amount: BigInt(_pos2.amount),
             ethAmount: 0n,
             rdpxAmount: parseUnits(_pos2.rdpxRequired, 0),
+            redeemed: _pos2.redeemed,
             txHash: _pos2.id,
             positionId: _pos2.id.split('#')[1],
             maturity: parseUnits(_pos2.transaction.timestamp, 0) + 86400n * 5n,
@@ -220,6 +223,7 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
             amount: BigInt(_pos1.amount),
             ethAmount: parseUnits(_pos1.wethRequired, 0),
             rdpxAmount: 0n,
+            redeemed: _pos1.redeemed,
             txHash: _pos1.id,
             positionId: _pos1.id.split('#')[1],
             maturity: parseUnits(_pos1.transaction.timestamp, 0) + 86400n * 5n,
@@ -230,6 +234,7 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
             amount: BigInt(_pos2.amount),
             ethAmount: 0n,
             rdpxAmount: parseUnits(_pos2.rdpxRequired, 0),
+            redeemed: _pos2.redeemed,
             txHash: _pos2.id,
             positionId: _pos2.id.split('#')[1],
             maturity: parseUnits(_pos2.transaction.timestamp, 0) + 86400n * 5n,
