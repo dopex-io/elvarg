@@ -95,13 +95,7 @@ const UserBonds = () => {
 
       const handleRedeem = () => {
         if (bond.positionId === -1n) handleVest(bond.id);
-        else
-          redeemDelegateBond(
-            BigInt(bond.positionId),
-            bond.contractAddress === zeroAddress
-              ? addresses.delegateBondsV2
-              : addresses.delegateBondsV1,
-          );
+        else redeemDelegateBond(BigInt(bond.positionId), bond.contractAddress);
       };
 
       return {
