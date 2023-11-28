@@ -31,7 +31,7 @@ const DelegatePositions = () => {
       const write = async () =>
         await writeContract({
           abi: DelegateBonds,
-          address: addresses.delegateBonds,
+          address: addresses.delegateBondsV2,
           functionName: 'withdraw',
           args: [id],
         });

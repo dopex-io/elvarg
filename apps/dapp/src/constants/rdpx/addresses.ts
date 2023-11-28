@@ -3,7 +3,8 @@ import { Address } from 'viem';
 export const rdpxV2ContractKeys = [
   'v2core',
   'perpPool',
-  'delegateBonds',
+  'delegateBondsV1',
+  'delegateBondsV2',
   'perpPoolLp',
   'receiptToken',
   'rdpxReserve',
@@ -26,7 +27,8 @@ type AddressKey = (typeof rdpxV2ContractKeys)[number];
 const addresses: { [key in AddressKey]: Address } = {
   v2core: '0xAe1De74153fb8f46f16A2cCFf6B922dD1dc7dD13',
   perpPool: '0x57AA1138BC3ede5A6320C452f2E4871A7dD002b5',
-  delegateBonds: '0x44E0D0853a465419C6017fd5dA6F550C293D81AA',
+  delegateBondsV1: '0x848faD32b251CDa18a0c0f43cd2ac35Eb931b407',
+  delegateBondsV2: '0x44E0D0853a465419C6017fd5dA6F550C293D81AA',
   perpPoolLp: '0x819F4B81c7eEc22b3EdC1d9E150896C5F4eEA6cB',
   receiptToken: '0xc15B9DB0ee5B1B7FB8800A644457207f482e260D',
   rdpxReserve: '0x13F4063c6E0CB8B6486fcb726dCe3CD19bae97E8',

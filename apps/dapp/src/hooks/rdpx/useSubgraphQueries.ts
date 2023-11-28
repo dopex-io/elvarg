@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Address, parseUnits } from 'viem';
+import { Address, checksumAddress, parseUnits } from 'viem';
 
 import request from 'graphql-request';
 
@@ -43,6 +43,7 @@ interface RedeemRequest {
 }
 
 interface DelegateBond {
+  contractAddress: Address;
   amount: bigint;
   ethAmount: bigint;
   rdpxAmount: bigint;
@@ -181,6 +182,7 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
       .then((res) =>
         [
           ...res.delegatePositions.map((_pos1) => ({
+            contractAddress: checksumAddress(_pos1.id.split('#')[2] as Address),
             amount: BigInt(_pos1.amount),
             ethAmount: parseUnits(_pos1.wethRequired, 0),
             rdpxAmount: 0n,
@@ -190,6 +192,7 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
             timestamp: parseUnits(_pos1.transaction.timestamp, 0),
           })),
           ...res.delegateePositions.map((_pos2) => ({
+            contractAddress: checksumAddress(_pos2.id.split('#')[2] as Address),
             amount: BigInt(_pos2.amount),
             ethAmount: 0n,
             rdpxAmount: parseUnits(_pos2.rdpxRequired, 0),
@@ -213,6 +216,7 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
       .then((res) =>
         [
           ...res.v2DelegatePositions.map((_pos1) => ({
+            contractAddress: checksumAddress(_pos1.id.split('#')[2] as Address),
             amount: BigInt(_pos1.amount),
             ethAmount: parseUnits(_pos1.wethRequired, 0),
             rdpxAmount: 0n,
@@ -222,6 +226,7 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
             timestamp: parseUnits(_pos1.transaction.timestamp, 0),
           })),
           ...res.v2DelegateePositions.map((_pos2) => ({
+            contractAddress: checksumAddress(_pos2.id.split('#')[2] as Address),
             amount: BigInt(_pos2.amount),
             ethAmount: 0n,
             rdpxAmount: parseUnits(_pos2.rdpxRequired, 0),

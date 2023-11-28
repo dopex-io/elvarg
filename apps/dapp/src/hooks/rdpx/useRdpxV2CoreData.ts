@@ -47,6 +47,7 @@ export interface UserBond {
   vestedAmount: bigint;
   claimableBalance: bigint;
   positionId: bigint;
+  contractAddress: Address;
 }
 
 export interface DelegatePosition {
@@ -255,6 +256,7 @@ const useRdpxV2CoreData = ({ user = '0x' }: Props) => {
         vestedAmount,
         claimableBalance,
         positionId: -1n,
+        contractAddress: zeroAddress,
       };
     });
 
