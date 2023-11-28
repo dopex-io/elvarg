@@ -1,5 +1,3 @@
-import dynamic from 'next/dynamic';
-
 import { Button } from '@dopex-io/ui';
 import { useAccount, useContractRead, useContractWrite } from 'wagmi';
 
@@ -66,7 +64,7 @@ const StakingBody = () => {
         {earned ? (
           <div className="p-3 flex space-x-2">
             <Button
-              color="mineshaft"
+              color="primary"
               size="medium"
               className="w-full"
               onClick={() => claim()}
