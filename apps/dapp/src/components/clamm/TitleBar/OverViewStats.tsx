@@ -32,6 +32,8 @@ type Stats = {
 const OverViewStats = () => {
   const { selectedOptionsPool, markPrice, setMarkPrice, setTick } =
     useClammStore();
+
+  const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<Stats>({
     openInterest: {
       openInterest: '0',
@@ -78,30 +80,22 @@ const OverViewStats = () => {
   }, [selectedOptionsPool, setMarkPrice, setTick]);
 
   useEffect(() => {
-    if (!selectedOptionsPool) return;
-
-    if (stats.activePair === selectedOptionsPool.pairName) {
-      // update every 5 seconds if token pair remains unchanged
-      const interval = setInterval(async () => {
-        await updatePrice();
-      }, 5000);
-      return () => clearInterval(interval);
-    } else updatePrice();
-    // else update on component mount
-  }, [selectedOptionsPool, stats.activePair, updatePrice]);
+    setLoading(true);
+    updateStats().finally(() => setLoading(false));
+    const updateStatsInterval = setInterval(() => updateStats(), 15000);
+    return () => clearInterval(updateStatsInterval);
+  }, [updateStats]);
 
   useEffect(() => {
-    if (!selectedOptionsPool || !selectedOptionsPool.optionsPoolAddress) return;
-
-    if (stats.activePair === selectedOptionsPool.pairName) {
-      const interval = setInterval(async () => await updateStats(), 15000);
-      return () => clearInterval(interval);
-    } else updateStats();
-  }, [selectedOptionsPool, stats, updateStats]);
+    setLoading(true);
+    updatePrice().finally(() => setLoading(false));
+    const updatePriceInterval = setInterval(() => updatePrice(), 5000);
+    return () => clearInterval(updatePriceInterval);
+  }, [updatePrice]);
 
   return (
     <div className="grid grid-flow-col md:grid-rows-1 grid-rows-2 gap-y-4 w-full md:w-2/5">
-      {selectedOptionsPool ? (
+      {!loading ? (
         <>
           <Stat
             stat={{
