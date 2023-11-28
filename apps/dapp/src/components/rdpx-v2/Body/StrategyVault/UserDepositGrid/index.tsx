@@ -25,7 +25,7 @@ const UserDepositGrid = () => {
   } = usePerpPoolData({
     user,
   });
-  const { stake, unstake, earned, claim, stakedBalance } = useRewardsState({
+  const { stake, unstake, earned, claim } = useRewardsState({
     user,
     stakeAmount:
       userPerpetualVaultData.totalUserShares -
