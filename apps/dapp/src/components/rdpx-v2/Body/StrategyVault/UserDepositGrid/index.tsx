@@ -27,7 +27,9 @@ const UserDepositGrid = () => {
   });
   const { stake, unstake, earned, claim, stakedBalance } = useRewardsState({
     user,
-    stakeAmount: userPerpetualVaultData.totalUserShares,
+    stakeAmount:
+      userPerpetualVaultData.totalUserShares -
+      userPerpetualVaultData.userStakedLp,
   });
 
   useEffect(() => {
@@ -150,7 +152,10 @@ const UserDepositGrid = () => {
           {
             label: 'Stake',
             handler: () => stake(),
-            disabled: userPerpetualVaultData.totalUserShares === 0n,
+            disabled:
+              userPerpetualVaultData.totalUserShares -
+                userPerpetualVaultData.userStakedLp ===
+              0n,
           },
           {
             label: 'Claim',
@@ -160,7 +165,7 @@ const UserDepositGrid = () => {
           {
             label: 'Unstake',
             handler: () => unstake(),
-            disabled: stakedBalance === 0n,
+            disabled: userPerpetualVaultData.userStakedLp === 0n,
           },
         ]}
       />
