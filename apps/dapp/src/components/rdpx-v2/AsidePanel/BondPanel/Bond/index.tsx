@@ -72,7 +72,7 @@ const Bond = () => {
     updateBalance: updateBalanceRdpx,
   } = useTokenData({
     amount: inputAmountBreakdown[0],
-    spender: delegated ? addresses.delegateBonds : addresses.v2core,
+    spender: delegated ? addresses.delegateBondsV2 : addresses.v2core,
     token: addresses.rdpx,
   });
   const {
@@ -100,7 +100,7 @@ const Bond = () => {
       address: addresses.rdpx,
       functionName: 'approve',
       args: [
-        delegated ? addresses.delegateBonds : addresses.v2core, // approve DelegateController if delegate bonding
+        delegated ? addresses.delegateBondsV2 : addresses.v2core, // approve DelegateController if delegate bonding
         (inputAmountBreakdown[0] * parseUnits('1.01', DECIMALS_TOKEN)) /
           parseUnits('1', DECIMALS_TOKEN), // approve 1% more as buffer
       ],
@@ -125,7 +125,7 @@ const Bond = () => {
   const { write: delegateBond, isSuccess: delegateBondSuccess } =
     useContractWrite({
       abi: DelegateBonds,
-      address: addresses.delegateBonds,
+      address: addresses.delegateBondsV2,
       functionName: 'bondWithDelegate',
       args: [
         squeezeDelegatesResult.bondBreakdown,

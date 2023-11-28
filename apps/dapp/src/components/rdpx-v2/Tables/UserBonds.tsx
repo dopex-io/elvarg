@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { zeroAddress } from 'viem';
 
-import { useAccount, useContractRead } from 'wagmi';
+import { Address, useAccount, useContractRead } from 'wagmi';
 import { writeContract } from 'wagmi/actions';
 
 import useRdpxV2CoreData, { UserBond } from 'hooks/rdpx/useRdpxV2CoreData';
@@ -49,11 +50,11 @@ const UserBonds = () => {
   };
 
   const redeemDelegateBond = useCallback(
-    async (posId: bigint) => {
+    async (posId: bigint, contractAddress: Address) => {
       const delegateBond = async () =>
         await writeContract({
           abi: DelegateBonds,
-          address: addresses.delegateBonds,
+          address: contractAddress,
           functionName: 'redeem',
           args: [posId],
         });
@@ -72,9 +73,10 @@ const UserBonds = () => {
   const userRdpxBonds = useMemo(() => {
     if (userBonds.length === 0 && delegateBonds.length === 0) return [];
 
-    const formattedDelegateBonds: UserBond[] = delegateBonds.map((bond) => ({
+    const formattedDelegateBonds = delegateBonds.map((bond) => ({
       id: BigInt(bond.positionId),
       maturity: bond.maturity,
+      contractAddress: bond.contractAddress,
       amount: bond.amount,
       timestamp: bond.timestamp,
       positionId: BigInt(bond.positionId),
@@ -85,13 +87,21 @@ const UserBonds = () => {
 
     return userBonds.concat(formattedDelegateBonds).map((bond) => {
       let label = 'Claim';
+      let disabled = false;
       if (bond.positionId !== -1n) {
         label = 'Redeem';
+        disabled = bond.maturity * 1000n > BigInt(new Date().getTime());
       }
 
       const handleRedeem = () => {
         if (bond.positionId === -1n) handleVest(bond.id);
-        else redeemDelegateBond(BigInt(bond.positionId));
+        else
+          redeemDelegateBond(
+            BigInt(bond.positionId),
+            bond.contractAddress === zeroAddress
+              ? addresses.delegateBondsV2
+              : addresses.delegateBondsV1,
+          );
       };
 
       return {
@@ -106,7 +116,7 @@ const UserBonds = () => {
         button: {
           label: label,
           id: bond.id,
-          disabled: bond.positionId !== -1n, // enable if either bond has matured or bond is vested
+          disabled, // enable if either bond has matured or bond is vested
           action: handleRedeem,
         },
       };
