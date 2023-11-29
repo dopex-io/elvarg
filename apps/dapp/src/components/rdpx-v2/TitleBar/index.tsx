@@ -1,6 +1,6 @@
 import { ReactNode, useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
-import { parseUnits } from 'viem';
+import { formatUnits, parseUnits } from 'viem';
 
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -67,7 +67,7 @@ const TitleBar = () => {
           return data.data;
         });
     },
-    staleTime: 300000,
+    staleTime: 30000,
   });
 
   const { rtRewardAPR = '0', ppvRewardAPR = '0' } = useRewardAPR();
@@ -187,10 +187,7 @@ const TitleBar = () => {
                 name="RDPX Price"
                 value={`$${Number(
                   Number(
-                    formatBigint(
-                      rdpxV2CoreState.rdpxPriceInEth,
-                      DECIMALS_TOKEN,
-                    ),
+                    formatUnits(rdpxV2CoreState.rdpxPriceInEth, DECIMALS_TOKEN),
                   ) * (data?.oraclePrice || 0),
                 ).toFixed(3)}`}
               />
