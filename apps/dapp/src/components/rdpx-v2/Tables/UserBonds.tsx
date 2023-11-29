@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { zeroAddress } from 'viem';
 
 import { Address, useAccount, useContractRead } from 'wagmi';
 import { writeContract } from 'wagmi/actions';
 
-import useRdpxV2CoreData, { UserBond } from 'hooks/rdpx/useRdpxV2CoreData';
+import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 import useSubgraphQueries from 'hooks/rdpx/useSubgraphQueries';
 
 import TableLayout from 'components/common/TableLayout';
@@ -60,10 +59,10 @@ const UserBonds = () => {
         });
 
       await delegateBond()
-        .then(() => refetchBalance())
+        .then(() => refetchBalance().then(() => updateDelegateBonds()))
         .catch((e) => console.error(e));
     },
-    [refetchBalance],
+    [refetchBalance, updateDelegateBonds],
   );
 
   const handleClose = useCallback(() => {
@@ -91,10 +90,8 @@ const UserBonds = () => {
       .filter((pos) => !pos.redeemed); // filter out redeemed bonds
 
     return userBonds.concat(formattedDelegateBonds).map((bond) => {
-      let label = 'Claim';
       let disabled = false;
       if (bond.positionId !== -1n) {
-        label = 'Redeem';
         disabled = bond.maturity * 1000n > BigInt(new Date().getTime());
       }
 
@@ -113,7 +110,7 @@ const UserBonds = () => {
           amount: bond.amount,
         },
         button: {
-          label: label,
+          label: 'Claim',
           id: bond.id,
           disabled, // enable if either bond has matured or bond is vested
           action: handleRedeem,

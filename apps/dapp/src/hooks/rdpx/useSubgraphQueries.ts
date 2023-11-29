@@ -172,6 +172,7 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
   }, [user]);
 
   const updateDelegateBonds = useCallback(async () => {
+    setLoading(true);
     const delegateBonds = await queryClient
       .fetchQuery({
         queryKey: ['getAllRedeems'],
@@ -245,6 +246,7 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
       .catch(() => []);
 
     setDelegateBonds([...delegateBonds, ...delegateBondsV2]);
+    setLoading(false);
   }, [user]);
 
   const updateRdpxBurned = useCallback(async () => {
