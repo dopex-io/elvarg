@@ -149,7 +149,8 @@ const UserBonds = () => {
     for (let i = 0; i < delegateBonds.length; i++) {
       if (
         delegateBonds[i].maturity * 1000n < BigInt(new Date().getTime()) &&
-        !delegateBonds[i].redeemed
+        !delegateBonds[i].redeemed &&
+        delegateBonds[i].contractAddress === addresses.delegateBondsV2
       ) {
         _pendingDelegateBonds.push({
           positionId: BigInt(delegateBonds[i].positionId),

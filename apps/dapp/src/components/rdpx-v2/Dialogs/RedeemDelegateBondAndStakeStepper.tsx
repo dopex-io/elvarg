@@ -36,7 +36,7 @@ interface Props {
 const RedeemDelegateBondAndStakeStepper = ({
   open,
   handleClose,
-  data: { positions },
+  data: { positions = [] },
   updatePositions,
   claimable,
 }: Props) => {
