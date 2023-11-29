@@ -7,7 +7,7 @@ import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
 import useSubgraphQueries from 'hooks/rdpx/useSubgraphQueries';
 
 import TableLayout from 'components/common/TableLayout';
-import RedeemAndStakeStepper from 'components/rdpx-v2/Dialogs/RedeemAndStakeStepper';
+import RedeemBondAndStakeStepper from 'components/rdpx-v2/Dialogs/RedeemBondAndStakeStepper';
 import columns, {
   UserBonds as UserBondsType,
 } from 'components/rdpx-v2/Tables/ColumnDefs/BondsColumn';
@@ -136,7 +136,7 @@ const UserBonds = () => {
         isContentLoading={loading && user !== '0x'}
         fill="bg-umbra"
       />
-      <RedeemAndStakeStepper
+      <RedeemBondAndStakeStepper
         open={dialogState.open}
         handleClose={handleClose}
         data={{ id: dialogState.id }}

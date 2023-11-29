@@ -31,7 +31,7 @@ interface Props {
   claimable?: bigint;
 }
 
-const RedeemAndStakeStepper = ({
+const RedeemBondAndStakeStepper = ({
   open,
   handleClose,
   data: { id },
@@ -200,4 +200,4 @@ const RedeemAndStakeStepper = ({
   );
 };
 
-export default RedeemAndStakeStepper;
+export default RedeemBondAndStakeStepper;
