@@ -21,7 +21,7 @@ import TableLayout from 'components/common/TableLayout';
 
 import getExerciseTxData from 'utils/clamm/varrock/getExerciseTxData';
 import { formatAmount } from 'utils/general';
-import getPercentageDifference from 'utils/math/getPercentageDifference';
+import { getTokenSymbol } from 'utils/token';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
@@ -52,7 +52,6 @@ export type BuyPosition = {
   };
   expiry: number;
   profit: {
-    percentage: number;
     amount: number;
     symbol: string;
     usdValue: number;
@@ -124,7 +123,6 @@ const columns = [
   columnHelper.accessor('premium', {
     header: 'Premium',
     cell: (info) => {
-      const { amount, symbol } = info.getValue();
       return (
         <div className="flex flex-col items-start justfiy-start">
           <div className="flex items-center justify-start space-x-[3px]">
@@ -145,7 +143,7 @@ const columns = [
   columnHelper.accessor('profit', {
     header: 'Profit',
     cell: (info) => {
-      let { amount, usdValue, symbol, percentage } = info.getValue();
+      let { amount, usdValue, symbol } = info.getValue();
       const amountInNumber = Number(amount);
 
       return (
@@ -281,14 +279,15 @@ const BuyPositions = ({
   );
 
   const positions = useMemo(() => {
+    const chainId = chain?.id ?? DEFAULT_CHAIN_ID;
     return buyPositions
       .map(
         (
-          { expiry, premium, profit, side, size, strike, meta }: any,
+          { expiry, premium, profit, side, size, strike, meta },
           index: number,
         ) => {
           const readablePremium = formatUnits(
-            premium.amountInToken,
+            BigInt(premium.amountInToken),
             premium.decimals,
           );
 
@@ -302,14 +301,14 @@ const BuyPositions = ({
           const optionsAmount =
             side.toLowerCase() === 'put'
               ? Number(size.usdValue) / Number(strike)
-              : Number(formatUnits(size.amountInToken, size.decimals));
+              : Number(formatUnits(BigInt(size.amountInToken), size.decimals));
 
           const profitUsd =
             priceDifference < 0 ? 0 : priceDifference * optionsAmount;
           const profitAmount = isPut ? profitUsd / markPrice : profitUsd;
 
           const sizeInNumber = Number(
-            formatUnits(size.amountInToken, size.decimals),
+            formatUnits(BigInt(size.amountInToken), size.decimals),
           );
           const sizeUsd = isPut ? sizeInNumber : sizeInNumber * markPrice;
 
@@ -320,28 +319,30 @@ const BuyPositions = ({
 
           return {
             breakEven,
-            expiry,
+            expiry: Number(expiry),
             premium: {
               amount: readablePremium,
-              symbol: premium.symbol,
+              symbol: getTokenSymbol({
+                chainId,
+                address: premium.tokenAddress,
+              }),
               usdValue: premium.usdValue,
             },
             profit: {
               amount: profitAmount,
               usdValue: profitUsd,
-              symbol: profit.symbol,
-              percentage: Math.max(
-                getPercentageDifference(
-                  Number(profit.amount),
-                  Number(readablePremium),
-                ),
-                0,
-              ),
+              symbol: getTokenSymbol({
+                chainId,
+                address: profit.tokenAddress,
+              }),
             },
             side: side.charAt(0).toUpperCase() + side.slice(1),
             size: {
               amount: sizeInNumber,
-              symbol: size.symbol,
+              symbol: getTokenSymbol({
+                chainId,
+                address: size.tokenAddress,
+              }),
               usdValue: sizeUsd,
             },
             strike: {
@@ -369,6 +370,7 @@ const BuyPositions = ({
           Number(a.strike.strikePrice) - Number(b.strike.strikePrice),
       );
   }, [
+    chain?.id,
     buyPositions,
     markPrice,
     handleExercise,
