@@ -20,7 +20,7 @@ const useRedeemDelegateBondsSteps = (props: Props) => {
       {
         label: 'Multi-claim',
         description:
-          'Claim rtETH across all matured delegate bonds in a single transaction.',
+          'Claim rtETH across all matured delegate bonds in a single transaction. This is only supported for Delegation Controller V2.',
         disabled: false,
         buttonLabel: 'Claim',
         action: () => hooks.multiredeem().catch((e) => setErrorMsg(String(e))),
