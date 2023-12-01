@@ -29,7 +29,7 @@ export const rdpxStateToLabelMapping: {
   bond: 'Bonding',
   lp: 'Perp Put Vault',
   stake: 'Staking',
-  // farm: 'Farm',
+  farm: 'Farm',
 };
 
 const Stat = ({
@@ -227,8 +227,8 @@ const TitleBar = () => {
             </div>
           ),
         };
-      // case 'farm':
-      //   return { index: 3, renderComponent: <></> };
+      case 'farm':
+        return { index: 3, renderComponent: <></> };
       default:
         return { index: defaultIndex, renderComponent: <></> };
     }

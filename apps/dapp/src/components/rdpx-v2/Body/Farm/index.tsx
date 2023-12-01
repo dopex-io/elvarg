@@ -2,20 +2,13 @@ import Card from 'components/rdpx-v2/Body/Farm/Card';
 
 const Farm = () => {
   return (
-    <div className="flex w-full space-x-2">
-      <Card
-        title="DPXETH-WETH"
-        subtitle="LP Farm"
-        imgSrc={['/images/tokens/dpxeth.svg', '/images/tokens/weth.svg']}
-        disable={true}
-        url="https://arbiscan.io"
-      />
+    <div className="flex w-full space-x-2 justify-center">
       <Card
         title="rtETH-WETH"
         subtitle="LP Farm"
         imgSrc={['/images/tokens/rteth.svg', '/images/tokens/weth.svg']}
-        disable={true}
-        url="https://arbiscan.io"
+        disabled={false}
+        url="https://curve.fi/#/arbitrum/pools/factory-v2-147/deposit"
       />
     </div>
   );
