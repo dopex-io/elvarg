@@ -34,7 +34,7 @@ const Delegate = () => {
   const { address: user = '0x' } = useAccount();
   const { balance, updateBalance, approved, updateAllowance } = useTokenData({
     token: addresses.weth,
-    spender: addresses.delegateBonds,
+    spender: addresses.delegateBondsV2,
     amount,
   });
   const { updateUserBonds, updateUserDelegatePositions } = useRdpxV2CoreData({
@@ -44,11 +44,11 @@ const Delegate = () => {
     abi: erc20ABI,
     address: addresses.weth,
     functionName: 'approve',
-    args: [addresses.delegateBonds, parseUnits(amount, DECIMALS_TOKEN)],
+    args: [addresses.delegateBondsV2, parseUnits(amount, DECIMALS_TOKEN)],
   });
   const { write: delegate, isSuccess: delegateSuccess } = useContractWrite({
     abi: DelegateBonds,
-    address: addresses.delegateBonds,
+    address: addresses.delegateBondsV2,
     functionName: 'addToDelegate',
     args: [
       parseUnits(amount, DECIMALS_TOKEN),

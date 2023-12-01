@@ -20,6 +20,7 @@ import { PositionsTableProps } from 'components/clamm/PositionsTable';
 import TableLayout from 'components/common/TableLayout';
 
 import { formatAmount } from 'utils/general';
+import { getTokenSymbol } from 'utils/token';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
@@ -68,7 +69,9 @@ const columns = [
           size="small"
         />
         <p className="text-stieglitz inline-block">$</p>
-        <p className="inline-block">{info.getValue().strikePrice.toFixed(3)}</p>
+        <p className="inline-block">
+          {formatAmount(info.getValue().strikePrice, 4)}
+        </p>
       </span>
     ),
   }),
@@ -211,6 +214,7 @@ const LPPositions = ({
   );
 
   const positions = useMemo(() => {
+    const chainId = chain?.id ?? DEFAULT_CHAIN_ID;
     return lpPositions
       .map(
         (
@@ -220,10 +224,10 @@ const LPPositions = ({
             token1LiquidityInToken,
             token0Earned,
             token1Earned,
-            token0Symbol,
+            token0Address,
             token0Decimals,
             token1Decimals,
-            token1Symbol,
+            token1Address,
             token0Withdrawable,
             token1Withdrawable,
             meta,
@@ -249,8 +253,14 @@ const LPPositions = ({
                 BigInt(token1Earned),
                 Number(token1Decimals),
               ),
-              token0Symbol: token0Symbol,
-              token1Symbol: token1Symbol,
+              token0Symbol: getTokenSymbol({
+                address: token0Address,
+                chainId,
+              }),
+              token1Symbol: getTokenSymbol({
+                address: token1Address,
+                chainId,
+              }),
             },
             side: side,
             size: {
@@ -262,8 +272,14 @@ const LPPositions = ({
                 BigInt(token1LiquidityInToken),
                 Number(token1Decimals),
               ),
-              token0Symbol: token0Symbol,
-              token1Symbol: token1Symbol,
+              token0Symbol: getTokenSymbol({
+                address: token0Address,
+                chainId,
+              }),
+              token1Symbol: getTokenSymbol({
+                address: token1Address,
+                chainId,
+              }),
             },
             strike: {
               handleSelect: () => {
@@ -286,8 +302,14 @@ const LPPositions = ({
                 BigInt(token1Withdrawable),
                 Number(token1Decimals),
               ),
-              token0Symbol: token0Symbol,
-              token1Symbol: token1Symbol,
+              token0Symbol: getTokenSymbol({
+                address: token0Address,
+                chainId,
+              }),
+              token1Symbol: getTokenSymbol({
+                address: token1Address,
+                chainId,
+              }),
             },
             withdrawButton: {
               disabled: BigInt(meta.withdrawableShares) === 0n,
@@ -304,6 +326,7 @@ const LPPositions = ({
           Number(a.strike.strikePrice) - Number(b.strike.strikePrice),
       );
   }, [
+    chain?.id,
     tick,
     lpPositions,
     selectPosition,

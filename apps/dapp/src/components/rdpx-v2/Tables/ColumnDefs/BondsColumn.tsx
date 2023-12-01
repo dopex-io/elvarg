@@ -16,11 +16,10 @@ export interface UserBonds {
     vested: bigint;
     claimable: bigint;
   };
-  redeemable: Boolean;
   timestamp: bigint;
   button: {
-    handleRedeem: () => void;
-    redeemable: boolean;
+    action: () => void;
+    disabled: boolean;
     id: bigint;
     label: string;
   };
@@ -116,9 +115,9 @@ const columns = [
         <Button
           size="small"
           key={value.id}
-          color={value.redeemable ? 'primary' : 'mineshaft'}
-          onClick={value.handleRedeem}
-          disabled={!value.redeemable}
+          color={value.disabled ? 'mineshaft' : 'primary'}
+          onClick={value.action}
+          disabled={value.disabled}
           className="text-xs"
         >
           {value.label}

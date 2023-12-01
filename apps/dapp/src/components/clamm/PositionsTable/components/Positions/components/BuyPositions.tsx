@@ -7,6 +7,7 @@ import {
   ArrowUpRightIcon,
 } from '@heroicons/react/20/solid';
 import { createColumnHelper } from '@tanstack/react-table';
+import cx from 'classnames';
 import { formatDistance } from 'date-fns';
 import toast from 'react-hot-toast';
 import { useNetwork, useWalletClient } from 'wagmi';
@@ -20,7 +21,7 @@ import TableLayout from 'components/common/TableLayout';
 
 import getExerciseTxData from 'utils/clamm/varrock/getExerciseTxData';
 import { formatAmount } from 'utils/general';
-import getPercentageDifference from 'utils/math/getPercentageDifference';
+import { getTokenSymbol } from 'utils/token';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
@@ -51,7 +52,6 @@ export type BuyPosition = {
   };
   expiry: number;
   profit: {
-    percentage: number;
     amount: number;
     symbol: string;
     usdValue: number;
@@ -65,7 +65,9 @@ const columns = [
     cell: (info) => (
       <span className="flex space-x-2 text-left items-center justify-start">
         <p className="text-stieglitz inline-block">$</p>
-        <p className="inline-block">{info.getValue().strikePrice.toFixed(5)}</p>
+        <p className="inline-block">
+          {formatAmount(info.getValue().strikePrice, 5)}
+        </p>
       </span>
     ),
   }),
@@ -121,7 +123,6 @@ const columns = [
   columnHelper.accessor('premium', {
     header: 'Premium',
     cell: (info) => {
-      const { amount, symbol } = info.getValue();
       return (
         <div className="flex flex-col items-start justfiy-start">
           <div className="flex items-center justify-start space-x-[3px]">
@@ -142,7 +143,7 @@ const columns = [
   columnHelper.accessor('profit', {
     header: 'Profit',
     cell: (info) => {
-      let { amount, usdValue, symbol, percentage } = info.getValue();
+      let { amount, usdValue, symbol } = info.getValue();
       const amountInNumber = Number(amount);
 
       return (
@@ -278,14 +279,15 @@ const BuyPositions = ({
   );
 
   const positions = useMemo(() => {
+    const chainId = chain?.id ?? DEFAULT_CHAIN_ID;
     return buyPositions
       .map(
         (
-          { expiry, premium, profit, side, size, strike, meta }: any,
+          { expiry, premium, profit, side, size, strike, meta },
           index: number,
         ) => {
           const readablePremium = formatUnits(
-            premium.amountInToken,
+            BigInt(premium.amountInToken),
             premium.decimals,
           );
 
@@ -296,21 +298,17 @@ const BuyPositions = ({
             ? strike - markPrice
             : markPrice - strike;
 
-          const optionsSize = Number(
-            formatUnits(size.amountInToken, size.decimals),
-          );
-
           const optionsAmount =
             side.toLowerCase() === 'put'
               ? Number(size.usdValue) / Number(strike)
-              : Number(formatUnits(size.amountInToken, size.decimals));
+              : Number(formatUnits(BigInt(size.amountInToken), size.decimals));
 
           const profitUsd =
             priceDifference < 0 ? 0 : priceDifference * optionsAmount;
           const profitAmount = isPut ? profitUsd / markPrice : profitUsd;
 
           const sizeInNumber = Number(
-            formatUnits(size.amountInToken, size.decimals),
+            formatUnits(BigInt(size.amountInToken), size.decimals),
           );
           const sizeUsd = isPut ? sizeInNumber : sizeInNumber * markPrice;
 
@@ -321,28 +319,30 @@ const BuyPositions = ({
 
           return {
             breakEven,
-            expiry,
+            expiry: Number(expiry),
             premium: {
               amount: readablePremium,
-              symbol: premium.symbol,
+              symbol: getTokenSymbol({
+                chainId,
+                address: premium.tokenAddress,
+              }),
               usdValue: premium.usdValue,
             },
             profit: {
               amount: profitAmount,
               usdValue: profitUsd,
-              symbol: profit.symbol,
-              percentage: Math.max(
-                getPercentageDifference(
-                  Number(profit.amount),
-                  Number(readablePremium),
-                ),
-                0,
-              ),
+              symbol: getTokenSymbol({
+                chainId,
+                address: profit.tokenAddress,
+              }),
             },
             side: side.charAt(0).toUpperCase() + side.slice(1),
             size: {
               amount: sizeInNumber,
-              symbol: size.symbol,
+              symbol: getTokenSymbol({
+                chainId,
+                address: size.tokenAddress,
+              }),
               usdValue: sizeUsd,
             },
             strike: {
@@ -370,6 +370,7 @@ const BuyPositions = ({
           Number(a.strike.strikePrice) - Number(b.strike.strikePrice),
       );
   }, [
+    chain?.id,
     buyPositions,
     markPrice,
     handleExercise,
@@ -378,14 +379,81 @@ const BuyPositions = ({
     unselectPosition,
   ]);
 
+  const totalProfitUsd = useMemo(() => {
+    return positions.reduce(
+      (accumulator, currentValue) =>
+        accumulator + Number(currentValue.profit.usdValue),
+      0,
+    );
+  }, [positions]);
+
+  const optionsSummary = useMemo(() => {
+    const totalProfitUsd = positions.reduce(
+      (accumulator, currentValue) =>
+        accumulator + Number(currentValue.profit.usdValue),
+      0,
+    );
+
+    const totalOptions = positions.reduce((accumulator, currentValue) => {
+      return (
+        accumulator +
+        (currentValue.side.toLowerCase() === 'put'
+          ? Number(currentValue.size.amount) /
+            Number(currentValue.strike.strikePrice)
+          : Number(currentValue.size.amount))
+      );
+    }, 0);
+
+    const totalPremiumUsd = positions.reduce(
+      (accumulator, currentValue) =>
+        accumulator + Number(currentValue.premium.usdValue),
+      0,
+    );
+
+    return {
+      totalProfitUsd,
+      totalOptions,
+      totalPremiumUsd,
+    };
+  }, [positions]);
+
   return (
-    <TableLayout<BuyPositionItem>
-      data={positions}
-      columns={columns}
-      rowSpacing={3}
-      isContentLoading={loading}
-      pageSize={10}
-    />
+    <div className="w-full flex flex-col space-y-[12px] py-[12px]">
+      <div className="bg-cod-gray flex px-[12px] items-center justify-end space-x-[12px]">
+        <div className="flex items-center justify-center space-x-[4px]">
+          <span className="text-stieglitz text-xs">Total profit:</span>
+          <span className="text-xs flex items-center justify-center space-x-[2px]">
+            <span className="text-stieglitz">$</span>
+            <span className={cx(totalProfitUsd > 0 && 'text-up-only')}>
+              {formatAmount(optionsSummary.totalProfitUsd, 3)}
+            </span>
+          </span>
+        </div>
+        <div className="flex items-center justify-center space-x-[4px]">
+          <span className="text-stieglitz text-xs">Total premium:</span>
+          <span className="text-xs flex items-center justify-center space-x-[2px]">
+            <span className="text-stieglitz">$</span>
+            <span>{formatAmount(optionsSummary.totalPremiumUsd, 3)}</span>
+          </span>
+        </div>
+        <div className="flex items-center justify-center space-x-[4px]">
+          <span className="text-stieglitz text-xs">Total size:</span>
+          <span className="text-xs flex items-center justify-center space-x-[4px]">
+            <span>{formatAmount(optionsSummary.totalOptions, 3)}</span>
+            <span className="text-stieglitz text-xs">
+              {selectedOptionsPool?.callToken.symbol}
+            </span>
+          </span>
+        </div>
+      </div>
+      <TableLayout<BuyPositionItem>
+        data={positions}
+        columns={columns}
+        rowSpacing={3}
+        isContentLoading={loading}
+        pageSize={10}
+      />
+    </div>
   );
 };
 

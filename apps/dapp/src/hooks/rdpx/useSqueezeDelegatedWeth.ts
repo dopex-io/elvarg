@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Address, parseUnits } from 'viem';
 
 import useRdpxV2CoreData from 'hooks/rdpx/useRdpxV2CoreData';
+
+import { AlertSeverity } from 'components/common/Alert';
 
 import { DECIMALS_TOKEN } from 'constants/index';
 
@@ -111,6 +113,34 @@ const useSqueezeDelegatedWeth = ({
     });
   }, [delegatePositions, collateralRequired, bonds]);
 
+  const averageFeeSeverity = useMemo(() => {
+    if (squeezeResult.avgFee > parseUnits('15', DECIMALS_TOKEN + 8)) {
+      return AlertSeverity.error;
+    } else if (squeezeResult.avgFee > parseUnits('5', DECIMALS_TOKEN + 8)) {
+      return AlertSeverity.warning;
+    } else {
+      return null;
+    }
+  }, [squeezeResult.avgFee]);
+
+  const delegateeBondsReceivable = useMemo(() => {
+    const avgFeePercent =
+      squeezeResult.avgFee / parseUnits('1', DECIMALS_TOKEN); // avg fee % in 1e8 precision
+
+    const delegateeShareOfBond =
+      (parseUnits('0.25', DECIMALS_TOKEN) * parseUnits(bonds, DECIMALS_TOKEN)) /
+      parseUnits('1', DECIMALS_TOKEN); // 25% share in 1e18 precision w/o fee
+
+    // weighted average fee going to delegate(s)
+    const delegateeShareLostFromFees =
+      (delegateeShareOfBond * avgFeePercent) / parseUnits('1', 10); // fee % in 1e8 precision
+
+    const delegateeShareAfterFee =
+      delegateeShareOfBond - delegateeShareLostFromFees;
+
+    return delegateeShareAfterFee;
+  }, [bonds, squeezeResult.avgFee]);
+
   useEffect(() => {
     updateUserDelegatePositions();
   }, [updateUserDelegatePositions]);
@@ -119,7 +149,12 @@ const useSqueezeDelegatedWeth = ({
     squeezeAndFetchDelegates();
   }, [squeezeAndFetchDelegates]);
 
-  return { squeezeAndFetchDelegates, squeezeDelegatesResult: squeezeResult };
+  return {
+    squeezeAndFetchDelegates,
+    squeezeDelegatesResult: squeezeResult,
+    averageFeeSeverity,
+    delegateeBondsReceivable,
+  };
 };
 
 export default useSqueezeDelegatedWeth;

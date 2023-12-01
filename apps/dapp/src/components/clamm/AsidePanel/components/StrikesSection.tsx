@@ -41,7 +41,7 @@ const StrikesSection = () => {
       token0Precision,
       token1Precision,
       !token0IsCallToken,
-      15,
+      150,
     );
   }, [tick, selectedOptionsPool]);
 

@@ -93,7 +93,7 @@ const Main = () => {
         }}
       />
       <PageLayout>
-        <div className="mb-6 lg:max-w-lg md:max-w-md sm:max-w-sm max-w-md mx-auto lg:px-0">
+        <div className="mb-6 lg:max-w-xl md:max-w-md sm:max-w-sm max-w-md mx-auto lg:px-0">
           <TitleBar />
         </div>
         <div className="flex lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row justify-center space-y-3 lg:space-y-0">

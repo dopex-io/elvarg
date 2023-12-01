@@ -3,6 +3,7 @@ import { Address } from 'viem';
 import { create } from 'zustand';
 
 import { OptionsPoolsAPIResponse } from 'utils/clamm/varrock/getOptionsPools';
+import { getTokenSymbol } from 'utils/token';
 
 export type OptionsPool = {
   pairName: string;
@@ -42,7 +43,7 @@ type ClammStore = {
   selectedOptionsPool: OptionsPool | null;
   setSelectedOptionsPool: any;
   optionsPools: Map<string, OptionsPool>;
-  initialize: (response: OptionsPoolsAPIResponse) => void;
+  initialize: (response: OptionsPoolsAPIResponse, chainId: number) => void;
 
   isPut: boolean;
   setIsPut: (setAs: boolean) => void;
@@ -116,7 +117,7 @@ const useClammStore = create<ClammStore>((set, get) => ({
       }));
     }
   },
-  initialize: (initialData: OptionsPoolsAPIResponse) => {
+  initialize: (initialData: OptionsPoolsAPIResponse, chainId: number) => {
     const poolsMapping = new Map<string, OptionsPool>();
     if (!initialData.length) return;
     initialData.forEach(
@@ -132,11 +133,23 @@ const useClammStore = create<ClammStore>((set, get) => ({
         primePool,
       }) => {
         poolsMapping.set(pairName, {
-          callToken: callToken,
+          callToken: {
+            ...callToken,
+            symbol: getTokenSymbol({
+              address: callToken.address,
+              chainId,
+            }),
+          },
+          putToken: {
+            ...putToken,
+            symbol: getTokenSymbol({
+              address: putToken.address,
+              chainId,
+            }),
+          },
           optionsPoolAddress: optionsPoolAddress,
           pairName: pairName,
           pairTicker: pairTicker,
-          putToken: putToken,
           ivs,
           tokenURIFetcher,
           ttls,

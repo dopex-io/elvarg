@@ -33,10 +33,7 @@ function generateStrikes(
   const endTick = rounded - tickRange;
 
   const strikes: GenerateStrike[] = [];
-  let loopCount = 0;
-  const maxLoops = 200;
-  while (startTick != endTick && loopCount < maxLoops) {
-    loopCount = loopCount + 1;
+  while (startTick != endTick) {
     startTick -= tickSpacing;
 
     const tickUpper = startTick + tickSpacing;
@@ -79,7 +76,6 @@ function generateStrikes(
       }
     }
   }
-
   if (strikes.length === 0) {
     return [];
   } else {

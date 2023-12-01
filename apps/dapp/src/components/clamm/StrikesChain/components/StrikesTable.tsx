@@ -54,7 +54,9 @@ const columns = [
     cell: (info) => (
       <span className="flex space-x-1 text-left items-center">
         <p className="text-stieglitz inline-block">$</p>
-        <p className="inline-block">{info.getValue().amount.toFixed(4)}</p>
+        <p className="inline-block">
+          {formatAmount(info.getValue().amount, 4)}
+        </p>
       </span>
     ),
   }),
@@ -62,8 +64,10 @@ const columns = [
     header: 'Liquidity',
     cell: (info) => (
       <StatItem
-        name={`${info.getValue().amount.toFixed(4)} ${info.getValue().symbol}`}
-        value={`$ ${info.getValue().usd.toFixed(2)}`}
+        name={`${formatAmount(info.getValue().amount, 5)} ${
+          info.getValue().symbol
+        }`}
+        value={`$ ${formatAmount(info.getValue().usd, 2)}`}
       />
     ),
   }),
@@ -170,15 +174,16 @@ const StrikesTable = () => {
 
   const loadStrikes = useCallback(async () => {
     if (!selectedOptionsPool) return;
+    const chainId = chain?.id ?? 42161;
 
     const data = await getStrikesChain(
-      chain?.id ?? 42161,
+      chainId,
       selectedOptionsPool.optionsPoolAddress,
       500,
       0,
     );
 
-    initialize(data ?? []);
+    initialize(data ?? [], chainId);
   }, [initialize, chain, , selectedOptionsPool]);
 
   useEffect(() => {

@@ -1,30 +1,33 @@
-import { useCallback, useEffect, useMemo } from 'react';
-import { parseUnits } from 'viem';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { zeroAddress } from 'viem';
 
-import {
-  useAccount,
-  useContractRead,
-  useContractWrite,
-  usePublicClient,
-} from 'wagmi';
+import { Address, useAccount, useContractRead } from 'wagmi';
 import { writeContract } from 'wagmi/actions';
 
 import useRdpxV2CoreData, { UserBond } from 'hooks/rdpx/useRdpxV2CoreData';
 import useSubgraphQueries from 'hooks/rdpx/useSubgraphQueries';
 
 import TableLayout from 'components/common/TableLayout';
+import RedeemAndStakeStepper from 'components/rdpx-v2/Dialogs/RedeemAndStakeStepper';
 import columns, {
   UserBonds as UserBondsType,
 } from 'components/rdpx-v2/Tables/ColumnDefs/BondsColumn';
 
-import { DECIMALS_TOKEN } from 'constants/index';
-import CurveMultiRewards from 'constants/rdpx/abis/CurveMultiRewards';
-import RdpxV2Bond from 'constants/rdpx/abis/RdpxV2Bond';
-import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
+import DelegateBonds from 'constants/rdpx/abis/DelegateBonds';
 import ReceiptToken from 'constants/rdpx/abis/ReceiptToken';
 import addresses from 'constants/rdpx/addresses';
 
+type DialogState = {
+  open: boolean;
+  id: bigint;
+};
+
 const UserBonds = () => {
+  const [dialogState, setDialogState] = useState<DialogState>({
+    open: false,
+    id: 0n,
+  });
+
   const { address: user = '0x' } = useAccount();
   const { updateUserBonds, userBonds, loading } = useRdpxV2CoreData({
     user,
@@ -32,106 +35,78 @@ const UserBonds = () => {
   const { delegateBonds, updateDelegateBonds } = useSubgraphQueries({
     user,
   });
-  const { data: isApprovedForAll, refetch } = useContractRead({
-    abi: RdpxV2Bond,
-    address: addresses.bond,
-    functionName: 'isApprovedForAll',
-    args: [user || '0x', addresses.v2core],
-  });
-  const { writeAsync: approveBond, isSuccess: approveSuccess } =
-    useContractWrite({
-      abi: RdpxV2Bond,
-      address: addresses.bond,
-      functionName: 'setApprovalForAll',
-      args: [addresses.v2core, true],
-    });
-  const { data: userBalance = 0n, refetch: refetchBalance } = useContractRead({
+  const { refetch: refetchBalance } = useContractRead({
     abi: ReceiptToken,
     address: addresses.receiptToken,
     functionName: 'balanceOf',
     args: [user],
   });
-  const { simulateContract } = usePublicClient({
-    chainId: 42161,
-  });
 
-  const handleVest = useCallback(
-    async (id: bigint) => {
-      const vest = async () =>
+  const handleVest = async (id: bigint) => {
+    setDialogState({
+      open: true,
+      id,
+    });
+  };
+
+  const redeemDelegateBond = useCallback(
+    async (posId: bigint, contractAddress: Address) => {
+      const delegateBond = async () =>
         await writeContract({
-          abi: RdpxV2Core,
-          address: addresses.v2core,
-          functionName: 'redeemReceiptTokenBonds',
-          args: [id, user],
+          abi: DelegateBonds,
+          address: contractAddress,
+          functionName: 'redeem',
+          args: [posId],
         });
 
-      const { result: rtEthAmount = 0n } = await simulateContract({
-        account: user,
-        abi: RdpxV2Core,
-        address: addresses.v2core,
-        functionName: 'redeemReceiptTokenBonds',
-        args: [id, user],
-      });
-
-      const approveStaking = async () =>
-        await writeContract({
-          abi: ReceiptToken,
-          address: addresses.receiptToken,
-          functionName: 'approve',
-          args: [
-            addresses.receiptTokenStaking,
-            userBalance === 0n ? rtEthAmount : userBalance,
-          ],
-        });
-
-      const stake = async () =>
-        await writeContract({
-          abi: CurveMultiRewards,
-          address: addresses.receiptTokenStaking,
-          functionName: 'stake',
-          args: [
-            (userBalance * parseUnits('1', DECIMALS_TOKEN)) /
-              parseUnits('1', DECIMALS_TOKEN),
-          ],
-        });
-
-      await vest()
-        .then(() =>
-          refetchBalance().then(() =>
-            approveStaking()
-              .then(() => stake())
-              .catch((e) => console.error(e)),
-          ),
-        )
-        .then(() => updateUserBonds())
+      await delegateBond()
+        .then(() => refetchBalance())
         .catch((e) => console.error(e));
     },
-    [simulateContract, user, userBalance, refetchBalance, updateUserBonds],
+    [refetchBalance],
   );
+
+  const handleClose = useCallback(() => {
+    setDialogState((prev) => ({ ...prev, open: false }));
+  }, []);
 
   const userRdpxBonds = useMemo(() => {
     if (userBonds.length === 0 && delegateBonds.length === 0) return [];
 
-    const formattedDelegateBonds: UserBond[] = delegateBonds.map((bond) => ({
-      id: -1n,
-      maturity: bond.maturity * 1000n,
-      // redeemable: bond.maturity * 1000n < BigInt(new Date().getTime()),
+    const formattedDelegateBonds = delegateBonds.map((bond) => ({
+      id: BigInt(bond.positionId),
+      maturity: bond.maturity,
+      contractAddress: bond.contractAddress,
       amount: bond.amount,
-      timestamp: bond.timestamp * 1000n,
-      vestedAmount: 0n,
+      timestamp: bond.timestamp,
+      positionId: BigInt(bond.positionId),
+      vestedAmount:
+        bond.maturity * 1000n > BigInt(new Date().getTime()) ? 0n : bond.amount,
       claimableBalance: 0n,
     }));
 
     return userBonds.concat(formattedDelegateBonds).map((bond) => {
-      let label = !!isApprovedForAll ? 'Stake' : 'Approve';
-      if (bond.id === -1n) {
+      let label = 'Claim';
+      let disabled = false;
+      if (bond.positionId !== -1n) {
         label = 'Redeem';
+        disabled = bond.maturity * 1000n > BigInt(new Date().getTime());
       }
 
+      const handleRedeem = () => {
+        if (bond.positionId === -1n) handleVest(bond.id);
+        else
+          redeemDelegateBond(
+            BigInt(bond.positionId),
+            bond.contractAddress === zeroAddress
+              ? addresses.delegateBondsV2
+              : addresses.delegateBondsV1,
+          );
+      };
+
       return {
-        tokenId: bond.id === -1n ? 'Delegated' : String(bond.id),
-        maturity: bond.maturity,
-        redeemable: bond.id > 0n,
+        tokenId: String(bond.id),
+        maturity: bond.maturity * 1000n,
         timestamp: bond.timestamp,
         claimData: {
           vested: bond.vestedAmount,
@@ -141,45 +116,41 @@ const UserBonds = () => {
         button: {
           label: label,
           id: bond.id,
-          redeemable: bond.id > 0n,
-          handleRedeem: () => {
-            if (bond.id > 0n) {
-              !!isApprovedForAll
-                ? handleVest(bond.id).catch((e) => console.error(e))
-                : approveBond()
-                    .then(() => refetch())
-                    .catch((e) => console.error(e));
-            } else {
-            }
-          },
+          disabled, // enable if either bond has matured or bond is vested
+          action: handleRedeem,
         },
       };
     });
-  }, [
-    userBonds,
-    delegateBonds,
-    isApprovedForAll,
-    handleVest,
-    approveBond,
-    refetch,
-  ]);
+  }, [delegateBonds, redeemDelegateBond, userBonds]);
 
   useEffect(() => {
     updateUserBonds();
-  }, [updateUserBonds, approveSuccess]);
+  }, [updateUserBonds]);
 
   useEffect(() => {
     updateDelegateBonds();
-  }, [updateDelegateBonds, approveSuccess, userBonds]);
+  }, [updateDelegateBonds, userBonds]);
 
   return (
-    <TableLayout<UserBondsType>
-      data={userRdpxBonds}
-      columns={columns}
-      rowSpacing={2}
-      isContentLoading={loading && user !== '0x'}
-      fill="bg-umbra"
-    />
+    <>
+      <TableLayout<UserBondsType>
+        data={userRdpxBonds}
+        columns={columns}
+        rowSpacing={2}
+        isContentLoading={loading && user !== '0x'}
+        fill="bg-umbra"
+      />
+      <RedeemAndStakeStepper
+        open={dialogState.open}
+        handleClose={handleClose}
+        data={{ id: dialogState.id }}
+        updatePositions={updateUserBonds}
+        claimable={
+          userRdpxBonds.find((bond) => dialogState.id === BigInt(bond.tokenId))
+            ?.claimData.vested
+        }
+      />
+    </>
   );
 };
 

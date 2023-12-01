@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Address, parseUnits } from 'viem';
+import { Address, checksumAddress, parseUnits } from 'viem';
 
 import request from 'graphql-request';
 
@@ -9,6 +9,7 @@ import {
   getDelegateBonds,
   getDelegateV2Bonds,
   getHistoricBondsDocument,
+  getHistoricDepositsDocument,
   getHistoricRedeemRequestsDocument,
   getRdpxSuppliesDocument,
 } from 'graphql/rdpx-v2';
@@ -42,12 +43,22 @@ interface RedeemRequest {
 }
 
 interface DelegateBond {
+  contractAddress: Address;
   amount: bigint;
   ethAmount: bigint;
   rdpxAmount: bigint;
-  txHash: String;
+  txHash: string;
+  positionId: string;
   maturity: bigint;
   timestamp: bigint;
+}
+
+interface UserDeposit {
+  owner: Address;
+  amount: bigint;
+  shares: bigint;
+  timestamp: bigint;
+  txHash: string;
 }
 
 interface UserAggregate {
@@ -69,6 +80,7 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
     RedeemRequest[]
   >([]);
   const [delegateBonds, setDelegateBonds] = useState<DelegateBond[]>([]);
+  const [userDeposits, setUserDeposits] = useState<UserDeposit[]>([]);
   const [cumulativeRdpxBurned, setCumulativeRdpxBurned] = useState<
     {
       amount: bigint;
@@ -170,18 +182,22 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
       .then((res) =>
         [
           ...res.delegatePositions.map((_pos1) => ({
+            contractAddress: checksumAddress(_pos1.id.split('#')[2] as Address),
             amount: BigInt(_pos1.amount),
             ethAmount: parseUnits(_pos1.wethRequired, 0),
             rdpxAmount: 0n,
             txHash: _pos1.id,
+            positionId: _pos1.id.split('#')[1],
             maturity: parseUnits(_pos1.transaction.timestamp, 0) + 86400n * 5n,
             timestamp: parseUnits(_pos1.transaction.timestamp, 0),
           })),
           ...res.delegateePositions.map((_pos2) => ({
+            contractAddress: checksumAddress(_pos2.id.split('#')[2] as Address),
             amount: BigInt(_pos2.amount),
             ethAmount: 0n,
             rdpxAmount: parseUnits(_pos2.rdpxRequired, 0),
             txHash: _pos2.id,
+            positionId: _pos2.id.split('#')[1],
             maturity: parseUnits(_pos2.transaction.timestamp, 0) + 86400n * 5n,
             timestamp: parseUnits(_pos2.transaction.timestamp, 0),
           })),
@@ -200,18 +216,22 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
       .then((res) =>
         [
           ...res.v2DelegatePositions.map((_pos1) => ({
+            contractAddress: checksumAddress(_pos1.id.split('#')[2] as Address),
             amount: BigInt(_pos1.amount),
             ethAmount: parseUnits(_pos1.wethRequired, 0),
             rdpxAmount: 0n,
             txHash: _pos1.id,
+            positionId: _pos1.id.split('#')[1],
             maturity: parseUnits(_pos1.transaction.timestamp, 0) + 86400n * 5n,
             timestamp: parseUnits(_pos1.transaction.timestamp, 0),
           })),
           ...res.v2DelegateePositions.map((_pos2) => ({
+            contractAddress: checksumAddress(_pos2.id.split('#')[2] as Address),
             amount: BigInt(_pos2.amount),
             ethAmount: 0n,
             rdpxAmount: parseUnits(_pos2.rdpxRequired, 0),
             txHash: _pos2.id,
+            positionId: _pos2.id.split('#')[1],
             maturity: parseUnits(_pos2.transaction.timestamp, 0) + 86400n * 5n,
             timestamp: parseUnits(_pos2.transaction.timestamp, 0),
           })),
@@ -255,20 +275,52 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
     setCumulativeRdpxBurned(burnedCumulation);
   }, []);
 
+  const updateDepositHistory = useCallback(async () => {
+    setLoading(true);
+    const _userDeposits: UserDeposit[] = (
+      await queryClient
+        .fetchQuery({
+          queryKey: ['getUserDeposits'],
+          queryFn: () =>
+            request(
+              DOPEX_RDPX_V2_SUBGRAPH_API_URL,
+              getHistoricDepositsDocument,
+              {
+                owner: user.toLowerCase(),
+              },
+            ),
+        })
+        .then((res) => res.deposits)
+    )
+      .map((depositEntity) => ({
+        timestamp: depositEntity.transaction.timestamp,
+        txHash: depositEntity.transaction.hash,
+        owner: depositEntity.owner,
+        amount: depositEntity.assets,
+        shares: depositEntity.shares,
+      }))
+      .sort((a, b) => b.timestamp - a.timestamp);
+
+    setUserDeposits(_userDeposits);
+    setLoading(false);
+  }, [user]);
+
   useEffect(() => {
     updateDelegateBonds();
   }, [updateDelegateBonds]);
 
   return {
     userBondsHistoryData,
-    userRedeemRequestsHistory,
-    delegateBonds,
     updateUserBondingHistory,
+    userRedeemRequestsHistory,
     updateHistoricLpRedeemRequests,
+    delegateBonds,
     updateDelegateBonds,
     cumulativeRdpxBurned,
-    updateRdpxBurned,
     totalRdpxBurned,
+    updateRdpxBurned,
+    userDeposits,
+    updateDepositHistory,
     loading,
   };
 };

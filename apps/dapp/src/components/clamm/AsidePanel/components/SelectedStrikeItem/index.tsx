@@ -310,6 +310,7 @@ const SelectedStrikeItem = ({
     });
 
     setPurchase(strikeIndex, {
+      amount: Number(amountDebounced),
       strike: strikeData.strike,
       premium: premium,
       optionsPool: optionsPoolAddress,
