@@ -25,7 +25,7 @@ const BUTTON_LABELS: { [key in ActionType]: string } = {
 };
 
 const StrategyVaultBody = () => {
-  const [active, setActive] = useState<string>('Redeem Requests');
+  const [active, setActive] = useState<string>('Pending Redemptions');
 
   const handleClick = (e: any) => {
     setActive(e.target.textContent);

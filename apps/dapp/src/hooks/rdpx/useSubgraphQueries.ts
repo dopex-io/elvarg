@@ -47,6 +47,7 @@ interface DelegateBond {
   amount: bigint;
   ethAmount: bigint;
   rdpxAmount: bigint;
+  redeemed: boolean;
   txHash: string;
   positionId: string;
   maturity: bigint;
@@ -171,6 +172,7 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
   }, [user]);
 
   const updateDelegateBonds = useCallback(async () => {
+    setLoading(true);
     const delegateBonds = await queryClient
       .fetchQuery({
         queryKey: ['getAllRedeems'],
@@ -182,20 +184,22 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
       .then((res) =>
         [
           ...res.delegatePositions.map((_pos1) => ({
-            contractAddress: checksumAddress(_pos1.id.split('#')[2] as Address),
+            contractAddress: checksumAddress(_pos1.id.split('#')[3] as Address),
             amount: BigInt(_pos1.amount),
             ethAmount: parseUnits(_pos1.wethRequired, 0),
             rdpxAmount: 0n,
+            redeemed: _pos1.redeemed,
             txHash: _pos1.id,
             positionId: _pos1.id.split('#')[1],
             maturity: parseUnits(_pos1.transaction.timestamp, 0) + 86400n * 5n,
             timestamp: parseUnits(_pos1.transaction.timestamp, 0),
           })),
           ...res.delegateePositions.map((_pos2) => ({
-            contractAddress: checksumAddress(_pos2.id.split('#')[2] as Address),
+            contractAddress: checksumAddress(_pos2.id.split('#')[3] as Address),
             amount: BigInt(_pos2.amount),
             ethAmount: 0n,
             rdpxAmount: parseUnits(_pos2.rdpxRequired, 0),
+            redeemed: _pos2.redeemed,
             txHash: _pos2.id,
             positionId: _pos2.id.split('#')[1],
             maturity: parseUnits(_pos2.transaction.timestamp, 0) + 86400n * 5n,
@@ -216,20 +220,22 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
       .then((res) =>
         [
           ...res.v2DelegatePositions.map((_pos1) => ({
-            contractAddress: checksumAddress(_pos1.id.split('#')[2] as Address),
+            contractAddress: checksumAddress(_pos1.id.split('#')[3] as Address),
             amount: BigInt(_pos1.amount),
             ethAmount: parseUnits(_pos1.wethRequired, 0),
             rdpxAmount: 0n,
+            redeemed: _pos1.redeemed,
             txHash: _pos1.id,
             positionId: _pos1.id.split('#')[1],
             maturity: parseUnits(_pos1.transaction.timestamp, 0) + 86400n * 5n,
             timestamp: parseUnits(_pos1.transaction.timestamp, 0),
           })),
           ...res.v2DelegateePositions.map((_pos2) => ({
-            contractAddress: checksumAddress(_pos2.id.split('#')[2] as Address),
+            contractAddress: checksumAddress(_pos2.id.split('#')[3] as Address),
             amount: BigInt(_pos2.amount),
             ethAmount: 0n,
             rdpxAmount: parseUnits(_pos2.rdpxRequired, 0),
+            redeemed: _pos2.redeemed,
             txHash: _pos2.id,
             positionId: _pos2.id.split('#')[1],
             maturity: parseUnits(_pos2.transaction.timestamp, 0) + 86400n * 5n,
@@ -240,6 +246,7 @@ const useSubgraphQueries = ({ user = '0x' }: Props) => {
       .catch(() => []);
 
     setDelegateBonds([...delegateBonds, ...delegateBondsV2]);
+    setLoading(false);
   }, [user]);
 
   const updateRdpxBurned = useCallback(async () => {

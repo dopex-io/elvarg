@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { parseUnits } from 'viem';
+import { Address, parseUnits } from 'viem';
 
 import CircularProgress from '@mui/material/CircularProgress';
 import Step from '@mui/material/Step';
@@ -10,14 +10,13 @@ import Stepper from '@mui/material/Stepper';
 import { Button, Dialog } from '@dopex-io/ui';
 import { useAccount, useContractRead, useContractWrite } from 'wagmi';
 
-import useRedeemBondsSteps from 'components/rdpx-v2/Tables/hooks/useRedeemBondsSteps';
+import useRedeemDelegateBondsSteps from 'components/rdpx-v2/Tables/hooks/useRedeemDelegateBondsSteps';
 
 import { formatBigint } from 'utils/general';
 
 import { DECIMALS_TOKEN } from 'constants/index';
 import CurveMultiRewards from 'constants/rdpx/abis/CurveMultiRewards';
-import RdpxV2Bond from 'constants/rdpx/abis/RdpxV2Bond';
-import RdpxV2Core from 'constants/rdpx/abis/RdpxV2Core';
+import DelegateBonds from 'constants/rdpx/abis/DelegateBonds';
 import ReceiptToken from 'constants/rdpx/abis/ReceiptToken';
 import addresses from 'constants/rdpx/addresses';
 
@@ -25,22 +24,25 @@ interface Props {
   open: boolean;
   handleClose: () => void;
   data: {
-    id: bigint;
+    positions: {
+      positionId: bigint;
+      delegationControllerAddress: Address;
+    }[];
   };
   updatePositions: () => Promise<void>;
   claimable?: bigint;
 }
 
-const RedeemAndStakeStepper = ({
+const RedeemDelegateBondAndStakeStepper = ({
   open,
   handleClose,
-  data: { id },
+  data: { positions = [] },
   updatePositions,
   claimable,
 }: Props) => {
-  const { address: user = '0x' } = useAccount();
-
   const [step, setStep] = useState<number>(0);
+
+  const { address: user = '0x' } = useAccount();
 
   const { data: balance = 0n, refetch: refetchBalance } = useContractRead({
     abi: ReceiptToken,
@@ -50,32 +52,15 @@ const RedeemAndStakeStepper = ({
   });
 
   const {
-    writeAsync: approveBond,
-    isLoading: approving,
-    isSuccess: approved,
-    reset: resetApproveBondHook,
+    writeAsync: multiredeem,
+    isLoading: redeeming,
+    isSuccess: redeemed,
+    reset: resetRedeemHook,
   } = useContractWrite({
-    abi: RdpxV2Bond,
-    address: addresses.bond,
-    functionName: 'setApprovalForAll',
-    args: [addresses.v2core, true],
-  });
-  const { data: hasUserApproved } = useContractRead({
-    abi: RdpxV2Bond,
-    address: addresses.bond,
-    functionName: 'isApprovedForAll',
-    args: [user, addresses.v2core],
-  });
-  const {
-    writeAsync: vest,
-    isLoading: vesting,
-    isSuccess: vested,
-    reset: resetVestingHook,
-  } = useContractWrite({
-    abi: RdpxV2Core,
-    address: addresses.v2core,
-    functionName: 'redeemReceiptTokenBonds',
-    args: [id, user],
+    abi: DelegateBonds,
+    address: addresses.delegateBondsV2,
+    functionName: 'multiRedeem',
+    args: [positions.map((pos) => pos.positionId)],
   });
   const {
     writeAsync: approveStaking,
@@ -100,51 +85,43 @@ const RedeemAndStakeStepper = ({
     args: [balance],
   });
 
-  const { stepperData, errorMsg, setErrorMsg } = useRedeemBondsSteps({
-    id,
+  const { stepperData, errorMsg, setErrorMsg } = useRedeemDelegateBondsSteps({
     user,
     hooks: {
-      approveBond,
-      vest,
+      multiredeem,
       approveStaking,
       stake,
     },
   });
 
   const loadingState = useMemo(
-    () => approving || vesting || approvingStaking || staking,
-    [approving, vesting, approvingStaking, staking],
+    () => redeeming || approvingStaking || staking,
+    [redeeming, approvingStaking, staking],
   );
 
   useEffect(() => {
-    if (approved || hasUserApproved) {
+    if (redeemed) {
       setStep(1);
-      setErrorMsg('');
-    }
-    if (vested) {
-      setStep(2);
       refetchBalance();
       updatePositions();
       setErrorMsg('');
     }
     if (approvedStaking) {
-      setStep(3);
+      setStep(2);
       setErrorMsg('');
     }
     if (staked) {
-      setStep(4);
+      setStep(3);
       updatePositions();
       setErrorMsg('');
     }
   }, [
-    approved,
     approvedStaking,
-    hasUserApproved,
     refetchBalance,
     setErrorMsg,
     staked,
     updatePositions,
-    vested,
+    redeemed,
   ]);
 
   const formattedClaimAmount = useMemo(() => {
@@ -159,8 +136,7 @@ const RedeemAndStakeStepper = ({
       isOpen={open}
       handleClose={() => {
         handleClose();
-        resetApproveBondHook();
-        resetVestingHook();
+        resetRedeemHook();
         resetApproveStakingHook();
         resetStakingHook();
         setErrorMsg('');
@@ -200,4 +176,4 @@ const RedeemAndStakeStepper = ({
   );
 };
 
-export default RedeemAndStakeStepper;
+export default RedeemDelegateBondAndStakeStepper;
