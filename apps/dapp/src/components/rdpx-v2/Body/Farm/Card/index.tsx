@@ -148,7 +148,7 @@ const Card = (props: Props) => {
         ) : (
           <span className="flex w-fit p-2 bg-carbon rounded-md space-x-2 text-sm">
             <p className="text-white">
-              {formatUnits(stakedBalance, DECIMALS_TOKEN)}
+              {Number(formatUnits(stakedBalance, DECIMALS_TOKEN)).toFixed(3)}
             </p>
             <p className="text-stieglitz">rtETH-WETH LP</p>
           </span>

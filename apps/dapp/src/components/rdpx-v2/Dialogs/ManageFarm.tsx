@@ -186,10 +186,9 @@ const ManageFarm = ({ open, handleClose, data }: Props) => {
         <div className="flex flex-col space-y-2 border border-carbon p-2 rounded-md">
           <RowItem
             label="Staked"
-            content={`${formatUnits(
-              stakedBalance,
-              DECIMALS_TOKEN,
-            )} rtETH-WETH LP`}
+            content={`${Number(
+              formatUnits(stakedBalance, DECIMALS_TOKEN),
+            ).toFixed(3)} rtETH-WETH LP`}
           />
           <RowItem label="APR" content={`${rtethEthRewardAPR} %`} />
         </div>
