@@ -3,7 +3,8 @@
 import * as React from 'react';
 
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
-import cx from 'classnames';
+
+import { cn } from 'utils/general';
 
 const TooltipProvider = TooltipPrimitive.Provider;
 
@@ -18,7 +19,7 @@ const TooltipContent = React.forwardRef<
   <TooltipPrimitive.Content
     ref={ref}
     sideOffset={sideOffset}
-    className={cx(
+    className={cn(
       'z-50 overflow-hidden rounded-lg px-3 py-1.5 shadow-2xl animate-in fade-in-0 zoom-in-95 bg-black bg-opacity-30',
       className,
     )}

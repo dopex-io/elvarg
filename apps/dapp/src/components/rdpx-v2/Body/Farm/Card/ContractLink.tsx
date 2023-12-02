@@ -13,10 +13,10 @@ const ContractLink = ({ url }: Props) => {
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex space-x-1"
+        className="flex space-x-1 hover:underline"
       >
         <Typography2 variant="caption" weight="400" color="stieglitz">
-          Contract
+          Deposit on Curve.fi to get LP tokens
         </Typography2>
         <ArrowTopRightOnSquareIcon className="w-4 h-4 fill-current text-stieglitz" />
       </a>

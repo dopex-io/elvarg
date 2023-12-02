@@ -1,11 +1,10 @@
+import { useMemo } from 'react';
 import Link from 'next/link';
 
-import { useMemo } from 'react';
-
 import Box from '@mui/material/Box';
-import Tooltip from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
-import cx from 'classnames';
+import Tooltip from '@mui/material/Tooltip';
+
 import format from 'date-fns/format';
 import Coin from 'svgs/icons/Coin';
 
@@ -13,6 +12,7 @@ import CustomButton from 'components/UI/Button';
 import InfoBox from 'components/UI/InfoBox';
 import Typography from 'components/UI/Typography';
 
+import { cn } from 'utils/general';
 import formatAmount from 'utils/general/formatAmount';
 
 interface Props {
@@ -76,9 +76,9 @@ function VaultCard(props: Props) {
   return (
     <StyledWrapper symbol={symbol} className="p-[1px] rounded-xl w-[350px]">
       <Box
-        className={cx(
+        className={cn(
           'flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto',
-          className
+          className,
         )}
       >
         <Box>

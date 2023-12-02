@@ -52,7 +52,7 @@ const useRewardsState = (props: Props) => {
   const { write: stake } = useContractWrite({
     ...multiRewardsConfig,
     functionName: 'stake',
-    args: [allowance < stakeAmount ? allowance : stakeAmount],
+    args: [stakeAmount],
   });
 
   // single-click approve & stake

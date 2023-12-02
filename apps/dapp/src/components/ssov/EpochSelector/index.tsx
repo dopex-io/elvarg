@@ -5,9 +5,9 @@ import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 
-import cx from 'classnames';
-
 import { useBoundStore } from 'store';
+
+import { cn } from 'utils/general';
 
 export default function EpochSelector({ className }: { className?: string }) {
   const {
@@ -33,7 +33,7 @@ export default function EpochSelector({ className }: { className?: string }) {
       updateSsovV3UserData,
       updateSsovV3EpochData,
       updateSsovV3Signer,
-    ]
+    ],
   );
 
   const epochs = useMemo(() => {
@@ -58,7 +58,7 @@ export default function EpochSelector({ className }: { className?: string }) {
   if (!currentEpoch || !selectedEpoch) return <></>;
 
   return (
-    <Box className={cx('', className)}>
+    <Box className={cn('', className)}>
       <FormControl>
         <Box className="text-white">
           <Select

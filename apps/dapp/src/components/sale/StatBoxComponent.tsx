@@ -1,7 +1,8 @@
 import { ReactNode } from 'react';
 
-import c from 'classnames';
 import Equal from 'svgs/icons/Equal';
+
+import { cn } from 'utils/general';
 
 interface StatBoxProps {
   Top: ReactNode;
@@ -12,7 +13,7 @@ const StatBox = ({ Top, Bottom }: StatBoxProps) => {
   return (
     <div className="flex flex-col">
       <div className="text-wave-blue flex flex-row items-center text-xl">
-        <Equal className={c('hidden mr-2')} />
+        <Equal className={cn('hidden mr-2')} />
         {Top}
       </div>
       <div className="flex flex-row items-center">

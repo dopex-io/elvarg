@@ -1,11 +1,14 @@
-import cx from 'classnames';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
-import Typography from 'components/UI/Typography';
-import displayAddress from 'utils/general/displayAddress';
-import DepositsTable from './DepositsTable';
 
 import { useBoundStore } from 'store';
+
+import Typography from 'components/UI/Typography';
+
+import { cn } from 'utils/general';
+import displayAddress from 'utils/general/displayAddress';
+
+import DepositsTable from './DepositsTable';
 
 const isShowPreviousEpochVisible = false;
 
@@ -16,9 +19,9 @@ const Deposits = () => {
     <Box className="text-gray-400 w-full rounded-lg">
       {accountAddress != undefined ? (
         <Box
-          className={cx(
+          className={cn(
             `border border-cod-gray py-2 bg-umbra`,
-            accountAddress != undefined ? 'rounded-t-xl' : 'rounded-xl'
+            accountAddress != undefined ? 'rounded-t-xl' : 'rounded-xl',
           )}
         >
           <Box className="flex ml-3">
@@ -44,9 +47,9 @@ const Deposits = () => {
         </Box>
       ) : null}
       <Box
-        className={cx(
+        className={cn(
           `border  border-cod-gray border-t-neutral-800 bg-umbra`,
-          accountAddress != undefined ? 'rounded-b-xl' : 'rounded-xl'
+          accountAddress != undefined ? 'rounded-b-xl' : 'rounded-xl',
         )}
       >
         <DepositsTable />

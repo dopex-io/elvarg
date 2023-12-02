@@ -22,7 +22,6 @@ import {
 } from '@heroicons/react/24/solid';
 import DopexV2OptionMarket from 'abis/clamm/DopexV2OptionMarket';
 import DopexV2PositionManager from 'abis/clamm/DopexV2PositionManager';
-import cx from 'classnames';
 import { useDebounce } from 'use-debounce';
 import { useNetwork } from 'wagmi';
 
@@ -42,7 +41,7 @@ import {
 } from 'utils/clamm/liquidityAmountMath';
 import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
 import getPremium from 'utils/clamm/varrock/getPremium';
-import { formatAmount } from 'utils/general';
+import { cn, formatAmount } from 'utils/general';
 
 type Props = {
   key: number;
@@ -409,7 +408,7 @@ const SelectedStrikeItem = ({
           </span>
         </div>
         <div
-          className={cx(
+          className={cn(
             'h-[30px] w-[160px] p-[8px] flex items-center justfiy-center border rounded-md flex-[0.425] border-mineshaft',
             Boolean(error) ? 'border-down-bad' : 'border-mineshaft',
           )}
@@ -428,7 +427,7 @@ const SelectedStrikeItem = ({
             type="number"
             min="0"
             placeholder={`0.0 ${strikeData.tokenSymbol}`}
-            className={cx(
+            className={cn(
               'w-full text-[13px] text-left bg-umbra focus:outline-none focus:border-mineshaft rounded-md placeholder-mineshaft',
               disabledInput ? 'text-stieglitz' : 'text-white',
             )}

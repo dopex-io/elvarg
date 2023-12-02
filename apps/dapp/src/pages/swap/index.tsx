@@ -92,7 +92,7 @@ const SwapBody = () => {
       if (data && data.priceRoute) {
         setDisplayedOutput(
           (BigInt(data.priceRoute.destAmount || 0n) *
-            parseUnits('0.90', DECIMALS_TOKEN)) / // 10% tax
+            parseUnits('0.95', DECIMALS_TOKEN)) / // 10% tax
             parseUnits('1', DECIMALS_TOKEN),
         );
       }

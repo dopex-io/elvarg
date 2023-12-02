@@ -8,8 +8,6 @@ import Input from '@mui/material/Input';
 
 import SearchIcon from '@mui/icons-material/Search';
 
-import cx from 'classnames';
-
 import { useBoundStore } from 'store';
 
 import Filter from 'components/common/Filter';
@@ -18,6 +16,7 @@ import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import { cn } from 'utils/general';
 import formatAmount from 'utils/general/formatAmount';
 
 const sides: string[] = ['CALL', 'PUT'];
@@ -286,7 +285,7 @@ export default function Deposits() {
 
               {filteredStraddlesDeposits.length > 0 ? (
                 <Box
-                  className={cx(
+                  className={cn(
                     'grid grid-cols-12 px-4 py-2',
                     filteredSSOVDeposits.length > 0
                       ? 'border-t-[1.5px] pt-6 border-umbra'
@@ -309,7 +308,7 @@ export default function Deposits() {
               {filteredStraddlesDeposits.map((deposit, i) => (
                 <Box
                   key={i}
-                  className={cx(
+                  className={cn(
                     'grid grid-cols-12 px-4 pt-2 pb-4',
                     filteredSSOVDeposits.length > 0 ? 'mt-2' : '',
                   )}

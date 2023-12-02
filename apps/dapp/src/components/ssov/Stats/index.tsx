@@ -10,7 +10,6 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 
-import cx from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import range from 'lodash/range';
 
@@ -21,6 +20,7 @@ import { NumberDisplay } from 'components/UI';
 import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import { cn } from 'utils/general';
 import formatAmount from 'utils/general/formatAmount';
 
 interface StatsTableDataProps {
@@ -59,7 +59,7 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
         <Typography variant="h6">
           {formatAmount(
             isPut ? totalAvailable / strikePrice : totalAvailable,
-            5
+            5,
           )}
         </Typography>
         <Box component="h6" className="text-xs text-stieglitz border-0">
@@ -76,7 +76,7 @@ const StatsTableData = (props: StatsTableDataProps & { price: number }) => {
                   (totalPurchased /
                     (isPut ? totalAvailable / strikePrice : totalAvailable))
               : 0,
-            5
+            5,
           )}
           {'%'}
         </Box>
@@ -121,7 +121,7 @@ const Stats = (props: { className?: string }) => {
 
   const price = useMemo(
     () => getUserReadableAmount(ssovData?.tokenPrice, 8),
-    [ssovData]
+    [ssovData],
   );
 
   const stats: any[] = useMemo(
@@ -134,17 +134,17 @@ const Stats = (props: { className?: string }) => {
             ssovEpochData?.totalEpochStrikeDeposits[strikeIndex] ??
             ethers.BigNumber.from(0)
           )?.div(ssovEpochData.collateralExchangeRate),
-          10
+          10,
         );
 
         const totalPurchased = getUserReadableAmount(
           ssovEpochData?.totalEpochOptionsPurchased[strikeIndex] ?? 0,
-          18
+          18,
         );
 
         const totalPremiums = getUserReadableAmount(
           ssovEpochData?.totalEpochPremium[strikeIndex] ?? 0,
-          18
+          18,
         );
 
         return {
@@ -157,11 +157,11 @@ const Stats = (props: { className?: string }) => {
           apy: ssovEpochData?.APY[strikeIndex] ?? 0,
         };
       }) ?? [],
-    [ssovEpochData]
+    [ssovEpochData],
   );
 
   return Number(selectedEpoch) > 0 ? (
-    <Box className={cx('bg-cod-gray w-full p-4 rounded-xl', className)}>
+    <Box className={cn('bg-cod-gray w-full p-4 rounded-xl', className)}>
       <Box className="flex flex-row justify-between mb-1">
         <Typography variant="h5" className="text-stieglitz">
           Stats
@@ -260,7 +260,7 @@ const Stats = (props: { className?: string }) => {
                         }
                       />
                     );
-                  }
+                  },
                 )}
               </TableBody>
             </Table>

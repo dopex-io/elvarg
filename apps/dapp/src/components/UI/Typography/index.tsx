@@ -1,7 +1,8 @@
 import { FC } from 'react';
 
 import Box, { BoxProps } from '@mui/material/Box';
-import cx from 'classnames';
+
+import { cn } from 'utils/general';
 
 interface TypographyProps extends BoxProps {
   variant: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'caption';
@@ -34,7 +35,7 @@ const Typography: FC<TypographyProps> = (props) => {
   return (
     <Box
       component={component || 'div'}
-      className={cx(CLASSES[variant], `text-${color}`, className)}
+      className={cn(CLASSES[variant], `text-${color}`, className)}
       {...otherProps}
     >
       {children}

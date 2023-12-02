@@ -12,3 +12,4 @@ export { default as getValueColorClass } from './getValueColorClass';
 export { default as getValueSign } from './getValueSign';
 export { default as isNativeToken } from './isNativeToken';
 export { default as smartTrim } from './smartTrim';
+export { default as cn } from './cn';

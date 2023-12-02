@@ -7,7 +7,6 @@ import {
   ArrowUpRightIcon,
 } from '@heroicons/react/20/solid';
 import { createColumnHelper } from '@tanstack/react-table';
-import cx from 'classnames';
 import { formatDistance } from 'date-fns';
 import toast from 'react-hot-toast';
 import { useNetwork, useWalletClient } from 'wagmi';
@@ -20,7 +19,7 @@ import { PositionsTableProps } from 'components/clamm/PositionsTable';
 import TableLayout from 'components/common/TableLayout';
 
 import getExerciseTxData from 'utils/clamm/varrock/getExerciseTxData';
-import { formatAmount } from 'utils/general';
+import { cn, formatAmount } from 'utils/general';
 import { getTokenSymbol } from 'utils/token';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
@@ -424,7 +423,7 @@ const BuyPositions = ({
           <span className="text-stieglitz text-xs">Total profit:</span>
           <span className="text-xs flex items-center justify-center space-x-[2px]">
             <span className="text-stieglitz">$</span>
-            <span className={cx(totalProfitUsd > 0 && 'text-up-only')}>
+            <span className={cn(totalProfitUsd > 0 && 'text-up-only')}>
               {formatAmount(optionsSummary.totalProfitUsd, 3)}
             </span>
           </span>

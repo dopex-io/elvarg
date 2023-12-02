@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import cx from 'classnames';
+import { cn } from 'utils/general';
 
 import { MARKETS } from 'constants/ssov/markets';
 
@@ -13,7 +13,7 @@ const StrikesChain = ({ market }: { market: string }) => {
   }, [market]);
 
   return (
-    <div className={cx('bg-cod-gray rounded-lg relative', !disabled && 'p-3')}>
+    <div className={cn('bg-cod-gray rounded-lg relative', !disabled && 'p-3')}>
       {disabled ? (
         <div className="w-full h-full backdrop-blur-sm absolute bg-carbon z-50 bg-opacity-10 border-yellow-300 border-2 rounded-lg font-bold">
           <div className="w-full h-full flex items-center justify-center">
