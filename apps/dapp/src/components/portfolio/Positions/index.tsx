@@ -1,21 +1,22 @@
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 
-import { useMemo, useState } from 'react';
-
-import SearchIcon from '@mui/icons-material/Search';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Input from '@mui/material/Input';
-import cx from 'classnames';
+
+import SearchIcon from '@mui/icons-material/Search';
+
 import { useBoundStore } from 'store';
 
-import CustomButton from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
 import Filter from 'components/common/Filter';
 import SignerButton from 'components/common/SignerButton';
+import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import { cn } from 'utils/general';
 import formatAmount from 'utils/general/formatAmount';
 import getValueColorClass from 'utils/general/getValueColorClass';
 
@@ -109,7 +110,7 @@ export default function Positions() {
         if (!selectedSides.includes(position.isPut ? 'PUT' : 'CALL'))
           toAdd = false;
         if (toAdd) _positions.push(position);
-      }
+      },
     );
     return _positions;
   }, [portfolioData, searchText, selectedSides]);
@@ -131,7 +132,7 @@ export default function Positions() {
         )
           toAdd = false;
         if (toAdd) _positions.push(position);
-      }
+      },
     );
     return _positions;
   }, [portfolioData, searchText]);
@@ -258,7 +259,7 @@ export default function Positions() {
                       <span className="text-white">
                         {formatAmount(
                           getUserReadableAmount(position.amount, 18),
-                          4
+                          4,
                         )}
                       </span>
                     </Typography>
@@ -311,11 +312,11 @@ export default function Positions() {
               ))}
               {filteredStraddlesPositions.length > 0 ? (
                 <Box
-                  className={cx(
+                  className={cn(
                     'grid grid-cols-12 px-4 py-2',
                     filteredSSOVPositions.length > 0
                       ? 'border-t-[1.5px] pt-6 border-umbra'
-                      : ''
+                      : '',
                   )}
                   gap={0}
                 >
@@ -359,7 +360,7 @@ export default function Positions() {
                       <span className="text-white">
                         {formatAmount(
                           getUserReadableAmount(position.amount, 18),
-                          2
+                          2,
                         )}
                       </span>
                     </Typography>
@@ -369,7 +370,7 @@ export default function Positions() {
                       <span className="text-white">
                         {formatAmount(
                           getUserReadableAmount(position.strikePrice, 8),
-                          2
+                          2,
                         )}
                       </span>
                     </Typography>

@@ -1,6 +1,6 @@
-import cx from 'classnames';
-
 import useClammStore from 'hooks/clamm/useClammStore';
+
+import { cn } from 'utils/general';
 
 const FilterPanel = () => {
   const { setIsTrade, setIsPut, isTrade, isPut } = useClammStore();
@@ -14,7 +14,7 @@ const FilterPanel = () => {
           className={`h-full flex items-center justify-center`}
         >
           <span
-            className={cx(
+            className={cn(
               !isPut && 'bg-carbon',
               'p-[4px] rounded-md font-medium text-[13px]',
             )}
@@ -28,7 +28,7 @@ const FilterPanel = () => {
           className="h-full flex items-center justify-center"
         >
           <span
-            className={cx(
+            className={cn(
               isPut && 'bg-carbon',
               'p-[4px] rounded-md font-medium text-[13px]',
             )}

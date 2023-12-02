@@ -1,9 +1,11 @@
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
-import cx from 'classnames';
+
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import Typography from 'components/UI/Typography';
+
+import { cn } from 'utils/general';
 
 interface InfoBoxProps {
   heading: any;
@@ -14,7 +16,7 @@ interface InfoBoxProps {
 
 const InfoBox = ({ heading, value, className, tooltip }: InfoBoxProps) => {
   return (
-    <Box className={cx('flex flex-col p-4 bg-umbra rounded-xl', className)}>
+    <Box className={cn('flex flex-col p-4 bg-umbra rounded-xl', className)}>
       <Typography variant="h5">{value}</Typography>
       <Box className="flex flex-row mt-1">
         <Typography

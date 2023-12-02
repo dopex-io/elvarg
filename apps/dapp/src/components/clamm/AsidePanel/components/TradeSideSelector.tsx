@@ -1,10 +1,10 @@
 import React from 'react';
 
-import cx from 'classnames';
-
 import useClammStore from 'hooks/clamm/useClammStore';
 import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
 import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
+
+import { cn } from 'utils/general';
 
 const TradeSideSelector = () => {
   const { setIsTrade, isTrade } = useClammStore();
@@ -20,7 +20,7 @@ const TradeSideSelector = () => {
           resetPurchases();
           reset();
         }}
-        className={cx('text-[14px]', isTrade ? 'text-white' : 'text-stieglitz')}
+        className={cn('text-[14px]', isTrade ? 'text-white' : 'text-stieglitz')}
       >
         Trade
       </span>
@@ -32,7 +32,7 @@ const TradeSideSelector = () => {
           setIsTrade(false);
           reset();
         }}
-        className={cx(
+        className={cn(
           'text-[14px]',
           !isTrade ? 'text-white' : 'text-stieglitz',
         )}

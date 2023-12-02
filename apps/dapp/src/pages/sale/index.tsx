@@ -4,18 +4,20 @@ import Head from 'next/head';
 import Box from '@mui/material/Box';
 
 import { TokenSale__factory } from '@dopex-io/sdk';
-import c from 'classnames';
-import useEthPrice from 'hooks/useEthPrice';
-import useSendTx from 'hooks/useSendTx';
+
 import { useBoundStore } from 'store';
 
-import CustomButton from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
+import useEthPrice from 'hooks/useEthPrice';
+import useSendTx from 'hooks/useSendTx';
+
 import AppBar from 'components/common/AppBar';
 import ClaimSection from 'components/sale/ClaimSection';
 import InfoSection from 'components/sale/InfoSection';
 import StatsSection from 'components/sale/StatsSection';
+import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
 
+import { cn } from 'utils/general';
 import formatAmount from 'utils/general/formatAmount';
 
 const TokenSale = () => {
@@ -44,7 +46,7 @@ const TokenSale = () => {
       await sendTx(
         TokenSale__factory.connect(contractAddresses['TokenSale'], signer),
         'claim',
-        [accountAddress]
+        [accountAddress],
       );
       updateUserData();
     } catch (err) {
@@ -85,10 +87,10 @@ const TokenSale = () => {
         <Box className="flex flex-col lg:flex-row max-w-4xl mx-auto">
           <InfoSection />
           <Box
-            className={c(
+            className={cn(
               accountAddress
                 ? 'lg:w-5/12 mb-20 lg:mb-0'
-                : 'lg:w-5/12 mb-20 lg:mb-0 opacity-40'
+                : 'lg:w-5/12 mb-20 lg:mb-0 opacity-40',
             )}
           >
             <Box className="bg-cod-gray p-4 rounded-xl">

@@ -1,9 +1,10 @@
 import Box from '@mui/material/Box';
 
-import cx from 'classnames';
 import noop from 'lodash/noop';
 
 import Typography from 'components/UI/Typography';
+
+import { cn } from 'utils/general';
 
 interface Props {
   active: boolean;
@@ -18,10 +19,10 @@ interface Props {
 const Tab = ({ active, title, onClick, disabled = false }: Props) => {
   return (
     <Box
-      className={cx(
+      className={cn(
         'text-center w-1/2 pt-0.5 pb-1 group rounded hover:opacity-80',
         active && 'bg-carbon hover:bg-mineshaft',
-        disabled && 'cursor-not-allowed'
+        disabled && 'cursor-not-allowed',
       )}
       onClick={disabled ? noop : onClick}
       role="button"

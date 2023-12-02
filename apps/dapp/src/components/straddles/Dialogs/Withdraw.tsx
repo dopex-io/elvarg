@@ -7,13 +7,13 @@ import Typography from '@mui/material/Typography';
 
 import CloseIcon from '@mui/icons-material/Close';
 
-import cx from 'classnames';
-
 import { useBoundStore } from 'store';
 
 import useSendTx from 'hooks/useSendTx';
 
 import CustomButton from 'components/UI/Button';
+
+import { cn } from 'utils/general';
 
 export interface Props {
   open: boolean;
@@ -106,7 +106,7 @@ const WithdrawModal = ({
               <Box className="flex items-center">
                 <Button
                   onClick={handleToggleRollover}
-                  className={cx(
+                  className={cn(
                     'rounded-md h-10 ml-1 hover:bg-opacity-70 pl-2 pr-2',
                     'bg-primary hover:bg-primary text-white',
                   )}

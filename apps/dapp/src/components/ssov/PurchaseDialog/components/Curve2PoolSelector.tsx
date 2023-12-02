@@ -2,7 +2,7 @@ import Box from '@mui/material/Box';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
-import cx from 'classnames';
+import { cn } from 'utils/general';
 
 // @ts-ignore TODO: FIX
 const Curve2PoolSelector = ({ token, setToken, className }) => {
@@ -12,7 +12,7 @@ const Curve2PoolSelector = ({ token, setToken, className }) => {
   };
 
   return (
-    <Box className={cx('flex space-x-2 items-center text-white', className)}>
+    <Box className={cn('flex space-x-2 items-center text-white', className)}>
       <Box>Deposit using: </Box>
       <ToggleButtonGroup
         value={token}

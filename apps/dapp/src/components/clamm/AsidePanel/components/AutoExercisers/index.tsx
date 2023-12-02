@@ -2,10 +2,11 @@ import { zeroAddress } from 'viem';
 
 import { Button } from '@dopex-io/ui';
 import DopexV2OptionMarket from 'abis/clamm/DopexV2OptionMarket';
-import cx from 'classnames';
 import { useAccount, useContractRead, useContractWrite } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
+
+import { cn } from 'utils/general';
 
 import { AUTO_EXERCISER_TIME_BASED } from 'constants/clamm';
 
@@ -58,7 +59,7 @@ const AutoExercisers = () => {
               }}
               disabled={approveLoading || dissapproveLoading}
             >
-              <span className={cx('text-[13px]')}>
+              <span className={cn('text-[13px]')}>
                 {!isDelegatorApproved ? 'Enable' : 'Disable'}
               </span>
             </Button>

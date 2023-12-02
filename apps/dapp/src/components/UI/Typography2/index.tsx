@@ -1,6 +1,6 @@
 import { FC } from 'react';
 
-import cx from 'classnames';
+import { cn } from 'utils/general';
 
 type FontWeight = '400' | '500';
 type Variant =
@@ -64,7 +64,7 @@ const Typography2: FC<TypographyProps> = (props) => {
 
   return (
     <span
-      className={cx(CLASSES[weight][variant], `text-${color}`, className)}
+      className={cn(CLASSES[weight][variant], `text-${color}`, className)}
       {...otherProps}
     >
       {children}

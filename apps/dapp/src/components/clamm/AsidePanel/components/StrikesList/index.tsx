@@ -6,12 +6,11 @@ import {
   ArrowUpRightIcon,
   ChevronDownIcon,
 } from '@heroicons/react/24/solid';
-import cx from 'classnames';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 
-import { formatAmount } from 'utils/general';
+import { cn, formatAmount } from 'utils/general';
 
 type Prop = {
   strikes: any[];
@@ -109,7 +108,7 @@ const StrikesList = ({ strikes, isPut, selectedLength }: Prop) => {
           <Listbox.Options className="absolute flex flex-col w-full max-h-[240px] rounded-md overflow-y-scroll mt-1 border border-umbra drop-shadow-md divide-y-[0.1px] divide-carbon">
             {strikes.map((strikeData: any, index: number) => (
               <Listbox.Option
-                className={cx(
+                className={cn(
                   'hover:cursor-pointer hover:bg-carbon z-10 py-[8px]',
                   Boolean(selectedStrikes.get(strikeData.strike))
                     ? 'bg-carbon'
@@ -131,7 +130,7 @@ const StrikesList = ({ strikes, isPut, selectedLength }: Prop) => {
                         />
                       )}
                     <span
-                      className={cx(
+                      className={cn(
                         'text-sm',
                         Boolean(selectedStrikes.get(strikeData.strike))
                           ? 'text-stieglitz'

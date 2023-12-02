@@ -1,7 +1,6 @@
 import { ReactNode, useMemo, useState } from 'react';
 import { BigNumber, ethers } from 'ethers';
 
-import cx from 'classnames';
 import format from 'date-fns/format';
 import noop from 'lodash/noop';
 import Action from 'svgs/icons/Action';
@@ -14,6 +13,7 @@ import SignerButton from 'components/common/SignerButton';
 import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
+import { cn } from 'utils/general';
 import formatAmount from 'utils/general/formatAmount';
 
 import EpochSelector from '../EpochSelector';
@@ -76,7 +76,7 @@ const Description = ({
   const apy = useMemo(() => {
     if (typeof APY !== 'string') {
       return `upto ${Math.max(
-        ...(APY as string[]).map((apy: string) => Number(apy))
+        ...(APY as string[]).map((apy: string) => Number(apy)),
       )}`;
     }
 
@@ -104,9 +104,9 @@ const Description = ({
         <Typography variant="h1" className="mb-6 flex items-center space-x-3">
           <span>{ssovData.underlyingSymbol}</span>
           <span
-            className={cx(
+            className={cn(
               'text-lg text-black p-1.5 rounded-md',
-              ssovData.isPut ? 'bg-down-bad' : 'bg-emerald-500'
+              ssovData.isPut ? 'bg-down-bad' : 'bg-emerald-500',
             )}
           >
             {type + 'S'}
@@ -119,7 +119,7 @@ const Description = ({
           $
           {formatAmount(
             getUserReadableAmount(BigNumber.from(ssovData.tokenPrice), 8),
-            2
+            2,
           )}
         </Typography>
         <SsovStat
@@ -131,7 +131,7 @@ const Description = ({
           value={`$${formatAmount(
             getUserReadableAmount(ssovEpochData.totalEpochPurchasesInUSD, 26),
             2,
-            true
+            true,
           )}`}
         />
       </div>
@@ -151,7 +151,7 @@ const Description = ({
             Settlement price was{' $'}
             {formatAmount(
               getUserReadableAmount(ssovEpochData.settlementPrice, 8),
-              2
+              2,
             )}
           </Typography>
         </div>

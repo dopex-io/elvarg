@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 
 import { Button } from '@dopex-io/ui';
-import cx from 'classnames';
 import { useAccount, useEnsAvatar, useEnsName, useNetwork } from 'wagmi';
 
 import { useBoundStore } from 'store';
@@ -9,7 +8,7 @@ import { useBoundStore } from 'store';
 import { useEthersProvider } from 'hooks/useEthersProvider';
 import { useEthersSigner } from 'hooks/useEthersSigners';
 
-import { smartTrim } from 'utils/general';
+import { cn, smartTrim } from 'utils/general';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
@@ -56,7 +55,7 @@ export function ConnectButton({ className }: { className?: string }) {
       />
       {address ? (
         <Button
-          className={cx(
+          className={cn(
             'text-white !bg-black !bg-opacity-30 flex items-center',
             className,
           )}
