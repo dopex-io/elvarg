@@ -316,11 +316,17 @@ const LPPositions = ({
             liquidityUsedPercentage: {
               token0Amount:
                 token0LiquidityInToken > 0
-                  ? 100 - (100 * token0Withdrawable) / token0LiquidityInToken
+                  ? Math.max(
+                      100 - (100 * token0Withdrawable) / token0LiquidityInToken,
+                      0,
+                    )
                   : 0,
               token1Amount:
                 token1LiquidityInToken > 0
-                  ? 100 - (100 * token1Withdrawable) / token1LiquidityInToken
+                  ? Math.max(
+                      100 - (100 * token1Withdrawable) / token1LiquidityInToken,
+                      0,
+                    )
                   : 0,
               token0Symbol: token0Symbol,
               token1Symbol: token1Symbol,
