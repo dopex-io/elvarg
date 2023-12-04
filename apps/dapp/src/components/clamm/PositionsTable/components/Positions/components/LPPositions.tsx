@@ -145,12 +145,12 @@ const columns = [
           <span>
             {formatAmount(token0Amount, 2)}
             {'% '}
-            <span className="text-stieglitz">{token0Symbol}</span>
+            <span className="text-xs">{token0Symbol}</span>
           </span>
           <span>
             {formatAmount(token1Amount, 2)}
             {'% '}
-            <span className="text-stieglitz">{token1Symbol}</span>
+            <span className="text-xs">{token1Symbol}</span>
           </span>
         </div>
       );
@@ -315,9 +315,13 @@ const LPPositions = ({
             },
             liquidityUsedPercentage: {
               token0Amount:
-                100 - (100 * token0Withdrawable) / token0LiquidityInToken || 0,
+                token0LiquidityInToken > 0
+                  ? 100 - (100 * token0Withdrawable) / token0LiquidityInToken
+                  : 0,
               token1Amount:
-                100 - (100 * token1Withdrawable) / token1LiquidityInToken || 0,
+                token1LiquidityInToken > 0
+                  ? 100 - (100 * token1Withdrawable) / token1LiquidityInToken
+                  : 0,
               token0Symbol: token0Symbol,
               token1Symbol: token1Symbol,
             },
