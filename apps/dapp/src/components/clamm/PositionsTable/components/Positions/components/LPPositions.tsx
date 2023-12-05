@@ -231,7 +231,7 @@ const LPPositions = ({
             token0Withdrawable,
             token1Withdrawable,
             meta,
-          }: any,
+          },
           index: number,
         ) => {
           const isSelected = Boolean(selectedPositions.get(index));
