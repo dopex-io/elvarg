@@ -26,7 +26,6 @@ import {
 
 import AppLink from './AppLink';
 import AppSubMenu from './AppSubMenu';
-import NetworkButton from './NetworkButton';
 import NftClaims from './NftClaims';
 import RdpxAirdropButton from './RdpxAirdropButton';
 import { LinkType } from './types';

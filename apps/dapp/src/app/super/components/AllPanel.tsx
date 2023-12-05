@@ -1,11 +1,5 @@
-import AtlanticStraddles from './AtlanticStraddle';
-
 const AllPanel = () => {
-  return (
-    <div className="rounded-md bg-umbra">
-      <AtlanticStraddles />
-    </div>
-  );
+  return <div className="rounded-md bg-umbra"></div>;
 };
 
 export default AllPanel;

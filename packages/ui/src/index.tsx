@@ -19,6 +19,8 @@ export type { InputProps } from './Input';
 export { default as Skeleton } from './Skeleton';
 export type { SkeletonProps } from './Skeleton';
 
+export { default as Table } from './table';
+
 // Direct exports from headless UI
 export { Disclosure } from '@headlessui/react';
 export { Listbox } from '@headlessui/react';
