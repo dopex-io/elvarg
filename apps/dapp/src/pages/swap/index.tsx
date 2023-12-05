@@ -249,7 +249,7 @@ const SwapBody = () => {
           </span>
           <div className="flex flex-col space-y-2">
             <p>Slippage: 1%</p>
-            <p>Sell Tax: 10%</p>
+            <p>Sell Tax: 5%</p>
           </div>
         </div>
         <Button

@@ -10,7 +10,6 @@ import { createTokenSaleSlice, TokenSaleSlice } from './TokenSale';
 import { CommonSlice, createCommonSlice } from './Vault/common';
 import { createOlpSlice, OlpSlice } from './Vault/olp';
 import { createSsovV3Slice, SsovV3Slice } from './Vault/ssov';
-import { createStraddlesSlice, StraddlesSlice } from './Vault/straddles';
 import { createVedpxSlice, VeDPXSlice } from './VeDPX';
 import { createWalletSlice, WalletSlice } from './Wallet';
 
@@ -23,7 +22,6 @@ type T = WalletSlice &
   CommonSlice &
   SsovV3Slice &
   VeDPXSlice &
-  StraddlesSlice &
   DpxBondsSlice &
   OlpSlice;
 
@@ -38,7 +36,6 @@ export const useBoundStore = create<T>()(
     ...createCommonSlice(...a),
     ...createSsovV3Slice(...a),
     ...createVedpxSlice(...a),
-    ...createStraddlesSlice(...a),
     ...createDpxBondsSlice(...a),
     ...createOlpSlice(...a),
   })),
