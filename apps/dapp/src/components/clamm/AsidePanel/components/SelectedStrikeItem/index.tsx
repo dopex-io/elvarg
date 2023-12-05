@@ -426,7 +426,13 @@ const SelectedStrikeItem = ({
             value={editAllMode ? commonInputAmount : inputAmount}
             type="number"
             min="0"
-            placeholder={`0.0 ${strikeData.tokenSymbol}`}
+            placeholder={`0.0 ${
+              isTrade
+                ? selectedOptionsPool
+                  ? selectedOptionsPool.callToken.symbol
+                  : '-'
+                : strikeData.tokenSymbol
+            }`}
             className={cn(
               'w-full text-[13px] text-left bg-umbra focus:outline-none focus:border-mineshaft rounded-md placeholder-mineshaft',
               disabledInput ? 'text-stieglitz' : 'text-white',
