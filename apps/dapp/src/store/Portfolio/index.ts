@@ -17,7 +17,6 @@ import queryClient from 'queryClient';
 
 import { getSsovUserDataDocument } from 'graphql/ssovs';
 import { getSsovUserDataDocument as getSsovPolygonUserDataDocument } from 'graphql/ssovs-polygon';
-import { getStraddlesUserDataDocument } from 'graphql/straddles';
 
 import { AssetsSlice } from 'store/Assets';
 import { WalletSlice } from 'store/Wallet';
@@ -28,9 +27,7 @@ import { CHAINS } from 'constants/chains';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 import {
   DOPEX_POLYGON_SSOV_SUBGRAPH_API_URL,
-  DOPEX_POLYGON_STRADDLE_SUBGRAPH_API_URL,
   DOPEX_SSOV_SUBGRAPH_API_URL,
-  DOPEX_STRADDLES_SUBGRAPH_API_URL,
 } from 'constants/subgraphs';
 
 export interface UserSSOVPosition {
@@ -63,34 +60,9 @@ export interface UserSSOVDeposit {
   owner: string;
 }
 
-export interface UserStraddlesPosition {
-  vaultName: string;
-  assetName: string;
-  amount: string;
-  epoch: string;
-  strikePrice: string;
-  underlyingPurchased: string;
-  link: string;
-  vaultType: string;
-  owner: string;
-}
-
-export interface UserStraddlesDeposit {
-  vaultName: string;
-  assetName: string;
-  amount: string;
-  rollover: boolean;
-  epoch: string;
-  link: string;
-  vaultType: string;
-  owner: string;
-}
-
 export interface PortfolioData {
   userSSOVPositions: UserSSOVPosition[];
   userSSOVDeposits: UserSSOVDeposit[];
-  userStraddlesPositions: UserStraddlesPosition[];
-  userStraddlesDeposits: UserStraddlesDeposit[];
   isLoading: boolean;
 }
 
@@ -389,7 +361,9 @@ export const createPortfolioSlice: StateCreator<
       }),
     ]);
 
+    // @ts-ignore
     const data = ssovQueryResult['users'][0];
+    // @ts-ignore
     const dataPolygon = ssovQueryResultPolygon['users'][0];
 
     async function getSSOVDeposits(data: any) {
@@ -465,100 +439,11 @@ export const createPortfolioSlice: StateCreator<
       getSSOVPolygonPositions(dataPolygon),
     ]);
 
-    // Straddles
-    const [straddlesQueryResult, straddlesQueryResultPolygon] =
-      await Promise.all([
-        queryClient.fetchQuery({
-          queryKey: ['getStraddlesUserData'],
-          queryFn: async () =>
-            request(
-              DOPEX_STRADDLES_SUBGRAPH_API_URL,
-              getStraddlesUserDataDocument,
-              {
-                user: accountAddress.toLowerCase(),
-              },
-            ),
-        }),
-        queryClient.fetchQuery({
-          queryKey: ['getStraddlesUserDataPolygon'],
-          queryFn: async () =>
-            request(
-              DOPEX_POLYGON_STRADDLE_SUBGRAPH_API_URL,
-              getStraddlesUserDataDocument,
-              {
-                user: accountAddress.toLowerCase(),
-              },
-            ),
-        }),
-      ]);
-
-    const [straddlesPositionsArb, straddlesPositionsPolygon] =
-      await Promise.all([
-        getStraddlesPositions(straddlesQueryResult['users'][0]),
-        getStraddlesPositions(straddlesQueryResultPolygon['users'][0]),
-      ]);
-
-    async function getStraddlesPositions(straddlesData: any) {
-      const straddlesPositionsPromises = [];
-      const straddlesPositions: UserStraddlesPosition[] = [];
-
-      for (let i in straddlesData?.userOpenStraddles) {
-        straddlesPositionsPromises.push(
-          getUserStraddlesPosition(straddlesData?.userOpenStraddles[Number(i)]),
-        );
-      }
-
-      const straddlePositionsResponses = await Promise.all(
-        straddlesPositionsPromises,
-      );
-
-      for (let i in straddlePositionsResponses) {
-        if (straddlePositionsResponses[i])
-          straddlesPositions.push(straddlePositionsResponses[i]!);
-      }
-      return straddlesPositions;
-    }
-
-    async function getStraddlesDeposits(straddlesData: any) {
-      const straddlesDepositsPromises = [];
-      const straddlesDeposits: UserStraddlesDeposit[] = [];
-
-      for (let i in straddlesData?.straddlesUserOpenDeposits) {
-        straddlesDepositsPromises.push(
-          getUserStraddlesDeposit(
-            straddlesData?.straddlesUserOpenDeposits[Number(i)],
-          ),
-        );
-      }
-
-      const straddleDepositsResponses = await Promise.all(
-        straddlesDepositsPromises,
-      );
-
-      for (let i in straddleDepositsResponses) {
-        if (straddleDepositsResponses[i])
-          straddlesDeposits.push(straddleDepositsResponses[i]!);
-      }
-
-      return straddlesDeposits;
-    }
-
-    const [straddlesDepositsArb, straddlesDepositsPolygon] = await Promise.all([
-      getStraddlesDeposits(straddlesQueryResult['users'][0]),
-      getStraddlesDeposits(straddlesQueryResultPolygon['users'][0]),
-    ]);
-
     set((prevState) => ({
       ...prevState,
       portfolioData: {
         userSSOVDeposits: ssovDeposits.concat(ssovDepositsPolygon),
         userSSOVPositions: ssovPositions.concat(ssovPositionsPolygon),
-        userStraddlesDeposits: straddlesDepositsArb.concat(
-          straddlesDepositsPolygon,
-        ),
-        userStraddlesPositions: straddlesPositionsArb.concat(
-          straddlesPositionsPolygon,
-        ),
         isLoading: false,
       },
     }));

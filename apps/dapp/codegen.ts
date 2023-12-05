@@ -1,8 +1,5 @@
 import { CodegenConfig } from '@graphql-codegen/cli';
 
-const DOPEX_STRADDLES_SUBGRAPH_API_URL =
-  'https://api.thegraph.com/subgraphs/name/psytama/dopex-straddles';
-
 const DOPEX_SSOV_SUBGRAPH_API_URL =
   'https://api.thegraph.com/subgraphs/name/psytama/dopex-ssov';
 
@@ -14,11 +11,6 @@ export const DOPEX_RDPX_V2_SUBGRAPH_API_URL =
 
 const config: CodegenConfig = {
   generates: {
-    './src/gql/straddles/': {
-      schema: DOPEX_STRADDLES_SUBGRAPH_API_URL,
-      documents: ['src/graphql/straddles/*.ts'],
-      preset: 'client',
-    },
     './src/gql/ssovs/': {
       schema: DOPEX_SSOV_SUBGRAPH_API_URL,
       documents: ['src/graphql/ssovs/*.ts'],
