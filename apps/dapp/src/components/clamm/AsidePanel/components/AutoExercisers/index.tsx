@@ -1,10 +1,18 @@
 import { zeroAddress } from 'viem';
 
 import { Button } from '@dopex-io/ui';
+import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import DopexV2OptionMarket from 'abis/clamm/DopexV2OptionMarket';
 import { useAccount, useContractRead, useContractWrite } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from 'components/UI/Tooltip';
 
 import { cn } from 'utils/general';
 
@@ -37,17 +45,28 @@ const AutoExercisers = () => {
     });
 
   return (
-    <div className="w-full h-fit bg-umbra p-[12px] space-y-[10px]">
-      <div className="text-stieglitz font-medium text-[13px] w-full flex items-center justify-between">
-        <span>Auto Exercisers</span>
-      </div>
+    <div className="w-full h-fit bg-umbra p-[12px]">
       <div className="text-stieglitz font-medium text-[13px] ">
         <div className="w-full flex items-center justify-between">
-          <div className="flex flex-col space-y-[4px] flex-1">
-            <span className="text-white">Time Based</span>
-            <span className="text-[10px]">
-              Options are automatically exercised 5 minutes before expiry.
-            </span>
+          <div className="flex space-x-[4px] flex-1 items-center text-stieglitz">
+            <span>Time Based Auto Exercise</span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <QuestionMarkCircleIcon className="h-[15px] w-[15px]" />
+                </TooltipTrigger>
+                <TooltipContent className="bg-umbra w-auto backdrop-blur-md">
+                  <div className="h-[75px] w-[300px]">
+                    <span className="text-white text-[10px]">
+                      Options are automatically exercised 5 minutes before
+                      expiry. Options that were purchased before enabling this
+                      will be eligible along with any options purchased after
+                      enabling.
+                    </span>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <div className="flex-[0.35] flex items-center justify-end">
             <Button
