@@ -11,6 +11,7 @@ import { VARROCK_BASE_API_URL } from 'constants/env';
 import AutoExercisers from './components/AutoExercisers';
 import CostSummary from './components/CostSummary';
 import InfoPanel from './components/InfoPanel';
+import RangeSelector from './components/RangeSelector';
 import StrikesSection from './components/StrikesSection';
 import TradeSideSelector from './components/TradeSideSelector';
 import TTLSelector from './components/TTLSelector';
@@ -66,6 +67,7 @@ const AsidePanel = () => {
         <TradeSideSelector />
         {isTrade && <TTLSelector />}
         <StrikesSection />
+        <RangeSelector />
         <CostSummary />
         {isTrade && <AutoExercisers />}
         <InfoPanel updateTokenBalances={updateTokenBalances} />

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 
+import * as Slider from '@radix-ui/react-slider';
 import { NextSeo } from 'next-seo';
 import { useNetwork } from 'wagmi';
 
@@ -7,6 +8,7 @@ import useClammStore from 'hooks/clamm/useClammStore';
 import useTradingViewChartStore from 'hooks/tradingViewChart/useTradingViewChartStore';
 
 import AsidePanel from 'components/clamm/AsidePanel';
+import RangeSelector from 'components/clamm/AsidePanel/components/RangeSelector';
 import PositionsTable from 'components/clamm/PositionsTable';
 import PriceChart from 'components/clamm/PriceChart';
 import StrikesChain from 'components/clamm/StrikesChain';
