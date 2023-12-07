@@ -25,6 +25,8 @@ import getTokenAllowance from 'utils/clamm/varrock/getTokenAllowance';
 import { MULTI_CALL_FN_SIG } from 'constants/clamm';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
+import TokenBalances from './TokenBalances';
+
 type Props = {
   updateTokenBalances: () => Promise<void>;
 };
@@ -353,6 +355,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
 
   return (
     <div className="flex flex-col bg-umbra p-[12px] rounded-b-lg w-full space-y-[12px]">
+      <TokenBalances />
       <Button
         onClick={buttonProps?.onClick}
         className="flex items-center justify-center"
