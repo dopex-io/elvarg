@@ -115,7 +115,6 @@ const RangeSelector = () => {
           onValueChange={(e) => {
             setSelectedStrikeIndicies(e);
           }}
-          value={selectedStrikeIndices}
           step={1}
           minStepsBetweenThumbs={1}
           max={strikesBarGroup.length}
