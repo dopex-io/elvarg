@@ -66,7 +66,6 @@ const RangeSelector = () => {
           const isWithinLimits =
             index >= selectedStrikeIndices[0] &&
             index <= selectedStrikeIndices[1];
-
           return (
             <svg
               key={index}
@@ -85,8 +84,6 @@ const RangeSelector = () => {
                   'fill-frost',
                   'border',
                   !isWithinLimits && 'opacity-50',
-                  'cursor-pointer',
-                  'hover:fill-wave-blue',
                 )}
               />
               <rect
@@ -116,9 +113,9 @@ const RangeSelector = () => {
           className="relative flex items-center select-none touch-none w-full h-5"
           defaultValue={sliderDefaultValue}
           onValueChange={(e) => {
-            console.log(e);
             setSelectedStrikeIndicies(e);
           }}
+          value={selectedStrikeIndices}
           step={1}
           minStepsBetweenThumbs={1}
           max={strikesBarGroup.length}
