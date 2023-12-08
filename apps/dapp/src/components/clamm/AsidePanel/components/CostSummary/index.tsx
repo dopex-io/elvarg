@@ -6,10 +6,15 @@ import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
 
 import { cn, formatAmount } from 'utils/general';
 
-import { PROTOCOL_FEES_MULTIPLIER } from 'constants/clamm';
+import {
+  EXPIRIES,
+  EXPIRIES_BY_INDEX,
+  PROTOCOL_FEES_MULTIPLIER,
+} from 'constants/clamm';
 
 const CostSummary = () => {
-  const { isTrade, markPrice, selectedOptionsPool } = useClammStore();
+  const { isTrade, markPrice, selectedOptionsPool, selectedTTL } =
+    useClammStore();
   const { purchases, deposits } = useClammTransactionsStore();
 
   const total = useMemo(() => {
@@ -180,6 +185,29 @@ const CostSummary = () => {
                     </span>
                   ),
                 )}
+              </span>
+            </div>
+          </div>
+        )}
+        {isTrade && (
+          <div
+            className={cn(
+              'flex w-full items-center justify-between font-medium text-[13px] text-stieglitz',
+              totalProtocolFees.size === 0 && 'cursor-not-allowed',
+            )}
+          >
+            <span className="font-medium text-[13px]">Implied Volatility</span>
+            <div className="flex items-center justify-center">
+              <span className="flex items-center justify-center space-x-[8px]">
+                <span className="text-[13px] flex items-center justify-center space-x-[4px]">
+                  <span className="text-white">
+                    {
+                      selectedOptionsPool?.ivs[
+                        EXPIRIES_BY_INDEX.indexOf(selectedTTL)
+                      ]
+                    }
+                  </span>
+                </span>
               </span>
             </div>
           </div>
