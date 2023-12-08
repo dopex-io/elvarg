@@ -14,7 +14,7 @@ import useShare from 'hooks/useShare';
 import TableLayout from 'components/common/TableLayout';
 
 import { TradeHistory } from 'utils/clamm/varrock/types';
-import { formatAmount, getExplorerTxURL } from 'utils/general';
+import { formatAmount, getExplorerUrl } from 'utils/general';
 import { getTokenDecimals, getTokenLogoURI, getTokenSymbol } from 'utils/token';
 
 import { EXPIRIES_TO_KEY } from 'constants/clamm';
@@ -210,7 +210,7 @@ const HistoryPositions = () => {
                     });
                   }
                 : null,
-            txUrl: getExplorerTxURL(chainId, transactionHash),
+            txUrl: `${getExplorerUrl(chainId)}tx/${transactionHash}`,
           },
           size: {
             amount: formatAmount(
