@@ -5,12 +5,7 @@ import {
   ArrowDownRightIcon,
   ArrowUpRightIcon,
 } from '@heroicons/react/24/solid';
-import {
-  useQuery,
-  useQueryClient,
-  useSuspenseQuery,
-} from '@tanstack/react-query';
-import { format } from 'date-fns';
+import { useQuery } from '@tanstack/react-query';
 import { useAccount, useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
@@ -148,7 +143,7 @@ const HistoryPositions = () => {
         const premiumUsd =
           Number(
             formatUnits(
-              BigInt(size),
+              BigInt(premium || 0),
               isCall ? callToken.decimals : putToken.decimals,
             ),
           ) * (isCall ? priceAtAction : 1);
@@ -170,8 +165,6 @@ const HistoryPositions = () => {
           chainId,
           address: putToken.address,
         });
-
-        console.log(putTokenURI);
 
         const callTokenSymbol = getTokenSymbol({
           chainId,
