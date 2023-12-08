@@ -14,6 +14,7 @@ import InfoPanel from './components/InfoPanel';
 import RangeSelector from './components/RangeSelector';
 import Resources from './components/Resources';
 import StrikesSection from './components/StrikesSection';
+// import StrikesSection from './components/StrikesSection';
 import TradeSideSelector from './components/TradeSideSelector';
 import TTLSelector from './components/TTLSelector';
 
@@ -67,8 +68,9 @@ const AsidePanel = () => {
       <div className="w-full bg-cod-gray p-[12px] rounded-lg space-y-[4px]">
         <TradeSideSelector />
         {isTrade && <TTLSelector />}
+        {/* <StrikesSection /> */}
         <StrikesSection />
-        <RangeSelector />
+        {/* <RangeSelector /> */}
         <CostSummary />
         {isTrade && <AutoExercisers />}
         <InfoPanel updateTokenBalances={updateTokenBalances} />

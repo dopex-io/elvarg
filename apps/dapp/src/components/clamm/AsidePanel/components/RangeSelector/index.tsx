@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import * as Slider from '@radix-ui/react-slider';
+import { debounce } from 'lodash';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
@@ -9,17 +10,37 @@ import generateStrikes from 'utils/clamm/generateStrikes';
 import { cn } from 'utils/general';
 
 const RangeSelector = () => {
-  const { tick, selectedOptionsPool, markPrice } = useClammStore();
-  const { strikesChain } = useStrikesChainStore();
+  const { tick, selectedOptionsPool, markPrice, isTrade } = useClammStore();
+  const { strikesChain, selectStrike, deselectStrike, selectedStrikes } =
+    useStrikesChainStore();
   const [selectedStrikeIndices, setSelectedStrikeIndicies] = useState<number[]>(
     [],
   );
+
+  const tokenInfo = useMemo(() => {
+    if (!selectedOptionsPool)
+      return {
+        callTokenDecimals: 18,
+        putTokenDecimals: 18,
+        callTokenSymbol: '-',
+        putTokenSymbol: '-',
+      };
+
+    const { callToken, putToken } = selectedOptionsPool;
+
+    return {
+      callTokenDecimals: callToken.decimals,
+      putTokenDecimals: putToken.decimals,
+      callTokenSymbol: callToken.symbol,
+      putTokenSymbol: putToken.symbol,
+    };
+  }, [selectedOptionsPool]);
 
   const strikesBarGroup = useMemo(() => {
     if (!selectedOptionsPool) return [];
     const { callToken, putToken } = selectedOptionsPool;
     if (strikesChain.length === 0) return [];
-    const MAX_BAR_HEIGHT = 100;
+    const MAX_BAR_HEIGHT = 300;
     const highestLiquidityUsd = strikesChain.reduce((prev, curr) => {
       return Math.max(prev, Number(curr.liquidityUsd));
     }, Number(strikesChain[0].liquidityUsd));
@@ -29,35 +50,83 @@ const RangeSelector = () => {
       10 ** callToken.decimals,
       10 ** putToken.decimals,
       false,
-      100,
+      10,
     )
       .sort((a, b) => a.strike - b.strike)
-      .map(
-        ({
+      .map(({ strike, meta, type }) => {
+        const liquidityUsd =
+          strikesChain.find(
+            ({ meta: { tickLower, tickUpper } }) =>
+              tickLower === meta.tickLower && tickUpper === meta.tickUpper,
+          )?.liquidityUsd ?? 0;
+        return {
+          meta,
           strike,
-          tickLower: generateStrikeTickLower,
-          tickUpper: generateStrikeTickUpper,
-        }) => {
-          const liquidityUsd =
-            strikesChain.find(
-              ({ meta: { tickLower, tickUpper } }) =>
-                tickLower === generateStrikeTickLower &&
-                tickUpper === generateStrikeTickUpper,
-            )?.liquidityUsd ?? 0;
-          return {
-            tickLower: generateStrikeTickLower,
-            tickUpper: generateStrikeTickUpper,
-            strike,
-            barHeight:
-              (MAX_BAR_HEIGHT * Number(liquidityUsd)) / highestLiquidityUsd,
-          };
-        },
-      );
+          type,
+          barHeight:
+            (MAX_BAR_HEIGHT * Number(liquidityUsd)) / highestLiquidityUsd,
+        };
+      });
   }, [strikesChain, tick, selectedOptionsPool]);
+
+  const updateStrikesSelection = useCallback(() => {
+    const selectedStrikes = strikesBarGroup.filter((_, index) => {
+      return (
+        index >= selectedStrikeIndices[0] && index <= selectedStrikeIndices[1]
+      );
+    });
+    const unSelectedStrikes = strikesBarGroup.filter((_, index) => {
+      return (
+        index < selectedStrikeIndices[0] && index > selectedStrikeIndices[1]
+      );
+    });
+
+    console.log(unSelectedStrikes);
+
+    unSelectedStrikes.forEach(({ strike }) => {
+      deselectStrike(strike);
+    });
+
+    selectedStrikes.forEach((strike) => {
+      const isCall = strike.type === 'call';
+      selectStrike(strike.strike, {
+        amount0: 0,
+        amount1: '0',
+        isCall: isCall,
+        strike: strike.strike,
+        tokenDecimals: isCall
+          ? tokenInfo.callTokenDecimals
+          : tokenInfo.putTokenDecimals,
+        tokenSymbol: isCall
+          ? tokenInfo.callTokenSymbol
+          : tokenInfo.putTokenSymbol,
+        ttl: '24h',
+        meta: {
+          tickLower: Number(strike.meta.tickLower),
+          tickUpper: Number(strike.meta.tickUpper),
+          amount0: 0n,
+          amount1: 0n,
+        },
+      });
+    });
+  }, [
+    deselectStrike,
+    selectedStrikeIndices,
+    strikesBarGroup,
+    selectStrike,
+    tokenInfo.callTokenDecimals,
+    tokenInfo.callTokenSymbol,
+    tokenInfo.putTokenDecimals,
+    tokenInfo.putTokenSymbol,
+  ]);
 
   const sliderDefaultValue = useMemo(() => {
     return [strikesBarGroup.length / 4, strikesBarGroup.length / 2];
   }, [strikesBarGroup]);
+
+  useEffect(() => {
+    updateStrikesSelection();
+  }, [updateStrikesSelection]);
 
   return (
     <div className="w-full h-full flex flex-col bg-umbra p-[12px] pb-[16px] space-y-[4px]">

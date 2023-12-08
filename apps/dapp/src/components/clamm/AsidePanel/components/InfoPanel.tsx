@@ -56,63 +56,60 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
   >([]);
 
   const checkApproved = useCallback(async () => {
-    if (!chain || !userAddress || !selectedOptionsPool || !addresses) return;
-    const symbolToAmounts = new Map<string, bigint>();
-    const symbolToAddress = new Map<string, Address>();
-    if (!isTrade) {
-      deposits.forEach(({ tokenSymbol, amount, tokenAddress }) => {
-        symbolToAddress.set(tokenSymbol, tokenAddress);
-        const curr = symbolToAmounts.get(tokenSymbol);
-        if (!curr) {
-          symbolToAmounts.set(tokenSymbol, amount);
-        } else {
-          symbolToAmounts.set(tokenSymbol, amount + curr);
-        }
-      });
-    } else {
-      purchases.forEach(({ premium, tokenSymbol, tokenAddress, error }) => {
-        symbolToAddress.set(tokenSymbol, tokenAddress);
-        const curr = symbolToAmounts.get(tokenSymbol);
-        if (!curr) {
-          if (!error) {
-            symbolToAmounts.set(tokenSymbol, (premium * 134n) / 100n);
-          }
-        } else {
-          if (!error) {
-            symbolToAmounts.set(tokenSymbol, (premium * 134n) / 100n + curr);
-          }
-        }
-      });
-    }
-
-    const spender = isTrade
-      ? selectedOptionsPool.optionsPoolAddress
-      : addresses.positionManager;
-
-    const _approvals: ApprovedRequiredInfo[] = [];
-    for await (const [k, v] of symbolToAmounts) {
-      const tokenAddress = symbolToAddress.get(k)!;
-      const allowance = await getTokenAllowance(
-        chain.id,
-        tokenAddress,
-        userAddress,
-        spender,
-      );
-
-      if (allowance < v) {
-        _approvals.push({
-          amount: v,
-          tokenSymbol: k,
-          tokenAddress: tokenAddress,
-          txData: encodeFunctionData({
-            abi: erc20ABI,
-            functionName: 'approve',
-            args: [spender, (v * 10500n) / 10000n],
-          }),
-        });
-      }
-    }
-    setApprovalsRequired(_approvals);
+    // if (!chain || !userAddress || !selectedOptionsPool || !addresses) return;
+    // const symbolToAmounts = new Map<string, bigint>();
+    // const symbolToAddress = new Map<string, Address>();
+    // if (!isTrade) {
+    //   deposits.forEach(({ tokenSymbol, amount, tokenAddress }) => {
+    //     symbolToAddress.set(tokenSymbol, tokenAddress);
+    //     const curr = symbolToAmounts.get(tokenSymbol);
+    //     if (!curr) {
+    //       symbolToAmounts.set(tokenSymbol, amount);
+    //     } else {
+    //       symbolToAmounts.set(tokenSymbol, amount + curr);
+    //     }
+    //   });
+    // } else {
+    //   purchases.forEach(({ premium, tokenSymbol, tokenAddress, error }) => {
+    //     symbolToAddress.set(tokenSymbol, tokenAddress);
+    //     const curr = symbolToAmounts.get(tokenSymbol);
+    //     if (!curr) {
+    //       if (!error) {
+    //         symbolToAmounts.set(tokenSymbol, (premium * 134n) / 100n);
+    //       }
+    //     } else {
+    //       if (!error) {
+    //         symbolToAmounts.set(tokenSymbol, (premium * 134n) / 100n + curr);
+    //       }
+    //     }
+    //   });
+    // }
+    // const spender = isTrade
+    //   ? selectedOptionsPool.optionsPoolAddress
+    //   : addresses.positionManager;
+    // const _approvals: ApprovedRequiredInfo[] = [];
+    // for await (const [k, v] of symbolToAmounts) {
+    //   const tokenAddress = symbolToAddress.get(k)!;
+    //   const allowance = await getTokenAllowance(
+    //     chain.id,
+    //     tokenAddress,
+    //     userAddress,
+    //     spender,
+    //   );
+    //   if (allowance < v) {
+    //     _approvals.push({
+    //       amount: v,
+    //       tokenSymbol: k,
+    //       tokenAddress: tokenAddress,
+    //       txData: encodeFunctionData({
+    //         abi: erc20ABI,
+    //         functionName: 'approve',
+    //         args: [spender, (v * 10500n) / 10000n],
+    //       }),
+    //     });
+    //   }
+    // }
+    // setApprovalsRequired(_approvals);
   }, [
     deposits,
     isTrade,

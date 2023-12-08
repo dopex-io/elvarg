@@ -383,6 +383,7 @@ const SelectedStrikeItem = ({
       <div className="w-full flex items-center h-[30px] space-x-[10px]">
         <XMarkIcon
           onClick={() => {
+            console.log(strikeIndex);
             deselectStrike(strikeIndex);
             unsetDeposit(strikeIndex);
             unsetPurchase(strikeIndex);
@@ -409,10 +410,17 @@ const SelectedStrikeItem = ({
         </div>
         <div
           className={cn(
-            'h-[30px] w-[160px] p-[8px] flex items-center justfiy-center border rounded-md flex-[0.425] border-mineshaft',
+            'h-[30px] w-[160px] p-[8px] flex items-center justfiy-center border rounded-md flex-[0.425] border-mineshaft space-x-[4px]',
             Boolean(error) ? 'border-down-bad' : 'border-mineshaft',
           )}
         >
+          <img
+            onClick={handleMax}
+            role="button"
+            src="/images/misc/max.svg"
+            className="hover:bg-silver rounded-[4px] h-[14px]"
+            alt="max"
+          />
           <input
             disabled={disabledInput}
             onChange={(event: any) => {
@@ -434,16 +442,9 @@ const SelectedStrikeItem = ({
                 : strikeData.tokenSymbol
             }`}
             className={cn(
-              'w-full text-[13px] text-left bg-umbra focus:outline-none focus:border-mineshaft rounded-md placeholder-mineshaft',
+              'w-full text-[12px] text-right bg-umbra focus:outline-none focus:border-mineshaft rounded-md placeholder-mineshaft',
               disabledInput ? 'text-stieglitz' : 'text-white',
             )}
-          />
-          <img
-            onClick={handleMax}
-            role="button"
-            src="/images/misc/max.svg"
-            className="hover:bg-silver rounded-[4px] h-[14px]"
-            alt="max"
           />
         </div>
       </div>

@@ -1,10 +1,12 @@
 import getPriceFromTick from 'utils/clamm/getPriceFromTick';
 
-export type GenerateStrike = {
+export type GeneratedStrike = {
   strike: number;
-  tickLower: number;
-  tickUpper: number;
   type: string;
+  meta: {
+    tickLower: number;
+    tickUpper: number;
+  };
 };
 function generateStrikes(
   tick: number,
@@ -32,7 +34,7 @@ function generateStrikes(
   let startTick = rounded + tickRange;
   const endTick = rounded - tickRange;
 
-  const strikes: GenerateStrike[] = [];
+  const strikes: GeneratedStrike[] = [];
   while (startTick != endTick) {
     startTick -= tickSpacing;
 
@@ -61,8 +63,10 @@ function generateStrikes(
         strikes.push({
           type: 'put',
           strike: tickLowerPrice,
-          tickLower: tickLower,
-          tickUpper: tickUpper,
+          meta: {
+            tickLower: tickLower,
+            tickUpper: tickUpper,
+          },
         });
       }
 
@@ -70,8 +74,10 @@ function generateStrikes(
         strikes.push({
           type: 'call',
           strike: tickUpperPrice,
-          tickLower: tickLower,
-          tickUpper: tickUpper,
+          meta: {
+            tickLower: tickLower,
+            tickUpper: tickUpper,
+          },
         });
       }
     }

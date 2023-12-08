@@ -83,7 +83,7 @@ const StrikesSection = () => {
         !isTrade && 'rounded-t-lg',
       )}
     >
-      <span className="flex w-full items-center justify-between text-stieglitz px-[12px] pt-[12px] font-medium text-[13px]">
+      {/* <span className="flex w-full items-center justify-between text-stieglitz px-[12px] pt-[12px] font-medium text-[13px]">
         <span>Strikes</span>
 
         <span className="flex items-center justify-center space-x-2">
@@ -95,6 +95,7 @@ const StrikesSection = () => {
           />
         </span>
       </span>
+       */}
       <div className="flex flex-col w-full space-y-[10px] px-[12px]">
         {Array.from(selectedStrikes).map(([strikeIndex, strikeData], index) => (
           <SelectedStrikeItem
@@ -108,6 +109,7 @@ const StrikesSection = () => {
           />
         ))}
       </div>
+      {/*
       <div className="w-full flex">
         <StrikesList
           strikes={callStrikes}
@@ -119,7 +121,7 @@ const StrikesSection = () => {
           isPut={true}
           selectedLength={selectedPutStrikesLength}
         />
-      </div>
+      </div> */}
     </div>
   );
 };
