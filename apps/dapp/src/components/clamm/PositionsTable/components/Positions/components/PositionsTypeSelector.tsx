@@ -76,7 +76,7 @@ const PositionsTypeSelector = (props: Props) => {
         className="flex space-x-[4px] items-center justify-center"
       >
         <span
-          className={cx(
+          className={cn(
             'font-medium text-[12px]',
             selectedIndex === 2 ? 'text-white' : 'text-stieglitz',
           )}
