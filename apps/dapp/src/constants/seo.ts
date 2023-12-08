@@ -10,15 +10,6 @@ const seo = {
     description:
       'Buy options to trade volatility or write options to earn premiums and rewards',
   },
-  straddles: {
-    url: `${HOST_URL}/straddles`,
-    banner:
-      'https://res.cloudinary.com/dxitdndu3/image/upload/v1684326260/dopex_images/preview_images/straddles_zpcdyo.png',
-    alt: 'Straddles',
-    title: 'Dopex Atlantic Straddles',
-    description:
-      'Buy straddles to trade bi-directional volatility or write Atlantic Puts to earn premiums and funding',
-  },
   vedpx: {
     url: `${HOST_URL}/governance/vedpx`,
     banner:

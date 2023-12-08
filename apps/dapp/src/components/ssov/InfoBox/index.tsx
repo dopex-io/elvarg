@@ -5,9 +5,9 @@ import Tooltip from '@mui/material/Tooltip';
 
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
-import cx from 'classnames';
-
 import Typography from 'components/UI/Typography';
+
+import { cn } from 'utils/general';
 
 interface InfoBoxProps {
   Icon?: React.FC;
@@ -27,7 +27,7 @@ const InfoBox = ({
   tooltip,
 }: InfoBoxProps) => {
   return (
-    <Box className={cx('flex flex-col p-4 bg-umbra rounded-xl', className)}>
+    <Box className={cn('flex flex-col p-4 bg-umbra rounded-xl', className)}>
       <Box className="mb-2 flex flex-row">
         {Icon ? (
           <Icon />

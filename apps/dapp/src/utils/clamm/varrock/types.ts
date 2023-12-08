@@ -1,4 +1,4 @@
-import { Address } from 'viem';
+import { Address, Hex } from 'viem';
 
 export type OptionsPositionsResponse = {
   strike: number;
@@ -43,6 +43,8 @@ export type LPPositionsResponse = {
   token1Earned: string;
   token0Symbol: string;
   token1Symbol: string;
+  token0Address: string;
+  token1Address: string;
   token0Decimals: number;
   token1Decimals: number;
   token0Withdrawable: string;
@@ -52,8 +54,8 @@ export type LPPositionsResponse = {
     handler: string;
     withdrawableShares: string;
     withdrawTx: {
-      txData: string;
-      to: string;
+      txData: Hex;
+      to: Address;
     };
     tickLower: number;
     tickUpper: number;

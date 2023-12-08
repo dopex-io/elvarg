@@ -62,11 +62,6 @@ const appLinks: {
           to: '/olp',
           description: 'Liquidity pools for SSOV options',
         },
-        {
-          name: 'Straddles DEPRECATED',
-          to: '/straddles',
-          description: 'Buy/write straddles for crypto assets',
-        },
       ],
     },
     {

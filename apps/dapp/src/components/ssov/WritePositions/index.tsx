@@ -11,15 +11,17 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 
-import cx from 'classnames';
-import useSendTx from 'hooks/useSendTx';
 import isEmpty from 'lodash/isEmpty';
 
 import { useBoundStore } from 'store';
 import { SsovV3Data, WritePositionInterface } from 'store/Vault/ssov';
 
+import useSendTx from 'hooks/useSendTx';
+
 import TablePaginationActions from 'components/UI/TablePaginationActions';
 import Typography from 'components/UI/Typography';
+
+import { cn } from 'utils/general';
 
 import ClaimDialog from './Dialogs/ClaimDialog';
 import TransferDialog from './Dialogs/TransferDialog';
@@ -105,7 +107,7 @@ const WritePositions = (props: { className?: string }) => {
       ssovUserData?.writePositions.filter(
         (position) =>
           !position.collateralAmount.isZero() &&
-          selectedEpoch === position.epoch
+          selectedEpoch === position.epoch,
       ) || []
     );
   }, [ssovUserData, selectedEpoch]);
@@ -138,7 +140,7 @@ const WritePositions = (props: { className?: string }) => {
     (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
       setPage(newPage);
     },
-    [setPage]
+    [setPage],
   );
 
   const handleStake = useCallback(
@@ -161,11 +163,11 @@ const WritePositions = (props: { className?: string }) => {
       ssovSigner?.ssovStakingRewardsWithSigner,
       sendTx,
       ssovSigner?.ssovContractWithSigner,
-    ]
+    ],
   );
 
   return Number(selectedEpoch) > 0 ? (
-    <Box className={cx('bg-cod-gray w-full p-4 rounded-xl', className)}>
+    <Box className={cn('bg-cod-gray w-full p-4 rounded-xl', className)}>
       {dialog && dialog.type === 'WITHDRAW' && (
         <WithdrawDialog {...dialog} handleClose={handleClose} />
       )}
@@ -200,11 +202,11 @@ const WritePositions = (props: { className?: string }) => {
                   })}
                 </TableRow>
               </TableHead>
-              <TableBody className={cx('rounded-lg')}>
+              <TableBody className={cn('rounded-lg')}>
                 {filteredWritePositions
                   .slice(
                     page * ROWS_PER_PAGE,
-                    page * ROWS_PER_PAGE + ROWS_PER_PAGE
+                    page * ROWS_PER_PAGE + ROWS_PER_PAGE,
                   )
                   ?.map((o: WritePositionInterface, i: number) => {
                     const openTransfer = () => {

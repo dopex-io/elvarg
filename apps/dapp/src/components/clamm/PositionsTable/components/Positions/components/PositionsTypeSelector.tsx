@@ -1,6 +1,6 @@
 import React from 'react';
 
-import cx from 'classnames';
+import { cn } from 'utils/general';
 
 type Props = {
   selectedIndex: number;
@@ -29,7 +29,7 @@ const PositionsTypeSelector = (props: Props) => {
         className="flex space-x-[4px] items-center justify-center"
       >
         <span
-          className={cx(
+          className={cn(
             'font-medium text-[12px]',
             selectedIndex === 0 ? 'text-white' : 'text-stieglitz',
           )}
@@ -37,7 +37,7 @@ const PositionsTypeSelector = (props: Props) => {
           Buy Positions
         </span>
         <span
-          className={cx(
+          className={cn(
             'bg-cod-gray rounded-3xl text-[12px] px-[6px]',
             selectedIndex === 0 ? 'text-white' : 'text-stieglitz',
           )}
@@ -54,7 +54,7 @@ const PositionsTypeSelector = (props: Props) => {
         className="flex space-x-[4px] items-center justify-center"
       >
         <span
-          className={cx(
+          className={cn(
             'font-medium text-[12px]',
             selectedIndex === 1 ? 'text-white' : 'text-stieglitz',
           )}
@@ -62,7 +62,7 @@ const PositionsTypeSelector = (props: Props) => {
           LP Positions
         </span>
         <span
-          className={cx(
+          className={cn(
             'bg-cod-gray rounded-3xl text-[12px] px-[6px]',
             selectedIndex === 1 ? 'text-white' : 'text-stieglitz',
           )}

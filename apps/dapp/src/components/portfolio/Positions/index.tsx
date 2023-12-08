@@ -1,19 +1,19 @@
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 
-import { useMemo, useState } from 'react';
-
-import SearchIcon from '@mui/icons-material/Search';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Input from '@mui/material/Input';
-import cx from 'classnames';
+
+import SearchIcon from '@mui/icons-material/Search';
+
 import { useBoundStore } from 'store';
 
-import CustomButton from 'components/UI/Button';
-import Typography from 'components/UI/Typography';
 import Filter from 'components/common/Filter';
 import SignerButton from 'components/common/SignerButton';
+import CustomButton from 'components/UI/Button';
+import Typography from 'components/UI/Typography';
 
 import getUserReadableAmount from 'utils/contracts/getUserReadableAmount';
 import formatAmount from 'utils/general/formatAmount';
@@ -109,7 +109,7 @@ export default function Positions() {
         if (!selectedSides.includes(position.isPut ? 'PUT' : 'CALL'))
           toAdd = false;
         if (toAdd) _positions.push(position);
-      }
+      },
     );
     return _positions;
   }, [portfolioData, searchText, selectedSides]);
@@ -119,22 +119,6 @@ export default function Positions() {
     else if (portfolioData?.isLoading) return 1;
     else return 0;
   }, [accountAddress, portfolioData?.isLoading]);
-
-  const filteredStraddlesPositions = useMemo(() => {
-    const _positions: any[] = [];
-    portfolioData?.userStraddlesPositions?.map(
-      (position: { vaultName: string | string[] }) => {
-        let toAdd = true;
-        if (
-          !position.vaultName.includes(searchText.toUpperCase()) &&
-          searchText !== ''
-        )
-          toAdd = false;
-        if (toAdd) _positions.push(position);
-      }
-    );
-    return _positions;
-  }, [portfolioData, searchText]);
 
   return (
     <Box>
@@ -177,8 +161,7 @@ export default function Positions() {
             ) : (
               <SignerButton className="my-4">Connect Wallet</SignerButton>
             )
-          ) : filteredSSOVPositions.length === 0 &&
-            filteredStraddlesPositions.length === 0 ? (
+          ) : filteredSSOVPositions.length === 0 ? (
             <Box className="flex-col p-9 md:min-w-full min-w-[1500px]">
               <Box className="mx-auto">You do not have any positions</Box>
               <Link href="/ssov">
@@ -258,7 +241,7 @@ export default function Positions() {
                       <span className="text-white">
                         {formatAmount(
                           getUserReadableAmount(position.amount, 18),
-                          4
+                          4,
                         )}
                       </span>
                     </Typography>
@@ -301,91 +284,6 @@ export default function Positions() {
                           color={
                             position.link.includes('#') ? 'umbra' : 'primary'
                           }
-                        >
-                          Open
-                        </CustomButton>
-                      </a>
-                    </Box>
-                  </Box>
-                </Box>
-              ))}
-              {filteredStraddlesPositions.length > 0 ? (
-                <Box
-                  className={cx(
-                    'grid grid-cols-12 px-4 py-2',
-                    filteredSSOVPositions.length > 0
-                      ? 'border-t-[1.5px] pt-6 border-umbra'
-                      : ''
-                  )}
-                  gap={0}
-                >
-                  {headerCells['straddle']!.map((cell, i) => (
-                    <Box
-                      key={i}
-                      className={`col-span-${cell['span']} text-left`}
-                    >
-                      <Typography variant="h5">
-                        <span className="text-stieglitz">{cell['title']}</span>
-                      </Typography>
-                    </Box>
-                  ))}
-                </Box>
-              ) : null}
-              {filteredStraddlesPositions.map((position, i) => (
-                <Box
-                  key={i}
-                  className={'grid grid-cols-12 px-4 pt-2 pb-4'}
-                  gap={0}
-                >
-                  <Box className="col-span-2 text-left flex">
-                    <img
-                      src={`/images/tokens/${position.assetName.toLowerCase()}.svg`}
-                      className="w-8 h-8 mr-2 object-cover"
-                      alt={position.vaultName}
-                    />
-                    <Typography variant="h5" className="mt-1">
-                      <span className="text-white">
-                        {position.assetName.toUpperCase()}
-                      </span>
-                    </Typography>
-                  </Box>
-                  <Box className="col-span-2 text-left flex">
-                    <Typography variant="h5" className="mt-1">
-                      <span className="text-white">Straddle</span>
-                    </Typography>
-                  </Box>
-                  <Box className="col-span-2 text-left flex">
-                    <Typography variant="h5" className="mt-1">
-                      <span className="text-white">
-                        {formatAmount(
-                          getUserReadableAmount(position.amount, 18),
-                          2
-                        )}
-                      </span>
-                    </Typography>
-                  </Box>
-                  <Box className="col-span-2 text-left flex">
-                    <Typography variant="h5" className="mt-1">
-                      <span className="text-white">
-                        {formatAmount(
-                          getUserReadableAmount(position.strikePrice, 8),
-                          2
-                        )}
-                      </span>
-                    </Typography>
-                  </Box>
-                  <Box className="col-span-2 text-left flex">
-                    <Typography variant="h5" className="mt-1">
-                      <span className="text-white">{position.epoch}</span>
-                    </Typography>
-                  </Box>
-                  <Box className="col-span-1">
-                    <Box className="flex">
-                      <a target="_blank" rel="noreferrer" href={position.link}>
-                        <CustomButton
-                          size="medium"
-                          className="px-2"
-                          color={position.link !== '#' ? 'primary' : 'umbra'}
                         >
                           Open
                         </CustomButton>

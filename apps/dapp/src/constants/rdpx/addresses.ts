@@ -18,7 +18,10 @@ export const rdpxV2ContractKeys = [
   'perpVaultStaking',
   'receiptTokenStaking',
   'arb',
+  'dpx',
   'camelotPositionManager',
+  'rtethEthStaking',
+  'rtethEthLp',
 ] as const;
 
 type AddressKey = (typeof rdpxV2ContractKeys)[number];
@@ -40,7 +43,10 @@ const addresses: { [key in AddressKey]: Address } = {
   bond: '0x5Bd9362835ABE0E9be3742Be0Ba4011BF1229B67',
   perpVaultStaking: '0x1DE544147ee3d2f3083951504ed82a514D4e9Af8',
   receiptTokenStaking: '0xd9c79b111D2737013f1af210f6687a9Fa7852b49',
+  rtethEthStaking: '0x8Ee8B7DC139AA95626768B72Ce08625312cCCDf2',
+  rtethEthLp: '0x9f6AC103E5d22a7CE8F2CE90bC3991ee4EE4324e',
   arb: '0x912CE59144191C1204E64559FE8253a0e49E6548',
+  dpx: '0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55',
   camelotPositionManager: '0x00c7f3082833e796A5b3e4Bd59f6642FF44DCD15',
 };
 

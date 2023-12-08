@@ -92,7 +92,7 @@ const SwapBody = () => {
       if (data && data.priceRoute) {
         setDisplayedOutput(
           (BigInt(data.priceRoute.destAmount || 0n) *
-            parseUnits('0.90', DECIMALS_TOKEN)) / // 10% tax
+            parseUnits('0.95', DECIMALS_TOKEN)) / // 10% tax
             parseUnits('1', DECIMALS_TOKEN),
         );
       }
@@ -249,7 +249,7 @@ const SwapBody = () => {
           </span>
           <div className="flex flex-col space-y-2">
             <p>Slippage: 1%</p>
-            <p>Sell Tax: 10%</p>
+            <p>Sell Tax: 5%</p>
           </div>
         </div>
         <Button

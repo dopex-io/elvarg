@@ -3,8 +3,9 @@ import { useEffect, useRef } from 'react';
 import { Skeleton } from '@dopex-io/ui';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import cx from 'classnames';
 import { ColorType, createChart } from 'lightweight-charts';
+
+import { cn } from 'utils/general';
 
 import { TOKEN_DATA } from 'constants/tokens';
 
@@ -82,7 +83,7 @@ const PriceChart = ({
   }, [query]);
 
   return (
-    <div className={cx('h-[520px]', className)}>
+    <div className={cn('h-[520px]', className)}>
       {query.isFetched ? (
         <div
           ref={chartContainerRef}

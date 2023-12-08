@@ -5,7 +5,8 @@ import {
   ExclamationCircleIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/solid';
-import cx from 'classnames';
+
+import { cn } from 'utils/general';
 
 export enum AlertSeverity {
   info,
@@ -30,7 +31,7 @@ const Icon = ({
       return <CheckCircleIcon className={className} />;
     default:
       return (
-        <ExclamationCircleIcon className={cx('text-stieglitz', className)} />
+        <ExclamationCircleIcon className={cn('text-stieglitz', className)} />
       );
   }
 };

@@ -4,7 +4,8 @@ import { formatUnits, parseUnits } from 'viem';
 
 import { Button } from '@dopex-io/ui';
 import { format } from 'date-fns';
-import { useAccount, useContractRead, useContractWrite } from 'wagmi';
+import { noop } from 'lodash';
+import { useAccount, useContractWrite } from 'wagmi';
 
 import useTokenData from 'hooks/helpers/useTokenData';
 
@@ -12,8 +13,6 @@ import Alert from 'components/common/Alert';
 import alerts, { AlertType } from 'components/rdpx-v2/AsidePanel/alerts';
 import PanelInput from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/PanelInput';
 import InfoRow from 'components/rdpx-v2/AsidePanel/StrategyVaultPanel/InfoRow';
-
-import formatBigint from 'utils/general/formatBigint';
 
 import { DECIMALS_TOKEN } from 'constants/index';
 import CurveMultiRewards from 'constants/rdpx/abis/CurveMultiRewards';
@@ -24,25 +23,13 @@ const Stake = () => {
   const { address: _user } = useAccount();
   const [amount, setAmount] = useState<string>('');
 
-  const { data: rewardPerToken = 0n } = useContractRead({
-    abi: CurveMultiRewards,
-    address: addresses.receiptTokenStaking,
-    functionName: 'rewardPerToken',
-    args: [addresses.arb],
-  });
-  const { data: rewardData = [] } = useContractRead({
-    abi: CurveMultiRewards,
-    address: addresses.receiptTokenStaking,
-    functionName: 'rewardData',
-    args: [addresses.arb],
-  });
   const { write: approve, isSuccess: isApproveSuccess } = useContractWrite({
     abi: ReceiptToken,
     address: addresses.receiptToken,
     functionName: 'approve',
     args: [addresses.receiptTokenStaking, parseUnits(amount, DECIMALS_TOKEN)],
   });
-  const { write: stake, isSuccess: stakeSuccess } = useContractWrite({
+  const { writeAsync: stake, isSuccess: stakeSuccess } = useContractWrite({
     abi: CurveMultiRewards,
     address: addresses.receiptTokenStaking,
     functionName: 'stake',
@@ -63,11 +50,10 @@ const Stake = () => {
   }, [balance]);
 
   const panelState: AlertType & { handler: () => void | null } = useMemo(() => {
-    const doNothing = () => null;
     if (parseUnits(amount, DECIMALS_TOKEN) > balance)
       return {
         ...alerts.insufficientBalance,
-        handler: doNothing,
+        handler: noop,
       };
     else if (!approved) {
       return {
@@ -80,12 +66,12 @@ const Stake = () => {
     } else if (Number(amount) === 0) {
       return {
         ...alerts.zeroAmount,
-        handler: doNothing,
+        handler: noop,
       };
     } else {
       return {
         ...alerts.defaultStake,
-        handler: () => stake(),
+        handler: () => stake().then(() => setAmount('0')),
       };
     }
   }, [amount, approve, approved, balance, stake, updateAllowance]);

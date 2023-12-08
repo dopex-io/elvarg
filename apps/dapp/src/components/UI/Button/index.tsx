@@ -2,7 +2,7 @@ import { FC, forwardRef } from 'react';
 
 import MuiButton, { ButtonProps as MuiButtonProps } from '@mui/material/Button';
 
-import cx from 'classnames';
+import { cn } from 'utils/general';
 
 export interface CustomButtonProps
   extends Omit<MuiButtonProps, 'color' | 'size'> {
@@ -31,11 +31,11 @@ const Button: FC<CustomButtonProps> = forwardRef((props, ref) => {
 
   return (
     <MuiButton
-      className={cx(
+      className={cn(
         CLASSES[size],
         `bg-${color} hover:bg-${color}`,
         className,
-        'text-white disabled:text-white disabled:opacity-20 disabled:rounded-[5px] hover:bg-opacity-70'
+        'text-white disabled:text-white disabled:opacity-20 disabled:rounded-[5px] hover:bg-opacity-70',
       )}
       ref={ref}
       {...otherProps}

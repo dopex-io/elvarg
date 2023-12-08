@@ -35,6 +35,7 @@ export const getDelegateV2Bonds = graphql(`
     v2DelegatePositions: v2DelegateBonds(where: { user: $sender }) {
       id
       wethRequired
+      redeemed
       amount
       user
       transaction {
@@ -49,6 +50,7 @@ export const getDelegateV2Bonds = graphql(`
     ) {
       id
       rdpxRequired
+      redeemed
       amount
       transaction {
         id
@@ -94,6 +96,7 @@ export const getDelegateBonds = graphql(`
     delegatePositions: delegateBonds(where: { user: $sender }) {
       id
       wethRequired
+      redeemed
       amount
       transaction {
         id
@@ -107,6 +110,7 @@ export const getDelegateBonds = graphql(`
     ) {
       id
       rdpxRequired
+      redeemed
       amount
       transaction {
         id

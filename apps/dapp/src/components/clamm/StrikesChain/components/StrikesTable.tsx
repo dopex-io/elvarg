@@ -4,7 +4,6 @@ import { formatUnits } from 'viem';
 import { Button } from '@dopex-io/ui';
 import { MinusIcon, PlusIcon } from '@heroicons/react/24/solid';
 import { createColumnHelper } from '@tanstack/react-table';
-import cx from 'classnames';
 import { useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
@@ -134,7 +133,6 @@ const columns = [
         <Button
           onClick={getValue().handleSelect}
           color={getValue().isSelected ? 'primary' : 'mineshaft'}
-          className={cx()}
         >
           <div className="flex items-center space-x-1">
             {getValue().isSelected ? (

@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 
-import cx from 'classnames';
-
 import useClammStore from 'hooks/clamm/useClammStore';
+
+import { cn } from 'utils/general';
 
 import { EXPIRIES, EXPIRIES_TO_KEY } from 'constants/clamm';
 
@@ -22,7 +22,7 @@ const TTLSelector = () => {
           <div
             onClick={() => setSelectedTTL(EXPIRIES[ttl])}
             role="button"
-            className={cx(
+            className={cn(
               'flex-1 flex items-center justify-center font-medium text-[13px] rounded-md',
               EXPIRIES_TO_KEY[selectedTTL] === ttl && 'bg-umbra',
             )}

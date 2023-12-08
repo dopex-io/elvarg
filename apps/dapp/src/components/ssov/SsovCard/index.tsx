@@ -5,7 +5,6 @@ import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
 import Tooltip from '@mui/material/Tooltip';
 
-import cx from 'classnames';
 import format from 'date-fns/format';
 import Action from 'svgs/icons/Action';
 import Coin from 'svgs/icons/Coin';
@@ -14,6 +13,7 @@ import InfoBox from 'components/ssov/InfoBox';
 import CustomButton from 'components/UI/Button';
 import Typography from 'components/UI/Typography';
 
+import { cn } from 'utils/general';
 import formatAmount from 'utils/general/formatAmount';
 
 const nameToSsovStyle: { [key: string]: string } = {
@@ -95,9 +95,9 @@ function SsovCard(props: any) {
   return (
     <CustomBox className="p-[1px] rounded-xl" token={name}>
       <Box
-        className={cx(
+        className={cn(
           'flex flex-col bg-cod-gray p-4 rounded-xl h-full mx-auto',
-          className
+          className,
         )}
       >
         <Box>

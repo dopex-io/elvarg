@@ -140,6 +140,14 @@ const PositionsTable = () => {
     );
   }, [updateLPPositions, setUpdateLPPositions]);
 
+  useEffect(() => {
+    const interval = setInterval(
+      () => setUpdateLPPositions(updateLPPositions),
+      15000,
+    );
+    return () => clearInterval(interval);
+  }, [setUpdateLPPositions, updateLPPositions]);
+
   return (
     <div className="w-full flex-col items-center justify-center space-y-[12px]">
       <div className="w-full flex flex-row items-center justify-between">

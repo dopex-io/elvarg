@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 import Image from 'next/image';
 
-import cx from 'classnames';
-
 import { useBoundStore } from 'store';
 import { NftData } from 'store/Nfts';
+
+import { cn } from 'utils/general';
 
 interface NftCardProps {
   nftData: NftData;
@@ -49,7 +49,7 @@ const NftCard = ({ nftData, className }: NftCardProps) => {
   }, [nftsData, nftData]);
 
   return (
-    <div className={cx('flex flex-col mb-4', className)}>
+    <div className={cn('flex flex-col mb-4', className)}>
       <div className="flex flex-col">
         <div className="mb-6 text-center text-2xl text-white">{nftName}</div>
         <div className="mb-6 flex flex-col space-y-4 items-center">

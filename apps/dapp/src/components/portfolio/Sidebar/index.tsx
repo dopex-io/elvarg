@@ -1,11 +1,12 @@
 import Box from '@mui/material/Box';
-import cx from 'classnames';
 
 import Balances from 'components/portfolio/Balances';
 
+import { cn } from 'utils/general';
+
 export default function Sidebar({ className }: { className?: string }) {
   return (
-    <Box className={cx('', className)}>
+    <Box className={cn('', className)}>
       <Balances />
     </Box>
   );

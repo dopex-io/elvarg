@@ -2,13 +2,12 @@ import React, { useMemo, useState } from 'react';
 import { hexToBigInt } from 'viem';
 
 import { Switch } from '@dopex-io/ui';
-import cx from 'classnames';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 
 import generateStrikes from 'utils/clamm/generateStrikes';
-import { formatAmount } from 'utils/general';
+import { cn, formatAmount } from 'utils/general';
 
 import SelectedStrikeItem from './SelectedStrikeItem';
 import StrikesList from './StrikesList';
@@ -41,7 +40,7 @@ const StrikesSection = () => {
       token0Precision,
       token1Precision,
       !token0IsCallToken,
-      15,
+      150,
     );
   }, [tick, selectedOptionsPool]);
 
@@ -79,7 +78,7 @@ const StrikesSection = () => {
 
   return (
     <div
-      className={cx(
+      className={cn(
         'bg-umbra w-full flex flex-col space-y-[10px]',
         !isTrade && 'rounded-t-lg',
       )}

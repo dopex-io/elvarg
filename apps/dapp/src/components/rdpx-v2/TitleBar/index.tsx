@@ -1,6 +1,6 @@
 import { ReactNode, useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
-import { parseUnits } from 'viem';
+import { formatUnits, parseUnits } from 'viem';
 
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -15,6 +15,7 @@ import useStore, { rdpxV2Actions } from 'hooks/rdpx/useStore';
 import TitleItem from 'components/rdpx-v2/TitleBar/TitleItem';
 import Typography2 from 'components/UI/Typography2';
 
+import { formatAmount } from 'utils/general';
 import formatBigint from 'utils/general/formatBigint';
 
 import { DOPEX_API_BASE_URL } from 'constants/env';
@@ -28,7 +29,7 @@ export const rdpxStateToLabelMapping: {
   bond: 'Bonding',
   lp: 'Perp Put Vault',
   stake: 'Staking',
-  // farm: 'Farm',
+  farm: 'Farm',
 };
 
 const Stat = ({
@@ -66,7 +67,7 @@ const TitleBar = () => {
           return data.data;
         });
     },
-    staleTime: 300000,
+    staleTime: 30000,
   });
 
   const { rtRewardAPR = '0', ppvRewardAPR = '0' } = useRewardAPR();
@@ -76,6 +77,12 @@ const TitleBar = () => {
     useTokenData({
       owner: addresses.perpPoolLp,
       token: addresses.weth,
+      amount: 0n,
+    });
+  const { balance: lpRdpxBalance, updateBalance: updateLpRdpxBalance } =
+    useTokenData({
+      owner: addresses.perpPoolLp,
+      token: addresses.rdpx,
       amount: 0n,
     });
   const { updateRdpxV2CoreState, rdpxV2CoreState } = useRdpxV2CoreData({
@@ -109,12 +116,44 @@ const TitleBar = () => {
   }, [updateRdpxV2CoreState]);
 
   useEffect(() => {
+    updateLpRdpxBalance();
+  }, [updateLpRdpxBalance]);
+
+  useEffect(() => {
     updateLpWethBalance();
   }, [updateLpWethBalance]);
 
   useEffect(() => {
     updatePerpetualVaultState();
   }, [updatePerpetualVaultState]);
+
+  const ppvData = useMemo(() => {
+    const rdpxPriceInUsd =
+      Number(formatBigint(rdpxV2CoreState.rdpxPriceInEth)) * data?.oraclePrice;
+    const totalRdpxInLp = Number(formatBigint(lpRdpxBalance, DECIMALS_TOKEN));
+    const rdpxInLp = totalRdpxInLp * rdpxPriceInUsd;
+    const wethInLp = Number(
+      Number(formatBigint(lpWethBalance, DECIMALS_TOKEN)) *
+        (data?.oraclePrice || 0),
+    );
+    const perpVaultUtilization = formatBigint(
+      (perpetualVaultState.activeCollateral *
+        parseUnits('1', DECIMALS_TOKEN) *
+        100n) /
+        (perpetualVaultState.totalCollateral + 1n),
+      DECIMALS_TOKEN,
+    );
+    const lpTvl = wethInLp + rdpxInLp;
+
+    return { tvl: lpTvl, utilization: perpVaultUtilization };
+  }, [
+    data?.oraclePrice,
+    lpRdpxBalance,
+    lpWethBalance,
+    perpetualVaultState.activeCollateral,
+    perpetualVaultState.totalCollateral,
+    rdpxV2CoreState.rdpxPriceInEth,
+  ]);
 
   const titleBarContent = useMemo(() => {
     const defaultIndex = 0;
@@ -148,14 +187,11 @@ const TitleBar = () => {
                 name="RDPX Price"
                 value={`$${Number(
                   Number(
-                    formatBigint(
-                      rdpxV2CoreState.rdpxPriceInEth,
-                      DECIMALS_TOKEN,
-                    ),
+                    formatUnits(rdpxV2CoreState.rdpxPriceInEth, DECIMALS_TOKEN),
                   ) * (data?.oraclePrice || 0),
                 ).toFixed(3)}`}
               />
-              <Stat name="Redemption Fee" value="4%" />
+              <Stat name="Redemption Fee" value="2%" />
             </div>
           ),
         };
@@ -165,23 +201,8 @@ const TitleBar = () => {
           renderComponent: (
             <div className="flex space-x-6 mx-auto mt-3">
               <Stat name="Reward APR" value={`${ppvRewardAPR}%`} />
-              <Stat
-                name="Utilization"
-                value={`${formatBigint(
-                  (perpetualVaultState.activeCollateral *
-                    parseUnits('1', DECIMALS_TOKEN) *
-                    100n) /
-                    (perpetualVaultState.totalCollateral + 1n),
-                  DECIMALS_TOKEN,
-                )}%`}
-              />
-              <Stat
-                name="TVL"
-                value={`$${Number(
-                  Number(formatBigint(lpWethBalance, DECIMALS_TOKEN)) *
-                    (data?.oraclePrice || 0),
-                ).toFixed(3)}`}
-              />
+              <Stat name="Utilization" value={`${ppvData.utilization}%`} />
+              <Stat name="TVL" value={`$${formatAmount(ppvData.tvl)}`} />
             </div>
           ),
         };
@@ -206,8 +227,8 @@ const TitleBar = () => {
             </div>
           ),
         };
-      // case 'farm':
-      //   return { index: 3, renderComponent: <></> };
+      case 'farm':
+        return { index: 3, renderComponent: <></> };
       default:
         return { index: defaultIndex, renderComponent: <></> };
     }
@@ -219,11 +240,9 @@ const TitleBar = () => {
     rtRewardAPR,
     data?.oraclePrice,
     ppvRewardAPR,
-    perpetualVaultState.activeCollateral,
-    perpetualVaultState.totalCollateral,
-    lpWethBalance,
-    userBalance,
+    ppvData,
     totalSupply,
+    userBalance,
   ]);
 
   return (

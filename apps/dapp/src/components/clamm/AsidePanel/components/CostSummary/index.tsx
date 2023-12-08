@@ -1,12 +1,10 @@
 import React, { useMemo } from 'react';
 import { formatUnits, parseUnits } from 'viem';
 
-import cx from 'classnames';
-
 import useClammStore from 'hooks/clamm/useClammStore';
 import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
 
-import { formatAmount } from 'utils/general';
+import { cn, formatAmount } from 'utils/general';
 
 import { PROTOCOL_FEES_MULTIPLIER } from 'constants/clamm';
 
@@ -137,7 +135,7 @@ const CostSummary = () => {
       </div>
       <div className="w-full flex flex-col space-y-[4px]">
         <div
-          className={cx(
+          className={cn(
             'flex w-full items-center justify-between font-medium text-[13px] text-stieglitz',
             totalItems.length === 0 && 'cursor-not-allowed',
           )}
@@ -161,7 +159,7 @@ const CostSummary = () => {
         </div>
         {isTrade && (
           <div
-            className={cx(
+            className={cn(
               'flex w-full items-center justify-between font-medium text-[13px] text-stieglitz',
               totalProtocolFees.size === 0 && 'cursor-not-allowed',
             )}

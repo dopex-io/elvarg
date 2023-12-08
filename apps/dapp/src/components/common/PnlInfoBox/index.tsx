@@ -1,7 +1,8 @@
-import cx from 'classnames';
-
 import Box from '@mui/material/Box';
+
 import Typography from 'components/UI/Typography';
+
+import { cn } from 'utils/general';
 
 interface Props {
   info: string;
@@ -25,7 +26,7 @@ export default function PnlInfoBox({ info, value, className, color }: Props) {
         variant="caption"
         component="div"
         color={color ? color : ''}
-        className={className ? cx(className) : 'text-xs text-white'}
+        className={className ? cn(className) : 'text-xs text-white'}
       >
         {value}
       </Typography>
