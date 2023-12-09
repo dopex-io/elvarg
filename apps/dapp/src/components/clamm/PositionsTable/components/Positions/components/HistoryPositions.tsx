@@ -54,7 +54,6 @@ const HistoryPositions = () => {
     if (isError || !data) {
       return [];
     } else {
-      console.log(data);
       return data;
     }
   }, [data, isError]);
