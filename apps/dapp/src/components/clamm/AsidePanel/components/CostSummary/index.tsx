@@ -1,16 +1,12 @@
 import React, { useMemo } from 'react';
-import { formatUnits, parseUnits } from 'viem';
+import { formatUnits } from 'viem';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
 
 import { cn, formatAmount } from 'utils/general';
 
-import {
-  EXPIRIES,
-  EXPIRIES_BY_INDEX,
-  PROTOCOL_FEES_MULTIPLIER,
-} from 'constants/clamm';
+import { EXPIRIES_BY_INDEX, PROTOCOL_FEES_MULTIPLIER } from 'constants/clamm';
 
 const CostSummary = () => {
   const { isTrade, markPrice, selectedOptionsPool, selectedTTL } =
