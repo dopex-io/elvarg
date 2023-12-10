@@ -191,10 +191,9 @@ const CostSummary = () => {
         )}
         {isTrade && (
           <div
-            className={cn(
-              'flex w-full items-center justify-between font-medium text-[13px] text-stieglitz',
-              totalProtocolFees.size === 0 && 'cursor-not-allowed',
-            )}
+            className={
+              'flex w-full items-center justify-between font-medium text-[13px] text-stieglitz'
+            }
           >
             <span className="font-medium text-[13px]">Implied Volatility</span>
             <div className="flex items-center justify-center">
