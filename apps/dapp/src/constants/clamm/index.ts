@@ -1,5 +1,4 @@
 export const EXPIRIES: { [key: string]: number } = {
-  '20m': 20 * 60,
   '1h': 60 * 60,
   '2h': 2 * 60 * 60,
   '6h': 6 * 60 * 60,
@@ -8,7 +7,6 @@ export const EXPIRIES: { [key: string]: number } = {
 };
 
 export const EXPIRIES_TO_KEY: { [key: number]: string } = {
-  [20 * 60]: '20m',
   [60 * 60]: '1h',
   [2 * 60 * 60]: '2h',
   [6 * 60 * 60]: '6h',
