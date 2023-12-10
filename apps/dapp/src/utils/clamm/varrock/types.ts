@@ -69,3 +69,18 @@ export type GetExerciseTxDataParam = {
   slippage: string;
   type: 'uni-v3' | '1inch';
 };
+
+export type TradeHistory = {
+  strike: number;
+  side: 'call' | 'put';
+  timestamp: number;
+  priceAtAction: number;
+  ttl: number;
+  size: string;
+  action: 'purchase' | 'exercise';
+  meta: {
+    transactionHash: string;
+    premium?: string;
+    profit?: string;
+  };
+};

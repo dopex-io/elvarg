@@ -70,13 +70,13 @@ const PositionsTypeSelector = (props: Props) => {
           {lpPositionsLength}
         </span>
       </div>
-      {/* <div
+      <div
         role="button"
         onClick={() => setSelectedIndex(2)}
         className="flex space-x-[4px] items-center justify-center"
       >
         <span
-          className={cx(
+          className={cn(
             'font-medium text-[12px]',
             selectedIndex === 2 ? 'text-white' : 'text-stieglitz',
           )}
@@ -84,7 +84,7 @@ const PositionsTypeSelector = (props: Props) => {
           History
         </span>
         <span className="bg-cod-gray rounded-3xl text-[12px] px-[6px] text-stieglitz"></span>
-      </div> */}
+      </div>
     </div>
   );
 };

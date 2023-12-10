@@ -12,6 +12,7 @@ import { DEFAULT_CHAIN_ID } from 'constants/env';
 
 import ActionButton from './components/Positions/components/ActionButton';
 import BuyPositions from './components/Positions/components/BuyPositions';
+import HistoryPositions from './components/Positions/components/HistoryPositions';
 import LPPositions from './components/Positions/components/LPPositions';
 import PositionsTypeSelector from './components/Positions/components/PositionsTypeSelector';
 
@@ -158,7 +159,7 @@ const PositionsTable = () => {
           setSelectedIndex={updatePositionsType}
         />
         <div className="flex space-x-[4px]">
-          {positionsTypeIndex !== 0 && (
+          {positionsTypeIndex !== 0 && positionsTypeIndex !== 1 && (
             <ActionButton
               positionsTypeIndex={positionsTypeIndex}
               selectedPositions={selectedPositions}
@@ -168,7 +169,7 @@ const PositionsTable = () => {
         </div>
       </div>
       <div className="w-full h-fit  bg-cod-gray">
-        {positionsTypeIndex === 0 ? (
+        {positionsTypeIndex === 0 && (
           <BuyPositions
             selectPosition={selectPosition}
             unselectPosition={unselectPosition}
@@ -176,7 +177,8 @@ const PositionsTable = () => {
             loading={loading.buyPositions}
             removePosition={removeBuyPosition}
           />
-        ) : (
+        )}
+        {positionsTypeIndex === 1 && (
           <LPPositions
             selectPosition={selectPosition}
             unselectPosition={unselectPosition}
@@ -185,6 +187,7 @@ const PositionsTable = () => {
             removePosition={removeLpPosition}
           />
         )}
+        {positionsTypeIndex === 2 && <HistoryPositions />}
       </div>
     </div>
   );
