@@ -69,7 +69,7 @@
     "@welldone-software/why-did-you-render": "^7.0.1",
     "autoprefixer": "^10.4.16",
     "eslint": "^8.55.0",
-    "eslint-config-next": "^14.0.3",
+    "eslint-config-next": "^14.0.4",
     "postcss": "^8.4.32",
     "tailwind-config": "workspace:*",
     "tailwindcss": "^3.3.5",
