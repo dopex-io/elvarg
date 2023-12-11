@@ -159,7 +159,7 @@ const PositionsTable = () => {
           setSelectedIndex={updatePositionsType}
         />
         <div className="flex space-x-[4px]">
-          {positionsTypeIndex !== 0 && positionsTypeIndex !== 1 && (
+          {positionsTypeIndex === 1 && (
             <ActionButton
               positionsTypeIndex={positionsTypeIndex}
               selectedPositions={selectedPositions}

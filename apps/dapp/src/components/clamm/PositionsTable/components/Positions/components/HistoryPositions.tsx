@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { formatUnits, zeroAddress } from 'viem';
+import { formatUnits, parseUnits, zeroAddress } from 'viem';
 
 import {
   ArrowDownRightIcon,
@@ -155,6 +155,19 @@ const HistoryPositions = () => {
             ),
           ) * (isCall ? 1 : priceAtAction);
 
+        const notiionalSize = Number(
+          formatUnits(
+            isCall
+              ? BigInt(size)
+              : (BigInt(size) * parseUnits('1', putToken.decimals)) /
+                  parseUnits(strike.toString(), putToken.decimals),
+            getTokenDecimals({
+              chainId,
+              address: isCall ? callToken.address : putToken.address,
+            }),
+          ),
+        );
+
         const callTokenURI = getTokenLogoURI({
           chainId,
           address: callToken.address,
@@ -188,17 +201,7 @@ const HistoryPositions = () => {
                     handleShare({
                       premiumUsd,
                       profitUsd,
-                      amount: Number(
-                        formatUnits(
-                          BigInt(size),
-                          getTokenDecimals({
-                            chainId,
-                            address: isCall
-                              ? callToken.address
-                              : putToken.address,
-                          }),
-                        ),
-                      ),
+                      amount: notiionalSize,
                       callTokenURI,
                       putTokenURI,
                       side,

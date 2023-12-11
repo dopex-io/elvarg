@@ -7,7 +7,7 @@ import {
 import { createColumnHelper } from '@tanstack/react-table';
 import { format } from 'date-fns';
 
-import { formatAmount } from 'utils/general';
+import { cn, formatAmount } from 'utils/general';
 
 export type HistoryPositionsItem = {
   strike: {
@@ -124,8 +124,15 @@ export const historyPositionsColumns = [
             >
               <span className="text-[13px] text-stieglitz">{label}</span>
               <span className="text-[13px] flex items-center space-x-[4px]">
-                <span>{amount}</span>
-                <span className="text-xs text-stieglitz">{symbol}</span>
+                <span
+                  className={cn(
+                    ' text-stieglitz',
+                    label === 'Profit' && 'text-up-only',
+                  )}
+                >
+                  {amount}
+                </span>
+                <span className={'text-xs'}>{symbol}</span>
               </span>
             </div>
           ))}
