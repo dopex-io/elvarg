@@ -24,6 +24,7 @@ type UserData = {
   totalLocked: bigint;
   combinedWeight: bigint;
   unlockable: bigint;
+  earned: readonly bigint[];
 };
 
 type RewardInfo = {
@@ -90,17 +91,35 @@ const useCommunalFarm = (props: Props) => {
         functionName: 'combinedWeightOf',
         args: [user],
       },
+      {
+        ...contractConfig,
+        functionName: 'earned',
+        args: [user],
+      },
     ],
     staleTime: 10000,
   });
 
   const updateContractState = useCallback(async () => {
-    if (!user || !data || !data[6].result) return;
-    for (let i = 0; i < data.length; i++) {
-      if (!data[i].result) return;
-    }
+    if (!user || !data || data[6].status === 'failure') return;
 
+    const stakingToken = data[0].result;
+    const totalLocked = data[1].result;
+    const periodFinish = data[2].result;
+    const lastUpdateTime = data[3].result;
+    const minLockTime = data[4].result;
+    const maxLockTime = data[5].result;
     const _rewardTokens = data[6].result;
+
+    if (
+      !stakingToken ||
+      totalLocked === undefined ||
+      periodFinish === undefined ||
+      lastUpdateTime === undefined ||
+      minLockTime === undefined ||
+      maxLockTime === undefined
+    )
+      return;
 
     const rewardsData = _rewardTokens.map((rt, index) => ({
       rate: data[7].result![index], // note: cannot be out of bounds as the length of rewardRates, rewardTokens, rewardTokenSymbols must all match at contract level
@@ -108,7 +127,16 @@ const useCommunalFarm = (props: Props) => {
       address: rt,
     }));
 
-    setContractData((prev) => ({ ...prev, rewardsData }));
+    setContractData((prev) => ({
+      ...prev,
+      rewardsData,
+      stakingToken,
+      totalLocked,
+      periodFinish,
+      lastUpdateTime,
+      minLockTime,
+      maxLockTime,
+    }));
   }, [data, user]);
 
   const updateUserData = useCallback(async () => {
@@ -117,6 +145,7 @@ const useCommunalFarm = (props: Props) => {
       if (!_userData[i].result) return;
     }
 
+    const earned = _userData[3].result || [];
     const combinedWeight = _userData[2].result || 0n;
     const totalLocked = _userData[1].result || 0n;
     const lockedStakes = _userData[0].result || [];
@@ -126,6 +155,7 @@ const useCommunalFarm = (props: Props) => {
       combinedWeight,
       totalLocked,
       lockedStakes,
+      earned,
     }));
   }, [_userData, user]);
 

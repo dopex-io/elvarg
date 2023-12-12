@@ -12,7 +12,7 @@ const Title = (props: Props) => {
   return (
     <div className="flex space-x-2">
       {typeof imgSrc === 'string' ? (
-        <img src={imgSrc} alt="unknown" className="h-auto" />
+        <img src={imgSrc} alt="unknown" className="h-8 w-8" />
       ) : (
         <div className="relative w-8 h-8">
           <img

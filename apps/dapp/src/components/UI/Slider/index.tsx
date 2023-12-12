@@ -20,7 +20,7 @@ const Slider = (props: Props) => {
       max={max}
       min={min}
       step={step}
-      className="relative flex items-center w-full h-10"
+      className="relative flex items-center w-full h-6"
       {...rest}
     >
       <Track className="relative bg-carbon flex-grow rounded-full h-[3px]">

@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { formatUnits, parseUnits } from 'viem';
 
+import CircularProgress from '@mui/material/CircularProgress';
+
 import { Button } from '@dopex-io/ui';
-import { useAccount } from 'wagmi';
+import { useAccount, useContractWrite } from 'wagmi';
 
 import useCommunalFarm from 'hooks/rdpx/useCommunalFarm';
 
@@ -13,6 +15,8 @@ import ManageCommunalFarm from 'components/rdpx-v2/Dialogs/ManageCommunalFarm';
 import Typography2 from 'components/UI/Typography2';
 
 import { DECIMALS_TOKEN } from 'constants/index';
+import CommunalFarm from 'constants/rdpx/abis/CommunalFarm';
+import addresses from 'constants/rdpx/addresses';
 
 type Props = {
   title: string;
@@ -43,6 +47,13 @@ const CfCard = (props: Props) => {
     communalFarmState,
   } = useCommunalFarm({
     user,
+  });
+
+  const { writeAsync: claim, isLoading: claiming } = useContractWrite({
+    abi: CommunalFarm,
+    address: addresses.communalFarm,
+    functionName: 'getReward',
+    account: user,
   });
 
   const handleClose = () => {
@@ -81,7 +92,7 @@ const CfCard = (props: Props) => {
         label: 'Earned',
         value: prefix.concat(
           Number(
-            formatUnits(userCommunalFarmData.unlockable, DECIMALS_TOKEN),
+            formatUnits(userCommunalFarmData.earned[0] || 0n, DECIMALS_TOKEN),
           ).toFixed(3),
         ),
         unit: 'ARB',
@@ -94,11 +105,22 @@ const CfCard = (props: Props) => {
       <div className="flex justify-between">
         <Title imgSrc={imgSrc} title={title} subtitle={subtitle} />
         <div className="flex space-x-2 h-fit  my-auto">
-          {
-            <Button size="xsmall" disabled={disabled} onClick={() => null}>
-              Claim
+          {userCommunalFarmData.earned[0] > 0n ? (
+            <Button
+              size="xsmall"
+              disabled={disabled}
+              onClick={async () => await claim()}
+              className="flex space-x-1"
+            >
+              {claiming ? (
+                <CircularProgress
+                  size={16}
+                  className="fill-current text-white my-auto"
+                />
+              ) : null}
+              <p className="my-auto">Claim</p>
             </Button>
-          }
+          ) : null}
           <Button
             size="xsmall"
             disabled={disabled}

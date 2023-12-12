@@ -1,6 +1,8 @@
 import Card from 'components/rdpx-v2/Body/Farm/Card';
 import CfCard from 'components/rdpx-v2/Body/Farm/CfCard';
 
+import addresses from 'constants/rdpx/addresses';
+
 const Farm = () => {
   return (
     <div className="flex w-full space-x-2 justify-center">
@@ -13,10 +15,10 @@ const Farm = () => {
       />
       <CfCard
         title="rDPX"
-        subtitle="Time-locked Farm"
+        subtitle="Time-locked"
         imgSrc="/images/tokens/rdpx.svg"
         disabled={false}
-        url="https://etherscan.io/address/0x33890B88F98a9D511678954AD8DB0510B6953Cfc" // todo: replace address
+        url={`https://arbiscan.io/address/${addresses.communalFarm}`} // todo: replace address
       />
     </div>
   );
