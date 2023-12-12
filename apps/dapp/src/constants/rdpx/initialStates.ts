@@ -50,6 +50,23 @@ const initialContractStates: {
       redeemRequests: [],
     },
   },
+  communalFarm: {
+    userData: {
+      lockedStakes: [],
+      totalLocked: 0n,
+      combinedWeight: 0n,
+      unlockable: 0n,
+    },
+    state: {
+      stakingToken: '0x',
+      totalLocked: 0n,
+      rewardsData: [],
+      periodFinish: 0n,
+      lastUpdateTime: 0n,
+      minLockTime: 0n,
+      maxLockTime: 0n,
+    },
+  },
 };
 
 export default initialContractStates;

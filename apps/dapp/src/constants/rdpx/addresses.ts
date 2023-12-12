@@ -22,6 +22,7 @@ export const rdpxV2ContractKeys = [
   'camelotPositionManager',
   'rtethEthStaking',
   'rtethEthLp',
+  'communalFarm',
 ] as const;
 
 type AddressKey = (typeof rdpxV2ContractKeys)[number];
@@ -47,6 +48,7 @@ const addresses: { [key in AddressKey]: Address } = {
   rtethEthLp: '0x9f6AC103E5d22a7CE8F2CE90bC3991ee4EE4324e',
   arb: '0x912CE59144191C1204E64559FE8253a0e49E6548',
   dpx: '0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55',
+  communalFarm: '0x33890B88F98a9D511678954AD8DB0510B6953Cfc',
   camelotPositionManager: '0x00c7f3082833e796A5b3e4Bd59f6642FF44DCD15',
 };
 

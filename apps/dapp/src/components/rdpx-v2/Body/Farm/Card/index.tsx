@@ -108,10 +108,10 @@ const Card = (props: Props) => {
   }, [earned, rtethEthRewardAPR, totalSupply]);
 
   return (
-    <div className="bg-cod-gray rounded-lg p-4 w-full  max-w-[390px] space-y-3">
+    <div className="bg-cod-gray rounded-lg p-3 w-full  max-w-[390px] space-y-2">
       <div className="flex justify-between">
         <Title imgSrc={imgSrc} title={title} subtitle={subtitle} />
-        <div className="flex space-x-3">
+        <div className="flex space-x-2 h-fit my-auto">
           {earned > 0n ? (
             <Button
               size="xsmall"
@@ -140,7 +140,7 @@ const Card = (props: Props) => {
       </div>
       <Stats stats={stats} />
       <p className="text-sm text-stieglitz">Staked Balance</p>
-      <div className="h-fit bg-umbra p-3 rounded-md text-center">
+      <div className="h-fit bg-umbra p-2 rounded-md text-center">
         {!user ? (
           <Typography2 variant="caption" color="stieglitz">
             Connect your wallet
@@ -154,7 +154,7 @@ const Card = (props: Props) => {
           </span>
         )}
       </div>
-      <ContractLink url={url} />
+      <ContractLink url={url} text="Deposit on Curve.fi to get LP tokens" />
     </div>
   );
 };
