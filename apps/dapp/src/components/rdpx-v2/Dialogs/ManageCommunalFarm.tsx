@@ -4,7 +4,7 @@ import { formatUnits, parseUnits } from 'viem';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import { Button, Dialog } from '@dopex-io/ui';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { erc20ABI, useAccount, useContractWrite } from 'wagmi';
 import { writeContract } from 'wagmi/actions';
 
@@ -73,7 +73,8 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
       ).toString(),
     );
     const multiplier = sliderValue;
-    const lockDuration = range * (multiplier / 100);
+    const lockDuration =
+      Number(communalFarmState.minLockTime) + range * (multiplier / 100);
     const unlockTime = Math.ceil(new Date().getTime() / 1000) + lockDuration;
 
     return { lockDuration, unlockTime };
@@ -272,6 +273,13 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
                   'Pp',
                 )}`}
               />
+              <RowItem
+                label="Lock Duration"
+                content={`${formatDistanceToNow(
+                  new Date().getTime() +
+                    Math.ceil(sliderValueToTime.lockDuration) * 1000,
+                )}`}
+              />
             </>
           ) : (
             <RowItem
@@ -294,17 +302,19 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
             ).toFixed(3)} rDPX`}
           />
         </div>
-        <Button
-          size="small"
-          onClick={onClick}
-          disabled={disabled}
-          className="space-x-2 items-center"
-        >
-          {approving || staking ? (
-            <CircularProgress size={12} className="fill-current text-white" />
-          ) : null}
-          <span>{panelState === PanelState.Stake ? 'Stake' : 'Unstake'}</span>
-        </Button>
+        {panelState === PanelState.Stake ? (
+          <Button
+            size="small"
+            onClick={onClick}
+            disabled={disabled}
+            className="space-x-2 items-center"
+          >
+            {approving || staking ? (
+              <CircularProgress size={12} className="fill-current text-white" />
+            ) : null}
+            <span>{panelState === PanelState.Stake ? 'Stake' : 'Unstake'}</span>
+          </Button>
+        ) : null}
       </div>
     </Dialog>
   );
