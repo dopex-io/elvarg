@@ -13,7 +13,6 @@ import useCommunalFarm from 'hooks/rdpx/useCommunalFarm';
 
 import PanelInput from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/PanelInput';
 import { PanelState } from 'components/rdpx-v2/Dialogs/ManageFarm';
-import RowItem from 'components/ssov-beta/AsidePanel/RowItem';
 import Slider from 'components/UI/Slider';
 
 import { formatBigint } from 'utils/general';
@@ -25,6 +24,21 @@ import addresses from 'constants/rdpx/addresses';
 type Props = {
   open: boolean;
   handleClose: () => void;
+};
+
+type RowItemProps = {
+  label: string;
+  content?: React.ReactNode | string;
+};
+
+const RowItem = (props: RowItemProps) => {
+  const { label, content } = props;
+  return (
+    <div className="flex justify-between text-sm">
+      <p className="text-stieglitz">{label}</p>
+      {content}
+    </div>
+  );
 };
 
 const ManageCommunalFarm = ({ open, handleClose }: Props) => {
@@ -110,7 +124,7 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
     setAmount(formatUnits(userBalance, DECIMALS_TOKEN));
   }, [userBalance]);
 
-  const onClick = useCallback(() => {
+  const _stake = useCallback(() => {
     if (panelState === PanelState.Stake) {
       approved
         ? stake()
@@ -269,7 +283,7 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
               <RowItem
                 label="Locked Until"
                 content={`${format(
-                  new Date(sliderValueToTime?.unlockTime * 1000),
+                  new Date(sliderValueToTime.unlockTime * 1000),
                   'Pp',
                 )}`}
               />
@@ -305,7 +319,7 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
         {panelState === PanelState.Stake ? (
           <Button
             size="small"
-            onClick={onClick}
+            onClick={_stake}
             disabled={disabled}
             className="space-x-2 items-center"
           >
