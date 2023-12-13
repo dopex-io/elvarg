@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { formatUnits, parseUnits } from 'viem';
+import { formatUnits } from 'viem';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
@@ -9,7 +9,8 @@ import { cn, formatAmount } from 'utils/general';
 import { PROTOCOL_FEES_MULTIPLIER } from 'constants/clamm';
 
 const CostSummary = () => {
-  const { isTrade, markPrice, selectedOptionsPool } = useClammStore();
+  const { isTrade, markPrice, selectedOptionsPool, rangeSelectorMode } =
+    useClammStore();
   const { purchases, deposits } = useClammTransactionsStore();
 
   const total = useMemo(() => {
@@ -120,27 +121,32 @@ const CostSummary = () => {
   return (
     <div className="p-[12px] bg-umbra space-y-[4px]">
       <div className="w-full h-fit flex flex-col space-y-[4px] items-center justify-center">
-        {totalItems.map(({ strike, tokenAmount, tokenSymbol }, index) => (
-          <div key={index} className="w-full flex items-center justify-between">
-            <span className="text-[13px] flex items-center justify-center space-x-[2px]">
-              <span className="text-stieglitz">$</span>
-              <span>{strike}</span>
-            </span>
-            <span className="text-[13px] flex items-center justify-center space-x-[4px]">
-              <span>{tokenAmount}</span>
-              <span className="text-stieglitz">{tokenSymbol}</span>
-            </span>
-          </div>
-        ))}
+        {!rangeSelectorMode ||
+          (isTrade &&
+            totalItems.map(({ strike, tokenAmount, tokenSymbol }, index) => (
+              <div
+                key={index}
+                className="w-full flex items-center justify-between"
+              >
+                <span className="text-[12px] flex items-center justify-center space-x-[2px]">
+                  <span className="text-stieglitz">$</span>
+                  <span>{strike}</span>
+                </span>
+                <span className="text-[12px] flex items-center justify-center space-x-[4px]">
+                  <span>{tokenAmount}</span>
+                  <span className="text-stieglitz">{tokenSymbol}</span>
+                </span>
+              </div>
+            )))}
       </div>
       <div className="w-full flex flex-col space-y-[4px]">
         <div
           className={cn(
-            'flex w-full items-center justify-between font-medium text-[13px] text-stieglitz',
+            'flex w-full items-center justify-between font-medium text-[12px] text-stieglitz',
             totalItems.length === 0 && 'cursor-not-allowed',
           )}
         >
-          <span className="font-medium text-[13px]">
+          <span className="font-medium text-[12px]">
             Total {isTrade ? 'premium' : 'deposit'}
           </span>
           <div className="flex items-center justify-center">
@@ -148,7 +154,7 @@ const CostSummary = () => {
               {Array.from(total).map(([symbol, amount], index) => (
                 <span
                   key={index}
-                  className="text-[13px] flex items-center justify-center space-x-[4px]"
+                  className="text-[12px] flex items-center justify-center space-x-[4px]"
                 >
                   <span className="text-white">{formatAmount(amount, 6)}</span>
                   <span className="text-stieglitz">{symbol}</span>
@@ -160,18 +166,18 @@ const CostSummary = () => {
         {isTrade && (
           <div
             className={cn(
-              'flex w-full items-center justify-between font-medium text-[13px] text-stieglitz',
+              'flex w-full items-center justify-between font-medium text-[12px] text-stieglitz',
               totalProtocolFees.size === 0 && 'cursor-not-allowed',
             )}
           >
-            <span className="font-medium text-[13px]">Protocol Fees</span>
+            <span className="font-medium text-[12px]">Protocol Fees</span>
             <div className="flex items-center justify-center">
               <span className="flex items-center justify-center space-x-[8px]">
                 {Array.from(totalProtocolFees).map(
                   ([symbol, amount], index) => (
                     <span
                       key={index}
-                      className="text-[13px] flex items-center justify-center space-x-[4px]"
+                      className="text-[12px] flex items-center justify-center space-x-[4px]"
                     >
                       <span className="text-white">
                         {formatAmount(amount, 6)}
@@ -186,8 +192,8 @@ const CostSummary = () => {
         )}
         {isTrade && (
           <div className="flex justify-between w-full">
-            <span className="text-stieglitz text-[13px]">Total Cost</span>
-            <span className="text-[13px] flex items-center space-x-[2px]">
+            <span className="text-stieglitz text-[12px]">Total Cost</span>
+            <span className="text-[12px] flex items-center space-x-[2px]">
               <span className="text-stieglitz">$</span>
               <span className="text-white">{formatAmount(usdTotal, 3)}</span>
             </span>
@@ -195,8 +201,8 @@ const CostSummary = () => {
         )}
         {isTrade && (
           <div className="flex justify-between w-full">
-            <span className="text-stieglitz text-[13px]">Total Size</span>
-            <span className="text-[13px] flex items-center space-x-[4px]">
+            <span className="text-stieglitz text-[12px]">Total Size</span>
+            <span className="text-[12px] flex items-center space-x-[4px]">
               <span className="text-white">
                 {formatAmount(totalNotionalSize, 3)}
               </span>

@@ -66,8 +66,18 @@ type ClammStore = {
 
   addresses: Addresses | null;
   setAddresses: (addresses: Addresses) => void;
+
+  rangeSelectorMode: boolean;
+  setRangeSelectorMode: (setAs: boolean) => void;
 };
 const useClammStore = create<ClammStore>((set, get) => ({
+  rangeSelectorMode: true,
+  setRangeSelectorMode: (setAs: boolean) => {
+    set((prev) => ({
+      ...prev,
+      rangeSelectorMode: setAs,
+    }));
+  },
   addresses: null,
   isPut: false,
   isTrade: true,

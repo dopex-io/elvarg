@@ -79,7 +79,7 @@ const Page = () => {
             {/* <PriceChart />
              */}
             <StrikesChain />
-            {/* <PositionsTable /> */}
+            <PositionsTable />
           </div>
           <div className="xl:max-w-[366px] relative sm:w-full w-[96vw]">
             <AsidePanel />

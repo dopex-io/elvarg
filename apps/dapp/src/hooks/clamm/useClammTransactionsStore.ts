@@ -33,6 +33,7 @@ type ClammTransactionsStore = {
   unsetPurchase: (key: number) => void;
   resetPurchases: () => void;
   resetDeposits: () => void;
+  batchSetDeposits: (deposits: DepositTransaction[]) => void;
 };
 const useClammTransactionsStore = create<ClammTransactionsStore>(
   (set, get) => ({
@@ -64,6 +65,16 @@ const useClammTransactionsStore = create<ClammTransactionsStore>(
       set((prev) => ({
         ...prev,
         deposits: new Map(deposits),
+      }));
+    },
+    batchSetDeposits(deposits: DepositTransaction[]) {
+      const keys = deposits.map(({ strike }) => strike);
+      const batches: [number, DepositTransaction][] = deposits.map(
+        (deposit, index) => [keys[index], deposit],
+      );
+      set((prev) => ({
+        ...prev,
+        deposits: new Map(batches),
       }));
     },
     unsetDeposit(key) {

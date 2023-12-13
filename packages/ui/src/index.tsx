@@ -23,6 +23,7 @@ export type { SkeletonProps } from './Skeleton';
 export { Disclosure } from '@headlessui/react';
 export { Listbox } from '@headlessui/react';
 export { Transition } from '@headlessui/react';
+export { Combobox } from '@headlessui/react';
 export type {
   DisclosureProps,
   DisclosureButtonProps,
