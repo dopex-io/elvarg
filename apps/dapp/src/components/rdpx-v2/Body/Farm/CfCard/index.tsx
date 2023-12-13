@@ -108,7 +108,7 @@ const CfCard = (props: Props) => {
           {userCommunalFarmData.earnedTokens.length > 0 ? ( // only accounts for the first reward token in the address[] array
             <Button
               size="xsmall"
-              disabled={disabled}
+              disabled={claiming}
               onClick={async () =>
                 await claim()
                   .then(() => updateUserCommunalFarmData())

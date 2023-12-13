@@ -132,10 +132,11 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
       approved
         ? stake()
             .catch((e) => console.error(e))
-            .finally(() => {
-              refetchCommunalFarmUserData();
-              refetchBalance();
-            })
+            .finally(() => [
+              refetchCommunalFarmUserData(),
+              refetchBalance(),
+              updateAllowance(),
+            ])
         : approve()
             .then(async () => {
               await Promise.all([refetchBalance(), updateAllowance()]).then(
@@ -143,7 +144,11 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
               );
             })
             .catch((e) => console.error(e))
-            .finally(() => refetchCommunalFarmUserData());
+            .finally(() => [
+              refetchCommunalFarmUserData(),
+              refetchBalance(),
+              updateAllowance(),
+            ]);
     }
   }, [
     approve,
@@ -219,6 +224,7 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
         handleClose();
         refetchCommunalFarmState().then(() => updateCommunalFarmState());
         refetchCommunalFarmUserData().then(() => updateUserCommunalFarmData());
+        updateAllowance();
       }}
       showCloseIcon
     >
