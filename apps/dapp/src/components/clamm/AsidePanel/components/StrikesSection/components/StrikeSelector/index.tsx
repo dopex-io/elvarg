@@ -125,7 +125,7 @@ const StrikeSelector = () => {
       );
 
       if (!strikeData) return;
-      let isCallStrike = markPrice > strike ? true : false;
+      let isCallStrike = markPrice < strike ? true : false;
       selectStrike(strikeData.strike, {
         amount0: 0,
         amount1: '0',
