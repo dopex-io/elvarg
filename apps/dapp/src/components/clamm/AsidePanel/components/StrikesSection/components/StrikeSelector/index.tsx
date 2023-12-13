@@ -120,7 +120,6 @@ const StrikeSelector = () => {
     (strike: number) => {
       const strikeData: any = strikesInContext.find(
         ({ strike: currentStrike }) => {
-          console.log(currentStrike === strike, currentStrike, strike);
           return currentStrike === strike;
         },
       );
@@ -229,6 +228,7 @@ const StrikeSelector = () => {
         <div className="relative  border border-mineshaft rounded-md w-full px-[4px]">
           <Combobox
             value={query}
+            // @ts-ignore
             onChange={(data: GeneratedStrike | Strike) => {
               setQuery(data.strike.toFixed(4));
             }}
@@ -246,6 +246,7 @@ const StrikeSelector = () => {
                 onChange={(e: any) => {
                   parseInputChange(e, (e) => setQuery(e.target.value));
                 }}
+                // @ts-ignore
                 placeHolder="Enter or select strike"
                 value={query}
               />
@@ -274,7 +275,6 @@ const StrikeSelector = () => {
             className="bg-primary p-[5px] rounded-md hover:opacity-50"
             onClick={() => {
               const strikeData = checkStrike();
-              console.log('STRIKE SUBMITTED', strikeData);
               if (strikeData) {
                 submitStrike(strikeData);
               }

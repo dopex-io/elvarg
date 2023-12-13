@@ -6,7 +6,7 @@ import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 import RangeSelector from '../RangeSelector';
 import SelectedStrikeItem from '../SelectedStrikeItem';
 import Panel from './components/Panel';
-import StrikeSelector from './components/StrikeSelector/StrikeSelector';
+import StrikeSelector from './components/StrikeSelector';
 
 const StrikesSection = () => {
   const { selectedStrikes } = useStrikesChainStore();

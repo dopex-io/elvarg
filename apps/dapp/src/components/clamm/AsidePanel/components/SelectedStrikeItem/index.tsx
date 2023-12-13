@@ -383,7 +383,6 @@ const SelectedStrikeItem = ({
       <div className="w-full flex items-center h-[30px] space-x-[10px]">
         <XMarkIcon
           onClick={() => {
-            console.log(strikeIndex);
             deselectStrike(strikeIndex);
             unsetDeposit(strikeIndex);
             unsetPurchase(strikeIndex);
