@@ -3,6 +3,7 @@ import { BaseError, encodeFunctionData, Hex, parseAbi } from 'viem';
 
 import { Button } from '@dopex-io/ui';
 import toast, { LoaderIcon } from 'react-hot-toast';
+import { useDebounce } from 'use-debounce';
 import {
   Address,
   erc20ABI,
@@ -38,6 +39,11 @@ type ApprovedRequiredInfo = {
   txData: Hex;
 };
 const InfoPanel = ({ updateTokenBalances }: Props) => {
+  const { chain } = useNetwork();
+  const { data: walletClient } = useWalletClient({
+    chainId: chain?.id ?? DEFAULT_CHAIN_ID,
+  });
+  const { address: userAddress } = useAccount();
   const { isLoading, setLoading } = useLoadingStates();
   const { isTrade, tokenBalances, selectedOptionsPool, addresses } =
     useClammStore();
@@ -45,77 +51,77 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
   const { deposits, purchases, resetDeposits, resetPurchases } =
     useClammTransactionsStore();
   const { updateStrikes, reset } = useStrikesChainStore();
-  const { chain } = useNetwork();
-  const { data: walletClient } = useWalletClient({
-    chainId: chain?.id ?? DEFAULT_CHAIN_ID,
-  });
-  const { address: userAddress } = useAccount();
 
   const [approvalsRequired, setApprovalsRequired] = useState<
     ApprovedRequiredInfo[]
   >([]);
 
+  const [debouncedDeposits] = useDebounce(deposits, 500);
+  const [debouncedPurchases] = useDebounce(purchases, 500);
+
   const checkApproved = useCallback(async () => {
-    // if (!chain || !userAddress || !selectedOptionsPool || !addresses) return;
-    // const symbolToAmounts = new Map<string, bigint>();
-    // const symbolToAddress = new Map<string, Address>();
-    // if (!isTrade) {
-    //   deposits.forEach(({ tokenSymbol, amount, tokenAddress }) => {
-    //     symbolToAddress.set(tokenSymbol, tokenAddress);
-    //     const curr = symbolToAmounts.get(tokenSymbol);
-    //     if (!curr) {
-    //       symbolToAmounts.set(tokenSymbol, amount);
-    //     } else {
-    //       symbolToAmounts.set(tokenSymbol, amount + curr);
-    //     }
-    //   });
-    // } else {
-    //   purchases.forEach(({ premium, tokenSymbol, tokenAddress, error }) => {
-    //     symbolToAddress.set(tokenSymbol, tokenAddress);
-    //     const curr = symbolToAmounts.get(tokenSymbol);
-    //     if (!curr) {
-    //       if (!error) {
-    //         symbolToAmounts.set(tokenSymbol, (premium * 134n) / 100n);
-    //       }
-    //     } else {
-    //       if (!error) {
-    //         symbolToAmounts.set(tokenSymbol, (premium * 134n) / 100n + curr);
-    //       }
-    //     }
-    //   });
-    // }
-    // const spender = isTrade
-    //   ? selectedOptionsPool.optionsPoolAddress
-    //   : addresses.positionManager;
-    // const _approvals: ApprovedRequiredInfo[] = [];
-    // for await (const [k, v] of symbolToAmounts) {
-    //   const tokenAddress = symbolToAddress.get(k)!;
-    //   const allowance = await getTokenAllowance(
-    //     chain.id,
-    //     tokenAddress,
-    //     userAddress,
-    //     spender,
-    //   );
-    //   if (allowance < v) {
-    //     _approvals.push({
-    //       amount: v,
-    //       tokenSymbol: k,
-    //       tokenAddress: tokenAddress,
-    //       txData: encodeFunctionData({
-    //         abi: erc20ABI,
-    //         functionName: 'approve',
-    //         args: [spender, (v * 10500n) / 10000n],
-    //       }),
-    //     });
-    //   }
-    // }
-    // setApprovalsRequired(_approvals);
+    if (!chain || !userAddress || !selectedOptionsPool || !addresses) return;
+    const symbolToAmounts = new Map<string, bigint>();
+    const symbolToAddress = new Map<string, Address>();
+    if (!isTrade) {
+      debouncedDeposits.forEach(({ tokenSymbol, amount, tokenAddress }) => {
+        symbolToAddress.set(tokenSymbol, tokenAddress);
+        const curr = symbolToAmounts.get(tokenSymbol);
+        if (!curr) {
+          symbolToAmounts.set(tokenSymbol, amount);
+        } else {
+          symbolToAmounts.set(tokenSymbol, amount + curr);
+        }
+      });
+    } else {
+      debouncedPurchases.forEach(
+        ({ premium, tokenSymbol, tokenAddress, error }) => {
+          symbolToAddress.set(tokenSymbol, tokenAddress);
+          const curr = symbolToAmounts.get(tokenSymbol);
+          if (!curr) {
+            if (!error) {
+              symbolToAmounts.set(tokenSymbol, (premium * 134n) / 100n);
+            }
+          } else {
+            if (!error) {
+              symbolToAmounts.set(tokenSymbol, (premium * 134n) / 100n + curr);
+            }
+          }
+        },
+      );
+    }
+    const spender = isTrade
+      ? selectedOptionsPool.optionsPoolAddress
+      : addresses.positionManager;
+    const _approvals: ApprovedRequiredInfo[] = [];
+    for await (const [k, v] of symbolToAmounts) {
+      const tokenAddress = symbolToAddress.get(k)!;
+      const allowance = await getTokenAllowance(
+        chain.id,
+        tokenAddress,
+        userAddress,
+        spender,
+      );
+      if (allowance < v) {
+        _approvals.push({
+          amount: v,
+          tokenSymbol: k,
+          tokenAddress: tokenAddress,
+          txData: encodeFunctionData({
+            abi: erc20ABI,
+            functionName: 'approve',
+            args: [spender, (v * 10500n) / 10000n],
+          }),
+        });
+      }
+    }
+    setApprovalsRequired(_approvals);
   }, [
-    deposits,
+    debouncedDeposits,
     isTrade,
     chain,
     userAddress,
-    purchases,
+    debouncedPurchases,
     selectedOptionsPool,
     addresses,
   ]);
@@ -196,7 +202,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
   const handlePurchase = useCallback(async () => {
     if (!userAddress || !walletClient || !isTrade) return;
     const { publicClient } = wagmiConfig;
-    const purchasesArray = Array.from(purchases);
+    const purchasesArray = Array.from(debouncedPurchases);
     setLoading(ASIDE_PANEL_BUTTON_KEY, true);
     const loadingToastId = toast.loading('Opening wallet');
     try {
@@ -254,7 +260,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     reset,
     updateStrikes,
     isTrade,
-    purchases,
+    debouncedPurchases,
     userAddress,
     walletClient,
     checkApproved,
