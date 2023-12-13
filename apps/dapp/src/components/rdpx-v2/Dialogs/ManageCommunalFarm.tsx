@@ -5,7 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 import { Button, Dialog } from '@dopex-io/ui';
 import { format, formatDistanceToNow } from 'date-fns';
-import { erc20ABI, useAccount, useContractWrite } from 'wagmi';
+import { erc20ABI, useAccount, useContractRead, useContractWrite } from 'wagmi';
 import { writeContract } from 'wagmi/actions';
 
 import useTokenData from 'hooks/helpers/useTokenData';
@@ -45,6 +45,7 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
   const [amount, setAmount] = useState<string>('');
   const [sliderValue, setSliderValue] = useState<number>(0);
   const [panelState, setPanelState] = useState<PanelState>(PanelState.Stake);
+  const [unstakingIndex, setUnstakingIndex] = useState<number | null>(null);
 
   const { address: user = '0x' } = useAccount();
   const {
@@ -57,17 +58,19 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
   } = useCommunalFarm({
     user,
   });
-  const {
-    approved,
-    updateAllowance,
-    balance: userBalance,
-    updateBalance,
-  } = useTokenData({
+  const { approved, updateAllowance, updateBalance } = useTokenData({
     token: addresses.mockStakeToken,
     spender: addresses.communalFarm,
     owner: user,
     amount,
   });
+  const { data: userBalance = 0n, refetch: refetchBalance } = useContractRead({
+    abi: erc20ABI,
+    address: addresses.mockStakeToken,
+    functionName: 'balanceOf',
+    args: [user],
+  });
+
   const { writeAsync: approve, isLoading: approving } = useContractWrite({
     abi: erc20ABI,
     address: addresses.mockStakeToken,
@@ -129,11 +132,14 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
       approved
         ? stake()
             .catch((e) => console.error(e))
-            .finally(() => refetchCommunalFarmUserData())
+            .finally(() => {
+              refetchCommunalFarmUserData();
+              refetchBalance();
+            })
         : approve()
             .then(async () => {
-              await Promise.all([updateBalance(), updateAllowance()]).then(() =>
-                stake(),
+              await Promise.all([refetchBalance(), updateAllowance()]).then(
+                () => stake(),
               );
             })
             .catch((e) => console.error(e))
@@ -146,11 +152,12 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
     refetchCommunalFarmUserData,
     stake,
     updateAllowance,
-    updateBalance,
+    refetchBalance,
   ]);
 
   const unstake = useCallback(
     async (index: number) => {
+      setUnstakingIndex(index);
       const write = async () =>
         writeContract({
           abi: CommunalFarm,
@@ -159,12 +166,20 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
           args: [accumulatedUnlockableData.unlockablePositions[index].kek_id],
         });
       await write()
-        .then(() => refetchCommunalFarmUserData())
-        .catch((e) => console.error(e));
+        .then(
+          async () =>
+            await Promise.all([
+              refetchCommunalFarmUserData(),
+              updateUserCommunalFarmData(),
+            ]),
+        )
+        .catch((e) => console.error(e))
+        .finally(() => setUnstakingIndex(null));
     },
     [
       accumulatedUnlockableData.unlockablePositions,
       refetchCommunalFarmUserData,
+      updateUserCommunalFarmData,
     ],
   );
 
@@ -202,8 +217,8 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
       isOpen={open}
       handleClose={() => {
         handleClose();
-        refetchCommunalFarmState();
-        refetchCommunalFarmUserData();
+        refetchCommunalFarmState().then(() => updateCommunalFarmState());
+        refetchCommunalFarmUserData().then(() => updateUserCommunalFarmData());
       }}
       showCloseIcon
     >
@@ -242,28 +257,57 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
             symbol="rDPX"
           />
         ) : (
-          <div className="flex flex-col space-y-3">
-            {accumulatedUnlockableData.unlockablePositions.map((pos, index) => (
-              <span key={index} className="flex justify-between w-full">
-                <p className="text-stieglitz text-sm my-auto">
-                  {format(new Date(Number(pos.ending_timestamp) * 1000), 'pp')}
-                </p>
-                <p className="text-sm my-auto">
-                  {formatBigint(pos.liquidity)} rDPX
-                </p>
-                <Button
-                  size="xsmall"
-                  onClick={async () => await unstake(index)}
-                >
-                  Unstake
-                </Button>
-              </span>
-            ))}
+          <div className="flex flex-col space-y-2 p-2 border border-carbon rounded-md">
+            {userCommunalFarmData.lockedStakes.length > 0 ? (
+              userCommunalFarmData.lockedStakes.map((pos, index) => (
+                <span key={index} className="flex justify-between w-full">
+                  <p className="text-stieglitz text-sm my-auto">
+                    {format(
+                      new Date(Number(pos.ending_timestamp) * 1000),
+                      'pp',
+                    )}
+                  </p>
+                  <p className="text-sm my-auto">
+                    {formatBigint(pos.liquidity)} rDPX
+                  </p>
+                  <Button
+                    size="xsmall"
+                    onClick={async () => await unstake(index)}
+                    disabled={
+                      pos.ending_timestamp >
+                      Math.ceil(new Date().getTime() / 1000)
+                    }
+                    className="space-x-2 items-center"
+                  >
+                    {unstakingIndex === index ? (
+                      <CircularProgress
+                        size={12}
+                        className="fill-current text-white"
+                      />
+                    ) : null}
+                    <span>Unstake</span>
+                  </Button>
+                </span>
+              ))
+            ) : (
+              <p className="text-sm text-stieglitz text-center">
+                Your unlockable positions will appear here.
+              </p>
+            )}
           </div>
         )}
         <div className="relative z-50">
           {panelState === PanelState.Stake ? (
-            <div>
+            <div className="flex flex-col px-2">
+              <span className="flex justify-between">
+                <p className="text-sm text-stieglitz">Lock Duration </p>
+                <p className="text-sm">
+                  {formatDistanceToNow(
+                    new Date().getTime() +
+                      Math.ceil(sliderValueToTime.lockDuration) * 1000,
+                  )}
+                </p>
+              </span>
               <Slider
                 value={[sliderValue]}
                 onValueChange={(e) => {
@@ -288,33 +332,35 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
                 )}`}
               />
               <RowItem
-                label="Lock Duration"
-                content={`${formatDistanceToNow(
-                  new Date().getTime() +
-                    Math.ceil(sliderValueToTime.lockDuration) * 1000,
-                )}`}
+                label="Multiplier"
+                content={`${(
+                  Number(
+                    formatBigint(
+                      communalFarmState.multiplierRate,
+                      DECIMALS_TOKEN,
+                    ),
+                  ) *
+                  (sliderValueToTime.lockDuration /
+                    Number(communalFarmState.minLockTime))
+                ).toFixed(3)}x`}
               />
             </>
           ) : (
-            <RowItem
-              label="Unlockable"
-              content={`${formatBigint(
-                accumulatedUnlockableData.totalLiquidity,
-              )} rDPX`}
-            />
+            <>
+              <RowItem
+                label="Unlockable"
+                content={`${formatBigint(
+                  accumulatedUnlockableData.totalLiquidity,
+                )} rDPX`}
+              />
+              <RowItem
+                label="Staked"
+                content={`${Number(
+                  formatUnits(userCommunalFarmData.totalLocked, DECIMALS_TOKEN),
+                ).toFixed(3)} rDPX`}
+              />
+            </>
           )}
-          <RowItem
-            label="Staked"
-            content={`${Number(
-              formatUnits(userCommunalFarmData.totalLocked, DECIMALS_TOKEN),
-            ).toFixed(3)} rDPX`}
-          />
-          <RowItem
-            label="TVL"
-            content={`${Number(
-              formatUnits(communalFarmState.totalLocked, DECIMALS_TOKEN),
-            ).toFixed(3)} rDPX`}
-          />
         </div>
         {panelState === PanelState.Stake ? (
           <Button

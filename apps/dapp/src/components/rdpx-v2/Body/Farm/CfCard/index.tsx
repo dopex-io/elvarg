@@ -88,15 +88,15 @@ const CfCard = (props: Props) => {
         value: '0',
         unit: '%',
       },
-      {
+      ...userCommunalFarmData.earnedTokens.map((userReward) => ({
         label: 'Earned',
         value: prefix.concat(
-          Number(
-            formatUnits(userCommunalFarmData.earned[0] || 0n, DECIMALS_TOKEN),
-          ).toFixed(3),
+          Number(formatUnits(userReward.earned || 0n, DECIMALS_TOKEN)).toFixed(
+            3,
+          ),
         ),
-        unit: 'ARB',
-      },
+        unit: userReward.symbol,
+      })),
     ]);
   }, [userCommunalFarmData, communalFarmState]);
 
@@ -104,12 +104,16 @@ const CfCard = (props: Props) => {
     <div className="bg-cod-gray rounded-lg p-3 w-full  max-w-[390px] space-y-2 flex flex-col">
       <div className="flex justify-between">
         <Title imgSrc={imgSrc} title={title} subtitle={subtitle} />
-        <div className="flex space-x-2 h-fit  my-auto">
-          {userCommunalFarmData.earned[0] > 0n ? (
+        <div className="flex space-x-2 h-fit my-auto">
+          {userCommunalFarmData.earnedTokens.length > 0 ? ( // only accounts for the first reward token in the address[] array
             <Button
               size="xsmall"
               disabled={disabled}
-              onClick={async () => await claim()}
+              onClick={async () =>
+                await claim()
+                  .then(() => updateUserCommunalFarmData())
+                  .catch((e) => console.error(e))
+              }
               className="flex space-x-1"
             >
               {claiming ? (

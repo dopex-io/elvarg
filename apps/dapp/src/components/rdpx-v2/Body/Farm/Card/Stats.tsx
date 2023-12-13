@@ -12,7 +12,7 @@ const Stats = (props: Props) => {
   const { stats } = props;
 
   return (
-    <div className="flex space-x-2 w-full">
+    <div className="grid grid-cols-3 grid-flow-row gap-1 w-full">
       {stats.map((stat, index) => (
         <div
           key={index}

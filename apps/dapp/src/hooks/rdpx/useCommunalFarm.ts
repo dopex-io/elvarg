@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Address } from 'viem';
+import { Address, zeroAddress } from 'viem';
 
 import { useContractRead, useContractReads } from 'wagmi';
 
@@ -24,7 +24,13 @@ type UserData = {
   totalLocked: bigint;
   combinedWeight: bigint;
   unlockable: bigint;
-  earned: readonly bigint[];
+  earnedTokens: readonly UserReward[];
+};
+
+type UserReward = {
+  address: Address;
+  symbol: string;
+  earned: bigint;
 };
 
 type RewardInfo = {
@@ -41,6 +47,7 @@ type CommunalFarmState = {
   lastUpdateTime: bigint;
   minLockTime: bigint;
   maxLockTime: bigint;
+  multiplierRate: bigint;
 };
 
 const contractConfig = {
@@ -71,6 +78,8 @@ const useCommunalFarm = (props: Props) => {
       { ...contractConfig, functionName: 'getAllRewardTokens' },
       { ...contractConfig, functionName: 'getAllRewardRates' },
       { ...contractConfig, functionName: 'getRewardSymbols' },
+
+      { ...contractConfig, functionName: 'lockMultiplier', args: [1n] }, // multiplier for 1 second
     ],
     staleTime: 10000,
   });
@@ -110,6 +119,7 @@ const useCommunalFarm = (props: Props) => {
     const minLockTime = data[4].result;
     const maxLockTime = data[5].result;
     const _rewardTokens = data[6].result;
+    const multiplierRate = data[9].result;
 
     if (
       !stakingToken ||
@@ -117,7 +127,8 @@ const useCommunalFarm = (props: Props) => {
       periodFinish === undefined ||
       lastUpdateTime === undefined ||
       minLockTime === undefined ||
-      maxLockTime === undefined
+      maxLockTime === undefined ||
+      multiplierRate === undefined
     )
       return;
 
@@ -136,6 +147,7 @@ const useCommunalFarm = (props: Props) => {
       lastUpdateTime,
       minLockTime,
       maxLockTime,
+      multiplierRate,
     }));
   }, [data, user]);
 
@@ -146,18 +158,27 @@ const useCommunalFarm = (props: Props) => {
     }
 
     const earned = _userData[3].result || [];
+    const earnedTokens: UserReward[] = earned.map((amount, index) => ({
+      address: contractData.rewardsData[index]?.address ?? zeroAddress,
+      symbol: contractData.rewardsData[index]?.symbol
+        ? contractData.rewardsData[index].symbol
+        : 'N/A',
+      earned: amount || 0n,
+    }));
+
     const combinedWeight = _userData[2].result || 0n;
     const totalLocked = _userData[1].result || 0n;
-    const lockedStakes = _userData[0].result || [];
+    const lockedStakes =
+      _userData[0].result?.filter((ls) => !!ls.liquidity) || []; // prune zero-data structs since contract deletes array entries in withdrawLocked()
 
     setUserData((prev) => ({
       ...prev,
       combinedWeight,
       totalLocked,
       lockedStakes,
-      earned,
+      earnedTokens,
     }));
-  }, [_userData, user]);
+  }, [_userData, contractData.rewardsData, user]);
 
   return {
     refetchCommunalFarmState: refetch,

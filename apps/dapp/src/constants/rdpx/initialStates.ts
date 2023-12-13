@@ -56,7 +56,7 @@ const initialContractStates: {
       totalLocked: 0n,
       combinedWeight: 0n,
       unlockable: 0n,
-      earned: [],
+      earnedTokens: [],
     },
     state: {
       stakingToken: '0x',
@@ -66,6 +66,7 @@ const initialContractStates: {
       lastUpdateTime: 0n,
       minLockTime: 0n,
       maxLockTime: 0n,
+      multiplierRate: 0n,
     },
   },
 };
