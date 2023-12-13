@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 
-import * as Slider from '@radix-ui/react-slider';
 import { NextSeo } from 'next-seo';
 import { useNetwork } from 'wagmi';
 
@@ -8,7 +7,6 @@ import useClammStore from 'hooks/clamm/useClammStore';
 import useTradingViewChartStore from 'hooks/tradingViewChart/useTradingViewChartStore';
 
 import AsidePanel from 'components/clamm/AsidePanel';
-import RangeSelector from 'components/clamm/AsidePanel/components/RangeSelector';
 import PositionsTable from 'components/clamm/PositionsTable';
 import PriceChart from 'components/clamm/PriceChart';
 import StrikesChain from 'components/clamm/StrikesChain';
@@ -76,8 +74,7 @@ const Page = () => {
         </div>
         <div className="w-full flex flex-col xl:flex-row xl:space-x-[12px] xl:space-y-[0px] space-y-[12px]">
           <div className="max-w-[1530px] sm:min-w-[590px] h-fit sm:w-full w-[96vw] space-y-[12px]">
-            {/* <PriceChart />
-             */}
+            <PriceChart />
             <StrikesChain />
             <PositionsTable />
           </div>
