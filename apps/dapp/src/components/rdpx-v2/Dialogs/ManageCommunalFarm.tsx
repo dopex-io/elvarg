@@ -106,6 +106,7 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
       (prev, curr) => prev + curr.liquidity,
       0n,
     );
+    // **note** unlockablePositions[] is unused
     return { totalLiquidity, unlockablePositions };
   }, [userCommunalFarmData.lockedStakes]);
 
@@ -168,7 +169,7 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
           abi: CommunalFarm,
           address: addresses.communalFarm,
           functionName: 'withdrawLocked',
-          args: [accumulatedUnlockableData.unlockablePositions[index].kek_id],
+          args: [userCommunalFarmData.lockedStakes[index].kek_id],
         });
       await write()
         .then(
@@ -182,9 +183,9 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
         .finally(() => setUnstakingIndex(null));
     },
     [
-      accumulatedUnlockableData.unlockablePositions,
       refetchCommunalFarmUserData,
       updateUserCommunalFarmData,
+      userCommunalFarmData.lockedStakes,
     ],
   );
 
@@ -297,7 +298,7 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
               ))
             ) : (
               <p className="text-sm text-stieglitz text-center">
-                Your unlockable positions will appear here.
+                Your positions will appear here.
               </p>
             )}
           </div>
