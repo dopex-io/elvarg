@@ -68,7 +68,7 @@ const RangeSelector = () => {
       10 ** callToken.decimals,
       10 ** putToken.decimals,
       false,
-      50,
+      150,
     )
       .filter(({ strike }) => !ZERO_FEES_STRIKES.includes(strike))
       .sort((a, b) => a.strike - b.strike)

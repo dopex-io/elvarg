@@ -18,7 +18,6 @@ type Props = {
 const RangeGraph = ({ markPrice, strikes, strikeIndices }: Props) => {
   return (
     <>
-      {' '}
       <div className="flex  w-full h-[120px] bg-umbra relative p-[4px]">
         {strikes.map(({ barHeight, strike }, index) => {
           const isWithinLimits =
