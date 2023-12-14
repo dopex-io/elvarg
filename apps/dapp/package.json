@@ -52,8 +52,8 @@
     "tailwind-merge": "^2.0.0",
     "token-list": "workspace:*",
     "use-debounce": "^10.0.0",
-    "viem": "^1.19.11",
-    "wagmi": "^1.4.7",
+    "viem": "^1.19.15",
+    "wagmi": "^1.4.12",
     "zustand": "^4.4.7"
   },
   "devDependencies": {
