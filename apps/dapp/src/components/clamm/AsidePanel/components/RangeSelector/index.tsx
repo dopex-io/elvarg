@@ -27,6 +27,7 @@ import { formatAmount } from 'utils/general';
 import { parseInputChange } from 'utils/input';
 import { getTokenSymbol } from 'utils/token';
 
+import { ZERO_FEES_STRIKES } from 'constants/clamm';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
 import StrikeInput from '../StrikesSection/components/StrikeSelector/components/StrikeInput';
@@ -48,13 +49,12 @@ const RangeSelector = () => {
   const [putDepositAmount, setPutDepositAmount] = useState('');
   const [debouncedCallDepositAmount] = useDebounce(callDepositAmount, 500);
   const [debouncedPutDepositAmount] = useDebounce(putDepositAmount, 500);
-  const [debouncedMarkPrice] = useDebounce(markPrice, 5000);
   const [debouncedSelectedStrikeIndices] = useDebounce(
     selectedStrikeIndices,
     1000,
   );
 
-  const strikesBarGroup = useMemo(() => {
+  const _strikesBarGroup = useMemo(() => {
     if (!selectedOptionsPool) return [];
     const { callToken, putToken } = selectedOptionsPool;
     if (strikesChain.length === 0) return [];
@@ -68,8 +68,9 @@ const RangeSelector = () => {
       10 ** callToken.decimals,
       10 ** putToken.decimals,
       false,
-      100,
+      50,
     )
+      .filter(({ strike }) => !ZERO_FEES_STRIKES.includes(strike))
       .sort((a, b) => a.strike - b.strike)
       .map(({ strike, meta, type }) => {
         const liquidityUsd =
@@ -88,24 +89,20 @@ const RangeSelector = () => {
   }, [strikesChain, tick, selectedOptionsPool]);
 
   const lowerLimitStrikes = useMemo(() => {
-    return strikesBarGroup
-      .filter(
-        ({ strike }) =>
-          strike <
-          (strikesBarGroup[selectedStrikeIndices[1]] ?? { strike: 0 }).strike,
-      )
+    return _strikesBarGroup
+      .filter(({ meta: { tickLower } }) => tickLower < tick)
       .sort((a, b) => b.strike - a.strike);
-  }, [selectedStrikeIndices, strikesBarGroup]);
+  }, [tick, _strikesBarGroup]);
 
   const upperLimitStrikes = useMemo(() => {
-    return strikesBarGroup
-      .filter(
-        ({ strike }) =>
-          strike >
-          (strikesBarGroup[selectedStrikeIndices[0]] ?? { strike: 0 }).strike,
-      )
+    return _strikesBarGroup
+      .filter(({ meta: { tickUpper } }) => tickUpper > tick)
       .sort((a, b) => a.strike - b.strike);
-  }, [selectedStrikeIndices, strikesBarGroup]);
+  }, [tick, _strikesBarGroup]);
+
+  const strikesInContext = useMemo(() => {
+    return [...lowerLimitStrikes, ...upperLimitStrikes];
+  }, [lowerLimitStrikes, upperLimitStrikes]);
 
   const checkUpperLimitStrike = useCallback(() => {
     const strike = Number(upperLimitInputStrike);
@@ -150,34 +147,34 @@ const RangeSelector = () => {
   }, [lowerLimitInputStrike, lowerLimitStrikes]);
 
   useEffect(() => {
-    const length = strikesBarGroup.length - 1;
-    if (selectedStrikeIndices.length === 0 && strikesBarGroup.length > 0) {
+    const length = strikesInContext.length - 1;
+    if (selectedStrikeIndices.length === 0 && strikesInContext.length > 0) {
       setSelectedStrikeIndicies([
         Math.floor(length * 0.25),
         Math.floor(length * 0.75),
       ]);
     }
-  }, [selectedStrikeIndices.length, strikesBarGroup.length]);
+  }, [selectedStrikeIndices.length, strikesInContext.length]);
 
   const getStrikesBarGroupindex = useCallback(
     (strike: number) => {
-      const index = strikesBarGroup.findIndex(({ strike: itemStrike }) => {
+      const index = strikesInContext.findIndex(({ strike: itemStrike }) => {
         return strike === itemStrike;
       });
       return index;
     },
-    [strikesBarGroup],
+    [strikesInContext],
   );
 
   useEffect(() => {
     const indices = selectedStrikeIndices;
     setUpperLimitInputStrike(
-      (strikesBarGroup[indices[1]] ?? { strike: 0 }).strike.toFixed(4),
+      (strikesInContext[indices[1]] ?? { strike: 0 }).strike.toFixed(4),
     );
     setLowerLimitInputStrike(
-      (strikesBarGroup[indices[0]] ?? { strike: 0 }).strike.toFixed(4),
+      (strikesInContext[indices[0]] ?? { strike: 0 }).strike.toFixed(4),
     );
-  }, [selectedStrikeIndices, strikesBarGroup]);
+  }, [selectedStrikeIndices, strikesInContext]);
 
   useEffect(() => {
     if (!selectedOptionsPool || !addresses) return;
@@ -185,15 +182,15 @@ const RangeSelector = () => {
     const { callToken, putToken, primePool } = selectedOptionsPool;
     const startIndex = debouncedSelectedStrikeIndices[0];
     const endIndex = debouncedSelectedStrikeIndices[1];
-    const strikesInContext = strikesBarGroup.filter(
+    const _strikesInContext = strikesInContext.filter(
       (_, index) => index >= startIndex && index <= endIndex,
     );
 
     const callStrikesCount = strikesInContext.reduce((prev, { strike }) => {
-      return strike > debouncedMarkPrice ? prev + 1 : prev;
+      return strike > markPrice ? prev + 1 : prev;
     }, 0);
     const putStrikesCount = strikesInContext.reduce((prev, { strike }) => {
-      return strike < debouncedMarkPrice ? prev + 1 : prev;
+      return strike < markPrice ? prev + 1 : prev;
     }, 0);
 
     let tokenPerPutStrike = 0n;
@@ -213,11 +210,10 @@ const RangeSelector = () => {
     const token0isCall =
       hexToBigInt(callToken.address) < hexToBigInt(putToken.address);
 
-    const _deposits: DepositTransaction[] = strikesInContext.map(
+    const _deposits: (DepositTransaction | undefined)[] = strikesInContext.map(
       ({ strike, meta: { tickLower, tickUpper } }) => {
-        const isCall = strike > debouncedMarkPrice;
         let liquidityToProvide = 0n;
-        if (isCall) {
+        if (tickUpper > tick) {
           liquidityToProvide = token0isCall
             ? getLiquidityForAmount0(
                 getSqrtRatioAtTick(BigInt(tickLower)),
@@ -229,7 +225,7 @@ const RangeSelector = () => {
                 getSqrtRatioAtTick(BigInt(tickUpper)),
                 tokenPerCallStrike,
               );
-        } else {
+        } else if (tickLower < tick) {
           liquidityToProvide = token0isCall
             ? getLiquidityForAmount1(
                 getSqrtRatioAtTick(BigInt(tickLower)),
@@ -241,6 +237,8 @@ const RangeSelector = () => {
                 getSqrtRatioAtTick(BigInt(tickUpper)),
                 tokenPerPutStrike,
               );
+        } else {
+          return;
         }
 
         const handlerDepositData = encodeAbiParameters(
@@ -252,14 +250,14 @@ const RangeSelector = () => {
           ],
           [primePool, tickLower, tickUpper, liquidityToProvide],
         );
-
         return {
-          amount: isCall ? tokenPerCallStrike : tokenPerPutStrike,
+          amount: tickUpper > tick ? tokenPerCallStrike : tokenPerPutStrike,
           positionManager: addresses.positionManager,
           strike,
-          tokenAddress: isCall ? callToken.address : putToken.address,
-          tokenDecimals: isCall ? callToken.decimals : putToken.decimals,
-          tokenSymbol: isCall ? callToken.symbol : putToken.symbol,
+          tokenAddress: tickUpper > tick ? callToken.address : putToken.address,
+          tokenDecimals:
+            tickUpper > tick ? callToken.decimals : putToken.decimals,
+          tokenSymbol: tickUpper > tick ? callToken.symbol : putToken.symbol,
           txData: encodeFunctionData({
             abi: DopexV2PositionManager,
             functionName: 'mintPosition',
@@ -269,24 +267,27 @@ const RangeSelector = () => {
       },
     );
 
-    batchSetDeposits(_deposits);
+    console.log(_deposits.filter((data) => data));
+
+    batchSetDeposits(_deposits.filter((data) => data) as DepositTransaction[]);
   }, [
+    tick,
     debouncedCallDepositAmount,
     debouncedPutDepositAmount,
     selectedStrikeIndices,
     batchSetDeposits,
     addresses,
     debouncedSelectedStrikeIndices,
-    strikesBarGroup,
-    debouncedMarkPrice,
+    strikesInContext,
+    markPrice,
     selectedOptionsPool,
   ]);
 
   return (
     <div className="w-full h-full flex flex-col bg-umbra space-y-[4px]">
       <RangeGraph
-        strikes={strikesBarGroup}
-        markPrice={debouncedMarkPrice}
+        strikes={strikesInContext}
+        markPrice={markPrice}
         strikeIndices={selectedStrikeIndices}
       />
       <RangeSlider
@@ -294,7 +295,7 @@ const RangeSelector = () => {
         setUpperLimitStrike={setUpperLimitInputStrike}
         setStrikeIndicies={setSelectedStrikeIndicies}
         strikeIndicies={selectedStrikeIndices}
-        strikes={strikesBarGroup}
+        strikes={strikesInContext}
       />
       <div className="flex items-center pt-[14px] space-x-[4px]">
         <div className="w-full flex flex-col space-y-[4px]">
@@ -350,7 +351,7 @@ const RangeSelector = () => {
           />
         </div>
       </div>
-      {Number(lowerLimitInputStrike) < debouncedMarkPrice && (
+      {Number(lowerLimitInputStrike) < markPrice && (
         <RangeDepositInput
           onChangeInput={(e) => {
             parseInputChange(e, (e) => setPutDepositAmount(e.target.value));
@@ -359,7 +360,7 @@ const RangeSelector = () => {
           isCall={false}
           lowerStrike={lowerLimitInputStrike}
           upperStrike={formatAmount(
-            Math.min(Number(upperLimitInputStrike), debouncedMarkPrice),
+            Math.min(Number(upperLimitInputStrike), markPrice),
             4,
           )}
           placeHolder={getTokenSymbol({
@@ -368,7 +369,7 @@ const RangeSelector = () => {
           })}
         />
       )}
-      {Number(upperLimitInputStrike) > debouncedMarkPrice && (
+      {Number(upperLimitInputStrike) > markPrice && (
         <RangeDepositInput
           onChangeInput={(e) => {
             parseInputChange(e, (e) => setCallDepositAmount(e.target.value));
@@ -377,7 +378,7 @@ const RangeSelector = () => {
           upperStrike={upperLimitInputStrike}
           isCall={true}
           lowerStrike={formatAmount(
-            Math.max(Number(lowerLimitInputStrike), debouncedMarkPrice),
+            Math.max(Number(lowerLimitInputStrike), markPrice),
             4,
           )}
           placeHolder={getTokenSymbol({

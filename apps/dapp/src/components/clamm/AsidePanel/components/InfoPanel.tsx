@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BaseError, encodeFunctionData, Hex, parseAbi } from 'viem';
 
 import { Button } from '@dopex-io/ui';
+import DopexV2PositionManager from 'abis/clamm/DopexV2PositionManager';
 import toast, { LoaderIcon } from 'react-hot-toast';
 import { useDebounce } from 'use-debounce';
 import {
@@ -135,24 +136,19 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     const loadingToastId = toast.loading('Opening wallet');
     try {
       if (depositsArray.length > 1) {
-        if (depositsArray[0]) {
-          const pm = depositsArray[0][1].positionManager;
-          const encodedTxData = encodeFunctionData({
-            abi: parseAbi([MULTI_CALL_FN_SIG]),
-            functionName: 'multicall',
-            args: [depositsArray.map(([_, v]) => v.txData)],
-          });
-          const request = await walletClient.prepareTransactionRequest({
-            account: walletClient.account,
-            to: pm,
-            data: encodedTxData,
-            type: 'legacy',
-          });
-          const hash = await walletClient.sendTransaction(request);
-          const reciept = await publicClient.waitForTransactionReceipt({
-            hash,
-          });
-        }
+        const pm = depositsArray[0][1].positionManager;
+
+        const { request } = await publicClient.simulateContract({
+          account: walletClient.account,
+          abi: DopexV2PositionManager,
+          address: pm,
+          functionName: 'multicall',
+          args: [depositsArray.map(([_, v]) => v.txData)],
+        });
+        const hash = await walletClient.writeContract(request);
+        const reciept = await publicClient.waitForTransactionReceipt({
+          hash,
+        });
       } else {
         if (depositsArray[0]) {
           const pm = depositsArray[0][1].positionManager;
@@ -176,7 +172,6 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     } catch (err) {
       const error = err as BaseError;
       toast.error(error.shortMessage);
-      console.error(err);
     }
     toast.remove(loadingToastId);
     setLoading(ASIDE_PANEL_BUTTON_KEY, false);
@@ -315,8 +310,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
           disabled: true,
           text: `${approval.tokenSymbol} amount exceeds balance`,
         };
-      }
-      if (
+      } else if (
         approval.tokenSymbol.toLowerCase() ===
           tokenBalances.putTokenSymbol.toLowerCase() &&
         approval.amount > tokenBalances.putToken

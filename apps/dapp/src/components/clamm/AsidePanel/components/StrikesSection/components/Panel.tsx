@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import { ArrowPathIcon, LinkIcon } from '@heroicons/react/24/outline';
 import { ChartBarIcon } from '@heroicons/react/24/solid';
@@ -30,6 +30,16 @@ const Panel = (props: Props) => {
   const amountOfStrikes = useMemo(() => {
     return isTrade ? purchases.size : deposits.size;
   }, [deposits.size, isTrade, purchases.size]);
+
+  const resetSelectedStrikes = useCallback(() => {
+    reset();
+    if (isTrade) {
+      resetPurchases();
+    } else {
+      resetDeposits();
+    }
+  }, [isTrade, reset, resetDeposits, resetPurchases]);
+
   return (
     <div className="flex w-full items-center justify-between">
       <div id="strikes-count" className="flex">
@@ -46,14 +56,7 @@ const Panel = (props: Props) => {
       </div>
       <div id="options" className="flex text-stieglitz space-x-[4px]">
         <ArrowPathIcon
-          onClick={() => {
-            reset();
-            if (isTrade) {
-              resetPurchases();
-            } else {
-              resetDeposits();
-            }
-          }}
+          onClick={resetSelectedStrikes}
           id="edit-all-button"
           className="hover:cursor-pointer hover:text-white transition duration-300 ease-in-out p-[4px]"
           color="stieglitz"
@@ -74,7 +77,10 @@ const Panel = (props: Props) => {
         {!isTrade && (
           <ChartBarIcon
             id="edit-all-button"
-            onClick={setRangeSelectorMode}
+            onClick={() => {
+              resetSelectedStrikes();
+              setRangeSelectorMode();
+            }}
             height={22}
             width={22}
             className={cn(

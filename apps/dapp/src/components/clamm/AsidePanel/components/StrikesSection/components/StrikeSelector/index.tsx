@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { hexToBigInt } from 'viem';
+import { formatUnits, hexToBigInt, parseUnits } from 'viem';
 
 import { Combobox } from '@dopex-io/ui';
 import {
@@ -16,6 +16,8 @@ import generateStrikes, { GeneratedStrike } from 'utils/clamm/generateStrikes';
 import { Strike } from 'utils/clamm/varrock/getStrikesChain';
 import { cn, formatAmount } from 'utils/general';
 import { parseInputChange } from 'utils/input';
+
+import { ZERO_FEES_STRIKES } from 'constants/clamm';
 
 const StrikeSelector = () => {
   const { selectStrike, strikesChain } = useStrikesChainStore();
@@ -41,7 +43,7 @@ const StrikeSelector = () => {
       token0Precision,
       token1Precision,
       !token0IsCallToken,
-      150,
+      100,
     );
   }, [tick, selectedOptionsPool]);
 
@@ -66,8 +68,13 @@ const StrikeSelector = () => {
   }, [generatedStrikes, isTrade, strikesChain]);
 
   const strikesInContext = useMemo(() => {
-    return isCall ? callStrikes : putStrikes;
-  }, [callStrikes, putStrikes, isCall]);
+    return (isCall ? callStrikes : putStrikes)
+      .filter(({ strike }) => !ZERO_FEES_STRIKES.includes(strike))
+      .filter(
+        ({ meta: { tickLower, tickUpper } }) =>
+          tick < tickLower || tick > tickUpper,
+      );
+  }, [callStrikes, putStrikes, isCall, tick]);
 
   const rewardsStrikesLimit = useMemo(() => {
     return {
@@ -118,17 +125,26 @@ const StrikeSelector = () => {
 
   const submitStrike = useCallback(
     (strike: number) => {
-      const strikeData: any = strikesInContext.find(
-        ({ strike: currentStrike }) => {
-          return currentStrike === strike;
-        },
-      );
+      const strikeData = strikesInContext.find(({ strike: currentStrike }) => {
+        return currentStrike === strike;
+      });
 
       if (!strikeData) return;
       let isCallStrike = markPrice < strike ? true : false;
+      const optionsAvailable = isTrade
+        ? formatUnits(
+            (parseUnits((strikeData as Strike).optionsAvailable, 18) * 9998n) /
+              10000n,
+            18,
+          )
+        : '0';
       selectStrike(strikeData.strike, {
         amount0: 0,
-        amount1: '0',
+        amount1: isTrade
+          ? Number(optionsAvailable) < 0
+            ? '0'
+            : optionsAvailable
+          : '0',
         isCall: isCallStrike,
         strike: strikeData.strike,
         tokenDecimals: isCallStrike
@@ -148,6 +164,7 @@ const StrikeSelector = () => {
       setQuery('');
     },
     [
+      isTrade,
       markPrice,
       selectStrike,
       strikesInContext,
