@@ -11,7 +11,7 @@ const TTLSelector = () => {
   const ttls = useMemo(() => {
     if (!selectedOptionsPool) return [];
     const { ttls } = selectedOptionsPool;
-    return ttls.map((key) => EXPIRIES_TO_KEY[Number(key)]).slice(1);
+    return ttls.map((key) => EXPIRIES_TO_KEY[Number(key)]);
   }, [selectedOptionsPool]);
 
   return (

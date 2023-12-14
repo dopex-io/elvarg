@@ -204,11 +204,6 @@ const BuyPositions = ({
           type: '1inch',
         });
 
-        if (exerciseTxData.error) {
-          toast.error('Failed to exercise');
-          return;
-        }
-
         const { publicClient } = wagmiConfig;
         const request = await walletClient.prepareTransactionRequest({
           account: walletClient.account,
