@@ -20,7 +20,7 @@ import { getTokenDecimals, getTokenLogoURI, getTokenSymbol } from 'utils/token';
 import { EXPIRIES_TO_KEY } from 'constants/clamm';
 import { DEFAULT_CHAIN_ID, VARROCK_BASE_API_URL } from 'constants/env';
 
-import { historyPositionsColumns } from './columnHelpers';
+import { historyPositionsColumns } from './columnHelpers/tradeHistory';
 
 const HistoryPositions = () => {
   const { selectedOptionsPool } = useClammStore();
