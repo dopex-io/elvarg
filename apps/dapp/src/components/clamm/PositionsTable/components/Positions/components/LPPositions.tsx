@@ -1,5 +1,12 @@
 import React, { useCallback, useMemo } from 'react';
-import { Address, BaseError, formatUnits, Hex } from 'viem';
+import {
+  Address,
+  BaseError,
+  formatUnits,
+  Hex,
+  hexToBigInt,
+  parseUnits,
+} from 'viem';
 
 import toast from 'react-hot-toast';
 import { useNetwork, useWalletClient } from 'wagmi';
@@ -11,6 +18,7 @@ import useClammStore from 'hooks/clamm/useClammStore';
 import { PositionsTableProps } from 'components/clamm/PositionsTable';
 import TableLayout from 'components/common/TableLayout';
 
+import { cn, formatAmount } from 'utils/general';
 import { getTokenSymbol } from 'utils/token';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
@@ -23,7 +31,7 @@ const LPPositions = ({
   unselectPosition,
   loading,
 }: PositionsTableProps) => {
-  const { tick } = useClammStore();
+  const { tick, markPrice, selectedOptionsPool } = useClammStore();
   const { lpPositions, updateLPPositions } = useClammPositions();
   const { chain } = useNetwork();
   const { data: walletClient } = useWalletClient({
@@ -61,8 +69,34 @@ const LPPositions = ({
     [walletClient, updateLPPositions],
   );
 
+  const tokenInfo = useMemo(() => {
+    if (!selectedOptionsPool)
+      return {
+        token0Symbol: '-',
+        token1Symbol: '-',
+        token0Price: 1n,
+        token1Price: 1n,
+      };
+    const { callToken, putToken } = selectedOptionsPool;
+
+    const token0isCall =
+      hexToBigInt(callToken.address) < hexToBigInt(putToken.address);
+
+    return {
+      token0Symbol: getTokenSymbol({
+        address: token0isCall ? callToken.address : putToken.address,
+        chainId: chain?.id ?? DEFAULT_CHAIN_ID,
+      }),
+      token1Symbol: getTokenSymbol({
+        address: token0isCall ? putToken.address : callToken.address,
+        chainId: chain?.id ?? DEFAULT_CHAIN_ID,
+      }),
+      token0Price: parseUnits((token0isCall ? markPrice : 1).toString(), 18),
+      token1Price: parseUnits((token0isCall ? 1 : markPrice).toString(), 18),
+    };
+  }, [selectedOptionsPool, markPrice, chain]);
+
   const positions = useMemo(() => {
-    const chainId = chain?.id ?? DEFAULT_CHAIN_ID;
     return lpPositions
       .map(
         (
@@ -72,10 +106,8 @@ const LPPositions = ({
             token1LiquidityInToken,
             token0Earned,
             token1Earned,
-            token0Address,
             token0Decimals,
             token1Decimals,
-            token1Address,
             token0Withdrawable,
             token1Withdrawable,
             meta,
@@ -101,14 +133,8 @@ const LPPositions = ({
                 BigInt(token1Earned),
                 Number(token1Decimals),
               ),
-              token0Symbol: getTokenSymbol({
-                address: token0Address,
-                chainId,
-              }),
-              token1Symbol: getTokenSymbol({
-                address: token1Address,
-                chainId,
-              }),
+              token0Symbol: tokenInfo.token0Symbol,
+              token1Symbol: tokenInfo.token1Symbol,
             },
             side: side,
             size: {
@@ -120,14 +146,8 @@ const LPPositions = ({
                 BigInt(token1LiquidityInToken),
                 Number(token1Decimals),
               ),
-              token0Symbol: getTokenSymbol({
-                address: token0Address,
-                chainId,
-              }),
-              token1Symbol: getTokenSymbol({
-                address: token1Address,
-                chainId,
-              }),
+              token0Symbol: tokenInfo.token0Symbol,
+              token1Symbol: tokenInfo.token1Symbol,
             },
             strike: {
               handleSelect: () => {
@@ -150,14 +170,8 @@ const LPPositions = ({
                 BigInt(token1Withdrawable),
                 Number(token1Decimals),
               ),
-              token0Symbol: getTokenSymbol({
-                address: token0Address,
-                chainId,
-              }),
-              token1Symbol: getTokenSymbol({
-                address: token1Address,
-                chainId,
-              }),
+              token0Symbol: tokenInfo.token0Symbol,
+              token1Symbol: tokenInfo.token1Symbol,
             },
             withdrawButton: {
               disabled: BigInt(meta.withdrawableShares) === 0n,
@@ -174,7 +188,8 @@ const LPPositions = ({
           Number(a.strike.strikePrice) - Number(b.strike.strikePrice),
       );
   }, [
-    chain?.id,
+    tokenInfo.token0Symbol,
+    tokenInfo.token1Symbol,
     tick,
     lpPositions,
     selectPosition,
@@ -182,14 +197,108 @@ const LPPositions = ({
     unselectPosition,
     handleWithdraw,
   ]);
+
+  const totalEarned = useMemo(() => {
+    const earned = positions.reduce(
+      (prev, curr) => {
+        return {
+          token0: parseUnits(curr.earned.token0Amount, 18) + prev.token0,
+          token1: parseUnits(curr.earned.token1Amount, 18) + prev.token1,
+        };
+      },
+      {
+        token0: 0n,
+        token1: 0n,
+      },
+    );
+
+    return formatUnits(
+      earned.token0 * tokenInfo.token0Price +
+        earned.token1 * tokenInfo.token1Price,
+      36,
+    );
+  }, [positions, tokenInfo.token0Price, tokenInfo.token1Price]);
+
+  const totalDeposit = useMemo(() => {
+    const deposits = positions.reduce(
+      (prev, curr) => {
+        return {
+          token0: parseUnits(curr.size.token0Amount, 18) + prev.token0,
+          token1: parseUnits(curr.size.token1Amount, 18) + prev.token1,
+        };
+      },
+      {
+        token0: 0n,
+        token1: 0n,
+      },
+    );
+
+    return formatUnits(
+      deposits.token0 * tokenInfo.token0Price +
+        deposits.token1 * tokenInfo.token1Price,
+      36,
+    );
+  }, [positions, tokenInfo.token0Price, tokenInfo.token1Price]);
+
+  const totalWithdrawable = useMemo(() => {
+    const withdrawable = positions.reduce(
+      (prev, curr) => {
+        return {
+          token0: parseUnits(curr.withdrawable.token0Amount, 18) + prev.token0,
+          token1: parseUnits(curr.withdrawable.token1Amount, 18) + prev.token1,
+        };
+      },
+      {
+        token0: 0n,
+        token1: 0n,
+      },
+    );
+
+    return {
+      token0: formatUnits(withdrawable.token0, 18),
+      token1: formatUnits(withdrawable.token1, 18),
+    };
+  }, [positions]);
+
   return (
-    <TableLayout<LPPositionItem>
-      data={positions}
-      columns={columns}
-      rowSpacing={3}
-      isContentLoading={loading}
-      pageSize={10}
-    />
+    <div className="w-full flex flex-col space-y-[12px] py-[12px]">
+      <div className="bg-cod-gray flex px-[12px] items-center justify-end space-x-[12px]">
+        <div className="flex items-center justify-center space-x-[4px]">
+          <span className="text-stieglitz text-xs">Total earned:</span>
+          <span className="text-xs flex items-center justify-center space-x-[2px]">
+            <span className="text-stieglitz">$</span>
+            <span className={cn(Number(totalEarned) > 0 && 'text-up-only')}>
+              {formatAmount(totalEarned, 3)}
+            </span>
+          </span>
+        </div>
+        <div className="flex items-center justify-center space-x-[4px]">
+          <span className="text-stieglitz text-xs">Total withdrawble:</span>
+          <span className="text-xs flex items-center justify-center space-x-[2px]">
+            <span className="text-stieglitz">$</span>
+            <span>{formatAmount(totalDeposit, 3)}</span>
+          </span>
+        </div>
+        <div className="flex items-center justify-center space-x-[6px]">
+          <span className="text-stieglitz text-xs">Total deposit:</span>
+          <span className="text-xs flex items-center justify-center space-x-[2px]">
+            <span>{formatAmount(totalWithdrawable.token0, 3)}</span>
+            <span className="text-stieglitz">{tokenInfo.token0Symbol}</span>
+          </span>
+          <span className="text-xs flex items-center justify-center space-x-[2px]">
+            <span>{formatAmount(totalWithdrawable.token1, 3)}</span>
+            <span className="text-stieglitz">{tokenInfo.token1Symbol}</span>
+          </span>
+        </div>
+      </div>
+      <TableLayout<LPPositionItem>
+        data={positions}
+        columns={columns}
+        rowSpacing={3}
+        isContentLoading={loading}
+        pageSize={10}
+      />
+    </div>
   );
 };
 
