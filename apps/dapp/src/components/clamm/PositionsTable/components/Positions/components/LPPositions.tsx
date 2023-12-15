@@ -171,10 +171,9 @@ const LPPositions = ({
   selectPosition,
   selectedPositions,
   unselectPosition,
-  removePosition,
   loading,
 }: PositionsTableProps) => {
-  const { tick, selectedOptionsPool } = useClammStore();
+  const { tick } = useClammStore();
   const { lpPositions, updateLPPositions } = useClammPositions();
   const { chain } = useNetwork();
   const { data: walletClient } = useWalletClient({
@@ -199,7 +198,6 @@ const LPPositions = ({
         await publicClient.waitForTransactionReceipt({
           hash,
         });
-        removePosition(index);
         await updateLPPositions?.();
         toast.success('Transaction sent');
       } catch (err) {
@@ -210,7 +208,7 @@ const LPPositions = ({
 
       toast.remove(loadingToastId);
     },
-    [walletClient, updateLPPositions, removePosition],
+    [walletClient, updateLPPositions],
   );
 
   const positions = useMemo(() => {

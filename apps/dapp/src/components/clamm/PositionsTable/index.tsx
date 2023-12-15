@@ -20,7 +20,6 @@ export type PositionsTableProps = {
   selectPosition: (key: number, positionInfo: any) => void;
   selectedPositions: Map<number, any>;
   unselectPosition: (key: number) => void;
-  removePosition: (index: number) => void;
   loading: boolean;
 };
 
@@ -45,22 +44,6 @@ const PositionsTable = () => {
     buyPositions: false,
     lpPositions: false,
   });
-
-  const removeLpPosition = useCallback(
-    (indexToRemove: number) => {
-      setLPPositions(lpPositions.filter((_, index) => indexToRemove !== index));
-    },
-    [setLPPositions, lpPositions],
-  );
-
-  const removeBuyPosition = useCallback(
-    (indexToRemove: number) => {
-      setBuyPositions(
-        buyPositions.filter((_, index) => indexToRemove !== index),
-      );
-    },
-    [setBuyPositions, buyPositions],
-  );
 
   const selectPosition = (key: number, positionInfo: any) => {
     setSelectedPositions((prev) => new Map(prev.set(key, positionInfo)));
@@ -175,7 +158,6 @@ const PositionsTable = () => {
             unselectPosition={unselectPosition}
             selectedPositions={selectedPositions}
             loading={loading.buyPositions}
-            removePosition={removeBuyPosition}
           />
         )}
         {positionsTypeIndex === 1 && (
@@ -184,7 +166,6 @@ const PositionsTable = () => {
             unselectPosition={unselectPosition}
             selectedPositions={selectedPositions}
             loading={loading.lpPositions}
-            removePosition={removeLpPosition}
           />
         )}
         {positionsTypeIndex === 2 && <HistoryPositions />}

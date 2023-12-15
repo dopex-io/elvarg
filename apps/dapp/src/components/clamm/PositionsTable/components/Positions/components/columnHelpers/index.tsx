@@ -126,13 +126,13 @@ export const historyPositionsColumns = [
               <span className="text-[13px] flex items-center space-x-[4px]">
                 <span
                   className={cn(
-                    ' text-stieglitz',
+                    ' text-white',
                     label === 'Profit' && 'text-up-only',
                   )}
                 >
                   {amount}
                 </span>
-                <span className={'text-xs'}>{symbol}</span>
+                <span className={'text-xs text-stieglitz'}>{symbol}</span>
               </span>
             </div>
           ))}

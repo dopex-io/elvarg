@@ -181,7 +181,6 @@ const BuyPositions = ({
   selectedPositions,
   unselectPosition,
   loading,
-  removePosition,
 }: PositionsTableProps) => {
   const { chain } = useNetwork();
   const { buyPositions, updateBuyPositions } = useClammPositions();
@@ -215,7 +214,6 @@ const BuyPositions = ({
         await publicClient.waitForTransactionReceipt({
           hash,
         });
-        removePosition(index);
         await updateBuyPositions?.();
         toast.success('Transaction sent');
       } catch (err) {
@@ -258,7 +256,6 @@ const BuyPositions = ({
             hash,
           });
 
-          removePosition(index);
           await updateBuyPositions?.();
           toast.success('Transaction sent');
         } catch (err) {
@@ -269,7 +266,7 @@ const BuyPositions = ({
       }
       toast.remove(loadingToastId);
     },
-    [selectedOptionsPool, walletClient, updateBuyPositions, removePosition],
+    [selectedOptionsPool, walletClient, updateBuyPositions],
   );
 
   const positions = useMemo(() => {
