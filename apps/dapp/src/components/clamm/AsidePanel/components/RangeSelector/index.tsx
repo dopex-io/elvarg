@@ -68,7 +68,7 @@ const RangeSelector = () => {
       10 ** callToken.decimals,
       10 ** putToken.decimals,
       false,
-      150,
+      50,
     )
       .filter(({ strike }) => !ZERO_FEES_STRIKES.includes(strike))
       .sort((a, b) => a.strike - b.strike)
@@ -91,7 +91,7 @@ const RangeSelector = () => {
   const lowerLimitStrikes = useMemo(() => {
     return _strikesBarGroup
       .filter(({ meta: { tickLower } }) => tickLower < tick)
-      .sort((a, b) => b.strike - a.strike);
+      .sort((a, b) => a.strike - b.strike);
   }, [tick, _strikesBarGroup]);
 
   const upperLimitStrikes = useMemo(() => {
@@ -186,10 +186,10 @@ const RangeSelector = () => {
       (_, index) => index >= startIndex && index <= endIndex,
     );
 
-    const callStrikesCount = strikesInContext.reduce((prev, { strike }) => {
+    const callStrikesCount = _strikesInContext.reduce((prev, { strike }) => {
       return strike > markPrice ? prev + 1 : prev;
     }, 0);
-    const putStrikesCount = strikesInContext.reduce((prev, { strike }) => {
+    const putStrikesCount = _strikesInContext.reduce((prev, { strike }) => {
       return strike < markPrice ? prev + 1 : prev;
     }, 0);
 
@@ -210,7 +210,7 @@ const RangeSelector = () => {
     const token0isCall =
       hexToBigInt(callToken.address) < hexToBigInt(putToken.address);
 
-    const _deposits: (DepositTransaction | undefined)[] = strikesInContext.map(
+    const _deposits: (DepositTransaction | undefined)[] = _strikesInContext.map(
       ({ strike, meta: { tickLower, tickUpper } }) => {
         let liquidityToProvide = 0n;
         if (tickUpper > tick) {
