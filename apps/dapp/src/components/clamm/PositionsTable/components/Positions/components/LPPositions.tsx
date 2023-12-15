@@ -273,14 +273,14 @@ const LPPositions = ({
           </span>
         </div>
         <div className="flex items-center justify-center space-x-[4px]">
-          <span className="text-stieglitz text-xs">Total withdrawble:</span>
+          <span className="text-stieglitz text-xs">Total deposit:</span>
           <span className="text-xs flex items-center justify-center space-x-[2px]">
             <span className="text-stieglitz">$</span>
             <span>{formatAmount(totalDeposit, 3)}</span>
           </span>
         </div>
         <div className="flex items-center justify-center space-x-[6px]">
-          <span className="text-stieglitz text-xs">Total deposit:</span>
+          <span className="text-stieglitz text-xs">Total withdrawable:</span>
           <span className="text-xs flex items-center justify-center space-x-[2px]">
             <span>{formatAmount(totalWithdrawable.token0, 3)}</span>
             <span className="text-stieglitz">{tokenInfo.token0Symbol}</span>
