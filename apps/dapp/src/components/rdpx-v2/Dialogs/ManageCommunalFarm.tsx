@@ -271,7 +271,7 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
                   <p className="text-stieglitz text-sm my-auto">
                     {format(
                       new Date(Number(pos.ending_timestamp) * 1000),
-                      'pp',
+                      'Pp',
                     )}
                   </p>
                   <p className="text-sm my-auto">
