@@ -86,8 +86,8 @@ const CfCard = (props: Props) => {
         unit: 'rDPX',
       },
       {
-        label: 'APR',
-        value: singleSidedStakingRewardsAPR || '',
+        label: 'APR*',
+        value: `${singleSidedStakingRewardsAPR}` || '',
         unit: '%',
       },
       ...userCommunalFarmData.earnedTokens.map((userReward) => ({
