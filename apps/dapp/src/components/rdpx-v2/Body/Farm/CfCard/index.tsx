@@ -15,6 +15,8 @@ import Title from 'components/rdpx-v2/Body/Farm/Card/Title';
 import ManageCommunalFarm from 'components/rdpx-v2/Dialogs/ManageCommunalFarm';
 import Typography2 from 'components/UI/Typography2';
 
+import { formatAmount } from 'utils/general';
+
 import { DECIMALS_TOKEN } from 'constants/index';
 import CommunalFarm from 'constants/rdpx/abis/CommunalFarm';
 import addresses from 'constants/rdpx/addresses';
@@ -75,35 +77,35 @@ const CfCard = (props: Props) => {
     if (userCommunalFarmData.unlockable < parseUnits('1', 15)) {
       prefix = '<';
     }
-    const tvl = Number(
-      formatUnits(communalFarmState.totalLocked, DECIMALS_TOKEN),
-    ).toFixed(3);
+    const tvl = formatUnits(communalFarmState.totalLocked, DECIMALS_TOKEN);
 
     setStats([
       {
         label: 'TVL',
-        value: tvl,
+        value: formatAmount(tvl, 2, true),
         unit: 'rDPX',
       },
       {
         label: 'APR*',
-        value: `${singleSidedStakingRewardsAPR}` || '',
+        value: `${formatAmount(singleSidedStakingRewardsAPR, 2, true)}` || '',
         unit: '%',
       },
       ...userCommunalFarmData.earnedTokens.map((userReward) => ({
         label: 'Earned',
-        value: prefix.concat(
-          Number(formatUnits(userReward.earned || 0n, DECIMALS_TOKEN)).toFixed(
-            3,
-          ),
-        ),
+        value: `${
+          userReward.earned < parseUnits('1', 15) ? '<' : ''
+        }${formatAmount(
+          formatUnits(userReward.earned || 0n, DECIMALS_TOKEN),
+          3,
+          true,
+        )}`,
         unit: userReward.symbol,
       })),
     ]);
   }, [userCommunalFarmData, communalFarmState, singleSidedStakingRewardsAPR]);
 
   return (
-    <div className="bg-cod-gray rounded-lg p-3 w-full  max-w-[390px] space-y-2 flex flex-col">
+    <div className="bg-cod-gray rounded-lg p-3 w-full max-w-[390px] space-y-2 flex flex-col">
       <div className="flex justify-between">
         <Title imgSrc={imgSrc} title={title} subtitle={subtitle} />
         <div className="flex space-x-2 h-fit my-auto">

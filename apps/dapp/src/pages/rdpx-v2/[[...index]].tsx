@@ -98,7 +98,7 @@ const Main = () => {
           <TitleBar />
         </div>
         <div className="flex lg:space-x-3 flex-col sm:flex-col md:flex-col lg:flex-row justify-center space-y-3 lg:space-y-0">
-          <div className="flex flex-col w-full sm:w-full lg:w-[646px] h-full">
+          <div className="flex flex-col w-full sm:w-full lg:w-[720px] h-full">
             {renderContent.body}
           </div>
           {renderContent.asidePanel ? (
