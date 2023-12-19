@@ -59,21 +59,21 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
     user,
   });
   const { approved, updateAllowance, updateBalance } = useTokenData({
-    token: addresses.mockStakeToken,
+    token: addresses.rdpx,
     spender: addresses.communalFarm,
     owner: user,
     amount,
   });
   const { data: userBalance = 0n, refetch: refetchBalance } = useContractRead({
     abi: erc20ABI,
-    address: addresses.mockStakeToken,
+    address: addresses.rdpx,
     functionName: 'balanceOf',
     args: [user],
   });
 
   const { writeAsync: approve, isLoading: approving } = useContractWrite({
     abi: erc20ABI,
-    address: addresses.mockStakeToken,
+    address: addresses.rdpx,
     functionName: 'approve',
     args: [addresses.communalFarm, parseUnits(amount, DECIMALS_TOKEN)],
   });

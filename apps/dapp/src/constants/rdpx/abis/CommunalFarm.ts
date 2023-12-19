@@ -1,1019 +1,588 @@
 const CommunalFarm = [
   {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_owner',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: '_stakingToken',
-        type: 'address',
-      },
-      {
-        internalType: 'string[]',
-        name: '_rewardSymbols',
-        type: 'string[]',
-      },
-      {
-        internalType: 'address[]',
-        name: '_rewardTokens',
-        type: 'address[]',
-      },
-      {
-        internalType: 'address[]',
-        name: '_rewardManagers',
-        type: 'address[]',
-      },
-      {
-        internalType: 'uint256[]',
-        name: '_rewardRates',
-        type: 'uint256[]',
-      },
-    ],
-    stateMutability: 'nonpayable',
     type: 'constructor',
-  },
-  {
-    anonymous: false,
     inputs: [
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'multiplier',
-        type: 'uint256',
-      },
+      { name: '_stakingToken', type: 'address', internalType: 'address' },
+      { name: '_rewardSymbols', type: 'string[]', internalType: 'string[]' },
+      { name: '_rewardTokens', type: 'address[]', internalType: 'address[]' },
+      { name: '_rewardRates', type: 'uint256[]', internalType: 'uint256[]' },
     ],
-    name: 'LockedStakeMaxMultiplierUpdated',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'secs',
-        type: 'uint256',
-      },
-    ],
-    name: 'LockedStakeMinTime',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'secs',
-        type: 'uint256',
-      },
-    ],
-    name: 'LockedStakeTimeForMaxMultiplier',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'oldOwner',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'newOwner',
-        type: 'address',
-      },
-    ],
-    name: 'OwnerChanged',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'newOwner',
-        type: 'address',
-      },
-    ],
-    name: 'OwnerNominated',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'destination_address',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'token',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-    ],
-    name: 'Recovered',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'reward',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'token_address',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'destination_address',
-        type: 'address',
-      },
-    ],
-    name: 'RewardPaid',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'newDuration',
-        type: 'uint256',
-      },
-    ],
-    name: 'RewardsDurationUpdated',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'token',
-        type: 'address',
-      },
-    ],
-    name: 'RewardsPeriodRenewed',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'secs',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'bytes32',
-        name: 'kek_id',
-        type: 'bytes32',
-      },
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'source_address',
-        type: 'address',
-      },
-    ],
-    name: 'StakeLocked',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'bytes32',
-        name: 'kek_id',
-        type: 'bytes32',
-      },
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'destination_address',
-        type: 'address',
-      },
-    ],
-    name: 'WithdrawLocked',
-    type: 'event',
-  },
-  {
-    inputs: [],
-    name: 'acceptOwnership',
-    outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-    ],
+    type: 'function',
     name: 'calcCurCombinedWeight',
+    inputs: [{ name: 'account', type: 'address', internalType: 'address' }],
     outputs: [
-      {
-        internalType: 'uint256',
-        name: 'old_combined_weight',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'new_combined_weight',
-        type: 'uint256',
-      },
+      { name: 'old_combined_weight', type: 'uint256', internalType: 'uint256' },
+      { name: 'new_combined_weight', type: 'uint256', internalType: 'uint256' },
     ],
     stateMutability: 'view',
-    type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'reward_token_address',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: 'new_manager_address',
-        type: 'address',
-      },
+    type: 'function',
+    name: 'combinedWeightOf',
+    inputs: [{ name: 'account', type: 'address', internalType: 'address' }],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'earned',
+    inputs: [{ name: 'account', type: 'address', internalType: 'address' }],
+    outputs: [
+      { name: 'new_earned', type: 'uint256[]', internalType: 'uint256[]' },
     ],
-    name: 'changeTokenManager',
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'emergencyWithdraw',
+    inputs: [{ name: 'tokens', type: 'address[]', internalType: 'address[]' }],
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-    ],
-    name: 'combinedWeightOf',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
     type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-    ],
-    name: 'earned',
-    outputs: [
-      {
-        internalType: 'uint256[]',
-        name: 'new_earned',
-        type: 'uint256[]',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
     name: 'getAllRewardRates',
-    outputs: [
-      {
-        internalType: 'uint256[]',
-        name: '',
-        type: 'uint256[]',
-      },
-    ],
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256[]', internalType: 'uint256[]' }],
     stateMutability: 'view',
-    type: 'function',
   },
   {
-    inputs: [],
+    type: 'function',
     name: 'getAllRewardTokens',
-    outputs: [
-      {
-        internalType: 'address[]',
-        name: '',
-        type: 'address[]',
-      },
-    ],
+    inputs: [],
+    outputs: [{ name: '', type: 'address[]', internalType: 'address[]' }],
     stateMutability: 'view',
-    type: 'function',
   },
   {
-    inputs: [],
+    type: 'function',
     name: 'getReward',
-    outputs: [
-      {
-        internalType: 'uint256[]',
-        name: '',
-        type: 'uint256[]',
-      },
-    ],
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256[]', internalType: 'uint256[]' }],
     stateMutability: 'nonpayable',
-    type: 'function',
   },
   {
-    inputs: [],
+    type: 'function',
     name: 'getRewardForDuration',
+    inputs: [],
     outputs: [
       {
-        internalType: 'uint256[]',
         name: 'rewards_per_duration_arr',
         type: 'uint256[]',
+        internalType: 'uint256[]',
       },
     ],
     stateMutability: 'view',
-    type: 'function',
   },
   {
-    inputs: [],
+    type: 'function',
     name: 'getRewardSymbols',
-    outputs: [
-      {
-        internalType: 'string[]',
-        name: '',
-        type: 'string[]',
-      },
-    ],
+    inputs: [],
+    outputs: [{ name: '', type: 'string[]', internalType: 'string[]' }],
     stateMutability: 'view',
-    type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
+    type: 'function',
     name: 'greylist',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
+    inputs: [{ name: '', type: 'address', internalType: 'address' }],
+    outputs: [{ name: '', type: 'bool', internalType: 'bool' }],
     stateMutability: 'view',
-    type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_address',
-        type: 'address',
-      },
-    ],
+    type: 'function',
     name: 'greylistAddress',
+    inputs: [{ name: '_address', type: 'address', internalType: 'address' }],
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'caller_addr',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: 'reward_token_addr',
-        type: 'address',
-      },
-    ],
-    name: 'isTokenManagerFor',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'view',
     type: 'function',
-  },
-  {
-    inputs: [],
     name: 'lastUpdateTime',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
     stateMutability: 'view',
-    type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'secs',
-        type: 'uint256',
-      },
-    ],
+    type: 'function',
     name: 'lockMultiplier',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    inputs: [{ name: 'secs', type: 'uint256', internalType: 'uint256' }],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
     stateMutability: 'view',
-    type: 'function',
   },
   {
-    inputs: [],
+    type: 'function',
     name: 'lock_max_multiplier',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
     stateMutability: 'view',
-    type: 'function',
   },
   {
-    inputs: [],
+    type: 'function',
     name: 'lock_time_for_max_multiplier',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
     inputs: [],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     name: 'lock_time_min',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
     stateMutability: 'view',
-    type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-    ],
+    type: 'function',
     name: 'lockedLiquidityOf',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    inputs: [{ name: 'account', type: 'address', internalType: 'address' }],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
     stateMutability: 'view',
-    type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-    ],
+    type: 'function',
     name: 'lockedStakesOf',
+    inputs: [{ name: 'account', type: 'address', internalType: 'address' }],
     outputs: [
       {
-        components: [
-          {
-            internalType: 'bytes32',
-            name: 'kek_id',
-            type: 'bytes32',
-          },
-          {
-            internalType: 'uint256',
-            name: 'start_timestamp',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'liquidity',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'ending_timestamp',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'lock_multiplier',
-            type: 'uint256',
-          },
-        ],
-        internalType: 'struct CommunalFarm.LockedStake[]',
         name: '',
         type: 'tuple[]',
+        internalType: 'struct CommunalFarm.LockedStake[]',
+        components: [
+          { name: 'kek_id', type: 'bytes32', internalType: 'bytes32' },
+          { name: 'start_timestamp', type: 'uint256', internalType: 'uint256' },
+          { name: 'liquidity', type: 'uint256', internalType: 'uint256' },
+          {
+            name: 'ending_timestamp',
+            type: 'uint256',
+            internalType: 'uint256',
+          },
+          { name: 'lock_multiplier', type: 'uint256', internalType: 'uint256' },
+        ],
       },
     ],
     stateMutability: 'view',
-    type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_owner',
-        type: 'address',
-      },
-    ],
-    name: 'nominateNewOwner',
-    outputs: [],
-    stateMutability: 'nonpayable',
     type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'nominatedOwner',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
     name: 'owner',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
     inputs: [],
-    name: 'periodFinish',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    outputs: [{ name: '', type: 'address', internalType: 'address' }],
     stateMutability: 'view',
-    type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'tokenAddress',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: 'tokenAmount',
-        type: 'uint256',
-      },
-    ],
-    name: 'recoverERC20',
+    type: 'function',
+    name: 'periodFinish',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'renounceOwnership',
+    inputs: [],
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    name: 'rewardManagers',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
     type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
     name: 'rewardRates',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    inputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
     stateMutability: 'view',
-    type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    type: 'function',
     name: 'rewardSymbols',
-    outputs: [
-      {
-        internalType: 'string',
-        name: '',
-        type: 'string',
-      },
-    ],
+    inputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    outputs: [{ name: '', type: 'string', internalType: 'string' }],
     stateMutability: 'view',
-    type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
+    type: 'function',
     name: 'rewardTokenAddrToIdx',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    inputs: [{ name: '', type: 'address', internalType: 'address' }],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
     stateMutability: 'view',
-    type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    type: 'function',
     name: 'rewardTokens',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
+    inputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    outputs: [{ name: '', type: 'address', internalType: 'address' }],
     stateMutability: 'view',
-    type: 'function',
   },
   {
-    inputs: [],
+    type: 'function',
     name: 'rewardsCollectionPaused',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
+    inputs: [],
+    outputs: [{ name: '', type: 'bool', internalType: 'bool' }],
     stateMutability: 'view',
-    type: 'function',
   },
   {
-    inputs: [],
+    type: 'function',
     name: 'rewardsDuration',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
     stateMutability: 'view',
-    type: 'function',
   },
   {
-    inputs: [],
+    type: 'function',
     name: 'rewardsPerToken',
+    inputs: [],
     outputs: [
       {
-        internalType: 'uint256[]',
         name: 'newRewardsPerTokenStored',
         type: 'uint256[]',
+        internalType: 'uint256[]',
       },
     ],
     stateMutability: 'view',
-    type: 'function',
   },
   {
+    type: 'function',
+    name: 'setLockedStakeTimeForMinAndMaxMultiplier',
     inputs: [
       {
-        internalType: 'uint256',
         name: '_lock_time_for_max_multiplier',
         type: 'uint256',
-      },
-      {
         internalType: 'uint256',
-        name: '_lock_time_min',
-        type: 'uint256',
       },
+      { name: '_lock_time_min', type: 'uint256', internalType: 'uint256' },
     ],
-    name: 'setLockedStakeTimeForMinAndMaxMultiplier',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function',
   },
   {
+    type: 'function',
+    name: 'setMultipliers',
     inputs: [
       {
-        internalType: 'uint256',
         name: '_lock_max_multiplier',
         type: 'uint256',
+        internalType: 'uint256',
       },
     ],
-    name: 'setMultipliers',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function',
   },
   {
+    type: 'function',
+    name: 'setRewardRate',
     inputs: [
       {
-        internalType: 'address',
         name: 'reward_token_address',
         type: 'address',
+        internalType: 'address',
       },
-      {
-        internalType: 'uint256',
-        name: 'new_rate',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bool',
-        name: 'sync_too',
-        type: 'bool',
-      },
+      { name: 'new_rate', type: 'uint256', internalType: 'uint256' },
+      { name: 'sync_too', type: 'bool', internalType: 'bool' },
     ],
-    name: 'setRewardRate',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '_rewardsDuration',
-        type: 'uint256',
-      },
-    ],
+    type: 'function',
     name: 'setRewardsDuration',
+    inputs: [
+      { name: '_rewardsDuration', type: 'uint256', internalType: 'uint256' },
+    ],
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function',
   },
   {
+    type: 'function',
+    name: 'stakeLocked',
+    inputs: [
+      { name: 'liquidity', type: 'uint256', internalType: 'uint256' },
+      { name: 'secs', type: 'uint256', internalType: 'uint256' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'stakesUnlocked',
+    inputs: [],
+    outputs: [{ name: '', type: 'bool', internalType: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'stakingPaused',
+    inputs: [],
+    outputs: [{ name: '', type: 'bool', internalType: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'stakingToken',
+    inputs: [],
+    outputs: [{ name: '', type: 'address', internalType: 'contract ERC20' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'sync',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'toggleRewardsCollection',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'toggleStaking',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'toggleWithdrawals',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'totalCombinedWeight',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'totalLiquidityLocked',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'transferOwnership',
+    inputs: [{ name: 'newOwner', type: 'address', internalType: 'address' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'unlockStakes',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'withdrawLocked',
+    inputs: [{ name: 'kek_id', type: 'bytes32', internalType: 'bytes32' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'withdrawalsPaused',
+    inputs: [],
+    outputs: [{ name: '', type: 'bool', internalType: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'event',
+    name: 'LockedStakeMaxMultiplierUpdated',
     inputs: [
       {
-        internalType: 'uint256',
-        name: 'liquidity',
+        name: 'multiplier',
         type: 'uint256',
-      },
-      {
+        indexed: false,
         internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'LockedStakeMinTime',
+    inputs: [
+      {
         name: 'secs',
         type: 'uint256',
-      },
-    ],
-    name: 'stakeLocked',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'stakesUnlocked',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'stakingPaused',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'stakingToken',
-    outputs: [
-      {
-        internalType: 'contract ERC20',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'sync',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'toggleRewardsCollection',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'toggleStaking',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'toggleWithdrawals',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'totalCombinedWeight',
-    outputs: [
-      {
+        indexed: false,
         internalType: 'uint256',
-        name: '',
-        type: 'uint256',
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    anonymous: false,
   },
   {
-    inputs: [],
-    name: 'totalLiquidityLocked',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'unlockStakes',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
+    type: 'event',
+    name: 'LockedStakeTimeForMaxMultiplier',
     inputs: [
       {
-        internalType: 'bytes32',
-        name: 'kek_id',
-        type: 'bytes32',
+        name: 'secs',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
       },
     ],
-    name: 'withdrawLocked',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
+    anonymous: false,
   },
   {
-    inputs: [],
-    name: 'withdrawalsPaused',
-    outputs: [
+    type: 'event',
+    name: 'OwnershipTransferred',
+    inputs: [
       {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
+        name: 'previousOwner',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'newOwner',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'Recovered',
+    inputs: [
+      {
+        name: 'destination_address',
+        type: 'address',
+        indexed: false,
+        internalType: 'address',
+      },
+      {
+        name: 'token',
+        type: 'address',
+        indexed: false,
+        internalType: 'address',
+      },
+      {
+        name: 'amount',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'RewardPaid',
+    inputs: [
+      { name: 'user', type: 'address', indexed: true, internalType: 'address' },
+      {
+        name: 'reward',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'token_address',
+        type: 'address',
+        indexed: false,
+        internalType: 'address',
+      },
+      {
+        name: 'destination_address',
+        type: 'address',
+        indexed: false,
+        internalType: 'address',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'RewardsDurationUpdated',
+    inputs: [
+      {
+        name: 'newDuration',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'RewardsPeriodRenewed',
+    inputs: [
+      {
+        name: 'token',
+        type: 'address',
+        indexed: false,
+        internalType: 'address',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'StakeLocked',
+    inputs: [
+      { name: 'user', type: 'address', indexed: true, internalType: 'address' },
+      {
+        name: 'amount',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'secs',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'kek_id',
+        type: 'bytes32',
+        indexed: false,
+        internalType: 'bytes32',
+      },
+      {
+        name: 'source_address',
+        type: 'address',
+        indexed: false,
+        internalType: 'address',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'WithdrawLocked',
+    inputs: [
+      { name: 'user', type: 'address', indexed: true, internalType: 'address' },
+      {
+        name: 'amount',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'kek_id',
+        type: 'bytes32',
+        indexed: false,
+        internalType: 'bytes32',
+      },
+      {
+        name: 'destination_address',
+        type: 'address',
+        indexed: false,
+        internalType: 'address',
+      },
+    ],
+    anonymous: false,
   },
 ] as const;
 

@@ -23,9 +23,6 @@ export const rdpxV2ContractKeys = [
   'rtethEthStaking',
   'rtethEthLp',
   'communalFarm',
-  // todo remove
-  'mockStakeToken',
-  'mockRewardToken',
 ] as const;
 
 type AddressKey = (typeof rdpxV2ContractKeys)[number];
@@ -51,10 +48,8 @@ const addresses: { [key in AddressKey]: Address } = {
   rtethEthLp: '0x9f6AC103E5d22a7CE8F2CE90bC3991ee4EE4324e',
   arb: '0x912CE59144191C1204E64559FE8253a0e49E6548',
   dpx: '0x6c2c06790b3e3e3c38e12ee22f8183b37a13ee55',
-  communalFarm: '0x27a1E5d887EBC1F97b494De65ad27c09a864c02D', // '0x33890B88F98a9D511678954AD8DB0510B6953Cfc',
   camelotPositionManager: '0x00c7f3082833e796A5b3e4Bd59f6642FF44DCD15',
-  mockStakeToken: '0x5d9EE9048A722516370a42998473D78AbC258261',
-  mockRewardToken: '0xcbE75543B51BA42dC30e0b5BD8C4a07fc61F141D',
+  communalFarm: '0xD840f78b26147F583c853C93Dc8E0e5521C3Af35',
 };
 
 export default addresses;

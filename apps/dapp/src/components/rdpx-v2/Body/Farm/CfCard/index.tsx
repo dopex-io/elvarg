@@ -7,6 +7,7 @@ import { Button } from '@dopex-io/ui';
 import { useAccount, useContractWrite } from 'wagmi';
 
 import useCommunalFarm from 'hooks/rdpx/useCommunalFarm';
+import useRewardAPR from 'hooks/rdpx/useRewardAPR';
 
 import ContractLink from 'components/rdpx-v2/Body/Farm/Card/ContractLink';
 import Stats from 'components/rdpx-v2/Body/Farm/Card/Stats';
@@ -48,6 +49,7 @@ const CfCard = (props: Props) => {
   } = useCommunalFarm({
     user,
   });
+  const { singleSidedStakingRewardsAPR } = useRewardAPR();
 
   const { writeAsync: claim, isLoading: claiming } = useContractWrite({
     abi: CommunalFarm,
@@ -85,7 +87,7 @@ const CfCard = (props: Props) => {
       },
       {
         label: 'APR',
-        value: '0',
+        value: singleSidedStakingRewardsAPR || '',
         unit: '%',
       },
       ...userCommunalFarmData.earnedTokens.map((userReward) => ({
@@ -98,7 +100,7 @@ const CfCard = (props: Props) => {
         unit: userReward.symbol,
       })),
     ]);
-  }, [userCommunalFarmData, communalFarmState]);
+  }, [userCommunalFarmData, communalFarmState, singleSidedStakingRewardsAPR]);
 
   return (
     <div className="bg-cod-gray rounded-lg p-3 w-full  max-w-[390px] space-y-2 flex flex-col">
