@@ -292,7 +292,10 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
                     {formatBigint(pos.liquidity)} rDPX
                   </p>
                   <p className="text-sm my-auto">
-                    {Number(formatUnits(pos.lock_multiplier, 18)).toFixed(3)}x
+                    {Number(
+                      formatUnits(pos.lock_multiplier, DECIMALS_TOKEN),
+                    ).toFixed(3)}
+                    x
                   </p>
                   <Button
                     size="xsmall"

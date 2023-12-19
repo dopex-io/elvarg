@@ -40,7 +40,7 @@ const Dialog = (props: DialogProps) => {
               leaveTo="opacity-0 scale-95"
             >
               <HeadlessDialog.Panel
-                className={`w-[341px] max-w-md transform overflow-hidden rounded-2xl bg-cod-gray divide-carbon p-3 text-left align-middle shadow-xl transition-all space-y-3`}
+                className={`w-[400px] max-w-md transform overflow-hidden rounded-2xl bg-cod-gray divide-carbon p-3 text-left align-middle shadow-xl transition-all space-y-3`}
               >
                 <HeadlessDialog.Title className="text-lg font-medium flex justify-between">
                   <span className="text-white">{title}</span>
