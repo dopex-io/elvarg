@@ -5,7 +5,7 @@ import addresses from 'constants/rdpx/addresses';
 
 const Farm = () => {
   return (
-    <div className="flex w-full space-x-2 justify-center">
+    <div className="flex flex-col space-y-2 w-full justify-center lg:flex-row lg:space-x-2 lg:space-y-0">
       <Card
         title="rtETH-WETH"
         subtitle="LP Farm"

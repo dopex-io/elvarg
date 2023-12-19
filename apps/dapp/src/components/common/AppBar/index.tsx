@@ -83,6 +83,11 @@ const appLinks: {
           to: '/rdpx-v2/stake',
           description: 'Stake your rtETH to accrue rewards.',
         },
+        {
+          name: 'Farms',
+          to: '/rdpx-v2/farm',
+          description: 'Deposit your tokens into our farms to accrue rewards.',
+        },
       ],
     },
     { name: 'Portfolio', to: '/portfolio' },

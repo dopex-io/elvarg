@@ -108,7 +108,7 @@ const Card = (props: Props) => {
   }, [earned, rtethEthRewardAPR, totalSupply]);
 
   return (
-    <div className="bg-cod-gray rounded-lg p-3 w-full  max-w-[390px] space-y-2">
+    <div className="bg-cod-gray rounded-lg p-3 w-full max-w-[390px] space-y-2 flex flex-col">
       <div className="flex justify-between">
         <Title imgSrc={imgSrc} title={title} subtitle={subtitle} />
         <div className="flex space-x-2 h-fit my-auto">
@@ -154,7 +154,9 @@ const Card = (props: Props) => {
           </span>
         )}
       </div>
-      <ContractLink url={url} text="Deposit on Curve.fi to get LP tokens" />
+      <div className="flex flex-col h-full justify-end">
+        <ContractLink url={url} text="Deposit on Curve.fi to get LP tokens" />
+      </div>
     </div>
   );
 };
