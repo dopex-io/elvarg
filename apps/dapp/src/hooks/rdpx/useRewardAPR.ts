@@ -69,8 +69,14 @@ const useRewardAPR = () => {
     const perpVaultDailyRewardsInUSD = 3214 * Number(priceQuery.data.arb);
     const receiptTokenDailyRewardsInUSD = 9624 * Number(priceQuery.data.arb);
     const rtethEthDailyRewardsInUSD = 5 * Number(priceQuery.data.dpx);
+    const singleSidedStakingRewardsInUSD = 2193 * Number(priceQuery.data.arb);
 
-    const [ppvRewardAPR, rtRewardAPR, rtethEthRewardAPR] = [
+    const [
+      ppvRewardAPR,
+      rtRewardAPR,
+      rtethEthRewardAPR,
+      singleSidedStakingRewardsAPR,
+    ] = [
       formatAmount(
         ((perpVaultDailyRewardsInUSD * 365) /
           (Number(formatUnits(data.data[1].result, 18)) *
@@ -89,12 +95,19 @@ const useRewardAPR = () => {
             Number(priceQuery.data.eth))) *
           100,
       ),
+      formatAmount(
+        ((singleSidedStakingRewardsInUSD * 365) /
+          (Number(formatUnits(data.data[2].result, 18)) *
+            Number(priceQuery.data.eth))) *
+          100,
+      ),
     ];
 
     return {
       ppvRewardAPR,
       rtRewardAPR,
       rtethEthRewardAPR,
+      singleSidedStakingRewardsAPR,
     };
   }, [data.data, priceQuery.data]);
 };
