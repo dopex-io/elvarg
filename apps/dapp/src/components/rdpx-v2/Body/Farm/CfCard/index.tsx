@@ -93,7 +93,7 @@ const CfCard = (props: Props) => {
       ...userCommunalFarmData.earnedTokens.map((userReward) => ({
         label: 'Earned',
         value: `${
-          userReward.earned < parseUnits('1', 15) ? '<' : '0'
+          userReward.earned < parseUnits('1', 15) ? '<' : ''
         }${formatAmount(
           formatUnits(userReward.earned || 0n, DECIMALS_TOKEN),
           3,
