@@ -5,6 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 import { Button, Dialog } from '@dopex-io/ui';
 import { format, formatDistanceToNow } from 'date-fns';
+import { useDebounce } from 'use-debounce';
 import { erc20ABI, useAccount, useContractRead, useContractWrite } from 'wagmi';
 import { writeContract } from 'wagmi/actions';
 
@@ -96,6 +97,19 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
 
     return { lockDuration, unlockTime };
   }, [communalFarmState, sliderValue]);
+
+  const [debouncedSliderValue] = useDebounce(
+    BigInt(sliderValueToTime.lockDuration.toFixed(0)),
+    1500,
+  );
+
+  const { data: multiplier = 0n } = useContractRead({
+    abi: CommunalFarm,
+    address: addresses.communalFarm,
+    functionName: 'lockMultiplier',
+    args: [debouncedSliderValue],
+    staleTime: 5000,
+  });
 
   const accumulatedUnlockableData = useMemo(() => {
     const unlockablePositions = userCommunalFarmData.lockedStakes.filter(
@@ -277,6 +291,12 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
                   <p className="text-sm my-auto">
                     {formatBigint(pos.liquidity)} rDPX
                   </p>
+                  <p className="text-sm my-auto">
+                    {Number(
+                      formatUnits(pos.lock_multiplier, DECIMALS_TOKEN),
+                    ).toFixed(3)}
+                    x
+                  </p>
                   <Button
                     size="xsmall"
                     onClick={async () => await unstake(index)}
@@ -340,15 +360,8 @@ const ManageCommunalFarm = ({ open, handleClose }: Props) => {
               />
               <RowItem
                 label="Multiplier"
-                content={`${(
-                  Number(
-                    formatBigint(
-                      communalFarmState.multiplierRate,
-                      DECIMALS_TOKEN,
-                    ),
-                  ) *
-                  (sliderValueToTime.lockDuration /
-                    Number(communalFarmState.minLockTime))
+                content={`${Number(
+                  formatUnits(multiplier, DECIMALS_TOKEN),
                 ).toFixed(3)}x`}
               />
             </>
