@@ -139,7 +139,7 @@ const columns = [
     header: 'Timestamp',
     cell: ({ getValue }) => {
       return (
-        <div className="flex items-center justify-end space-x-[4px]">
+        <div className="flex items-center justify-start space-x-[4px]">
           <span className="text-[13px]">
             {format(new Date(getValue() * 1000), 'HH:mm:ss dd MMM yyyy')}
           </span>
