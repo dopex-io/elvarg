@@ -50,6 +50,7 @@ export type LPPositionsResponse = {
   token0Withdrawable: string;
   token1Withdrawable: string;
   meta: {
+    strikeId: string;
     pool: string;
     handler: string;
     withdrawableShares: string;

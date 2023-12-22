@@ -31,9 +31,37 @@ const LPPositions = ({
   unselectPosition,
   loading,
 }: PositionsTableProps) => {
-  const { tick, markPrice, selectedOptionsPool } = useClammStore();
   const { lpPositions, updateLPPositions } = useClammPositions();
+  const { tick, markPrice, selectedOptionsPool } = useClammStore();
   const { chain } = useNetwork();
+
+  const tokenInfo = useMemo(() => {
+    if (!selectedOptionsPool)
+      return {
+        token0Symbol: '-',
+        token1Symbol: '-',
+        token0Price: 1n,
+        token1Price: 1n,
+      };
+    const { callToken, putToken } = selectedOptionsPool;
+
+    const token0isCall =
+      hexToBigInt(callToken.address) < hexToBigInt(putToken.address);
+
+    return {
+      token0Symbol: getTokenSymbol({
+        address: token0isCall ? callToken.address : putToken.address,
+        chainId: chain?.id ?? DEFAULT_CHAIN_ID,
+      }),
+      token1Symbol: getTokenSymbol({
+        address: token0isCall ? putToken.address : callToken.address,
+        chainId: chain?.id ?? DEFAULT_CHAIN_ID,
+      }),
+      token0Price: parseUnits((token0isCall ? markPrice : 1).toString(), 18),
+      token1Price: parseUnits((token0isCall ? 1 : markPrice).toString(), 18),
+    };
+  }, [selectedOptionsPool, markPrice, chain]);
+
   const { data: walletClient } = useWalletClient({
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
   });
@@ -68,33 +96,6 @@ const LPPositions = ({
     },
     [walletClient, updateLPPositions],
   );
-
-  const tokenInfo = useMemo(() => {
-    if (!selectedOptionsPool)
-      return {
-        token0Symbol: '-',
-        token1Symbol: '-',
-        token0Price: 1n,
-        token1Price: 1n,
-      };
-    const { callToken, putToken } = selectedOptionsPool;
-
-    const token0isCall =
-      hexToBigInt(callToken.address) < hexToBigInt(putToken.address);
-
-    return {
-      token0Symbol: getTokenSymbol({
-        address: token0isCall ? callToken.address : putToken.address,
-        chainId: chain?.id ?? DEFAULT_CHAIN_ID,
-      }),
-      token1Symbol: getTokenSymbol({
-        address: token0isCall ? putToken.address : callToken.address,
-        chainId: chain?.id ?? DEFAULT_CHAIN_ID,
-      }),
-      token0Price: parseUnits((token0isCall ? markPrice : 1).toString(), 18),
-      token1Price: parseUnits((token0isCall ? 1 : markPrice).toString(), 18),
-    };
-  }, [selectedOptionsPool, markPrice, chain]);
 
   const positions = useMemo(() => {
     return lpPositions

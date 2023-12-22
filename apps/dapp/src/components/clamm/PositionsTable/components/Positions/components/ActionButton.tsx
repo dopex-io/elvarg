@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Address,
   BaseError,
@@ -15,8 +15,13 @@ import wagmiConfig from 'wagmi-config';
 
 import useClammPositions from 'hooks/clamm/useClammPositions';
 
+import Filter from 'components/common/Filter';
+
 import { MULTI_CALL_FN_SIG } from 'constants/clamm';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
+
+import FilterSettings from './Dialogs/FilterSettings';
+import WithdrawSummary from './Dialogs/WithdrawSummary';
 
 type Props = {
   selectedPositions: Map<number, any | null>;
@@ -26,6 +31,15 @@ type Props = {
 const ActionButton = (props: Props) => {
   const { positionsTypeIndex, selectedPositions, resetPositions } = props;
   const { updateLPPositions } = useClammPositions();
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+
+  const closeDialog = () => {
+    setDialogOpen(false);
+  };
+
+  const openDialog = () => {
+    setDialogOpen(true);
+  };
 
   const { chain } = useNetwork();
   const { data: walletClient } = useWalletClient({
@@ -96,15 +110,18 @@ const ActionButton = (props: Props) => {
     };
   }, [positionsTypeIndex, selectedPositions]);
   return (
-    <Button
-      size="small"
-      variant={buttonProps.disabled ? 'text' : 'contained'}
-      disabled={buttonProps.disabled}
-      className="w-[200px] bg-carbon"
-      onClick={handleAction}
-    >
-      {buttonProps.buttonText}
-    </Button>
+    <div>
+      <Button
+        size="small"
+        variant={buttonProps.disabled ? 'text' : 'contained'}
+        // disabled={buttonProps.disabled}
+        className="w-[200px] bg-carbon"
+        onClick={openDialog}
+      >
+        {buttonProps.buttonText}
+      </Button>
+      <FilterSettings handleClose={closeDialog} isOpen={dialogOpen} />
+    </div>
   );
 };
 

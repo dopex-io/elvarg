@@ -35,7 +35,7 @@ const PositionsTable = () => {
     setLPPositions,
   } = useClammPositions();
   const { selectedOptionsPool } = useClammStore();
-  const [positionsTypeIndex, setPositionsTypeIndex] = useState(0);
+  const [positionsTypeIndex, setPositionsTypeIndex] = useState(1);
 
   const [selectedPositions, setSelectedPositions] = useState<Map<number, any>>(
     new Map(),
@@ -142,13 +142,11 @@ const PositionsTable = () => {
           setSelectedIndex={updatePositionsType}
         />
         <div className="flex space-x-[4px]">
-          {positionsTypeIndex === 1 && (
-            <ActionButton
-              positionsTypeIndex={positionsTypeIndex}
-              selectedPositions={selectedPositions}
-              resetPositions={resetPositions}
-            />
-          )}
+          <ActionButton
+            positionsTypeIndex={positionsTypeIndex}
+            selectedPositions={selectedPositions}
+            resetPositions={resetPositions}
+          />
         </div>
       </div>
       <div className="w-full h-fit  bg-cod-gray">
