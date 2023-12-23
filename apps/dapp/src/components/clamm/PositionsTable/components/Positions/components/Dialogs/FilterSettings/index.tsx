@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { Dispatch, useState } from 'react';
 
 import { Button, Dialog } from '@dopex-io/ui';
 
+import { FilterSettingsType } from 'components/clamm/PositionsTable/components/FilterSettingsButton';
 import CheckBox from 'components/UI/CheckBox/CheckBox';
 
 import BundleSizeSelector from './components/BundleSizeSelector';
@@ -10,10 +11,12 @@ import SideSelector from './components/SideSelector';
 type Props = {
   handleClose: any;
   isOpen: boolean;
+  settings: FilterSettingsType;
+  setSettings: Dispatch<React.SetStateAction<FilterSettingsType>>;
 };
 
 const FilterSettings = ({ handleClose, isOpen }: Props) => {
-  const [settings, setSettings] = useState({
+  const [settings, setSettings] = useState<FilterSettingsType>({
     showAvailableOptionsOnly: true,
     sideFilter: ['call', 'put'],
   });

@@ -10,6 +10,7 @@ import getLPPositions from 'utils/clamm/varrock/getLPPositions';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
+import FilterSettingsButton from './components/FilterSettingsButton';
 import ActionButton from './components/Positions/components/ActionButton';
 import BuyPositions from './components/Positions/components/BuyPositions';
 import HistoryPositions from './components/Positions/components/HistoryPositions';

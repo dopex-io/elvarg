@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Address,
   BaseError,
@@ -18,12 +18,15 @@ import useClammStore from 'hooks/clamm/useClammStore';
 import { PositionsTableProps } from 'components/clamm/PositionsTable';
 import TableLayout from 'components/common/TableLayout';
 
-import { cn, formatAmount } from 'utils/general';
 import { getTokenSymbol } from 'utils/token';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
+import FilterSettingsButton, {
+  FilterSettingsType,
+} from '../../FilterSettingsButton';
 import { columns, LPPositionItem } from './columnHelpers/lpPositions';
+import PositionsSummary from './PositionSummary.tsx';
 
 const LPPositions = ({
   selectPosition,
@@ -34,6 +37,10 @@ const LPPositions = ({
   const { lpPositions, updateLPPositions } = useClammPositions();
   const { tick, markPrice, selectedOptionsPool } = useClammStore();
   const { chain } = useNetwork();
+  const [filterSettings, setFilterSettings] = useState<FilterSettingsType>({
+    showAvailableOptionsOnly: false,
+    sideFilter: ['put', 'call'],
+  });
 
   const tokenInfo = useMemo(() => {
     if (!selectedOptionsPool)
@@ -263,34 +270,25 @@ const LPPositions = ({
 
   return (
     <div className="w-full flex flex-col space-y-[12px] py-[12px]">
-      <div className="bg-cod-gray flex px-[12px] items-center justify-end space-x-[12px]">
-        <div className="flex items-center justify-center space-x-[4px]">
-          <span className="text-stieglitz text-xs">Total earned:</span>
-          <span className="text-xs flex items-center justify-center space-x-[2px]">
-            <span className="text-stieglitz">$</span>
-            <span className={cn(Number(totalEarned) > 0 && 'text-up-only')}>
-              {formatAmount(totalEarned, 3)}
-            </span>
-          </span>
-        </div>
-        <div className="flex items-center justify-center space-x-[4px]">
-          <span className="text-stieglitz text-xs">Total deposit:</span>
-          <span className="text-xs flex items-center justify-center space-x-[2px]">
-            <span className="text-stieglitz">$</span>
-            <span>{formatAmount(totalDeposit, 3)}</span>
-          </span>
-        </div>
-        <div className="flex items-center justify-center space-x-[6px]">
-          <span className="text-stieglitz text-xs">Total withdrawable:</span>
-          <span className="text-xs flex items-center justify-center space-x-[2px]">
-            <span>{formatAmount(totalWithdrawable.token0, 3)}</span>
-            <span className="text-stieglitz">{tokenInfo.token0Symbol}</span>
-          </span>
-          <span className="text-xs flex items-center justify-center space-x-[2px]">
-            <span>{formatAmount(totalWithdrawable.token1, 3)}</span>
-            <span className="text-stieglitz">{tokenInfo.token1Symbol}</span>
-          </span>
-        </div>
+      <div className="px-[12px] flex items-center justify-between">
+        <PositionsSummary
+          totalDeposit={totalDeposit}
+          totalEarned={totalEarned}
+          totalWithdrawable={{
+            token0: {
+              amount: totalWithdrawable.token0,
+              symbol: tokenInfo.token0Symbol,
+            },
+            token1: {
+              amount: totalWithdrawable.token1,
+              symbol: tokenInfo.token1Symbol,
+            },
+          }}
+        />
+        <FilterSettingsButton
+          setSettings={setFilterSettings}
+          settings={filterSettings}
+        />
       </div>
       <TableLayout<LPPositionItem>
         data={positions}
