@@ -26,7 +26,7 @@ import FilterSettingsButton, {
   FilterSettingsType,
 } from '../../FilterSettingsButton';
 import { columns, LPPositionItem } from './columnHelpers/lpPositions';
-import PositionsSummary from './PositionSummary.tsx';
+import PositionsSummary from './PositionSummary';
 
 const LPPositions = ({
   selectPosition,

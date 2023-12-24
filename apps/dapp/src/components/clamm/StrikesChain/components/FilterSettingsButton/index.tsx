@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { Button } from '@dopex-io/ui';
 import {
@@ -16,25 +16,33 @@ import {
   Trigger,
 } from '@radix-ui/react-dialog';
 
+import useLoadingStates from 'hooks/clamm/useLoadingStates';
+
+import { cn } from 'utils/general';
+
 import RangeSelector from '../FilterSettings/components/RangeSelector';
+import LiquidityThresholdInput from '../FilterSettings/components/RangeSelector/components/Slider/LiquidityThresholdInput';
 
 const FilterSettingsButton = () => {
-  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+  const { isLoading } = useLoadingStates();
 
   return (
     <>
       <Root>
-        <Trigger>
+        <Trigger disabled={isLoading('strikes-chain')}>
           <AdjustmentsHorizontalIcon
             role="button"
             height={18}
             width={18}
-            className="text-white"
+            className={cn(
+              'text-white',
+              isLoading('strikes-chain') && 'text-stieglitz cursor-wait',
+            )}
           />
         </Trigger>
         <Portal>
           <Overlay className="bg-blackA6 data-[state=open]:animate-overlayShow fixed inset-0" />
-          <Content className="data-[state=open]:animate-contentShow fixed top-[40%] left-[50%] w-[90vw] max-w-[450px] translate-x-[-50%]  translate-y-[-50%] bg-umbra p-[12px] rounded-xl flex flex-col max-h-[85vh]">
+          <Content className="data-[state=open]:animate-contentShow fixed top-[40%] left-[50%] w-[90vw] max-w-[450px] translate-x-[-50%]  translate-y-[-50%] bg-umbra p-[12px] rounded-xl flex flex-col max-h-[85vh] h-fit">
             <div className="flex flex-col pb-[12px] font-medium">
               <Title className="text-lg">Strikeschain filter settings</Title>
               <Description className="text-stieglitz text-xs">
@@ -42,10 +50,11 @@ const FilterSettingsButton = () => {
                 preference.
               </Description>
             </div>
+            <LiquidityThresholdInput />
             <div className="py-[12px] flex flex-col space-y-[12px] h-fit">
               <div className="h-[150px] w-full flex flex-col">
                 <p className="text-[12px] font-medium">Strikes Range</p>
-                <p className="text-[12px] font-medium text-stieglitz">
+                <p className="text-[10px] font-medium text-stieglitz">
                   Adjust the sliders below to show strikes according to your
                   preferred range
                 </p>
@@ -59,7 +68,7 @@ const FilterSettingsButton = () => {
                 width={18}
               />
             </Close>
-            {/* <div className="flex items-center justify-between border-t border-carbon pt-[12px] pb-[4px]">
+            <div className="flex items-center justify-between border-t border-carbon pt-[12px] pb-[4px]">
               <div className="flex items-center space-x-[6px]">
                 <Button
                   size="xsmall"
@@ -88,7 +97,7 @@ const FilterSettingsButton = () => {
                   Apply
                 </Button>
               </div>
-            </div> */}
+            </div>
           </Content>
         </Portal>
       </Root>

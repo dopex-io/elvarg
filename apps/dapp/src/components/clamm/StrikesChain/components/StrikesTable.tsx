@@ -8,6 +8,7 @@ import { useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
+import useLoadingStates from 'hooks/clamm/useLoadingStates';
 import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 
 import TableLayout from 'components/common/TableLayout';
@@ -167,8 +168,8 @@ const StrikesTable = () => {
   const { unsetDeposit, unsetPurchase } = useClammTransactionsStore();
 
   const { selectedOptionsPool, isPut, markPrice, isTrade } = useClammStore();
+  const { setLoading, isLoading } = useLoadingStates();
   const { chain } = useNetwork();
-  const [loading, setLoading] = useState(false);
 
   const loadStrikes = useCallback(async () => {
     if (!selectedOptionsPool) return;
@@ -177,7 +178,7 @@ const StrikesTable = () => {
     const data = await getStrikesChain(
       chainId,
       selectedOptionsPool.optionsPoolAddress,
-      500,
+      1000,
       0,
     );
 
@@ -185,12 +186,12 @@ const StrikesTable = () => {
   }, [initialize, chain, , selectedOptionsPool]);
 
   useEffect(() => {
-    setLoading(true);
+    setLoading('strikes-chain', true);
     setUpdateStrikes(loadStrikes);
     loadStrikes().finally(() => {
-      setLoading(false);
+      setLoading('strikes-chain', false);
     });
-  }, [loadStrikes, setUpdateStrikes]);
+  }, [loadStrikes, setUpdateStrikes, setLoading]);
 
   const rewardsStrikesLimit = useMemo(() => {
     return {
@@ -332,7 +333,7 @@ const StrikesTable = () => {
       <TableLayout<StrikeItem>
         data={strikes}
         columns={columns}
-        isContentLoading={loading}
+        isContentLoading={isLoading('strikes-chain')}
         disablePagination={false}
         pageSize={500}
       />

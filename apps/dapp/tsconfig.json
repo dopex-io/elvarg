@@ -14,7 +14,8 @@
     "**/*.tsx",
     "sentry.server.config.ts",
     "sentry.edge.config.ts",
-    "sentry.client.config.ts"
+    "sentry.client.config.ts",
+    "src/components/clamm/PositionsTable/components/Positions/components/PositionSummary"
   ],
   "exclude": ["node_modules", "public"]
 }
