@@ -23,3 +23,15 @@ export const MULTI_CALL_FN_SIG =
 export const PROTOCOL_FEES_MULTIPLIER = 1.34;
 export const AUTO_EXERCISER_TIME_BASED =
   '0xb223eD797742E096632c39d1b2e0c313750B25FE';
+
+export type FilterSettingsType = {
+  bundleSize: string;
+  range: number[];
+  liquidityThreshold: number[];
+};
+
+export const DEFAULT_STRIKES_CHAIN_FILTER_SETTINGS = {
+  bundleSize: '',
+  range: [],
+  liquidityThreshold: [1, 0],
+};

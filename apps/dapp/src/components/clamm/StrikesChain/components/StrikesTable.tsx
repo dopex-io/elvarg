@@ -16,6 +16,8 @@ import TableLayout from 'components/common/TableLayout';
 import getStrikesChain from 'utils/clamm/varrock/getStrikesChain';
 import { formatAmount } from 'utils/general';
 
+import { FilterSettingsType } from 'constants/clamm';
+
 type StrikeItem = {
   strike: {
     amount: number;
@@ -155,7 +157,10 @@ export const StatItem = ({ name, value }: { name: string; value: string }) => (
   </div>
 );
 
-const StrikesTable = () => {
+type Props = {
+  filterSettings: FilterSettingsType;
+};
+const StrikesTable = ({ filterSettings }: Props) => {
   const {
     selectStrike,
     deselectStrike,
@@ -166,7 +171,6 @@ const StrikesTable = () => {
   } = useStrikesChainStore();
 
   const { unsetDeposit, unsetPurchase } = useClammTransactionsStore();
-
   const { selectedOptionsPool, isPut, markPrice, isTrade } = useClammStore();
   const { setLoading, isLoading } = useLoadingStates();
   const { chain } = useNetwork();
@@ -178,7 +182,7 @@ const StrikesTable = () => {
     const data = await getStrikesChain(
       chainId,
       selectedOptionsPool.optionsPoolAddress,
-      1000,
+      100,
       0,
     );
 
@@ -204,6 +208,23 @@ const StrikesTable = () => {
     if (!strikesChain || !selectedOptionsPool) return [];
     const { callToken } = selectedOptionsPool;
     const _strikes = strikesChain
+      // .filter(({ liquidityUsd, optionsAvailable }, index) => {
+      //   const { range, liquidityThreshold } = filterSettings;
+      //   let isWithinRange = true;
+      //   if (range.length > 1) {
+      //     isWithinRange = index < range[0] && range[1] > index;
+      //   }
+
+      //   let meetsLiquidityThreshold = true;
+      //   if (liquidityThreshold[1] === 0) {
+      //     meetsLiquidityThreshold =
+      //       Number(liquidityUsd) > liquidityThreshold[0];
+      //   } else {
+      //     meetsLiquidityThreshold =
+      //       Number(optionsAvailable) > liquidityThreshold[0];
+      //   }
+      //   return isWithinRange && meetsLiquidityThreshold;
+      // })
       .map(
         (
           {
@@ -326,6 +347,7 @@ const StrikesTable = () => {
     selectedStrikes,
     isPut,
     selectedOptionsPool,
+    // filterSettings,
   ]);
 
   return (

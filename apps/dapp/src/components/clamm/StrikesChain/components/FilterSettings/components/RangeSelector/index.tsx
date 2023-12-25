@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import { Bar, BarChart, Cell, Rectangle, Tooltip } from 'recharts';
 
@@ -9,38 +9,58 @@ import { cn, formatAmount } from 'utils/general';
 
 import RangeSelectorSlider from './components/Slider';
 
-const RangeSelector = () => {
+type Props = {
+  selectedStrikes: number[];
+  setSelectedStrikes: (strikes: number[]) => void;
+  liquidityThreshold: number[];
+};
+
+const RangeSelector = ({
+  selectedStrikes,
+  setSelectedStrikes,
+  liquidityThreshold,
+}: Props) => {
   const { markPrice } = useClammStore();
   const { strikesChain } = useStrikesChainStore();
-  const [selectedStikes, setSelectedStrikes] = useState<number[]>([]);
 
   const strikes = useMemo(() => {
     return strikesChain
       .sort((a, b) => a.strike - b.strike)
-      .map(({ liquidityAvailableUsd, liquidityUsd, strike }) => {
-        return {
-          strike,
-          liquidity: Number(liquidityUsd),
-          availableLiquidity: Number(liquidityAvailableUsd),
-          availableLiquidityBarHeight: Number(liquidityAvailableUsd),
-          liquidityBarHeight:
-            Number(liquidityUsd) - Number(liquidityAvailableUsd),
-        };
-      })
-      .filter(({ liquidity }) => liquidity > 500);
-  }, [strikesChain]);
+      .map(
+        ({ liquidityAvailableUsd, liquidityUsd, strike, optionsAvailable }) => {
+          return {
+            strike,
+            optionsAvailable: Number(optionsAvailable),
+            liquidity: Number(liquidityUsd),
+            availableLiquidity: Number(liquidityAvailableUsd),
+            availableLiquidityBarHeight: Number(liquidityAvailableUsd),
+            liquidityBarHeight:
+              Number(liquidityUsd) - Number(liquidityAvailableUsd),
+          };
+        },
+      )
+      .filter(({ liquidity }) => liquidity > 500)
+      .filter(({ optionsAvailable, availableLiquidity }) => {
+        if (liquidityThreshold[1] === 0) {
+          return availableLiquidity > liquidityThreshold[0] ?? 0;
+        } else {
+          return optionsAvailable > liquidityThreshold[0] ?? 0;
+        }
+      });
+  }, [strikesChain, liquidityThreshold]);
 
   useEffect(() => {
-    if (selectedStikes.length === 0 && strikes.length > 1) {
+    if (selectedStrikes.length === 0) {
       setSelectedStrikes([0, strikes.length - 1]);
     }
-  }, [selectedStikes, strikes]);
+  }, [selectedStrikes, strikes, setSelectedStrikes, liquidityThreshold]);
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const strike = payload[0].payload.strike;
       const totalLiquidity = payload[0].payload.liquidity;
       const availableLiquidity = payload[1].payload.availableLiquidity;
+      const optionsAvailable = payload[1].payload.optionsAvailable;
       return (
         <div className="custom-tooltip flex flex-col text-[10px] border border-carbon w-full h-full bg-umbra p-[4px]">
           <p className="flex items-center space-x-[4px]">
@@ -55,6 +75,10 @@ const RangeSelector = () => {
             <span className="text-stieglitz">Available Liquidity:</span>
             <span>{formatAmount(availableLiquidity, 4)}</span>
           </p>
+          <p className="flex items-center space-x-[4px]">
+            <span className="text-stieglitz">Options Available:</span>
+            <span>{formatAmount(optionsAvailable, 4)}</span>
+          </p>
         </div>
       );
     }
@@ -63,18 +87,21 @@ const RangeSelector = () => {
   };
 
   const highestStrike = useMemo(() => {
-    if (!selectedStikes[1]) return Infinity;
-    return strikes[selectedStikes[1]].strike;
-  }, [selectedStikes, strikes]);
+    if (selectedStrikes.length === 0 || !strikes[selectedStrikes[1]]) {
+      console.log(strikes);
+      return Infinity;
+    }
+    return strikes[selectedStrikes[1]].strike;
+  }, [selectedStrikes, strikes]);
 
   const lowestStrike = useMemo(() => {
-    if (!selectedStikes[0]) return 0;
-    return strikes[selectedStikes[0]].strike;
-  }, [selectedStikes, strikes]);
+    if (selectedStrikes.length === 0 || !strikes[selectedStrikes[0]]) return 0;
+    return strikes[selectedStrikes[0]].strike;
+  }, [selectedStrikes, strikes]);
 
   return (
     <div className=" flex items-center flex-col">
-      {strikes.length < 2 ? (
+      {strikes.length === 0 ? (
         <div className="w-full h-[100px] flex items-center justify-center text-[12px]">
           <p className="text-stieglitz">Not enough strikes</p>
         </div>
@@ -128,10 +155,12 @@ const RangeSelector = () => {
           </BarChart>
           <RangeSelectorSlider
             max={strikes.length - 1}
-            onChange={(value) => setSelectedStrikes(value)}
+            onChange={(value) => {
+              setSelectedStrikes(value);
+            }}
             lowerLimitStrike={lowestStrike}
             upperLimitStrike={highestStrike}
-            value={selectedStikes}
+            value={selectedStrikes}
           />
         </>
       )}
