@@ -12,7 +12,7 @@ const Title = (props: Props) => {
   return (
     <div className="flex space-x-2">
       {typeof imgSrc === 'string' ? (
-        <img src={imgSrc} alt="unknown" width={24} height={24} />
+        <img src={imgSrc} alt="unknown" className="h-8 w-8" />
       ) : (
         <div className="relative w-8 h-8">
           <img
@@ -31,7 +31,7 @@ const Title = (props: Props) => {
           />
         </div>
       )}
-      <div className="flex flex-col space-y-1">
+      <div className="flex flex-col space-y-1 w-full">
         <Typography2 variant="body2">{title}</Typography2>
         <Typography2 variant="caption" color="stieglitz" weight="400">
           {subtitle}

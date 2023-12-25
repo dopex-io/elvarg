@@ -30,6 +30,6 @@
     "rimraf": "^5.0.5",
     "tsconfig": "workspace:*",
     "typechain": "^8.3.2",
-    "typescript": "^5.3.2"
+    "typescript": "^5.3.3"
   }
 }

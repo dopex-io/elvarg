@@ -22,7 +22,7 @@ interface Props {
   data: any;
 }
 
-enum PanelState {
+export enum PanelState {
   Stake,
   Unstake,
 }
