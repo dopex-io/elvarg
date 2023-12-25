@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { formatUnits } from 'viem';
+import { formatUnits, hexToBigInt } from 'viem';
 
 import { Button } from '@dopex-io/ui';
 import { MinusIcon, PlusIcon } from '@heroicons/react/24/solid';
@@ -175,6 +175,7 @@ const StrikesTable = ({ filterSettings }: Props) => {
   const strikes = useMemo(() => {
     if (!strikesChain || !selectedOptionsPool) return [];
     const { callToken } = selectedOptionsPool;
+
     const _strikes = strikesChain
       .filter(({ liquidityAvailableUsd, optionsAvailable }) => {
         if (filterSettings.liquidityThreshold[1] === 0) {

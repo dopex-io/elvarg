@@ -22,9 +22,6 @@ import { getTokenSymbol } from 'utils/token';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
-import FilterSettingsButton, {
-  FilterSettingsType,
-} from '../../FilterSettingsButton';
 import { columns, LPPositionItem } from './columnHelpers/lpPositions';
 import PositionsSummary from './PositionSummary';
 
@@ -37,10 +34,6 @@ const LPPositions = ({
   const { lpPositions, updateLPPositions } = useClammPositions();
   const { tick, markPrice, selectedOptionsPool } = useClammStore();
   const { chain } = useNetwork();
-  const [filterSettings, setFilterSettings] = useState<FilterSettingsType>({
-    showAvailableOptionsOnly: false,
-    sideFilter: ['put', 'call'],
-  });
 
   const tokenInfo = useMemo(() => {
     if (!selectedOptionsPool)
@@ -270,7 +263,7 @@ const LPPositions = ({
 
   return (
     <div className="w-full flex flex-col space-y-[12px] py-[12px]">
-      <div className="px-[12px] flex items-center justify-between">
+      <div className="px-[12px] flex items-center justify-start">
         <PositionsSummary
           totalDeposit={totalDeposit}
           totalEarned={totalEarned}
@@ -284,10 +277,6 @@ const LPPositions = ({
               symbol: tokenInfo.token1Symbol,
             },
           }}
-        />
-        <FilterSettingsButton
-          setSettings={setFilterSettings}
-          settings={filterSettings}
         />
       </div>
       <TableLayout<LPPositionItem>

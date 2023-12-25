@@ -34,10 +34,10 @@ const StrikesChain = () => {
     const data = await getStrikesChain(
       chainId,
       selectedOptionsPool.optionsPoolAddress,
-      100,
+      1000,
       0,
     );
-    const strikes = data ?? [];
+    const strikes = (data ?? []).sort((a, b) => a.strike - b.strike);
     initialize(strikes, chainId);
   }, [initialize, chain, , selectedOptionsPool]);
 

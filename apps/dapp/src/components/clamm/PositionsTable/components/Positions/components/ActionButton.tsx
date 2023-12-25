@@ -15,12 +15,9 @@ import wagmiConfig from 'wagmi-config';
 
 import useClammPositions from 'hooks/clamm/useClammPositions';
 
-import Filter from 'components/common/Filter';
-
 import { MULTI_CALL_FN_SIG } from 'constants/clamm';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
-import FilterSettings from './Dialogs/FilterSettings';
 import WithdrawSummary from './Dialogs/WithdrawSummary';
 
 type Props = {
@@ -120,7 +117,6 @@ const ActionButton = (props: Props) => {
       >
         {buttonProps.buttonText}
       </Button>
-      <FilterSettings handleClose={closeDialog} isOpen={dialogOpen} />
     </div>
   );
 };

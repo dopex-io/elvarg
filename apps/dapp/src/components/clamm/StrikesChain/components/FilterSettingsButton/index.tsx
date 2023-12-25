@@ -19,8 +19,6 @@ import toast from 'react-hot-toast';
 
 import useLoadingStates from 'hooks/clamm/useLoadingStates';
 
-import BundleSizeSelector from 'components/clamm/PositionsTable/components/Positions/components/Dialogs/FilterSettings/components/BundleSizeSelector';
-
 import { cn } from 'utils/general';
 
 import {
@@ -109,15 +107,6 @@ const FilterSettingsButton = ({ filterSettings, setFilterSettings }: Props) => {
                   Bundle strikes into a single row for a brief visibility
                 </p>
               </div>
-              <BundleSizeSelector
-                value={_filterSettings.bundleSize}
-                onValueChange={(v) =>
-                  _setFilterSettings((prev) => ({
-                    ...prev,
-                    bundleSize: v,
-                  }))
-                }
-              />
             </div>
             <Close>
               <XMarkIcon
