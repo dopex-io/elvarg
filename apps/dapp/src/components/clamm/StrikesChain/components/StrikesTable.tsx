@@ -1,10 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { formatUnits } from 'viem';
 
 import { Button } from '@dopex-io/ui';
 import { MinusIcon, PlusIcon } from '@heroicons/react/24/solid';
 import { createColumnHelper } from '@tanstack/react-table';
-import { useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
@@ -13,7 +12,6 @@ import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 
 import TableLayout from 'components/common/TableLayout';
 
-import getStrikesChain from 'utils/clamm/varrock/getStrikesChain';
 import { formatAmount } from 'utils/general';
 
 import { FilterSettingsType } from 'constants/clamm';
@@ -161,41 +159,11 @@ type Props = {
   filterSettings: FilterSettingsType;
 };
 const StrikesTable = ({ filterSettings }: Props) => {
-  const {
-    selectStrike,
-    deselectStrike,
-    selectedStrikes,
-    initialize,
-    strikesChain,
-    setUpdateStrikes,
-  } = useStrikesChainStore();
-
+  const { selectStrike, deselectStrike, selectedStrikes, strikesChain } =
+    useStrikesChainStore();
   const { unsetDeposit, unsetPurchase } = useClammTransactionsStore();
   const { selectedOptionsPool, isPut, markPrice, isTrade } = useClammStore();
-  const { setLoading, isLoading } = useLoadingStates();
-  const { chain } = useNetwork();
-
-  const loadStrikes = useCallback(async () => {
-    if (!selectedOptionsPool) return;
-    const chainId = chain?.id ?? 42161;
-
-    const data = await getStrikesChain(
-      chainId,
-      selectedOptionsPool.optionsPoolAddress,
-      100,
-      0,
-    );
-
-    initialize(data ?? [], chainId);
-  }, [initialize, chain, , selectedOptionsPool]);
-
-  useEffect(() => {
-    setLoading('strikes-chain', true);
-    setUpdateStrikes(loadStrikes);
-    loadStrikes().finally(() => {
-      setLoading('strikes-chain', false);
-    });
-  }, [loadStrikes, setUpdateStrikes, setLoading]);
+  const { isLoading } = useLoadingStates();
 
   const rewardsStrikesLimit = useMemo(() => {
     return {
@@ -208,23 +176,23 @@ const StrikesTable = ({ filterSettings }: Props) => {
     if (!strikesChain || !selectedOptionsPool) return [];
     const { callToken } = selectedOptionsPool;
     const _strikes = strikesChain
-      // .filter(({ liquidityUsd, optionsAvailable }, index) => {
-      //   const { range, liquidityThreshold } = filterSettings;
-      //   let isWithinRange = true;
-      //   if (range.length > 1) {
-      //     isWithinRange = index < range[0] && range[1] > index;
-      //   }
-
-      //   let meetsLiquidityThreshold = true;
-      //   if (liquidityThreshold[1] === 0) {
-      //     meetsLiquidityThreshold =
-      //       Number(liquidityUsd) > liquidityThreshold[0];
-      //   } else {
-      //     meetsLiquidityThreshold =
-      //       Number(optionsAvailable) > liquidityThreshold[0];
-      //   }
-      //   return isWithinRange && meetsLiquidityThreshold;
-      // })
+      .filter(({ liquidityAvailableUsd, optionsAvailable }) => {
+        if (filterSettings.liquidityThreshold[1] === 0) {
+          return (
+            filterSettings.liquidityThreshold[0] < Number(liquidityAvailableUsd)
+          );
+        } else {
+          return (
+            filterSettings.liquidityThreshold[0] < Number(optionsAvailable)
+          );
+        }
+      })
+      .filter((_, index) => {
+        if (filterSettings.range.length === 0) return true;
+        return (
+          filterSettings.range[0] <= index && filterSettings.range[1] >= index
+        );
+      })
       .map(
         (
           {
@@ -337,6 +305,7 @@ const StrikesTable = ({ filterSettings }: Props) => {
       return _strikes.sort((a, b) => a.strike.amount - b.strike.amount);
     }
   }, [
+    filterSettings,
     isTrade,
     unsetDeposit,
     unsetPurchase,
@@ -347,7 +316,6 @@ const StrikesTable = ({ filterSettings }: Props) => {
     selectedStrikes,
     isPut,
     selectedOptionsPool,
-    // filterSettings,
   ]);
 
   return (

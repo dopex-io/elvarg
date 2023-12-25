@@ -1,7 +1,6 @@
 import React from 'react';
 
 import * as Slider from '@radix-ui/react-slider';
-import * as Tooltip from '@radix-ui/react-tooltip';
 
 import { formatAmount } from 'utils/general';
 

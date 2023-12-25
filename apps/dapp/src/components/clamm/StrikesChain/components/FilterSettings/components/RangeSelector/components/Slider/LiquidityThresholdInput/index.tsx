@@ -1,10 +1,20 @@
-import React, { useState } from 'react';
+import React, { ChangeEvent, useCallback, useState } from 'react';
 
-import { Button } from '@dopex-io/ui';
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
 
-const LiquidityThresholdInput = () => {
-  const [type, setType] = useState('USD');
+type Props = {
+  threshold: number[];
+  setThreshold: (v: number[]) => void;
+};
+const LiquidityThresholdInput = ({ threshold, setThreshold }: Props) => {
+  const [type, setType] = useState(threshold[1] === 0 ? 'USD' : 'Options');
+  const handleOnChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setThreshold([parseFloat(e.target.value), type === 'USD' ? 0 : 1]);
+    },
+    [setThreshold, type],
+  );
+
   return (
     <div className="flex flex-col justify-between space-y-[6px]">
       <div className="flex flex-col">
@@ -16,11 +26,15 @@ const LiquidityThresholdInput = () => {
       <div className="flex items-center space-x-[6px]">
         <ToggleGroup.Root
           type="single"
-          value={type}
-          onValueChange={(v) => setType(v)}
+          value={threshold[1] === 0 ? 'USD' : 'Options'}
+          defaultValue={threshold[1] === 0 ? 'USD' : 'Options'}
+          onValueChange={(v) => {
+            setThreshold([threshold[0], v === 'USD' ? 0 : 1]);
+            setType(v);
+          }}
           className="p-[4px] space-x-[12px] bg-carbon flex items-center justify-center rounded-md"
         >
-          {['USD', 'options'].map((value, index) => (
+          {['USD', 'Options'].map((value, index) => (
             <ToggleGroup.Item
               className="w-fit h-[16px] text-stieglitz data-[state=on]:text-white rounded-sm"
               value={value}
@@ -34,8 +48,10 @@ const LiquidityThresholdInput = () => {
         </ToggleGroup.Root>
         <input
           className=" bg-cod-gray rounded-md border-carbon border text-[13px] p-[4px] text-right text-white default-stieglitz placeholder-stieglitz w-fit focus:outline-none"
-          placeholder="0.0"
-          defaultValue={'500'}
+          type="number"
+          onChange={handleOnChange}
+          placeholder="0"
+          defaultValue={'1'}
         />
       </div>
     </div>

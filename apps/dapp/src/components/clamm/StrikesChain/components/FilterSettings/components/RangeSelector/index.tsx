@@ -39,7 +39,6 @@ const RangeSelector = ({
           };
         },
       )
-      .filter(({ liquidity }) => liquidity > 500)
       .filter(({ optionsAvailable, availableLiquidity }) => {
         if (liquidityThreshold[1] === 0) {
           return availableLiquidity > liquidityThreshold[0] ?? 0;
@@ -88,7 +87,6 @@ const RangeSelector = ({
 
   const highestStrike = useMemo(() => {
     if (selectedStrikes.length === 0 || !strikes[selectedStrikes[1]]) {
-      console.log(strikes);
       return Infinity;
     }
     return strikes[selectedStrikes[1]].strike;

@@ -50,8 +50,6 @@ const FilterSettingsButton = ({ filterSettings, setFilterSettings }: Props) => {
     setFilterSettings(DEFAULT_STRIKES_CHAIN_FILTER_SETTINGS);
   }, [setFilterSettings]);
 
-  console.log('??', _filterSettings.liquidityThreshold[0]);
-
   return (
     <>
       <Root>
@@ -77,7 +75,7 @@ const FilterSettingsButton = ({ filterSettings, setFilterSettings }: Props) => {
               </Description>
             </div>
             <LiquidityThresholdInput
-              threshold={_filterSettings.liquidityThreshold[0]}
+              threshold={_filterSettings.liquidityThreshold}
               setThreshold={(v) =>
                 _setFilterSettings((prev) => ({
                   ...prev,

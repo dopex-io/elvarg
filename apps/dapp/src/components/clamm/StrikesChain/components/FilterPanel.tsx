@@ -3,7 +3,7 @@ import useClammStore from 'hooks/clamm/useClammStore';
 import { cn } from 'utils/general';
 
 const FilterPanel = () => {
-  const { setIsTrade, setIsPut, isTrade, isPut } = useClammStore();
+  const { setIsPut, isPut } = useClammStore();
 
   return (
     <div className="h-[30px] flex items-center justify-between space-x-[12px] w-full">
