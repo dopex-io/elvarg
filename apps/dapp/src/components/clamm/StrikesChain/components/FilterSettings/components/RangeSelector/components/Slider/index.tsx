@@ -28,14 +28,14 @@ const RangeSelectorSlider = ({
       <Slider.Track className="bg-stieglitz relative grow rounded-full h-[3px]">
         <Slider.Range className="absolute bg-wave-blue rounded-full h-full" />
       </Slider.Track>
-      <Slider.Thumb className="block w-3 h-3 bg-white rounded-[10px] focus:outline-none group">
-        <div className="opacity-0 group-hover:opacity-100 w-[100px] absolute right-[0px] bg-mineshaft p-[2px] rounded-md text-[12px] text-center flex items-center space-x-[4px] justify-center">
+      <Slider.Thumb className="block w-3 h-3 bg-white rounded-[10px] focus:outline-none group cursor-pointer">
+        <div className="opacity-0 group-hover:opacity-100 w-[100px] absolute left-[-40px] bottom-[20px] bg-mineshaft p-[2px] rounded-md text-[12px] text-center flex items-center space-x-[4px] justify-center">
           <p className="text-stieglitz">$</p>
           <p>{formatAmount(lowerLimitStrike, 4)}</p>
         </div>
       </Slider.Thumb>
-      <Slider.Thumb className="block w-3 h-3 bg-white hover:bg-none rounded-[10px] focus:outline-none group">
-        <div className="opacity-0 group-hover:opacity-100 w-[100px] bg-mineshaft p-[2px] rounded-md text-[12px] text-center flex items-center justify-center space-x-[4px]">
+      <Slider.Thumb className="block w-3 h-3 bg-white hover:bg-none rounded-[10px] focus:outline-none group cursor-pointer">
+        <div className="opacity-0 group-hover:opacity-100 w-[100px] bg-mineshaft p-[2px] absolute left-[-40px] bottom-[20px] rounded-md text-[12px] text-center flex items-center justify-center space-x-[4px]">
           <p className="text-stieglitz">$</p>
           <p>{formatAmount(upperLimitStrike, 4)}</p>
         </div>
