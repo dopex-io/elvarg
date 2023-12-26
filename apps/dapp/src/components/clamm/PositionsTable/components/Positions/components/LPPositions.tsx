@@ -9,6 +9,7 @@ import {
   ArrowUpRightIcon,
 } from '@heroicons/react/20/solid';
 import { createColumnHelper } from '@tanstack/react-table';
+import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { useNetwork, useWalletClient } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
@@ -49,6 +50,7 @@ export type LPPositionItem = {
     token0Symbol: string;
     token1Symbol: string;
   };
+  timestamp: number;
   withdrawButton: {
     disabled: boolean;
     handleWithdraw: (meta: any) => void;
@@ -130,6 +132,16 @@ const columns = [
             <span className="text-stieglitz text-[13px]"></span>
           </span>
         </div>
+      );
+    },
+  }),
+  columnHelper.accessor('timestamp', {
+    header: 'Timestamp',
+    cell: ({ getValue }) => {
+      return (
+        <p className="text-[13px] text-start">
+          {format(new Date(getValue() * 1000), 'HH:mm:ss dd MMM yyyy')}
+        </p>
       );
     },
   }),
@@ -244,6 +256,7 @@ const LPPositions = ({
           }
 
           return {
+            timestamp: meta.timestamp,
             earned: {
               token0Amount: formatUnits(
                 BigInt(token0Earned),
