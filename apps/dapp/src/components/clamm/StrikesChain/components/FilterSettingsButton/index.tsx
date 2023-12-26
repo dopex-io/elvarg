@@ -63,11 +63,11 @@ const FilterSettingsButton = ({ filterSettings, setFilterSettings }: Props) => {
           />
         </Trigger>
         <Portal>
-          <Overlay className="fixed inset-0" />
-          <Content className="fixed top-[50%] left-[50%] w-[90vw] max-w-[450px] translate-x-[-50%]  translate-y-[-50%] bg-umbra p-[12px] rounded-xl flex flex-col  h-fit">
-            <div className="flex flex-col pb-[12px] font-medium">
+          <Overlay className="fixed inset-0 backdrop-blur-sm" />
+          <Content className="fixed top-[50%] left-[50%] w-[90vw] max-w-[450px] translate-x-[-50%] translate-y-[-50%] bg-umbra p-[12px] rounded-xl flex flex-col h-fit space-y-[12px]">
+            <div className="flex flex-col font-medium">
               <Title className="text-lg">Strikeschain filter settings</Title>
-              <Description className="text-stieglitz text-xs">
+              <Description className="text-stieglitz text-[10px]">
                 Customize strikes displayed on the strikes chain based on your
                 preference.
               </Description>
@@ -81,7 +81,7 @@ const FilterSettingsButton = ({ filterSettings, setFilterSettings }: Props) => {
                 }))
               }
             />
-            <div className="py-[12px] flex flex-col space-y-[12px] h-fit">
+            <div className="flex flex-col space-y-[12px] h-fit">
               <div className="h-[150px] w-full flex flex-col">
                 <p className="text-[12px] font-medium">Strikes Range</p>
                 <p className="text-[10px] font-medium text-stieglitz">
@@ -100,14 +100,6 @@ const FilterSettingsButton = ({ filterSettings, setFilterSettings }: Props) => {
                 />
               </div>
             </div>
-            <div className="flex flex-col space-y-[12px] pb-[12px]">
-              <div className="h-fit w-full flex flex-col">
-                <p className="text-[12px] font-medium">Bundling</p>
-                <p className="text-[10px] font-medium text-stieglitz">
-                  Bundle strikes into a single row for a brief visibility
-                </p>
-              </div>
-            </div>
             <Close>
               <XMarkIcon
                 className="absolute top-[12px] right-[12px] inline-flex h-[18px] w-[18px] appearance-none items-center justify-center rounded-full focus:shadow-[0_0_0_2px] focus:outline-none"
@@ -115,7 +107,7 @@ const FilterSettingsButton = ({ filterSettings, setFilterSettings }: Props) => {
                 width={18}
               />
             </Close>
-            <div className="flex items-center justify-between border-t border-carbon pt-[12px] pb-[4px]">
+            <div className="flex items-center justify-between border-t border-carbon">
               <div className="flex items-center space-x-[6px]">
                 <Button
                   size="xsmall"
