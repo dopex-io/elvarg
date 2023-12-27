@@ -49,19 +49,22 @@ export type LPPositionsResponse = {
   token1Decimals: number;
   token0Withdrawable: string;
   token1Withdrawable: string;
-  meta: {
-    strikeId: string;
-    pool: string;
-    handler: string;
-    withdrawableShares: string;
-    withdrawTx: {
-      txData: Hex;
-      to: Address;
-    };
-    tickLower: number;
-    tickUpper: number;
-    shares: string;
+  meta: LPPositionMeta;
+};
+
+export type LPPositionMeta = {
+  initialLiquidity: string;
+  strikeId: string;
+  pool: string;
+  handler: string;
+  withdrawableShares: string;
+  withdrawTx: {
+    txData: Hex;
+    to: Address;
   };
+  tickLower: number;
+  tickUpper: number;
+  shares: string;
 };
 
 export type GetExerciseTxDataParam = {

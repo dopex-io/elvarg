@@ -16,7 +16,6 @@ type Props = {
     };
   };
 };
-
 const PositionsSummary = ({
   totalEarned,
   totalDeposit,

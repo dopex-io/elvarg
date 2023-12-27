@@ -10,11 +10,10 @@ import getLPPositions from 'utils/clamm/varrock/getLPPositions';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
-import ActionButton from './components/Positions/components/ActionButton';
 import BuyPositions from './components/Positions/components/BuyPositions';
 import HistoryPositions from './components/Positions/components/HistoryPositions';
-import LPPositions from './components/Positions/components/LPPositions';
 import PositionsTypeSelector from './components/Positions/components/PositionsTypeSelector';
+import LPPositions from './components/Positions/LPPositions';
 
 export type PositionsTableProps = {
   selectPosition: (key: number, positionInfo: any) => void;
@@ -133,7 +132,7 @@ const PositionsTable = () => {
 
   return (
     <div className="w-full flex-col items-center justify-center space-y-[12px]">
-      <div className="w-full flex flex-row items-center justify-between">
+      <div className="w-full flex flex-row items-center">
         <PositionsTypeSelector
           resetPositions={resetPositions}
           selectedIndex={positionsTypeIndex}
@@ -141,13 +140,6 @@ const PositionsTable = () => {
           lpPositionsLength={lpPositions.length}
           setSelectedIndex={updatePositionsType}
         />
-        <div className="flex space-x-[4px]">
-          <ActionButton
-            positionsTypeIndex={positionsTypeIndex}
-            selectedPositions={selectedPositions}
-            resetPositions={resetPositions}
-          />
-        </div>
       </div>
       <div className="w-full h-fit  bg-cod-gray">
         {positionsTypeIndex === 0 && (

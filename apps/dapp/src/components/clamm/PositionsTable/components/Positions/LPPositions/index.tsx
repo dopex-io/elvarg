@@ -18,22 +18,35 @@ import useClammStore from 'hooks/clamm/useClammStore';
 import { PositionsTableProps } from 'components/clamm/PositionsTable';
 import TableLayout from 'components/common/TableLayout';
 
+import { LPPositionMeta } from 'utils/clamm/varrock/types';
 import { getTokenSymbol } from 'utils/token';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
-import { columns, LPPositionItem } from './columnHelpers/lpPositions';
+import {
+  columns,
+  LPPositionItem,
+} from '../components/columnHelpers/lpPositions';
+import MultiWithdrawButton from './components/MultWithdrawButton';
+import UtilityButtons from './components/UtilityButtons';
 import PositionsSummary from './PositionSummary';
 
-const LPPositions = ({
-  selectPosition,
-  selectedPositions,
-  unselectPosition,
-  loading,
-}: PositionsTableProps) => {
+const LPPositions = ({ loading }: PositionsTableProps) => {
   const { lpPositions, updateLPPositions } = useClammPositions();
   const { tick, markPrice, selectedOptionsPool } = useClammStore();
   const { chain } = useNetwork();
+  const [selectedPositions, setSelectedPositions] = useState<
+    Map<number, LPPositionMeta>
+  >(new Map());
+  const selectPosition = useCallback((key: number, positionInfo: any) => {
+    setSelectedPositions((prev) => new Map(prev.set(key, positionInfo)));
+  }, []);
+  const unselectPosition = useCallback((key: number) => {
+    setSelectedPositions((prev) => {
+      prev.delete(key);
+      return new Map(prev);
+    });
+  }, []);
 
   const tokenInfo = useMemo(() => {
     if (!selectedOptionsPool)
@@ -96,6 +109,20 @@ const LPPositions = ({
     },
     [walletClient, updateLPPositions],
   );
+
+  const selectAll = useCallback(() => {
+    lpPositions.forEach(({ meta }, index) => {
+      if (BigInt(meta.withdrawableShares) !== 0n) {
+        selectPosition(index, meta);
+      }
+    });
+  }, [selectPosition, lpPositions]);
+
+  const deselectAll = useCallback(() => {
+    lpPositions.forEach((_, index) => {
+      unselectPosition(index);
+    });
+  }, [lpPositions, unselectPosition]);
 
   const positions = useMemo(() => {
     return lpPositions
@@ -263,7 +290,7 @@ const LPPositions = ({
 
   return (
     <div className="w-full flex flex-col space-y-[12px] py-[12px]">
-      <div className="px-[12px] flex items-center justify-start">
+      <div className="px-[12px] flex items-center justify-between">
         <PositionsSummary
           totalDeposit={totalDeposit}
           totalEarned={totalEarned}
@@ -278,6 +305,17 @@ const LPPositions = ({
             },
           }}
         />
+        <div className="flex items-center space-x-[6px]">
+          <UtilityButtons
+            selectAll={selectAll}
+            deselectAll={deselectAll}
+            refresh={updateLPPositions!}
+          />
+          <MultiWithdrawButton
+            positions={selectedPositions}
+            deselectAll={deselectAll}
+          />
+        </div>
       </div>
       <TableLayout<LPPositionItem>
         data={positions}
