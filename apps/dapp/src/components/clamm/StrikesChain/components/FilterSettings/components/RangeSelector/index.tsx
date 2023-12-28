@@ -98,7 +98,7 @@ const RangeSelector = ({
   }, [selectedStrikes, strikes]);
 
   return (
-    <div className=" flex items-center flex-col">
+    <div className="flex items-center flex-col">
       {strikes.length === 0 ? (
         <div className="w-full h-[100px] flex items-center justify-center text-[12px]">
           <p className="text-stieglitz">Not enough strikes</p>

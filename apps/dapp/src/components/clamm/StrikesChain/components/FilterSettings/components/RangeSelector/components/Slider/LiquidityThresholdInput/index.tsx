@@ -34,7 +34,7 @@ const LiquidityThresholdInput = ({ threshold, setThreshold }: Props) => {
           }}
           className="p-[4px] space-x-[12px] bg-carbon flex items-center justify-center rounded-md"
         >
-          {['USD', 'Options'].map((value, index) => (
+          {['USD', 'Options'].map((value) => (
             <ToggleGroup.Item
               className="w-fit h-[16px] text-stieglitz data-[state=on]:text-white rounded-sm"
               value={value}
@@ -47,7 +47,7 @@ const LiquidityThresholdInput = ({ threshold, setThreshold }: Props) => {
           ))}
         </ToggleGroup.Root>
         <input
-          className=" bg-cod-gray rounded-md border-carbon border text-[13px] p-[4px] text-right text-white default-stieglitz placeholder-stieglitz w-fit focus:outline-none"
+          className="bg-cod-gray rounded-md border-carbon border text-[13px] p-[4px] text-right text-white default-stieglitz placeholder-stieglitz w-fit focus:outline-none"
           type="number"
           onChange={handleOnChange}
           placeholder="0"
