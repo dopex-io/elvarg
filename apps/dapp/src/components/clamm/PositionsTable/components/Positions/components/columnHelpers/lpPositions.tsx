@@ -6,6 +6,7 @@ import {
   ArrowUpRightIcon,
 } from '@heroicons/react/24/solid';
 import { createColumnHelper } from '@tanstack/react-table';
+import { format } from 'date-fns';
 
 import { formatAmount } from 'utils/general';
 
@@ -34,6 +35,7 @@ export type LPPositionItem = {
     token0Symbol: string;
     token1Symbol: string;
   };
+  timestamp: number;
   withdrawButton: {
     disabled: boolean;
     handleWithdraw: (meta: any) => void;
@@ -115,6 +117,16 @@ export const columns = [
             <span className="text-stieglitz text-[13px]"></span>
           </span>
         </div>
+      );
+    },
+  }),
+  columnHelper.accessor('timestamp', {
+    header: 'Timestamp',
+    cell: ({ getValue }) => {
+      return (
+        <p className="text-[13px] text-start">
+          {format(new Date(getValue() * 1000), 'HH:mm:ss dd MMM yyyy')}
+        </p>
       );
     },
   }),

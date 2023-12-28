@@ -202,6 +202,7 @@ const LPPositions = ({ loading }: PositionsTableProps) => {
               token0Symbol: tokenInfo.token0Symbol,
               token1Symbol: tokenInfo.token1Symbol,
             },
+            timestamp: meta.timestamp,
             withdrawButton: {
               disabled: BigInt(meta.withdrawableShares) === 0n,
               handleWithdraw: () => {
