@@ -14,7 +14,7 @@ import {
 } from 'constants/clamm';
 
 import FilterPanel from './components/FilterPanel';
-import FilterSettingsButton from './components/FilterSettingsButton';
+import FilterSettingsButton from './components/FilterSettings/components/FilterSettingsButton';
 import StrikesTable from './components/StrikesTable';
 
 const StrikesChain = () => {
