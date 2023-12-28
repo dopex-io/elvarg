@@ -26,8 +26,8 @@ import {
   FilterSettingsType,
 } from 'constants/clamm';
 
-import RangeSelector from '../FilterSettings/components/RangeSelector';
-import LiquidityThresholdInput from '../FilterSettings/components/RangeSelector/components/Slider/LiquidityThresholdInput';
+import RangeSelector from '../RangeSelector';
+import LiquidityThresholdInput from '../RangeSelector/components/Slider/LiquidityThresholdInput';
 
 type Props = {
   filterSettings: FilterSettingsType;
