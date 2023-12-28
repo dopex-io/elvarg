@@ -74,12 +74,12 @@ const Page = () => {
         </div>
         <div className="w-full flex flex-col xl:flex-row xl:space-x-[12px] xl:space-y-[0px] space-y-[12px]">
           <div className="max-w-[1530px] sm:min-w-[590px] h-fit sm:w-full w-[96vw] space-y-[12px]">
-            {/* <PriceChart /> */}
-            {/* <StrikesChain /> */}
+            <PriceChart />
+            <StrikesChain />
             <PositionsTable />
           </div>
           <div className="xl:max-w-[366px] relative sm:w-full w-[96vw]">
-            {/* <AsidePanel /> */}
+            <AsidePanel />
           </div>
         </div>
       </div>
