@@ -1,6 +1,8 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { BaseError, formatUnits } from 'viem';
 
+import { LinkIcon } from '@heroicons/react/24/solid';
+import * as Tooltip from '@radix-ui/react-tooltip';
 import toast from 'react-hot-toast';
 import { useNetwork, useWalletClient } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
@@ -12,25 +14,55 @@ import { PositionsTableProps } from 'components/clamm/PositionsTable';
 import TableLayout from 'components/common/TableLayout';
 
 import getExerciseTxData from 'utils/clamm/varrock/getExerciseTxData';
-import { cn, formatAmount } from 'utils/general';
+import { BuyPositionMeta } from 'utils/clamm/varrock/types';
+import { cn } from 'utils/general';
 import { getTokenSymbol } from 'utils/token';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
-import { BuyPositionItem, columns } from './columnHelpers/buyPositions';
+import {
+  BuyPositionItem,
+  columns,
+} from '../components/columnHelpers/buyPositions';
+import PositionSummary from './components/PositionSummary';
 
-const BuyPositions = ({
-  selectPosition,
-  selectedPositions,
-  unselectPosition,
-  loading,
-}: PositionsTableProps) => {
+const BuyPositions = ({ loading }: PositionsTableProps) => {
   const { chain } = useNetwork();
   const { buyPositions, updateBuyPositions } = useClammPositions();
-  const { selectedOptionsPool, markPrice } = useClammStore();
+  const { selectedOptionsPool, markPrice, tick } = useClammStore();
   const { data: walletClient } = useWalletClient({
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
   });
+  const [selectedPositions, setSelectedPositions] = useState<
+    Map<number, BuyPositionMeta>
+  >(new Map());
+  const [selectedAllmode, setSelectAllMode] = useState(false);
+
+  const selectPosition = useCallback(
+    (key: number, positionInfo: BuyPositionMeta) => {
+      setSelectedPositions((prev) => new Map(prev.set(key, positionInfo)));
+    },
+    [],
+  );
+
+  const unselectPosition = useCallback((key: number) => {
+    setSelectedPositions((prev) => {
+      prev.delete(key);
+      return new Map(prev);
+    });
+  }, []);
+
+  const selectAll = useCallback(() => {
+    buyPositions.forEach(({ meta }, index) => {
+      selectPosition(index, meta);
+    });
+  }, [selectPosition, buyPositions]);
+
+  const deselectAll = useCallback(() => {
+    buyPositions.forEach((_, index) => {
+      unselectPosition(index);
+    });
+  }, [buyPositions, unselectPosition]);
 
   const handleExercise = useCallback(
     async (positionId: string, index: number) => {
@@ -208,18 +240,10 @@ const BuyPositions = ({
     buyPositions,
     markPrice,
     handleExercise,
-    selectPosition,
     selectedPositions,
+    selectPosition,
     unselectPosition,
   ]);
-
-  const totalProfitUsd = useMemo(() => {
-    return positions.reduce(
-      (accumulator, currentValue) =>
-        accumulator + Number(currentValue.profit.usdValue),
-      0,
-    );
-  }, [positions]);
 
   const optionsSummary = useMemo(() => {
     const totalProfitUsd = positions.reduce(
@@ -253,31 +277,46 @@ const BuyPositions = ({
 
   return (
     <div className="w-full flex flex-col space-y-[12px] py-[12px]">
-      <div className="bg-cod-gray flex px-[12px] items-center justify-end space-x-[12px]">
-        <div className="flex items-center justify-center space-x-[4px]">
-          <span className="text-stieglitz text-xs">Total profit:</span>
-          <span className="text-xs flex items-center justify-center space-x-[2px]">
-            <span className="text-stieglitz">$</span>
-            <span className={cn(totalProfitUsd > 0 && 'text-up-only')}>
-              {formatAmount(optionsSummary.totalProfitUsd, 3)}
-            </span>
-          </span>
-        </div>
-        <div className="flex items-center justify-center space-x-[4px]">
-          <span className="text-stieglitz text-xs">Total premium:</span>
-          <span className="text-xs flex items-center justify-center space-x-[2px]">
-            <span className="text-stieglitz">$</span>
-            <span>{formatAmount(optionsSummary.totalPremiumUsd, 3)}</span>
-          </span>
-        </div>
-        <div className="flex items-center justify-center space-x-[4px]">
-          <span className="text-stieglitz text-xs">Total size:</span>
-          <span className="text-xs flex items-center justify-center space-x-[4px]">
-            <span>{formatAmount(optionsSummary.totalOptions, 3)}</span>
-            <span className="text-stieglitz text-xs">
-              {selectedOptionsPool?.callToken.symbol}
-            </span>
-          </span>
+      <div className="bg-cod-gray flex px-[12px] items-center justify-between space-x-[12px]">
+        <PositionSummary
+          callTokenSymbol={selectedOptionsPool?.callToken.symbol ?? '-'}
+          totalOptions={optionsSummary.totalOptions}
+          totalPremiumUsd={optionsSummary.totalPremiumUsd}
+          totalProfitUsd={optionsSummary.totalProfitUsd}
+        />
+        <div className="flex items-center space-x-[6px]">
+          <div className="w-[22px] h-[22px] p-[4px] bg-carbon flex items-center justify-center rounded-md">
+            <Tooltip.Provider>
+              <Tooltip.Root>
+                <Tooltip.Trigger
+                  onClick={() => {
+                    if (selectedAllmode) {
+                      deselectAll();
+                      setSelectAllMode(false);
+                    } else {
+                      setSelectAllMode(true);
+                      selectAll();
+                    }
+                  }}
+                >
+                  <LinkIcon
+                    className={cn(
+                      'text-stieglitz hover:text-white',
+                      selectedAllmode && 'text-white',
+                    )}
+                    role="button"
+                    height={16}
+                    width={16}
+                  />
+                </Tooltip.Trigger>
+                <Tooltip.Portal>
+                  <Tooltip.Content className="text-xs bg-carbon p-[4px] rounded-md mb-[6px]">
+                    Select all withdrawable strikes
+                  </Tooltip.Content>
+                </Tooltip.Portal>
+              </Tooltip.Root>
+            </Tooltip.Provider>
+          </div>
         </div>
       </div>
       <TableLayout<BuyPositionItem>

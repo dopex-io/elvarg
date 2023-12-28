@@ -28,8 +28,8 @@ import {
   LPPositionItem,
 } from '../components/columnHelpers/lpPositions';
 import MultiWithdrawButton from './components/MultWithdrawButton';
+import PositionsSummary from './components/PositionSummary';
 import UtilityButtons from './components/UtilityButtons';
-import PositionsSummary from './PositionSummary';
 
 const LPPositions = ({ loading }: PositionsTableProps) => {
   const { lpPositions, updateLPPositions } = useClammPositions();
@@ -38,6 +38,7 @@ const LPPositions = ({ loading }: PositionsTableProps) => {
   const [selectedPositions, setSelectedPositions] = useState<
     Map<number, LPPositionMeta>
   >(new Map());
+
   const selectPosition = useCallback((key: number, positionInfo: any) => {
     setSelectedPositions((prev) => new Map(prev.set(key, positionInfo)));
   }, []);

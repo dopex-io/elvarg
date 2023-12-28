@@ -10,7 +10,7 @@ import getLPPositions from 'utils/clamm/varrock/getLPPositions';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
-import BuyPositions from './components/Positions/components/BuyPositions';
+import BuyPositions from './components/Positions/BuyPositions';
 import HistoryPositions from './components/Positions/components/HistoryPositions';
 import PositionsTypeSelector from './components/Positions/components/PositionsTypeSelector';
 import LPPositions from './components/Positions/LPPositions';
@@ -34,7 +34,7 @@ const PositionsTable = () => {
     setLPPositions,
   } = useClammPositions();
   const { selectedOptionsPool } = useClammStore();
-  const [positionsTypeIndex, setPositionsTypeIndex] = useState(1);
+  const [positionsTypeIndex, setPositionsTypeIndex] = useState(0);
 
   const [selectedPositions, setSelectedPositions] = useState<Map<number, any>>(
     new Map(),
@@ -123,12 +123,22 @@ const PositionsTable = () => {
   }, [updateLPPositions, setUpdateLPPositions]);
 
   useEffect(() => {
-    const interval = setInterval(
-      () => setUpdateLPPositions(updateLPPositions),
-      15000,
-    );
-    return () => clearInterval(interval);
-  }, [setUpdateLPPositions, updateLPPositions]);
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') {
+        if (positionsTypeIndex === 0) {
+          updateBuyPositions();
+        } else {
+          updateLPPositions();
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [updateBuyPositions, updateLPPositions, positionsTypeIndex]);
 
   return (
     <div className="w-full flex-col items-center justify-center space-y-[12px]">

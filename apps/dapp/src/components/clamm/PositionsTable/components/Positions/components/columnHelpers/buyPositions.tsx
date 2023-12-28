@@ -1,3 +1,5 @@
+import { Checkbox } from '@mui/material';
+
 import { Button } from '@dopex-io/ui';
 import {
   ArrowDownRightIcon,
@@ -47,6 +49,12 @@ export const columns = [
     header: 'Strike Price',
     cell: (info) => (
       <span className="flex space-x-2 text-left items-center justify-start">
+        <Checkbox
+          checked={info.getValue().isSelected}
+          onChange={info.getValue().handleSelect}
+          className="text-mineshaft"
+          size="small"
+        />
         <p className="text-stieglitz inline-block">$</p>
         <p className="inline-block">
           {formatAmount(info.getValue().strikePrice, 5)}

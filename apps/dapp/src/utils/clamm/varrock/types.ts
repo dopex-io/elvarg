@@ -88,3 +88,12 @@ export type TradeHistory = {
     profit?: string;
   };
 };
+
+export type BuyPositionMeta = {
+  tickLower: number;
+  tickUpper: number;
+  liquiditiesUsed: string[];
+  pools: string[];
+  handlers: string[];
+  tokenId: string;
+};
