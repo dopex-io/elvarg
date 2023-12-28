@@ -1,3 +1,5 @@
+import { Address } from 'viem';
+
 export const EXPIRIES: { [key: string]: number } = {
   '1h': 60 * 60,
   '2h': 2 * 60 * 60,
@@ -35,3 +37,6 @@ export const DEFAULT_STRIKES_CHAIN_FILTER_SETTINGS = {
   range: [],
   liquidityThreshold: [1, 0],
 };
+
+export const UNISWAP_V3_SWAPPER: Address =
+  '0x985A3f3D6822F037968d48Aa3F7D7d990D72F333';

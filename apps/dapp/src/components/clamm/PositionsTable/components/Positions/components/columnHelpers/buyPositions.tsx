@@ -1,5 +1,3 @@
-import { Checkbox } from '@mui/material';
-
 import { Button } from '@dopex-io/ui';
 import {
   ArrowDownRightIcon,
@@ -7,6 +5,8 @@ import {
 } from '@heroicons/react/24/solid';
 import { createColumnHelper } from '@tanstack/react-table';
 import { formatDistance } from 'date-fns';
+
+import CheckBox from 'components/UI/CheckBox/CheckBox';
 
 import { formatAmount } from 'utils/general';
 
@@ -49,11 +49,9 @@ export const columns = [
     header: 'Strike Price',
     cell: (info) => (
       <span className="flex space-x-2 text-left items-center justify-start">
-        <Checkbox
+        <CheckBox
           checked={info.getValue().isSelected}
-          onChange={info.getValue().handleSelect}
-          className="text-mineshaft"
-          size="small"
+          onClick={() => info.getValue().handleSelect()}
         />
         <p className="text-stieglitz inline-block">$</p>
         <p className="inline-block">

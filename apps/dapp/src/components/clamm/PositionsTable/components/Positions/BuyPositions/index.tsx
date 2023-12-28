@@ -14,7 +14,7 @@ import { PositionsTableProps } from 'components/clamm/PositionsTable';
 import TableLayout from 'components/common/TableLayout';
 
 import getExerciseTxData from 'utils/clamm/varrock/getExerciseTxData';
-import { BuyPositionMeta } from 'utils/clamm/varrock/types';
+import { OptionsPositionsResponse } from 'utils/clamm/varrock/types';
 import { cn } from 'utils/general';
 import { getTokenSymbol } from 'utils/token';
 
@@ -24,25 +24,32 @@ import {
   BuyPositionItem,
   columns,
 } from '../components/columnHelpers/buyPositions';
+import MultiExerciseButton from './components/MultiExerciseButton';
 import PositionSummary from './components/PositionSummary';
 
 const BuyPositions = ({ loading }: PositionsTableProps) => {
   const { chain } = useNetwork();
   const { buyPositions, updateBuyPositions } = useClammPositions();
-  const { selectedOptionsPool, markPrice, tick } = useClammStore();
+  const { selectedOptionsPool, markPrice } = useClammStore();
   const { data: walletClient } = useWalletClient({
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
   });
   const [selectedPositions, setSelectedPositions] = useState<
-    Map<number, BuyPositionMeta>
+    Map<number, OptionsPositionsResponse>
   >(new Map());
   const [selectedAllmode, setSelectAllMode] = useState(false);
 
   const selectPosition = useCallback(
-    (key: number, positionInfo: BuyPositionMeta) => {
-      setSelectedPositions((prev) => new Map(prev.set(key, positionInfo)));
+    (key: number, position: OptionsPositionsResponse) => {
+      const isCall = position.side === 'call';
+      if (
+        (isCall && position.strike < markPrice) ||
+        (!isCall && position.strike > markPrice)
+      ) {
+        setSelectedPositions((prev) => new Map(prev.set(key, position)));
+      }
     },
-    [],
+    [markPrice],
   );
 
   const unselectPosition = useCallback((key: number) => {
@@ -53,8 +60,8 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
   }, []);
 
   const selectAll = useCallback(() => {
-    buyPositions.forEach(({ meta }, index) => {
-      selectPosition(index, meta);
+    buyPositions.forEach((position, index) => {
+      selectPosition(index, position);
     });
   }, [selectPosition, buyPositions]);
 
@@ -147,90 +154,84 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
   const positions = useMemo(() => {
     const chainId = chain?.id ?? DEFAULT_CHAIN_ID;
     return buyPositions
-      .map(
-        (
-          { expiry, premium, profit, side, size, strike, meta },
-          index: number,
-        ) => {
-          const readablePremium = formatUnits(
-            BigInt(premium.amountInToken),
-            premium.decimals,
-          );
+      .map((position, index) => {
+        const { expiry, premium, profit, side, size, strike, meta } = position;
+        const readablePremium = formatUnits(
+          BigInt(premium.amountInToken),
+          premium.decimals,
+        );
 
-          const isSelected = Boolean(selectedPositions.get(index));
+        const isSelected = Boolean(selectedPositions.get(index));
 
-          const isPut = side.toLowerCase() === 'put';
-          const priceDifference = isPut
-            ? strike - markPrice
-            : markPrice - strike;
+        const isPut = side.toLowerCase() === 'put';
+        const priceDifference = isPut ? strike - markPrice : markPrice - strike;
 
-          const optionsAmount =
-            side.toLowerCase() === 'put'
-              ? Number(size.usdValue) / Number(strike)
-              : Number(formatUnits(BigInt(size.amountInToken), size.decimals));
+        const optionsAmount =
+          side.toLowerCase() === 'put'
+            ? Number(size.usdValue) / Number(strike)
+            : Number(formatUnits(BigInt(size.amountInToken), size.decimals));
 
-          const profitUsd =
-            priceDifference < 0 ? 0 : priceDifference * optionsAmount;
-          const profitAmount = isPut ? profitUsd / markPrice : profitUsd;
+        const profitUsd =
+          priceDifference < 0 ? 0 : priceDifference * optionsAmount;
+        const profitAmount = isPut ? profitUsd / markPrice : profitUsd;
 
-          const sizeInNumber = Number(
-            formatUnits(BigInt(size.amountInToken), size.decimals),
-          );
-          const sizeUsd = isPut ? sizeInNumber : sizeInNumber * markPrice;
+        const sizeInNumber = Number(
+          formatUnits(BigInt(size.amountInToken), size.decimals),
+        );
+        const sizeUsd = isPut ? sizeInNumber : sizeInNumber * markPrice;
 
-          const breakEven =
-            side.toLowerCase() === 'put'
-              ? Number(strike) - Number(premium.usdValue) / optionsAmount
-              : Number(strike) + Number(premium.usdValue) / optionsAmount;
+        const breakEven =
+          side.toLowerCase() === 'put'
+            ? Number(strike) - Number(premium.usdValue) / optionsAmount
+            : Number(strike) + Number(premium.usdValue) / optionsAmount;
 
-          return {
-            breakEven,
-            expiry: Number(expiry),
-            premium: {
-              amount: readablePremium,
-              symbol: getTokenSymbol({
-                chainId,
-                address: premium.tokenAddress,
-              }),
-              usdValue: premium.usdValue,
+        return {
+          breakEven,
+          expiry: Number(expiry),
+          premium: {
+            amount: readablePremium,
+            symbol: getTokenSymbol({
+              chainId,
+              address: premium.tokenAddress,
+            }),
+            usdValue: premium.usdValue,
+          },
+          profit: {
+            amount: profitAmount,
+            usdValue: profitUsd,
+            symbol: getTokenSymbol({
+              chainId,
+              address: profit.tokenAddress,
+            }),
+          },
+          side: side.charAt(0).toUpperCase() + side.slice(1),
+          size: {
+            amount: sizeInNumber,
+            symbol: getTokenSymbol({
+              chainId,
+              address: size.tokenAddress,
+            }),
+            usdValue: sizeUsd,
+          },
+          strike: {
+            handleSelect: () => {
+              if (!isSelected) {
+                selectPosition(index, position);
+              } else {
+                unselectPosition(index);
+              }
             },
-            profit: {
-              amount: profitAmount,
-              usdValue: profitUsd,
-              symbol: getTokenSymbol({
-                chainId,
-                address: profit.tokenAddress,
-              }),
+            isSelected: isSelected,
+            strikePrice: Number(strike),
+          },
+          exerciseButton: {
+            handleExercise: async () => {
+              await handleExercise(String(meta.tokenId), index);
             },
-            side: side.charAt(0).toUpperCase() + side.slice(1),
-            size: {
-              amount: sizeInNumber,
-              symbol: getTokenSymbol({
-                chainId,
-                address: size.tokenAddress,
-              }),
-              usdValue: sizeUsd,
-            },
-            strike: {
-              handleSelect: () => {
-                if (!isSelected) {
-                  selectPosition(index, meta);
-                } else {
-                  unselectPosition(index);
-                }
-              },
-              isSelected: isSelected,
-              strikePrice: Number(strike),
-            },
-            exerciseButton: {
-              handleExercise: async () => {
-                await handleExercise(String(meta.tokenId), index);
-              },
-              disabled: profitAmount === 0,
-            },
-          };
-        },
-      )
+            disabled: profitAmount === 0,
+          },
+        };
+      })
       .sort(
         (a: any, b: any) =>
           Number(a.strike.strikePrice) - Number(b.strike.strikePrice),
@@ -317,6 +318,10 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
               </Tooltip.Root>
             </Tooltip.Provider>
           </div>
+          <MultiExerciseButton
+            positions={selectedPositions}
+            deselectAll={deselectAll}
+          />
         </div>
       </div>
       <TableLayout<BuyPositionItem>
