@@ -53,6 +53,7 @@ export type LPPositionsResponse = {
 };
 
 export type LPPositionMeta = {
+  timestamp: number;
   initialLiquidity: string;
   strikeId: string;
   pool: string;

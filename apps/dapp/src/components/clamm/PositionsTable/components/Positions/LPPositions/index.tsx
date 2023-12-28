@@ -23,10 +23,7 @@ import { getTokenSymbol } from 'utils/token';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
-import {
-  columns,
-  LPPositionItem,
-} from '../components/columnHelpers/lpPositions';
+import { columns, LPPositionItem } from '../columnHelpers/lpPositions';
 import MultiWithdrawButton from './components/MultWithdrawButton';
 import PositionsSummary from './components/PositionSummary';
 import UtilityButtons from './components/UtilityButtons';

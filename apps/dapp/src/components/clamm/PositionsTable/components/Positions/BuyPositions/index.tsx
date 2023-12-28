@@ -20,10 +20,7 @@ import { getTokenSymbol } from 'utils/token';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
-import {
-  BuyPositionItem,
-  columns,
-} from '../components/columnHelpers/buyPositions';
+import { BuyPositionItem, columns } from '../columnHelpers/buyPositions';
 import MultiExerciseButton from './components/MultiExerciseButton';
 import PositionSummary from './components/PositionSummary';
 
