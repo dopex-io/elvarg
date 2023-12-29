@@ -76,11 +76,10 @@ const useRewardAPR = () => {
       };
     }
 
-    const perpVaultDailyRewardsInUSD = 3214 * Number(priceQuery.data.arb);
-    const receiptTokenDailyRewardsInUSD = 9624 * Number(priceQuery.data.arb);
+    const perpVaultDailyRewardsInUSD = 1698 * Number(priceQuery.data.arb);
+    const receiptTokenDailyRewardsInUSD = 5120 * Number(priceQuery.data.arb);
     const rtethEthDailyRewardsInUSD = 5 * Number(priceQuery.data.dpx);
-    const singleSidedStakingRewardsInUSD =
-      2193.39162 * Number(priceQuery.data.arb);
+    const singleSidedStakingRewardsInUSD = 1573 * Number(priceQuery.data.arb);
 
     const [
       ppvRewardAPR,
