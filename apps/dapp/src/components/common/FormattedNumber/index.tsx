@@ -7,7 +7,8 @@ type Props = {
   precision: number;
 } & HTMLAttributes<HTMLParagraphElement>;
 
-const FormattedNumber = ({ amount, precision }: Props) => {
+const FormattedNumber = (props: Props) => {
+  const { amount, precision } = props;
   const parsed = useMemo(() => {
     if (Number(amount) > 0.0001) {
       return {
@@ -30,7 +31,7 @@ const FormattedNumber = ({ amount, precision }: Props) => {
     };
   }, [amount, precision]);
   return (
-    <p>
+    <p {...props}>
       {parsed.amount === '0' ? (
         0
       ) : parsed.sub === 0 ? (
