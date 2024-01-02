@@ -51,7 +51,7 @@ const LiquidityThresholdInput = ({ threshold, setThreshold }: Props) => {
           type="number"
           onChange={handleOnChange}
           placeholder="0"
-          defaultValue={'1'}
+          defaultValue={'0'}
         />
       </div>
     </div>

@@ -35,7 +35,7 @@ export type FilterSettingsType = {
 export const DEFAULT_STRIKES_CHAIN_FILTER_SETTINGS = {
   bundleSize: '',
   range: [],
-  liquidityThreshold: [1, 0],
+  liquidityThreshold: [0, 0],
 };
 
 export const UNISWAP_V3_SWAPPER: Address =
