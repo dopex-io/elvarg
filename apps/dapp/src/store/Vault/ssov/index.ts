@@ -257,8 +257,6 @@ export const createSsovV3Slice: StateCreator<
       totalEpochPremium,
       epochData,
       epochStrikeTokens,
-      apyPayload,
-      rewardsPayLoad,
     ] = await Promise.all([
       ssovContract.getEpochTimes(selectedEpoch),
       ssovViewerContract.getTotalEpochStrikeDeposits(
@@ -278,11 +276,30 @@ export const createSsovV3Slice: StateCreator<
         selectedEpoch,
         ssovContract.address,
       ),
-      axios.get(`${DOPEX_API_BASE_URL}/v2/ssov/apy?symbol=${selectedPoolName}`),
       axios.get(
         `${DOPEX_API_BASE_URL}/v2/ssov/rewards?symbol=${selectedPoolName}`,
       ),
     ]);
+
+    let apyPayload;
+
+    try {
+      apyPayload = await axios.get(
+        `${DOPEX_API_BASE_URL}/v2/ssov/apy?symbol=${selectedPoolName}`,
+      );
+    } catch {
+      apyPayload = { data: { apy: 0 } };
+    }
+
+    let rewardsPayLoad;
+    try {
+      rewardsPayLoad = await axios.get(
+        `${DOPEX_API_BASE_URL}/v2/ssov/rewards?symbol=${selectedPoolName}`,
+      );
+    } catch {
+      rewardsPayLoad = { data: { rewards: {} } };
+    }
+
     const epochStrikes = epochData.strikes;
     const strikeToIdx = new Map<string, number>();
 
