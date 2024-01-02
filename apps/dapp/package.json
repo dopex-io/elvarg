@@ -34,7 +34,7 @@
     "@visx/shape": "^3.5.0",
     "@visx/vendor": "^3.5.0",
     "axios": "^1.6.2",
-    "clsx": "^2.0.0",
+    "clsx": "^2.1.0",
     "date-fns": "^2.30.0",
     "ethers": "^5.7.2",
     "graphql": "^16.8.1",
