@@ -33,7 +33,7 @@
     "@visx/scale": "^3.5.0",
     "@visx/shape": "^3.5.0",
     "@visx/vendor": "^3.5.0",
-    "axios": "^1.6.2",
+    "axios": "^1.6.3",
     "clsx": "^2.1.0",
     "date-fns": "^2.30.0",
     "ethers": "^5.7.2",
