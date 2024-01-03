@@ -309,7 +309,7 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
                 </Tooltip.Trigger>
                 <Tooltip.Portal>
                   <Tooltip.Content className="text-xs bg-carbon p-[4px] rounded-md mb-[6px]">
-                    Select all withdrawable strikes
+                    Select all exercisable options
                   </Tooltip.Content>
                 </Tooltip.Portal>
               </Tooltip.Root>
