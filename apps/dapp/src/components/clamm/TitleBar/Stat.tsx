@@ -6,14 +6,19 @@ interface Props {
     value: string;
   };
   label: string;
+  suffix?: boolean;
 }
 
 const Stat = (props: Props) => {
-  const { stat, label } = props;
+  const { stat, label, suffix = false } = props;
 
   return (
     <div className="flex flex-col">
-      <h6 className="flex text-xs sm:text-sm md:text-md font-medium text-white items-center space-x-1">
+      <h6
+        className={`flex ${
+          suffix ? 'flex-row-reverse' : 'flex-row'
+        } text-xs sm:text-sm md:text-md font-medium text-white items-center space-x-1`}
+      >
         <span className="text-stieglitz">{stat.symbol}</span>
         <span>{formatAmount(stat.value ?? 0, 5)}</span>
       </h6>
