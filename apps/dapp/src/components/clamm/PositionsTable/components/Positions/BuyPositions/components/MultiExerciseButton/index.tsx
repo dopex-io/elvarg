@@ -1,4 +1,3 @@
-import React from 'react';
 import { BaseError, encodeAbiParameters, encodeFunctionData } from 'viem';
 
 import { Button } from '@dopex-io/ui';
