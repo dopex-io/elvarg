@@ -142,7 +142,7 @@ const PositionsTable = () => {
 
   return (
     <div className="w-full flex-col items-center justify-center space-y-[12px]">
-      <div className="w-full flex flex-row items-center">
+      <div className="w-full flex items-center">
         <PositionsTypeSelector
           resetPositions={resetPositions}
           selectedIndex={positionsTypeIndex}
