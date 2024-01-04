@@ -7,7 +7,7 @@ type Props = {
   setThreshold: (v: number[]) => void;
 };
 const LiquidityThresholdInput = ({ threshold, setThreshold }: Props) => {
-  const [type, setType] = useState(threshold[1] === 0 ? 'USD' : 'Options');
+  const [type, setType] = useState('USD');
   const handleOnChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
       setThreshold([parseFloat(e.target.value), type === 'USD' ? 0 : 1]);
