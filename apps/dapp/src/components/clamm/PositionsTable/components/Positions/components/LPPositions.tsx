@@ -87,13 +87,13 @@ const columns = [
         <div className="flex flex-col items-start justify-center">
           {Number(token0Amount) !== 0 && (
             <span>
-              {formatAmount(token0Amount, 3)}{' '}
+              {formatAmount(token0Amount, 5)}{' '}
               <span className="text-stieglitz">{token0Symbol}</span>
             </span>
           )}
           {Number(token1Amount) !== 0 && (
             <span>
-              {formatAmount(token1Amount, 3)}{' '}
+              {formatAmount(token1Amount, 5)}{' '}
               <span className="text-stieglitz">{token1Symbol}</span>
             </span>
           )}
@@ -122,12 +122,12 @@ const columns = [
       return (
         <div className="flex flex-col items-start justify-center">
           <span className="flex items-center justify-center space-x-[4px]">
-            <span>{formatAmount(token0Amount, 3)}</span>
+            <span>{formatAmount(token0Amount, 5)}</span>
             <span className="text-stieglitz text-[13px]">{token0Symbol}</span>
             <span className="text-stieglitz text-[13px]"></span>
           </span>
           <span className="flex items-center justify-center space-x-[2px]">
-            <span>{formatAmount(token1Amount, 3)}</span>
+            <span>{formatAmount(token1Amount, 5)}</span>
             <span className="text-stieglitz text-[13px]">{token1Symbol}</span>
             <span className="text-stieglitz text-[13px]"></span>
           </span>
