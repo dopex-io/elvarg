@@ -126,8 +126,7 @@ export const historyPositionsColumns = [
               <span className="text-[13px] flex items-center space-x-[4px]">
                 <span
                   className={cn(
-                    'text-white',
-                    label === 'Profit' && 'text-up-only',
+                    label === 'Profit' ? 'text-up-only' : 'text-white',
                   )}
                 >
                   {amount}
