@@ -177,23 +177,17 @@ const StrikesTable = ({ filterSettings }: Props) => {
     const { callToken } = selectedOptionsPool;
 
     const _strikes = strikesChain
-      .filter(({ liquidityAvailableUsd, optionsAvailable }) => {
-        if (filterSettings.liquidityThreshold[1] === 0) {
-          return (
-            filterSettings.liquidityThreshold[0] < Number(liquidityAvailableUsd)
-          );
-        } else {
-          return (
-            filterSettings.liquidityThreshold[0] < Number(optionsAvailable)
-          );
-        }
-      })
-      .filter((_, index) => {
-        if (filterSettings.range.length === 0) return true;
-        return (
-          filterSettings.range[0] <= index && filterSettings.range[1] >= index
-        );
-      })
+      .filter(({ liquidityAvailableUsd, optionsAvailable }) =>
+        filterSettings.liquidityThreshold[1] === 0
+          ? filterSettings.liquidityThreshold[0] < Number(liquidityAvailableUsd)
+          : filterSettings.liquidityThreshold[0] < Number(optionsAvailable),
+      )
+      .filter(
+        (_, index) =>
+          filterSettings.range.length === 0 ||
+          (filterSettings.range[0] <= index &&
+            filterSettings.range[1] >= index),
+      )
       .map(
         (
           {
