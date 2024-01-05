@@ -1,4 +1,15 @@
 const MerklDistributor = [
+  { inputs: [], stateMutability: 'nonpayable', type: 'constructor' },
+  { inputs: [], name: 'InvalidDispute', type: 'error' },
+  { inputs: [], name: 'InvalidLengths', type: 'error' },
+  { inputs: [], name: 'InvalidProof', type: 'error' },
+  { inputs: [], name: 'InvalidUninitializedRoot', type: 'error' },
+  { inputs: [], name: 'NoDispute', type: 'error' },
+  { inputs: [], name: 'NotGovernorOrGuardian', type: 'error' },
+  { inputs: [], name: 'NotTrusted', type: 'error' },
+  { inputs: [], name: 'NotWhitelisted', type: 'error' },
+  { inputs: [], name: 'UnresolvedDispute', type: 'error' },
+  { inputs: [], name: 'ZeroAddress', type: 'error' },
   {
     anonymous: false,
     inputs: [

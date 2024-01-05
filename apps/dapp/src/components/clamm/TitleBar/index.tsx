@@ -35,7 +35,7 @@ const TitleBar = () => {
   const { reset } = useStrikesChainStore();
   const { setSelectedOptionsPool, optionsPools, selectedOptionsPool } =
     useClammStore();
-  const { data, claim, claimed, claimable } = useMerklRewards({
+  const { data, claim, claimed, claimable, refetch } = useMerklRewards({
     user,
     chainId: chain?.id || 42161,
     rewardToken: TOKENS[chain?.id || 42161].find(
@@ -109,7 +109,12 @@ const TitleBar = () => {
           <Button
             className="bg-transparent merklButton disabled:cursor-not-allowed"
             size="xsmall"
-            onClick={() => claim()}
+            onClick={() =>
+              claim()
+                .then(() => console.log('claimed'))
+                .catch((e) => console.error(e))
+                .finally(() => refetch())
+            }
             disabled={claimable}
           >
             <p className="text-black">Claim Rewards</p>

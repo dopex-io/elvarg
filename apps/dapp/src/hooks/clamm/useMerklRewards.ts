@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Address, checksumAddress } from 'viem';
 
 import { useQuery } from '@tanstack/react-query';
@@ -45,34 +45,36 @@ type ApiResult = {
 };
 
 const useMerklRewards = (props: Props) => {
-  const { user = '0x', chainId = 42161, rewardToken, pool = '0x' } = props;
+  const { user, chainId = 42161, rewardToken, pool = '0x' } = props;
 
   const { data, refetch } = useQuery<ApiResult, Error>({
     queryKey: ['user-merkl-rewards'],
     queryFn: () =>
       fetch(
-        `https://api.angle.money/v2/merkl?user=${'0x29ED22a9e56Ee1813e6FF69fC6caC676AA24c09c'}&chainIds%5B%5D=${chainId}`,
-      ).then((res) => res.json()),
+        `https://api.angle.money/v2/merkl?user=${user}&chainIds%5B%5D=${chainId}`,
+      )
+        .then((res) => res.json())
+        .catch((e) => console.error(e)),
     staleTime: 3200,
   });
 
   const { data: claimed = [0n, 0n, '0x'] } = useContractRead({
     abi: MerklDistributor,
-    address: '0x3ef3d8ba38ebe18db133cec108f4d14ce00dd9ae', // Merkl Distributor Address
+    address: '0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae', // Merkl Distributor Address
     functionName: 'claimed',
-    args: [user, (rewardToken?.address as Address) || '0x'],
+    args: [user || '0x', (rewardToken?.address as Address) || '0x'],
   });
 
   const { writeAsync: claim } = useContractWrite({
     abi: MerklDistributor,
-    address: '0x3ef3d8ba38ebe18db133cec108f4d14ce00dd9ae', // Merkl Distributor Address
+    address: '0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae', // Merkl Distributor Address
     functionName: 'claim',
     args: [
-      [user],
+      [user || '0x'],
       [rewardToken?.address as Address],
       [
         BigInt(
-          data?.[chainId.toString() as Chain].transactionData[
+          data?.[chainId.toString() as Chain]?.transactionData[
             rewardToken?.address as Address
           ]?.claim || 0n,
         ),
@@ -85,6 +87,7 @@ const useMerklRewards = (props: Props) => {
         ],
       ],
     ],
+    onError: (e) => console.error(e),
   });
 
   const avgAPR = useMemo(() => {
@@ -93,6 +96,15 @@ const useMerklRewards = (props: Props) => {
         ?.aprs || {},
     )[0];
   }, [chainId, data, pool]);
+
+  useEffect(() => {
+    if (
+      user === '0x' ||
+      Object.keys(data?.[chainId.toString() as Chain]?.transactionData || {})
+        .length === 0
+    )
+      refetch();
+  }, [chainId, data, refetch, user]);
 
   return {
     data,
