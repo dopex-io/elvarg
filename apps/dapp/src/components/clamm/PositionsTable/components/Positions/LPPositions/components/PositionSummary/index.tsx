@@ -28,7 +28,7 @@ const PositionsSummary = ({
         <span className="text-xs flex items-center justify-center space-x-[2px]">
           <span className="text-stieglitz">$</span>
           <span className={cn(Number(totalEarned) > 0 && 'text-up-only')}>
-            {formatAmount(totalEarned, 3)}
+            {formatAmount(totalEarned, 5)}
           </span>
         </span>
       </div>
@@ -36,19 +36,19 @@ const PositionsSummary = ({
         <span className="text-stieglitz text-xs">Total deposit:</span>
         <span className="text-xs flex items-center justify-center space-x-[2px]">
           <span className="text-stieglitz">$</span>
-          <span>{formatAmount(totalDeposit, 3)}</span>
+          <span>{formatAmount(totalDeposit, 5)}</span>
         </span>
       </div>
       <div className="flex items-center justify-center space-x-[6px]">
         <span className="text-stieglitz text-xs">Total withdrawable:</span>
         <span className="text-xs flex items-center justify-center space-x-[2px]">
-          <span>{formatAmount(totalWithdrawable.token0.amount, 3)}</span>
+          <span>{formatAmount(totalWithdrawable.token0.amount, 5)}</span>
           <span className="text-stieglitz">
             {totalWithdrawable.token0.symbol}
           </span>
         </span>
         <span className="text-xs flex items-center justify-center space-x-[2px]">
-          <span>{formatAmount(totalWithdrawable.token1.amount, 3)}</span>
+          <span>{formatAmount(totalWithdrawable.token1.amount, 5)}</span>
           <span className="text-stieglitz">
             {totalWithdrawable.token1.symbol}
           </span>

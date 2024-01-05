@@ -5,6 +5,7 @@ function formatAmount(
   showDash: boolean = false,
 ): string {
   const typecastedAmount = Math.abs(Number(amount));
+  if (typecastedAmount === 0) return '0';
   const isNeg = Number(amount) < 0;
   let result;
 
