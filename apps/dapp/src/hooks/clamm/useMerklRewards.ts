@@ -114,15 +114,17 @@ const useMerklRewards = (props: Props) => {
     avgAPR,
     refetch,
     tokenSymbol: rewardToken?.symbol || 'N/A',
-    claimableAmount: useMemo(
-      () =>
-        BigInt(
-          data?.[chainId.toString() as Chain]?.transactionData?.[
-            rewardToken?.address as Address
-          ].claim || 0,
-        ) - claimed[0],
-      [chainId, claimed, data, rewardToken?.address],
-    ),
+    claimableAmount: useMemo(() => {
+      const totalRewards = BigInt(
+        data?.[chainId.toString() as Chain]?.transactionData[
+          rewardToken?.address as Address
+        ]?.claim || 0n,
+      );
+
+      const toClaim = totalRewards - claimed[0];
+
+      return toClaim;
+    }, [chainId, claimed, data, rewardToken?.address]),
     claimable:
       Object.keys(data?.[chainId.toString() as Chain]?.transactionData || {})
         .length === 0,

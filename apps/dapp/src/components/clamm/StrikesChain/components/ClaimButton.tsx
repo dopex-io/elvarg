@@ -28,15 +28,11 @@ const ClaimButton = () => {
       pool: checksumAddress(selectedOptionsPool?.primePool || '0x'),
     });
 
-  return (
+  return claimableAmount > 0n ? (
     <div className="flex space-x-2">
       <span className="flex space-x-1 text-xs text-stieglitz my-auto">
         <p>Rewards accrued: </p>
-        <p
-          className={`${
-            claimableAmount !== 0n ? 'text-up-only' : 'text-white'
-          }`}
-        >
+        <p className="text-up-only">
           {claimableAmount < parseUnits('1', 15)
             ? '<0.001'
             : formatAmount(formatUnits(claimableAmount, DECIMALS_TOKEN), 3)}
@@ -64,7 +60,7 @@ const ClaimButton = () => {
         </Button>
       </div>
     </div>
-  );
+  ) : null;
 };
 
 export default ClaimButton;
