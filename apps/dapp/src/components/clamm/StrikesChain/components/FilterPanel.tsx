@@ -37,6 +37,9 @@ const FilterPanel = () => {
           </span>
         </div>
       </div>
+      <span className="text-jaffa text-xs w-fit">
+        Liquidity less than 1$ will not be displayed
+      </span>
     </div>
   );
 };

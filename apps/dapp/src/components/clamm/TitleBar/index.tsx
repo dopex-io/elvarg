@@ -1,20 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import router from 'next/router';
-import { checksumAddress } from 'viem';
-
-import { Button } from '@dopex-io/ui';
-import { formatDistanceToNow } from 'date-fns';
-import { useAccount, useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
-import useMerklRewards from 'hooks/clamm/useMerklRewards';
 import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 
 import OverViewStats from 'components/clamm/TitleBar/OverViewStats';
 import PairSelector from 'components/clamm/TitleBar/PairSelector';
-
-import { TOKENS } from 'constants/tokens';
 
 import { Pair } from 'types/clamm';
 
@@ -29,20 +21,8 @@ const TitleBar = () => {
     textContent: 'WETH - USDC',
   });
 
-  const { chain } = useNetwork();
-  const { address: user } = useAccount();
-
   const { reset } = useStrikesChainStore();
-  const { setSelectedOptionsPool, optionsPools, selectedOptionsPool } =
-    useClammStore();
-  const { data, claim, claimed, claimable, refetch } = useMerklRewards({
-    user,
-    chainId: chain?.id || 42161,
-    rewardToken: TOKENS[chain?.id || 42161].find(
-      (token) => token.symbol.toUpperCase() === 'ARB',
-    ),
-    pool: checksumAddress(selectedOptionsPool?.primePool || '0x'),
-  });
+  const { setSelectedOptionsPool, optionsPools } = useClammStore();
 
   useEffect(() => {
     /**
@@ -104,29 +84,6 @@ const TitleBar = () => {
         updateSelectedPairData={updateSelectedPairData}
       />
       <OverViewStats />
-      <div className="flex justify-end space-x-2">
-        <div className="flex w-fit rounded-md p-1 border border-orange-200 bg-gradient-to-r from-[#fdceaa] via-[#b9aafd] to-[#76a0fc]">
-          <Button
-            className="bg-transparent merklButton disabled:cursor-not-allowed"
-            size="xsmall"
-            onClick={() =>
-              claim()
-                .then(() => console.log('claimed'))
-                .catch((e) => console.error(e))
-                .finally(() => refetch())
-            }
-            disabled={claimable}
-          >
-            <p className="text-black">Claim Rewards</p>
-          </Button>
-        </div>
-        {claimed[1] === 0n ? (
-          <span className="flex flex-col justify-between text-sm font-medium">
-            <p>{formatDistanceToNow(Number(claimed[1]) * 1000)}</p>
-            <p className="text-stieglitz">Last Claimed</p>
-          </span>
-        ) : null}
-      </div>
     </>
   );
 };
