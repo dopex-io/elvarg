@@ -16,6 +16,7 @@ import useClammPositions from 'hooks/clamm/useClammPositions';
 import useClammStore from 'hooks/clamm/useClammStore';
 
 import { PositionsTableProps } from 'components/clamm/PositionsTable';
+import ClaimButton from 'components/clamm/StrikesChain/components/ClaimButton';
 import TableLayout from 'components/common/TableLayout';
 
 import { LPPositionMeta } from 'utils/clamm/varrock/types';
@@ -305,6 +306,7 @@ const LPPositions = ({ loading }: PositionsTableProps) => {
           }}
         />
         <div className="flex items-center space-x-[6px]">
+          <ClaimButton />
           <UtilityButtons
             selectAll={selectAll}
             deselectAll={deselectAll}

@@ -65,7 +65,7 @@ const useMerklRewards = (props: Props) => {
     args: [user || '0x', (rewardToken?.address as Address) || '0x'],
   });
 
-  const { writeAsync: claim } = useContractWrite({
+  const { writeAsync: claim, isLoading: claiming } = useContractWrite({
     abi: MerklDistributor,
     address: '0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae', // Merkl Distributor Address
     functionName: 'claim',
@@ -110,8 +110,19 @@ const useMerklRewards = (props: Props) => {
     data,
     claim,
     claimed,
+    claiming,
     avgAPR,
     refetch,
+    tokenSymbol: rewardToken?.symbol || 'N/A',
+    claimableAmount: useMemo(
+      () =>
+        BigInt(
+          data?.[chainId.toString() as Chain]?.transactionData?.[
+            rewardToken?.address as Address
+          ].claim || 0,
+        ) - claimed[0],
+      [chainId, claimed, data, rewardToken?.address],
+    ),
     claimable:
       Object.keys(data?.[chainId.toString() as Chain]?.transactionData || {})
         .length === 0,
