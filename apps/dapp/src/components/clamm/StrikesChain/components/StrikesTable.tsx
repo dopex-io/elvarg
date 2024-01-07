@@ -1,19 +1,20 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { formatUnits } from 'viem';
+import React, { useMemo } from 'react';
+import { formatUnits, hexToBigInt } from 'viem';
 
 import { Button } from '@dopex-io/ui';
 import { MinusIcon, PlusIcon } from '@heroicons/react/24/solid';
 import { createColumnHelper } from '@tanstack/react-table';
-import { useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
+import useLoadingStates from 'hooks/clamm/useLoadingStates';
 import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 
 import TableLayout from 'components/common/TableLayout';
 
-import getStrikesChain from 'utils/clamm/varrock/getStrikesChain';
 import { formatAmount } from 'utils/general';
+
+import { FilterSettingsType } from 'constants/clamm';
 
 type StrikeItem = {
   strike: {
@@ -154,43 +155,15 @@ export const StatItem = ({ name, value }: { name: string; value: string }) => (
   </div>
 );
 
-const StrikesTable = () => {
-  const {
-    selectStrike,
-    deselectStrike,
-    selectedStrikes,
-    initialize,
-    strikesChain,
-    setUpdateStrikes,
-  } = useStrikesChainStore();
-
+type Props = {
+  filterSettings: FilterSettingsType;
+};
+const StrikesTable = ({ filterSettings }: Props) => {
+  const { selectStrike, deselectStrike, selectedStrikes, strikesChain } =
+    useStrikesChainStore();
   const { unsetDeposit, unsetPurchase } = useClammTransactionsStore();
-
   const { selectedOptionsPool, isPut, markPrice, isTrade } = useClammStore();
-  const { chain } = useNetwork();
-  const [loading, setLoading] = useState(false);
-
-  const loadStrikes = useCallback(async () => {
-    if (!selectedOptionsPool) return;
-    const chainId = chain?.id ?? 42161;
-
-    const data = await getStrikesChain(
-      chainId,
-      selectedOptionsPool.optionsPoolAddress,
-      500,
-      0,
-    );
-
-    initialize(data ?? [], chainId);
-  }, [initialize, chain, , selectedOptionsPool]);
-
-  useEffect(() => {
-    setLoading(true);
-    setUpdateStrikes(loadStrikes);
-    loadStrikes().finally(() => {
-      setLoading(false);
-    });
-  }, [loadStrikes, setUpdateStrikes]);
+  const { isLoading } = useLoadingStates();
 
   const rewardsStrikesLimit = useMemo(() => {
     return {
@@ -202,7 +175,19 @@ const StrikesTable = () => {
   const strikes = useMemo(() => {
     if (!strikesChain || !selectedOptionsPool) return [];
     const { callToken } = selectedOptionsPool;
+
     const _strikes = strikesChain
+      .filter(({ liquidityAvailableUsd, optionsAvailable }) =>
+        filterSettings.liquidityThreshold[1] === 0
+          ? filterSettings.liquidityThreshold[0] < Number(liquidityAvailableUsd)
+          : filterSettings.liquidityThreshold[0] < Number(optionsAvailable),
+      )
+      .filter(
+        (_, index) =>
+          filterSettings.range.length === 0 ||
+          (filterSettings.range[0] <= index &&
+            filterSettings.range[1] >= index),
+      )
       .map(
         (
           {
@@ -315,6 +300,7 @@ const StrikesTable = () => {
       return _strikes.sort((a, b) => a.strike.amount - b.strike.amount);
     }
   }, [
+    filterSettings,
     isTrade,
     unsetDeposit,
     unsetPurchase,
@@ -332,7 +318,7 @@ const StrikesTable = () => {
       <TableLayout<StrikeItem>
         data={strikes}
         columns={columns}
-        isContentLoading={loading}
+        isContentLoading={isLoading('strikes-chain')}
         disablePagination={false}
         pageSize={500}
       />

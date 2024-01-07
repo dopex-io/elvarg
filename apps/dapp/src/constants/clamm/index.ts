@@ -1,3 +1,5 @@
+import { Address } from 'viem';
+
 export const EXPIRIES: { [key: string]: number } = {
   '1h': 60 * 60,
   '2h': 2 * 60 * 60,
@@ -23,3 +25,18 @@ export const MULTI_CALL_FN_SIG =
 export const PROTOCOL_FEES_MULTIPLIER = 1.34;
 export const AUTO_EXERCISER_TIME_BASED =
   '0xb223eD797742E096632c39d1b2e0c313750B25FE';
+
+export type FilterSettingsType = {
+  bundleSize: string;
+  range: number[];
+  liquidityThreshold: number[];
+};
+
+export const DEFAULT_STRIKES_CHAIN_FILTER_SETTINGS = {
+  bundleSize: '',
+  range: [],
+  liquidityThreshold: [0, 0],
+};
+
+export const UNISWAP_V3_SWAPPER: Address =
+  '0x985A3f3D6822F037968d48Aa3F7D7d990D72F333';
