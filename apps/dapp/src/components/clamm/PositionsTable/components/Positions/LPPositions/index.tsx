@@ -307,14 +307,14 @@ const LPPositions = ({ loading }: PositionsTableProps) => {
         />
         <div className="flex items-center space-x-[6px]">
           <ClaimButton />
+          <MultiWithdrawButton
+            positions={selectedPositions}
+            deselectAll={deselectAll}
+          />
           <UtilityButtons
             selectAll={selectAll}
             deselectAll={deselectAll}
             refresh={updateLPPositions!}
-          />
-          <MultiWithdrawButton
-            positions={selectedPositions}
-            deselectAll={deselectAll}
           />
         </div>
       </div>

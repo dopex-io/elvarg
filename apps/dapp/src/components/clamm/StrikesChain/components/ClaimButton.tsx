@@ -30,7 +30,7 @@ const ClaimButton = () => {
 
   return claimableAmount > 0n ? (
     <div className="flex space-x-2">
-      <span className="flex space-x-1 text-xs text-stieglitz my-auto">
+      <span className="flex space-x-1 text-xs text-stieglitz text-center items-center">
         <p>Rewards accrued: </p>
         <p className="text-up-only">
           {claimableAmount < parseUnits('1', 15)
