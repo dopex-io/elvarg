@@ -10,10 +10,18 @@ import CheckBox from 'components/UI/CheckBox/CheckBox';
 
 import { formatAmount } from 'utils/general';
 
+import LimitExercisePopover from '../BuyPositions/components/LimitExercisePopover';
+
 export type BuyPositionItem = BuyPosition & {
   exerciseButton: {
     handleExercise: (meta: any) => void;
     disabled: boolean;
+  };
+  limitExercise: {
+    currentLimit: number;
+    createLimit: any;
+    strike: number;
+    isCall: boolean;
   };
 };
 
@@ -126,6 +134,20 @@ export const columns = [
             $ {formatAmount(info.getValue().usdValue, 5)}
           </span>
         </div>
+      );
+    },
+  }),
+  columnHelper.accessor('limitExercise', {
+    header: 'Limit Price',
+    cell: (info) => {
+      const { createLimit, currentLimit, strike, isCall } = info.getValue();
+      return (
+        <LimitExercisePopover
+          strike={strike}
+          isCall={isCall}
+          currentLimit={currentLimit}
+          createLimit={createLimit}
+        />
       );
     },
   }),

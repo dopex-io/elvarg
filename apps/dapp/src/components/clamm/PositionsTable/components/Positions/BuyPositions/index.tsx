@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { BaseError, formatUnits } from 'viem';
+import { BaseError, formatUnits, parseUnits } from 'viem';
 
 import { LinkIcon } from '@heroicons/react/24/solid';
 import * as Tooltip from '@radix-ui/react-tooltip';
@@ -9,6 +9,7 @@ import wagmiConfig from 'wagmi-config';
 
 import useClammPositions from 'hooks/clamm/useClammPositions';
 import useClammStore from 'hooks/clamm/useClammStore';
+import useLimitExercise from 'hooks/clamm/useLimitExercise';
 
 import { PositionsTableProps } from 'components/clamm/PositionsTable';
 import TableLayout from 'components/common/TableLayout';
@@ -35,6 +36,8 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
     Map<number, OptionsPositionsResponse>
   >(new Map());
   const [selectedAllmode, setSelectAllMode] = useState(false);
+
+  const { createLimitOrder } = useLimitExercise();
 
   const selectPosition = useCallback(
     (key: number, position: OptionsPositionsResponse) => {
@@ -227,6 +230,22 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
             },
             disabled: profitAmount === 0,
           },
+          limitExercise: {
+            currentLimit: 0,
+            createLimit: async (limit: number) => {
+              const minProfit =
+                (isPut ? strike - limit : limit - strike) * optionsAmount;
+              createLimitOrder({
+                deadline: BigInt(expiry),
+                minProfit: parseUnits(minProfit.toString(), profit.decimals),
+                optionId: BigInt(meta.tokenId),
+                optionMarket: selectedOptionsPool?.optionsPoolAddress!,
+                profitToken: profit.tokenAddress,
+              });
+            },
+            strike,
+            isCall: !isPut,
+          },
         };
       })
       .sort(
@@ -234,6 +253,7 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
           Number(a.strike.strikePrice) - Number(b.strike.strikePrice),
       );
   }, [
+    selectedOptionsPool?.optionsPoolAddress,
     chain?.id,
     buyPositions,
     markPrice,
@@ -241,6 +261,7 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
     selectedPositions,
     selectPosition,
     unselectPosition,
+    createLimitOrder,
   ]);
 
   const optionsSummary = useMemo(() => {
