@@ -119,12 +119,6 @@ importers:
       date-fns:
         specifier: ^2.30.0
         version: 2.30.0
-      eip-712:
-        specifier: ^1.0.0
-        version: 1.0.0
-      eip712domains:
-        specifier: ^0.1.2
-        version: 0.1.2(typescript@5.3.3)
       ethers:
         specifier: ^5.7.2
         version: 5.7.2
@@ -2998,13 +2992,6 @@ packages:
   /@fal-works/esbuild-plugin-global-externals@2.1.2:
     resolution: {integrity: sha512-cEee/Z+I12mZcFJshKcCqC8tuX5hG3s+d+9nZ3LabqKF1vKdF41B92pJVCBggjAGORAeOzyyDDKrZwIkLffeOQ==}
     dev: true
-
-  /@findeth/abi@0.3.1:
-    resolution: {integrity: sha512-T9HUVEjEgM0MzVLY4gs52ffz5AlHeC3CSGFcEzL4ojKMVzMxa3na1GW/XCmunrhnWP2cDh4fE2MhqLxA0CHqTw==}
-    engines: {node: '>=10'}
-    dependencies:
-      keccak: 3.0.4
-    dev: false
 
   /@floating-ui/core@1.5.2:
     resolution: {integrity: sha512-Ii3MrfY/GAIN3OhXNzpCKaLxHQfJF9qvwq/kEJYdqDxeIHa01K8sldugal6TmeeXl+WMvhv9cnVzUTaFFJF09A==}
@@ -10287,26 +10274,6 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: true
 
-  /eip-712@1.0.0:
-    resolution: {integrity: sha512-zVWGCUJQErhTpBH0mfYurP+t7wNdRizBq7PMAFj8M1Hq4/4QvKE7+FfXVcs7kL6b2ypbCnMgsimJQR1B2AfHpg==}
-    engines: {node: '>=10'}
-    dependencies:
-      '@findeth/abi': 0.3.1
-      '@noble/hashes': 1.3.3
-      superstruct: 0.15.5
-    dev: false
-
-  /eip712domains@0.1.2(typescript@5.3.3):
-    resolution: {integrity: sha512-IMtVNjOtv7UbIG62QWtkQTQ4Jb8bL+iMXSyAdA/iuN//npIbZiVXZ43D4nBoOvaigOOaU97QsBelathDQPsLLA==}
-    dependencies:
-      viem: 1.21.3(typescript@5.3.3)
-    transitivePeerDependencies:
-      - bufferutil
-      - typescript
-      - utf-8-validate
-      - zod
-    dev: false
-
   /ejs@3.1.9:
     resolution: {integrity: sha512-rC+QVNMJWv+MtPgkt0y+0rVEIdbtxVADApW9JXrUVlzHetgcyczP/E7DJmWJ4fJCZF2cPcBk0laWO9ZHMG3DmQ==}
     engines: {node: '>=0.10.0'}
@@ -15746,10 +15713,6 @@ packages:
 
   /superstruct@0.14.2:
     resolution: {integrity: sha512-nPewA6m9mR3d6k7WkZ8N8zpTWfenFH3q9pA2PkuiZxINr9DKB2+40wEQf0ixn8VaGuJ78AB6iWOtStI+/4FKZQ==}
-    dev: false
-
-  /superstruct@0.15.5:
-    resolution: {integrity: sha512-4AOeU+P5UuE/4nOUkmcQdW5y7i9ndt1cQd/3iUe+LTz3RxESf/W/5lg4B74HbDMMv8PHnPnGCQFH45kBcrQYoQ==}
     dev: false
 
   /superstruct@1.0.3:
