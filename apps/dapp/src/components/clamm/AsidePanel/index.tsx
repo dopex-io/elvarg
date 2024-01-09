@@ -10,7 +10,7 @@ import { VARROCK_BASE_API_URL } from 'constants/env';
 
 import CostSummary from './components/CostSummary';
 import InfoPanel from './components/InfoPanel';
-import AutoExercisers from './components/Plugins';
+import Plugins from './components/Plugins';
 import StrikesSection from './components/StrikesSection';
 import TradeSideSelector from './components/TradeSideSelector';
 import TTLSelector from './components/TTLSelector';
@@ -67,7 +67,7 @@ const AsidePanel = () => {
         {isTrade && <TTLSelector />}
         <StrikesSection />
         <CostSummary />
-        {isTrade && <AutoExercisers />}
+        {isTrade && <Plugins />}
         <InfoPanel updateTokenBalances={updateTokenBalances} />
       </div>
       <div className="flex flex-col bg-umbra rounded-md space-y-2 p-3">

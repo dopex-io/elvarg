@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { BaseError, formatUnits, parseUnits, zeroAddress } from 'viem';
+import { BaseError, formatUnits, parseUnits } from 'viem';
 
 import { LinkIcon } from '@heroicons/react/24/solid';
 import * as Tooltip from '@radix-ui/react-tooltip';
@@ -7,7 +7,6 @@ import toast from 'react-hot-toast';
 import { useNetwork, useWalletClient } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
 
-import useClammPlugins from 'hooks/clamm/useClammPlugins';
 import useClammPositions from 'hooks/clamm/useClammPositions';
 import useClammStore from 'hooks/clamm/useClammStore';
 import useLimitExercise from 'hooks/clamm/useLimitExercise';
@@ -23,7 +22,6 @@ import { OptionsPositionsResponse } from 'utils/clamm/varrock/types';
 import { cn } from 'utils/general';
 import { getTokenSymbol } from 'utils/token';
 
-import { EXERCISE_PLUGINS } from 'constants/clamm';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
 import { BuyPositionItem, columns } from '../columnHelpers/buyPositions';

@@ -13,7 +13,6 @@ type Props = {
 };
 
 const useClammPlugins = ({ optionMarket, account }: Props) => {
-  console.log(optionMarket, account);
   const { data: pluginApprovals, refetch } = useContractReads({
     contracts: [
       {
@@ -86,32 +85,21 @@ const useClammPlugins = ({ optionMarket, account }: Props) => {
     },
   });
 
-  const plugins = useMemo(() => {
-    if (!pluginApprovals) return [];
-
-    return [
+  return {
+    plugins: [
       {
         ...EXERCISE_PLUGINS['AUTO-EXERCISE'],
-        enabled: pluginApprovals[0].result ?? false,
+        enabled: pluginApprovals ? pluginApprovals[0].result : false,
         enable: enableAutoExercise,
         disable: disableAutoExercise,
       },
       {
         ...EXERCISE_PLUGINS['LIMIT-EXERCISE'],
-        enabled: pluginApprovals[1].result ?? false,
+        enabled: pluginApprovals ? pluginApprovals[1].result : false,
         enable: enableLimitExercise,
         disable: disableLimitExercise,
       },
-    ];
-  }, [
-    pluginApprovals,
-    enableLimitExercise,
-    enableAutoExercise,
-    disableAutoExercise,
-    disableLimitExercise,
-  ]);
-  return {
-    plugins,
+    ],
     refetch,
   };
 };
