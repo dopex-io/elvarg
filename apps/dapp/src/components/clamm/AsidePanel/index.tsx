@@ -8,9 +8,9 @@ import useClammStore from 'hooks/clamm/useClammStore';
 
 import { VARROCK_BASE_API_URL } from 'constants/env';
 
-import AutoExercisers from './components/AutoExercisers';
 import CostSummary from './components/CostSummary';
 import InfoPanel from './components/InfoPanel';
+import AutoExercisers from './components/Plugins';
 import StrikesSection from './components/StrikesSection';
 import TradeSideSelector from './components/TradeSideSelector';
 import TTLSelector from './components/TTLSelector';

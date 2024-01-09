@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { BaseError, formatUnits, parseUnits } from 'viem';
+import { BaseError, formatUnits, parseUnits, zeroAddress } from 'viem';
 
 import { LinkIcon } from '@heroicons/react/24/solid';
 import * as Tooltip from '@radix-ui/react-tooltip';
@@ -7,18 +7,23 @@ import toast from 'react-hot-toast';
 import { useNetwork, useWalletClient } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
 
+import useClammPlugins from 'hooks/clamm/useClammPlugins';
 import useClammPositions from 'hooks/clamm/useClammPositions';
 import useClammStore from 'hooks/clamm/useClammStore';
 import useLimitExercise from 'hooks/clamm/useLimitExercise';
+import useLimitExerciseOrders from 'hooks/clamm/useLimitExerciseOrders';
 
 import { PositionsTableProps } from 'components/clamm/PositionsTable';
 import TableLayout from 'components/common/TableLayout';
 
+import minProfitToPrice from 'utils/clamm/minProfitToPrice';
+import priceToMinProfit from 'utils/clamm/priceToMinProfit';
 import getExerciseTxData from 'utils/clamm/varrock/getExerciseTxData';
 import { OptionsPositionsResponse } from 'utils/clamm/varrock/types';
 import { cn } from 'utils/general';
 import { getTokenSymbol } from 'utils/token';
 
+import { EXERCISE_PLUGINS } from 'constants/clamm';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
 import { BuyPositionItem, columns } from '../columnHelpers/buyPositions';
@@ -38,6 +43,7 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
   const [selectedAllmode, setSelectAllMode] = useState(false);
 
   const { createLimitOrder } = useLimitExercise();
+  const { data: limitOrders, refetch } = useLimitExerciseOrders();
 
   const selectPosition = useCallback(
     (key: number, position: OptionsPositionsResponse) => {
@@ -185,6 +191,21 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
             ? Number(strike) - Number(premium.usdValue) / optionsAmount
             : Number(strike) + Number(premium.usdValue) / optionsAmount;
 
+        const limitOrder = limitOrders.find(
+          ({ optionId }) => Number(meta.tokenId) === Number(optionId),
+        );
+
+        const limitExercisePrice = limitOrder
+          ? minProfitToPrice({
+              isPut,
+              minProfit: Number(
+                formatUnits(BigInt(limitOrder.minProfit), profit.decimals),
+              ),
+              optionsAmount,
+              strike,
+            })
+          : 0;
+
         return {
           breakEven,
           expiry: Number(expiry),
@@ -231,17 +252,22 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
             disabled: profitAmount === 0,
           },
           limitExercise: {
-            currentLimit: 0,
+            currentLimit: limitExercisePrice,
             createLimit: async (limit: number) => {
-              const minProfit =
-                (isPut ? strike - limit : limit - strike) * optionsAmount;
+              const minProfit = priceToMinProfit({
+                isPut,
+                limitPrice: limit,
+                optionsAmount,
+                strike,
+              });
+
               createLimitOrder({
                 deadline: BigInt(expiry),
                 minProfit: parseUnits(minProfit.toString(), profit.decimals),
                 optionId: BigInt(meta.tokenId),
                 optionMarket: selectedOptionsPool?.optionsPoolAddress!,
                 profitToken: profit.tokenAddress,
-              });
+              }).finally(() => refetch());
             },
             strike,
             isCall: !isPut,
@@ -253,6 +279,7 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
           Number(a.strike.strikePrice) - Number(b.strike.strikePrice),
       );
   }, [
+    refetch,
     selectedOptionsPool?.optionsPoolAddress,
     chain?.id,
     buyPositions,
@@ -262,6 +289,7 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
     selectPosition,
     unselectPosition,
     createLimitOrder,
+    limitOrders,
   ]);
 
   const optionsSummary = useMemo(() => {
