@@ -5,7 +5,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { Address, useAccount, useNetwork, useSignTypedData } from 'wagmi';
 
-import { LIMIT_EXERCISE_CONTRACT } from 'constants/clamm';
+import { EXERCISE_PLUGINS } from 'constants/clamm';
 import { DEFAULT_CHAIN_ID, VARROCK_BASE_API_URL } from 'constants/env';
 
 const types = {
@@ -41,7 +41,7 @@ const useLimitExercise = () => {
       name: 'DopexV2_Clamm_Limit_Exercise_Order',
       version: '1',
       chainId: chainId,
-      verifyingContract: LIMIT_EXERCISE_CONTRACT,
+      verifyingContract: EXERCISE_PLUGINS['LIMIT-EXERCISE'].contract,
     } as const;
   }, [chainId]);
 
@@ -56,6 +56,7 @@ const useLimitExercise = () => {
       const id = toast.loading('Opening wallet');
 
       let signError = true;
+
       try {
         const signatureHex = await signTypedDataAsync({
           account: address!,

@@ -39,15 +39,12 @@ export const DEFAULT_STRIKES_CHAIN_FILTER_SETTINGS = {
 export const UNISWAP_V3_SWAPPER: Address =
   '0x985A3f3D6822F037968d48Aa3F7D7d990D72F333';
 
-export const LIMIT_EXERCISE_CONTRACT =
-  '0x985A3f3D6822F037968d48Aa3F7D7d990D72F333';
-
 export const EXERCISE_PLUGINS = {
   'LIMIT-EXERCISE': {
     name: 'Limit Price Exercise',
     description:
       "Configure prices at which you'd want your options to be exercised at.",
-    contract: '0x985A3f3D6822F037968d48Aa3F7D7d990D72F333' as Address,
+    contract: '0xbbC65E39607E7155D47F78fF7dd6a8C1e1510c3A' as Address,
   },
   'AUTO-EXERCISE': {
     name: 'Time Based Auto Exericse',
