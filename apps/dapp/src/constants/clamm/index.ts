@@ -23,8 +23,6 @@ export const MULTI_CALL_FN_SIG =
   'function multicall(bytes[] calldata data) external returns (bytes[] memory results)';
 
 export const PROTOCOL_FEES_MULTIPLIER = 1.34;
-export const AUTO_EXERCISER_TIME_BASED =
-  '0xb223eD797742E096632c39d1b2e0c313750B25FE';
 
 export type FilterSettingsType = {
   bundleSize: string;
@@ -40,3 +38,18 @@ export const DEFAULT_STRIKES_CHAIN_FILTER_SETTINGS = {
 
 export const UNISWAP_V3_SWAPPER: Address =
   '0x985A3f3D6822F037968d48Aa3F7D7d990D72F333';
+
+export const EXERCISE_PLUGINS = {
+  'LIMIT-EXERCISE': {
+    name: 'Limit Price Exercise',
+    description:
+      "Configure prices at which you'd want your options to be exercised at.",
+    contract: '0xF77739000753bFE15d23A4aF9f717e7db766c92e' as Address,
+  },
+  'AUTO-EXERCISE': {
+    name: 'Time Based Auto Exericse',
+    description:
+      'ITM (Profitable) options are exercised 5 minutes before expiry.',
+    contract: '0xb223eD797742E096632c39d1b2e0c313750B25FE' as Address,
+  },
+};

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { BaseError, formatUnits } from 'viem';
+import { BaseError, formatUnits, parseUnits } from 'viem';
 
 import { LinkIcon } from '@heroicons/react/24/solid';
 import * as Tooltip from '@radix-ui/react-tooltip';
@@ -9,10 +9,14 @@ import wagmiConfig from 'wagmi-config';
 
 import useClammPositions from 'hooks/clamm/useClammPositions';
 import useClammStore from 'hooks/clamm/useClammStore';
+import useLimitExercise from 'hooks/clamm/useLimitExercise';
+import useLimitExerciseOrders from 'hooks/clamm/useLimitExerciseOrders';
 
 import { PositionsTableProps } from 'components/clamm/PositionsTable';
 import TableLayout from 'components/common/TableLayout';
 
+import minProfitToPrice from 'utils/clamm/minProfitToPrice';
+import priceToMinProfit from 'utils/clamm/priceToMinProfit';
 import getExerciseTxData from 'utils/clamm/varrock/getExerciseTxData';
 import { OptionsPositionsResponse } from 'utils/clamm/varrock/types';
 import { cn } from 'utils/general';
@@ -35,6 +39,9 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
     Map<number, OptionsPositionsResponse>
   >(new Map());
   const [selectedAllmode, setSelectAllMode] = useState(false);
+
+  const { createLimitOrder } = useLimitExercise();
+  const { data: limitOrders, refetch } = useLimitExerciseOrders();
 
   const selectPosition = useCallback(
     (key: number, position: OptionsPositionsResponse) => {
@@ -182,6 +189,21 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
             ? Number(strike) - Number(premium.usdValue) / optionsAmount
             : Number(strike) + Number(premium.usdValue) / optionsAmount;
 
+        const limitOrder = limitOrders.find(
+          ({ optionId }) => Number(meta.tokenId) === Number(optionId),
+        );
+
+        const limitExercisePrice = limitOrder
+          ? minProfitToPrice({
+              isPut,
+              minProfit: Number(
+                formatUnits(BigInt(limitOrder.minProfit), profit.decimals),
+              ),
+              optionsAmount,
+              strike,
+            })
+          : 0;
+
         return {
           breakEven,
           expiry: Number(expiry),
@@ -227,6 +249,39 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
             },
             disabled: profitAmount === 0,
           },
+          limitExercise: {
+            currentLimit: limitExercisePrice,
+            createLimit: async (limit: number) => {
+              const limitBigInt = parseUnits(limit.toString(), profit.decimals);
+              let minProfit = priceToMinProfit({
+                isPut,
+                limitPrice: limitBigInt,
+                optionsAmount: parseUnits(
+                  optionsAmount.toString(),
+                  profit.decimals,
+                ),
+                strike: parseUnits(strike.toString(), profit.decimals),
+                profitTokenDecimals: profit.decimals,
+              });
+
+              console.log(minProfit);
+
+              if (isPut) {
+                minProfit =
+                  (minProfit * parseUnits('1', profit.decimals)) / limitBigInt;
+              }
+
+              createLimitOrder({
+                deadline: BigInt(expiry),
+                minProfit: BigInt(minProfit),
+                optionId: BigInt(meta.tokenId),
+                optionMarket: selectedOptionsPool?.optionsPoolAddress!,
+                profitToken: profit.tokenAddress,
+              }).finally(() => refetch());
+            },
+            strike,
+            isCall: !isPut,
+          },
         };
       })
       .sort(
@@ -234,6 +289,8 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
           Number(a.strike.strikePrice) - Number(b.strike.strikePrice),
       );
   }, [
+    refetch,
+    selectedOptionsPool?.optionsPoolAddress,
     chain?.id,
     buyPositions,
     markPrice,
@@ -241,6 +298,8 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
     selectedPositions,
     selectPosition,
     unselectPosition,
+    createLimitOrder,
+    limitOrders,
   ]);
 
   const optionsSummary = useMemo(() => {
