@@ -7,6 +7,6 @@ type Params = {
 
 function minProfitToPrice({ isPut, minProfit, optionsAmount, strike }: Params) {
   const profitPrice = minProfit / optionsAmount;
-  return isPut ? profitPrice - strike : profitPrice + strike;
+  return isPut ? strike - profitPrice : profitPrice + strike;
 }
 export default minProfitToPrice;

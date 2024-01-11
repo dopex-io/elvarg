@@ -48,7 +48,7 @@ const useLimitExerciseOrders = () => {
   });
 
   return {
-    data: data ? data : [],
+    data: isError ? [] : data ?? [],
     isError,
     refetch,
     isRefetching,

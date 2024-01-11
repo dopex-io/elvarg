@@ -11,6 +11,7 @@ function priceToMinProfit({
   optionsAmount,
   strike,
 }: Params) {
+  if (limitPrice === 0) return 0;
   return (isPut ? strike - limitPrice : limitPrice - strike) * optionsAmount;
 }
 
