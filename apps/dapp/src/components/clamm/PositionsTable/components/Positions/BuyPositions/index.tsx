@@ -252,16 +252,28 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
           limitExercise: {
             currentLimit: limitExercisePrice,
             createLimit: async (limit: number) => {
-              const minProfit = priceToMinProfit({
+              const limitBigInt = parseUnits(limit.toString(), profit.decimals);
+              let minProfit = priceToMinProfit({
                 isPut,
-                limitPrice: limit,
-                optionsAmount,
-                strike,
+                limitPrice: limitBigInt,
+                optionsAmount: parseUnits(
+                  optionsAmount.toString(),
+                  profit.decimals,
+                ),
+                strike: parseUnits(strike.toString(), profit.decimals),
+                profitTokenDecimals: profit.decimals,
               });
+
+              console.log(minProfit);
+
+              if (isPut) {
+                minProfit =
+                  (minProfit * parseUnits('1', profit.decimals)) / limitBigInt;
+              }
 
               createLimitOrder({
                 deadline: BigInt(expiry),
-                minProfit: parseUnits(minProfit.toString(), profit.decimals),
+                minProfit: BigInt(minProfit),
                 optionId: BigInt(meta.tokenId),
                 optionMarket: selectedOptionsPool?.optionsPoolAddress!,
                 profitToken: profit.tokenAddress,

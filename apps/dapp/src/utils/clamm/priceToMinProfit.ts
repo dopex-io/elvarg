@@ -1,8 +1,11 @@
+import { parseUnits } from 'viem';
+
 type Params = {
   isPut: boolean;
-  strike: number;
-  limitPrice: number;
-  optionsAmount: number;
+  strike: bigint;
+  limitPrice: bigint;
+  profitTokenDecimals: number;
+  optionsAmount: bigint;
 };
 
 function priceToMinProfit({
@@ -10,9 +13,13 @@ function priceToMinProfit({
   limitPrice,
   optionsAmount,
   strike,
+  profitTokenDecimals,
 }: Params) {
-  if (limitPrice === 0) return 0;
-  return (isPut ? strike - limitPrice : limitPrice - strike) * optionsAmount;
+  if (limitPrice === 0n) return 0n;
+  return (
+    ((isPut ? strike - limitPrice : limitPrice - strike) * optionsAmount) /
+    parseUnits('1', profitTokenDecimals)
+  );
 }
 
 export default priceToMinProfit;
