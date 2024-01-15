@@ -30,13 +30,13 @@
     }
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.23.6",
+    "@babel/preset-env": "^7.23.8",
     "@babel/preset-react": "^7.23.3",
     "@babel/preset-typescript": "^7.23.3",
     "@heroicons/react": "^2.1.1",
     "@storybook/addon-actions": "^7.6.8",
     "@storybook/addon-essentials": "^7.6.6",
-    "@storybook/addon-interactions": "^7.6.7",
+    "@storybook/addon-interactions": "^7.6.8",
     "@storybook/addon-links": "^7.6.6",
     "@storybook/react": "^7.6.6",
     "@storybook/react-webpack5": "^7.6.6",
