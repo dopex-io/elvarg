@@ -1,13 +1,18 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { checksumAddress } from 'viem';
 
 import { Skeleton } from '@dopex-io/ui';
+import { useAccount, useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
+import useMerklRewards from 'hooks/clamm/useMerklRewards';
 
 import Stat from 'components/clamm/TitleBar/Stat';
 
 import getMarkPrice from 'utils/clamm/varrock/getMarkPrice';
 import getStats from 'utils/clamm/varrock/getStats';
+
+import { TOKENS } from 'constants/tokens';
 
 type Stats = {
   openInterest: {
@@ -26,12 +31,29 @@ type Stats = {
     fees: string;
     symbol: string;
   };
+  avgRewardAPR: {
+    apr: string;
+    symbol: string;
+  };
   activePair: string;
 };
 
 const OverViewStats = () => {
   const { selectedOptionsPool, markPrice, setMarkPrice, setTick } =
     useClammStore();
+
+  const { address: user = '0x' } = useAccount();
+
+  const { chain } = useNetwork();
+
+  const { avgAPR } = useMerklRewards({
+    user,
+    chainId: chain?.id || 42161,
+    rewardToken: TOKENS[chain?.id || 42161].find(
+      (token) => token.symbol.toUpperCase() === 'ARB',
+    ),
+    pool: checksumAddress(selectedOptionsPool?.primePool || '0x'),
+  });
 
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<Stats>({
@@ -50,6 +72,10 @@ const OverViewStats = () => {
     fees: {
       fees: '0',
       symbol: '$',
+    },
+    avgRewardAPR: {
+      apr: '0',
+      symbol: '%',
     },
     activePair: 'ARB-USDC',
   });
@@ -131,6 +157,14 @@ const OverViewStats = () => {
               value: stats.fees.fees,
             }}
             label="Total Fees"
+          />
+          <Stat
+            stat={{
+              symbol: '%',
+              value: avgAPR?.toString(),
+            }}
+            label="Reward APR"
+            suffix
           />
         </>
       ) : (
