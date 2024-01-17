@@ -49,19 +49,23 @@ export type LPPositionsResponse = {
   token1Decimals: number;
   token0Withdrawable: string;
   token1Withdrawable: string;
-  meta: {
-    timestamp: number;
-    pool: string;
-    handler: string;
-    withdrawableShares: string;
-    withdrawTx: {
-      txData: Hex;
-      to: Address;
-    };
-    tickLower: number;
-    tickUpper: number;
-    shares: string;
+  meta: LPPositionMeta;
+};
+
+export type LPPositionMeta = {
+  timestamp: number;
+  initialLiquidity: string;
+  strikeId: string;
+  pool: string;
+  handler: string;
+  withdrawableShares: string;
+  withdrawTx: {
+    txData: Hex;
+    to: Address;
   };
+  tickLower: number;
+  tickUpper: number;
+  shares: string;
 };
 
 export type GetExerciseTxDataParam = {
@@ -84,4 +88,13 @@ export type TradeHistory = {
     premium?: string;
     profit?: string;
   };
+};
+
+export type BuyPositionMeta = {
+  tickLower: number;
+  tickUpper: number;
+  liquiditiesUsed: string[];
+  pools: string[];
+  handlers: string[];
+  tokenId: string;
 };

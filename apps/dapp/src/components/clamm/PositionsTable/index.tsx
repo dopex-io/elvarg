@@ -10,17 +10,15 @@ import getLPPositions from 'utils/clamm/varrock/getLPPositions';
 
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
-import ActionButton from './components/Positions/components/ActionButton';
-import BuyPositions from './components/Positions/components/BuyPositions';
+import BuyPositions from './components/Positions/BuyPositions';
 import HistoryPositions from './components/Positions/components/HistoryPositions';
-import LPPositions from './components/Positions/components/LPPositions';
 import PositionsTypeSelector from './components/Positions/components/PositionsTypeSelector';
+import LPPositions from './components/Positions/LPPositions';
 
 export type PositionsTableProps = {
   selectPosition: (key: number, positionInfo: any) => void;
   selectedPositions: Map<number, any>;
   unselectPosition: (key: number) => void;
-  removePosition: (index: number) => void;
   loading: boolean;
 };
 
@@ -45,22 +43,6 @@ const PositionsTable = () => {
     buyPositions: false,
     lpPositions: false,
   });
-
-  const removeLpPosition = useCallback(
-    (indexToRemove: number) => {
-      setLPPositions(lpPositions.filter((_, index) => indexToRemove !== index));
-    },
-    [setLPPositions, lpPositions],
-  );
-
-  const removeBuyPosition = useCallback(
-    (indexToRemove: number) => {
-      setBuyPositions(
-        buyPositions.filter((_, index) => indexToRemove !== index),
-      );
-    },
-    [setBuyPositions, buyPositions],
-  );
 
   const selectPosition = (key: number, positionInfo: any) => {
     setSelectedPositions((prev) => new Map(prev.set(key, positionInfo)));
@@ -141,16 +123,26 @@ const PositionsTable = () => {
   }, [updateLPPositions, setUpdateLPPositions]);
 
   useEffect(() => {
-    const interval = setInterval(
-      () => setUpdateLPPositions(updateLPPositions),
-      15000,
-    );
-    return () => clearInterval(interval);
-  }, [setUpdateLPPositions, updateLPPositions]);
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') {
+        if (positionsTypeIndex === 0) {
+          updateBuyPositions();
+        } else {
+          updateLPPositions();
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [updateBuyPositions, updateLPPositions, positionsTypeIndex]);
 
   return (
     <div className="w-full flex-col items-center justify-center space-y-[12px]">
-      <div className="w-full flex flex-row items-center justify-between">
+      <div className="w-full flex items-center">
         <PositionsTypeSelector
           resetPositions={resetPositions}
           selectedIndex={positionsTypeIndex}
@@ -158,15 +150,6 @@ const PositionsTable = () => {
           lpPositionsLength={lpPositions.length}
           setSelectedIndex={updatePositionsType}
         />
-        <div className="flex space-x-[4px]">
-          {positionsTypeIndex === 1 && (
-            <ActionButton
-              positionsTypeIndex={positionsTypeIndex}
-              selectedPositions={selectedPositions}
-              resetPositions={resetPositions}
-            />
-          )}
-        </div>
       </div>
       <div className="w-full h-fit  bg-cod-gray">
         {positionsTypeIndex === 0 && (
@@ -175,7 +158,6 @@ const PositionsTable = () => {
             unselectPosition={unselectPosition}
             selectedPositions={selectedPositions}
             loading={loading.buyPositions}
-            removePosition={removeBuyPosition}
           />
         )}
         {positionsTypeIndex === 1 && (
@@ -184,7 +166,6 @@ const PositionsTable = () => {
             unselectPosition={unselectPosition}
             selectedPositions={selectedPositions}
             loading={loading.lpPositions}
-            removePosition={removeLpPosition}
           />
         )}
         {positionsTypeIndex === 2 && <HistoryPositions />}

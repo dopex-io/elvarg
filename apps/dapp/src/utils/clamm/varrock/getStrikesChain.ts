@@ -28,7 +28,7 @@ async function getStrikesChain(
 
 export default getStrikesChain;
 
-export type StrikesChainAPIResponse = {
+export type StrikeData = {
   type: string;
   strike: number;
   utilization: number;
@@ -51,4 +51,6 @@ export type StrikesChainAPIResponse = {
     tickUpper: number;
     liquidity: string;
   };
-}[];
+};
+
+export type StrikesChainAPIResponse = StrikeData[];
