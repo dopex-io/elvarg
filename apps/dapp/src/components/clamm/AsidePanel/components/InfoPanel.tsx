@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { BaseError, encodeFunctionData, Hex, parseAbi } from 'viem';
+import {
+  BaseError,
+  encodeFunctionData,
+  Hex,
+  parseAbi,
+  PrepareTransactionRequestReturnType,
+} from 'viem';
 
 import { Button } from '@dopex-io/ui';
 import toast, { LoaderIcon } from 'react-hot-toast';
@@ -7,6 +13,7 @@ import {
   Address,
   erc20ABI,
   useAccount,
+  useBalance,
   useNetwork,
   useWalletClient,
 } from 'wagmi';
@@ -52,6 +59,21 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
   const [approvalsRequired, setApprovalsRequired] = useState<
     ApprovedRequiredInfo[]
   >([]);
+
+  const { data: ethBalance } = useBalance({
+    address: userAddress ? userAddress : undefined,
+  });
+
+  const checkEthBalance = useCallback(
+    (request: PrepareTransactionRequestReturnType) => {
+      if (request.gasPrice && request.gas && ethBalance) {
+        if (request.gasPrice * request.gas > ethBalance.value) {
+          throw new BaseError('Insufficient ETH balance');
+        }
+      }
+    },
+    [ethBalance],
+  );
 
   const checkApproved = useCallback(async () => {
     if (!chain || !userAddress || !selectedOptionsPool || !addresses) return;
@@ -137,12 +159,16 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
             functionName: 'multicall',
             args: [depositsArray.map(([_, v]) => v.txData)],
           });
+
           const request = await walletClient.prepareTransactionRequest({
             account: walletClient.account,
             to: pm,
             data: encodedTxData,
             type: 'legacy',
           });
+
+          checkEthBalance(request);
+
           const hash = await walletClient.sendTransaction(request);
           const reciept = await publicClient.waitForTransactionReceipt({
             hash,
@@ -158,6 +184,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
             data: v.txData,
             type: 'legacy',
           });
+          checkEthBalance(request);
 
           const hash = await walletClient.sendTransaction(request);
           const reciept = await publicClient.waitForTransactionReceipt({
@@ -192,6 +219,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     checkApproved,
     setLoading,
     updateTokenBalances,
+    checkEthBalance,
   ]);
 
   const handlePurchase = useCallback(async () => {
@@ -214,6 +242,9 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
           data: encodedTxData,
           type: 'legacy',
         });
+
+        checkEthBalance(request);
+
         const hash = await walletClient.sendTransaction(request);
         const reciept = await publicClient.waitForTransactionReceipt({
           hash,
@@ -229,6 +260,9 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
             data: v.txData,
             type: 'legacy',
           });
+
+          checkEthBalance(request);
+
           const hash = await walletClient.sendTransaction(request);
           const reciept = await publicClient.waitForTransactionReceipt({
             hash,
@@ -261,6 +295,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     checkApproved,
     setLoading,
     updateTokenBalances,
+    checkEthBalance,
   ]);
 
   const handleApprove = useCallback(async () => {
@@ -280,6 +315,9 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
         data: approvalsRequired[0].txData,
         type: 'legacy',
       });
+
+      checkEthBalance(request);
+
       const hash = await walletClient.sendTransaction(request);
       await publicClient.waitForTransactionReceipt({
         hash,
@@ -297,7 +335,14 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
 
     toast.remove(loadingToastId);
     await checkApproved();
-  }, [userAddress, walletClient, approvalsRequired, checkApproved, setLoading]);
+  }, [
+    userAddress,
+    walletClient,
+    approvalsRequired,
+    checkApproved,
+    setLoading,
+    checkEthBalance,
+  ]);
 
   const buttonProps = useMemo(() => {
     for (const approval of approvalsRequired) {
