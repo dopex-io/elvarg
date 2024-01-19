@@ -77,6 +77,9 @@ importers:
       '@sentry/nextjs':
         specifier: ^7.91.0
         version: 7.91.0(next@14.0.4)(react@18.2.0)
+      '@spindl-xyz/attribution':
+        specifier: 1.6.1
+        version: 1.6.1
       '@tanstack/react-query':
         specifier: ^5.15.0
         version: 5.15.0(react@18.2.0)
@@ -5604,6 +5607,10 @@ packages:
       - bufferutil
       - encoding
       - utf-8-validate
+    dev: false
+
+  /@spindl-xyz/attribution@1.6.1:
+    resolution: {integrity: sha512-VVH0HYiVBRPtqpGhZkJLlXjpCygfCKf6nk/Ocm1YbRy4DkvBinPAwzVXIiEtBWDBW5iuN3cW6CBwb2PuPNBJOg==}
     dev: false
 
   /@stablelib/aead@1.0.1:

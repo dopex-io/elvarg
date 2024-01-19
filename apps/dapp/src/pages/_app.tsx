@@ -4,6 +4,7 @@ import Script from 'next/script';
 
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 
+import spindl from '@spindl-xyz/attribution';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { DefaultSeo } from 'next-seo';
 import { Toaster } from 'react-hot-toast';
@@ -21,6 +22,13 @@ import theme from '../style/muiTheme';
 import 'tailwindcss/tailwind.css';
 import '../style/index.css';
 import '../wdyr';
+
+spindl.configure({
+  sdkKey: process.env.NEXT_PUBLIC_SPINDL_SDK_KEY as string,
+  debugMode: false,
+});
+
+spindl.enableAutoPageViews(); // this auto tracks page views
 
 function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
