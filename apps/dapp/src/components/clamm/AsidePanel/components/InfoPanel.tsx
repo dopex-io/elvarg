@@ -1,11 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  BaseError,
-  encodeFunctionData,
-  Hex,
-  parseAbi,
-  PrepareTransactionRequestReturnType,
-} from 'viem';
+import { BaseError, encodeFunctionData, Hex, parseAbi } from 'viem';
 
 import { Button } from '@dopex-io/ui';
 import toast, { LoaderIcon } from 'react-hot-toast';
@@ -13,7 +7,6 @@ import {
   Address,
   erc20ABI,
   useAccount,
-  useBalance,
   useNetwork,
   useWalletClient,
 } from 'wagmi';
@@ -26,6 +19,7 @@ import useLoadingStates, {
   ASIDE_PANEL_BUTTON_KEY,
 } from 'hooks/clamm/useLoadingStates';
 import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
+import useUserBalance from 'hooks/useUserBalance';
 
 import getTokenAllowance from 'utils/clamm/varrock/getTokenAllowance';
 
@@ -60,20 +54,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     ApprovedRequiredInfo[]
   >([]);
 
-  const { data: ethBalance } = useBalance({
-    address: userAddress ? userAddress : undefined,
-  });
-
-  const checkEthBalance = useCallback(
-    (request: PrepareTransactionRequestReturnType) => {
-      if (request.gasPrice && request.gas && ethBalance) {
-        if (request.gasPrice * request.gas > ethBalance.value) {
-          throw new BaseError('Insufficient ETH balance');
-        }
-      }
-    },
-    [ethBalance],
-  );
+  const { checkEthBalance } = useUserBalance();
 
   const checkApproved = useCallback(async () => {
     if (!chain || !userAddress || !selectedOptionsPool || !addresses) return;
