@@ -1,16 +1,20 @@
 import { useCallback } from 'react';
-import { BaseError, PrepareTransactionRequestReturnType } from 'viem';
+import {
+  BaseError,
+  PrepareTransactionRequestReturnType,
+  zeroAddress,
+} from 'viem';
 
 import { useAccount, useBalance } from 'wagmi';
 
 const useUserBalance = () => {
-  const { address: userAddress } = useAccount();
+  const { address: userAddress = zeroAddress } = useAccount();
   const { data: ethBalance } = useBalance({
     address: userAddress ? userAddress : undefined,
   });
   const checkEthBalance = useCallback(
     (request: PrepareTransactionRequestReturnType) => {
-      if (!request || !userAddress || !ethBalance) return;
+      if (!request || userAddress == zeroAddress || !ethBalance) return;
 
       if (request.gasPrice && request.gas && ethBalance) {
         if (request.gasPrice * request.gas > ethBalance.value) {
