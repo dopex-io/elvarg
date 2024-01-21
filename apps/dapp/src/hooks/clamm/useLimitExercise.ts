@@ -1,9 +1,16 @@
 import { useCallback, useMemo } from 'react';
-import { TypedData } from 'viem';
+import { BaseError, Hex, maxUint256, TypedData } from 'viem';
 
-import axios from 'axios';
+import LimitExercise from 'abis/clamm/LimitExercise';
+import axios, { AxiosError } from 'axios';
 import toast from 'react-hot-toast';
-import { Address, useAccount, useNetwork, useSignTypedData } from 'wagmi';
+import {
+  Address,
+  useAccount,
+  useContractWrite,
+  useNetwork,
+  useSignTypedData,
+} from 'wagmi';
 
 import { EXERCISE_PLUGINS } from 'constants/clamm';
 import { DEFAULT_CHAIN_ID, VARROCK_BASE_API_URL } from 'constants/env';
@@ -19,6 +26,18 @@ const types = {
   ],
 } as const satisfies TypedData;
 
+type OrderSignature = {
+  optionId: bigint;
+  minProfit: bigint;
+  deadline: bigint;
+  profitToken: Address;
+  optionMarket: Address;
+  signer: Address;
+  v: number;
+  r: Hex;
+  s: Hex;
+};
+
 type CreateLimitOrder = {
   optionId: bigint;
   minProfit: bigint;
@@ -31,6 +50,11 @@ const useLimitExercise = () => {
   const { signTypedDataAsync } = useSignTypedData();
   const { address } = useAccount();
   const { chain } = useNetwork();
+  const { writeAsync: writecancelLimitOrder } = useContractWrite({
+    address: EXERCISE_PLUGINS['LIMIT-EXERCISE'].contract,
+    abi: LimitExercise,
+    functionName: 'cancelOrder',
+  });
 
   const chainId = useMemo(() => {
     return chain?.id ?? DEFAULT_CHAIN_ID;
@@ -54,7 +78,8 @@ const useLimitExercise = () => {
       profitToken,
     }: CreateLimitOrder) => {
       const id = toast.loading('Opening wallet');
-
+      console.log('min profit', minProfit);
+      if (minProfit === 0n) minProfit = maxUint256;
       let signError = true;
 
       try {
@@ -89,11 +114,15 @@ const useLimitExercise = () => {
 
         toast.success('Success');
       } catch (err: any) {
-        if (signError) {
+        if (err instanceof BaseError) {
           toast.error(err['shortMessage']);
+        } else if (err instanceof AxiosError) {
+          toast.error(err.response?.data['message']);
         } else {
           console.error(err);
-          toast.error('Failed to save signature');
+          toast.error(
+            'Something went wrong. Check console for detailed error.',
+          );
         }
       }
       toast.remove(id);
@@ -101,7 +130,59 @@ const useLimitExercise = () => {
     [address, domain, signTypedDataAsync, chainId],
   );
 
-  return { createLimitOrder };
+  const cancelLimitOrder = useCallback(
+    async ({
+      deadline,
+      minProfit,
+      optionId,
+      optionMarket,
+      profitToken,
+      signer,
+      v,
+      r,
+      s,
+    }: OrderSignature) => {
+      const id = toast.loading('Opening wallet');
+
+      try {
+        await writecancelLimitOrder({
+          args: [
+            {
+              optionId,
+              minProfit,
+              deadline,
+              optionMarket,
+              profitToken,
+              signer,
+            },
+            { v, r, s },
+          ],
+        });
+
+        await axios
+          .post(`${VARROCK_BASE_API_URL}/clamm/exercise/delete-limit-order`, {
+            chainId,
+            optionMarket,
+            optionId: optionId.toString(),
+          })
+          .catch(() => toast.error('Unable to delete order'));
+
+        toast.success('Limit exercise order removed');
+      } catch (err) {
+        if (err instanceof BaseError) {
+          toast.error(err.shortMessage);
+        } else {
+          console.error(err);
+          toast.error('Transaction Failed');
+        }
+      }
+
+      toast.remove(id);
+    },
+    [writecancelLimitOrder, chainId],
+  );
+
+  return { createLimitOrder, cancelLimitOrder };
 };
 
 export default useLimitExercise;

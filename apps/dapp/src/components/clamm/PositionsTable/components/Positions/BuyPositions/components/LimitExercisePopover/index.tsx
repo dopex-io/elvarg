@@ -26,16 +26,18 @@ type Props = {
   isCall: boolean;
   currentLimit: number;
   createLimit: (limit: number) => Promise<void>;
+  cancelLimit: () => Promise<void>;
 };
 const LimitExercisePopover = ({
   createLimit,
   currentLimit,
   isCall,
   strike,
+  cancelLimit,
 }: Props) => {
   const { address } = useAccount();
   const { selectedOptionsPool } = useClammStore();
-  const [limit, setLimit] = useState<string | undefined>();
+  const [limit, setLimit] = useState<string | undefined>(String(currentLimit));
   const [debouncedLimit] = useDebounce(limit, 1000);
   const { plugins, refetch } = useClammPlugins({
     optionMarket: selectedOptionsPool?.optionsPoolAddress ?? zeroAddress,
@@ -64,11 +66,16 @@ const LimitExercisePopover = ({
   const onConfirm = useCallback(() => {
     createLimit(Number(debouncedLimit));
   }, [createLimit, debouncedLimit]);
+
+  const onRemove = useCallback(async () => {
+    await cancelLimit();
+  }, [cancelLimit]);
+
   return (
     <Popover.Root>
       <Popover.Trigger asChild>
         <div className="flex items-center justify-center space-x-[4px]">
-          <p>
+          <p className="flex items-center space-x-[4px]">
             <span className="text-stieglitz">$</span>
             <span
               className={cn(
@@ -124,8 +131,9 @@ const LimitExercisePopover = ({
                     size="xsmall"
                     className="flex-1 text-xs bg-mineshaft w-full"
                     variant="text"
+                    onClick={onRemove}
                   >
-                    Cancel
+                    Remove
                   </Button>
                 </Popover.Close>
 

@@ -18,8 +18,9 @@ export type BuyPositionItem = BuyPosition & {
     disabled: boolean;
   };
   limitExercise: {
+    cancelLimit: () => Promise<void>;
     currentLimit: number;
-    createLimit: any;
+    createLimit: (limit: number) => Promise<void>;
     strike: number;
     isCall: boolean;
   };
@@ -140,12 +141,14 @@ export const columns = [
   columnHelper.accessor('limitExercise', {
     header: 'Limit Price',
     cell: (info) => {
-      const { createLimit, currentLimit, strike, isCall } = info.getValue();
+      const { createLimit, currentLimit, strike, isCall, cancelLimit } =
+        info.getValue();
       return (
         <LimitExercisePopover
           strike={strike}
           isCall={isCall}
           currentLimit={currentLimit}
+          cancelLimit={cancelLimit}
           createLimit={createLimit}
         />
       );

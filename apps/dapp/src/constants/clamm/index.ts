@@ -44,7 +44,7 @@ export const EXERCISE_PLUGINS = {
     name: 'Limit Price Exercise',
     description:
       "Configure prices at which you'd want your options to be exercised at.",
-    contract: '0xF77739000753bFE15d23A4aF9f717e7db766c92e' as Address,
+    contract: '0x70676fceD4314B84f833c8fA1FDfA27f129f60f6' as Address,
   },
   'AUTO-EXERCISE': {
     name: 'Time Based Auto Exericse',

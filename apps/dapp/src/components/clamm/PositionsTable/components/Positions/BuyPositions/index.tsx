@@ -1,5 +1,11 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { BaseError, formatUnits, parseUnits } from 'viem';
+import {
+  BaseError,
+  formatUnits,
+  getAddress,
+  parseUnits,
+  zeroAddress,
+} from 'viem';
 
 import { LinkIcon } from '@heroicons/react/24/solid';
 import * as Tooltip from '@radix-ui/react-tooltip';
@@ -7,6 +13,7 @@ import toast from 'react-hot-toast';
 import { useNetwork, useWalletClient } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
 
+import useClammPlugins from 'hooks/clamm/useClammPlugins';
 import useClammPositions from 'hooks/clamm/useClammPositions';
 import useClammStore from 'hooks/clamm/useClammStore';
 import useLimitExercise from 'hooks/clamm/useLimitExercise';
@@ -35,13 +42,18 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
   const { data: walletClient } = useWalletClient({
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
   });
+
   const [selectedPositions, setSelectedPositions] = useState<
     Map<number, OptionsPositionsResponse>
   >(new Map());
   const [selectedAllmode, setSelectAllMode] = useState(false);
 
-  const { createLimitOrder } = useLimitExercise();
+  const { createLimitOrder, cancelLimitOrder } = useLimitExercise();
   const { data: limitOrders, refetch } = useLimitExerciseOrders();
+  const { refetch: refetchPlugins } = useClammPlugins({
+    optionMarket: selectedOptionsPool?.optionsPoolAddress ?? zeroAddress,
+    account: walletClient?.account?.address ?? zeroAddress,
+  });
 
   const selectPosition = useCallback(
     (key: number, position: OptionsPositionsResponse) => {
@@ -251,24 +263,45 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
           },
           limitExercise: {
             currentLimit: limitExercisePrice,
+            cancelLimit: async () => {
+              if (limitOrder) {
+                await cancelLimitOrder({
+                  optionId: BigInt(limitOrder.optionId),
+                  minProfit: BigInt(limitOrder.minProfit),
+                  deadline: BigInt(limitOrder.deadline),
+                  optionMarket: getAddress(limitOrder.optionMarket),
+                  profitToken: getAddress(limitOrder.profitToken),
+                  signer: getAddress(limitOrder.signer),
+                  r: limitOrder.r,
+                  s: limitOrder.s,
+                  v: limitOrder.v,
+                }).finally(() => {
+                  refetch();
+                  refetchPlugins();
+                });
+              }
+            },
             createLimit: async (limit: number) => {
               const limitBigInt = parseUnits(limit.toString(), profit.decimals);
-              let minProfit = priceToMinProfit({
-                isPut,
-                limitPrice: limitBigInt,
-                optionsAmount: parseUnits(
-                  optionsAmount.toString(),
-                  profit.decimals,
-                ),
-                strike: parseUnits(strike.toString(), profit.decimals),
-                profitTokenDecimals: profit.decimals,
-              });
+              let minProfit = 0n;
+              console.log('LIMIT', limit);
+              if (limit !== 0) {
+                minProfit = priceToMinProfit({
+                  isPut,
+                  limitPrice: limitBigInt,
+                  optionsAmount: parseUnits(
+                    optionsAmount.toString(),
+                    profit.decimals,
+                  ),
+                  strike: parseUnits(strike.toString(), profit.decimals),
+                  profitTokenDecimals: profit.decimals,
+                });
 
-              console.log(minProfit);
-
-              if (isPut) {
-                minProfit =
-                  (minProfit * parseUnits('1', profit.decimals)) / limitBigInt;
+                if (isPut) {
+                  minProfit =
+                    (minProfit * parseUnits('1', profit.decimals)) /
+                    limitBigInt;
+                }
               }
 
               createLimitOrder({
@@ -277,7 +310,10 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
                 optionId: BigInt(meta.tokenId),
                 optionMarket: selectedOptionsPool?.optionsPoolAddress!,
                 profitToken: profit.tokenAddress,
-              }).finally(() => refetch());
+              }).finally(() => {
+                refetch();
+                refetchPlugins();
+              });
             },
             strike,
             isCall: !isPut,
@@ -289,6 +325,7 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
           Number(a.strike.strikePrice) - Number(b.strike.strikePrice),
       );
   }, [
+    refetchPlugins,
     refetch,
     selectedOptionsPool?.optionsPoolAddress,
     chain?.id,
@@ -300,6 +337,7 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
     unselectPosition,
     createLimitOrder,
     limitOrders,
+    cancelLimitOrder,
   ]);
 
   const optionsSummary = useMemo(() => {

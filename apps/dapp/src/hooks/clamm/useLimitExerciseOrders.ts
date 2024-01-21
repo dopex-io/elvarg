@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Address, zeroAddress } from 'viem';
+import { Address, Hex, zeroAddress } from 'viem';
 
 import { useQuery } from '@tanstack/react-query';
 import { useAccount, useNetwork } from 'wagmi';
@@ -13,6 +13,11 @@ type ExerciseOrder = {
   optionMarket: Address;
   signer: Address;
   minProfit: string;
+  deadline: string;
+  profitToken: Address;
+  v: number;
+  r: Hex;
+  s: Hex;
 };
 
 const useLimitExerciseOrders = () => {
