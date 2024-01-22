@@ -49,7 +49,7 @@ export const EXERCISE_PLUGINS = {
   'AUTO-EXERCISE': {
     name: 'Time Based Auto Exericse',
     description:
-      'ITM (Profitable) options are exercised 5 minutes before expiry.',
+      'ITM (Profitable) options are exercised 5 minutes before expiry. 1% of total profit will be deducted as fees',
     contract: '0xb223eD797742E096632c39d1b2e0c313750B25FE' as Address,
   },
 };
