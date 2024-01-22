@@ -290,7 +290,7 @@ const LPPositions = ({ loading }: PositionsTableProps) => {
 
   return (
     <div className="w-full flex flex-col space-y-[12px] py-[12px]">
-      <div className="px-[12px] flex items-center justify-between">
+      <div className="px-[12px] flex items-center justify-between overflow-x-scroll">
         <PositionsSummary
           totalDeposit={totalDeposit}
           totalEarned={totalEarned}

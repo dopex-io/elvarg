@@ -275,7 +275,7 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
 
   return (
     <div className="w-full flex flex-col space-y-[12px] py-[12px]">
-      <div className="bg-cod-gray flex px-[12px] items-center justify-between space-x-[12px]">
+      <div className="bg-cod-gray flex px-[12px] items-center justify-between space-x-[12px] overflow-x-scroll">
         <PositionSummary
           callTokenSymbol={selectedOptionsPool?.callToken.symbol ?? '-'}
           totalOptions={optionsSummary.totalOptions}
