@@ -19,6 +19,7 @@ import useLoadingStates, {
   ASIDE_PANEL_BUTTON_KEY,
 } from 'hooks/clamm/useLoadingStates';
 import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
+import useUserBalance from 'hooks/useUserBalance';
 
 import getTokenAllowance from 'utils/clamm/varrock/getTokenAllowance';
 
@@ -52,6 +53,8 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
   const [approvalsRequired, setApprovalsRequired] = useState<
     ApprovedRequiredInfo[]
   >([]);
+
+  const { checkEthBalance } = useUserBalance();
 
   const checkApproved = useCallback(async () => {
     if (!chain || !userAddress || !selectedOptionsPool || !addresses) return;
@@ -137,12 +140,16 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
             functionName: 'multicall',
             args: [depositsArray.map(([_, v]) => v.txData)],
           });
+
           const request = await walletClient.prepareTransactionRequest({
             account: walletClient.account,
             to: pm,
             data: encodedTxData,
             type: 'legacy',
           });
+
+          checkEthBalance(request);
+
           const hash = await walletClient.sendTransaction(request);
           const reciept = await publicClient.waitForTransactionReceipt({
             hash,
@@ -158,6 +165,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
             data: v.txData,
             type: 'legacy',
           });
+          checkEthBalance(request);
 
           const hash = await walletClient.sendTransaction(request);
           const reciept = await publicClient.waitForTransactionReceipt({
@@ -192,6 +200,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     checkApproved,
     setLoading,
     updateTokenBalances,
+    checkEthBalance,
   ]);
 
   const handlePurchase = useCallback(async () => {
@@ -214,6 +223,9 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
           data: encodedTxData,
           type: 'legacy',
         });
+
+        checkEthBalance(request);
+
         const hash = await walletClient.sendTransaction(request);
         const reciept = await publicClient.waitForTransactionReceipt({
           hash,
@@ -229,6 +241,9 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
             data: v.txData,
             type: 'legacy',
           });
+
+          checkEthBalance(request);
+
           const hash = await walletClient.sendTransaction(request);
           const reciept = await publicClient.waitForTransactionReceipt({
             hash,
@@ -261,6 +276,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     checkApproved,
     setLoading,
     updateTokenBalances,
+    checkEthBalance,
   ]);
 
   const handleApprove = useCallback(async () => {
@@ -280,6 +296,9 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
         data: approvalsRequired[0].txData,
         type: 'legacy',
       });
+
+      checkEthBalance(request);
+
       const hash = await walletClient.sendTransaction(request);
       await publicClient.waitForTransactionReceipt({
         hash,
@@ -297,7 +316,14 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
 
     toast.remove(loadingToastId);
     await checkApproved();
-  }, [userAddress, walletClient, approvalsRequired, checkApproved, setLoading]);
+  }, [
+    userAddress,
+    walletClient,
+    approvalsRequired,
+    checkApproved,
+    setLoading,
+    checkEthBalance,
+  ]);
 
   const buttonProps = useMemo(() => {
     for (const approval of approvalsRequired) {
