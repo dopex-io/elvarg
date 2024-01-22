@@ -38,7 +38,7 @@ const LimitExercisePopover = ({
   const { address } = useAccount();
   const { selectedOptionsPool } = useClammStore();
   const [limit, setLimit] = useState<string | undefined>(
-    String(currentLimit.toFixed(5)),
+    String(currentLimit === 0 ? '' : currentLimit.toFixed(5)),
   );
   const [debouncedLimit] = useDebounce(limit, 1000);
   const { plugins, refetch } = useClammPlugins({
