@@ -37,7 +37,9 @@ const LimitExercisePopover = ({
 }: Props) => {
   const { address } = useAccount();
   const { selectedOptionsPool } = useClammStore();
-  const [limit, setLimit] = useState<string | undefined>(String(currentLimit));
+  const [limit, setLimit] = useState<string | undefined>(
+    String(currentLimit.toFixed(5)),
+  );
   const [debouncedLimit] = useDebounce(limit, 1000);
   const { plugins, refetch } = useClammPlugins({
     optionMarket: selectedOptionsPool?.optionsPoolAddress ?? zeroAddress,
@@ -126,17 +128,12 @@ const LimitExercisePopover = ({
                 </p>
               )}
               <div className="flex items-center space-x-[4px] w-full">
-                <Popover.Close className="flex-1">
-                  <Button
-                    size="xsmall"
-                    className="flex-1 text-xs bg-mineshaft w-full"
-                    variant="text"
-                    onClick={onRemove}
-                  >
-                    Remove
-                  </Button>
+                <Popover.Close
+                  className="flex-1 text-xs bg-mineshaft w-full h-full py-[3px] rounded-md"
+                  onClick={onRemove}
+                >
+                  Remove
                 </Popover.Close>
-
                 <Button
                   size="xsmall"
                   disabled={
