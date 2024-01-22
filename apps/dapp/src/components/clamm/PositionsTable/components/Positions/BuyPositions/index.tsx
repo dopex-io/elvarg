@@ -201,18 +201,20 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
             ? Number(strike) - Number(premium.usdValue) / optionsAmount
             : Number(strike) + Number(premium.usdValue) / optionsAmount;
 
-        const limitOrder = limitOrders.find(
-          ({ optionId }) => Number(meta.tokenId) === Number(optionId),
-        );
+        const limitOrder = limitOrders.find(({ optionId }) => {
+          return Number(meta.tokenId) === Number(optionId);
+        });
 
         const limitExercisePrice = limitOrder
           ? minProfitToPrice({
               isPut,
-              minProfit: Number(
-                formatUnits(BigInt(limitOrder.minProfit), profit.decimals),
+              minProfit: BigInt(limitOrder.minProfit),
+              optionsAmount: parseUnits(
+                optionsAmount.toString(),
+                profit.decimals,
               ),
-              optionsAmount,
-              strike,
+              strike: parseUnits(strike.toString(), profit.decimals),
+              profitPrecision: profit.decimals,
             })
           : 0;
 
@@ -284,7 +286,11 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
             createLimit: async (limit: number) => {
               const limitBigInt = parseUnits(limit.toString(), profit.decimals);
               let minProfit = 0n;
-              console.log('LIMIT', limit);
+              const strikeBigInt = parseUnits(
+                strike.toString(),
+                profit.decimals,
+              );
+
               if (limit !== 0) {
                 minProfit = priceToMinProfit({
                   isPut,
@@ -293,14 +299,14 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
                     optionsAmount.toString(),
                     profit.decimals,
                   ),
-                  strike: parseUnits(strike.toString(), profit.decimals),
+                  strike: strikeBigInt,
                   profitTokenDecimals: profit.decimals,
                 });
 
                 if (isPut) {
                   minProfit =
                     (minProfit * parseUnits('1', profit.decimals)) /
-                    limitBigInt;
+                    strikeBigInt;
                 }
               }
 

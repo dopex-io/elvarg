@@ -143,6 +143,7 @@ export const columns = [
     cell: (info) => {
       const { createLimit, currentLimit, strike, isCall, cancelLimit } =
         info.getValue();
+
       return (
         <LimitExercisePopover
           strike={strike}
