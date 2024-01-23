@@ -7,10 +7,11 @@ interface Props {
   };
   label: string;
   suffix?: boolean;
+  condensed?: boolean;
 }
 
 const Stat = (props: Props) => {
-  const { stat, label, suffix = false } = props;
+  const { stat, label, suffix = false, condensed = true } = props;
 
   return (
     <div className="flex flex-col">
@@ -20,7 +21,7 @@ const Stat = (props: Props) => {
         >
           {stat.symbol}
         </span>
-        <span>{formatAmount(stat.value ?? 0, 2, true)}</span>
+        <span>{formatAmount(stat.value ?? 0, 3, condensed)}</span>
       </h6>
       <h6 className="text-xs sm:text-sm md:text-md font-medium text-stieglitz">
         {label}
