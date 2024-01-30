@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 
 import {
   ChartingLibraryWidgetOptions,
@@ -165,10 +166,20 @@ export const TVChartContainer = () => {
   }, [chartReady, resetCache]);
 
   return (
-    <div
-      className="h-full w-full rounded-lg theme-dark"
-      ref={chartContainerRef}
-    />
+    <div className="flex flex-col h-full w-full rounded-lg theme-dark">
+      <div className="h-full w-full" ref={chartContainerRef} />
+      <span className="w-full text-center text-sm">
+        Powered by{' '}
+        <Link
+          href="https://www.tradingview.com"
+          className="underline"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          TradingView
+        </Link>
+      </span>
+    </div>
   );
 };
 
