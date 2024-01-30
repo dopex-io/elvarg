@@ -1,5 +1,6 @@
 import CircularProgress from '@mui/material/CircularProgress';
 
+import spindl from '@spindl-xyz/attribution';
 import { useAccount, useConnect } from 'wagmi';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
@@ -28,7 +29,17 @@ export const useConnectDialog = create<ConnectDialogState>()(
 
 const ConnectDialog = () => {
   const { connect, connectors, error, isLoading, pendingConnector } =
-    useConnect({ onSuccess: () => handleClose('', '') });
+    useConnect({
+      onSuccess: (data) => {
+        spindl.track(
+          'wallet_type',
+          { type: data.connector?.name || 'other' },
+          { address: data.account },
+        );
+
+        handleClose('', '');
+      },
+    });
 
   const open = useConnectDialog((state) => state.isOpen);
   const handleClose = useConnectDialog((state) => state.close);
@@ -61,6 +72,11 @@ const ConnectDialog = () => {
     okx: {
       icon: 'okx.svg',
       downloadLink: 'https://www.okx.com/web3',
+    },
+    bybit: {
+      icon: 'okx.svg',
+      downloadLink:
+        'https://chromewebstore.google.com/detail/bybit-wallet/pdliaogehgdbhbnmkklieghmmjkpigpa',
     },
     injected: {
       icon: 'injected.svg',
