@@ -53,14 +53,14 @@ export const historyPositionsColumns = [
             {action === 'purchase' ? 'Purchase' : 'Exercise'}
           </span>
           <div className="flex items-center justify-start space-x-[4px]">
-            <div className="flex -space-x-2 self-center">
+            <div className="flex -space-x-1 sm:-space-x-2 self-center">
               <img
-                className="w-[18px] h-[18px] z-10 border border-gray-500 rounded-full"
+                className="object-scale-down sm:w-[18px] sm:h-[18px] z-10 border border-gray-500 rounded-full"
                 src={callToken.imgSrc}
                 alt={callToken.symbol}
               />
               <img
-                className="w-[18px] h-[18px]"
+                className="object-scale-down sm:w-[18px] sm:h-[18px]"
                 src={putToken.imgSrc}
                 alt={putToken.symbol}
               />
