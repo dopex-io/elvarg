@@ -1,5 +1,3 @@
-import { Fullscreen } from '@mui/icons-material';
-
 import { Button, Skeleton } from '@dopex-io/ui';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -18,7 +16,7 @@ const TradeRow = ({ token, tradeURL }: TradeRowProps) => {
   });
 
   if (query.isLoading || !query.data) {
-    return <Skeleton width={Fullscreen} color="umbra" />;
+    return <Skeleton width={'100%'} color="umbra" />;
   }
 
   if (query.isError) {
