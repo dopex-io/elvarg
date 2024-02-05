@@ -58,7 +58,7 @@
     "token-list": "workspace:*",
     "use-debounce": "^10.0.0",
     "viem": "^1.21.4",
-    "wagmi": "^1.4.13",
+    "wagmi": "^2.5.5",
     "zustand": "^4.5.0"
   },
   "devDependencies": {
