@@ -1,4 +1,5 @@
-import { Button } from '@dopex-io/ui';
+import { Address } from 'viem';
+
 import {
   ArrowLongLeftIcon,
   ArrowLongRightIcon,
@@ -33,7 +34,61 @@ export type Columns = {
     amount1Symbol: string;
   };
   handler: string;
-  manage: any;
+  manage: {
+    positions: LPPositionItemForTable[];
+    refetch: (...args: any) => Promise<any>;
+  };
+};
+
+export type LPPositionItemForTable = {
+  utilization: number;
+  handler: string;
+  earned: {
+    amount0: number;
+    amount1: number;
+    amount0Symbol: string;
+    amount1Symbol: string;
+  };
+  liquidity: {
+    amount0: number;
+    amount1: number;
+    amount0Symbol: string;
+    amount1Symbol: string;
+  };
+  reserved: {
+    amount0: number;
+    amount1: number;
+    amount0Symbol: string;
+    amount1Symbol: string;
+  };
+  withdrawable: {
+    amount0: number;
+    amount1: number;
+    amount0Symbol: string;
+    amount1Symbol: string;
+  };
+  range: {
+    lower: number;
+    upper: number;
+  };
+  withdraw: PrepareWithdrawData;
+};
+
+export type PrepareWithdrawData = {
+  shares: string;
+  withdrawableLiquidity: string;
+  hook: Address;
+  tokenId: string;
+  amount0: number;
+  amount1: number;
+  amount0Symbol: string;
+  amount1Symbol: string;
+  amount0Decimals: number;
+  amount1Decimals: number;
+  handler: Address;
+  pool: Address;
+  tickLower: number;
+  tickUpper: number;
 };
 
 const columnHelper = createColumnHelper<Columns>();
@@ -116,6 +171,11 @@ export const columns = [
 
   columnHelper.accessor('manage', {
     header: 'Manage',
-    cell: ({ getValue }) => <ManageDialog />,
+    cell: ({ getValue }) => (
+      <ManageDialog
+        positions={getValue().positions}
+        refetch={getValue().refetch}
+      />
+    ),
   }),
 ];

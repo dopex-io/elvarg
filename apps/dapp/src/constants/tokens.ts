@@ -1,4 +1,5 @@
 import arbitrumOneTokens from 'token-list/arbitrum-one.json';
+import localhostTokens from 'token-list/localhost-tokens.json';
 import polygonMainnetTokens from 'token-list/polygon-mainnet.json';
 import { Token, TokenData } from 'types';
 
@@ -45,6 +46,7 @@ export const TOKEN_ADDRESS_TO_DATA: { [key: string]: TokenData } = {
 export const TOKENS: { [key: number]: Token[] } = {
   42161: arbitrumOneTokens,
   137: polygonMainnetTokens,
+  31337: polygonMainnetTokens,
 };
 
 export const TOKEN_DATA: {

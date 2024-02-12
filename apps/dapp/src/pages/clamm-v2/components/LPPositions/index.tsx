@@ -41,9 +41,12 @@ const LPPositions = () => {
   });
 
   return (
-    <div className="flex flex-col flex-start">
+    <div className="flex flex-col flex-start bg-cod-gray rounded-md p-[6px]">
+      <Positions
+        positions={data.map(({ data }) => data)}
+        refetches={data.map(({ refetch }) => refetch)}
+      />
       <Dashboard />
-      <Positions positions={data.map(({ data }) => data)} />
     </div>
   );
 };
@@ -84,6 +87,11 @@ export type LPPosition = {
     token1: string;
   };
   meta: {
+    shares: string;
+    newLiquidity: string;
+    withdrawableLiquidity: string;
+    hook: string;
+    tokenId: string;
     reservedLiquidity: string;
     initialLiquidity: string;
     tickLower: number;
@@ -94,6 +102,5 @@ export type LPPosition = {
       handler: string;
       pool: string;
     };
-    withdrawTx: string;
   };
 };
