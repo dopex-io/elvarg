@@ -14,7 +14,7 @@ const Stat = (props: Props) => {
   const { stat, label, suffix = false, condensed = true } = props;
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col mr-2">
       <h6 className="flex flex-row' text-xs sm:text-sm md:text-md font-medium text-white items-center">
         <span
           className={`text-stieglitz ${suffix ? 'order-last pl-1' : 'order-first pr-1'}`}
