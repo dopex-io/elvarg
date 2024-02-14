@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { getAddress } from 'viem';
+import { formatUnits, getAddress } from 'viem';
 
 import { useNetwork } from 'wagmi';
 
@@ -68,7 +68,7 @@ const Positions = ({ positions, refetches }: Props) => {
               reserved,
             } = position;
             const { token0, token1 } = tokens;
-            const { tickLower, tickUpper } = meta;
+            const { tickLower, tickUpper, initialLiquidity } = meta;
 
             const amount0Symbol = getTokenSymbol({
               chainId: chain.id,
@@ -82,20 +82,34 @@ const Positions = ({ positions, refetches }: Props) => {
             handler = meta.handler.name;
 
             totalEarned = {
-              amount0: Number(earned.token0) + totalEarned.amount0,
-              amount1: Number(earned.token1) + totalEarned.amount1,
+              amount0:
+                Number(formatUnits(BigInt(earned.token0), token0.decimals)) +
+                totalEarned.amount0,
+              amount1:
+                Number(formatUnits(BigInt(earned.token1), token1.decimals)) +
+                totalEarned.amount1,
               amount0Symbol,
               amount1Symbol,
             };
             totalLiquidity = {
-              amount0: Number(liquidity.token0) + totalLiquidity.amount0,
-              amount1: Number(liquidity.token1) + totalLiquidity.amount1,
+              amount0:
+                Number(formatUnits(BigInt(liquidity.token0), token0.decimals)) +
+                totalLiquidity.amount0,
+              amount1:
+                Number(formatUnits(BigInt(liquidity.token1), token1.decimals)) +
+                totalLiquidity.amount1,
               amount0Symbol,
               amount1Symbol,
             };
             totalWithdrawable = {
-              amount0: Number(withdrawable.token0) + totalWithdrawable.amount0,
-              amount1: Number(withdrawable.token1) + totalWithdrawable.amount1,
+              amount0:
+                Number(
+                  formatUnits(BigInt(withdrawable.token0), token0.decimals),
+                ) + totalWithdrawable.amount0,
+              amount1:
+                Number(
+                  formatUnits(BigInt(withdrawable.token1), token1.decimals),
+                ) + totalWithdrawable.amount1,
               amount0Symbol,
               amount1Symbol,
             };
@@ -109,9 +123,17 @@ const Positions = ({ positions, refetches }: Props) => {
             };
 
             const amount0Utilization =
-              1 - Number(withdrawable.token0) / Number(liquidity.token0);
+              1 -
+              Number(
+                formatUnits(BigInt(withdrawable.token0), token0.decimals),
+              ) /
+                Number(formatUnits(BigInt(liquidity.token0), token0.decimals));
             const amount1Utilization =
-              1 - Number(withdrawable.token1) / Number(liquidity.token1);
+              1 -
+              Number(
+                formatUnits(BigInt(withdrawable.token1), token1.decimals),
+              ) /
+                Number(formatUnits(BigInt(liquidity.token1), token1.decimals));
 
             _positions.push({
               utilization:
@@ -120,36 +142,45 @@ const Positions = ({ positions, refetches }: Props) => {
                 100,
               handler: meta.handler.name,
               earned: {
-                amount0: Number(earned.token0),
-                amount1: Number(earned.token1),
+                amount0: earned.token0,
+                amount1: earned.token1,
                 amount0Symbol,
                 amount1Symbol,
+                amount0Decimals: token0.decimals,
+                amount1Decimals: token1.decimals,
               },
               liquidity: {
-                amount0: Number(liquidity.token0),
-                amount1: Number(liquidity.token1),
+                amount0: liquidity.token0,
+                amount1: liquidity.token1,
                 amount0Symbol,
                 amount1Symbol,
+                amount0Decimals: token0.decimals,
+                amount1Decimals: token1.decimals,
               },
               reserved: {
-                amount0: Number(reserved.token0),
-                amount1: Number(reserved.token1),
+                amount0: reserved.token0,
+                amount1: reserved.token1,
                 amount0Symbol,
                 amount1Symbol,
+                amount0Decimals: token0.decimals,
+                amount1Decimals: token1.decimals,
               },
               withdrawable: {
-                amount0: Number(withdrawable.token0),
-                amount1: Number(withdrawable.token1),
+                amount0: withdrawable.token0,
+                amount1: withdrawable.token1,
                 amount0Symbol,
                 amount1Symbol,
+                amount0Decimals: token0.decimals,
+                amount1Decimals: token1.decimals,
               },
               withdraw: {
+                initialLiquidity,
                 shares: meta.shares,
                 withdrawableLiquidity: meta.withdrawableLiquidity,
                 hook: getAddress(meta.hook),
                 tokenId: meta.tokenId,
-                amount0: Number(withdrawable.token0),
-                amount1: Number(withdrawable.token1),
+                amount0: withdrawable.token0,
+                amount1: withdrawable.token1,
                 amount0Symbol,
                 amount1Symbol,
                 amount0Decimals: token0.decimals,

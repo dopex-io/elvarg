@@ -3,6 +3,8 @@ import {
   BaseError,
   encodeAbiParameters,
   encodeFunctionData,
+  encodePacked,
+  formatUnits,
   parseUnits,
 } from 'viem';
 
@@ -19,6 +21,7 @@ import { UniswapV3SingleTickLiquidityHandlerV2 } from 'pages/clamm-v2/abi/Uniswa
 import { getPositionManagerAddress } from 'pages/clamm-v2/constants';
 import toast from 'react-hot-toast';
 import { useContractRead, useWalletClient } from 'wagmi';
+import wagmiConfig from 'wagmi-config';
 
 import { getLiquidityForAmounts } from 'utils/clamm/liquidityAmountMath';
 import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
@@ -29,133 +32,216 @@ import { CreateWithdrawTx } from './ManageDialog';
 
 type Props = {
   reserved: {
-    amount0: number;
-    amount1: number;
+    amount0: string;
+    amount1: string;
     amount0Symbol: string;
     amount1Symbol: string;
   };
   current: {
-    amount0: number;
-    amount1: number;
+    amount0: string;
+    amount1: string;
     amount0Symbol: string;
     amount1Symbol: string;
   };
   withdraw: PrepareWithdrawData;
-  createWithdrawTx: (
-    params: CreateWithdrawTx[],
-  ) => Promise<`0x${string}`[] | undefined>;
+  getShares: (multicallRequest: any[]) => Promise<bigint[]>;
 };
 
-const Reserve = ({
-  reserved,
-  current: { amount0, amount0Symbol, amount1, amount1Symbol },
-  withdraw,
-  createWithdrawTx,
-}: Props) => {
+const Reserve = ({ reserved, current, withdraw, getShares }: Props) => {
   const { data: walletClient } = useWalletClient();
   const [sliderAmount, setSliderAmount] = useState([100]);
   const [open, setOpen] = useState(false);
 
-  const reserveAmounts = useMemo(() => {
-    const perc = sliderAmount[0];
-    return {
-      amount0: amount0 - (perc / 100) * amount0,
-      amount1: amount1 - (perc / 100) * amount1,
-    };
-  }, [amount0, amount1, sliderAmount]);
+  const { publicClient } = wagmiConfig;
 
-  const { data } = useContractRead({
+  const reserveAmounts = useMemo(() => {
+    const perc = BigInt(sliderAmount[0] * 10);
+    const amount0 = BigInt(current.amount0) - BigInt(withdraw.amount0);
+    const amount1 = BigInt(current.amount1) - BigInt(withdraw.amount1);
+
+    return {
+      amount0: amount0 - (perc * amount0) / 1000n,
+      amount1: amount1 - (perc * amount1) / 1000n,
+    };
+  }, [
+    withdraw.amount0,
+    withdraw.amount1,
+    current.amount0,
+    current.amount1,
+    sliderAmount,
+  ]);
+
+  const { data, refetch } = useContractRead({
     abi: UniswapV3Pool,
     address: withdraw.pool,
     functionName: 'slot0',
   });
 
   const handleReserve = useCallback(async () => {
-    if (!walletClient) return;
-    const _amount0 = amount0 - reserveAmounts.amount0;
-    const _amount1 = amount1 - reserveAmounts.amount1;
+    if (!walletClient || !publicClient) return;
+    await refetch();
+    const _amount0 =
+      BigInt(current.amount0) -
+      BigInt(withdraw.amount0) -
+      reserveAmounts.amount0;
+    const _amount1 =
+      BigInt(current.amount1) -
+      BigInt(withdraw.amount1) -
+      reserveAmounts.amount1;
 
     const positionManager = getPositionManagerAddress(walletClient.chain.id);
     if (!positionManager) return;
 
     if (!data) return;
-    const {
-      tickLower,
-      tickUpper,
-      tokenId,
-      amount0Decimals,
-      amount1Decimals,
-      pool,
-      hook,
-      handler,
-    } = withdraw;
+    const { tickLower, tickUpper, tokenId, pool, hook, handler } = withdraw;
 
-    const liquidity = getLiquidityForAmounts(
+    const liquidityToWithdraw = getLiquidityForAmounts(
       data[0],
       getSqrtRatioAtTick(BigInt(tickLower)),
       getSqrtRatioAtTick(BigInt(tickUpper)),
-      parseUnits(_amount0.toFixed(8), amount0Decimals),
-      parseUnits(_amount1.toFixed(8), amount1Decimals),
+      BigInt(withdraw.amount0),
+      BigInt(withdraw.amount1),
     );
 
-    const withdrawTX = await createWithdrawTx([
+    console.log(
+      'WITHDRAWAL AMOUNTS',
+      BigInt(withdraw.amount0),
+      BigInt(withdraw.amount1),
+    );
+
+    const liquidityToReserve = getLiquidityForAmounts(
+      data[0],
+      getSqrtRatioAtTick(BigInt(tickLower)),
+      getSqrtRatioAtTick(BigInt(tickUpper)),
+      _amount0,
+      _amount1,
+    );
+
+    const shares = await getShares([
       {
-        tickLower,
-        tickUpper,
-        tokenId: BigInt(tokenId),
-        withdrawableLiquidity: BigInt(liquidity),
+        abi: UniswapV3SingleTickLiquidityHandlerV2,
+        address: handler,
+        functionName: 'balanceOf',
+        args: [walletClient.account.address, tokenId],
+      },
+      {
+        abi: UniswapV3SingleTickLiquidityHandlerV2,
+        address: handler,
+        functionName: 'convertToShares',
+        args: [liquidityToWithdraw, tokenId],
       },
     ]);
 
-    console.log(liquidity, _amount0, _amount1);
+    console.log('ALL SHARES', shares);
 
-    if (!withdrawTX) return;
+    console.log(pool, hook, tickLower, tickUpper);
 
-    const reserveTx = encodeFunctionData({
-      abi: UniswapV3SingleTickLiquidityHandlerV2,
-      functionName: 'reserveLiquidity',
-      args: [
-        encodeAbiParameters(
-          [
-            {
-              name: 'pool',
-              type: 'address',
-            },
-            {
-              name: 'hook',
-              type: 'address',
-            },
-            {
-              name: 'tickLower',
-              type: 'int24',
-            },
-            {
-              name: 'tickUpper',
-              type: 'int24',
-            },
-            {
-              name: 'shares',
-              type: 'uint128',
-            },
-          ],
-          [pool, hook, tickLower, tickUpper, liquidity],
-        ),
+    // const reserveData = encodePacked(
+    //   ['address', 'address', 'int24', 'int24', 'uint128'],
+    //   [pool, hook, tickLower, tickUpper, shares[0] - 1n],
+    // );
+
+    const reserveData = encodeAbiParameters(
+      [
+        {
+          name: 'pool',
+          type: 'address',
+        },
+        {
+          name: 'hook',
+          type: 'address',
+        },
+        {
+          name: 'tickLower',
+          type: 'int24',
+        },
+        {
+          name: 'tickUpper',
+          type: 'int24',
+        },
+        {
+          name: 'shares',
+          type: 'uint128',
+        },
       ],
-    });
+      [pool, hook, tickLower, tickUpper, shares[0] - 1n],
+    );
 
-    let withdrawSkipped = false;
+    console.log([pool, hook, tickLower, tickUpper, shares[0] - 1n]);
+
+    // const withdrawData = encodeAbiParameters(
+    //   [
+    //     {
+    //       name: 'pool',
+    //       type: 'address',
+    //     },
+    //     {
+    //       name: 'hook',
+    //       type: 'address',
+    //     },
+    //     {
+    //       name: 'tickLower',
+    //       type: 'int24',
+    //     },
+    //     {
+    //       name: 'tickUpper',
+    //       type: 'int24',
+    //     },
+    //     {
+    //       name: 'shares',
+    //       type: 'uint128',
+    //     },
+    //   ],
+    //   [pool, hook, tickLower, tickUpper, shares[1] > 1n ? shares[1] - 1n : 0n],
+    // );
+
+    // let withdrawSkipped = false;
+    // if (shares[1] > 2n) {
+    //   try {
+    //     const tx0 = await walletClient.writeContract({
+    //       abi: DopexV2PositionManager,
+    //       functionName: 'burnPosition',
+    //       address: positionManager,
+    //       args: [handler, withdrawData],
+    //     });
+
+    //     toast.success('Transaction sent!: ' + tx0);
+    //     console.log('Withdraw transaction receipt: ', tx0);
+    //   } catch (err) {
+    //     withdrawSkipped = true;
+    //     if (err instanceof BaseError) {
+    //       toast.error(err['shortMessage']);
+    //     } else {
+    //       console.error(err);
+    //       toast.error(
+    //         'Action Failed. Check console for more information on error',
+    //       );
+    //     }
+    //   }
+    // }
+
+    // if (!withdrawSkipped) {
+    console.log(shares[0]);
     try {
-      const tx0 = await walletClient.writeContract({
-        abi: DopexV2PositionManager,
-        functionName: 'burnPosition',
-        address: positionManager,
-        args: [handler, withdrawTX[0]],
+      // const { result } = await publicClient.simulateContract({
+      //   abi: UniswapV3SingleTickLiquidityHandlerV2,
+      //   address: handler,
+      //   functionName: 'reserveLiquidity',
+      //   args: [reserveData],
+      // });
+
+      // console.log(result);
+      const tx1 = await walletClient.writeContract({
+        abi: UniswapV3SingleTickLiquidityHandlerV2,
+        functionName: 'reserveLiquidity',
+        address: handler,
+        args: [reserveData],
       });
 
-      toast.success('Transaction sent!: ' + tx0);
-      console.log('Withdraw transaction receipt: ', tx0);
+      // toast.success('Transaction sent!: ' + tx1);
+      // console.log('Withdraw transaction receipt: ', tx1);
     } catch (err) {
-      withdrawSkipped = true;
+      console.log(err);
       if (err instanceof BaseError) {
         toast.error(err['shortMessage']);
       } else {
@@ -165,50 +251,40 @@ const Reserve = ({
         );
       }
     }
-
-    if (!withdrawSkipped) {
-      try {
-        const tx1 = await walletClient.writeContract({
-          abi: UniswapV3SingleTickLiquidityHandlerV2,
-          functionName: 'reserveLiquidity',
-          address: handler,
-          args: [reserveTx],
-        });
-
-        toast.success('Transaction sent!: ' + tx1);
-        console.log('Withdraw transaction receipt: ', tx1);
-      } catch (err) {
-        if (err instanceof BaseError) {
-          toast.error(err['shortMessage']);
-        } else {
-          console.error(err);
-          toast.error(
-            'Action Failed. Check console for more information on error',
-          );
-        }
-      }
-    }
+    // }
   }, [
+    publicClient,
     walletClient,
     withdraw,
-    createWithdrawTx,
-    amount0,
-    amount1,
     data,
+    current.amount0,
+    current.amount1,
+    getShares,
     reserveAmounts.amount0,
     reserveAmounts.amount1,
+    refetch,
   ]);
 
-  return reserved.amount0 + reserved.amount1 !== 0 ? (
+  return BigInt(reserved.amount0) + BigInt(reserved.amount1) !== 0n ? (
     <div className="text-[13px] flex flex-col items-start">
       <div className="flex space-x-[4px]">
-        <span>{formatAmount(reserved.amount0, 5)}</span>
+        <span>
+          {formatAmount(
+            formatUnits(BigInt(reserved.amount0), withdraw.amount0Decimals),
+            5,
+          )}
+        </span>
         <span className="text-stieglitz text-[12px]">
           {reserved.amount0Symbol}
         </span>
       </div>
       <div className="flex space-x-[4px]">
-        <span>{formatAmount(reserved.amount1, 5)}</span>
+        <span>
+          {formatAmount(
+            formatUnits(BigInt(reserved.amount1), withdraw.amount1Decimals),
+            5,
+          )}
+        </span>
         <span className="text-stieglitz text-[12px]">
           {reserved.amount1Symbol}
         </span>
@@ -233,12 +309,32 @@ const Reserve = ({
               <span className="text-stieglitz">Current</span>
               <span className="flex flex-col">
                 <span className="flex items-center justify-start space-x-[4px]">
-                  <span>{formatAmount(amount0, 4)}</span>
-                  <span className="text-stieglitz">{amount0Symbol}</span>
+                  <span>
+                    {formatAmount(
+                      formatUnits(
+                        BigInt(current.amount0) - BigInt(withdraw.amount0),
+                        withdraw.amount0Decimals,
+                      ),
+                      4,
+                    )}
+                  </span>
+                  <span className="text-stieglitz">
+                    {current.amount0Symbol}
+                  </span>
                 </span>
                 <span className="flex items-center justify-start space-x-[4px]">
-                  <span>{formatAmount(amount1, 4)}</span>
-                  <span className="text-stieglitz">{amount1Symbol}</span>
+                  <span>
+                    {formatAmount(
+                      formatUnits(
+                        BigInt(current.amount1) - BigInt(withdraw.amount1),
+                        withdraw.amount1Decimals,
+                      ),
+                      4,
+                    )}
+                  </span>
+                  <span className="text-stieglitz">
+                    {current.amount1Symbol}
+                  </span>
                 </span>
               </span>
             </div>
@@ -251,12 +347,33 @@ const Reserve = ({
               <span className="text-stieglitz">Remainder</span>
               <span className="flex flex-col">
                 <span className="flex items-center justify-start space-x-[4px]">
-                  <span>{formatAmount(reserveAmounts.amount0, 4)}</span>
-                  <span className="text-stieglitz">{amount0Symbol}</span>
+                  <span>
+                    {formatAmount(
+                      formatUnits(
+                        reserveAmounts.amount0,
+                        withdraw.amount0Decimals,
+                      ),
+                      4,
+                    )}
+                  </span>
+                  <span className="text-stieglitz">
+                    {current.amount0Symbol}
+                  </span>
                 </span>
                 <span className="flex items-center justify-start space-x-[4px]">
-                  <span>{formatAmount(reserveAmounts.amount1, 4)}</span>
-                  <span className="text-stieglitz">{amount1Symbol}</span>
+                  <span>
+                    {' '}
+                    {formatAmount(
+                      formatUnits(
+                        reserveAmounts.amount1,
+                        withdraw.amount1Decimals,
+                      ),
+                      4,
+                    )}
+                  </span>
+                  <span className="text-stieglitz">
+                    {current.amount1Symbol}
+                  </span>
                 </span>
               </span>
             </div>

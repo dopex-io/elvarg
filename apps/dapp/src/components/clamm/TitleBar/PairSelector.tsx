@@ -14,11 +14,11 @@ interface Props {
 const PairSelector = (props: Props) => {
   const { selectedPair, updateSelectedPairData } = props;
 
-  const { optionsPools } = useClammStore();
+  const { optionMarkets } = useClammStore();
 
   const validPairs = useMemo(() => {
-    if (!optionsPools || optionsPools.size === 0) return [];
-    return Array.from(optionsPools, ([key, value]) => {
+    if (!optionMarkets || optionMarkets.size === 0) return [];
+    return Array.from(optionMarkets, ([_, value]) => {
       const pairNameSplit = value.pairName.split('-');
       return {
         textContent: `${pairNameSplit[0]} - ${pairNameSplit[1]}`,
@@ -26,7 +26,7 @@ const PairSelector = (props: Props) => {
         putToken: value.putToken.symbol,
       };
     });
-  }, [optionsPools]);
+  }, [optionMarkets]);
 
   return (
     <div className="flex flex-col space-y-[8px]">

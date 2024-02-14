@@ -22,17 +22,18 @@ const TitleBar = () => {
   });
 
   const { reset } = useStrikesChainStore();
-  const { setSelectedOptionsPool, optionsPools } = useClammStore();
+  const { selectedOptionsMarket, optionMarkets, setSelectedOptionsMarket } =
+    useClammStore();
 
   useEffect(() => {
     /**
      * checks for pool name in URL or local storage and accordingly
      * selects a valid one or defaults to an existing one
      */
-    if (!params || optionsPools.size === 0) return;
+    if (!params || optionMarkets.size === 0) return;
     let { pair } = params;
 
-    const optionsPoolInfo = optionsPools.get(pair ? pair[0] : '');
+    const optionsPoolInfo = optionMarkets.get(pair ? pair[0] : '');
     let urlReplacement = '';
     if (optionsPoolInfo) {
       const pairNameSplit = optionsPoolInfo.pairName.split('-');
@@ -42,13 +43,13 @@ const TitleBar = () => {
         putToken: optionsPoolInfo.putToken.symbol,
         textContent: `${pairNameSplit[0]} - ${pairNameSplit[1]}`,
       });
-      setSelectedOptionsPool(optionsPoolInfo.pairName);
+      setSelectedOptionsMarket(optionsPoolInfo.pairName);
     } else {
-      const defaultPool = optionsPools.entries().next().value[1];
+      const defaultPool = optionMarkets.entries().next().value[1];
       const pairNameSplit = defaultPool
         ? defaultPool.pairName.split('-')
         : null;
-      setSelectedOptionsPool(defaultPool.pairName);
+      setSelectedOptionsMarket(defaultPool.pairName);
       urlReplacement = defaultPool.pairName;
       setSelectedPair({
         callToken: defaultPool ? defaultPool.callToken.symbol : '-',
@@ -58,23 +59,23 @@ const TitleBar = () => {
           : '-',
       });
     }
-  }, [params, optionsPools, setSelectedOptionsPool]);
+  }, [params, optionMarkets, setSelectedOptionsMarket]);
 
   useEffect(() => {
     const pairName = selectedPair.textContent.replaceAll(' ', '');
-    setSelectedOptionsPool(pairName);
-  }, [selectedPair.textContent, setSelectedOptionsPool]);
+    setSelectedOptionsMarket(pairName);
+  }, [selectedPair.textContent, setSelectedOptionsMarket]);
 
   const updateSelectedPairData = useCallback(
     (T: Pair) => {
       const pairName = T.textContent.replaceAll(' ', '');
       router.replace(pairName);
       setSelectedPair(T);
-      setSelectedOptionsPool(pairName);
+      setSelectedOptionsMarket(pairName);
       reset();
       localStorage.setItem(LAST_VISITED_CLAMM_POOL_KEY, pairName);
     },
-    [reset, setSelectedOptionsPool],
+    [reset, setSelectedOptionsMarket],
   );
 
   return (

@@ -1,5 +1,11 @@
 import { useCallback, useMemo, useState } from 'react';
-import { BaseError, encodeAbiParameters, encodeFunctionData, Hex } from 'viem';
+import {
+  BaseError,
+  encodeAbiParameters,
+  encodeFunctionData,
+  formatUnits,
+  Hex,
+} from 'viem';
 
 import { Button } from '@dopex-io/ui';
 import {
@@ -36,6 +42,7 @@ import Reserve from './Reserve';
 import WithdrawButton from './WithdrawButton';
 
 export type CreateWithdrawTx = {
+  max: boolean;
   withdrawableLiquidity: bigint;
   tokenId: bigint;
   tickLower: number;
@@ -43,9 +50,9 @@ export type CreateWithdrawTx = {
 };
 
 export type PrepareReserve = {
-  amount0: number;
+  amount0: string;
   amount0Symbol: string;
-  amount1: number;
+  amount1: string;
   amount1Symbol: string;
 };
 
@@ -115,27 +122,45 @@ const ManageDialog = ({ positions, refetch }: Props) => {
     setWithdrawTxQueue(new Map());
   };
 
+  const getSharesMulticall = useCallback(
+    async (multicallRequest: any[]) => {
+      return (
+        await publicClient.multicall({
+          contracts: multicallRequest,
+          multicallAddress: '0x4826533B4897376654Bb4d4AD88B7faFD0C98528',
+        })
+      ).map(({ result }) => (result as bigint) ?? 0n);
+    },
+    [publicClient],
+  );
+
   const createWithdrawTx = useCallback(
     async (params: CreateWithdrawTx[]) => {
-      if (!data) return;
+      if (!data || !walletClient) return;
       setIsGeneratingTx(true);
+
       let multicallRequest = params.map(
-        ({ tokenId, withdrawableLiquidity }) => ({
-          abi: UniswapV3SingleTickLiquidityHandlerV2,
-          functionName: 'convertToAssets',
-          address: handler,
-          args: [withdrawableLiquidity, tokenId],
-        }),
+        ({ tokenId, withdrawableLiquidity, max }) =>
+          max
+            ? {
+                abi: UniswapV3SingleTickLiquidityHandlerV2,
+                functionName: 'balanceOf',
+                address: handler,
+                args: [walletClient?.account.address, tokenId],
+              }
+            : {
+                abi: UniswapV3SingleTickLiquidityHandlerV2,
+                functionName: 'convertToShares',
+                address: handler,
+                args: [withdrawableLiquidity, tokenId],
+              },
       );
       try {
-        const convertToShares = await publicClient.multicall({
-          contracts: multicallRequest,
-          multicallAddress: '0x36C02dA8a0983159322a80FFE9F24b1acfF8B570',
-        });
+        const convertToShares = await getSharesMulticall(multicallRequest);
 
         setIsGeneratingTx(false);
-        return convertToShares.map(({ result }, index) => {
-          const shares = BigInt((result as bigint) ?? 0n);
+        return convertToShares.map((shares, index) => {
+          shares = shares > 2n ? shares - 1n : shares;
           return encodeFunctionData({
             abi: DopexV2PositionManager,
             functionName: 'burnPosition',
@@ -169,7 +194,7 @@ const ManageDialog = ({ positions, refetch }: Props) => {
                   hook,
                   params[index]['tickLower'],
                   params[index]['tickUpper'],
-                  shares > 2n ? shares - 1n : shares,
+                  shares,
                 ],
               ),
             ],
@@ -179,8 +204,9 @@ const ManageDialog = ({ positions, refetch }: Props) => {
         console.log(err);
       }
       setIsGeneratingTx(false);
+      clearTxQueue();
     },
-    [data, handler, publicClient, pool, hook],
+    [data, handler, pool, hook, walletClient, getSharesMulticall],
   );
 
   const isSelected = useCallback(
@@ -210,16 +236,13 @@ const ManageDialog = ({ positions, refetch }: Props) => {
                   const params = positions.map(
                     ({
                       withdraw: {
-                        amount0,
-                        amount1,
                         tickLower,
                         tickUpper,
                         tokenId,
                         withdrawableLiquidity,
                       },
                     }) => ({
-                      amount0,
-                      amount1,
+                      max: true,
                       tickLower,
                       tickUpper,
                       tokenId: BigInt(tokenId),
@@ -230,12 +253,23 @@ const ManageDialog = ({ positions, refetch }: Props) => {
                   if (!withdrawTx) return;
 
                   positions.map(
-                    ({ withdraw: { tokenId, amount0, amount1 } }, index) =>
+                    (
+                      {
+                        withdraw: {
+                          tokenId,
+                          amount0,
+                          amount1,
+                          amount0Decimals,
+                          amount1Decimals,
+                        },
+                      },
+                      index,
+                    ) =>
                       updateTxQueue(
                         tokenId,
                         withdrawTx[index],
-                        amount0,
-                        amount1,
+                        Number(formatUnits(BigInt(amount0), amount0Decimals)),
+                        Number(formatUnits(BigInt(amount1), amount1Decimals)),
                       ),
                   );
                 } else {
@@ -256,23 +290,34 @@ const ManageDialog = ({ positions, refetch }: Props) => {
               <CheckBox
                 checked={isSelected(rowData['tokenId'])}
                 onCheckedChange={async (checked) => {
+                  console.log(rowData['withdrawableLiquidity']);
                   if (checked) {
                     const withdrawTx = await createWithdrawTx([
                       {
+                        max: true,
                         tickLower: rowData['tickLower'],
                         tickUpper: rowData['tickUpper'],
                         tokenId: BigInt(rowData['tokenId']),
-                        withdrawableLiquidity: BigInt(
-                          rowData['withdrawableLiquidity'],
-                        ),
+                        withdrawableLiquidity:
+                          BigInt(rowData['withdrawableLiquidity']) - 2n,
                       },
                     ]);
                     if (withdrawTx) {
                       updateTxQueue(
                         rowData['tokenId'],
                         withdrawTx[0],
-                        rowData['amount0'],
-                        rowData['amount1'],
+                        Number(
+                          formatUnits(
+                            BigInt(rowData['amount0']),
+                            rowData['amount0Decimals'],
+                          ),
+                        ),
+                        Number(
+                          formatUnits(
+                            BigInt(rowData['amount1']),
+                            rowData['amount1Decimals'],
+                          ),
+                        ),
                       );
                     }
                   } else {
@@ -295,13 +340,29 @@ const ManageDialog = ({ positions, refetch }: Props) => {
         cell: ({ getValue }) => (
           <div className="text-[13px] flex flex-col items-start">
             <div className="flex space-x-[4px]">
-              <span>{formatAmount(getValue().amount0, 5)}</span>
+              <span>
+                {formatAmount(
+                  formatUnits(
+                    BigInt(getValue().amount0),
+                    getValue().amount0Decimals,
+                  ),
+                  5,
+                )}
+              </span>
               <span className="text-stieglitz text-[12px]">
                 {getValue().amount0Symbol}
               </span>
             </div>
             <div className="flex space-x-[4px]">
-              <span>{formatAmount(getValue().amount1, 5)}</span>
+              <span>
+                {formatAmount(
+                  formatUnits(
+                    BigInt(getValue().amount1),
+                    getValue().amount1Decimals,
+                  ),
+                  5,
+                )}
+              </span>
               <span className="text-stieglitz text-[12px]">
                 {getValue().amount1Symbol}
               </span>
@@ -314,13 +375,29 @@ const ManageDialog = ({ positions, refetch }: Props) => {
         cell: ({ getValue }) => (
           <div className="text-[13px] flex flex-col items-start">
             <div className="flex space-x-[4px]">
-              <span>{formatAmount(getValue().amount0, 5)}</span>
+              <span>
+                {formatAmount(
+                  formatUnits(
+                    BigInt(getValue().amount0),
+                    getValue().amount0Decimals,
+                  ),
+                  5,
+                )}
+              </span>
               <span className="text-stieglitz text-[12px]">
                 {getValue().amount0Symbol}
               </span>
             </div>
             <div className="flex space-x-[4px]">
-              <span>{formatAmount(getValue().amount1, 5)}</span>
+              <span>
+                {formatAmount(
+                  formatUnits(
+                    BigInt(getValue().amount1),
+                    getValue().amount1Decimals,
+                  ),
+                  5,
+                )}
+              </span>
               <span className="text-stieglitz text-[12px]">
                 {getValue().amount1Symbol}
               </span>
@@ -339,6 +416,7 @@ const ManageDialog = ({ positions, refetch }: Props) => {
 
           return (
             <Reserve
+              getShares={getSharesMulticall}
               reserved={getValue()}
               current={{
                 amount0: rowData['amount0'],
@@ -347,7 +425,6 @@ const ManageDialog = ({ positions, refetch }: Props) => {
                 amount1Symbol: rowData['amount1Symbol'],
               }}
               withdraw={withdrawRowData}
-              createWithdrawTx={createWithdrawTx}
             />
           );
         },
@@ -368,13 +445,29 @@ const ManageDialog = ({ positions, refetch }: Props) => {
         cell: ({ getValue }) => (
           <div className="text-[13px] flex flex-col items-start">
             <div className="flex space-x-[4px]">
-              <span>{formatAmount(getValue().amount0, 5)}</span>
+              <span>
+                {formatAmount(
+                  formatUnits(
+                    BigInt(getValue().amount0),
+                    getValue().amount0Decimals,
+                  ),
+                  5,
+                )}
+              </span>
               <span className="text-stieglitz text-[12px]">
                 {getValue().amount0Symbol}
               </span>
             </div>
             <div className="flex space-x-[4px]">
-              <span>{formatAmount(getValue().amount1, 5)}</span>
+              <span>
+                {formatAmount(
+                  formatUnits(
+                    BigInt(getValue().amount1),
+                    getValue().amount1Decimals,
+                  ),
+                  5,
+                )}
+              </span>
               <span className="text-stieglitz text-[12px]">
                 {getValue().amount1Symbol}
               </span>
@@ -393,7 +486,13 @@ const ManageDialog = ({ positions, refetch }: Props) => {
         ),
       }),
     ],
-    [isSelected, createWithdrawTx, positions, withdrawTxQueue.size],
+    [
+      isSelected,
+      createWithdrawTx,
+      positions,
+      withdrawTxQueue.size,
+      getSharesMulticall,
+    ],
   );
 
   const handleWithdraw = useCallback(async () => {
@@ -449,7 +548,7 @@ const ManageDialog = ({ positions, refetch }: Props) => {
       </Trigger>
       <Portal>
         <Overlay className="fixed inset-0 backdrop-blur-[1px]" />
-        <Content className="fixed border border-umbra top-[20%] left-[50%] w-[90vw] max-w-[1200px] translate-x-[-50%] translate-y-[-50%] bg-cod-gray rounded-xl flex flex-col h-fit space-y-[12px] py-[14px]">
+        <Content className="fixed border border-umbra top-[30%] left-[50%] w-[90vw] max-w-[1200px] translate-x-[-50%] translate-y-[-50%] bg-cod-gray rounded-xl flex flex-col h-fit space-y-[12px] py-[14px]">
           <div className="px-[12px] text-stieglitz">
             <Title className="text-[13px] font-medium">
               Manage LP Positions
@@ -475,13 +574,17 @@ const ManageDialog = ({ positions, refetch }: Props) => {
                     <span className="text-stieglitz">Total Withdraw:</span>
                     <div className="flex flex-col">
                       <span className="space-x-[4px]">
-                        <span>{totalWithdrawAmounts.amount0}</span>
+                        <span>
+                          {formatAmount(totalWithdrawAmounts.amount0, 4)}
+                        </span>
                         <span className="text-stieglitz">
                           {symbols.symbol0}
                         </span>
                       </span>
                       <span className="space-x-[4px]">
-                        <span>{totalWithdrawAmounts.amount1}</span>
+                        <span>
+                          {formatAmount(totalWithdrawAmounts.amount1, 4)}
+                        </span>
                         <span className="text-stieglitz">
                           {symbols.symbol1}
                         </span>
@@ -505,7 +608,9 @@ const ManageDialog = ({ positions, refetch }: Props) => {
                 <Button
                   size="xsmall"
                   onClick={handleWithdraw}
-                  disabled={isGeneratingTx || isRefetching}
+                  disabled={
+                    isGeneratingTx || isRefetching || withdrawTxQueue.size === 0
+                  }
                 >
                   Withdraw
                 </Button>

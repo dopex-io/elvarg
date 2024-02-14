@@ -2,9 +2,9 @@ import { VARROCK_BASE_API_URL } from 'constants/env';
 
 const PRICES_URLS: Record<number, Record<string, string>> = {
   42161: {
-    'ARB/USDC': `${VARROCK_BASE_API_URL}/uniswap-prices`,
-    'WBTC/USDC': `${VARROCK_BASE_API_URL}/uniswap-prices`,
-    'WETH/USDC': `${VARROCK_BASE_API_URL}/uniswap-prices`,
+    'ARB/USDC': `${VARROCK_BASE_API_URL}/uniswap-prices/candles`,
+    'WBTC/USDC': `${VARROCK_BASE_API_URL}/uniswap-prices/candles`,
+    'WETH/USDC': `${VARROCK_BASE_API_URL}/uniswap-prices/candles`,
   },
 };
 
@@ -90,7 +90,7 @@ export class TVDataProvider {
     this.bars = [];
 
     try {
-      let queryUrl = `${PRICES_URLS[chainId][ticker]}?interval=${interval}&ticker=${ticker}&from=${from}&to=${to}`;
+      let queryUrl = `${VARROCK_BASE_API_URL}/uniswap-prices/candles?interval=${interval}&ticker=${ticker}&from=${from}&to=${to}&chainId=${chainId}`;
       const prices = await fetch(queryUrl).then((response) => response.json());
       return prices;
     } catch (error) {
@@ -103,11 +103,13 @@ export class TVDataProvider {
     if (!PRICES_URLS[chainId][ticker])
       throw Error('Unsupported token for TV Chart.');
     try {
-      let queryUrl = `${PRICES_URLS[chainId][ticker]}/last-price?ticker=${ticker}`;
-      const { lastPrice } = await fetch(queryUrl).then((response) =>
+      let queryUrl = `${VARROCK_BASE_API_URL}/uniswap-prices/mark-price?ticker=${ticker}&chainId=${chainId}`;
+
+      const { markPrice } = await fetch(queryUrl).then((response) =>
         response.json(),
       );
-      return lastPrice;
+
+      return markPrice;
     } catch {
       console.error('Failed to latest price for ', ticker);
       return this.lastBar.close ?? 0;

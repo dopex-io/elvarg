@@ -44,28 +44,36 @@ export type LPPositionItemForTable = {
   utilization: number;
   handler: string;
   earned: {
-    amount0: number;
-    amount1: number;
+    amount0: string;
+    amount1: string;
     amount0Symbol: string;
     amount1Symbol: string;
+    amount0Decimals: number;
+    amount1Decimals: number;
   };
   liquidity: {
-    amount0: number;
-    amount1: number;
+    amount0: string;
+    amount1: string;
     amount0Symbol: string;
     amount1Symbol: string;
+    amount0Decimals: number;
+    amount1Decimals: number;
   };
   reserved: {
-    amount0: number;
-    amount1: number;
+    amount0: string;
+    amount1: string;
     amount0Symbol: string;
     amount1Symbol: string;
+    amount0Decimals: number;
+    amount1Decimals: number;
   };
   withdrawable: {
-    amount0: number;
-    amount1: number;
+    amount0: string;
+    amount1: string;
     amount0Symbol: string;
     amount1Symbol: string;
+    amount0Decimals: number;
+    amount1Decimals: number;
   };
   range: {
     lower: number;
@@ -76,11 +84,12 @@ export type LPPositionItemForTable = {
 
 export type PrepareWithdrawData = {
   shares: string;
+  initialLiquidity: string;
   withdrawableLiquidity: string;
   hook: Address;
   tokenId: string;
-  amount0: number;
-  amount1: number;
+  amount0: string;
+  amount1: string;
   amount0Symbol: string;
   amount1Symbol: string;
   amount0Decimals: number;

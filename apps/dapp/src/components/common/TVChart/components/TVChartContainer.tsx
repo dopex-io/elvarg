@@ -18,7 +18,7 @@ export const TV_CHART_RELOAD_INTERVAL = 15 * 60 * 1000; // 15 minutes
 export const TVChartContainer = () => {
   const { selectedTicker } = useTradingViewChartStore();
   const [chartReady, setChartReady] = useState(false);
-  const [chartDataLoading, setChartDataLoading] = useState(true);
+  const [setChartDataLoading] = useState(true);
   const tvWidgetRef = useRef<IChartingLibraryWidget | null>(null);
   const chartContainerRef =
     useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
@@ -142,7 +142,6 @@ export const TVChartContainer = () => {
         tvWidgetRef.current.remove();
         tvWidgetRef.current = null;
         setChartReady(false);
-        setChartDataLoading(true);
       }
     };
   }, [dataFeedV2, selectedTicker]);

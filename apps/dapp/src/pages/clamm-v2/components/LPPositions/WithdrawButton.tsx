@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { BaseError, Hex, parseUnits } from 'viem';
+import { BaseError, formatUnits, Hex, parseUnits } from 'viem';
 
 import { Button } from '@dopex-io/ui';
 import { ArrowLongRightIcon, Cog6ToothIcon } from '@heroicons/react/24/solid';
@@ -52,24 +52,25 @@ const WithdrawButton = ({
   });
 
   const withdrawAmounts = useMemo(() => {
-    const perc = sliderAmount[0];
+    const perc = BigInt(sliderAmount[0] * 10);
+
     return {
-      amount0: amount0 - (perc / 100) * amount0,
-      amount1: amount1 - (perc / 100) * amount1,
+      amount0: BigInt(amount0) - (perc * BigInt(amount0)) / 1000n,
+      amount1: BigInt(amount1) - (perc * BigInt(amount1)) / 1000n,
     };
   }, [amount0, amount1, sliderAmount]);
 
   const handleWithdraw = useCallback(async () => {
     if (!data || !walletClient) return;
-    const _amount0 = amount0 - withdrawAmounts.amount0;
-    const _amount1 = amount1 - withdrawAmounts.amount1;
+    const _amount0 = BigInt(amount0) - withdrawAmounts.amount0;
+    const _amount1 = BigInt(amount1) - withdrawAmounts.amount1;
     try {
       const liquidity = getLiquidityForAmounts(
         data[0],
         getSqrtRatioAtTick(BigInt(tickLower)),
         getSqrtRatioAtTick(BigInt(tickUpper)),
-        parseUnits(_amount0.toFixed(8), amount0Decimals),
-        parseUnits(_amount1.toFixed(8), amount1Decimals),
+        _amount0,
+        _amount1,
       );
 
       const withdrawTX = await createWithdrawTx([
@@ -78,12 +79,18 @@ const WithdrawButton = ({
           tickUpper,
           tokenId: BigInt(tokenId),
           withdrawableLiquidity: liquidity,
+          max: withdrawAmounts.amount0 + withdrawAmounts.amount1 === 0n,
         },
       ]);
 
       if (!withdrawTX) return;
 
-      updateTxQueue(tokenId, withdrawTX[0], _amount0, _amount1);
+      updateTxQueue(
+        tokenId,
+        withdrawTX[0],
+        Number(formatUnits(_amount0, amount0Decimals)),
+        Number(formatUnits(_amount1, amount1Decimals)),
+      );
     } catch (err) {
       if (err instanceof BaseError) {
         toast.error(err['message']);
@@ -98,8 +105,8 @@ const WithdrawButton = ({
     walletClient,
     tokenId,
     amount0,
-    amount1,
     amount0Decimals,
+    amount1,
     amount1Decimals,
     data,
     tickLower,
@@ -144,11 +151,28 @@ const WithdrawButton = ({
               <span className="text-stieglitz">Remainder</span>
               <span className="flex flex-col">
                 <span className="flex items-center justify-start space-x-[4px]">
-                  <span>{formatAmount(withdrawAmounts.amount0, 4)}</span>
+                  <span>
+                    {' '}
+                    {formatAmount(
+                      formatUnits(
+                        BigInt(withdrawAmounts.amount0),
+                        amount0Decimals,
+                      ),
+                      4,
+                    )}
+                  </span>
                   <span className="text-stieglitz">{amount0Symbol}</span>
                 </span>
                 <span className="flex items-center justify-start space-x-[4px]">
-                  <span>{formatAmount(withdrawAmounts.amount1, 4)}</span>
+                  <span>
+                    {formatAmount(
+                      formatUnits(
+                        BigInt(withdrawAmounts.amount1),
+                        amount1Decimals,
+                      ),
+                      4,
+                    )}
+                  </span>
                   <span className="text-stieglitz">{amount1Symbol}</span>
                 </span>
               </span>

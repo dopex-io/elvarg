@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { checksumAddress } from 'viem';
 
 import { Skeleton } from '@dopex-io/ui';
+import { useQuery } from '@tanstack/react-query';
 import { useAccount, useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
@@ -9,42 +10,73 @@ import useMerklRewards from 'hooks/clamm/useMerklRewards';
 
 import Stat from 'components/clamm/TitleBar/Stat';
 
-import getMarkPrice from 'utils/clamm/varrock/getMarkPrice';
-import getStats from 'utils/clamm/varrock/getStats';
-
+import { DEFAULT_CHAIN_ID, VARROCK_BASE_API_URL } from 'constants/env';
 import { TOKENS } from 'constants/tokens';
 
-type Stats = {
-  openInterest: {
-    openInterest: string;
-    symbol: string;
-  };
-  tvl: {
-    tvl: string;
-    symbol: string;
-  };
-  volume: {
-    volume: string;
-    symbol: string;
-  };
-  fees: {
-    fees: string;
-    symbol: string;
-  };
-  avgRewardAPR: {
-    apr: string;
-    symbol: string;
-  };
-  activePair: string;
-};
-
 const OverViewStats = () => {
-  const { selectedOptionsPool, markPrice, setMarkPrice, setTick } =
+  const { selectedOptionsMarket, markPrice, setMarkPrice, setTick } =
     useClammStore();
 
   const { address: user = '0x' } = useAccount();
 
   const { chain } = useNetwork();
+
+  const { data: incomingMarkPrice, isLoading: markPriceLoading } = useQuery<{
+    markPrice: number;
+    tick: number;
+  }>({
+    refetchInterval: 3500,
+    queryKey: ['clamm-mark-price', selectedOptionsMarket?.address, chain?.id],
+    queryFn: async () => {
+      if (!selectedOptionsMarket) return 0;
+      const url = new URL(`${VARROCK_BASE_API_URL}/uniswap-prices/mark-price`);
+      url.searchParams.set(
+        'chainId',
+        (chain?.id ?? DEFAULT_CHAIN_ID).toString(),
+      );
+      url.searchParams.set('ticker', selectedOptionsMarket.ticker);
+      return fetch(url).then((res) => res.json());
+    },
+  });
+
+  const { data: tvl } = useQuery<number>({
+    queryKey: ['clamm-tvl', selectedOptionsMarket?.address, chain?.id],
+    queryFn: async () => {
+      if (!selectedOptionsMarket) return 0;
+      const url = new URL(`${VARROCK_BASE_API_URL}/clamm/stats/tvl`);
+      url.searchParams.set(
+        'chainId',
+        (chain?.id ?? DEFAULT_CHAIN_ID).toString(),
+      );
+
+      url.searchParams.set('optionMarket', selectedOptionsMarket.address);
+      return fetch(url).then((res) => res.json());
+    },
+  });
+  const { data: openInterest } = useQuery<number>({
+    queryKey: [
+      'clamm-open-interest',
+      selectedOptionsMarket?.address,
+      chain?.id,
+    ],
+    queryFn: async () => {
+      if (!selectedOptionsMarket) return 0;
+      const url = new URL(`${VARROCK_BASE_API_URL}/clamm/stats/open-interest`);
+      url.searchParams.set(
+        'chainId',
+        (chain?.id ?? DEFAULT_CHAIN_ID).toString(),
+      );
+
+      url.searchParams.set('optionMarket', selectedOptionsMarket.address);
+      return fetch(url).then((res) => res.json());
+    },
+  });
+
+  useEffect(() => {
+    if (!incomingMarkPrice) return;
+    setMarkPrice(incomingMarkPrice.markPrice);
+    setTick(incomingMarkPrice.tick);
+  }, [incomingMarkPrice, setMarkPrice, setTick]);
 
   const { avgAPR } = useMerklRewards({
     user,
@@ -52,109 +84,52 @@ const OverViewStats = () => {
     rewardToken: TOKENS[chain?.id || 42161].find(
       (token) => token.symbol.toUpperCase() === 'ARB',
     ),
-    pool: checksumAddress(selectedOptionsPool?.primePool || '0x'),
+    pool: checksumAddress(selectedOptionsMarket?.primePool || '0x'),
   });
-
-  const [loading, setLoading] = useState(false);
-  const [stats, setStats] = useState<Stats>({
-    openInterest: {
-      openInterest: '0',
-      symbol: '$',
-    },
-    tvl: {
-      tvl: '0',
-      symbol: '$',
-    },
-    volume: {
-      volume: '0',
-      symbol: '$',
-    },
-    fees: {
-      fees: '0',
-      symbol: '$',
-    },
-    avgRewardAPR: {
-      apr: '0',
-      symbol: '%',
-    },
-    activePair: 'ARB-USDC',
-  });
-
-  const updateStats = useCallback(async () => {
-    if (!selectedOptionsPool) return;
-
-    await getStats(selectedOptionsPool.optionsPoolAddress).then((data) =>
-      setStats((prev) => ({
-        ...prev,
-        ...data,
-        activePair: selectedOptionsPool.pairName,
-      })),
-    );
-  }, [selectedOptionsPool]);
-
-  const updatePrice = useCallback(async () => {
-    if (!selectedOptionsPool) return;
-
-    return await getMarkPrice(
-      selectedOptionsPool.pairTicker,
-      ({ price, tick }) => {
-        setMarkPrice(price);
-        setTick(tick);
-      },
-      () => {},
-    );
-  }, [selectedOptionsPool, setMarkPrice, setTick]);
-
-  useEffect(() => {
-    setLoading(true);
-    updateStats().finally(() => setLoading(false));
-    const updateStatsInterval = setInterval(() => updateStats(), 15000);
-    return () => clearInterval(updateStatsInterval);
-  }, [updateStats]);
-
-  useEffect(() => {
-    setLoading(true);
-    updatePrice().finally(() => setLoading(false));
-    const updatePriceInterval = setInterval(() => updatePrice(), 5000);
-    return () => clearInterval(updatePriceInterval);
-  }, [updatePrice]);
 
   return (
     <div className="grid grid-flow-col md:grid-rows-1 grid-rows-2 gap-y-4 w-full md:w-2/5">
-      {!loading ? (
+      {!markPriceLoading ? (
         <>
           <Stat
             stat={{
               symbol: '$',
-              value: markPrice.toString(),
+              value: markPrice?.toString() ?? '0',
             }}
             label="Mark Price"
           />
           <Stat
             stat={{
-              symbol: stats.openInterest.symbol,
-              value: stats.openInterest.openInterest,
+              symbol: '$',
+              value: openInterest?.toString() ?? '0',
             }}
             label="Open Interest"
           />
           <Stat
             stat={{
-              symbol: stats.tvl.symbol,
-              value: stats.tvl.tvl,
+              symbol: '$',
+              value: tvl?.toString() ?? '0',
             }}
             label="Total Deposits"
           />
           <Stat
             stat={{
-              symbol: stats.volume.symbol,
-              value: stats.volume.volume,
+              symbol: '$',
+              value: selectedOptionsMarket?.totalVolume ?? '0',
             }}
             label="Total Volume"
           />
           <Stat
             stat={{
-              symbol: stats.fees.symbol,
-              value: stats.fees.fees,
+              symbol: '$',
+              value: selectedOptionsMarket?.totalPremium ?? '0',
+            }}
+            label="Total Premium"
+          />
+          <Stat
+            stat={{
+              symbol: '$',
+              value: selectedOptionsMarket?.totalFees ?? '0',
             }}
             label="Total Fees"
           />
