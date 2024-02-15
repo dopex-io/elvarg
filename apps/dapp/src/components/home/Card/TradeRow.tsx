@@ -16,7 +16,7 @@ const TradeRow = ({ token, tradeURL }: TradeRowProps) => {
   });
 
   if (query.isLoading || !query.data) {
-    return <Skeleton width={450} color="umbra" />;
+    return <Skeleton width={'100%'} color="umbra" />;
   }
 
   if (query.isError) {
