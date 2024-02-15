@@ -1,74 +1,76 @@
 import React, { useCallback, useEffect } from 'react';
-import { formatUnits } from 'viem';
+import { formatUnits, zeroAddress } from 'viem';
 
 import axios from 'axios';
-import { useAccount } from 'wagmi';
+import { erc20ABI, useAccount, useContractReads } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 
 import { VARROCK_BASE_API_URL } from 'constants/env';
 
+import AMMSelector from './components/AMMSelector';
 import AutoExercisers from './components/AutoExercisers';
 import CostSummary from './components/CostSummary';
 import InfoPanel from './components/InfoPanel';
+import LPRangeSelector from './components/RangeSelector';
 import StrikesSection from './components/StrikesSection';
 import TradeSideSelector from './components/TradeSideSelector';
 import TTLSelector from './components/TTLSelector';
 
 const AsidePanel = () => {
-  const { selectedOptionsPool, setTokenBalances, isTrade } = useClammStore();
+  const { selectedOptionsMarket, setTokenBalances, isTrade } = useClammStore();
   const { address: userAddress } = useAccount();
 
-  const updateTokenBalances = useCallback(async () => {
-    if (!selectedOptionsPool || !userAddress) return;
-    const { callToken, putToken } = selectedOptionsPool;
-    if (!callToken.address || !putToken.address) return;
-    const balances = await Promise.all([
-      axios.get(`${VARROCK_BASE_API_URL}/token/balance`, {
-        params: {
-          token: callToken.address,
-          user: userAddress,
-        },
-      }),
-      axios.get(`${VARROCK_BASE_API_URL}/token/balance`, {
-        params: {
-          token: putToken.address,
-          user: userAddress,
-        },
-      }),
-    ]);
+  const { data } = useContractReads({
+    contracts: [
+      {
+        abi: erc20ABI,
+        address: selectedOptionsMarket?.callToken.address,
+        functionName: 'balanceOf',
+        args: [userAddress ?? zeroAddress],
+      },
+      {
+        abi: erc20ABI,
+        address: selectedOptionsMarket?.putToken.address,
+        functionName: 'balanceOf',
+        args: [userAddress ?? zeroAddress],
+      },
+    ],
+  });
 
-    const callTokenBalance = balances[0].data
-      ? BigInt(balances[0].data.balance)
-      : 0n;
-    const putTokenBalance = balances[1].data
-      ? BigInt(balances[1].data.balance)
-      : 0n;
-    const readableCallToken = formatUnits(callTokenBalance, callToken.decimals);
-    const readablePutToken = formatUnits(putTokenBalance, putToken.decimals);
+  useEffect(() => {
+    if (!data || !selectedOptionsMarket) return;
+    const callTokenBalance = (data[0].result ?? 0n) as bigint;
+    const putTokenBalance = (data[1].result ?? 0n) as bigint;
+    const readableCallToken = formatUnits(
+      callTokenBalance,
+      selectedOptionsMarket.callToken.decimals,
+    );
+    const readablePutToken = formatUnits(
+      putTokenBalance,
+      selectedOptionsMarket.putToken.decimals,
+    );
     setTokenBalances({
       callToken: callTokenBalance,
       putToken: putTokenBalance,
       readableCallToken,
       readablePutToken,
-      callTokenSymbol: callToken.symbol,
-      putTokenSymbol: putToken.symbol,
+      callTokenSymbol: selectedOptionsMarket.callToken.symbol,
+      putTokenSymbol: selectedOptionsMarket.putToken.symbol,
     });
-  }, [selectedOptionsPool, userAddress, setTokenBalances]);
-
-  useEffect(() => {
-    updateTokenBalances();
-  }, [updateTokenBalances]);
+  }, [data, selectedOptionsMarket, setTokenBalances]);
 
   return (
     <div className="sticky top-[80px] flex flex-col items-center justify-center w-full space-y-[12px]">
       <div className="w-full bg-cod-gray p-[12px] rounded-lg space-y-[4px]">
         <TradeSideSelector />
         {isTrade && <TTLSelector />}
-        <StrikesSection />
+        {!isTrade && <LPRangeSelector />}
+        {isTrade && <StrikesSection />}
         <CostSummary />
+        {/* 
         {isTrade && <AutoExercisers />}
-        <InfoPanel updateTokenBalances={updateTokenBalances} />
+        <InfoPanel updateTokenBalances={updateTokenBalances} /> */}
       </div>
       <div className="flex flex-col bg-umbra rounded-md space-y-2 p-3">
         <span className="flex w-full justify-between">

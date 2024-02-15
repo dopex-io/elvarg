@@ -14,7 +14,7 @@ import StrikesList from './StrikesList';
 
 const StrikesSection = () => {
   const { selectedStrikes, strikesChain } = useStrikesChainStore();
-  const { isTrade, tokenBalances, tick, selectedOptionsPool, markPrice } =
+  const { isTrade, tokenBalances, tick, selectedOptionsMarket, markPrice } =
     useClammStore();
   const [editForAll, setEditForAll] = useState(false);
   const [inputAmount, setInputAmount] = useState<string>('');
@@ -24,8 +24,8 @@ const StrikesSection = () => {
   };
 
   const generatedStrikes = useMemo(() => {
-    if (!selectedOptionsPool) return [];
-    const { callToken, putToken } = selectedOptionsPool;
+    if (!selectedOptionsMarket) return [];
+    const { callToken, putToken } = selectedOptionsMarket;
 
     const token0IsCallToken =
       hexToBigInt(callToken.address) < hexToBigInt(putToken.address);
@@ -42,26 +42,30 @@ const StrikesSection = () => {
       !token0IsCallToken,
       150,
     );
-  }, [tick, selectedOptionsPool]);
+  }, [tick, selectedOptionsMarket]);
 
   const putStrikes = useMemo(() => {
-    return isTrade
-      ? strikesChain
-          .filter(({ strike }) => markPrice > strike)
-          .sort((a, b) => Number(b.strike) - Number(a.strike))
-      : generatedStrikes
-          .filter(({ strike }) => markPrice > strike)
-          .sort((a, b) => Number(b.strike) - Number(a.strike));
+    // return isTrade
+    //   ? strikesChain
+    //       .filter(({ strike }) => markPrice > strike)
+    //       .sort((a, b) => Number(b.strike) - Number(a.strike))
+    //   : generatedStrikes
+    //       .filter(({ strike }) => markPrice > strike)
+    //     .sort((a, b) => Number(b.strike) - Number(a.strike));
+
+    return [];
   }, [generatedStrikes, isTrade, strikesChain, markPrice]);
 
   const callStrikes = useMemo(() => {
-    return isTrade
-      ? strikesChain
-          .filter(({ type }) => type.toLowerCase() === 'call')
-          .sort((a, b) => Number(a.strike) - Number(b.strike))
-      : generatedStrikes
-          .filter(({ type }) => type.toLowerCase() === 'call')
-          .sort((a, b) => Number(a.strike) - Number(b.strike));
+    // return isTrade
+    //   ? strikesChain
+    //       .filter(({ type }) => type.toLowerCase() === 'call')
+    //       .sort((a, b) => Number(a.strike) - Number(b.strike))
+    //   : generatedStrikes
+    //       .filter(({ type }) => type.toLowerCase() === 'call')
+    //     .sort((a, b) => Number(a.strike) - Number(b.strike));
+
+    return [];
   }, [generatedStrikes, isTrade, strikesChain]);
 
   const selectedPutStrikesLength = useMemo(() => {

@@ -5,6 +5,7 @@ import { create } from 'zustand';
 import { getTokenSymbol } from 'utils/token';
 
 export type OptionMarket = {
+  deprecated: boolean;
   ticker: string;
   address: Address;
   callToken: {
@@ -135,6 +136,7 @@ const useClammStore = create<ClammStore>((set, get) => ({
         totalPremium,
         totalVolume,
         ticker,
+        deprecated,
       }) => {
         marketsMapping.set(
           `${getTokenSymbol({
@@ -145,6 +147,7 @@ const useClammStore = create<ClammStore>((set, get) => ({
             chainId,
           })}`,
           {
+            deprecated,
             ticker,
             callToken: {
               ...callToken,

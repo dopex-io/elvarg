@@ -24,21 +24,39 @@ const RangeSelector = ({
   const { strikesChain } = useStrikesChainStore();
 
   const strikes = useMemo(() => {
-    return strikesChain
+    return Array.from(strikesChain)
+      .map(([strike, strikeData]) => {
+        const strikeNumber = Number(strike);
+        const totalLiquidity = strikeData.reduce(
+          (prev, curr) => prev + Number(curr.totalLiquidity),
+          0,
+        );
+        const liquidityAvailable = strikeData.reduce(
+          (prev, curr) => prev + Number(curr.availableLiquidity),
+          0,
+        );
+        const isPut = strikeNumber < markPrice;
+        const totalLiquidityUsd = isPut
+          ? totalLiquidity
+          : totalLiquidity * markPrice;
+        const liquidityAvailableUsd = isPut
+          ? liquidityAvailable
+          : liquidityAvailable * markPrice;
+        const totalusedLiquidity = totalLiquidityUsd - liquidityAvailableUsd;
+        const optionsAvailable = isPut
+          ? liquidityAvailableUsd / strikeNumber
+          : liquidityAvailableUsd;
+
+        return {
+          strike: strikeNumber,
+          liquidity: totalLiquidityUsd,
+          optionsAvailable,
+          availableLiquidity: liquidityAvailableUsd,
+          availableLiquidityBarHeight: liquidityAvailableUsd,
+          liquidityBarHeight: totalusedLiquidity,
+        };
+      })
       .sort((a, b) => a.strike - b.strike)
-      .map(
-        ({ liquidityAvailableUsd, liquidityUsd, strike, optionsAvailable }) => {
-          return {
-            strike,
-            optionsAvailable: Number(optionsAvailable),
-            liquidity: Number(liquidityUsd),
-            availableLiquidity: Number(liquidityAvailableUsd),
-            availableLiquidityBarHeight: Number(liquidityAvailableUsd),
-            liquidityBarHeight:
-              Number(liquidityUsd) - Number(liquidityAvailableUsd),
-          };
-        },
-      )
       .filter(({ optionsAvailable, availableLiquidity }) => {
         if (liquidityThreshold[1] === 0) {
           return availableLiquidity > liquidityThreshold[0] ?? 0;
@@ -46,7 +64,31 @@ const RangeSelector = ({
           return optionsAvailable > liquidityThreshold[0] ?? 0;
         }
       });
-  }, [strikesChain, liquidityThreshold]);
+    // const x = strikesChain
+    //   .sort((a, b) => a.strike - b.strike)
+    //   .map(
+    //     ({ liquidityAvailableUsd, liquidityUsd, strike, optionsAvailable }) => {
+    //       return {
+    //         strike,
+    //         optionsAvailable: Number(optionsAvailable),
+    //         liquidity: Number(liquidityUsd),
+    //         availableLiquidity: Number(liquidityAvailableUsd),
+    //         availableLiquidityBarHeight: Number(liquidityAvailableUsd),
+    //         liquidityBarHeight:
+    //           Number(liquidityUsd) - Number(liquidityAvailableUsd),
+    //       };
+    //     },
+    //   )
+    // .filter(({ optionsAvailable, availableLiquidity }) => {
+    //   if (liquidityThreshold[1] === 0) {
+    //     return availableLiquidity > liquidityThreshold[0] ?? 0;
+    //   } else {
+    //     return optionsAvailable > liquidityThreshold[0] ?? 0;
+    //   }
+    // });
+
+    return [];
+  }, [strikesChain, liquidityThreshold, markPrice]);
 
   useEffect(() => {
     if (selectedStrikes.length === 0) {

@@ -63,7 +63,7 @@ const SelectedStrikeItem = ({
   const { deselectStrike } = useStrikesChainStore();
   const {
     isTrade,
-    selectedOptionsPool,
+    selectedOptionsMarket,
     selectedTTL,
     tokenBalances,
     addresses,
@@ -81,22 +81,22 @@ const SelectedStrikeItem = ({
   const [error, setError] = useState('');
 
   const tokenDecimals = useMemo(() => {
-    if (!selectedOptionsPool)
+    if (!selectedOptionsMarket)
       return {
         callToken: 18,
         putToken: 18,
       };
 
     return {
-      callToken: selectedOptionsPool.callToken.decimals,
-      putToken: selectedOptionsPool.putToken.decimals,
+      callToken: selectedOptionsMarket.callToken.decimals,
+      putToken: selectedOptionsMarket.putToken.decimals,
     };
-  }, [selectedOptionsPool]);
+  }, [selectedOptionsMarket]);
 
   const updatePremium = useCallback(async () => {
-    if (!selectedOptionsPool || !chain || !isTrade) return;
+    if (!selectedOptionsMarket || !chain || !isTrade) return;
     const { isCall, meta } = strikeData;
-    const { callToken, putToken } = selectedOptionsPool;
+    const { callToken, putToken } = selectedOptionsMarket;
 
     if (Number(amountDebounced) === 0) return;
 
@@ -122,16 +122,16 @@ const SelectedStrikeItem = ({
     setLoading,
     chain,
     isTrade,
-    selectedOptionsPool,
+    selectedOptionsMarket,
     strikeData,
     selectedTTL,
     amountDebounced,
   ]);
 
   const updateDepositTransaction = useCallback(async () => {
-    if (isTrade || !chain || !selectedOptionsPool || !addresses) return;
+    if (isTrade || !chain || !selectedOptionsMarket || !addresses) return;
 
-    const { callToken, putToken, primePool } = selectedOptionsPool;
+    const { callToken, putToken, primePool } = selectedOptionsMarket;
     const {
       isCall,
       meta: { tickLower, tickUpper },
@@ -211,12 +211,12 @@ const SelectedStrikeItem = ({
     strikeIndex,
     chain,
     isTrade,
-    selectedOptionsPool,
+    selectedOptionsMarket,
     strikeData,
   ]);
 
   const updatePurchases = useCallback(() => {
-    if (!isTrade || !chain || !selectedOptionsPool || !addresses) return;
+    if (!isTrade || !chain || !selectedOptionsMarket || !addresses) return;
 
     if (Number(amountDebounced) > Number(strikeData.amount1)) {
       setError(
@@ -234,8 +234,7 @@ const SelectedStrikeItem = ({
       return;
     }
 
-    const { callToken, putToken, optionsPoolAddress, primePool } =
-      selectedOptionsPool;
+    const { callToken, putToken, address, primePool } = selectedOptionsMarket;
     const { isCall, meta } = strikeData;
     const { tickLower, tickUpper } = meta;
     const token0IsCallToken =
@@ -312,7 +311,7 @@ const SelectedStrikeItem = ({
       amount: Number(amountDebounced),
       strike: strikeData.strike,
       premium: premium,
-      optionsPool: optionsPoolAddress,
+      optionsPool: address,
       txData,
       tokenSymbol: symbolInContext,
       tokenAddress: tokenAddressInContext,
@@ -328,7 +327,7 @@ const SelectedStrikeItem = ({
     chain,
     amountDebounced,
     isTrade,
-    selectedOptionsPool,
+    selectedOptionsMarket,
     strikeData,
     premium,
     selectedTTL,
@@ -428,8 +427,8 @@ const SelectedStrikeItem = ({
             min="0"
             placeholder={`0.0 ${
               isTrade
-                ? selectedOptionsPool
-                  ? selectedOptionsPool.callToken.symbol
+                ? selectedOptionsMarket
+                  ? selectedOptionsMarket.callToken.symbol
                   : '-'
                 : strikeData.tokenSymbol
             }`}

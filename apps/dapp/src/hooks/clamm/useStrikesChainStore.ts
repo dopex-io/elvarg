@@ -1,9 +1,39 @@
+import { Address } from 'viem';
+
 import { create } from 'zustand';
 
-import { StrikesChainAPIResponse } from 'utils/clamm/varrock/getStrikesChain';
 import { getTokenSymbol } from 'utils/token';
 
-type StrikesChain = StrikesChainAPIResponse;
+export type StrikesChainMappingArray = Record<string, StrikesChainItem[]>[];
+
+export type StrikesChainItem = {
+  totalLiquidity: string;
+  availableLiquidity: string;
+  token: {
+    address: Address;
+    decimals: number;
+    symbol: string;
+  };
+  utilization: string;
+  apr: string;
+  handler: {
+    name: string;
+    deprecated: boolean;
+    handler: string;
+    pool: string;
+  };
+  meta: {
+    totalTokenLiquidity: string;
+    availableTokenLiquidity: string;
+    tickLower: number;
+    tickUpper: number;
+    totalLiquidity: string;
+    availableLiquidity: string;
+  };
+};
+
+export type StrikesChain = StrikesChainItem[];
+
 export type SelectedStrike = {
   ttl: string;
   strike: number;
@@ -16,36 +46,38 @@ export type SelectedStrike = {
 };
 
 type StrikeMeta = {
+  totalTokenLiquidity: bigint;
+  availableTokenLiquidity: bigint;
   tickLower: number;
   tickUpper: number;
-  amount0: bigint;
-  amount1: bigint;
+  totalLiquidity: bigint;
+  availableLiquidity: bigint;
 };
 export interface StrikesChainStore {
   reset: () => void;
   selectedStrikes: Map<number, SelectedStrike>;
   selectStrike: (index: number, strike: SelectedStrike) => void;
   deselectStrike: (index: number) => void;
-  initialize: (data: StrikesChain, chainId: number) => void;
-  strikesChain: StrikesChain;
+  initialize: (data: StrikesChainMappingArray, chainId: number) => void;
+  strikesChain: Map<string, StrikesChainItem[]>;
   updateStrikes: () => void;
   setUpdateStrikes: (fn: () => void) => void;
 }
 
 const useStrikesChainStore = create<StrikesChainStore>((set) => ({
   updateStrikes: () => {},
-  strikesChain: [],
+  strikesChain: new Map(),
   selectedStrikesErrors: new Map(),
-  initialize: (data: StrikesChain, chainId: number) => {
+  initialize: (data: StrikesChainMappingArray, chainId: number) => {
+    if (!data['forEach']) return;
+    const _strikesChain = new Map<string, StrikesChainItem[]>();
+    data.forEach((each) => {
+      const strike = Object.keys(each)[0];
+      _strikesChain.set(strike, each[strike]);
+    });
     set((prev) => ({
       ...prev,
-      strikesChain: data.map((strike) => ({
-        ...strike,
-        tokenSymbol: getTokenSymbol({
-          address: strike.tokenAddress,
-          chainId,
-        }),
-      })),
+      strikesChain: _strikesChain,
     }));
   },
   selectedStrikes: new Map(),

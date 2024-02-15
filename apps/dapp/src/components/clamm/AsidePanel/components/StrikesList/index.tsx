@@ -20,10 +20,10 @@ type Prop = {
 
 const StrikesList = ({ strikes, isPut, selectedLength }: Prop) => {
   const { selectStrike, selectedStrikes } = useStrikesChainStore();
-  const { selectedOptionsPool, isTrade, markPrice } = useClammStore();
+  const { selectedOptionsMarket, isTrade, markPrice } = useClammStore();
 
   const tokenInfo = useMemo(() => {
-    if (!selectedOptionsPool)
+    if (!selectedOptionsMarket)
       return {
         callTokenDecimals: 18,
         putTokenDecimals: 18,
@@ -31,7 +31,7 @@ const StrikesList = ({ strikes, isPut, selectedLength }: Prop) => {
         putTokenSymbol: '-',
       };
 
-    const { callToken, putToken } = selectedOptionsPool;
+    const { callToken, putToken } = selectedOptionsMarket;
 
     return {
       callTokenDecimals: callToken.decimals,
@@ -39,7 +39,7 @@ const StrikesList = ({ strikes, isPut, selectedLength }: Prop) => {
       callTokenSymbol: callToken.symbol,
       putTokenSymbol: putToken.symbol,
     };
-  }, [selectedOptionsPool]);
+  }, [selectedOptionsMarket]);
 
   const rewardsStrikesLimit = useMemo(() => {
     return {
@@ -60,41 +60,41 @@ const StrikesList = ({ strikes, isPut, selectedLength }: Prop) => {
           const isCall = strikeData.type === 'call' ? true : false;
           // const key =
           if (isTrade) {
-            selectStrike(strikeData.strike, {
-              amount0: 0,
-              amount1: strikeData.optionsAvailable,
-              isCall: isCall,
-              strike: strikeData.strike,
-              tokenDecimals: strikeData.tokenDecimals,
-              tokenSymbol: strikeData.tokenSymbol,
-              ttl: '24h',
-              meta: {
-                tickLower: Number(strikeData.meta.tickLower),
-                tickUpper: Number(strikeData.meta.tickUpper),
-                amount0: 0n,
-                amount1: 0n,
-              },
-            });
+            // selectStrike(strikeData.strike, {
+            //   amount0: 0,
+            //   amount1: strikeData.optionsAvailable,
+            //   isCall: isCall,
+            //   strike: strikeData.strike,
+            //   tokenDecimals: strikeData.tokenDecimals,
+            //   tokenSymbol: strikeData.tokenSymbol,
+            //   ttl: '24h',
+            //   meta: {
+            //     tickLower: Number(strikeData.meta.tickLower),
+            //     tickUpper: Number(strikeData.meta.tickUpper),
+            //     amount0: 0n,
+            //     amount1: 0n,
+            //   },
+            // });
           } else {
-            selectStrike(strikeData.strike, {
-              amount0: 0,
-              amount1: '0',
-              isCall: isCall,
-              strike: strikeData.strike,
-              tokenDecimals: isCall
-                ? tokenInfo.callTokenDecimals
-                : tokenInfo.putTokenDecimals,
-              tokenSymbol: isCall
-                ? tokenInfo.callTokenSymbol
-                : tokenInfo.putTokenSymbol,
-              ttl: '24h',
-              meta: {
-                tickLower: Number(strikeData.tickLower),
-                tickUpper: Number(strikeData.tickUpper),
-                amount0: 0n,
-                amount1: 0n,
-              },
-            });
+            // selectStrike(strikeData.strike, {
+            //   amount0: 0,
+            //   amount1: '0',
+            //   isCall: isCall,
+            //   strike: strikeData.strike,
+            //   tokenDecimals: isCall
+            //     ? tokenInfo.callTokenDecimals
+            //     : tokenInfo.putTokenDecimals,
+            //   tokenSymbol: isCall
+            //     ? tokenInfo.callTokenSymbol
+            //     : tokenInfo.putTokenSymbol,
+            //   ttl: '24h',
+            //   meta: {
+            //     tickLower: Number(strikeData.tickLower),
+            //     tickUpper: Number(strikeData.tickUpper),
+            //     amount0: 0n,
+            //     amount1: 0n,
+            //   },
+            // });
           }
         }}
       >
