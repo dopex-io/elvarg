@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Address,
+  BaseError,
   encodeAbiParameters,
   encodeFunctionData,
   Hex,
@@ -11,18 +12,19 @@ import {
 
 import { Button } from '@dopex-io/ui';
 import { DopexV2PositionManager } from 'pages/clamm-v2/abi/DopexV2PositionManager';
-import { UniswapV3Pool } from 'pages/clamm-v2/abi/UniswapV3Pool';
 import {
   getHandler,
   getPositionManagerAddress,
 } from 'pages/clamm-v2/constants';
-import { Bar, BarChart, Cell, Rectangle, Tooltip } from 'recharts';
+import toast from 'react-hot-toast';
+import { Bar, BarChart, Cell, Rectangle } from 'recharts';
 import {
   erc20ABI,
   useAccount,
   useContractReads,
   useContractWrite,
   useNetwork,
+  useWalletClient,
 } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
@@ -34,7 +36,6 @@ import generateStrikes from 'utils/clamm/generateStrikes';
 import {
   getLiquidityForAmount0,
   getLiquidityForAmount1,
-  getLiquidityForAmounts,
 } from 'utils/clamm/liquidityAmountMath';
 import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
 import { cn, formatAmount } from 'utils/general';
@@ -49,13 +50,14 @@ const LPRangeSelector = () => {
     useClammStore();
   const { chain } = useNetwork();
   const { address: userAddress } = useAccount();
+  const { data: walletClient } = useWalletClient();
+  const [loading, setLoading] = useState(false);
   const { strikesChain, updateStrikes } = useStrikesChainStore();
   const [lowerLimitInputStrike, setLowerLimitInputStrike] = useState('');
   const [upperLimitInputStrike, setUpperLimitInputStrike] = useState('');
   const [putAmount, setPutAmount] = useState('');
   const [callAmount, setCallAmount] = useState('');
   const [selection, setSelection] = useState<number[]>([]);
-  const [depositTxs, setDepositTxs] = useState<Hex[]>([]);
 
   const positionManagerAddress = useMemo(() => {
     return getPositionManagerAddress(chain?.id ?? DEFAULT_CHAIN_ID) as Address;
@@ -84,14 +86,14 @@ const LPRangeSelector = () => {
 
   const callDepositAmountBigInt = useMemo(() => {
     return parseUnits(
-      callAmount,
+      Boolean(callAmount) ? callAmount : '0',
       selectedOptionsMarket?.callToken.decimals ?? 18,
     );
   }, [callAmount, selectedOptionsMarket?.callToken.decimals]);
 
   const putDepositAmountBigInt = useMemo(() => {
     return parseUnits(
-      putAmount,
+      Boolean(putAmount) ? putAmount : '0',
       selectedOptionsMarket?.putToken.decimals ?? 18,
     );
   }, [putAmount, selectedOptionsMarket?.putToken.decimals]);
@@ -152,34 +154,7 @@ const LPRangeSelector = () => {
     );
   }, [approveCallTokenLoading, approvePutTokenLoading, allowancesLoading]);
 
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const strike = payload[0].payload.strike;
-      const totalLiquidity = payload[0].payload.liquidity;
-      const availableLiquidity = payload[1].payload.availableLiquidity;
-
-      return (
-        <div className="custom-tooltip flex flex-col text-[10px] border border-carbon w-full h-full bg-umbra p-[4px]">
-          <p className="flex items-center space-x-[4px]">
-            <span className="text-stieglitz">Strike:</span>
-            <span>{formatAmount(strike, 4)}</span>
-          </p>
-          <p className="flex items-center space-x-[4px]">
-            <span className="text-stieglitz">Total Liquidity:</span>
-            <span>{formatAmount(totalLiquidity, 4)}</span>
-          </p>
-          <p className="flex items-center space-x-[4px]">
-            <span className="text-stieglitz">Available Liquidity:</span>
-            <span>{formatAmount(availableLiquidity, 4)}</span>
-          </p>
-        </div>
-      );
-    }
-
-    return null;
-  };
-
-  const existingStrikes = useMemo(() => {
+  const currentStrikes = useMemo(() => {
     return generatedStrikes.map(({ strike, tickLower, tickUpper }) => {
       const existingStrike = strikesChain.get(strike.toString());
       let totalLiquidityUsd = 0;
@@ -229,73 +204,66 @@ const LPRangeSelector = () => {
   }, [selection, generatedStrikes]);
 
   const putStrikesSelected = useMemo(() => {
-    return existingStrikes.filter(
+    return currentStrikes.filter(
       ({ strike }) =>
         strike < markPrice && strike > Number(lowerLimitInputStrike),
     );
-  }, [existingStrikes, lowerLimitInputStrike, markPrice]);
+  }, [currentStrikes, lowerLimitInputStrike, markPrice]);
 
   const calltrikesSelected = useMemo(() => {
-    return existingStrikes.filter(
+    return currentStrikes.filter(
       ({ strike }) => strike > markPrice && strike < Number(upperLimitStrike),
     );
-  }, [existingStrikes, upperLimitStrike, markPrice]);
+  }, [currentStrikes, upperLimitStrike, markPrice]);
 
-  const setSelectedStrikes = (value: number[]) => {
+  const setSelectedStrikes = useCallback((value: number[]) => {
     setSelection(value);
-    setLowerLimitInputStrike(lowerLimitStrike.toString());
-    setUpperLimitInputStrike(upperLimitStrike.toString());
-  };
+  }, []);
 
   const lowerLimitStrikes = useMemo(() => {
-    return existingStrikes
+    return currentStrikes
       .filter(({ strike }) => strike < markPrice)
       .sort((a, b) => a.strike - b.strike);
-  }, [markPrice, existingStrikes]);
+  }, [markPrice, currentStrikes]);
 
   const upperLimitStrikes = useMemo(() => {
-    return existingStrikes
+    return currentStrikes
       .filter(({ strike }) => strike > markPrice)
       .sort((a, b) => a.strike - b.strike);
-  }, [markPrice, existingStrikes]);
+  }, [markPrice, currentStrikes]);
 
   const checkUpperLimitStrike = useCallback(() => {
     const strike = Number(upperLimitInputStrike);
     if (upperLimitStrikes.length === 0) {
       return;
     }
-
     let closestNumber = upperLimitStrikes[0].strike;
     let closestDifference = Math.abs(strike - closestNumber);
-
     for (let i = 1; i < upperLimitStrikes.length; i++) {
       const currentDifference = Math.abs(strike - upperLimitStrikes[i].strike);
-
       if (currentDifference < closestDifference) {
         closestNumber = upperLimitStrikes[i].strike;
         closestDifference = currentDifference;
       }
     }
-    setUpperLimitInputStrike(closestNumber.toFixed(4));
     return closestNumber;
   }, [upperLimitInputStrike, upperLimitStrikes]);
 
   const checkLowerLimitStrike = useCallback(() => {
-    // const strike = Number(lowerLimitInputStrike);
-    // if (lowerLimitStrikes.length === 0) {
-    //   return;
-    // }
-    // let closestNumber = lowerLimitStrikes[0].strike;
-    // let closestDifference = Math.abs(strike - closestNumber);
-    // for (let i = 1; i < lowerLimitStrikes.length; i++) {
-    //   const currentDifference = Math.abs(strike - lowerLimitStrikes[i].strike);
-    //   if (currentDifference < closestDifference) {
-    //     closestNumber = lowerLimitStrikes[i].strike;
-    //     closestDifference = currentDifference;
-    //   }
-    // }
-    // setLowerLimitInputStrike(closestNumber.toFixed(4));
-    // return closestNumber;
+    const strike = Number(lowerLimitInputStrike);
+    if (lowerLimitStrikes.length === 0) {
+      return;
+    }
+    let closestNumber = lowerLimitStrikes[0].strike;
+    let closestDifference = Math.abs(strike - closestNumber);
+    for (let i = 1; i < lowerLimitStrikes.length; i++) {
+      const currentDifference = Math.abs(strike - lowerLimitStrikes[i].strike);
+      if (currentDifference < closestDifference) {
+        closestNumber = lowerLimitStrikes[i].strike;
+        closestDifference = currentDifference;
+      }
+    }
+    return closestNumber;
   }, [lowerLimitInputStrike, lowerLimitStrikes]);
 
   useEffect(() => {
@@ -304,131 +272,164 @@ const LPRangeSelector = () => {
     }
   }, [generatedStrikes.length]);
 
-  const { writeAsync: deposit } = useContractWrite({
-    abi: DopexV2PositionManager,
-    address: positionManagerAddress,
-    functionName: 'multicall',
-    args: [depositTxs],
-  });
+  const confirmDeposit = useCallback(async () => {
+    if (
+      !allowances ||
+      !selectedOptionsMarket ||
+      callDepositAmountBigInt === 0n ||
+      putDepositAmountBigInt === 0n ||
+      !walletClient
+    ) {
+      return [];
+    }
 
-  const generateDepositTx = useCallback(
-    () => {
-      // if (
-      //   !allowances ||
-      //   !selectedOptionsMarket ||
-      //   callDepositAmountBigInt === 0n ||
-      //   putDepositAmountBigInt === 0n
-      // ) {
-      //   console.log('RETURNED 1');
-      //   return [];
-      // }
-      // const handlerAddress = getHandler('uniswap', chain?.id ?? DEFAULT_CHAIN_ID);
-      // if (!handlerAddress) {
-      //   console.log('RETURN 2');
-      //   return [];
-      // }
-      // const uniswapV3Hook: Address = '0x8c30c7F03421D2C9A0354e93c23014BF6C465a79';
-      // const selectedStrikes = existingStrikes.filter(({ strike }) => {
-      //   return strike > lowerLimitStrike && strike < upperLimitStrike;
-      // });
-      // const token0Len =
-      //   hexToBigInt(selectedOptionsMarket?.callToken.address) >
-      //   hexToBigInt(selectedOptionsMarket?.putToken.address)
-      //     ? BigInt(calltrikesSelected.length.toFixed(0))
-      //     : BigInt(putStrikesSelected.length.toFixed(0));
-      // const token1Len =
-      //   hexToBigInt(selectedOptionsMarket?.callToken.address) >
-      //   hexToBigInt(selectedOptionsMarket?.putToken.address)
-      //     ? BigInt(calltrikesSelected.length.toFixed(0))
-      //     : BigInt(putStrikesSelected.length.toFixed(0));
-      // const amount0 =
-      //   token0Len === 0n
-      //     ? 0n
-      //     : (hexToBigInt(selectedOptionsMarket?.callToken.address) <
-      //       hexToBigInt(selectedOptionsMarket?.putToken.address)
-      //         ? callDepositAmountBigInt
-      //         : putDepositAmountBigInt) / token0Len;
-      // const amount1 =
-      //   token1Len === 0n
-      //     ? 0n
-      //     : (hexToBigInt(selectedOptionsMarket?.callToken.address) >
-      //       hexToBigInt(selectedOptionsMarket?.putToken.address)
-      //         ? callDepositAmountBigInt
-      //         : putDepositAmountBigInt) / token1Len;
-      // const _depositsTx: Hex[] = [];
-      // console.log('PRIME POOL', selectedOptionsMarket.primePool);
-      // console.log('AMOUNT OF STRIKES TOKEN 0 AND TOKEN 1', token0Len, token1Len);
-      // for (const { tickLower, tickUpper } of selectedStrikes) {
-      //   let liquidity = 0n;
-      //   if (tickLower < tick && tickUpper < tick) {
-      //     console.log('AMOUNT 0', amount0);
-      //     liquidity = getLiquidityForAmount0(
-      //       getSqrtRatioAtTick(BigInt(tickLower)),
-      //       getSqrtRatioAtTick(BigInt(tickUpper)),
-      //       amount0,
-      //     );
-      //   }
-      //   if (tickUpper > tick && tickLower > tick) {
-      //     console.log('AMOUNT 1', amount1);
-      //     liquidity = getLiquidityForAmount1(
-      //       getSqrtRatioAtTick(BigInt(tickLower)),
-      //       getSqrtRatioAtTick(BigInt(tickUpper)),
-      //       amount1,
-      //     );
-      //   }
-      //   if (liquidity > 0n) {
-      //     _depositsTx.push(
-      //       encodeFunctionData({
-      //         abi: DopexV2PositionManager,
-      //         functionName: 'mintPosition',
-      //         args: [
-      //           handlerAddress,
-      //           encodeAbiParameters(
-      //             [
-      //               { type: 'address' },
-      //               { type: 'address' },
-      //               { type: 'int24' },
-      //               { type: 'int24' },
-      //               { type: 'uint128' },
-      //             ],
-      //             [
-      //               selectedOptionsMarket.primePool,
-      //               uniswapV3Hook,
-      //               tickLower,
-      //               tickUpper,
-      //               liquidity,
-      //             ],
-      //           ),
-      //         ],
-      //       }),
-      //     );
-      //   }
-      // }
-      // deposit({
-      //   args: [_depositsTx],
-      // });
-    },
-    [
-      // deposit,
-      // tick,
-      // chain?.id,
-      // existingStrikes,
-      // lowerLimitStrike,
-      // upperLimitStrike,
-      // allowances,
-      // callDepositAmountBigInt,
-      // putDepositAmountBigInt,
-      // selectedOptionsMarket,
-      // calltrikesSelected.length,
-      // putStrikesSelected.length,
-    ],
-  );
+    const handlerAddress = getHandler('uniswap', chain?.id ?? DEFAULT_CHAIN_ID);
+    if (!handlerAddress) {
+      return [];
+    }
+    const uniswapV3Hook: Address = '0x8c30c7F03421D2C9A0354e93c23014BF6C465a79';
+    const selectedStrikes = currentStrikes.filter(({ strike }) => {
+      return strike > lowerLimitStrike && strike < upperLimitStrike;
+    });
+    const token0Len =
+      hexToBigInt(selectedOptionsMarket?.callToken.address) >
+      hexToBigInt(selectedOptionsMarket?.putToken.address)
+        ? BigInt(calltrikesSelected.length.toFixed(0))
+        : BigInt(putStrikesSelected.length.toFixed(0));
+    const token1Len =
+      hexToBigInt(selectedOptionsMarket?.callToken.address) >
+      hexToBigInt(selectedOptionsMarket?.putToken.address)
+        ? BigInt(calltrikesSelected.length.toFixed(0))
+        : BigInt(putStrikesSelected.length.toFixed(0));
+    const amount0 =
+      token0Len === 0n
+        ? 0n
+        : (hexToBigInt(selectedOptionsMarket?.callToken.address) <
+          hexToBigInt(selectedOptionsMarket?.putToken.address)
+            ? callDepositAmountBigInt
+            : putDepositAmountBigInt) / token0Len;
+    const amount1 =
+      token1Len === 0n
+        ? 0n
+        : (hexToBigInt(selectedOptionsMarket?.callToken.address) >
+          hexToBigInt(selectedOptionsMarket?.putToken.address)
+            ? callDepositAmountBigInt
+            : putDepositAmountBigInt) / token1Len;
+
+    const _depositsTx: Hex[] = [];
+
+    for (const { tickLower, tickUpper } of selectedStrikes) {
+      let liquidity = 0n;
+      if (tickLower < tick && tickUpper < tick) {
+        liquidity = getLiquidityForAmount0(
+          getSqrtRatioAtTick(BigInt(tickLower)),
+          getSqrtRatioAtTick(BigInt(tickUpper)),
+          amount0,
+        );
+      }
+      if (tickUpper > tick && tickLower > tick) {
+        liquidity = getLiquidityForAmount1(
+          getSqrtRatioAtTick(BigInt(tickLower)),
+          getSqrtRatioAtTick(BigInt(tickUpper)),
+          amount1,
+        );
+      }
+      if (liquidity > 0n) {
+        _depositsTx.push(
+          encodeFunctionData({
+            abi: DopexV2PositionManager,
+            functionName: 'mintPosition',
+            args: [
+              handlerAddress,
+              encodeAbiParameters(
+                [
+                  { type: 'address' },
+                  { type: 'address' },
+                  { type: 'int24' },
+                  { type: 'int24' },
+                  { type: 'uint128' },
+                ],
+                [
+                  selectedOptionsMarket.primePool,
+                  uniswapV3Hook,
+                  tickLower,
+                  tickUpper,
+                  liquidity,
+                ],
+              ),
+            ],
+          }),
+        );
+      }
+    }
+
+    if (_depositsTx.length > 0) {
+      setLoading(true);
+      await walletClient
+        .writeContract({
+          abi: DopexV2PositionManager,
+          address: positionManagerAddress,
+          functionName: 'multicall',
+          args: [_depositsTx],
+        })
+        .then((data) => {
+          updateStrikes();
+          toast.success('Sucess');
+          console.log('Transaction Hash: ' + data);
+        })
+        .catch((err: any) => {
+          if (err instanceof BaseError) {
+            toast.error(err['shortMessage']);
+          } else {
+            toast.error(
+              'Failed to deposit. Check console for more detail on error',
+            );
+            console.error(err);
+          }
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [
+    positionManagerAddress,
+    walletClient,
+    updateStrikes,
+    tick,
+    chain?.id,
+    currentStrikes,
+    lowerLimitStrike,
+    upperLimitStrike,
+    allowances,
+    callDepositAmountBigInt,
+    putDepositAmountBigInt,
+    selectedOptionsMarket,
+    calltrikesSelected.length,
+    putStrikesSelected.length,
+  ]);
+
+  const approve = useCallback(async () => {
+    const _approve = allowanceExceeded.call
+      ? approveCallToken
+      : approvePutToken;
+    _approve().finally(() => refetchAllowance());
+  }, [
+    allowanceExceeded.call,
+    approvePutToken,
+    approveCallToken,
+    refetchAllowance,
+  ]);
 
   const buttonProps = useMemo(() => {
-    console.log('UNLIMITED LOADINGS!');
-    let onClick = deposit;
+    let onClick = confirmDeposit;
     let text = 'Deposit';
     let disabled = false;
+
+    if (!userAddress) {
+      return {
+        onClick: () => {},
+        text: 'Wallet not connected',
+        disabled: true,
+      };
+    }
 
     if (lowerLimitStrike < markPrice && putDepositAmountBigInt === 0n) {
       return {
@@ -463,14 +464,14 @@ const LPRangeSelector = () => {
 
     if (allowanceExceeded.call) {
       return {
-        onClick: approveCallToken,
+        onClick: approve,
         text: `Approve ${tokenBalances.callTokenSymbol}`,
         disabled: false,
       };
     }
     if (allowanceExceeded.put) {
       return {
-        onClick: approvePutToken,
+        onClick: approve,
         text: `Approve ${tokenBalances.putTokenSymbol}`,
         disabled: false,
       };
@@ -482,14 +483,14 @@ const LPRangeSelector = () => {
       disabled,
     };
   }, [
+    approve,
+    confirmDeposit,
+    userAddress,
     upperLimitStrike,
     lowerLimitStrike,
     markPrice,
-    deposit,
-    approvePutToken,
     allowanceExceeded.put,
     allowanceExceeded.call,
-    approveCallToken,
     callDepositAmountBigInt,
     tokenBalances.callToken,
     tokenBalances.callTokenSymbol,
@@ -513,14 +514,13 @@ const LPRangeSelector = () => {
       </div>
       {generatedStrikes.length !== 0 && (
         <div className="bg-carbon bg-opacity-35">
-          <BarChart width={338} height={100} data={existingStrikes}>
-            <Tooltip content={<CustomTooltip />} />
+          <BarChart width={338} height={100} data={currentStrikes}>
             <Bar
               dataKey="availableLiquidityBarHeight"
               stackId={'a'}
               shape={<Rectangle />}
             >
-              {existingStrikes.map(({ strike }, index) => {
+              {currentStrikes.map(({ strike }, index) => {
                 const isCall = strike > markPrice;
                 const isOutOfRange =
                   strike < lowerLimitStrike || strike > upperLimitStrike;
@@ -542,7 +542,7 @@ const LPRangeSelector = () => {
               stackId={'a'}
               shape={<Rectangle />}
             >
-              {existingStrikes.map(({ strike }, index) => {
+              {currentStrikes.map(({ strike }, index) => {
                 const isCall = strike > markPrice;
                 const isOutOfRange =
                   strike < lowerLimitStrike || strike > upperLimitStrike;
@@ -576,29 +576,31 @@ const LPRangeSelector = () => {
           <StrikeInput
             inputAmount={lowerLimitInputStrike}
             onBlurCallback={(e) => {
+              console.log('SETTING');
               const strike = checkLowerLimitStrike();
-              console.log('LOWER STRIKE', strike);
-              // setSelectedStrikeIndicies((prev) => [
-              //   getStrikesBarGroupindex(strike ?? 0),
-              //   prev[1],
-              // ]);
+              const found = currentStrikes.find((s) => s.strike === strike);
+              if (found) {
+                const index = currentStrikes.indexOf(found);
+                setSelectedStrikes([index, selection[1]]);
+                setLowerLimitInputStrike(found.strike.toFixed(4));
+              }
             }}
             onSubmitCallback={(e) => {
-              if (e.code === 'Enter') {
+              if (e.key === 'Enter') {
                 const strike = checkLowerLimitStrike();
-                console.log('LOWER STRIKE', strike);
-
-                // setSelectedStrikeIndicies((prev) => [
-                //   getStrikesBarGroupindex(strike ?? 0),
-                //   prev[1],
-                // ]);
+                const found = currentStrikes.find((s) => s.strike === strike);
+                if (found) {
+                  const index = currentStrikes.indexOf(found);
+                  setSelectedStrikes([index, selection[1]]);
+                  setLowerLimitInputStrike(found.strike.toFixed(4));
+                }
               }
             }}
             placeHolder="0"
             onChangeInput={(e) => {
               setLowerLimitInputStrike(e.target.value);
             }}
-            label="Lower limit Strike"
+            label="Lower Strike"
           />
         </div>
         <div className="w-full flex space-y-[4px]">
@@ -606,21 +608,22 @@ const LPRangeSelector = () => {
             inputAmount={upperLimitInputStrike}
             onBlurCallback={(e) => {
               const strike = checkUpperLimitStrike();
-              console.log('UPPER STRIKE', strike);
-              // setSelectedStrikeIndicies((prev) => [
-              //   prev[0],
-              //   getStrikesBarGroupindex(strike ?? 0),
-              // ]);
+              const found = currentStrikes.find((s) => s.strike === strike);
+              if (found) {
+                const index = currentStrikes.indexOf(found);
+                setSelectedStrikes([selection[0], index]);
+                setUpperLimitInputStrike(found.strike.toFixed(4));
+              }
             }}
             onSubmitCallback={(e) => {
-              if (e.code === 'Enter') {
+              if (e.key === 'Enter') {
                 const strike = checkUpperLimitStrike();
-                console.log('UPPER STRIKE', strike);
-
-                // setSelectedStrikeIndicies((prev) => [
-                //   prev[0],
-                //   getStrikesBarGroupindex(strike ?? 0),
-                // ]);
+                const found = currentStrikes.find((s) => s.strike === strike);
+                if (found) {
+                  const index = currentStrikes.indexOf(found);
+                  setSelectedStrikes([selection[0], index]);
+                  setUpperLimitInputStrike(found.strike.toFixed(4));
+                }
               }
             }}
             placeHolder="0"
@@ -692,17 +695,8 @@ const LPRangeSelector = () => {
       <Button
         size="small"
         className="w-full"
-        // @ts-ignore
-        onClick={() => {
-          if (buttonProps.text === 'Deposit') {
-            generateDepositTx();
-            updateStrikes();
-          } else {
-            buttonProps.onClick();
-            refetchAllowance();
-          }
-        }}
-        disabled={buttonProps?.disabled || isLoading}
+        onClick={buttonProps.onClick}
+        disabled={buttonProps?.disabled || isLoading || allowancesLoading}
       >
         {buttonProps?.text}
       </Button>

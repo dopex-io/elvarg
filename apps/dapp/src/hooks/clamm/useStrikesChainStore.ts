@@ -2,8 +2,6 @@ import { Address } from 'viem';
 
 import { create } from 'zustand';
 
-import { getTokenSymbol } from 'utils/token';
-
 export type StrikesChainMappingArray = Record<string, StrikesChainItem[]>[];
 
 export type StrikesChainItem = {

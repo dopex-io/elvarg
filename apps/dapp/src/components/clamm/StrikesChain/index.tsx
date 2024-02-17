@@ -54,11 +54,11 @@ const StrikesChain = () => {
       );
       url.searchParams.set('callsReach', '100');
       url.searchParams.set('putsReach', '100');
-      // if (!selectedOptionsMarket?.deprecated) {
+      if (!selectedOptionsMarket?.deprecated) {
       return fetch(url).then((res) => res.json());
-      // } else {
-      //   return [];
-      // }
+      } else {
+        return [];
+      }
     },
   });
 
@@ -82,7 +82,7 @@ const StrikesChain = () => {
   ]);
 
   return (
-    <div className="w-full bg-cod-gray flex flex-col rounded-md">
+    <div className="w-full bg-cod-gray flex flex-col rounded-md pb-[12px]">
       <div className="flex items-center justify-between p-[12px]">
         <FilterPanel />
         <FilterSettingsButton

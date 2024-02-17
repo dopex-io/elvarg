@@ -4,6 +4,7 @@ import { formatUnits, hexToBigInt } from 'viem';
 import { Button } from '@dopex-io/ui';
 import { MinusIcon, PlusIcon } from '@heroicons/react/24/solid';
 import { createColumnHelper } from '@tanstack/react-table';
+import { useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
@@ -13,8 +14,10 @@ import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 import TableLayout from 'components/common/TableLayout';
 
 import { formatAmount } from 'utils/general';
+import { getTokenSymbol } from 'utils/token';
 
 import { FilterSettingsType } from 'constants/clamm';
+import { DEFAULT_CHAIN_ID } from 'constants/env';
 
 type StrikeItem2 = {
   strike: string;
@@ -322,6 +325,7 @@ type Props = {
 const StrikesTable = ({ filterSettings }: Props) => {
   const { selectStrike, deselectStrike, selectedStrikes, strikesChain } =
     useStrikesChainStore();
+  const { chain } = useNetwork();
   const { unsetDeposit, unsetPurchase } = useClammTransactionsStore();
   const { selectedOptionsMarket, isPut, markPrice, isTrade } = useClammStore();
   const { isLoading } = useLoadingStates();
@@ -386,7 +390,10 @@ const StrikesTable = ({ filterSettings }: Props) => {
           strike: strike,
           liquidity: {
             amount: totalLiquidity,
-            symbol: token.symbol,
+            symbol: getTokenSymbol({
+              address: token.address,
+              chainId: chain?.id ?? DEFAULT_CHAIN_ID,
+            }),
           },
           options: {
             total: totalOptions,
@@ -418,7 +425,7 @@ const StrikesTable = ({ filterSettings }: Props) => {
       );
 
     const strikesFilteredFromAPR = _strikes.filter(
-      ({ feesApr, strike }) => feesApr < 1_000_000,
+      ({ feesApr }) => feesApr < 1_000_000,
     );
 
     const strikesFilteredIsPut = strikesFilteredFromAPR.filter(({ strike }) => {
@@ -430,7 +437,7 @@ const StrikesTable = ({ filterSettings }: Props) => {
       }
     });
 
-    return strikesFilteredIsPut;
+    return isPut ? strikesFilteredIsPut : strikesFilteredIsPut.reverse();
 
     // const isPutStrike = markPrice > Number(strike);
     // return (
@@ -563,6 +570,7 @@ const StrikesTable = ({ filterSettings }: Props) => {
     //   return _strikes.sort((a, b) => a.strike.amount - b.strike.amount);
     // }
   }, [
+    chain?.id,
     isEligibleForRewards,
     markPrice,
     filterSettings,
