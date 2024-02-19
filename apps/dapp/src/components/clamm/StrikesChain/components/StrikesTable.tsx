@@ -34,7 +34,8 @@ type StrikeItem2 = {
   eligbleForRewards: boolean;
   amms: Map<string, number>;
   manage: {
-    handleSelect: () => void;
+    selectStrike: () => void;
+    deselectStrike: () => void;
     isSelected: boolean;
   };
 };
@@ -149,7 +150,11 @@ const columns2 = [
     cell: ({ getValue }) => (
       <div className="flex space-x-2 justify-end">
         <Button
-          onClick={getValue().handleSelect}
+          onClick={
+            getValue().isSelected
+              ? getValue().deselectStrike
+              : getValue().selectStrike
+          }
           color={getValue().isSelected ? 'primary' : 'mineshaft'}
         >
           <div className="flex items-center space-x-1">
@@ -345,6 +350,9 @@ const StrikesTable = ({ filterSettings }: Props) => {
 
     const _strikes = Array.from(strikesChain)
       .map(([strike, strikesData]) => {
+        const tickLower = strikesData[0].meta.tickLower;
+        const tickUpper = strikesData[0].meta.tickUpper;
+
         const len = strikesData.length;
         const totalAPR = strikesData.reduce((prev, curr) => {
           return Number(curr.apr) + prev;
@@ -403,7 +411,27 @@ const StrikesTable = ({ filterSettings }: Props) => {
           feesApr: totalAPR / len,
           eligbleForRewards: isEligibleForRewards(strikeNumber),
           manage: {
-            selectedStrike: () => {},
+            selectStrike: () => {
+              selectStrike(
+                tickLower.toString().concat('#').concat(tickLower.toString()),
+                {
+                  isCall: !isPutStrike,
+                  strike: strikeNumber,
+                  tickLower,
+                  tickUpper,
+                },
+              );
+            },
+            deselectStrike: () => {
+              deselectStrike(
+                tickLower.toString().concat('#').concat(tickLower.toString()),
+              );
+            },
+            isSelected: Boolean(
+              selectedStrikes.get(
+                tickLower.toString().concat('#').concat(tickLower.toString()),
+              ),
+            ),
           },
         };
       })
@@ -588,7 +616,6 @@ const StrikesTable = ({ filterSettings }: Props) => {
   return (
     <div className="max-h-[500px] overflow-y-auto border-t border-t-carbon">
       <TableLayout<StrikeItem2>
-        // @ts-ignore
         data={strikes}
         columns={columns2}
         isContentLoading={isLoading('strikes-chain')}

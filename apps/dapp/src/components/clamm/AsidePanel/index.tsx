@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { formatUnits, zeroAddress } from 'viem';
 
 import axios from 'axios';
@@ -11,6 +11,7 @@ import { VARROCK_BASE_API_URL } from 'constants/env';
 import AMMSelector from './components/AMMSelector';
 import AutoExercisers from './components/AutoExercisers';
 import CostSummary from './components/CostSummary';
+import DepositTypeSelector from './components/DepositTypeSelector';
 import InfoPanel from './components/InfoPanel';
 import LPRangeSelector from './components/RangeSelector';
 import StrikesSection from './components/StrikesSection';
@@ -19,9 +20,10 @@ import TTLSelector from './components/TTLSelector';
 
 const AsidePanel = () => {
   const { selectedOptionsMarket, setTokenBalances, isTrade } = useClammStore();
+  const [strikesSelectionMode, setStrikesSelectionMode] = useState<0 | 1>(0);
   const { address: userAddress } = useAccount();
 
-  const { data } = useContractReads({
+  const { data, refetch: updateTokenBalances } = useContractReads({
     contracts: [
       {
         abi: erc20ABI,
@@ -60,17 +62,26 @@ const AsidePanel = () => {
     });
   }, [data, selectedOptionsMarket, setTokenBalances]);
 
+  const singleSelectDepositTye = !isTrade && strikesSelectionMode === 0;
+
   return (
     <div className="sticky top-[80px] flex flex-col items-center justify-center w-full space-y-[12px]">
       <div className="w-full bg-cod-gray p-[12px] rounded-lg space-y-[4px]">
         <TradeSideSelector />
+        {!isTrade && (
+          <DepositTypeSelector
+            selectionModeIndex={strikesSelectionMode}
+            setSelectionMode={setStrikesSelectionMode}
+          />
+        )}
         {isTrade && <TTLSelector />}
-        {!isTrade && <LPRangeSelector />}
-        {isTrade && <StrikesSection />}
+        {!isTrade && strikesSelectionMode === 1 && <LPRangeSelector />}
+        {(isTrade || singleSelectDepositTye) && <StrikesSection />}
+        {/* {isTrade && <StrikesSection />} */}
         <CostSummary />
-        {/* 
+
         {isTrade && <AutoExercisers />}
-        <InfoPanel updateTokenBalances={updateTokenBalances} /> */}
+        <InfoPanel updateTokenBalances={updateTokenBalances} />
       </div>
       <div className="flex flex-col bg-umbra rounded-md space-y-2 p-3">
         <span className="flex w-full justify-between">

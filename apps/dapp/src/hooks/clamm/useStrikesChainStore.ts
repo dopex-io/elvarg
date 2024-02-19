@@ -33,36 +33,36 @@ export type StrikesChainItem = {
 export type StrikesChain = StrikesChainItem[];
 
 export type SelectedStrike = {
-  ttl: string;
   strike: number;
-  isCall: boolean;
-  amount0: number;
-  amount1: string;
-  tokenSymbol: string;
-  tokenDecimals: number;
-  meta: StrikeMeta;
-};
-
-type StrikeMeta = {
-  totalTokenLiquidity: bigint;
-  availableTokenLiquidity: bigint;
   tickLower: number;
   tickUpper: number;
-  totalLiquidity: bigint;
-  availableLiquidity: bigint;
 };
+
 export interface StrikesChainStore {
   reset: () => void;
-  selectedStrikes: Map<number, SelectedStrike>;
-  selectStrike: (index: number, strike: SelectedStrike) => void;
-  deselectStrike: (index: number) => void;
+  selectedStrikes: Map<string, SelectedStrike>;
+  selectStrike: (index: string, strike: SelectedStrike) => void;
+  deselectStrike: (index: string) => void;
   initialize: (data: StrikesChainMappingArray, chainId: number) => void;
   strikesChain: Map<string, StrikesChainItem[]>;
   updateStrikes: () => void;
   setUpdateStrikes: (fn: () => void) => void;
+  getCollateralAvailable: (strike: string) => {
+    name: string;
+    deprecated: boolean;
+    handler: string;
+    pool: string;
+    availableLiquidity: bigint;
+    availableTokenLiquidity: bigint;
+  }[];
+  getPurchasableStrikesChain: () => {
+    strike: number;
+    tickLower: number;
+    tickUpper: number;
+  }[];
 }
 
-const useStrikesChainStore = create<StrikesChainStore>((set) => ({
+const useStrikesChainStore = create<StrikesChainStore>((set, get) => ({
   updateStrikes: () => {},
   strikesChain: new Map(),
   selectedStrikesErrors: new Map(),
@@ -79,7 +79,7 @@ const useStrikesChainStore = create<StrikesChainStore>((set) => ({
     }));
   },
   selectedStrikes: new Map(),
-  selectStrike: (index: number, strikeData: SelectedStrike) => {
+  selectStrike: (index: string, strikeData: SelectedStrike) => {
     set((prev) => {
       const selectedStrikes = new Map(prev.selectedStrikes);
       selectedStrikes.set(index, strikeData);
@@ -89,7 +89,7 @@ const useStrikesChainStore = create<StrikesChainStore>((set) => ({
       };
     });
   },
-  deselectStrike: (index: number) => {
+  deselectStrike: (index: string) => {
     set((prev) => {
       const selectedStrikes = new Map(prev.selectedStrikes);
       selectedStrikes.delete(index);
@@ -111,6 +111,38 @@ const useStrikesChainStore = create<StrikesChainStore>((set) => ({
       ...prev,
       updateStrikes: fn,
     }));
+  },
+  getCollateralAvailable(strike: string) {
+    const { strikesChain } = get();
+    const strikesChainData = strikesChain.get(strike);
+    const liquidityData = strikesChainData
+      ? strikesChainData.map(
+          ({
+            meta: { availableTokenLiquidity, availableLiquidity },
+            handler,
+          }) => ({
+            availableLiquidity: BigInt(availableLiquidity),
+            availableTokenLiquidity: BigInt(availableTokenLiquidity),
+            ...handler,
+          }),
+        )
+      : [];
+
+    return liquidityData;
+  },
+  getPurchasableStrikesChain() {
+    const { strikesChain } = get();
+    const strikes: {
+      strike: number;
+      tickLower: number;
+      tickUpper: number;
+    }[] = Array.from(strikesChain).map(([strike, strikeData]) => ({
+      strike: Number(strike),
+      tickLower: strikeData[0].meta.tickLower,
+      tickUpper: strikeData[0].meta.tickUpper,
+    }));
+
+    return strikes;
   },
 }));
 

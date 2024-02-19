@@ -2,35 +2,55 @@ import { Address, Hex } from 'viem';
 
 import { create } from 'zustand';
 
+export type BasicStrikeInfo = {
+  strike: number;
+  tickLower: number;
+  tickUpper: number;
+};
+
 export type DepositTransaction = {
   strike: number;
   tokenAddress: Address;
-  positionManager: Address;
   tokenSymbol: string;
   amount: bigint;
   tokenDecimals: number;
-  txData: Hex;
+  tickLower: number;
+  tickUpper: number;
 };
 
+// export type DepositTransaction = {
+//   strike: number;
+//   tokenAddress: Address;
+//   positionManager: Address;
+//   tokenSymbol: string;
+//   amount: bigint;
+//   tokenDecimals: number;
+//   txData: Hex;
+//   tickLower: number;
+//   tickUpper: number;
+//   depositAmount: bigint;
+// };
+
 export type PurchaseTransaction = {
+  tickLower: number;
+  tickUpper: number;
   strike: number;
   amount: number;
   tokenAddress: Address;
-  optionsPool: Address;
   premium: bigint;
   tokenSymbol: string;
   tokenDecimals: number;
-  txData: Hex;
+  collateralRequired: bigint;
   error: boolean;
 };
 
 type ClammTransactionsStore = {
-  deposits: Map<number, DepositTransaction>;
-  setDeposit: (key: number, tx: DepositTransaction) => void;
-  unsetDeposit: (key: number) => void;
-  purchases: Map<number, PurchaseTransaction>;
-  setPurchase: (key: number, tx: PurchaseTransaction) => void;
-  unsetPurchase: (key: number) => void;
+  deposits: Map<string, DepositTransaction>;
+  setDeposit: (key: string, tx: DepositTransaction) => void;
+  unsetDeposit: (key: string) => void;
+  purchases: Map<string, PurchaseTransaction>;
+  setPurchase: (key: string, tx: PurchaseTransaction) => void;
+  unsetPurchase: (key: string) => void;
   resetPurchases: () => void;
   resetDeposits: () => void;
 };

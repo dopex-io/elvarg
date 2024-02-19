@@ -150,9 +150,17 @@ const LPRangeSelector = () => {
 
   const isLoading = useMemo(() => {
     return (
-      approveCallTokenLoading || approvePutTokenLoading || allowancesLoading
+      approveCallTokenLoading ||
+      approvePutTokenLoading ||
+      allowancesLoading ||
+      loading
     );
-  }, [approveCallTokenLoading, approvePutTokenLoading, allowancesLoading]);
+  }, [
+    approveCallTokenLoading,
+    approvePutTokenLoading,
+    allowancesLoading,
+    loading,
+  ]);
 
   const currentStrikes = useMemo(() => {
     return generatedStrikes.map(({ strike, tickLower, tickUpper }) => {
@@ -210,7 +218,7 @@ const LPRangeSelector = () => {
     );
   }, [currentStrikes, lowerLimitInputStrike, markPrice]);
 
-  const calltrikesSelected = useMemo(() => {
+  const callStrikesSelected = useMemo(() => {
     return currentStrikes.filter(
       ({ strike }) => strike > markPrice && strike < Number(upperLimitStrike),
     );
@@ -222,7 +230,7 @@ const LPRangeSelector = () => {
 
   const lowerLimitStrikes = useMemo(() => {
     return currentStrikes
-      .filter(({ strike }) => strike < markPrice)
+      .filter(({ strike }) => strike > markPrice)
       .sort((a, b) => a.strike - b.strike);
   }, [markPrice, currentStrikes]);
 
@@ -291,49 +299,83 @@ const LPRangeSelector = () => {
     const selectedStrikes = currentStrikes.filter(({ strike }) => {
       return strike > lowerLimitStrike && strike < upperLimitStrike;
     });
-    const token0Len =
-      hexToBigInt(selectedOptionsMarket?.callToken.address) >
-      hexToBigInt(selectedOptionsMarket?.putToken.address)
-        ? BigInt(calltrikesSelected.length.toFixed(0))
-        : BigInt(putStrikesSelected.length.toFixed(0));
-    const token1Len =
-      hexToBigInt(selectedOptionsMarket?.callToken.address) >
-      hexToBigInt(selectedOptionsMarket?.putToken.address)
-        ? BigInt(calltrikesSelected.length.toFixed(0))
-        : BigInt(putStrikesSelected.length.toFixed(0));
-    const amount0 =
-      token0Len === 0n
+
+    const token0 =
+      hexToBigInt(selectedOptionsMarket.callToken.address) <
+      hexToBigInt(selectedOptionsMarket.putToken.address)
+        ? selectedOptionsMarket.callToken.address
+        : selectedOptionsMarket.putToken.address;
+
+    const isToken1 = false;
+    const isToken0 = false;
+
+    const token0IsCallToken =
+      hexToBigInt(selectedOptionsMarket.callToken.address) <
+      hexToBigInt(selectedOptionsMarket.putToken.address);
+
+    const callStrikesLen = selectedStrikes.filter(
+      ({ strike }) => strike > markPrice,
+    ).length;
+    const putStrikesLen = selectedStrikes.filter(
+      ({ strike }) => strike < markPrice,
+    ).length;
+
+    const callTokenAmountPerStrike =
+      callStrikesLen === 0
         ? 0n
-        : (hexToBigInt(selectedOptionsMarket?.callToken.address) <
-          hexToBigInt(selectedOptionsMarket?.putToken.address)
-            ? callDepositAmountBigInt
-            : putDepositAmountBigInt) / token0Len;
-    const amount1 =
-      token1Len === 0n
+        : callDepositAmountBigInt / BigInt(callStrikesLen.toFixed(0));
+
+    const putTokenTokenAmountPerStrike =
+      putStrikesLen === 0
         ? 0n
-        : (hexToBigInt(selectedOptionsMarket?.callToken.address) >
-          hexToBigInt(selectedOptionsMarket?.putToken.address)
-            ? callDepositAmountBigInt
-            : putDepositAmountBigInt) / token1Len;
+        : putDepositAmountBigInt / BigInt(putStrikesLen.toFixed(0));
 
     const _depositsTx: Hex[] = [];
 
-    for (const { tickLower, tickUpper } of selectedStrikes) {
-      let liquidity = 0n;
-      if (tickLower < tick && tickUpper < tick) {
-        liquidity = getLiquidityForAmount0(
-          getSqrtRatioAtTick(BigInt(tickLower)),
-          getSqrtRatioAtTick(BigInt(tickUpper)),
-          amount0,
-        );
-      }
-      if (tickUpper > tick && tickLower > tick) {
-        liquidity = getLiquidityForAmount1(
-          getSqrtRatioAtTick(BigInt(tickLower)),
-          getSqrtRatioAtTick(BigInt(tickUpper)),
-          amount1,
-        );
-      }
+    for (const { tickLower, tickUpper, strike } of selectedStrikes) {
+      let isCall = strike > markPrice;
+
+      const token0 =
+        hexToBigInt(selectedOptionsMarket.callToken.address) <
+        hexToBigInt(selectedOptionsMarket.putToken.address)
+          ? selectedOptionsMarket.callToken.address
+          : selectedOptionsMarket.putToken.address;
+
+      const tokenInContext = isCall
+        ? selectedOptionsMarket.callToken.address
+        : selectedOptionsMarket.putToken.address;
+
+      const getLiquidity =
+        hexToBigInt(tokenInContext) === hexToBigInt(token0)
+          ? getLiquidityForAmount0
+          : getLiquidityForAmount1;
+
+      const amount =
+        hexToBigInt(tokenInContext) === hexToBigInt(token0)
+          ? callTokenAmountPerStrike
+          : putTokenTokenAmountPerStrike;
+
+      // const isToken0 = isCall && hexToBigInt(token0);
+
+      // let token0 = token0IsCallToken
+      //   ? selectedOptionsMarket.callToken.address
+      //   : selectedOptionsMarket.putToken.address;
+
+      // let tokenInContext = isCall
+      //   ? selectedOptionsMarket.callToken.address
+      //   : selectedOptionsMarket.putToken.address;
+
+      // const getLiquidity =
+      //   hexToBigInt(tokenInContext) === hexToBigInt(token0)
+      //     ? getLiquidityForAmount0
+      //     : getLiquidityForAmount1;
+
+      let liquidity = getLiquidity(
+        getSqrtRatioAtTick(BigInt(tickLower)),
+        getSqrtRatioAtTick(BigInt(tickUpper)),
+        amount,
+      );
+
       if (liquidity > 0n) {
         _depositsTx.push(
           encodeFunctionData({
@@ -384,16 +426,16 @@ const LPRangeSelector = () => {
             toast.error(
               'Failed to deposit. Check console for more detail on error',
             );
-            console.error(err);
           }
+          console.error(err);
         })
         .finally(() => setLoading(false));
     }
   }, [
+    markPrice,
     positionManagerAddress,
     walletClient,
     updateStrikes,
-    tick,
     chain?.id,
     currentStrikes,
     lowerLimitStrike,
@@ -402,8 +444,6 @@ const LPRangeSelector = () => {
     callDepositAmountBigInt,
     putDepositAmountBigInt,
     selectedOptionsMarket,
-    calltrikesSelected.length,
-    putStrikesSelected.length,
   ]);
 
   const approve = useCallback(async () => {
@@ -502,7 +542,7 @@ const LPRangeSelector = () => {
   return (
     <div className="flex items-center flex-col p-[12px] bg-umbra space-y-[12px]">
       <div className="flex items-center justify-between text-[13px] w-full">
-        <span className="text-stieglitz">Range Selector</span>
+        <span className="text-stieglitz">AMM</span>
         <p className="flex items-center space-x-[4px] bg-mineshaft px-[4px] py-[2px] rounded-md">
           <span>Uniswap V3</span>
           <img

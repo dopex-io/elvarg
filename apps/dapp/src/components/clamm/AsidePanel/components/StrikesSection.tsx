@@ -13,7 +13,8 @@ import SelectedStrikeItem from './SelectedStrikeItem';
 import StrikesList from './StrikesList';
 
 const StrikesSection = () => {
-  const { selectedStrikes, strikesChain } = useStrikesChainStore();
+  const { selectedStrikes, strikesChain, getPurchasableStrikesChain } =
+    useStrikesChainStore();
   const { isTrade, tokenBalances, tick, selectedOptionsMarket, markPrice } =
     useClammStore();
   const [editForAll, setEditForAll] = useState(false);
@@ -45,40 +46,36 @@ const StrikesSection = () => {
   }, [tick, selectedOptionsMarket]);
 
   const putStrikes = useMemo(() => {
-    // return isTrade
-    //   ? strikesChain
-    //       .filter(({ strike }) => markPrice > strike)
-    //       .sort((a, b) => Number(b.strike) - Number(a.strike))
-    //   : generatedStrikes
-    //       .filter(({ strike }) => markPrice > strike)
-    //     .sort((a, b) => Number(b.strike) - Number(a.strike));
-
-    return [];
-  }, [generatedStrikes, isTrade, strikesChain, markPrice]);
+    return isTrade
+      ? getPurchasableStrikesChain()
+          .sort((a, b) => Number(b.strike) - Number(a.strike))
+          .filter(({ strike }) => markPrice > strike)
+      : generatedStrikes
+          .filter(({ strike }) => markPrice > strike)
+          .sort((a, b) => Number(b.strike) - Number(a.strike));
+  }, [generatedStrikes, markPrice, isTrade, getPurchasableStrikesChain]);
 
   const callStrikes = useMemo(() => {
-    // return isTrade
-    //   ? strikesChain
-    //       .filter(({ type }) => type.toLowerCase() === 'call')
-    //       .sort((a, b) => Number(a.strike) - Number(b.strike))
-    //   : generatedStrikes
-    //       .filter(({ type }) => type.toLowerCase() === 'call')
-    //     .sort((a, b) => Number(a.strike) - Number(b.strike));
-
-    return [];
-  }, [generatedStrikes, isTrade, strikesChain]);
+    return isTrade
+      ? getPurchasableStrikesChain()
+          .sort((a, b) => Number(a.strike) - Number(b.strike))
+          .filter(({ strike }) => strike > markPrice)
+      : generatedStrikes
+          .filter(({ type }) => type.toLowerCase() === 'call')
+          .sort((a, b) => Number(a.strike) - Number(b.strike));
+  }, [generatedStrikes, isTrade, markPrice, getPurchasableStrikesChain]);
 
   const selectedPutStrikesLength = useMemo(() => {
     return Array.from(selectedStrikes).filter(
-      ([key, { isCall }]) => isCall === false,
+      ([_, { strike }]) => strike < markPrice,
     ).length;
-  }, [selectedStrikes]);
+  }, [selectedStrikes, markPrice]);
 
   const selectedCallStrikesLength = useMemo(() => {
     return Array.from(selectedStrikes).filter(
-      ([key, { isCall }]) => isCall === true,
+      ([_, { strike }]) => strike > markPrice,
     ).length;
-  }, [selectedStrikes]);
+  }, [selectedStrikes, markPrice]);
 
   return (
     <div
@@ -100,12 +97,12 @@ const StrikesSection = () => {
         </span>
       </span>
       <div className="flex flex-col w-full space-y-[10px] px-[12px]">
-        {Array.from(selectedStrikes).map(([strikeIndex, strikeData], index) => (
+        {Array.from(selectedStrikes).map(([strikeKey, strikeData], index) => (
           <SelectedStrikeItem
             disabledInput={editForAll && index !== 0}
             key={index}
             strikeData={strikeData}
-            strikeIndex={strikeIndex}
+            strikeKey={strikeKey}
             editAllMode={editForAll}
             commonInputAmount={inputAmount}
             commonSetInputAmount={setInputAmount}

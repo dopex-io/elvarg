@@ -9,7 +9,7 @@ import { cn, formatAmount } from 'utils/general';
 import { EXPIRIES_BY_INDEX, PROTOCOL_FEES_MULTIPLIER } from 'constants/clamm';
 
 const CostSummary = () => {
-  const { isTrade, markPrice, selectedOptionsPool, selectedTTL } =
+  const { isTrade, markPrice, selectedOptionsMarket, selectedTTL } =
     useClammStore();
   const { purchases, deposits } = useClammTransactionsStore();
 
@@ -185,7 +185,7 @@ const CostSummary = () => {
             </div>
           </div>
         )}
-        {isTrade && (
+        {/* {isTrade && (
           <div
             className={
               'flex w-full items-center justify-between font-medium text-[13px] text-stieglitz'
@@ -197,7 +197,7 @@ const CostSummary = () => {
                 <span className="text-[13px] flex items-center justify-center space-x-[4px]">
                   <span className="text-white">
                     {
-                      selectedOptionsPool?.ivs[
+                      selectedOptionsMarket?.ivs[
                         EXPIRIES_BY_INDEX.indexOf(selectedTTL)
                       ]
                     }
@@ -206,7 +206,7 @@ const CostSummary = () => {
               </span>
             </div>
           </div>
-        )}
+        )} */}
         {isTrade && (
           <div className="flex justify-between w-full">
             <span className="text-stieglitz text-[13px]">Total Cost</span>
@@ -224,7 +224,7 @@ const CostSummary = () => {
                 {formatAmount(totalNotionalSize, 3)}
               </span>
               <span className="text-stieglitz text-xs">
-                {selectedOptionsPool?.callToken.symbol}
+                {selectedOptionsMarket?.callToken.symbol}
               </span>
             </span>
           </div>

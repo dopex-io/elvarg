@@ -8,8 +8,10 @@ import {
 } from '@heroicons/react/24/solid';
 
 import useClammStore from 'hooks/clamm/useClammStore';
+import { BasicStrikeInfo } from 'hooks/clamm/useClammTransactionsStore';
 import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 
+import { GeneratedStrike } from 'utils/clamm/generateStrikes';
 import { cn, formatAmount } from 'utils/general';
 
 type Prop = {
@@ -19,8 +21,9 @@ type Prop = {
 };
 
 const StrikesList = ({ strikes, isPut, selectedLength }: Prop) => {
-  const { selectStrike, selectedStrikes } = useStrikesChainStore();
-  const { selectedOptionsMarket, isTrade, markPrice } = useClammStore();
+  const { selectStrike, selectedStrikes, deselectStrike } =
+    useStrikesChainStore();
+  const { selectedOptionsMarket, isTrade, markPrice, tick } = useClammStore();
 
   const tokenInfo = useMemo(() => {
     if (!selectedOptionsMarket)
@@ -54,10 +57,26 @@ const StrikesList = ({ strikes, isPut, selectedLength }: Prop) => {
         multiple
         value={[]}
         disabled={strikes.length === 0}
-        // value={strikesInContext[Math.floor(strikesInContext.length - 1)]}
-        onChange={(data: { key: number; strikeData: any }[]) => {
-          const { strikeData, key } = data[0];
-          const isCall = strikeData.type === 'call' ? true : false;
+        onChange={(data: { strikeData: BasicStrikeInfo }[]) => {
+          const { strikeData } = data[0];
+          const { tickLower, tickUpper, strike } = strikeData;
+          const key = tickLower
+            .toString()
+            .concat('#')
+            .concat(tickUpper.toString());
+
+          const isSelected = selectedStrikes.get(key);
+          if (Boolean(isSelected)) {
+            deselectStrike(key);
+          } else {
+            selectStrike(key, {
+              strike,
+              tickLower,
+              tickUpper,
+            });
+          }
+          // const isCall = strikeData.type === 'call' ? true : false;
+          // selectStrike)()
           // const key =
           if (isTrade) {
             // selectStrike(strikeData.strike, {
@@ -106,11 +125,18 @@ const StrikesList = ({ strikes, isPut, selectedLength }: Prop) => {
             )}
           </Listbox.Button>
           <Listbox.Options className="absolute flex flex-col w-full max-h-[240px] rounded-md overflow-y-scroll mt-1 border border-umbra drop-shadow-md divide-y-[0.1px] divide-carbon">
-            {strikes.map((strikeData: any, index: number) => (
+            {strikes.map((strikeData: BasicStrikeInfo, index: number) => (
               <Listbox.Option
                 className={cn(
                   'hover:cursor-pointer hover:bg-carbon z-10 py-[8px]',
-                  Boolean(selectedStrikes.get(strikeData.strike))
+                  Boolean(
+                    selectedStrikes.get(
+                      strikeData.tickLower
+                        .toString()
+                        .concat('#')
+                        .concat(strikeData.tickUpper.toString()),
+                    ),
+                  )
                     ? 'bg-carbon'
                     : 'bg-mineshaft',
                 )}
@@ -132,14 +158,21 @@ const StrikesList = ({ strikes, isPut, selectedLength }: Prop) => {
                     <span
                       className={cn(
                         'text-sm',
-                        Boolean(selectedStrikes.get(strikeData.strike))
+                        Boolean(
+                          selectedStrikes.get(
+                            strikeData.tickLower
+                              .toString()
+                              .concat('#')
+                              .concat(strikeData.tickUpper.toString()),
+                          ),
+                        )
                           ? 'text-stieglitz'
                           : 'text-white',
                       )}
                     >
                       {formatAmount(strikeData.strike, 5)}
                     </span>
-                    {strikeData.type === 'call' ? (
+                    {strikeData.strike > markPrice ? (
                       <ArrowUpRightIcon
                         className={'h-[12px] w-[12px] text-up-only'}
                       />

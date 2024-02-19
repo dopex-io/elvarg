@@ -73,7 +73,7 @@ type ClammStore = {
 const useClammStore = create<ClammStore>((set, get) => ({
   addresses: null,
   isPut: false,
-  isTrade: true,
+  isTrade: false,
   markPrice: 0,
   selectedTTL: 86400,
   tick: 0,
