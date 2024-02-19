@@ -54,7 +54,7 @@
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.4.1",
     "recharts": "^2.10.4",
-    "tailwind-merge": "^2.2.0",
+    "tailwind-merge": "^2.2.1",
     "token-list": "workspace:*",
     "use-debounce": "^10.0.0",
     "viem": "^1.21.4",
