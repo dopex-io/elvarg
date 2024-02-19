@@ -63,7 +63,7 @@
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.0",
-    "@graphql-codegen/client-preset": "^4.1.0",
+    "@graphql-codegen/client-preset": "^4.2.2",
     "@next/eslint-plugin-next": "^14.1.0",
     "@types/lodash": "^4.14.202",
     "@types/node": "^18.19.10",
