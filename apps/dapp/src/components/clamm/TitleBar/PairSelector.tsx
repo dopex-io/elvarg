@@ -48,11 +48,11 @@ const PairSelector = (props: Props) => {
         </div>
         <Listbox value={selectedPair} onChange={updateSelectedPairData}>
           <div className="relative">
-            <Listbox.Button className="bg-mineshaft px-[12px] py-[11px] w-[150px] rounded-lg flex items-center justify-center space-x-[6px] font-medium">
+            <Listbox.Button className="bg-mineshaft px-[12px] py-[11px] w-fit rounded-lg flex items-center justify-center space-x-[6px] font-medium">
               <span className="text-[13px]">{selectedPair.textContent}</span>
               <ChevronDownIcon height={18} width={18} />
             </Listbox.Button>
-            <Listbox.Options className="w-[170px] absolute flex flex-col justify-center h-fit  rounded-md mt-1 border border-cod-gray drop-shadow-md divide-y-[0.1px] divide-carbon bg-umbra">
+            <Listbox.Options className="w-[180px] absolute flex flex-col items-start justify-center h-fit  rounded-lg mt-1 border border-cod-gray drop-shadow-md divide-y-[0.1px] divide-carbon bg-umbra">
               {validPairs
                 .filter(
                   ({ textContent }) => textContent !== selectedPair.textContent,
@@ -60,7 +60,7 @@ const PairSelector = (props: Props) => {
                 .map((pair, index) => (
                   <Listbox.Option
                     value={pair}
-                    className="text-[13px] flex items-center space-x-[4px] hover:bg-mineshaft cursor-pointer px-[12px] py-[6px]"
+                    className="text-[13px] flex items-center space-x-[12px] hover:bg-mineshaft cursor-pointer px-[12px] py-[6px] w-full hover:rounded-lg"
                     key={index}
                   >
                     <span>{pair.textContent}</span>

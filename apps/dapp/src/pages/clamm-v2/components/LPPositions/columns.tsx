@@ -1,9 +1,11 @@
 import { Address } from 'viem';
 
+import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import {
   ArrowLongLeftIcon,
   ArrowLongRightIcon,
 } from '@heroicons/react/24/solid';
+import * as Tooltip from '@radix-ui/react-tooltip';
 import { createColumnHelper } from '@tanstack/react-table';
 
 import { formatAmount } from 'utils/general';
@@ -33,7 +35,10 @@ export type Columns = {
     amount0Symbol: string;
     amount1Symbol: string;
   };
-  handler: string;
+  handler: {
+    name: string;
+    deprecated: boolean;
+  };
   manage: {
     positions: LPPositionItemForTable[];
     refetch: (...args: any) => Promise<any>;
@@ -125,12 +130,34 @@ export const columns = [
     header: 'AMM',
     cell: ({ getValue }) => (
       <div className="flex items-center space-x-[4px]">
-        <span>{getValue()[0].toUpperCase() + getValue().slice(1)}</span>
+        <span>
+          {getValue().name[0].toUpperCase() + getValue().name.slice(1)}
+        </span>
         <img
-          src={`/images/exchanges/${getValue()}.svg`}
-          alt={getValue()}
+          src={`/images/exchanges/${getValue().name}.svg`}
+          alt={getValue().name}
           className="w-[24px] h-[24px]"
         />
+        {getValue().deprecated && (
+          <Tooltip.Provider>
+            <Tooltip.Root>
+              <Tooltip.Trigger>
+                <ExclamationCircleIcon
+                  height={18}
+                  width={18}
+                  className="text-jaffa"
+                />
+              </Tooltip.Trigger>
+              <Tooltip.Portal>
+                <Tooltip.Content className="text-xs bg-carbon p-[4px] rounded-md mb-[6px] w-[200px]">
+                  This LP range was deposited into a deprecated option market.
+                  Please migrate your liquidity to latest option markets to not
+                  miss out on premiums.
+                </Tooltip.Content>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+          </Tooltip.Provider>
+        )}
       </div>
     ),
   }),

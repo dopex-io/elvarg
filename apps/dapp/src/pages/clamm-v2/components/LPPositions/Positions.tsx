@@ -53,6 +53,7 @@ const Positions = ({ positions, refetches }: Props) => {
           upper: 0,
         };
 
+        let deprecated = false;
         let handler = 'unknown';
         let _positions = [];
 
@@ -69,6 +70,7 @@ const Positions = ({ positions, refetches }: Props) => {
             } = position;
             const { token0, token1 } = tokens;
             const { tickLower, tickUpper, initialLiquidity } = meta;
+            deprecated = meta.handler.deprecated;
 
             const amount0Symbol = getTokenSymbol({
               chainId: chain.id,
@@ -204,7 +206,10 @@ const Positions = ({ positions, refetches }: Props) => {
         }
 
         handlerSortedPositions.push({
-          handler,
+          handler: {
+            name: handler,
+            deprecated,
+          },
           earned: totalEarned,
           liquidity: totalLiquidity,
           withdrawable: totalWithdrawable,
@@ -218,8 +223,6 @@ const Positions = ({ positions, refetches }: Props) => {
     }
     return handlerSortedPositions;
   }, [positions, chain.id, refetches]);
-
-  console.log(positionsSorted);
 
   return (
     <>
