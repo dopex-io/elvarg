@@ -8,6 +8,7 @@ import { useNetwork } from 'wagmi';
 import useClammStore, { OptionMarket } from 'hooks/clamm/useClammStore';
 import useTradingViewChartStore from 'hooks/tradingViewChart/useTradingViewChartStore';
 
+
 import AsidePanel from 'components/clamm/AsidePanel';
 import PositionsTable from 'components/clamm/PositionsTable';
 import PriceChart from 'components/clamm/PriceChart';
@@ -26,7 +27,7 @@ const Page = () => {
   const { setSelectedTicker } = useTradingViewChartStore();
   const { chain } = useNetwork();
 
-  const { data } = useQuery<OptionMarket[]>({
+  const { data, isError } = useQuery<OptionMarket[]>({
     queryKey: ['optionMarkets', chain?.id ?? DEFAULT_CHAIN_ID],
     queryFn: async () => {
       const url = new URL(`${VARROCK_BASE_API_URL}/clamm/option-markets`);
@@ -45,28 +46,31 @@ const Page = () => {
   });
 
   useEffect(() => {
-    if (!data) return;
-    initialize(data, chain?.id ?? DEFAULT_CHAIN_ID);
-  }, [initialize, chain?.id, data]);
+    if (!data || isError) return;
 
-  // console.log(data);
+    let opMarkets: OptionMarket[] = [];
+    if (chain?.id === 42161) {
+      const firstOptionMarket = data.filter(({ ticker }) => {
+        return ticker === 'WETH/USDC';
+      });
+      const deprecatedMarkets = data.filter(({ deprecated }) => deprecated);
+      const nonDeprecatedMarkets = data.filter(({ deprecated }) => !deprecated);
+      const nonFirstOptionMarkets = nonDeprecatedMarkets.filter(
+        ({ ticker }) => {
+          return ticker !== 'WETH/USDC';
+        },
+      );
+      opMarkets = opMarkets
+        .concat(firstOptionMarket)
+        .concat(nonFirstOptionMarkets)
+        .concat(deprecatedMarkets);
+      opMarkets.map(({ ticker }) => console.log(ticker));
+    }
 
-  // useEffect(() => {
-  //   const chainId = chain?.id ?? DEFAULT_CHAIN_ID;
-  //   getOptionsPools(
-  //     chainId,
-  //     (data) => {
-  //       initialize(data, chainId);
-  //     },
-  //     (error: string) => {
-  //       console.error(error);
-  //     },
-  //   );
-  // }, [chain, initialize]);
+    opMarkets = opMarkets.length === 0 ? data : opMarkets;
 
-  // useEffect(() => {
-  //   getAddresses().then((data) => setAddresses(data));
-  // }, [setAddresses]);
+    initialize(opMarkets, chain?.id ?? DEFAULT_CHAIN_ID);
+  }, [initialize, chain?.id, data, isError]);
 
   useEffect(() => {
     if (!selectedOptionsMarket) return;
@@ -100,12 +104,12 @@ const Page = () => {
         </div>
         <div className="w-full flex flex-col xl:flex-row xl:space-x-[12px] xl:space-y-[0px] space-y-[12px]">
           <div className="max-w-[1530px] sm:min-w-[590px] h-fit sm:w-full w-[96vw] space-y-[12px]">
-            {/* <PriceChart /> */}
+            {/* <PriceChart />
             <StrikesChain />
-            {/* <PositionsTable /> */}
+            <PositionsTable /> */}
           </div>
           <div className="xl:max-w-[366px] relative sm:w-full w-[96vw]">
-            <AsidePanel />
+            {/* <AsidePanel /> */}
           </div>
         </div>
       </div>

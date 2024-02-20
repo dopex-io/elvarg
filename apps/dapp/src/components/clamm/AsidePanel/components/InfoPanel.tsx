@@ -1,29 +1,20 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   BaseError,
-  ContractFunctionExecutionError,
   encodeAbiParameters,
   encodeFunctionData,
   Hex,
   hexToBigInt,
-  parseAbi,
   zeroAddress,
 } from 'viem';
 
 import { Button } from '@dopex-io/ui';
 import { DopexV2PositionManager } from 'pages/clamm-v2/abi/DopexV2PositionManager';
-import {
-  getHandler,
-  getHandlerPool,
-  getHook,
-  getPositionManagerAddress,
-} from 'pages/clamm-v2/constants';
 import toast, { LoaderIcon } from 'react-hot-toast';
 import {
   Address,
   erc20ABI,
   useAccount,
-  useConfig,
   useContractReads,
   useContractWrite,
   useNetwork,
@@ -38,33 +29,26 @@ import useLoadingStates, {
   ASIDE_PANEL_BUTTON_KEY,
 } from 'hooks/clamm/useLoadingStates';
 import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
-import useUserBalance from 'hooks/useUserBalance';
 
+// import useUserBalance from 'hooks/useUserBalance';
+
+import getHandler from 'utils/clamm/getHandler';
+import getHook from 'utils/clamm/getHook';
+import getOptionMarketPairPools from 'utils/clamm/getOptionMarketPairPools';
+import getPositionManagerAddress from 'utils/clamm/getPositionManagerAddress';
 import {
-  getAmount0ForLiquidity,
-  getAmount1ForLiquidity,
   getLiquidityForAmount0,
   getLiquidityForAmount1,
 } from 'utils/clamm/liquidityAmountMath';
 import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
-import getTokenAllowance from 'utils/clamm/varrock/getTokenAllowance';
 
-import { MULTI_CALL_FN_SIG } from 'constants/clamm';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
 type Props = {
   updateTokenBalances: (...args: any) => Promise<any>;
 };
 
-type ApprovedRequiredInfo = {
-  tokenSymbol: string;
-  tokenAddress: Address;
-  amount: bigint;
-  txData: Hex;
-};
-
 const InfoPanel = ({ updateTokenBalances }: Props) => {
-  const { publicClient } = useConfig();
   const { isLoading, setLoading } = useLoadingStates();
   const {
     tick,
@@ -248,13 +232,10 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     const depositTxs: Hex[] = [];
     const depositsArray = Array.from(deposits);
     const handlerAddress = getHandler('uniswap', chain.id);
-    const pool = getHandlerPool(
-      'uniswap',
+    const pool = getOptionMarketPairPools(
       chain.id,
-      selectedOptionsMarket.callToken.address,
-      selectedOptionsMarket.putToken.address,
-      500,
-    );
+      selectedOptionsMarket.address,
+    )[0];
     const hook = getHook(chain.id, '24HTTL');
     const { publicClient } = wagmiConfig;
 

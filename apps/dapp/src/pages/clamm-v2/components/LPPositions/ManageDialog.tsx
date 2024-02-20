@@ -23,11 +23,11 @@ import {
   Title,
   Trigger,
 } from '@radix-ui/react-dialog';
+import * as Tooltip from '@radix-ui/react-tooltip';
 import { createColumnHelper } from '@tanstack/react-table';
 import { DopexV2PositionManager } from 'pages/clamm-v2/abi/DopexV2PositionManager';
 import { UniswapV3Pool } from 'pages/clamm-v2/abi/UniswapV3Pool';
 import { UniswapV3SingleTickLiquidityHandlerV2 } from 'pages/clamm-v2/abi/UniswapV3SingalTickLiquidityHandlerV2';
-import { getPositionManagerAddress } from 'pages/clamm-v2/constants';
 import toast from 'react-hot-toast';
 import { useContractRead, useWalletClient } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
@@ -35,6 +35,7 @@ import wagmiConfig from 'wagmi-config';
 import TableLayout from 'components/common/TableLayout';
 import CheckBox from 'components/UI/CheckBox/CheckBox';
 
+import getPositionManagerAddress from 'utils/clamm/getPositionManagerAddress';
 import { cn, formatAmount } from 'utils/general';
 
 import { LPPositionItemForTable, PrepareWithdrawData } from './columns';
@@ -127,7 +128,6 @@ const ManageDialog = ({ positions, refetch }: Props) => {
       return (
         await publicClient.multicall({
           contracts: multicallRequest,
-          multicallAddress: '0x4826533B4897376654Bb4d4AD88B7faFD0C98528',
         })
       ).map(({ result }) => (result as bigint) ?? 0n);
     },
@@ -155,9 +155,9 @@ const ManageDialog = ({ positions, refetch }: Props) => {
                 args: [withdrawableLiquidity, tokenId],
               },
       );
+
       try {
         const convertToShares = await getSharesMulticall(multicallRequest);
-
         setIsGeneratingTx(false);
         return convertToShares.map((shares, index) => {
           shares = shares > 2n ? shares - 1n : shares;
@@ -204,7 +204,6 @@ const ManageDialog = ({ positions, refetch }: Props) => {
         console.log(err);
       }
       setIsGeneratingTx(false);
-      clearTxQueue();
     },
     [data, handler, pool, hook, walletClient, getSharesMulticall],
   );
@@ -408,24 +407,56 @@ const ManageDialog = ({ positions, refetch }: Props) => {
       helper.accessor('reserved', {
         header: 'Reserved',
         cell: ({ getValue, row }) => {
-          const rowData = row.getAllCells()[1].getValue() as PrepareReserve;
+          const liquidityRowData = row
+            .getAllCells()[1]
+            .getValue() as PrepareReserve;
           const len = row.getAllCells().length;
           const withdrawRowData = row
             .getAllCells()
             [len - 1].getValue() as PrepareWithdrawData;
 
+          const totalCurrentLiq =
+            Number(liquidityRowData['amount0']) +
+            Number(liquidityRowData['amount1']);
+          const totalWithdrawable =
+            Number(withdrawRowData['amount0']) +
+            Number(withdrawRowData['amount1']);
+
+          const canReserve = totalCurrentLiq > totalWithdrawable;
+          console.log(
+            'RESERVED REQUIRED',
+            canReserve,
+            "CANNOT RESERVE",
+            !canReserve,
+            totalCurrentLiq,
+            totalWithdrawable,
+          );
           return (
-            <Reserve
-              getShares={getSharesMulticall}
-              reserved={getValue()}
-              current={{
-                amount0: rowData['amount0'],
-                amount1: rowData['amount1'],
-                amount0Symbol: rowData['amount0Symbol'],
-                amount1Symbol: rowData['amount1Symbol'],
-              }}
-              withdraw={withdrawRowData}
-            />
+            <Tooltip.Provider>
+              <Tooltip.Root>
+                <Tooltip.Trigger>
+                  <Reserve
+                    disabled={!canReserve}
+                    getShares={getSharesMulticall}
+                    reserved={getValue()}
+                    current={{
+                      amount0: liquidityRowData['amount0'],
+                      amount1: liquidityRowData['amount1'],
+                      amount0Symbol: liquidityRowData['amount0Symbol'],
+                      amount1Symbol: liquidityRowData['amount1Symbol'],
+                    }}
+                    withdraw={withdrawRowData}
+                  />
+                </Tooltip.Trigger>
+                <Tooltip.Portal>
+                  {!canReserve && (
+                    <Tooltip.Content className="text-xs bg-carbon p-[4px] rounded-md mb-[6px]">
+                      No utilized collateral to reserve
+                    </Tooltip.Content>
+                  )}
+                </Tooltip.Portal>
+              </Tooltip.Root>
+            </Tooltip.Provider>
           );
         },
       }),
@@ -509,7 +540,7 @@ const ManageDialog = ({ positions, refetch }: Props) => {
         args: [txBatched],
       });
 
-      toast.success('Transaction sent!: ' + tx);
+      toast.success('Transaction sent!');
       console.log('Withdraw transaction receipt: ', tx);
       handleRefresh();
     } catch (err) {
@@ -548,7 +579,7 @@ const ManageDialog = ({ positions, refetch }: Props) => {
       </Trigger>
       <Portal>
         <Overlay className="fixed inset-0 backdrop-blur-[1px]" />
-        <Content className="fixed border border-umbra top-[30%] left-[50%] w-[90vw] max-w-[1200px] translate-x-[-50%] translate-y-[-50%] bg-cod-gray rounded-xl flex flex-col h-fit space-y-[12px] py-[14px]">
+        <Content className="fixed border border-umbra top-[50%] left-[50%] w-[90vw] max-w-[1200px] translate-x-[-50%] translate-y-[-50%] bg-cod-gray rounded-xl flex flex-col h-fit space-y-[12px] py-[14px]">
           <div className="px-[12px] text-stieglitz">
             <Title className="text-[13px] font-medium">
               Manage LP Positions

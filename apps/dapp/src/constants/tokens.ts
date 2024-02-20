@@ -1,5 +1,4 @@
 import arbitrumOneTokens from 'token-list/arbitrum-one.json';
-import localhostTokens from 'token-list/localhost-tokens.json';
 import polygonMainnetTokens from 'token-list/polygon-mainnet.json';
 import { Token, TokenData } from 'types';
 

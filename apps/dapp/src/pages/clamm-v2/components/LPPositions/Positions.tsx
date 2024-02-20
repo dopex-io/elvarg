@@ -164,6 +164,11 @@ const Positions = ({ positions, refetches }: Props) => {
                 amount1Symbol,
                 amount0Decimals: token0.decimals,
                 amount1Decimals: token1.decimals,
+                withdrawable: {
+                  amount0: reserved.withdrawable.token0,
+                  amount1: reserved.withdrawable.token1,
+                  liquidity: reserved.withdrawable.liquidity,
+                },
               },
               withdrawable: {
                 amount0: withdrawable.token0,
@@ -213,6 +218,8 @@ const Positions = ({ positions, refetches }: Props) => {
     }
     return handlerSortedPositions;
   }, [positions, chain.id, refetches]);
+
+  console.log(positionsSorted);
 
   return (
     <>

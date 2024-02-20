@@ -66,6 +66,11 @@ export type LPPositionItemForTable = {
     amount1Symbol: string;
     amount0Decimals: number;
     amount1Decimals: number;
+    withdrawable: {
+      amount0: string;
+      amount1: string;
+      liquidity: string;
+    };
   };
   withdrawable: {
     amount0: string;
@@ -117,8 +122,17 @@ export const columns = [
     ),
   }),
   columnHelper.accessor('handler', {
-    header: 'handler',
-    cell: ({ getValue }) => <div>{getValue()}</div>,
+    header: 'AMM',
+    cell: ({ getValue }) => (
+      <div className="flex items-center space-x-[4px]">
+        <span>{getValue()[0].toUpperCase() + getValue().slice(1)}</span>
+        <img
+          src={`/images/exchanges/${getValue()}.svg`}
+          alt={getValue()}
+          className="w-[24px] h-[24px]"
+        />
+      </div>
+    ),
   }),
   columnHelper.accessor('liquidity', {
     header: 'Liquidity',

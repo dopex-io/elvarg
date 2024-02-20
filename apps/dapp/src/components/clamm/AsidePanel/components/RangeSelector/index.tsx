@@ -12,10 +12,6 @@ import {
 
 import { Button } from '@dopex-io/ui';
 import { DopexV2PositionManager } from 'pages/clamm-v2/abi/DopexV2PositionManager';
-import {
-  getHandler,
-  getPositionManagerAddress,
-} from 'pages/clamm-v2/constants';
 import toast from 'react-hot-toast';
 import { Bar, BarChart, Cell, Rectangle } from 'recharts';
 import {
@@ -33,6 +29,9 @@ import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 import RangeSelectorSlider from 'components/clamm/StrikesChain/components/FilterSettings/components/RangeSelector/components/Slider';
 
 import generateStrikes from 'utils/clamm/generateStrikes';
+import getHandler from 'utils/clamm/getHandler';
+import getHook from 'utils/clamm/getHook';
+import getPositionManagerAddress from 'utils/clamm/getPositionManagerAddress';
 import {
   getLiquidityForAmount0,
   getLiquidityForAmount1,
@@ -211,19 +210,6 @@ const LPRangeSelector = () => {
     return generatedStrikes[index].strike;
   }, [selection, generatedStrikes]);
 
-  const putStrikesSelected = useMemo(() => {
-    return currentStrikes.filter(
-      ({ strike }) =>
-        strike < markPrice && strike > Number(lowerLimitInputStrike),
-    );
-  }, [currentStrikes, lowerLimitInputStrike, markPrice]);
-
-  const callStrikesSelected = useMemo(() => {
-    return currentStrikes.filter(
-      ({ strike }) => strike > markPrice && strike < Number(upperLimitStrike),
-    );
-  }, [currentStrikes, upperLimitStrike, markPrice]);
-
   const setSelectedStrikes = useCallback((value: number[]) => {
     setSelection(value);
   }, []);
@@ -282,6 +268,7 @@ const LPRangeSelector = () => {
 
   const confirmDeposit = useCallback(async () => {
     if (
+      !chain ||
       !allowances ||
       !selectedOptionsMarket ||
       callDepositAmountBigInt === 0n ||
@@ -295,23 +282,11 @@ const LPRangeSelector = () => {
     if (!handlerAddress) {
       return [];
     }
-    const uniswapV3Hook: Address = '0x8c30c7F03421D2C9A0354e93c23014BF6C465a79';
+    const uniswapV3Hook = getHook(chain.id, '24HTTL');
+    if (!uniswapV3Hook) return;
     const selectedStrikes = currentStrikes.filter(({ strike }) => {
       return strike > lowerLimitStrike && strike < upperLimitStrike;
     });
-
-    const token0 =
-      hexToBigInt(selectedOptionsMarket.callToken.address) <
-      hexToBigInt(selectedOptionsMarket.putToken.address)
-        ? selectedOptionsMarket.callToken.address
-        : selectedOptionsMarket.putToken.address;
-
-    const isToken1 = false;
-    const isToken0 = false;
-
-    const token0IsCallToken =
-      hexToBigInt(selectedOptionsMarket.callToken.address) <
-      hexToBigInt(selectedOptionsMarket.putToken.address);
 
     const callStrikesLen = selectedStrikes.filter(
       ({ strike }) => strike > markPrice,
@@ -354,21 +329,6 @@ const LPRangeSelector = () => {
         hexToBigInt(tokenInContext) === hexToBigInt(token0)
           ? callTokenAmountPerStrike
           : putTokenTokenAmountPerStrike;
-
-      // const isToken0 = isCall && hexToBigInt(token0);
-
-      // let token0 = token0IsCallToken
-      //   ? selectedOptionsMarket.callToken.address
-      //   : selectedOptionsMarket.putToken.address;
-
-      // let tokenInContext = isCall
-      //   ? selectedOptionsMarket.callToken.address
-      //   : selectedOptionsMarket.putToken.address;
-
-      // const getLiquidity =
-      //   hexToBigInt(tokenInContext) === hexToBigInt(token0)
-      //     ? getLiquidityForAmount0
-      //     : getLiquidityForAmount1;
 
       let liquidity = getLiquidity(
         getSqrtRatioAtTick(BigInt(tickLower)),
@@ -432,11 +392,11 @@ const LPRangeSelector = () => {
         .finally(() => setLoading(false));
     }
   }, [
+    chain,
     markPrice,
     positionManagerAddress,
     walletClient,
     updateStrikes,
-    chain?.id,
     currentStrikes,
     lowerLimitStrike,
     upperLimitStrike,

@@ -28,7 +28,7 @@ import PositionSummary from './components/PositionSummary';
 const BuyPositions = ({ loading }: PositionsTableProps) => {
   const { chain } = useNetwork();
   const { buyPositions, updateBuyPositions } = useClammPositions();
-  const { selectedOptionsPool, markPrice } = useClammStore();
+  const { selectedOptionsMarket, markPrice } = useClammStore();
   const { data: walletClient } = useWalletClient({
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
   });
@@ -72,13 +72,13 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
 
   const handleExercise = useCallback(
     async (positionId: string, index: number) => {
-      if (!selectedOptionsPool || !walletClient) return;
+      if (!selectedOptionsMarket || !walletClient) return;
 
       const loadingToastId = toast.loading('Opening wallet');
       let oneInchExerciseFailed = false;
       try {
         const exerciseTxData = await getExerciseTxData({
-          optionMarket: selectedOptionsPool.optionsPoolAddress,
+          optionMarket: selectedOptionsMarket.address,
           positionId: positionId,
           slippage: '10',
           type: '1inch',
@@ -115,7 +115,7 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
       if (oneInchExerciseFailed) {
         try {
           const exerciseTxData = await getExerciseTxData({
-            optionMarket: selectedOptionsPool.optionsPoolAddress,
+            optionMarket: selectedOptionsMarket.address,
             positionId: positionId,
             slippage: '3',
             type: 'uni-v3',
@@ -149,7 +149,7 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
       }
       toast.remove(loadingToastId);
     },
-    [selectedOptionsPool, walletClient, updateBuyPositions],
+    [selectedOptionsMarket, checkEthBalance, walletClient, updateBuyPositions],
   );
 
   const positions = useMemo(() => {
@@ -281,7 +281,7 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
     <div className="w-full flex flex-col space-y-[12px] py-[12px]">
       <div className="bg-cod-gray flex px-[12px] items-center justify-between space-x-[12px] overflow-x-scroll">
         <PositionSummary
-          callTokenSymbol={selectedOptionsPool?.callToken.symbol ?? '-'}
+          callTokenSymbol={selectedOptionsMarket?.callToken.symbol ?? '-'}
           totalOptions={optionsSummary.totalOptions}
           totalPremiumUsd={optionsSummary.totalPremiumUsd}
           totalProfitUsd={optionsSummary.totalProfitUsd}

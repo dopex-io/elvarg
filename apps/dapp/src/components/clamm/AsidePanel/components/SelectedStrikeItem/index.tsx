@@ -23,7 +23,6 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import DopexV2OptionMarket from 'abis/clamm/DopexV2OptionMarket';
 import DopexV2PositionManager from 'abis/clamm/DopexV2PositionManager';
-import { VARROCK_V2_bASE_API_URL } from 'pages/clamm-v2/constants';
 import { useDebounce } from 'use-debounce';
 import { useNetwork } from 'wagmi';
 
@@ -387,7 +386,6 @@ const SelectedStrikeItem = ({
           <NumberInput
             disabled={disabledInput}
             onValueChange={(event: any) => {
-              setLoading(ASIDE_PANEL_BUTTON_KEY, true);
               const handleInputChange = editAllMode
                 ? commonSetInputAmount
                 : setInputAmount;

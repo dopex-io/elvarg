@@ -13,7 +13,7 @@ import { DEFAULT_CHAIN_ID } from 'constants/env';
 import BuyPositions from './components/Positions/BuyPositions';
 import HistoryPositions from './components/Positions/components/HistoryPositions';
 import PositionsTypeSelector from './components/Positions/components/PositionsTypeSelector';
-import LPPositions from './components/Positions/LPPositions';
+import LPPositions from 'pages/clamm-v2/components/LPPositions';
 
 export type PositionsTableProps = {
   selectPosition: (key: number, positionInfo: any) => void;
@@ -33,8 +33,8 @@ const PositionsTable = () => {
     setBuyPositions,
     setLPPositions,
   } = useClammPositions();
-  const { selectedOptionsPool } = useClammStore();
-  const [positionsTypeIndex, setPositionsTypeIndex] = useState(0);
+  const { selectedOptionsMarket } = useClammStore();
+  const [positionsTypeIndex, setPositionsTypeIndex] = useState(1);
 
   const [selectedPositions, setSelectedPositions] = useState<Map<number, any>>(
     new Map(),
@@ -65,12 +65,12 @@ const PositionsTable = () => {
   };
 
   const updateBuyPositions = useCallback(async () => {
-    if (!userAddress || !selectedOptionsPool) return;
-    const { optionsPoolAddress } = selectedOptionsPool;
+    if (!userAddress || !selectedOptionsMarket) return;
+    const { address } = selectedOptionsMarket;
     await getBuyPositions(
       {
         account: userAddress,
-        optionMarket: optionsPoolAddress,
+        optionMarket: address,
         first: 1000,
         skip: 0,
       },
@@ -87,24 +87,24 @@ const PositionsTable = () => {
         console.error(err);
       },
     );
-  }, [selectedOptionsPool, userAddress, setBuyPositions]);
+  }, [selectedOptionsMarket, userAddress, setBuyPositions]);
 
   const updateLPPositions = useCallback(async () => {
-    if (!userAddress || !selectedOptionsPool) return;
-    await getLPPositions(
-      chain?.id ?? DEFAULT_CHAIN_ID,
-      userAddress,
-      selectedOptionsPool.optionsPoolAddress,
-      1000,
-      0,
-      (data: any) => {
-        setLPPositions(data);
-      },
-      (err) => {
-        console.error(err);
-      },
-    );
-  }, [chain, selectedOptionsPool, userAddress, setLPPositions]);
+    // if (!userAddress || !selectedOptionsMarket) return;
+    // await getLPPositions(
+    //   chain?.id ?? DEFAULT_CHAIN_ID,
+    //   userAddress,
+    //   selectedOptionsMarket.address,
+    //   1000,
+    //   0,
+    //   (data: any) => {
+    //     setLPPositions(data);
+    //   },
+    //   (err) => {
+    //     console.error(err);
+    //   },
+    // );
+  }, [chain, selectedOptionsMarket, userAddress, setLPPositions]);
 
   useEffect(() => {
     setLoading((prev) => ({ ...prev, buyPositions: true }));
@@ -151,24 +151,27 @@ const PositionsTable = () => {
           setSelectedIndex={updatePositionsType}
         />
       </div>
-      <div className="w-full h-fit  bg-cod-gray">
-        {positionsTypeIndex === 0 && (
+      <div className="w-full h-fit  bg-cod-gray p-[6px] rounded-lg">
+        {/* {positionsTypeIndex === 0 && (
           <BuyPositions
             selectPosition={selectPosition}
             unselectPosition={unselectPosition}
             selectedPositions={selectedPositions}
             loading={loading.buyPositions}
           />
-        )}
-        {positionsTypeIndex === 1 && (
+        )} */}
+        {/* {positionsTypeIndex === 1 && (
           <LPPositions
             selectPosition={selectPosition}
             unselectPosition={unselectPosition}
             selectedPositions={selectedPositions}
             loading={loading.lpPositions}
           />
+        )} */}
+        {positionsTypeIndex === 1 && (
+          <LPPositions />
         )}
-        {positionsTypeIndex === 2 && <HistoryPositions />}
+        {/* {positionsTypeIndex === 2 && <HistoryPositions />} */}
       </div>
     </div>
   );

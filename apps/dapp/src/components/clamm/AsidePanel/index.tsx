@@ -81,7 +81,9 @@ const AsidePanel = () => {
         <CostSummary />
 
         {isTrade && <AutoExercisers />}
-        <InfoPanel updateTokenBalances={updateTokenBalances} />
+        {strikesSelectionMode !== 1 && (
+          <InfoPanel updateTokenBalances={updateTokenBalances} />
+        )}
       </div>
       <div className="flex flex-col bg-umbra rounded-md space-y-2 p-3">
         <span className="flex w-full justify-between">

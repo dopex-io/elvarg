@@ -1,4 +1,4 @@
-import { Address } from 'viem';
+import { Address, zeroAddress } from 'viem';
 
 export const EXPIRIES: { [key: string]: number } = {
   '1h': 60 * 60,

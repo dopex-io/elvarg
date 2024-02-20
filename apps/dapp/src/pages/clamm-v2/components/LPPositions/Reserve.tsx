@@ -1,12 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import {
-  BaseError,
-  encodeAbiParameters,
-  encodeFunctionData,
-  encodePacked,
-  formatUnits,
-  parseUnits,
-} from 'viem';
+import { BaseError, encodeAbiParameters, formatUnits } from 'viem';
 
 import { Button } from '@dopex-io/ui';
 import {
@@ -18,19 +11,20 @@ import * as Slider from '@radix-ui/react-slider';
 import { DopexV2PositionManager } from 'pages/clamm-v2/abi/DopexV2PositionManager';
 import { UniswapV3Pool } from 'pages/clamm-v2/abi/UniswapV3Pool';
 import { UniswapV3SingleTickLiquidityHandlerV2 } from 'pages/clamm-v2/abi/UniswapV3SingalTickLiquidityHandlerV2';
-import { getPositionManagerAddress } from 'pages/clamm-v2/constants';
 import toast from 'react-hot-toast';
 import { useContractRead, useWalletClient } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
 
+import getPositionManagerAddress from 'utils/clamm/getPositionManagerAddress';
 import { getLiquidityForAmounts } from 'utils/clamm/liquidityAmountMath';
 import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
-import { formatAmount } from 'utils/general';
+import { cn, formatAmount } from 'utils/general';
 
 import { PrepareWithdrawData } from './columns';
 import { CreateWithdrawTx } from './ManageDialog';
 
 type Props = {
+  disabled: boolean;
   reserved: {
     amount0: string;
     amount1: string;
@@ -47,7 +41,13 @@ type Props = {
   getShares: (multicallRequest: any[]) => Promise<bigint[]>;
 };
 
-const Reserve = ({ reserved, current, withdraw, getShares }: Props) => {
+const Reserve = ({
+  reserved,
+  current,
+  withdraw,
+  getShares,
+  disabled,
+}: Props) => {
   const { data: walletClient } = useWalletClient();
   const [sliderAmount, setSliderAmount] = useState([100]);
   const [open, setOpen] = useState(false);
@@ -131,10 +131,6 @@ const Reserve = ({ reserved, current, withdraw, getShares }: Props) => {
         args: [liquidityToWithdraw, tokenId],
       },
     ]);
-
-    console.log('ALL SHARES', shares);
-
-    console.log(pool, hook, tickLower, tickUpper);
 
     // const reserveData = encodePacked(
     //   ['address', 'address', 'int24', 'int24', 'uint128'],
@@ -221,36 +217,36 @@ const Reserve = ({ reserved, current, withdraw, getShares }: Props) => {
     // }
 
     // if (!withdrawSkipped) {
-    console.log(shares[0]);
-    try {
-      // const { result } = await publicClient.simulateContract({
-      //   abi: UniswapV3SingleTickLiquidityHandlerV2,
-      //   address: handler,
-      //   functionName: 'reserveLiquidity',
-      //   args: [reserveData],
-      // });
+    // console.log(shares[0]);
+    // try {
+    //   // const { result } = await publicClient.simulateContract({
+    //   //   abi: UniswapV3SingleTickLiquidityHandlerV2,
+    //   //   address: handler,
+    //   //   functionName: 'reserveLiquidity',
+    //   //   args: [reserveData],
+    //   // });
 
-      // console.log(result);
-      const tx1 = await walletClient.writeContract({
-        abi: UniswapV3SingleTickLiquidityHandlerV2,
-        functionName: 'reserveLiquidity',
-        address: handler,
-        args: [reserveData],
-      });
+    //   // console.log(result);
+    //   const tx1 = await walletClient.writeContract({
+    //     abi: UniswapV3SingleTickLiquidityHandlerV2,
+    //     functionName: 'reserveLiquidity',
+    //     address: handler,
+    //     args: [reserveData],
+    //   });
 
-      // toast.success('Transaction sent!: ' + tx1);
-      // console.log('Withdraw transaction receipt: ', tx1);
-    } catch (err) {
-      console.log(err);
-      if (err instanceof BaseError) {
-        toast.error(err['shortMessage']);
-      } else {
-        console.error(err);
-        toast.error(
-          'Action Failed. Check console for more information on error',
-        );
-      }
-    }
+    //   // toast.success('Transaction sent!: ' + tx1);
+    //   // console.log('Withdraw transaction receipt: ', tx1);
+    // } catch (err) {
+    //   console.log(err);
+    //   if (err instanceof BaseError) {
+    //     toast.error(err['shortMessage']);
+    //   } else {
+    //     console.error(err);
+    //     toast.error(
+    //       'Action Failed. Check console for more information on error',
+    //     );
+    //   }
+    // }
     // }
   }, [
     publicClient,
@@ -293,8 +289,16 @@ const Reserve = ({ reserved, current, withdraw, getShares }: Props) => {
   ) : (
     <DropdownMenu.Root open={open}>
       <DropdownMenu.Trigger
-        onClick={() => setOpen(true)}
-        className="text-[13px] text-stieglitz flex items-center space-x-[4px] hover:text-white border-b w-fit border-dashed hover:border-white border-stieglitz hover:cursor-pointer"
+        disabled={disabled}
+        onClick={() => {
+          if (!disabled) {
+            setOpen(true);
+          }
+        }}
+        className={cn(
+          'text-[13px] text-stieglitz flex items-center space-x-[4px]  border-b w-fit border-dashed border-stieglitz hover:cursor-pointer',
+          !disabled && 'hover:text-white hover:border-white',
+        )}
       >
         <span>Set</span>
         <PencilSquareIcon height={14} width={14} />

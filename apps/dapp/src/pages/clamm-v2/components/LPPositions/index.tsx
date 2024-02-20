@@ -1,39 +1,50 @@
 import React, { useMemo } from 'react';
 
-import { useQueries, useQuery } from '@tanstack/react-query';
-import { VARROCK_V2_bASE_API_URL } from 'pages/clamm-v2/constants';
+import { useQueries } from '@tanstack/react-query';
+import { useAccount, useNetwork } from 'wagmi';
+
+import useClammStore from 'hooks/clamm/useClammStore';
+
+import getOptionMarketPairPools from 'utils/clamm/getOptionMarketPairPools';
+
+import { DEFAULT_CHAIN_ID, VARROCK_BASE_API_URL } from 'constants/env';
 
 import Dashboard from './Dashboard';
 import Positions from './Positions';
 
 const LPPositions = () => {
-  const optionMarketAddress = '0x8a791620dd6260079bf849dc5567adc3f2fdc318';
-  const chainId = 31337;
-  const pools = ['0x53b27D62963064134D60D095a526e1E72b74A5C4'];
-  const user = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266';
+  const { selectedOptionsMarket } = useClammStore();
+  const { chain } = useNetwork();
+  const { address: userAddress } = useAccount();
 
-  //   const { data, dataUpdatedAt, refetch, isLoading } = useQuri({
-  //     queryKey: ['CLAMM', 'LPPositions', optionMarketAddress],
-  //     queryFn: async () => {
-  //       const url = new URL(`${VARROCK_V2_bASE_API_URL}/clamm/deposit/positions`);
-
-  //       url.searchParams.set('chainId', chainId.toString());
-  //     },
-  //   });
+  const pools = useMemo(() => {
+    if (!chain || !selectedOptionsMarket) return [];
+    return getOptionMarketPairPools(chain.id, selectedOptionsMarket.address);
+  }, [chain, selectedOptionsMarket]);
 
   const data = useQueries({
     queries: pools.map((pool) => ({
-      queryKey: [],
+      queryKey: [
+        'clamm-lp-positions',
+        pool,
+        chain?.id,
+        selectedOptionsMarket?.address,
+      ],
       queryFn: async () => {
-        const url = new URL(
-          `${VARROCK_V2_bASE_API_URL}/clamm/deposit/positions`,
-        );
+        if (!chain || !userAddress || !selectedOptionsMarket) return [];
+        const url = new URL(`${VARROCK_BASE_API_URL}/clamm/deposit/positions`);
 
-        url.searchParams.set('chainId', chainId.toString());
+        url.searchParams.set(
+          'chainId',
+          (chain?.id ?? DEFAULT_CHAIN_ID).toString(),
+        );
         url.searchParams.set('pool', pool);
-        url.searchParams.set('user', user);
+        url.searchParams.set('user', userAddress);
         return fetch(url).then((res) => {
-          if (!res.ok) return [];
+          if (!res.ok) {
+            console.error(res.text);
+            return [];
+          }
           return res.json();
         });
       },
@@ -41,12 +52,11 @@ const LPPositions = () => {
   });
 
   return (
-    <div className="flex flex-col flex-start bg-cod-gray rounded-md p-[6px]">
+    <div className="flex flex-col flex-start bg-cod-gray">
       <Positions
         positions={data.map(({ data }) => data)}
         refetches={data.map(({ refetch }) => refetch)}
       />
-      <Dashboard />
     </div>
   );
 };
@@ -69,6 +79,11 @@ export type LPPosition = {
   reserved: {
     token0: string;
     token1: string;
+    withdrawable: {
+      token0: string;
+      token1: string;
+      liquidity: string;
+    };
   };
   tokens: {
     token0: {

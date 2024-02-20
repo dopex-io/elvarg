@@ -19,7 +19,7 @@ import { getTokenSymbol } from 'utils/token';
 import { FilterSettingsType } from 'constants/clamm';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
-type StrikeItem2 = {
+type StrikeItem = {
   strike: string;
   liquidity: {
     amount: number;
@@ -40,7 +40,7 @@ type StrikeItem2 = {
   };
 };
 
-const helper = createColumnHelper<StrikeItem2>();
+const helper = createColumnHelper<StrikeItem>();
 const columns2 = [
   helper.accessor('strike', {
     header: 'Strike',
@@ -170,153 +170,6 @@ const columns2 = [
   }),
 ];
 
-type StrikeItem = {
-  strike: {
-    amount: number;
-    isSelected: boolean;
-  };
-  isRewardsEligible: boolean;
-  apr: string;
-  sources: {
-    name: string;
-    compositionPercentage: number;
-  }[];
-  options: {
-    available: string;
-    total: string;
-    symbol: string;
-    usd: string;
-  };
-  button: {
-    isSelected: boolean;
-    handleSelect: () => void;
-  };
-
-  utilizationPercentage: number;
-  liquidity: {
-    totalLiquidityUsd: string;
-    symbol: string;
-    usd: number;
-    amount: number;
-  };
-};
-
-const columnHelper = createColumnHelper<StrikeItem>();
-
-const columns = [
-  columnHelper.accessor('strike', {
-    header: 'Strike',
-    cell: (info) => (
-      <span className="flex space-x-1 text-left items-center">
-        <p className="text-stieglitz inline-block">$</p>
-        <p className="inline-block">
-          {formatAmount(info.getValue().amount, 4)}
-        </p>
-      </span>
-    ),
-  }),
-  columnHelper.accessor('liquidity', {
-    header: 'Liquidity',
-    cell: (info) => (
-      <StatItem
-        name={`${formatAmount(info.getValue().amount, 5)} ${
-          info.getValue().symbol
-        }`}
-        value={`$ ${formatAmount(info.getValue().usd, 2)}`}
-      />
-    ),
-  }),
-  columnHelper.accessor('options', {
-    header: 'Options Available',
-    cell: ({ getValue }) => (
-      <span className="flex flex-col items-left">
-        <span className="flex items-center space-x-[4px]">
-          <span> {formatAmount(getValue().available, 3)}</span>
-
-          {Number(getValue().total) > 0.00001 && (
-            <span className="text-stieglitz">/</span>
-          )}
-          {Number(getValue().total) > 0.00001 && (
-            <span>{formatAmount(getValue().total, 3)}</span>
-          )}
-          <span className="text-stieglitz text-xs">{getValue().symbol}</span>
-        </span>
-        <span className="text-xs text-stieglitz">
-          $ {formatAmount(getValue().usd, 3)}
-        </span>
-      </span>
-    ),
-  }),
-  columnHelper.accessor('isRewardsEligible', {
-    header: 'Rewards',
-    cell: (info) => (
-      <span className="flex items-center w-full pl-[12px]">
-        {info.getValue() && (
-          <img
-            src="/images/tokens/arb.svg"
-            alt="ARB"
-            className="w-[20px] h-[20px]"
-          />
-        )}
-      </span>
-    ),
-  }),
-  columnHelper.accessor('utilizationPercentage', {
-    header: 'Utilization',
-    cell: (info) => {
-      const sources = info.getValue();
-      return (
-        <span className="flex space-x-1 text-left items-center">
-          <span>{formatAmount(info.getValue(), 3)}</span>
-          <span className="text-stieglitz">%</span>
-        </span>
-      );
-    },
-  }),
-  columnHelper.accessor('apr', {
-    header: 'Fees APR',
-    cell: (info) => (
-      <span className="flex space-x-1 text-left items-center">
-        <span>{formatAmount(info.getValue(), 3)}</span>
-        <span className="text-stieglitz">%</span>
-      </span>
-    ),
-  }),
-  columnHelper.accessor('isRewardsEligible', {
-    header: 'Rewards',
-    cell: (info) => (
-      <span className="flex items-center w-full pl-[12px]">
-        {info.getValue() && (
-          <img
-            src="/images/tokens/arb.svg"
-            alt="ARB"
-            className="w-[20px] h-[20px]"
-          />
-        )}
-      </span>
-    ),
-  }),
-  columnHelper.accessor('button', {
-    header: '',
-    cell: ({ getValue }) => (
-      <div className="flex space-x-2 justify-end">
-        <Button
-          onClick={getValue().handleSelect}
-          color={getValue().isSelected ? 'primary' : 'mineshaft'}
-        >
-          <div className="flex items-center space-x-1">
-            {getValue().isSelected ? (
-              <MinusIcon className="w-[14px]" />
-            ) : (
-              <PlusIcon className="w-[14px]" />
-            )}
-          </div>
-        </Button>
-      </div>
-    ),
-  }),
-];
-
 export const StatItem = ({ name, value }: { name: string; value: string }) => (
   <div className="flex flex-col px-1">
     <span className="text-sm font-medium">{value}</span>
@@ -391,6 +244,11 @@ const StrikesTable = ({ filterSettings }: Props) => {
         const liquidityAvailableUsd = isPut
           ? liquidityAvailable
           : liquidityAvailable * markPrice;
+
+        const strikeKey = tickLower
+          .toString()
+          .concat('#')
+          .concat(tickLower.toString());
         return {
           liquidityAvailableUsd,
           totalLiquidityUsd,
@@ -412,26 +270,22 @@ const StrikesTable = ({ filterSettings }: Props) => {
           eligbleForRewards: isEligibleForRewards(strikeNumber),
           manage: {
             selectStrike: () => {
-              selectStrike(
-                tickLower.toString().concat('#').concat(tickLower.toString()),
-                {
-                  isCall: !isPutStrike,
-                  strike: strikeNumber,
-                  tickLower,
-                  tickUpper,
-                },
-              );
+              selectStrike(strikeKey, {
+                strike: strikeNumber,
+                tickLower,
+                tickUpper,
+              });
             },
             deselectStrike: () => {
-              deselectStrike(
-                tickLower.toString().concat('#').concat(tickLower.toString()),
-              );
+              deselectStrike(strikeKey);
+
+              if (isTrade) {
+                unsetPurchase(strikeKey);
+              } else {
+                unsetDeposit(strikeKey);
+              }
             },
-            isSelected: Boolean(
-              selectedStrikes.get(
-                tickLower.toString().concat('#').concat(tickLower.toString()),
-              ),
-            ),
+            isSelected: Boolean(selectedStrikes.get(strikeKey)),
           },
         };
       })
@@ -466,146 +320,15 @@ const StrikesTable = ({ filterSettings }: Props) => {
     });
 
     return isPut ? strikesFilteredIsPut : strikesFilteredIsPut.reverse();
-
-    // const isPutStrike = markPrice > Number(strike);
-    // return (
-    //   feesApr > 1_000_000 ||
-    //   (isPut && !isPutStrike) ||
-    //   (!isPut && isPutStrike)
-    // );
-
-    // const _strikes = strikesChain
-    // .filter(({ liquidityAvailableUsd, optionsAvailable }) =>
-    //   filterSettings.liquidityThreshold[1] === 0
-    //     ? filterSettings.liquidityThreshold[0] < Number(liquidityAvailableUsd)
-    //     : filterSettings.liquidityThreshold[0] < Number(optionsAvailable),
-    // )
-    // .filter(
-    //   (_, index) =>
-    //     filterSettings.range.length === 0 ||
-    //     (filterSettings.range[0] <= index &&
-    //       filterSettings.range[1] >= index),
-    // )
-    //   .map(
-    //     (
-    //       {
-    //         earningsApy,
-    //         liquidityAvailableUsd,
-    //         liquidityInToken,
-    //         meta,
-    //         liquidityUsd,
-    //         liquidityAvailableInToken,
-    //         optionsAvailable,
-    //         rewardsApy,
-    //         sources,
-    //         strike,
-    //         tokenDecimals,
-    //         tokenSymbol,
-    //         utilization,
-    //         totalOptions,
-    //         type,
-    //       },
-    //       index,
-    //     ) => {
-    //       const isSelected = Boolean(selectedStrikes.get(index));
-
-    //       const isRewardsEligible =
-    //         rewardsStrikesLimit.lowerLimit < Number(strike) &&
-    //         rewardsStrikesLimit.upperLimit > Number(strike);
-
-    //       return {
-    //         utilizationPercentage: Math.abs(
-    //           ((Number(totalOptions) - Number(optionsAvailable)) /
-    //             Number(totalOptions)) *
-    //             100,
-    //         ),
-    //         type,
-    //         isRewardsEligible,
-    //         apr: earningsApy,
-    //         strike: {
-    //           amount: strike,
-    //           isSelected,
-    //         },
-    //         sources,
-    //         options: {
-    //           available: Number(optionsAvailable) < 0 ? '0' : optionsAvailable,
-    //           total: totalOptions,
-    //           symbol: callToken.symbol,
-    //           usd: liquidityAvailableUsd,
-    //         },
-    //         button: {
-    //           isSelected,
-    //           handleSelect: () => {
-    //             if (isSelected) {
-    //               deselectStrike(index);
-    //               if (isTrade) {
-    //                 unsetPurchase(index);
-    //               } else {
-    //                 unsetDeposit(index);
-    //               }
-    //             } else {
-    //               selectStrike(index, {
-    //                 amount0: 0,
-    //                 amount1:
-    //                   Number(optionsAvailable) < 0
-    //                     ? '0'
-    //                     : (Number(optionsAvailable) * 0.9998).toString(),
-    //                 isCall: type === 'call' ? true : false,
-    //                 strike: strike,
-    //                 ttl: '24h',
-    //                 tokenDecimals: Number(tokenDecimals),
-    //                 tokenSymbol,
-    //                 meta: {
-    //                   tickLower: Number(meta.tickLower),
-    //                   tickUpper: Number(meta.tickUpper),
-    //                   amount0: 0n,
-    //                   amount1: 0n,
-    //                 },
-    //               });
-    //             }
-    //           },
-    //         },
-    //         liquidity: {
-    //           totalLiquidityUsd: liquidityUsd,
-    //           symbol: tokenSymbol,
-    //           usd: Number(liquidityAvailableUsd),
-    //           amount: Number(
-    //             formatUnits(BigInt(liquidityAvailableInToken), tokenDecimals),
-    //           ),
-    //         },
-    //         disclosure: {
-    //           earningsApy: Number(earningsApy),
-    //           rewardsApy: Number(rewardsApy),
-    //           utilization: Number(utilization),
-    //           totalDeposits: {
-    //             amount: Number(
-    //               formatUnits(BigInt(liquidityInToken), tokenDecimals),
-    //             ),
-    //             symbol: tokenSymbol,
-    //           },
-    //         },
-    //       };
-    //     },
-    //   );
-    // .filter(({ type }) => (isPut ? type === 'put' : type === 'call'))
-    // .filter(
-    //   ({ liquidity: { totalLiquidityUsd } }) => Number(totalLiquidityUsd) > 1,
-    // );
-
-    // if (isPut) {
-    //   return _strikes.sort((a, b) => b.strike.amount - a.strike.amount);
-    // } else {
-    //   return _strikes.sort((a, b) => a.strike.amount - b.strike.amount);
-    // }
   }, [
     chain?.id,
     isEligibleForRewards,
     markPrice,
     filterSettings,
-    isTrade,
     unsetDeposit,
     unsetPurchase,
     strikesChain,
+    isTrade,
     selectStrike,
     deselectStrike,
     selectedStrikes,
@@ -615,7 +338,7 @@ const StrikesTable = ({ filterSettings }: Props) => {
 
   return (
     <div className="max-h-[500px] overflow-y-auto border-t border-t-carbon">
-      <TableLayout<StrikeItem2>
+      <TableLayout<StrikeItem>
         data={strikes}
         columns={columns2}
         isContentLoading={isLoading('strikes-chain')}
