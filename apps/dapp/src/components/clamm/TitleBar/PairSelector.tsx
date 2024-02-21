@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 
 import { Listbox } from '@dopex-io/ui';
 import { ChevronDownIcon } from '@heroicons/react/24/solid';
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 
