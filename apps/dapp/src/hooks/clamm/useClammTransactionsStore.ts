@@ -38,6 +38,7 @@ export type PurchaseTransaction = {
   amount: number;
   tokenAddress: Address;
   premium: bigint;
+  fees: bigint;
   tokenSymbol: string;
   tokenDecimals: number;
   collateralRequired: bigint;
