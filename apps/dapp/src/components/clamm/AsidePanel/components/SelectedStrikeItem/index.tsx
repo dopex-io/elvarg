@@ -6,14 +6,7 @@ import {
   useMemo,
   useState,
 } from 'react';
-import {
-  encodeAbiParameters,
-  encodeFunctionData,
-  formatUnits,
-  hexToBigInt,
-  maxUint256,
-  parseUnits,
-} from 'viem';
+import { formatUnits, parseUnits } from 'viem';
 
 import {
   ArrowDownRightIcon,
@@ -21,12 +14,8 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/solid';
 import { useQuery } from '@tanstack/react-query';
-import DopexV2OptionMarket from 'abis/clamm/DopexV2OptionMarket';
-import DopexV2PositionManager from 'abis/clamm/DopexV2PositionManager';
 import { useDebounce } from 'use-debounce';
 import { useNetwork } from 'wagmi';
-
-import queryClient from 'queryClient';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
@@ -39,13 +28,6 @@ import useStrikesChainStore, {
 
 import NumberInput from 'components/common/NumberInput/NumberInput';
 
-import getPriceFromTick from 'utils/clamm/getPriceFromTick';
-import {
-  getLiquidityForAmount0,
-  getLiquidityForAmount1,
-} from 'utils/clamm/liquidityAmountMath';
-import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
-import getPremium from 'utils/clamm/varrock/getPremium';
 import { cn, formatAmount } from 'utils/general';
 
 import { DEFAULT_CHAIN_ID, VARROCK_BASE_API_URL } from 'constants/env';
@@ -78,7 +60,6 @@ const SelectedStrikeItem = ({
   } = useClammStore();
   const { setDeposit, unsetDeposit, setPurchase, unsetPurchase } =
     useClammTransactionsStore();
-  const [premium, setPremium] = useState(0n);
   const { chain } = useNetwork();
   const [inputAmount, setInputAmount] = useState<string>('');
   const [amountDebounced] = useDebounce(
@@ -112,64 +93,52 @@ const SelectedStrikeItem = ({
     };
   }, [selectedOptionsMarket]);
 
-  // const updatePremium = useCallback(async () => {
-  //   if (!selectedOptionsMarket || !chain || !isTrade) return;
-  //   const { strike, tickLower, tickUpper } = strikeData;
-  //   const { callToken, putToken } = selectedOptionsMarket;
-  //   if (Number(amountDebounced) === 0) return;
-  //   const tick = isCall ? tickLower : tickUpper;
-  //   const ttl = selectedTTL;
-  //   const {} = queryClient.fetchQuery();
-  //   console.log(selectedTTL);
-  //   // setLoading(ASIDE_PANEL_BUTTON_KEY, true);
-  //   // const { amountInToken } = await getPremium(
-  //   //   callToken.address,
-  //   //   putToken.address,
-  //   //   tick,
-  //   //   ttl,
-  //   //   amountDebounced,
-  //   //   isCall,
-  //   //   chain.id,
-  //   // );
-  //   // setLoading(ASIDE_PANEL_BUTTON_KEY, false);
-  //   // if (!amountInToken) return;
-  //   // const totalPremium = amountInToken;
-  //   // setPremium(BigInt(totalPremium));
-  // }, [
-  //   isCall,
-  //   setLoading,
-  //   chain,
-  //   isTrade,
-  //   selectedOptionsMarket,
-  //   strikeData,
-  //   selectedTTL,
-  //   amountDebounced,
-  // ]);
-
-  // const { data, error: error2 } = useQuery({
-  //   queryKey: [
-  //     'clamm-option-premium',
-  //     tickLower,
-  //     tickUpper,
-  //     selectedOptionsMarket?.address,
-  //     chain?.id,
-  //   ],
-  //   queryFn: async () => {
-  //     if (!isTrade || !selectedOptionsMarket) return 0n;
-  //     const url = new URL(`${VARROCK_BASE_API_URL}/clamm/purchase/quote`);
-  //     url.searchParams.set(
-  //       'chainId',
-  //       (chain?.id ?? DEFAULT_CHAIN_ID).toString(),
-  //     );
-  //     url.searchParams.set('optionMarket', selectedOptionsMarket.address);
-  //     url.searchParams.set('type', markPrice < strike ? 'put' : 'call');
-  //     url.searchParams.set('amount', amountDebounced.toString());
-  //     url.searchParams.set('ttl', selectedTTL.toString());
-  //     url.searchParams.set('strike', strike.toString());
-  //     console.log(url.toString(), amountDebounced.toString());
-  //     return fetch(url).then((res) => res.json());
-  //   },
-  // });
+  const { data: optionsCost } = useQuery<
+    | {
+        fees: string;
+        premium: string;
+      }
+    | undefined
+  >({
+    queryKey: [
+      'clamm-option-premium',
+      tickLower,
+      tickUpper,
+      selectedOptionsMarket?.address,
+      chain?.id,
+      amountDebounced.toString(),
+      markPrice,
+    ],
+    queryFn: async () => {
+      if (!isTrade || !selectedOptionsMarket || !Boolean(amountDebounced)) {
+        return {
+          fees: '0',
+          premium: '0',
+        };
+      }
+      const url = new URL(`${VARROCK_BASE_API_URL}/clamm/purchase/quote`);
+      url.searchParams.set(
+        'chainId',
+        (chain?.id ?? DEFAULT_CHAIN_ID).toString(),
+      );
+      url.searchParams.set('optionMarket', selectedOptionsMarket.address);
+      url.searchParams.set('type', markPrice < strike ? 'put' : 'call');
+      url.searchParams.set('amount', amountDebounced.toString());
+      url.searchParams.set('ttl', selectedTTL.toString());
+      url.searchParams.set('strike', strike.toString());
+      url.searchParams.set('markPrice', markPrice.toString());
+      return fetch(url).then((res) => {
+        if (!res.ok) {
+          console.error(res.json());
+          return {
+            fees: '0',
+            premium: '0',
+          };
+        }
+        res.json();
+      });
+    },
+  });
 
   const updateDeposit = useCallback(async () => {
     if (isTrade || !selectedOptionsMarket) return;
@@ -237,12 +206,15 @@ const SelectedStrikeItem = ({
       setError('');
     }
 
+    if (!optionsCost) return;
+
     setPurchase(strikeKey, {
       strike,
       tickLower,
       tickUpper,
       amount: Number(amountDebounced),
-      premium: premium,
+      premium: BigInt(optionsCost['premium'] ?? 0n),
+      fees: BigInt(optionsCost['fees'] ?? 0n),
       collateralRequired: liquidtyRequiredInToken,
       tokenAddress: isCall
         ? selectedOptionsMarket.callToken.address
@@ -253,14 +225,8 @@ const SelectedStrikeItem = ({
       tokenDecimals: decimalsInContext,
       error: Boolean(error),
     });
-
-    const x = {
-      strike,
-      tickLower,
-      tickUpper,
-      liquidtyRequiredInToken,
-    };
   }, [
+    optionsCost,
     isCall,
     strikeKey,
     tickLower,
@@ -273,7 +239,6 @@ const SelectedStrikeItem = ({
     amountDebounced,
     isTrade,
     selectedOptionsMarket,
-    premium,
   ]);
 
   const handleMax = useCallback(() => {
@@ -282,7 +247,24 @@ const SelectedStrikeItem = ({
       ? commonSetInputAmount
       : setInputAmount;
     if (isTrade) {
-      // handleInputChange((Number(strikeData.amount1) * 0.993).toString());
+      if (!selectedOptionsMarket) return;
+      const liquidityData = getCollateralAvailable(strike.toString());
+      const totalLiquidityAvailable = liquidityData.reduce(
+        (prev, { availableTokenLiquidity }) => prev + availableTokenLiquidity,
+        0n,
+      );
+
+      const decimalsInContext = isCall
+        ? selectedOptionsMarket.callToken.decimals
+        : selectedOptionsMarket.putToken.decimals;
+
+      const strikeBigInt = parseUnits(strike.toString(), decimalsInContext);
+      const optionsAvailable = isCall
+        ? totalLiquidityAvailable
+        : (totalLiquidityAvailable * parseUnits('1', decimalsInContext)) /
+          strikeBigInt;
+
+      handleInputChange(formatUnits(optionsAvailable, decimalsInContext));
     } else {
       const balance = isCall ? tokenBalances.callToken : tokenBalances.putToken;
       handleInputChange(
@@ -294,21 +276,19 @@ const SelectedStrikeItem = ({
     }
     setLoading(ASIDE_PANEL_BUTTON_KEY, false);
   }, [
+    getCollateralAvailable,
+    selectedOptionsMarket,
+    strike,
     isCall,
     setLoading,
     commonSetInputAmount,
     editAllMode,
     isTrade,
-    // strikeData.amount1,
     tokenBalances.callToken,
     tokenBalances.putToken,
     tokenDecimals.callToken,
     tokenDecimals.putToken,
   ]);
-
-  // useEffect(() => {
-  //   updatePremium();
-  // }, [updatePremium]);
 
   useEffect(() => {
     updateDeposit();
