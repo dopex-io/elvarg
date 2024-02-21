@@ -88,7 +88,7 @@ const OverViewStats = () => {
   });
 
   return (
-    <div className="grid grid-flow-col md:grid-rows-1 grid-rows-2 gap-y-4 w-full md:w-2/5">
+    <div className="grid grid-flow-col md:grid-rows-1 grid-rows-2 gap-y-4 w-full md:w-2/4">
       {!markPriceLoading ? (
         <>
           <Stat
@@ -110,28 +110,21 @@ const OverViewStats = () => {
               symbol: '$',
               value: tvl?.toString() ?? '0',
             }}
-            label="Total Deposits"
+            label="Liquidity"
           />
           <Stat
             stat={{
               symbol: '$',
               value: selectedOptionsMarket?.totalVolume ?? '0',
             }}
-            label="Total Volume"
+            label="Volume"
           />
           <Stat
             stat={{
               symbol: '$',
               value: selectedOptionsMarket?.totalPremium ?? '0',
             }}
-            label="Total Premium"
-          />
-          <Stat
-            stat={{
-              symbol: '$',
-              value: selectedOptionsMarket?.totalFees ?? '0',
-            }}
-            label="Total Fees"
+            label="Premium"
           />
           <Stat
             stat={{
