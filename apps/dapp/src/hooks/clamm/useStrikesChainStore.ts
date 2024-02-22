@@ -1,6 +1,12 @@
 import { Address } from 'viem';
 
+
+
 import { create } from 'zustand';
+
+
+
+
 
 export type StrikesChainMappingArray = Record<string, StrikesChainItem[]>[];
 
@@ -116,16 +122,18 @@ const useStrikesChainStore = create<StrikesChainStore>((set, get) => ({
     const { strikesChain } = get();
     const strikesChainData = strikesChain.get(strike);
     const liquidityData = strikesChainData
-      ? strikesChainData.map(
-          ({
-            meta: { availableTokenLiquidity, availableLiquidity },
-            handler,
-          }) => ({
-            availableLiquidity: BigInt(availableLiquidity),
-            availableTokenLiquidity: BigInt(availableTokenLiquidity),
-            ...handler,
-          }),
-        )
+      ? strikesChainData
+          .map(
+            ({
+              meta: { availableTokenLiquidity, availableLiquidity },
+              handler,
+            }) => ({
+              availableLiquidity: BigInt(availableLiquidity),
+              availableTokenLiquidity: BigInt(availableTokenLiquidity),
+              ...handler,
+            }),
+          )
+          .filter(({ deprecated }) => !deprecated)
       : [];
 
     return liquidityData;

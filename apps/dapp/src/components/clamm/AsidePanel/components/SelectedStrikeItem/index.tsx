@@ -6,7 +6,7 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { formatUnits, parseUnits } from 'viem';
+import { formatUnits, parseUnits, zeroAddress } from 'viem';
 
 import {
   ArrowDownRightIcon,
@@ -93,19 +93,16 @@ const SelectedStrikeItem = ({
     };
   }, [selectedOptionsMarket]);
 
-  const { data: optionsCost } = useQuery<
-    | {
-        fees: string;
-        premium: string;
-      }
-    | undefined
-  >({
+  const { data: optionsCost, isError: isOptionsCostError } = useQuery<{
+    fees: string;
+    premium: string;
+  }>({
     queryKey: [
       'clamm-option-premium',
       tickLower,
       tickUpper,
-      selectedOptionsMarket?.address,
-      chain?.id,
+      selectedOptionsMarket?.address ?? zeroAddress,
+      chain?.id ?? DEFAULT_CHAIN_ID,
       amountDebounced.toString(),
       markPrice,
     ],
@@ -122,20 +119,16 @@ const SelectedStrikeItem = ({
         (chain?.id ?? DEFAULT_CHAIN_ID).toString(),
       );
       url.searchParams.set('optionMarket', selectedOptionsMarket.address);
-      url.searchParams.set('type', markPrice < strike ? 'put' : 'call');
+      url.searchParams.set('type', markPrice < strike ? 'call' : 'put');
       url.searchParams.set('amount', amountDebounced.toString());
       url.searchParams.set('ttl', selectedTTL.toString());
       url.searchParams.set('strike', strike.toString());
       url.searchParams.set('markPrice', markPrice.toString());
       return fetch(url).then((res) => {
         if (!res.ok) {
-          console.error(res.json());
-          return {
-            fees: '0',
-            premium: '0',
-          };
+          throw Error('Failed to fetch premium');
         }
-        res.json();
+        return res.json();
       });
     },
   });
@@ -202,12 +195,12 @@ const SelectedStrikeItem = ({
           4,
         )} Available)`,
       );
+    } else if (isOptionsCostError) {
+      setError('Premium calculation error. Please retry.');
     } else {
       setError('');
     }
-
     if (!optionsCost) return;
-
     setPurchase(strikeKey, {
       strike,
       tickLower,
@@ -239,6 +232,7 @@ const SelectedStrikeItem = ({
     amountDebounced,
     isTrade,
     selectedOptionsMarket,
+    isOptionsCostError,
   ]);
 
   const handleMax = useCallback(() => {
@@ -305,7 +299,7 @@ const SelectedStrikeItem = ({
           onClick={() => {
             deselectStrike(strikeId);
             if (isTrade) {
-              // unsetPurchase(strikeId);
+              unsetPurchase(strikeId);
             } else {
               unsetDeposit(strikeId);
             }
@@ -336,33 +330,6 @@ const SelectedStrikeItem = ({
             Boolean(error) ? 'border-down-bad' : 'border-mineshaft',
           )}
         >
-          {/* <input
-            disabled={disabledInput}
-            onChange={(event: any) => {
-              setLoading(ASIDE_PANEL_BUTTON_KEY, true);
-              const handleInputChange = editAllMode
-                ? commonSetInputAmount
-                : setInputAmount;
-
-              handleInputChange(event.target.value);
-            }}
-            value={editAllMode ? commonInputAmount : inputAmount}
-            type="number"
-            min="0"
-            placeholder={`0.0 ${
-              isTrade
-                ? selectedOptionsMarket
-                  ? selectedOptionsMarket.callToken.symbol
-                  : '-'
-                : isCall
-                  ? selectedOptionsMarket!.callToken.symbol
-                  : selectedOptionsMarket!.putToken.symbol
-            }`}
-            className={cn(
-              'w-full text-[13px] text-left bg-umbra focus:outline-none focus:border-mineshaft rounded-md placeholder-mineshaft',
-              disabledInput ? 'text-stieglitz' : 'text-white',
-            )}
-          /> */}
           <NumberInput
             disabled={disabledInput}
             onValueChange={(event: any) => {
