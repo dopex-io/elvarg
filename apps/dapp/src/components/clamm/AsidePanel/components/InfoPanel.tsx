@@ -303,10 +303,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
 
     const purchasesTx: Hex[] = [];
     const purchasesArray = Array.from(purchases);
-    const hook = getHook(chain.id, '24HTTL');
     const { publicClient } = wagmiConfig;
-
-    if (!hook) return;
 
     purchasesArray.forEach(
       ([_, { collateralRequired, strike, tickLower, tickUpper }]) => {
@@ -348,7 +345,8 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
 
         if (indexOfHandlerWithEnough === -1) {
           for (let i = 0; i < liquidityData.length; i++) {
-            const { availableLiquidity, pool, handler } = liquidityData[i];
+            const { availableLiquidity, pool, handler, hook } =
+              liquidityData[i];
             const currentLiqRequired = liquidityRequired - liquidityCumulative;
             if (availableLiquidity === 0n) continue;
             if (liquidityCumulative === liquidityRequired) break;
@@ -356,7 +354,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
               opTicks.push({
                 _handler: getAddress(handler),
                 pool: getAddress(pool),
-                hook,
+                hook: getAddress(hook),
                 tickLower,
                 tickUpper,
                 liquidityToUse: currentLiqRequired,
@@ -365,7 +363,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
               opTicks.push({
                 _handler: getAddress(handler),
                 pool: getAddress(pool),
-                hook,
+                hook: getAddress(hook),
                 tickLower,
                 tickUpper,
                 liquidityToUse: availableLiquidity,
@@ -374,12 +372,14 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
             }
           }
         } else {
+          const { hook } = liquidityData[indexOfHandlerWithEnough];
+
           opTicks.push({
             _handler: getAddress(
               liquidityData[indexOfHandlerWithEnough].handler,
             ),
             pool: getAddress(liquidityData[indexOfHandlerWithEnough].pool),
-            hook,
+            hook: getAddress(hook),
             tickLower,
             tickUpper,
             liquidityToUse: liquidityRequired,
@@ -410,6 +410,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
 
     try {
       const { request } = await publicClient.simulateContract({
+        account: walletClient.account,
         abi: DopexV2OptionMarketV2,
         functionName: 'multicall',
         address: selectedOptionsMarket.address,

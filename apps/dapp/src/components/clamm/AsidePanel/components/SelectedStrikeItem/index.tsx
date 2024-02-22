@@ -179,9 +179,8 @@ const SelectedStrikeItem = ({
     const strikeBigInt = parseUnits(strike.toString(), decimalsInContext);
     const liquidtyRequiredInToken = isCall
       ? parseUnits(amountDebounced, decimalsInContext)
-      : (parseUnits(amountDebounced, decimalsInContext) *
-          parseUnits('1', decimalsInContext)) /
-        strikeBigInt;
+      : (parseUnits(amountDebounced, decimalsInContext) * strikeBigInt) /
+        parseUnits('1', decimalsInContext);
 
     if (liquidtyRequiredInToken === 0n) {
       unsetPurchase(strikeKey);
