@@ -1,13 +1,16 @@
 import React, { useEffect } from 'react';
 import { Address } from 'viem';
 
+
+
 import { useQuery } from '@tanstack/react-query';
 import { NextSeo } from 'next-seo';
 import { useNetwork } from 'wagmi';
 
+
+
 import useClammStore, { OptionMarket } from 'hooks/clamm/useClammStore';
 import useTradingViewChartStore from 'hooks/tradingViewChart/useTradingViewChartStore';
-
 
 import AsidePanel from 'components/clamm/AsidePanel';
 import PositionsTable from 'components/clamm/PositionsTable';
@@ -36,18 +39,18 @@ const Page = () => {
         (chain?.id ?? DEFAULT_CHAIN_ID).toString(),
       );
 
-      return fetch(url)
-        .then((res) => res.json())
-        .catch((err) => {
-          console.error(err);
+      return fetch(url).then((res) => {
+        if (!res.ok) {
+          console.error(res.json());
           return [];
-        });
+        }
+        return res.json();
+      });
     },
   });
 
   useEffect(() => {
     if (!data || isError) return;
-
     let opMarkets: OptionMarket[] = [];
     if (chain?.id === 42161) {
       const firstOptionMarket = data.filter(({ ticker }) => {
@@ -64,7 +67,6 @@ const Page = () => {
         .concat(firstOptionMarket)
         .concat(nonFirstOptionMarkets)
         .concat(deprecatedMarkets);
-      opMarkets.map(({ ticker }) => console.log(ticker));
     }
 
     opMarkets = opMarkets.length === 0 ? data : opMarkets;
@@ -104,12 +106,12 @@ const Page = () => {
         </div>
         <div className="w-full flex flex-col xl:flex-row xl:space-x-[12px] xl:space-y-[0px] space-y-[12px]">
           <div className="max-w-[1530px] sm:min-w-[590px] h-fit sm:w-full w-[96vw] space-y-[12px]">
-            {/* <PriceChart />
+            {/* <PriceChart />*/}
             <StrikesChain />
-            <PositionsTable /> */}
+            <PositionsTable />
           </div>
           <div className="xl:max-w-[366px] relative sm:w-full w-[96vw]">
-            {/* <AsidePanel /> */}
+            <AsidePanel />
           </div>
         </div>
       </div>

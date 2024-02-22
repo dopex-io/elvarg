@@ -8,9 +8,6 @@ import {
 } from '@heroicons/react/24/solid';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import * as Slider from '@radix-ui/react-slider';
-import { DopexV2PositionManager } from 'pages/clamm-v2/abi/DopexV2PositionManager';
-import { UniswapV3Pool } from 'pages/clamm-v2/abi/UniswapV3Pool';
-import { UniswapV3SingleTickLiquidityHandlerV2 } from 'pages/clamm-v2/abi/UniswapV3SingalTickLiquidityHandlerV2';
 import toast from 'react-hot-toast';
 import { useContractRead, useWalletClient } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
@@ -22,6 +19,8 @@ import { cn, formatAmount } from 'utils/general';
 
 import { PrepareWithdrawData } from './columns';
 import { CreateWithdrawTx } from './ManageDialog';
+import UniswapV3SingleTickLiquidityHandlerV2 from 'abis/clamm/UniswapV3SingleTickLiquidityHandlerV2';
+import UniswapV3Pool from 'abis/clamm/UniswapV3Pool';
 
 type Props = {
   disabled: boolean;

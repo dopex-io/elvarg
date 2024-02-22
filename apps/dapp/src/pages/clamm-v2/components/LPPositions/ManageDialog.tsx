@@ -25,9 +25,9 @@ import {
 } from '@radix-ui/react-dialog';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { createColumnHelper } from '@tanstack/react-table';
-import { DopexV2PositionManager } from 'pages/clamm-v2/abi/DopexV2PositionManager';
-import { UniswapV3Pool } from 'pages/clamm-v2/abi/UniswapV3Pool';
-import { UniswapV3SingleTickLiquidityHandlerV2 } from 'pages/clamm-v2/abi/UniswapV3SingalTickLiquidityHandlerV2';
+import DopexV2PositionManager from 'abis/clamm/DopexV2PositionManager';
+import UniswapV3Pool from 'abis/clamm/UniswapV3Pool';
+import UniswapV3SingleTickLiquidityHandlerV2 from 'abis/clamm/UniswapV3SingleTickLiquidityHandlerV2';
 import toast from 'react-hot-toast';
 import { useContractRead, useWalletClient } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
@@ -426,7 +426,7 @@ const ManageDialog = ({ positions, refetch }: Props) => {
           console.log(
             'RESERVED REQUIRED',
             canReserve,
-            "CANNOT RESERVE",
+            'CANNOT RESERVE',
             !canReserve,
             totalCurrentLiq,
             totalWithdrawable,

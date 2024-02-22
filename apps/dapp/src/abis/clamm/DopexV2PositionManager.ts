@@ -1,466 +1,358 @@
 const DopexV2PositionManager = [
   {
-    inputs: [],
-    name: 'DopexV2PositionManager__NotWhitelistedApp',
-    type: 'error',
-  },
-  {
-    inputs: [],
-    name: 'DopexV2PositionManager__NotWhitelistedHandler',
-    type: 'error',
-  },
-  {
-    anonymous: false,
+    type: 'function',
+    name: 'burnPosition',
     inputs: [
       {
-        indexed: false,
+        name: '_handler',
+        type: 'address',
         internalType: 'contract IHandler',
-        name: '_handler',
-        type: 'address',
       },
       {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'tokenId',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'sharesBurned',
-        type: 'uint256',
-      },
-    ],
-    name: 'LogBurnPosition',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'contract IHandler',
-        name: '_handler',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'liquidityDonated',
-        type: 'uint256',
-      },
-    ],
-    name: 'LogDonation',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'contract IHandler',
-        name: '_handler',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'tokenId',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'user',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'sharesMinted',
-        type: 'uint256',
-      },
-    ],
-    name: 'LogMintPosition',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'contract IHandler',
-        name: '_handler',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'liquidityUnused',
-        type: 'uint256',
-      },
-    ],
-    name: 'LogUnusePosition',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'address',
-        name: '_handler',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'bool',
-        name: '_status',
-        type: 'bool',
-      },
-    ],
-    name: 'LogUpdateWhitelistHandler',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'address',
-        name: '_handler',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'address',
-        name: '_app',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'bool',
-        name: '_status',
-        type: 'bool',
-      },
-    ],
-    name: 'LogUpdateWhitelistHandlerWithApp',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'contract IHandler',
-        name: '_handler',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'liquidityUsed',
-        type: 'uint256',
-      },
-    ],
-    name: 'LogUsePosition',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'previousOwner',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'newOwner',
-        type: 'address',
-      },
-    ],
-    name: 'OwnershipTransferred',
-    type: 'event',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'contract IHandler',
-        name: '_handler',
-        type: 'address',
-      },
-      {
-        internalType: 'bytes',
         name: '_burnPositionData',
         type: 'bytes',
+        internalType: 'bytes',
       },
     ],
-    name: 'burnPosition',
     outputs: [
-      {
-        internalType: 'uint256',
-        name: 'sharesBurned',
-        type: 'uint256',
-      },
+      { name: 'sharesBurned', type: 'uint256', internalType: 'uint256' },
     ],
     stateMutability: 'nonpayable',
-    type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'contract IHandler',
-        name: '_handler',
-        type: 'address',
-      },
-      {
-        internalType: 'bytes',
-        name: '_donatePosition',
-        type: 'bytes',
-      },
-    ],
+    type: 'function',
     name: 'donateToPosition',
-    outputs: [
-      {
-        internalType: 'uint256[]',
-        name: 'amounts',
-        type: 'uint256[]',
-      },
-      {
-        internalType: 'uint256',
-        name: 'liquidity',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
     inputs: [
       {
-        internalType: 'contract IHandler',
         name: '_handler',
         type: 'address',
+        internalType: 'contract IHandler',
+      },
+      { name: '_donatePosition', type: 'bytes', internalType: 'bytes' },
+    ],
+    outputs: [
+      { name: 'amounts', type: 'uint256[]', internalType: 'uint256[]' },
+      { name: 'liquidity', type: 'uint256', internalType: 'uint256' },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'mintPosition',
+    inputs: [
+      {
+        name: '_handler',
+        type: 'address',
+        internalType: 'contract IHandler',
       },
       {
-        internalType: 'bytes',
         name: '_mintPositionData',
         type: 'bytes',
+        internalType: 'bytes',
       },
     ],
-    name: 'mintPosition',
     outputs: [
-      {
-        internalType: 'uint256',
-        name: 'sharesMinted',
-        type: 'uint256',
-      },
+      { name: 'sharesMinted', type: 'uint256', internalType: 'uint256' },
     ],
     stateMutability: 'nonpayable',
-    type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'bytes[]',
-        name: 'data',
-        type: 'bytes[]',
-      },
-    ],
+    type: 'function',
     name: 'multicall',
-    outputs: [
-      {
-        internalType: 'bytes[]',
-        name: 'results',
-        type: 'bytes[]',
-      },
-    ],
+    inputs: [{ name: 'data', type: 'bytes[]', internalType: 'bytes[]' }],
+    outputs: [{ name: 'results', type: 'bytes[]', internalType: 'bytes[]' }],
     stateMutability: 'nonpayable',
-    type: 'function',
   },
   {
-    inputs: [],
+    type: 'function',
     name: 'owner',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
     inputs: [],
+    outputs: [{ name: '', type: 'address', internalType: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     name: 'renounceOwnership',
+    inputs: [],
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'newOwner',
-        type: 'address',
-      },
-    ],
+    type: 'function',
     name: 'transferOwnership',
+    inputs: [{ name: 'newOwner', type: 'address', internalType: 'address' }],
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function',
   },
   {
+    type: 'function',
+    name: 'unusePosition',
     inputs: [
       {
-        internalType: 'contract IHandler',
         name: '_handler',
         type: 'address',
+        internalType: 'contract IHandler',
       },
       {
-        internalType: 'bytes',
         name: '_unusePositionData',
         type: 'bytes',
-      },
-    ],
-    name: 'unusePosition',
-    outputs: [
-      {
-        internalType: 'uint256[]',
-        name: 'amounts',
-        type: 'uint256[]',
-      },
-      {
-        internalType: 'uint256',
-        name: 'liquidity',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_handler',
-        type: 'address',
-      },
-      {
-        internalType: 'bool',
-        name: '_status',
-        type: 'bool',
-      },
-    ],
-    name: 'updateWhitelistHandler',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_handler',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: '_app',
-        type: 'address',
-      },
-      {
-        internalType: 'bool',
-        name: '_status',
-        type: 'bool',
-      },
-    ],
-    name: 'updateWhitelistHandlerWithApp',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'contract IHandler',
-        name: '_handler',
-        type: 'address',
-      },
-      {
         internalType: 'bytes',
-        name: '_usePositionData',
-        type: 'bytes',
       },
     ],
-    name: 'usePosition',
     outputs: [
+      { name: 'amounts', type: 'uint256[]', internalType: 'uint256[]' },
+      { name: 'liquidity', type: 'uint256', internalType: 'uint256' },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'updateWhitelistHandler',
+    inputs: [
+      { name: '_handler', type: 'address', internalType: 'address' },
+      { name: '_status', type: 'bool', internalType: 'bool' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'updateWhitelistHandlerWithApp',
+    inputs: [
+      { name: '_handler', type: 'address', internalType: 'address' },
+      { name: '_app', type: 'address', internalType: 'address' },
+      { name: '_status', type: 'bool', internalType: 'bool' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'usePosition',
+    inputs: [
       {
-        internalType: 'address[]',
-        name: 'tokens',
-        type: 'address[]',
+        name: '_handler',
+        type: 'address',
+        internalType: 'contract IHandler',
       },
+      { name: '_usePositionData', type: 'bytes', internalType: 'bytes' },
+    ],
+    outputs: [
+      { name: 'tokens', type: 'address[]', internalType: 'address[]' },
+      { name: 'amounts', type: 'uint256[]', internalType: 'uint256[]' },
       {
-        internalType: 'uint256[]',
-        name: 'amounts',
-        type: 'uint256[]',
-      },
-      {
-        internalType: 'uint256',
         name: 'liquidityUsed',
         type: 'uint256',
+        internalType: 'uint256',
       },
     ],
     stateMutability: 'nonpayable',
-    type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
+    type: 'function',
     name: 'whitelistedHandlers',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
+    inputs: [{ name: '', type: 'address', internalType: 'address' }],
+    outputs: [{ name: '', type: 'bool', internalType: 'bool' }],
     stateMutability: 'view',
-    type: 'function',
   },
   {
+    type: 'function',
+    name: 'whitelistedHandlersWithApp',
+    inputs: [{ name: '', type: 'bytes32', internalType: 'bytes32' }],
+    outputs: [{ name: '', type: 'bool', internalType: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'event',
+    name: 'LogBurnPosition',
     inputs: [
       {
-        internalType: 'bytes32',
-        name: '',
-        type: 'bytes32',
+        name: '_handler',
+        type: 'address',
+        indexed: false,
+        internalType: 'contract IHandler',
       },
-    ],
-    name: 'whitelistedHandlersWithApp',
-    outputs: [
       {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
+        name: 'tokenId',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'user',
+        type: 'address',
+        indexed: false,
+        internalType: 'address',
+      },
+      {
+        name: 'sharesBurned',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'LogDonation',
+    inputs: [
+      {
+        name: '_handler',
+        type: 'address',
+        indexed: false,
+        internalType: 'contract IHandler',
+      },
+      {
+        name: 'liquidityDonated',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'LogMintPosition',
+    inputs: [
+      {
+        name: '_handler',
+        type: 'address',
+        indexed: false,
+        internalType: 'contract IHandler',
+      },
+      {
+        name: 'tokenId',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'user',
+        type: 'address',
+        indexed: false,
+        internalType: 'address',
+      },
+      {
+        name: 'sharesMinted',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'LogUnusePosition',
+    inputs: [
+      {
+        name: '_handler',
+        type: 'address',
+        indexed: false,
+        internalType: 'contract IHandler',
+      },
+      {
+        name: 'liquidityUnused',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'LogUpdateWhitelistHandler',
+    inputs: [
+      {
+        name: '_handler',
+        type: 'address',
+        indexed: false,
+        internalType: 'address',
+      },
+      {
+        name: '_status',
+        type: 'bool',
+        indexed: false,
+        internalType: 'bool',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'LogUpdateWhitelistHandlerWithApp',
+    inputs: [
+      {
+        name: '_handler',
+        type: 'address',
+        indexed: false,
+        internalType: 'address',
+      },
+      {
+        name: '_app',
+        type: 'address',
+        indexed: false,
+        internalType: 'address',
+      },
+      {
+        name: '_status',
+        type: 'bool',
+        indexed: false,
+        internalType: 'bool',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'LogUsePosition',
+    inputs: [
+      {
+        name: '_handler',
+        type: 'address',
+        indexed: false,
+        internalType: 'contract IHandler',
+      },
+      {
+        name: 'liquidityUsed',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OwnershipTransferred',
+    inputs: [
+      {
+        name: 'previousOwner',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'newOwner',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'error',
+    name: 'DopexV2PositionManager__NotWhitelistedApp',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'DopexV2PositionManager__NotWhitelistedHandler',
+    inputs: [],
   },
 ] as const;
 

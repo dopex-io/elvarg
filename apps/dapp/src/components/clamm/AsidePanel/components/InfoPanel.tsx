@@ -11,8 +11,8 @@ import {
 } from 'viem';
 
 import { Button } from '@dopex-io/ui';
-import DopexV2OptionMarketV2 from 'pages/clamm-v2/abi/DopexV2OptionMarketV2';
-import { DopexV2PositionManager } from 'pages/clamm-v2/abi/DopexV2PositionManager';
+import DopexV2OptionMarketV2 from 'abis/clamm/DopexV2OptionMarketV2';
+import DopexV2PositionManager from 'abis/clamm/DopexV2PositionManager';
 import toast, { LoaderIcon } from 'react-hot-toast';
 import {
   Address,

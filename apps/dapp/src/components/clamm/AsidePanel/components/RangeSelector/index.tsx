@@ -1,17 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  Address,
-  BaseError,
-  encodeAbiParameters,
-  encodeFunctionData,
-  Hex,
-  hexToBigInt,
-  parseUnits,
-  zeroAddress,
-} from 'viem';
+import { Address, BaseError, encodeAbiParameters, encodeFunctionData, Hex, hexToBigInt, parseUnits, zeroAddress } from 'viem';
+
+
 
 import { Button } from '@dopex-io/ui';
-import { DopexV2PositionManager } from 'pages/clamm-v2/abi/DopexV2PositionManager';
+import DopexV2PositionManager from 'abis/clamm/DopexV2PositionManager';
 import toast from 'react-hot-toast';
 import { Bar, BarChart, Cell, Rectangle } from 'recharts';
 import {

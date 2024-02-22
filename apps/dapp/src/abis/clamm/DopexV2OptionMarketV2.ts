@@ -988,5 +988,4 @@ const DopexV2OptionMarketV2 = [
   },
   { type: 'error', name: 'TransferToZeroAddress', inputs: [] },
 ] as const;
-
 export default DopexV2OptionMarketV2;

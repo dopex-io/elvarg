@@ -1,4 +1,4 @@
-export const UniswapV3Pool = [
+const UniswapV3Pool = [
   { inputs: [], stateMutability: 'nonpayable', type: 'constructor' },
   {
     anonymous: false,
@@ -640,3 +640,5 @@ export const UniswapV3Pool = [
     type: 'function',
   },
 ] as const;
+
+export default UniswapV3Pool;

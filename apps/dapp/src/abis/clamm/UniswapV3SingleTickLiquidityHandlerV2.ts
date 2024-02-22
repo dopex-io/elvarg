@@ -1,4 +1,4 @@
-export const UniswapV3SingleTickLiquidityHandlerV2 = [
+const UniswapV3SingleTickLiquidityHandlerV2 = [
   {
     type: 'constructor',
     inputs: [
@@ -172,6 +172,13 @@ export const UniswapV3SingleTickLiquidityHandlerV2 = [
   },
   {
     type: 'function',
+    name: 'emergencyWithdraw',
+    inputs: [{ name: 'token', type: 'address', internalType: 'address' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     name: 'factory',
     inputs: [],
     outputs: [{ name: '', type: 'address', internalType: 'address' }],
@@ -179,7 +186,7 @@ export const UniswapV3SingleTickLiquidityHandlerV2 = [
   },
   {
     type: 'function',
-    name: 'forceWithdrawUniswapV3LiquidityAndToken',
+    name: 'forceWithdrawUniswapV3Liquidity',
     inputs: [
       {
         name: 'pool',
@@ -189,7 +196,6 @@ export const UniswapV3SingleTickLiquidityHandlerV2 = [
       { name: 'tickLower', type: 'int24', internalType: 'int24' },
       { name: 'tickUpper', type: 'int24', internalType: 'int24' },
       { name: 'liquidity', type: 'uint128', internalType: 'uint128' },
-      { name: 'token', type: 'address', internalType: 'address' },
     ],
     outputs: [],
     stateMutability: 'nonpayable',
@@ -676,13 +682,13 @@ export const UniswapV3SingleTickLiquidityHandlerV2 = [
         internalType: 'address',
       },
       {
-        name: 'hook',
+        name: 'user',
         type: 'address',
         indexed: false,
         internalType: 'address',
       },
       {
-        name: 'user',
+        name: 'hook',
         type: 'address',
         indexed: false,
         internalType: 'address',
@@ -787,13 +793,13 @@ export const UniswapV3SingleTickLiquidityHandlerV2 = [
         internalType: 'address',
       },
       {
-        name: 'hook',
+        name: 'user',
         type: 'address',
         indexed: false,
         internalType: 'address',
       },
       {
-        name: 'user',
+        name: 'hook',
         type: 'address',
         indexed: false,
         internalType: 'address',
@@ -1124,3 +1130,5 @@ export const UniswapV3SingleTickLiquidityHandlerV2 = [
     inputs: [],
   },
 ] as const;
+
+export default UniswapV3SingleTickLiquidityHandlerV2;
