@@ -80,10 +80,12 @@ const OverViewStats = () => {
 
   const { avgAPR } = useMerklRewards({
     user,
-    chainId: chain?.id || 42161,
-    rewardToken: TOKENS[chain?.id || 42161].find(
-      (token) => token.symbol.toUpperCase() === 'ARB',
-    ),
+    chainId: chain ? chain.id : DEFAULT_CHAIN_ID,
+    rewardToken: TOKENS[chain ? chain.id : DEFAULT_CHAIN_ID]
+      ? TOKENS[chain ? chain.id : DEFAULT_CHAIN_ID].find(
+          (token) => token.symbol.toUpperCase() === 'ARB',
+        )
+      : undefined,
     pool: checksumAddress(selectedOptionsMarket?.primePool || '0x'),
   });
 

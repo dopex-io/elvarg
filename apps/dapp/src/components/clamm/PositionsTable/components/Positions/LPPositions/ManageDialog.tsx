@@ -289,7 +289,6 @@ const ManageDialog = ({ positions, refetch }: Props) => {
               <CheckBox
                 checked={isSelected(rowData['tokenId'])}
                 onCheckedChange={async (checked) => {
-                  console.log(rowData['withdrawableLiquidity']);
                   if (checked) {
                     const withdrawTx = await createWithdrawTx([
                       {
@@ -423,14 +422,9 @@ const ManageDialog = ({ positions, refetch }: Props) => {
             Number(withdrawRowData['amount1']);
 
           const canReserve = totalCurrentLiq > totalWithdrawable;
-          console.log(
-            'RESERVED REQUIRED',
-            canReserve,
-            'CANNOT RESERVE',
-            !canReserve,
-            totalCurrentLiq,
-            totalWithdrawable,
-          );
+
+          console.log("CAN RESERVE", canReserve)
+
           return (
             <Tooltip.Provider>
               <Tooltip.Root>
@@ -506,16 +500,16 @@ const ManageDialog = ({ positions, refetch }: Props) => {
           </div>
         ),
       }),
-      helper.accessor('withdraw', {
-        header: '',
-        cell: ({ getValue }) => (
-          <WithdrawButton
-            {...getValue()}
-            createWithdrawTx={createWithdrawTx}
-            updateTxQueue={updateTxQueue}
-          />
-        ),
-      }),
+      // helper.accessor('withdraw', {
+      //   header: '',
+      //   cell: ({ getValue }) => (
+      //     <WithdrawButton
+      //       {...getValue()}
+      //       createWithdrawTx={createWithdrawTx}
+      //       updateTxQueue={updateTxQueue}
+      //     />
+      //   ),
+      // }),
     ],
     [
       isSelected,
@@ -588,7 +582,7 @@ const ManageDialog = ({ positions, refetch }: Props) => {
           <div className="flex flex-col space-y-[12px]">
             <TableLayout
               columns={columns}
-              data={positions}
+              data={positions.sort((a, b) => a.range.lower - b.range.upper)}
               isContentLoading={false}
             />
             <div className="flex items-center border border-t border-umbra w-full space-x-[4px]">
@@ -629,7 +623,7 @@ const ManageDialog = ({ positions, refetch }: Props) => {
                   <ArrowPathIcon
                     height={22}
                     width={22}
-                    onClick={handleRefresh}
+                    onClick={isRefetching ? () => {} : handleRefresh}
                     className={cn(
                       'bg-mineshaft text-stieglitz p-[2px] hover:text-white cursor-pointer',
                       isRefetching && 'animate-spin cursor-progress',

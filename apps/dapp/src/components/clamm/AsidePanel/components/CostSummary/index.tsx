@@ -139,7 +139,7 @@ const CostSummary = () => {
           )}
         >
           <span className="font-medium text-[13px]">
-            Total {isTrade ? 'premium' : 'deposit'}
+            {isTrade ? 'Premium' : 'Deposit'}
           </span>
           <div className="flex items-center justify-center">
             <span className="flex items-center justify-center space-x-[8px]">

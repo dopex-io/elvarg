@@ -8,6 +8,9 @@ import {
 } from '@heroicons/react/24/solid';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import * as Slider from '@radix-ui/react-slider';
+import DopexV2PositionManager from 'abis/clamm/DopexV2PositionManager';
+import UniswapV3Pool from 'abis/clamm/UniswapV3Pool';
+import UniswapV3SingleTickLiquidityHandlerV2 from 'abis/clamm/UniswapV3SingleTickLiquidityHandlerV2';
 import toast from 'react-hot-toast';
 import { useContractRead, useWalletClient } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
@@ -18,9 +21,6 @@ import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
 import { cn, formatAmount } from 'utils/general';
 
 import { PrepareWithdrawData } from './columns';
-import { CreateWithdrawTx } from './ManageDialog';
-import UniswapV3SingleTickLiquidityHandlerV2 from 'abis/clamm/UniswapV3SingleTickLiquidityHandlerV2';
-import UniswapV3Pool from 'abis/clamm/UniswapV3Pool';
 
 type Props = {
   disabled: boolean;
@@ -57,7 +57,6 @@ const Reserve = ({
     const perc = BigInt(sliderAmount[0] * 10);
     const amount0 = BigInt(current.amount0) - BigInt(withdraw.amount0);
     const amount1 = BigInt(current.amount1) - BigInt(withdraw.amount1);
-
     return {
       amount0: amount0 - (perc * amount0) / 1000n,
       amount1: amount1 - (perc * amount1) / 1000n,
@@ -102,12 +101,6 @@ const Reserve = ({
       BigInt(withdraw.amount1),
     );
 
-    console.log(
-      'WITHDRAWAL AMOUNTS',
-      BigInt(withdraw.amount0),
-      BigInt(withdraw.amount1),
-    );
-
     const liquidityToReserve = getLiquidityForAmounts(
       data[0],
       getSqrtRatioAtTick(BigInt(tickLower)),
@@ -120,8 +113,8 @@ const Reserve = ({
       {
         abi: UniswapV3SingleTickLiquidityHandlerV2,
         address: handler,
-        functionName: 'balanceOf',
-        args: [walletClient.account.address, tokenId],
+        functionName: 'convertToShares',
+        args: [liquidityToReserve, tokenId],
       },
       {
         abi: UniswapV3SingleTickLiquidityHandlerV2,
@@ -130,11 +123,6 @@ const Reserve = ({
         args: [liquidityToWithdraw, tokenId],
       },
     ]);
-
-    // const reserveData = encodePacked(
-    //   ['address', 'address', 'int24', 'int24', 'uint128'],
-    //   [pool, hook, tickLower, tickUpper, shares[0] - 1n],
-    // );
 
     const reserveData = encodeAbiParameters(
       [
@@ -162,91 +150,86 @@ const Reserve = ({
       [pool, hook, tickLower, tickUpper, shares[0] - 1n],
     );
 
-    console.log([pool, hook, tickLower, tickUpper, shares[0] - 1n]);
+    const withdrawData = encodeAbiParameters(
+      [
+        {
+          name: 'pool',
+          type: 'address',
+        },
+        {
+          name: 'hook',
+          type: 'address',
+        },
+        {
+          name: 'tickLower',
+          type: 'int24',
+        },
+        {
+          name: 'tickUpper',
+          type: 'int24',
+        },
+        {
+          name: 'shares',
+          type: 'uint128',
+        },
+      ],
+      [pool, hook, tickLower, tickUpper, shares[1] - 1n],
+    );
 
-    // const withdrawData = encodeAbiParameters(
-    //   [
-    //     {
-    //       name: 'pool',
-    //       type: 'address',
-    //     },
-    //     {
-    //       name: 'hook',
-    //       type: 'address',
-    //     },
-    //     {
-    //       name: 'tickLower',
-    //       type: 'int24',
-    //     },
-    //     {
-    //       name: 'tickUpper',
-    //       type: 'int24',
-    //     },
-    //     {
-    //       name: 'shares',
-    //       type: 'uint128',
-    //     },
-    //   ],
-    //   [pool, hook, tickLower, tickUpper, shares[1] > 1n ? shares[1] - 1n : 0n],
-    // );
+    try {
+      const { request } = await publicClient.simulateContract({
+        abi: DopexV2PositionManager,
+        functionName: 'burnPosition',
+        address: positionManager,
+        args: [handler, withdrawData],
+      });
 
-    // let withdrawSkipped = false;
-    // if (shares[1] > 2n) {
-    //   try {
-    //     const tx0 = await walletClient.writeContract({
-    //       abi: DopexV2PositionManager,
-    //       functionName: 'burnPosition',
-    //       address: positionManager,
-    //       args: [handler, withdrawData],
-    //     });
+      const hash = await walletClient.writeContract(request);
 
-    //     toast.success('Transaction sent!: ' + tx0);
-    //     console.log('Withdraw transaction receipt: ', tx0);
-    //   } catch (err) {
-    //     withdrawSkipped = true;
-    //     if (err instanceof BaseError) {
-    //       toast.error(err['shortMessage']);
-    //     } else {
-    //       console.error(err);
-    //       toast.error(
-    //         'Action Failed. Check console for more information on error',
-    //       );
-    //     }
-    //   }
-    // }
+      const { transactionHash } = await publicClient.waitForTransactionReceipt({
+        hash,
+      });
 
-    // if (!withdrawSkipped) {
-    // console.log(shares[0]);
-    // try {
-    //   // const { result } = await publicClient.simulateContract({
-    //   //   abi: UniswapV3SingleTickLiquidityHandlerV2,
-    //   //   address: handler,
-    //   //   functionName: 'reserveLiquidity',
-    //   //   args: [reserveData],
-    //   // });
+      toast.success('Transaction sent!');
+      console.log('Withdraw transaction receipt: ', transactionHash);
+    } catch (err) {
+      if (err instanceof BaseError) {
+        toast.error(err['shortMessage']);
+      } else {
+        console.error(err);
+        toast.error(
+          'Action Failed. Check console for more information on error',
+        );
+      }
+    }
+    try {
+      const { request } = await publicClient.simulateContract({
+        account: walletClient.account.address,
+        abi: UniswapV3SingleTickLiquidityHandlerV2,
+        address: handler,
+        functionName: 'reserveLiquidity',
+        args: [reserveData],
+      });
 
-    //   // console.log(result);
-    //   const tx1 = await walletClient.writeContract({
-    //     abi: UniswapV3SingleTickLiquidityHandlerV2,
-    //     functionName: 'reserveLiquidity',
-    //     address: handler,
-    //     args: [reserveData],
-    //   });
+      const hash = await walletClient.writeContract(request);
 
-    //   // toast.success('Transaction sent!: ' + tx1);
-    //   // console.log('Withdraw transaction receipt: ', tx1);
-    // } catch (err) {
-    //   console.log(err);
-    //   if (err instanceof BaseError) {
-    //     toast.error(err['shortMessage']);
-    //   } else {
-    //     console.error(err);
-    //     toast.error(
-    //       'Action Failed. Check console for more information on error',
-    //     );
-    //   }
-    // }
-    // }
+      const { transactionHash } = await publicClient.waitForTransactionReceipt({
+        hash,
+      });
+
+      toast.success('Transaction sent!');
+      console.log('Withdraw transaction receipt: ', transactionHash);
+    } catch (err) {
+      console.log(err);
+      if (err instanceof BaseError) {
+        toast.error(err['shortMessage']);
+      } else {
+        console.error(err);
+        toast.error(
+          'Action Failed. Check console for more information on error',
+        );
+      }
+    }
   }, [
     publicClient,
     walletClient,

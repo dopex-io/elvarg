@@ -55,7 +55,6 @@ const SelectedStrikeItem = ({
     selectedOptionsMarket,
     selectedTTL,
     tokenBalances,
-    addresses,
     markPrice,
   } = useClammStore();
   const { setDeposit, unsetDeposit, setPurchase, unsetPurchase } =
@@ -200,6 +199,8 @@ const SelectedStrikeItem = ({
       setError('');
     }
     if (!optionsCost) return;
+
+    console.log("PREMIUM", BigInt(optionsCost['premium'] ?? 0n))
     setPurchase(strikeKey, {
       strike,
       tickLower,

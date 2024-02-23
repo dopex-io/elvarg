@@ -1,7 +1,10 @@
 import PageLayout from 'components/common/PageLayout';
 
-import LPPositions from './components/LPPositions';
+
+
+import LPPositions from '../../components/clamm/PositionsTable/components/Positions/LPPositions';
 import Stats from './components/stats';
+
 
 const Page = () => {
   return (
