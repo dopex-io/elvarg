@@ -296,8 +296,9 @@ const ManageDialog = ({ positions, refetch }: Props) => {
                         tickLower: rowData['tickLower'],
                         tickUpper: rowData['tickUpper'],
                         tokenId: BigInt(rowData['tokenId']),
-                        withdrawableLiquidity:
-                          BigInt(rowData['withdrawableLiquidity']) - 2n,
+                        withdrawableLiquidity: BigInt(
+                          rowData['withdrawableLiquidity'],
+                        ),
                       },
                     ]);
                     if (withdrawTx) {
@@ -423,8 +424,6 @@ const ManageDialog = ({ positions, refetch }: Props) => {
 
           const canReserve = totalCurrentLiq > totalWithdrawable;
 
-          console.log("CAN RESERVE", canReserve)
-
           return (
             <Tooltip.Provider>
               <Tooltip.Root>
@@ -500,16 +499,17 @@ const ManageDialog = ({ positions, refetch }: Props) => {
           </div>
         ),
       }),
-      // helper.accessor('withdraw', {
-      //   header: '',
-      //   cell: ({ getValue }) => (
-      //     <WithdrawButton
-      //       {...getValue()}
-      //       createWithdrawTx={createWithdrawTx}
-      //       updateTxQueue={updateTxQueue}
-      //     />
-      //   ),
-      // }),
+      helper.accessor('withdraw', {
+        header: '',
+        cell: ({ getValue }) => (
+          <></>
+          // <WithdrawButton
+          //   {...getValue()}
+          //   createWithdrawTx={createWithdrawTx}
+          //   updateTxQueue={updateTxQueue}
+          // />
+        ),
+      }),
     ],
     [
       isSelected,
