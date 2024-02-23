@@ -92,7 +92,11 @@ const SelectedStrikeItem = ({
     };
   }, [selectedOptionsMarket]);
 
-  const { data: optionsCost, isError: isOptionsCostError } = useQuery<{
+  const {
+    data: optionsCost,
+    isError: isOptionsCostError,
+    isLoading: isPremiumLoading,
+  } = useQuery<{
     fees: string;
     premium: string;
   }>({
@@ -131,6 +135,12 @@ const SelectedStrikeItem = ({
       });
     },
   });
+
+  useEffect(() => {
+    if (isTrade) {
+      setLoading(ASIDE_PANEL_BUTTON_KEY, isPremiumLoading);
+    }
+  }, [isPremiumLoading, setLoading, isTrade]);
 
   const updateDeposit = useCallback(async () => {
     if (isTrade || !selectedOptionsMarket) return;
@@ -200,7 +210,6 @@ const SelectedStrikeItem = ({
     }
     if (!optionsCost) return;
 
-    console.log("PREMIUM", BigInt(optionsCost['premium'] ?? 0n))
     setPurchase(strikeKey, {
       strike,
       tickLower,
