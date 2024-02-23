@@ -1,9 +1,5 @@
 import { VARROCK_BASE_API_URL } from 'constants/env';
 
-
-
-
-
 const PRICES_URLS: Record<number, Record<string, string>> = {
   42161: {
     'ARB/USDC': `${VARROCK_BASE_API_URL}/uniswap-prices/candles`,
@@ -108,7 +104,7 @@ export class TVDataProvider {
   }
 
   async getLastPrice(chainId: number, ticker: string) {
-    if (!PRICES_URLS[chainId][ticker])
+    if (!PRICES_URLS[chainId][ticker.toUpperCase()])
       throw Error('Unsupported token for TV Chart.');
     try {
       let queryUrl = `${VARROCK_BASE_API_URL}/uniswap-prices/mark-price?ticker=${ticker}&chainId=${chainId}`;

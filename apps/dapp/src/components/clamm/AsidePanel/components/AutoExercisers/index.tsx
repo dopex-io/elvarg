@@ -1,35 +1,23 @@
 import { zeroAddress } from 'viem';
 
-
-
 import { Button } from '@dopex-io/ui';
 import DopexV2OptionMarket from 'abis/clamm/DopexV2OptionMarketV2';
 import { useAccount, useContractRead, useContractWrite } from 'wagmi';
 
-
-
 import useClammStore from 'hooks/clamm/useClammStore';
-
-
 
 import { cn } from 'utils/general';
 
-
-
 import { AUTO_EXERCISER_TIME_BASED } from 'constants/clamm';
 
-
-
-
-
 const AutoExercisers = () => {
-  const { selectedOptionsPool } = useClammStore();
+  const { selectedOptionsMarket } = useClammStore();
   const { address } = useAccount();
 
   const { data: isDelegatorApproved, refetch } = useContractRead({
     abi: DopexV2OptionMarket,
     functionName: 'exerciseDelegator',
-    address: selectedOptionsPool?.optionsPoolAddress,
+    address: selectedOptionsMarket?.address,
     args: [address || zeroAddress, AUTO_EXERCISER_TIME_BASED],
   });
 
@@ -37,14 +25,14 @@ const AutoExercisers = () => {
     useContractWrite({
       abi: DopexV2OptionMarket,
       functionName: 'updateExerciseDelegate',
-      address: selectedOptionsPool?.optionsPoolAddress,
+      address: selectedOptionsMarket?.address,
       args: [AUTO_EXERCISER_TIME_BASED, true],
     });
   const { writeAsync: disapproveDelegate, isLoading: dissapproveLoading } =
     useContractWrite({
       abi: DopexV2OptionMarket,
       functionName: 'updateExerciseDelegate',
-      address: selectedOptionsPool?.optionsPoolAddress,
+      address: selectedOptionsMarket?.address,
       args: [AUTO_EXERCISER_TIME_BASED, false],
     });
 

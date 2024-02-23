@@ -1,13 +1,9 @@
 import React, { useEffect } from 'react';
 import { Address } from 'viem';
 
-
-
 import { useQuery } from '@tanstack/react-query';
 import { NextSeo } from 'next-seo';
 import { useNetwork } from 'wagmi';
-
-
 
 import useClammStore, { OptionMarket } from 'hooks/clamm/useClammStore';
 import useTradingViewChartStore from 'hooks/tradingViewChart/useTradingViewChartStore';

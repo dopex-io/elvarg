@@ -1,14 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { formatUnits, zeroAddress } from 'viem';
 
-import axios from 'axios';
 import { erc20ABI, useAccount, useContractReads } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 
-import { VARROCK_BASE_API_URL } from 'constants/env';
-
-import AMMSelector from './components/AMMSelector';
 import AutoExercisers from './components/AutoExercisers';
 import CostSummary from './components/CostSummary';
 import DepositTypeSelector from './components/DepositTypeSelector';
@@ -77,9 +73,7 @@ const AsidePanel = () => {
         {isTrade && <TTLSelector />}
         {!isTrade && strikesSelectionMode === 1 && <LPRangeSelector />}
         {(isTrade || singleSelectDepositTye) && <StrikesSection />}
-        {/* {isTrade && <StrikesSection />} */}
         <CostSummary />
-
         {isTrade && <AutoExercisers />}
         {strikesSelectionMode !== 1 && (
           <InfoPanel updateTokenBalances={updateTokenBalances} />
