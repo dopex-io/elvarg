@@ -171,6 +171,7 @@ const BuyPositions = ({
   const positions: BuyPositionItem[] = useMemo(() => {
     if (!selectedOptionsMarket) return [];
     const chainId = chain?.id ?? DEFAULT_CHAIN_ID;
+    if(!optionsPositions['map']) return []
     return optionsPositions.map(
       ({ strike, token, type, size, premium, meta: { expiry, tokenId } }) => {
         const side = type;
