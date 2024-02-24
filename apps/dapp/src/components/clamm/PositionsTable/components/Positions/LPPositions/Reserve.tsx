@@ -29,6 +29,13 @@ type Props = {
     amount1: string;
     amount0Symbol: string;
     amount1Symbol: string;
+    amount0Decimals: number;
+    amount1Decimals: number;
+    withdrawable: {
+      amount0: string;
+      amount1: string;
+      liquidity: string;
+    };
   };
   current: {
     amount0: string;
@@ -93,14 +100,6 @@ const Reserve = ({
     if (!data) return;
     const { tickLower, tickUpper, tokenId, pool, hook, handler } = withdraw;
 
-    const liquidityToWithdraw = getLiquidityForAmounts(
-      data[0],
-      getSqrtRatioAtTick(BigInt(tickLower)),
-      getSqrtRatioAtTick(BigInt(tickUpper)),
-      BigInt(withdraw.amount0),
-      BigInt(withdraw.amount1),
-    );
-
     const liquidityToReserve = getLiquidityForAmounts(
       data[0],
       getSqrtRatioAtTick(BigInt(tickLower)),
@@ -120,7 +119,7 @@ const Reserve = ({
         abi: UniswapV3SingleTickLiquidityHandlerV2,
         address: handler,
         functionName: 'convertToShares',
-        args: [liquidityToWithdraw, tokenId],
+        args: [BigInt(withdraw.withdrawableLiquidity), tokenId],
       },
     ]);
 
@@ -176,31 +175,39 @@ const Reserve = ({
       [pool, hook, tickLower, tickUpper, shares[1] - 1n],
     );
 
-    try {
-      const { request } = await publicClient.simulateContract({
-        abi: DopexV2PositionManager,
-        functionName: 'burnPosition',
-        address: positionManager,
-        args: [handler, withdrawData],
-      });
-
-      const hash = await walletClient.writeContract(request);
-
-      const { transactionHash } = await publicClient.waitForTransactionReceipt({
-        hash,
-      });
-
-      toast.success('Transaction sent!');
-      console.log('Withdraw transaction receipt: ', transactionHash);
-    } catch (err) {
-      if (err instanceof BaseError) {
-        toast.error(err['shortMessage']);
-      } else {
-        console.error(err);
-        toast.error(
-          'Action Failed. Check console for more information on error',
+    if (BigInt(withdraw.withdrawableLiquidity) > 1n) {
+      let withdrawLoadingId = '';
+      try {
+        withdrawLoadingId = toast.loading(
+          'Withdrawing any remaining liquidity',
         );
+        const { request } = await publicClient.simulateContract({
+          account: walletClient.account.address,
+          abi: DopexV2PositionManager,
+          functionName: 'burnPosition',
+          address: positionManager,
+          args: [handler, withdrawData],
+        });
+
+        const hash = await walletClient.writeContract(request);
+
+        const { transactionHash } =
+          await publicClient.waitForTransactionReceipt({
+            hash,
+          });
+        toast.success('Transaction sent!');
+        console.log('Withdraw transaction receipt: ', transactionHash);
+      } catch (err) {
+        if (err instanceof BaseError) {
+          toast.error(err['shortMessage']);
+        } else {
+          console.error(err);
+          toast.error(
+            'Action Failed. Check console for more information on error',
+          );
+        }
       }
+      toast.remove(withdrawLoadingId);
     }
     try {
       const { request } = await publicClient.simulateContract({
@@ -245,28 +252,52 @@ const Reserve = ({
 
   return BigInt(reserved.amount0) + BigInt(reserved.amount1) !== 0n ? (
     <div className="text-[13px] flex flex-col items-start">
-      <div className="flex space-x-[4px]">
-        <span>
-          {formatAmount(
-            formatUnits(BigInt(reserved.amount0), withdraw.amount0Decimals),
-            5,
-          )}
-        </span>
-        <span className="text-stieglitz text-[12px]">
-          {reserved.amount0Symbol}
-        </span>
-      </div>
-      <div className="flex space-x-[4px]">
-        <span>
-          {formatAmount(
-            formatUnits(BigInt(reserved.amount1), withdraw.amount1Decimals),
-            5,
-          )}
-        </span>
-        <span className="text-stieglitz text-[12px]">
-          {reserved.amount1Symbol}
-        </span>
-      </div>
+      {BigInt(reserved.amount0) !== 0n && (
+        <div className="flex space-x-[4px]">
+          <span>
+            {formatAmount(
+              formatUnits(
+                BigInt(reserved.withdrawable.amount0),
+                withdraw.amount0Decimals,
+              ),
+              5,
+            )}
+          </span>
+          <span>/</span>
+          <span>
+            {formatAmount(
+              formatUnits(BigInt(reserved.amount0), withdraw.amount0Decimals),
+              5,
+            )}
+          </span>
+          <span className="text-stieglitz text-[12px]">
+            {reserved.amount0Symbol}
+          </span>
+        </div>
+      )}
+      {BigInt(reserved.amount1) !== 0n && (
+        <div className="flex space-x-[4px]">
+          <span>
+            {formatAmount(
+              formatUnits(
+                BigInt(reserved.withdrawable.amount1),
+                withdraw.amount0Decimals,
+              ),
+              5,
+            )}
+          </span>
+          <span>/</span>
+          <span>
+            {formatAmount(
+              formatUnits(BigInt(reserved.amount1), withdraw.amount1Decimals),
+              5,
+            )}
+          </span>
+          <span className="text-stieglitz text-[12px]">
+            {reserved.amount1Symbol}
+          </span>
+        </div>
+      )}
     </div>
   ) : (
     <DropdownMenu.Root open={open}>
@@ -348,7 +379,6 @@ const Reserve = ({
                 </span>
                 <span className="flex items-center justify-start space-x-[4px]">
                   <span>
-                    {' '}
                     {formatAmount(
                       formatUnits(
                         reserveAmounts.amount1,
@@ -393,7 +423,9 @@ const Reserve = ({
               Cancel
             </Button>
             <Button size="xsmall" onClick={handleReserve}>
-              Confirm
+              {BigInt(withdraw.withdrawableLiquidity) !== 0n
+                ? 'Withdraw'
+                : 'Reserve'}
             </Button>
           </div>
         </DropdownMenu.Content>

@@ -416,13 +416,17 @@ const ManageDialog = ({ positions, refetch }: Props) => {
             [len - 1].getValue() as PrepareWithdrawData;
 
           const totalCurrentLiq =
-            Number(liquidityRowData['amount0']) +
-            Number(liquidityRowData['amount1']);
+            BigInt(liquidityRowData['amount0']) +
+            BigInt(liquidityRowData['amount1']);
           const totalWithdrawable =
-            Number(withdrawRowData['amount0']) +
-            Number(withdrawRowData['amount1']);
+            BigInt(withdrawRowData['amount0']) +
+            BigInt(withdrawRowData['amount1']);
 
-          const canReserve = totalCurrentLiq > totalWithdrawable;
+          const utilization =
+            totalWithdrawable === 0n
+              ? 0n
+              : 10000n - (totalCurrentLiq * 10000n) / totalWithdrawable;
+          const canReserve = utilization !== 0n;
 
           return (
             <Tooltip.Provider>
@@ -442,11 +446,13 @@ const ManageDialog = ({ positions, refetch }: Props) => {
                   />
                 </Tooltip.Trigger>
                 <Tooltip.Portal>
-                  {!canReserve && (
-                    <Tooltip.Content className="text-xs bg-carbon p-[4px] rounded-md mb-[6px]">
-                      No utilized collateral to reserve
-                    </Tooltip.Content>
-                  )}
+                  {!canReserve &&
+                    Number(getValue().amount0) + Number(getValue().amount0) ===
+                      0 && (
+                      <Tooltip.Content className="text-xs bg-carbon p-[4px] rounded-md mb-[6px]">
+                        No utilized collateral to reserve
+                      </Tooltip.Content>
+                    )}
                 </Tooltip.Portal>
               </Tooltip.Root>
             </Tooltip.Provider>
@@ -572,7 +578,7 @@ const ManageDialog = ({ positions, refetch }: Props) => {
         Manage
       </Trigger>
       <Portal>
-      <Overlay className="fixed inset-0 backdrop-blur-sm" />
+        <Overlay className="fixed inset-0 backdrop-blur-sm" />
         <Content className="fixed border border-umbra top-[50%] left-[50%] w-[90vw] max-w-[1200px] translate-x-[-50%] translate-y-[-50%] bg-cod-gray rounded-xl flex flex-col h-fit space-y-[12px] py-[14px]">
           <div className="px-[12px] text-stieglitz">
             <Title className="text-[13px] font-medium">
@@ -587,12 +593,6 @@ const ManageDialog = ({ positions, refetch }: Props) => {
             />
             <div className="flex items-center border border-t border-umbra w-full space-x-[4px]">
               <div className="flex-[0.9] pl-[12px] text-[13px] flex items-center space-x-[12px] justify-between">
-                <div className="flex items-center space-x-[4px]">
-                  <span className="text-stieglitz">
-                    Initial deposit timestamp:
-                  </span>
-                  <span>{new Date().toLocaleString()}</span>
-                </div>
                 {totalWithdrawAmounts.amount0 + totalWithdrawAmounts.amount1 >
                   0 && (
                   <div className="flex items-start justify-end space-x-[12px]">
