@@ -572,7 +572,7 @@ const ManageDialog = ({ positions, refetch }: Props) => {
         Manage
       </Trigger>
       <Portal>
-        <Overlay className="fixed inset-0 backdrop-blur-[1px]" />
+      <Overlay className="fixed inset-0 backdrop-blur-sm" />
         <Content className="fixed border border-umbra top-[50%] left-[50%] w-[90vw] max-w-[1200px] translate-x-[-50%] translate-y-[-50%] bg-cod-gray rounded-xl flex flex-col h-fit space-y-[12px] py-[14px]">
           <div className="px-[12px] text-stieglitz">
             <Title className="text-[13px] font-medium">
