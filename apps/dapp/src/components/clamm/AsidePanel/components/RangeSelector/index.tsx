@@ -1,7 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Address, BaseError, encodeAbiParameters, encodeFunctionData, Hex, hexToBigInt, parseUnits, zeroAddress } from 'viem';
-
-
+import {
+  Address,
+  BaseError,
+  encodeAbiParameters,
+  encodeFunctionData,
+  Hex,
+  hexToBigInt,
+  parseUnits,
+  zeroAddress,
+} from 'viem';
 
 import { Button } from '@dopex-io/ui';
 import DopexV2PositionManager from 'abis/clamm/DopexV2PositionManager';
@@ -557,6 +564,8 @@ const LPRangeSelector = () => {
             max={generatedStrikes.length - 1}
             onChange={(value) => {
               setSelectedStrikes(value);
+              setLowerLimitInputStrike(lowerLimitStrike.toString());
+              setUpperLimitInputStrike(upperLimitStrike.toString());
             }}
             lowerLimitStrike={lowerLimitStrike}
             upperLimitStrike={upperLimitStrike}
@@ -568,16 +577,6 @@ const LPRangeSelector = () => {
         <div className="w-full flex flex-col space-y-[4px]">
           <StrikeInput
             inputAmount={lowerLimitInputStrike}
-            onBlurCallback={(e) => {
-              console.log('SETTING');
-              const strike = checkLowerLimitStrike();
-              const found = currentStrikes.find((s) => s.strike === strike);
-              if (found) {
-                const index = currentStrikes.indexOf(found);
-                setSelectedStrikes([index, selection[1]]);
-                setLowerLimitInputStrike(found.strike.toFixed(4));
-              }
-            }}
             onSubmitCallback={(e) => {
               if (e.key === 'Enter') {
                 const strike = checkLowerLimitStrike();
@@ -599,15 +598,6 @@ const LPRangeSelector = () => {
         <div className="w-full flex space-y-[4px]">
           <StrikeInput
             inputAmount={upperLimitInputStrike}
-            onBlurCallback={(e) => {
-              const strike = checkUpperLimitStrike();
-              const found = currentStrikes.find((s) => s.strike === strike);
-              if (found) {
-                const index = currentStrikes.indexOf(found);
-                setSelectedStrikes([selection[0], index]);
-                setUpperLimitInputStrike(found.strike.toFixed(4));
-              }
-            }}
             onSubmitCallback={(e) => {
               if (e.key === 'Enter') {
                 const strike = checkUpperLimitStrike();

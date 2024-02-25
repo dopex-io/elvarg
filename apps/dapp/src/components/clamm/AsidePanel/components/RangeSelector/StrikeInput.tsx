@@ -5,14 +5,12 @@ import { cn } from 'utils/general';
 type Props = {
   onChangeInput: (event: ChangeEvent<HTMLInputElement>) => void;
   inputAmount: string;
-  onBlurCallback: (event: ChangeEvent<HTMLInputElement>) => void;
   onSubmitCallback: (event: KeyboardEvent<HTMLInputElement>) => void;
   placeHolder: string;
   label: string;
 };
 const StrikeInput = ({
   onChangeInput,
-  onBlurCallback,
   onSubmitCallback,
   inputAmount,
   placeHolder,
@@ -31,7 +29,6 @@ const StrikeInput = ({
       </label>
       <input
         onKeyDown={onSubmitCallback}
-        onBlur={onBlurCallback}
         onChange={onChangeInput}
         value={inputAmount}
         type="number"
