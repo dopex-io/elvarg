@@ -38,6 +38,7 @@ const MultiExerciseButton = ({ positions }: Props) => {
           .catch((e) => {
             const err = e as BaseError;
             toast.error(err.shortMessage);
+            console.error(err);
           })
           .finally(() => {
             updateBuyPositions?.();
