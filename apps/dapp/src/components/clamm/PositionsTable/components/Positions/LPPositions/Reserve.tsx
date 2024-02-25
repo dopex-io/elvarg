@@ -267,10 +267,9 @@ const Reserve = ({
     if (!publicClient || !walletClient) return;
     const { withdrawable } = reserved;
     const { liquidity } = withdrawable;
-    const { tickLower, tickUpper, tokenId, pool, hook, handler } = withdraw;
+    const { tickLower, tickUpper, pool, hook, handler } = withdraw;
 
     const loadingId = toast.loading('Opening wallet');
-    console.log(BigInt(liquidity));
     const reserveCallData = encodeAbiParameters(
       [
         {
@@ -380,8 +379,14 @@ const Reserve = ({
       </div>
       <Root>
         <Trigger
-          disabled={withdrawDisabled}
-          className="text-[13px] px-[16px] py-[4px] rounded-md bg-carbon"
+          disabled={
+            withdrawDisabled || BigInt(reserved.withdrawable.liquidity) === 0n
+          }
+          className={cn(
+            'text-[13px] px-[16px] py-[4px] rounded-md bg-carbon',
+            BigInt(reserved.withdrawable.liquidity) === 0n &&
+              'hover:cursor-not-allowed',
+          )}
         >
           <Countdown
             key={Number(reserved.lastReserve * 1000 + 10000)}
