@@ -6,14 +6,25 @@ import {
   ArrowLongRightIcon,
   PencilSquareIcon,
 } from '@heroicons/react/24/solid';
+import {
+  Close,
+  Content,
+  Overlay,
+  Portal,
+  Root,
+  Title,
+  Trigger,
+} from '@radix-ui/react-dialog';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import * as Slider from '@radix-ui/react-slider';
 import DopexV2PositionManager from 'abis/clamm/DopexV2PositionManager';
 import UniswapV3Pool from 'abis/clamm/UniswapV3Pool';
 import UniswapV3SingleTickLiquidityHandlerV2 from 'abis/clamm/UniswapV3SingleTickLiquidityHandlerV2';
+import Countdown from 'react-countdown';
 import toast from 'react-hot-toast';
-import { useContractRead, useWalletClient } from 'wagmi';
-import wagmiConfig from 'wagmi-config';
+import { useContractRead, usePublicClient, useWalletClient } from 'wagmi';
+
+import Typography2 from 'components/UI/Typography2';
 
 import getPositionManagerAddress from 'utils/clamm/getPositionManagerAddress';
 import { getLiquidityForAmounts } from 'utils/clamm/liquidityAmountMath';
@@ -25,6 +36,7 @@ import { PrepareWithdrawData } from './columns';
 type Props = {
   disabled: boolean;
   reserved: {
+    lastReserve: number;
     amount0: string;
     amount1: string;
     amount0Symbol: string;
@@ -54,11 +66,12 @@ const Reserve = ({
   getShares,
   disabled,
 }: Props) => {
+  const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
   const [sliderAmount, setSliderAmount] = useState([100]);
   const [open, setOpen] = useState(false);
-
-  const { publicClient } = wagmiConfig;
+  const [loading, setLoading] = useState(false);
+  const [withdrawDisabled, setWithdrawDisabled] = useState(true);
 
   const reserveAmounts = useMemo(() => {
     const perc = BigInt(sliderAmount[0] * 10);
@@ -250,54 +263,182 @@ const Reserve = ({
     refetch,
   ]);
 
+  const handleWithdrawReserve = useCallback(async () => {
+    if (!publicClient || !walletClient) return;
+    const { withdrawable } = reserved;
+    const { liquidity } = withdrawable;
+    const { tickLower, tickUpper, tokenId, pool, hook, handler } = withdraw;
+
+    const loadingId = toast.loading('Opening wallet');
+    console.log(BigInt(liquidity));
+    const reserveCallData = encodeAbiParameters(
+      [
+        {
+          name: 'pool',
+          type: 'address',
+        },
+        {
+          name: 'hook',
+          type: 'address',
+        },
+        {
+          name: 'tickLower',
+          type: 'int24',
+        },
+        {
+          name: 'tickUpper',
+          type: 'int24',
+        },
+        {
+          name: 'shares',
+          type: 'uint128',
+        },
+      ],
+      [pool, hook, tickLower, tickUpper, BigInt(liquidity)],
+    );
+
+    setLoading(true);
+    try {
+      const { request } = await publicClient.simulateContract({
+        account: walletClient?.account.address,
+        abi: UniswapV3SingleTickLiquidityHandlerV2,
+        address: handler,
+        functionName: 'withdrawReserveLiquidity',
+        args: [reserveCallData],
+      });
+
+      const hash = await walletClient.writeContract(request);
+      const { transactionHash } = await publicClient.waitForTransactionReceipt({
+        hash,
+      });
+
+      toast.success('Transaction sent!');
+      console.log('Reserve transaction receipt: ', transactionHash);
+    } catch (err) {
+      if (err instanceof BaseError) {
+        toast.error(err.shortMessage);
+      } else {
+        toast.error(
+          'Failed to withdraw reserves. Please check console for more details',
+        );
+        console.error(err);
+      }
+    }
+    toast.remove(loadingId);
+    setLoading(false);
+  }, [reserved, publicClient, walletClient, withdraw]);
+
   return BigInt(reserved.amount0) + BigInt(reserved.amount1) !== 0n ? (
-    <div className="text-[13px] flex flex-col items-start">
-      {BigInt(reserved.amount0) !== 0n && (
-        <div className="flex space-x-[4px]">
-          <span>
-            {formatAmount(
-              formatUnits(
-                BigInt(reserved.withdrawable.amount0),
-                withdraw.amount0Decimals,
-              ),
-              5,
-            )}
-          </span>
-          <span>/</span>
-          <span>
-            {formatAmount(
-              formatUnits(BigInt(reserved.amount0), withdraw.amount0Decimals),
-              5,
-            )}
-          </span>
-          <span className="text-stieglitz text-[12px]">
-            {reserved.amount0Symbol}
-          </span>
-        </div>
-      )}
-      {BigInt(reserved.amount1) !== 0n && (
-        <div className="flex space-x-[4px]">
-          <span>
-            {formatAmount(
-              formatUnits(
-                BigInt(reserved.withdrawable.amount1),
-                withdraw.amount0Decimals,
-              ),
-              5,
-            )}
-          </span>
-          <span>/</span>
-          <span>
-            {formatAmount(
-              formatUnits(BigInt(reserved.amount1), withdraw.amount1Decimals),
-              5,
-            )}
-          </span>
-          <span className="text-stieglitz text-[12px]">
-            {reserved.amount1Symbol}
-          </span>
-        </div>
-      )}
+    <div className="flex items-start  flex-col w-full space-y-[4px]">
+      <div className="text-[13px] flex flex-col items-start">
+        {BigInt(reserved.amount0) !== 0n && (
+          <div className="flex space-x-[4px]">
+            <span>
+              {formatAmount(
+                formatUnits(
+                  BigInt(reserved.withdrawable.amount0),
+                  withdraw.amount0Decimals,
+                ),
+                5,
+              )}
+            </span>
+            <span>/</span>
+            <span>
+              {formatAmount(
+                formatUnits(BigInt(reserved.amount0), withdraw.amount0Decimals),
+                5,
+              )}
+            </span>
+            <span className="text-stieglitz text-[12px]">
+              {reserved.amount0Symbol}
+            </span>
+          </div>
+        )}
+        {BigInt(reserved.amount1) !== 0n && (
+          <div className="flex space-x-[4px]">
+            <span>
+              {formatAmount(
+                formatUnits(
+                  BigInt(reserved.withdrawable.amount1),
+                  withdraw.amount0Decimals,
+                ),
+                5,
+              )}
+            </span>
+            <span>/</span>
+            <span>
+              {formatAmount(
+                formatUnits(BigInt(reserved.amount1), withdraw.amount1Decimals),
+                5,
+              )}
+            </span>
+            <span className="text-stieglitz text-[12px]">
+              {reserved.amount1Symbol}
+            </span>
+          </div>
+        )}
+      </div>
+      <Root>
+        <Trigger
+          disabled={withdrawDisabled}
+          className="text-[13px] px-[16px] py-[4px] rounded-md bg-carbon"
+        >
+          <Countdown
+            key={Number(reserved.lastReserve * 1000 + 10000)}
+            date={Number(reserved.lastReserve * 1000) + 10000}
+            renderer={({ days, hours, minutes, completed }) => {
+              if (completed) {
+                setWithdrawDisabled(false);
+                return 'Withdraw Reserve';
+              } else {
+                <div className="flex space-x-1 text-stieglitz">
+                  <Typography2 variant="caption" color="stieglitz">
+                    in
+                  </Typography2>
+                  <div className="space-x-1">
+                    <Typography2 variant="caption" color="white">
+                      {days}
+                    </Typography2>
+                    d
+                    <Typography2 variant="caption" color="white">
+                      {hours}
+                    </Typography2>
+                    h
+                    <Typography2 variant="caption" color="white">
+                      {minutes}
+                    </Typography2>
+                    m
+                  </div>
+                </div>;
+              }
+            }}
+          />
+        </Trigger>
+        <Portal>
+          <Overlay className="fixed inset-0 backdrop-blur-sm" />
+          <Content className="fixed border border-mineshaft top-[50%] left-[50%] w-f translate-x-[-50%] translate-y-[-50%] bg-cod-gray rounded-xl flex flex-col h-fit space-y-[14px] py-[14px] px-[12px] max-w-[300px] items-center justify-center ">
+            <Title className="text-[13px] font-medium">Withdraw Reserves</Title>
+            <div className="text-[11px] border-jaffa bg-opacity-25 bg-jaffa p-[6px] rounded-md border">
+              <span>
+                Withdrawing will incur 10 seconds cooldown before you can
+                withdraw or reserve again.
+              </span>
+            </div>
+            <div className="flex items-center space-x-[4px]">
+              <Close className="text-[12px] bg-carbon px-[14px] py-[6px] rounded-md">
+                Cancel
+              </Close>
+              <Button
+                disabled={loading}
+                size="xsmall"
+                onClick={handleWithdrawReserve}
+              >
+                <span className="text-[12px]">Withdraw</span>
+              </Button>
+            </div>
+          </Content>
+        </Portal>
+      </Root>
     </div>
   ) : (
     <DropdownMenu.Root open={open}>

@@ -65,6 +65,7 @@ export type LPPositionItemForTable = {
     amount1Decimals: number;
   };
   reserved: {
+    lastReserve: number;
     amount0: string;
     amount1: string;
     amount0Symbol: string;

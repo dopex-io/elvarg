@@ -431,7 +431,7 @@ const ManageDialog = ({ positions, refetch }: Props) => {
           return (
             <Tooltip.Provider>
               <Tooltip.Root>
-                <Tooltip.Trigger>
+                <Tooltip.Trigger className='hover:none'>
                   <Reserve
                     disabled={!canReserve}
                     getShares={getSharesMulticall}

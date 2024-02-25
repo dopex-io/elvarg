@@ -160,6 +160,7 @@ const Positions = ({ positions, refetches }: Props) => {
                 amount1Decimals: token1.decimals,
               },
               reserved: {
+                lastReserve: reserved.lastReserve,
                 amount0: reserved.token0,
                 amount1: reserved.token1,
                 amount0Symbol,

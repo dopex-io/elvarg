@@ -91,6 +91,7 @@ export type LPPosition = {
     token1: string;
   };
   reserved: {
+    lastReserve: number;
     token0: string;
     token1: string;
     withdrawable: {
