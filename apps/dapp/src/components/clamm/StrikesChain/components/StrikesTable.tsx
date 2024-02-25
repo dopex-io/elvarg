@@ -248,7 +248,7 @@ const StrikesTable = ({ filterSettings }: Props) => {
         const strikeKey = tickLower
           .toString()
           .concat('#')
-          .concat(tickLower.toString());
+          .concat(tickUpper.toString());
         return {
           liquidityAvailableUsd,
           totalLiquidityUsd,
