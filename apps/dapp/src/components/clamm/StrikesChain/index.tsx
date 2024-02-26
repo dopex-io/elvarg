@@ -34,7 +34,6 @@ const StrikesChain = () => {
   const {
     data: strikesChain,
     refetch,
-    isLoading,
     isRefetching,
   } = useQuery<StrikesChainMappingArray>({
     queryKey: [
@@ -100,19 +99,18 @@ const StrikesChain = () => {
             />
             <span className="text-jaffa">Deprecation Notice</span>
           </span>
-          <span className="text-stieglitz">
-            We are migrating the pair {selectedOptionsMarket.ticker} to{' '}
-            {DEPRECATED_TO_NEW[selectedOptionsMarket.ticker]}. Please withdraw
-            any liquidity to the new pair
-          </span>
-          <span className="text-stieglitz">
+          <span className="text-stieglitz max-w-[500px] text-center">
+            We are migrating the market&apos;s pair{' '}
+            {selectedOptionsMarket.ticker} to{' '}
+            {DEPRECATED_TO_NEW[selectedOptionsMarket.ticker]}. Please migrate
+            any liquidity to the new pair&apos;s market{' '}
             <a
               href={`${DEPRECATED_TO_NEW[selectedOptionsMarket.ticker].replace('/', '-')}`}
               className="text-wave-blue underline"
             >
-              Click here
+              click here
             </a>{' '}
-            to head over to the new pair
+            to head over to the new market
           </span>
         </div>
       ) : (
