@@ -281,7 +281,7 @@ const SelectedStrikeItem = ({
           4,
         )} Available)`,
       );
-    } else if (isOptionsCostError) {
+    } else if (!selectedOptionsMarket.deprecated && isOptionsCostError) {
       setError('Premium calculation error. Please retry.');
     } else {
       setError('');
