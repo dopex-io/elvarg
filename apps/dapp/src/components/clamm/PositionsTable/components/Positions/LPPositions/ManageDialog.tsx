@@ -139,7 +139,7 @@ const ManageDialog = ({ positions, refetch }: Props) => {
 
   const createWithdrawTx = useCallback(
     async (params: CreateWithdrawTx[]) => {
-      if (!data || !walletClient) return;
+      if (!data || !walletClient || !selectedOptionsMarket) return;
       setIsGeneratingTx(true);
 
       let multicallRequest = params.map(
@@ -169,37 +169,65 @@ const ManageDialog = ({ positions, refetch }: Props) => {
             functionName: 'burnPosition',
             args: [
               handler,
-              encodeAbiParameters(
-                [
-                  {
-                    name: 'pool',
-                    type: 'address',
-                  },
-                  {
-                    name: 'hook',
-                    type: 'address',
-                  },
-                  {
-                    name: 'tickLower',
-                    type: 'int24',
-                  },
-                  {
-                    name: 'tickUpper',
-                    type: 'int24',
-                  },
-                  {
-                    name: 'shares',
-                    type: 'uint128',
-                  },
-                ],
-                [
-                  pool,
-                  hook,
-                  params[index]['tickLower'],
-                  params[index]['tickUpper'],
-                  shares,
-                ],
-              ),
+              selectedOptionsMarket.deprecated
+                ? encodeAbiParameters(
+                    [
+                      {
+                        name: 'pool',
+                        type: 'address',
+                      },
+
+                      {
+                        name: 'tickLower',
+                        type: 'int24',
+                      },
+                      {
+                        name: 'tickUpper',
+                        type: 'int24',
+                      },
+                      {
+                        name: 'shares',
+                        type: 'uint128',
+                      },
+                    ],
+                    [
+                      pool,
+                      params[index]['tickLower'],
+                      params[index]['tickUpper'],
+                      shares,
+                    ],
+                  )
+                : encodeAbiParameters(
+                    [
+                      {
+                        name: 'pool',
+                        type: 'address',
+                      },
+                      {
+                        name: 'hook',
+                        type: 'address',
+                      },
+                      {
+                        name: 'tickLower',
+                        type: 'int24',
+                      },
+                      {
+                        name: 'tickUpper',
+                        type: 'int24',
+                      },
+                      {
+                        name: 'shares',
+                        type: 'uint128',
+                      },
+                    ],
+                    [
+                      pool,
+                      hook,
+                      params[index]['tickLower'],
+                      params[index]['tickUpper'],
+                      shares,
+                    ],
+                  ),
             ],
           });
         });
@@ -208,7 +236,15 @@ const ManageDialog = ({ positions, refetch }: Props) => {
       }
       setIsGeneratingTx(false);
     },
-    [data, handler, pool, hook, walletClient, getSharesMulticall],
+    [
+      data,
+      handler,
+      pool,
+      hook,
+      walletClient,
+      getSharesMulticall,
+      selectedOptionsMarket,
+    ],
   );
 
   const isSelected = useCallback(
@@ -429,7 +465,8 @@ const ManageDialog = ({ positions, refetch }: Props) => {
             totalWithdrawable === 0n
               ? 0n
               : 10000n - (totalCurrentLiq * 10000n) / totalWithdrawable;
-          const canReserve = utilization !== 0n || totalCurrentLiq > totalWithdrawable;
+          const canReserve =
+            utilization !== 0n || totalCurrentLiq > totalWithdrawable;
 
           return (
             <Tooltip.Provider>
