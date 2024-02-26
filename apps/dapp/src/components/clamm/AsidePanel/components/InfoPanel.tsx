@@ -178,7 +178,9 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
       return;
     const depositTxs: Hex[] = [];
     const depositsArray = Array.from(deposits);
-    const handlerAddress = getHandler('uniswap', chain.id);
+    const handlerAddress = selectedOptionsMarket.deprecated
+      ? '0xe11d346757d052214686bcbc860c94363afb4a9a'
+      : getHandler('uniswap', chain.id);
     const pool = getOptionMarketPairPools(
       chain.id,
       selectedOptionsMarket.address,

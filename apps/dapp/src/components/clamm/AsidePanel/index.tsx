@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { formatUnits, zeroAddress } from 'viem';
 
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { erc20ABI, useAccount, useContractReads } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
@@ -85,6 +86,22 @@ const AsidePanel = () => {
         {strikesSelectionMode === 1 && isTrade && (
           <InfoPanel updateTokenBalances={updateTokenBalances} />
         )}
+      </div>
+      <div className="flex flex-col bg-umbra rounded-md space-y-2 p-3">
+        <span className="flex w-full justify-between">
+          <h6 className="flex items-center justify-center space-x-[4px] text-xs">
+            <ExclamationTriangleIcon
+              height={18}
+              width={18}
+              className="text-jaffa"
+            />
+            <span className="text-jaffa">Data Update Delay</span>
+          </h6>
+        </span>
+        <span className='text-jaffa text-[12px]'>
+          There is a delay in updating of data, we are fully aware of this issue and
+          are actively working on a fix. Thank you for your patience.
+        </span>
       </div>
       <div className="flex flex-col bg-umbra rounded-md space-y-2 p-3">
         <span className="flex w-full justify-between">

@@ -73,11 +73,7 @@ const useStrikesChainStore = create<StrikesChainStore>((set, get) => ({
     const _strikesChain = new Map<string, StrikesChainItem[]>();
     data.forEach((each) => {
       const strike = Object.keys(each)[0];
-      console.log(
-        each[strike].filter(({ handler }) => {
-          console.log(handler.name === 'uniswap');
-        }),
-      );
+
       _strikesChain.set(
         strike,
         each[strike].filter(({ handler }) => {
@@ -128,19 +124,17 @@ const useStrikesChainStore = create<StrikesChainStore>((set, get) => ({
     const { strikesChain } = get();
     const strikesChainData = strikesChain.get(strike);
     const liquidityData = strikesChainData
-      ? strikesChainData
-          .map(
-            ({
-              meta: { availableTokenLiquidity, availableLiquidity, hook },
-              handler,
-            }) => ({
-              hook,
-              availableLiquidity: BigInt(availableLiquidity),
-              availableTokenLiquidity: BigInt(availableTokenLiquidity),
-              ...handler,
-            }),
-          )
-          .filter(({ deprecated }) => !deprecated)
+      ? strikesChainData.map(
+          ({
+            meta: { availableTokenLiquidity, availableLiquidity, hook },
+            handler,
+          }) => ({
+            hook,
+            availableLiquidity: BigInt(availableLiquidity),
+            availableTokenLiquidity: BigInt(availableTokenLiquidity),
+            ...handler,
+          }),
+        )
       : [];
 
     return liquidityData;

@@ -32,6 +32,8 @@ import toast from 'react-hot-toast';
 import { useContractRead, useWalletClient } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
 
+import useClammStore from 'hooks/clamm/useClammStore';
+
 import TableLayout from 'components/common/TableLayout';
 import CheckBox from 'components/UI/CheckBox/CheckBox';
 
@@ -68,6 +70,7 @@ const ManageDialog = ({ positions, refetch }: Props) => {
   const { data: walletClient } = useWalletClient();
   const [isRefetching, setIsRefetching] = useState(false);
   const [isGeneratingTx, setIsGeneratingTx] = useState(false);
+  const { selectedOptionsMarket } = useClammStore();
 
   const [withdrawTxQueue, setWithdrawTxQueue] = useState<
     Map<
@@ -431,7 +434,7 @@ const ManageDialog = ({ positions, refetch }: Props) => {
           return (
             <Tooltip.Provider>
               <Tooltip.Root>
-                <Tooltip.Trigger className='hover:none'>
+                <Tooltip.Trigger className="hover:none">
                   <Reserve
                     disabled={!canReserve}
                     getShares={getSharesMulticall}
@@ -446,13 +449,18 @@ const ManageDialog = ({ positions, refetch }: Props) => {
                   />
                 </Tooltip.Trigger>
                 <Tooltip.Portal>
-                  {!canReserve &&
-                    Number(getValue().amount0) + Number(getValue().amount0) ===
-                      0 && (
+                  {selectedOptionsMarket?.deprecated ? (
+                    <Tooltip.Content className="text-xs bg-carbon p-[4px] rounded-md mb-[6px]">
+                      This feature is not supported for current option market
+                    </Tooltip.Content>
+                  ) : (
+                    !canReserve &&
+                    0 && (
                       <Tooltip.Content className="text-xs bg-carbon p-[4px] rounded-md mb-[6px]">
                         No utilized collateral to reserve
                       </Tooltip.Content>
-                    )}
+                    )
+                  )}
                 </Tooltip.Portal>
               </Tooltip.Root>
             </Tooltip.Provider>
@@ -518,6 +526,7 @@ const ManageDialog = ({ positions, refetch }: Props) => {
       }),
     ],
     [
+      selectedOptionsMarket,
       isSelected,
       createWithdrawTx,
       positions,

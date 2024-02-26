@@ -14,8 +14,9 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/solid';
 import { useQuery } from '@tanstack/react-query';
+import { DopexV2OptionMarket } from 'abis/clamm/DopexV2OptionMarket';
 import { useDebounce } from 'use-debounce';
-import { useNetwork } from 'wagmi';
+import { useNetwork, usePublicClient } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
@@ -49,6 +50,7 @@ const SelectedStrikeItem = ({
   editAllMode,
   disabledInput,
 }: Props) => {
+  const publicClient = usePublicClient();
   const { deselectStrike, getCollateralAvailable } = useStrikesChainStore();
   const {
     isTrade,
@@ -91,6 +93,82 @@ const SelectedStrikeItem = ({
       putToken: selectedOptionsMarket.putToken.decimals,
     };
   }, [selectedOptionsMarket]);
+
+  const getPremiumLegacy = useCallback(async () => {
+    if (!selectedOptionsMarket) return 0n;
+    setLoading(ASIDE_PANEL_BUTTON_KEY, true);
+    let premium = 0n;
+
+    try {
+      const expiry =
+        BigInt(new Date().getTime().toFixed(0)) + BigInt(selectedTTL);
+
+      const [iv, currentPrice, strike] = await publicClient.multicall({
+        contracts: [
+          {
+            abi: DopexV2OptionMarket,
+            address: selectedOptionsMarket?.address,
+            functionName: 'ttlToVol',
+            args: [BigInt(selectedTTL)],
+          },
+          {
+            abi: DopexV2OptionMarket,
+            address: selectedOptionsMarket?.address,
+            functionName: 'getCurrentPricePerCallAsset',
+            args: [selectedOptionsMarket.primePool],
+          },
+          {
+            abi: DopexV2OptionMarket,
+            address: selectedOptionsMarket?.address,
+            functionName: 'getPricePerCallAssetViaTick',
+            args: [
+              selectedOptionsMarket.primePool,
+              isCall ? tickUpper : tickLower,
+            ],
+          },
+        ],
+      });
+
+      const _iv = iv.result ? iv.result : 0n;
+      const _currentPrice = currentPrice.result ? currentPrice.result : 0n;
+      const _strike = strike.result ? strike.result : 0n;
+
+      premium = await publicClient.readContract({
+        abi: DopexV2OptionMarket,
+        functionName: 'getPremiumAmount',
+        address: selectedOptionsMarket?.address,
+        args: [
+          !isCall,
+          expiry,
+          _strike,
+          _currentPrice,
+          _iv,
+          parseUnits(
+            amountDebounced.toString(),
+            isCall
+              ? selectedOptionsMarket.callToken.decimals
+              : selectedOptionsMarket.putToken.decimals,
+          ),
+        ],
+      });
+    } catch (err) {
+      console.error(err);
+      setLoading(ASIDE_PANEL_BUTTON_KEY, false);
+      return 0n;
+    }
+
+    setLoading(ASIDE_PANEL_BUTTON_KEY, false);
+    return premium;
+  }, [
+    setLoading,
+    selectedOptionsMarket,
+    publicClient,
+    amountDebounced,
+    isCall,
+    selectedTTL,
+    tickLower,
+    tickUpper,
+  ]);
 
   const {
     data: optionsCost,
@@ -173,7 +251,7 @@ const SelectedStrikeItem = ({
     selectedOptionsMarket,
   ]);
 
-  const updatePurchase = useCallback(() => {
+  const updatePurchase = useCallback(async () => {
     if (!isTrade || !selectedOptionsMarket) return;
     const { strike } = strikeData;
     const liquidityData = getCollateralAvailable(strike.toString());
@@ -208,15 +286,26 @@ const SelectedStrikeItem = ({
     } else {
       setError('');
     }
-    if (!optionsCost) return;
+
+    let _premium = 0n;
+    let _fees = 0n;
+    if (selectedOptionsMarket.deprecated) {
+      _premium = await getPremiumLegacy();
+      _fees = (_premium * 34n) / 100n;
+    } else {
+      if (optionsCost) {
+        _premium = BigInt(optionsCost['premium']);
+        _fees = BigInt(optionsCost['fees']);
+      }
+    }
 
     setPurchase(strikeKey, {
       strike,
       tickLower,
       tickUpper,
       amount: Number(amountDebounced),
-      premium: BigInt(optionsCost['premium'] ?? 0n),
-      fees: BigInt(optionsCost['fees'] ?? 0n),
+      premium: _premium,
+      fees: _fees,
       collateralRequired: liquidtyRequiredInToken,
       tokenAddress: isCall
         ? selectedOptionsMarket.callToken.address
@@ -228,6 +317,7 @@ const SelectedStrikeItem = ({
       error: Boolean(error),
     });
   }, [
+    getPremiumLegacy,
     optionsCost,
     isCall,
     strikeKey,
