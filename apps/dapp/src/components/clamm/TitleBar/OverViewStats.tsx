@@ -129,6 +129,7 @@ const OverViewStats = () => {
               value: markPrice.toString(),
             }}
             label="Mark Price"
+            condensed={false}
           />
           <Stat
             stat={{
