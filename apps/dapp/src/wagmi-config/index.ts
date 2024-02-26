@@ -1,5 +1,5 @@
 import { configureChains, createConfig } from 'wagmi';
-import { arbitrum, hardhat, mainnet, polygon } from 'wagmi/chains';
+import { arbitrum, mainnet, polygon } from 'wagmi/chains';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
@@ -14,19 +14,14 @@ import { OkxConnector } from './OkxConnector';
 import { RabbyConnector } from './RabbyConnector';
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [arbitrum, polygon, mainnet, hardhat],
+  [arbitrum, polygon, mainnet],
   [
     jsonRpcProvider({
-      rpc: (chain) =>
-        chain !== hardhat
-          ? {
-              http: `https://lb.drpc.org/ogrpc?network=${CHAINS[
-                chain.id
-              ].name.toLowerCase()}&dkey=${DRPC_API_KEY}`,
-            }
-          : {
-              http: `http://127.0.0.1:8545`,
-            },
+      rpc: (chain) => ({
+        http: `https://lb.drpc.org/ogrpc?network=${CHAINS[
+          chain.id
+        ].name.toLowerCase()}&dkey=${DRPC_API_KEY}`,
+      }),
     }),
     publicProvider(),
   ],
