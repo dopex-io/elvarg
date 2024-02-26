@@ -101,7 +101,7 @@ const SelectedStrikeItem = ({
 
     try {
       const expiry =
-        BigInt(new Date().getTime().toFixed(0)) + BigInt(selectedTTL);
+        BigInt((new Date().getTime() / 1000).toFixed(0)) + BigInt(selectedTTL);
 
       const [iv, currentPrice, strike] = await publicClient.multicall({
         contracts: [
