@@ -567,7 +567,10 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
           allowancesLoading ||
           approveCallTokenLoading ||
           approvePutTokenLoading ||
-          selectedOptionsMarket?.deprecated
+          selectedOptionsMarket?.deprecated ||
+          isTrade
+            ? purchases.size === 0
+            : deposits.size === 0
         }
       >
         {isLoading(ASIDE_PANEL_BUTTON_KEY) ? (
