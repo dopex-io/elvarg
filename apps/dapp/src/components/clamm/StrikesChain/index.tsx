@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { zeroAddress } from 'viem';
 
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { useQuery } from '@tanstack/react-query';
 import { useNetwork } from 'wagmi';
 
@@ -55,7 +56,7 @@ const StrikesChain = () => {
       url.searchParams.set('callsReach', '100');
       url.searchParams.set('putsReach', '100');
       if (!selectedOptionsMarket?.deprecated) {
-      return fetch(url).then((res) => res.json());
+        return fetch(url).then((res) => res.json());
       } else {
         return [];
       }
@@ -81,16 +82,51 @@ const StrikesChain = () => {
     refetch,
   ]);
 
+  const DEPRECATED_TO_NEW: any = {
+    'WETH/USDC.e': 'WETH/USDC',
+    'WBTC/USDC.e': 'WBTC/USDC',
+    'ARB/USDC.e': 'ARB/USDC',
+  };
+
   return (
     <div className="w-full bg-cod-gray flex flex-col rounded-md pb-[12px]">
-      <div className="flex items-center justify-between p-[12px]">
-        <FilterPanel />
-        <FilterSettingsButton
-          filterSettings={filterSettings}
-          setFilterSettings={setFilterSettings}
-        />
-      </div>
-      <StrikesTable filterSettings={filterSettings} />
+      {selectedOptionsMarket?.deprecated ? (
+        <div className="w-full bg-cod-gray h-[100px] flex flex-col items-center justify-center text-[13px]">
+          <span className="flex items-center justify-center space-x-[6px]">
+            <ExclamationTriangleIcon
+              height={18}
+              width={18}
+              className="text-jaffa"
+            />
+            <span className="text-jaffa">Deprecation Notice</span>
+          </span>
+          <span className="text-stieglitz">
+            We are migrating the pair {selectedOptionsMarket.ticker} to{' '}
+            {DEPRECATED_TO_NEW[selectedOptionsMarket.ticker]}. Please withdraw
+            any liquidity to the new pair
+          </span>
+          <span className="text-stieglitz">
+            <a
+              href={`${DEPRECATED_TO_NEW[selectedOptionsMarket.ticker].replace('/', '-')}`}
+              className="text-wave-blue underline"
+            >
+              Click here
+            </a>{' '}
+            to head over to the new pair
+          </span>
+        </div>
+      ) : (
+        <>
+          <div className="flex items-center justify-between p-[12px]">
+            <FilterPanel />
+            <FilterSettingsButton
+              filterSettings={filterSettings}
+              setFilterSettings={setFilterSettings}
+            />
+          </div>
+          <StrikesTable filterSettings={filterSettings} />
+        </>
+      )}
     </div>
   );
 };
