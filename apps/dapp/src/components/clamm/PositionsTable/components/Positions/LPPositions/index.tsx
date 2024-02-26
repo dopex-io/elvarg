@@ -65,7 +65,7 @@ const LPPositions = ({
   return (
     <div className="flex flex-col bg-cod-gray">
       <div className="w-full flex items-center justify-end">
-        <ClaimButton />
+        {selectedOptionsMarket?.deprecated && <ClaimButton />}
       </div>
       <Positions
         positions={data.map(({ data }) => data)}
