@@ -161,34 +161,33 @@ const Reserve = ({
       ],
       [pool, hook, tickLower, tickUpper, shares[0] - 1n],
     );
-
-    const withdrawData = encodeAbiParameters(
-      [
-        {
-          name: 'pool',
-          type: 'address',
-        },
-        {
-          name: 'hook',
-          type: 'address',
-        },
-        {
-          name: 'tickLower',
-          type: 'int24',
-        },
-        {
-          name: 'tickUpper',
-          type: 'int24',
-        },
-        {
-          name: 'shares',
-          type: 'uint128',
-        },
-      ],
-      [pool, hook, tickLower, tickUpper, shares[1] - 1n],
-    );
-
     if (BigInt(withdraw.withdrawableLiquidity) > 1n) {
+      const withdrawData = encodeAbiParameters(
+        [
+          {
+            name: 'pool',
+            type: 'address',
+          },
+          {
+            name: 'hook',
+            type: 'address',
+          },
+          {
+            name: 'tickLower',
+            type: 'int24',
+          },
+          {
+            name: 'tickUpper',
+            type: 'int24',
+          },
+          {
+            name: 'shares',
+            type: 'uint128',
+          },
+        ],
+        [pool, hook, tickLower, tickUpper, shares[1] - 1n],
+      );
+
       let withdrawLoadingId = '';
       try {
         withdrawLoadingId = toast.loading(
@@ -222,6 +221,7 @@ const Reserve = ({
       }
       toast.remove(withdrawLoadingId);
     }
+
     try {
       const { request } = await publicClient.simulateContract({
         account: walletClient.account.address,
