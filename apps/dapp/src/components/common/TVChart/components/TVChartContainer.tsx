@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 
 import {
   ChartingLibraryWidgetOptions,
@@ -165,10 +167,27 @@ export const TVChartContainer = () => {
   }, [chartReady, resetCache]);
 
   return (
-    <div
-      className="h-full w-full rounded-lg theme-dark"
-      ref={chartContainerRef}
-    />
+    <div className="flex flex-col h-full w-full rounded-lg theme-dark">
+      <div className="h-full w-full" ref={chartContainerRef} />
+      <span className="w-full text-center justify-center text-sm flex space-x-1">
+        <p>Powered by</p>
+        <Link
+          href="https://www.tradingview.com"
+          className="underline"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          TradingView
+        </Link>
+        <Image
+          src="/images/misc/trading-view.svg"
+          width={32}
+          height={32}
+          alt="tv_chart"
+          className="bg-white p-1 rounded-full"
+        />
+      </span>
+    </div>
   );
 };
 
