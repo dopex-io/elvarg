@@ -13,9 +13,9 @@ function formatAmount(
     result = '--';
   } else {
     if (showK && typecastedAmount > 999 && typecastedAmount < 1000000) {
-      result = (typecastedAmount / 1000).toFixed(1) + 'K'; // convert to K for number from > 1000 < 1 million
+      result = (typecastedAmount / 1000).toFixed(2) + 'K'; // convert to K for number from > 1000 < 1 million
     } else if (typecastedAmount >= 1000000 && typecastedAmount < 100000000000) {
-      result = (typecastedAmount / 1000000).toFixed(1) + 'M'; // convert to M for number from > 1 million
+      result = (typecastedAmount / 1000000).toFixed(2) + 'M'; // convert to M for number from > 1 million
     } else if (typecastedAmount >= 100000000000) {
       result = '∞';
     } else {
