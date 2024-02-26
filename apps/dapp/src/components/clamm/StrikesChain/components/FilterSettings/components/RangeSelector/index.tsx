@@ -64,30 +64,6 @@ const RangeSelector = ({
           return optionsAvailable > liquidityThreshold[0] ?? 0;
         }
       });
-    // const x = strikesChain
-    //   .sort((a, b) => a.strike - b.strike)
-    //   .map(
-    //     ({ liquidityAvailableUsd, liquidityUsd, strike, optionsAvailable }) => {
-    //       return {
-    //         strike,
-    //         optionsAvailable: Number(optionsAvailable),
-    //         liquidity: Number(liquidityUsd),
-    //         availableLiquidity: Number(liquidityAvailableUsd),
-    //         availableLiquidityBarHeight: Number(liquidityAvailableUsd),
-    //         liquidityBarHeight:
-    //           Number(liquidityUsd) - Number(liquidityAvailableUsd),
-    //       };
-    //     },
-    //   )
-    // .filter(({ optionsAvailable, availableLiquidity }) => {
-    //   if (liquidityThreshold[1] === 0) {
-    //     return availableLiquidity > liquidityThreshold[0] ?? 0;
-    //   } else {
-    //     return optionsAvailable > liquidityThreshold[0] ?? 0;
-    //   }
-    // });
-
-    return [];
   }, [strikesChain, liquidityThreshold, markPrice]);
 
   useEffect(() => {
