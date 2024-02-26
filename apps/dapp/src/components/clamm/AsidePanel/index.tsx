@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { formatUnits, zeroAddress } from 'viem';
 
+
+
 import { erc20ABI, useAccount, useContractReads } from 'wagmi';
 
+
+
 import useClammStore from 'hooks/clamm/useClammStore';
+
+import { cn } from 'utils/general';
 
 import AutoExercisers from './components/AutoExercisers';
 import CostSummary from './components/CostSummary';
@@ -62,7 +68,12 @@ const AsidePanel = () => {
 
   return (
     <div className="sticky top-[80px] flex flex-col items-center justify-center w-full space-y-[12px]">
-      <div className="w-full bg-cod-gray p-[12px] rounded-lg space-y-[4px]">
+      <div
+        className={cn(
+          'w-full bg-cod-gray p-[12px] rounded-lg space-y-[4px]',
+          selectedOptionsMarket?.deprecated && 'blur-sm',
+        )}
+      >
         <TradeSideSelector />
         {!isTrade && (
           <DepositTypeSelector
