@@ -1,7 +1,7 @@
-import { Button } from '@dopex-io/ui';
 import {
   ArrowDownRightIcon,
   ArrowUpRightIcon,
+  ShareIcon,
 } from '@heroicons/react/24/solid';
 import { createColumnHelper } from '@tanstack/react-table';
 import { formatDistance } from 'date-fns';
@@ -35,6 +35,7 @@ export type BuyPositionItem = {
     symbol: string;
     usdValue: number;
   };
+  share: () => void;
 };
 
 export const columnHelper = createColumnHelper<BuyPositionItem>();
@@ -141,6 +142,20 @@ export const columns = [
             $ {formatAmount(usdValue, 5)}
           </span>
         </div>
+      );
+    },
+  }),
+  columnHelper.accessor('share', {
+    header: '',
+    cell: (info) => {
+      return (
+        <ShareIcon
+          height={18}
+          width={18}
+          className="text-white"
+          role="button"
+          onClick={info.getValue()}
+        />
       );
     },
   }),

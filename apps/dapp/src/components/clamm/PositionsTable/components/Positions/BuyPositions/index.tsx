@@ -7,18 +7,23 @@ import React, {
 } from 'react';
 import { Address, formatUnits, getAddress, Hex } from 'viem';
 
-import { ArrowPathIcon } from '@heroicons/react/24/solid';
+import {
+  ArrowDownRightIcon,
+  ArrowPathIcon,
+  ArrowUpRightIcon,
+} from '@heroicons/react/24/solid';
 import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useNetwork, useWalletClient } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
+import useShare from 'hooks/useShare';
 import useUserBalance from 'hooks/useUserBalance';
 
 import TableLayout from 'components/common/TableLayout';
 
-import { cn } from 'utils/general';
-import { getTokenSymbol } from 'utils/token';
+import { cn, formatAmount } from 'utils/general';
+import { getTokenLogoURI, getTokenSymbol } from 'utils/token';
 
 import { DEFAULT_CHAIN_ID, VARROCK_BASE_API_URL } from 'constants/env';
 
@@ -64,6 +69,7 @@ const BuyPositions = ({
 }: {
   setBuyPositionsLength: Dispatch<React.SetStateAction<number>>;
 }) => {
+  const share = useShare((state) => state.open);
   const { chain } = useNetwork();
   const { selectedOptionsMarket, markPrice } = useClammStore();
   const { data: walletClient } = useWalletClient({
@@ -92,6 +98,79 @@ const BuyPositions = ({
       return await fetch(url).then((res) => res.json());
     },
   });
+
+  const handleShare = useCallback(
+    async (position: {
+      premiumUsd: number;
+      profitUsd: number;
+      amount: number;
+      callTokenURI: string;
+      putTokenURI: string;
+      callTokenSymbol: string;
+      putTokenSymbol: string;
+      side: string;
+      strike: number;
+      currentPrice: number;
+    }) => {
+      const {
+        amount,
+        callTokenURI,
+        premiumUsd,
+        profitUsd,
+        putTokenURI,
+        side,
+        callTokenSymbol,
+        putTokenSymbol,
+        strike,
+        currentPrice,
+      } = position;
+      share({
+        title: (
+          <div className="flex items-center justify-start space-x-[6px]">
+            <div className="flex -space-x-2 self-center">
+              <img
+                className="w-[24px] h-[24px] z-10 border border-gray-500 rounded-full"
+                src={callTokenURI}
+                alt={callTokenSymbol}
+              />
+              <img
+                className="w-[24px] h-[24px]"
+                src={putTokenURI}
+                alt={putTokenSymbol}
+              />
+            </div>
+            <div className="flex items-center justify-center text-[13px] space-x-[4px]">
+              <span>{callTokenSymbol}</span>
+              <span>-</span>
+              <span>{putTokenSymbol}</span>
+            </div>
+            <span>{formatAmount(amount)}x</span>
+            <span className="flex items-center justify-center space-x-[4px]">
+              {side === 'put' ? 'Puts' : 'Calls'}
+              {side === 'put' ? (
+                <ArrowDownRightIcon className="text-down-bad w-[14px] h-[14px]" />
+              ) : (
+                <ArrowUpRightIcon className="text-up-only w-[14px] h-[14px]" />
+              )}
+            </span>
+          </div>
+        ),
+        percentage: (profitUsd * 100) / premiumUsd,
+        customPath: '/clamm',
+        stats: [
+          {
+            name: 'Strike',
+            value: formatAmount(strike, 4),
+          },
+          {
+            name: 'Mark Price',
+            value: formatAmount(currentPrice, 4),
+          },
+        ],
+      });
+    },
+    [share],
+  );
 
   const handleRefresh = useCallback(async () => {
     if (!isRefetching) {
@@ -171,7 +250,7 @@ const BuyPositions = ({
   const positions: BuyPositionItem[] = useMemo(() => {
     if (!selectedOptionsMarket) return [];
     const chainId = chain?.id ?? DEFAULT_CHAIN_ID;
-    if(!optionsPositions['map']) return []
+    if (!optionsPositions['map']) return [];
     return optionsPositions.map(
       ({ strike, token, type, size, premium, meta: { expiry, tokenId } }) => {
         const side = type;
@@ -205,6 +284,25 @@ const BuyPositions = ({
           side.toLowerCase() === 'put'
             ? profitUsdValue / markPrice
             : profitUsdValue;
+
+        const callTokenSymbol = getTokenSymbol({
+          address: selectedOptionsMarket.callToken.address,
+          chainId,
+        });
+        const putTokenSymbol = getTokenSymbol({
+          address: selectedOptionsMarket.putToken.address,
+          chainId,
+        });
+
+        const callTokenURI = getTokenLogoURI({
+          address: selectedOptionsMarket.callToken.address,
+          chainId,
+        });
+
+        const putTokenURI = getTokenLogoURI({
+          address: selectedOptionsMarket.putToken.address,
+          chainId,
+        });
 
         return {
           strike: {
@@ -251,10 +349,25 @@ const BuyPositions = ({
             }),
             usdValue: profitUsdValue,
           },
+          share: () => {
+            handleShare({
+              amount: optionsAmount,
+              callTokenSymbol,
+              putTokenSymbol,
+              putTokenURI,
+              callTokenURI,
+              currentPrice: markPrice,
+              premiumUsd: premiumUsdValue,
+              profitUsd: profitUsdValue,
+              strike,
+              side,
+            });
+          },
         };
       },
     );
   }, [
+    handleShare,
     selectedOptions,
     optionsPositions,
     chain?.id,

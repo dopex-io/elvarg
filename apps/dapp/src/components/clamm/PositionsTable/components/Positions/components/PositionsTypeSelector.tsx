@@ -57,14 +57,6 @@ const PositionsTypeSelector = (props: Props) => {
         >
           LP Positions
         </span>
-        <span
-          className={cn(
-            'bg-cod-gray rounded-3xl text-[12px] px-[6px]',
-            selectedIndex === 1 ? 'text-white' : 'text-stieglitz',
-          )}
-        >
-          {lpPositionsLength}
-        </span>
       </div>
       {/* <div
         role="button"
