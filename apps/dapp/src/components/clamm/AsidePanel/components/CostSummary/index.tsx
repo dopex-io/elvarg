@@ -9,14 +9,32 @@ import { cn, formatAmount } from 'utils/general';
 import { EXPIRIES_BY_INDEX, PROTOCOL_FEES_MULTIPLIER } from 'constants/clamm';
 
 const CostSummary = () => {
-  const { isTrade, markPrice, selectedOptionsPool, selectedTTL } =
+  const { isTrade, markPrice, selectedOptionsMarket, selectedTTL } =
     useClammStore();
   const { purchases, deposits } = useClammTransactionsStore();
+
+  const totalFees = useMemo(() => {
+    const _total = new Map<string, number>();
+    if (isTrade && purchases.size > 0) {
+      purchases.forEach(({ tokenSymbol, tokenDecimals, fees }) => {
+        const curr = _total.get(tokenSymbol);
+        const amountInNumber = Number(formatUnits(fees, tokenDecimals));
+        if (curr) {
+          _total.set(tokenSymbol, curr + amountInNumber);
+          return _total;
+        } else {
+          _total.set(tokenSymbol, amountInNumber);
+          return _total;
+        }
+      });
+    }
+    return _total;
+  }, [purchases, isTrade]);
 
   const total = useMemo(() => {
     const _total = new Map<string, number>();
     if (purchases.size > 0) {
-      purchases.forEach(({ premium, tokenSymbol, tokenDecimals }) => {
+      purchases.forEach(({ premium, tokenSymbol, tokenDecimals, fees }) => {
         const curr = _total.get(tokenSymbol);
         const amountInNumber = Number(formatUnits(premium, tokenDecimals));
 
@@ -44,27 +62,6 @@ const CostSummary = () => {
     }
     return _total;
   }, [deposits, purchases]);
-
-  const totalProtocolFees = useMemo(() => {
-    const _total = new Map<string, number>();
-    if (isTrade) {
-      if (purchases.size > 0) {
-        purchases.forEach(({ premium, tokenSymbol, tokenDecimals }) => {
-          const curr = _total.get(tokenSymbol);
-          const amountInNumber = Number(formatUnits(premium, tokenDecimals));
-
-          if (curr) {
-            _total.set(tokenSymbol, curr + amountInNumber * 0.34);
-            return _total;
-          } else {
-            _total.set(tokenSymbol, amountInNumber * 0.34);
-            return _total;
-          }
-        });
-      }
-    }
-    return _total;
-  }, [isTrade, purchases]);
 
   const totalItems = useMemo(() => {
     const _total: {
@@ -142,7 +139,7 @@ const CostSummary = () => {
           )}
         >
           <span className="font-medium text-[13px]">
-            Total {isTrade ? 'premium' : 'deposit'}
+            {isTrade ? 'Premium' : 'Deposit'}
           </span>
           <div className="flex items-center justify-center">
             <span className="flex items-center justify-center space-x-[8px]">
@@ -162,47 +159,23 @@ const CostSummary = () => {
           <div
             className={cn(
               'flex w-full items-center justify-between font-medium text-[13px] text-stieglitz',
-              totalProtocolFees.size === 0 && 'cursor-not-allowed',
+              totalFees.size === 0 && 'cursor-not-allowed',
             )}
           >
             <span className="font-medium text-[13px]">Protocol Fees</span>
             <div className="flex items-center justify-center">
               <span className="flex items-center justify-center space-x-[8px]">
-                {Array.from(totalProtocolFees).map(
-                  ([symbol, amount], index) => (
-                    <span
-                      key={index}
-                      className="text-[13px] flex items-center justify-center space-x-[4px]"
-                    >
-                      <span className="text-white">
-                        {formatAmount(amount, 6)}
-                      </span>
-                      <span className="text-stieglitz">{symbol}</span>
+                {Array.from(totalFees).map(([symbol, amount], index) => (
+                  <span
+                    key={index}
+                    className="text-[13px] flex items-center justify-center space-x-[4px]"
+                  >
+                    <span className="text-white">
+                      {formatAmount(amount, 6)}
                     </span>
-                  ),
-                )}
-              </span>
-            </div>
-          </div>
-        )}
-        {isTrade && (
-          <div
-            className={
-              'flex w-full items-center justify-between font-medium text-[13px] text-stieglitz'
-            }
-          >
-            <span className="font-medium text-[13px]">Implied Volatility</span>
-            <div className="flex items-center justify-center">
-              <span className="flex items-center justify-center space-x-[8px]">
-                <span className="text-[13px] flex items-center justify-center space-x-[4px]">
-                  <span className="text-white">
-                    {
-                      selectedOptionsPool?.ivs[
-                        EXPIRIES_BY_INDEX.indexOf(selectedTTL)
-                      ]
-                    }
+                    <span className="text-stieglitz">{symbol}</span>
                   </span>
-                </span>
+                ))}
               </span>
             </div>
           </div>
@@ -224,7 +197,7 @@ const CostSummary = () => {
                 {formatAmount(totalNotionalSize, 3)}
               </span>
               <span className="text-stieglitz text-xs">
-                {selectedOptionsPool?.callToken.symbol}
+                {selectedOptionsMarket?.callToken.symbol}
               </span>
             </span>
           </div>

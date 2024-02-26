@@ -47,7 +47,7 @@ type ApiResult = {
 const useMerklRewards = (props: Props) => {
   const { user, chainId = 42161, rewardToken, pool = '0x' } = props;
 
-  const { data, refetch } = useQuery<ApiResult, Error>({
+  const { data, refetch, isLoading } = useQuery<ApiResult, Error>({
     queryKey: ['user-merkl-rewards'],
     queryFn: () =>
       fetch(
@@ -113,6 +113,7 @@ const useMerklRewards = (props: Props) => {
     claiming,
     avgAPR,
     refetch,
+    isLoading,
     tokenSymbol: rewardToken?.symbol || 'N/A',
     claimableAmount: useMemo(() => {
       const totalRewards = BigInt(

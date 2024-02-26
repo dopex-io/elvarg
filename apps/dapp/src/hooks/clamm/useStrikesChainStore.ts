@@ -1,55 +1,93 @@
+import { Address } from 'viem';
+
 import { create } from 'zustand';
 
-import { StrikesChainAPIResponse } from 'utils/clamm/varrock/getStrikesChain';
-import { getTokenSymbol } from 'utils/token';
+export type StrikesChainMappingArray = Record<string, StrikesChainItem[]>[];
 
-type StrikesChain = StrikesChainAPIResponse;
-export type SelectedStrike = {
-  ttl: string;
-  strike: number;
-  isCall: boolean;
-  amount0: number;
-  amount1: string;
-  tokenSymbol: string;
-  tokenDecimals: number;
-  meta: StrikeMeta;
+export type StrikesChainItem = {
+  totalLiquidity: string;
+  availableLiquidity: string;
+  token: {
+    address: Address;
+    decimals: number;
+    symbol: string;
+  };
+  utilization: string;
+  apr: string;
+  handler: {
+    name: string;
+    deprecated: boolean;
+    handler: string;
+    pool: string;
+  };
+  meta: {
+    hook: string;
+    totalTokenLiquidity: string;
+    availableTokenLiquidity: string;
+    tickLower: number;
+    tickUpper: number;
+    totalLiquidity: string;
+    availableLiquidity: string;
+  };
 };
 
-type StrikeMeta = {
+export type StrikesChain = StrikesChainItem[];
+
+export type SelectedStrike = {
+  strike: number;
   tickLower: number;
   tickUpper: number;
-  amount0: bigint;
-  amount1: bigint;
 };
+
 export interface StrikesChainStore {
   reset: () => void;
-  selectedStrikes: Map<number, SelectedStrike>;
-  selectStrike: (index: number, strike: SelectedStrike) => void;
-  deselectStrike: (index: number) => void;
-  initialize: (data: StrikesChain, chainId: number) => void;
-  strikesChain: StrikesChain;
+  selectedStrikes: Map<string, SelectedStrike>;
+  selectStrike: (index: string, strike: SelectedStrike) => void;
+  deselectStrike: (index: string) => void;
+  initialize: (data: StrikesChainMappingArray, chainId: number) => void;
+  strikesChain: Map<string, StrikesChainItem[]>;
   updateStrikes: () => void;
   setUpdateStrikes: (fn: () => void) => void;
+  getCollateralAvailable: (strike: string) => {
+    hook: string;
+    name: string;
+    deprecated: boolean;
+    handler: string;
+    pool: string;
+    availableLiquidity: bigint;
+    availableTokenLiquidity: bigint;
+  }[];
+  getPurchasableStrikesChain: () => {
+    strike: number;
+    tickLower: number;
+    tickUpper: number;
+  }[];
 }
 
-const useStrikesChainStore = create<StrikesChainStore>((set) => ({
+const useStrikesChainStore = create<StrikesChainStore>((set, get) => ({
   updateStrikes: () => {},
-  strikesChain: [],
+  strikesChain: new Map(),
   selectedStrikesErrors: new Map(),
-  initialize: (data: StrikesChain, chainId: number) => {
+  initialize: (data: StrikesChainMappingArray, chainId: number) => {
+    if (!data['forEach']) return;
+    const _strikesChain = new Map<string, StrikesChainItem[]>();
+    data.forEach((each) => {
+      const strike = Object.keys(each)[0];
+
+      _strikesChain.set(
+        strike,
+        each[strike].filter(({ handler }) => {
+          return handler.name === 'uniswap';
+        }),
+      );
+    });
     set((prev) => ({
       ...prev,
-      strikesChain: data.map((strike) => ({
-        ...strike,
-        tokenSymbol: getTokenSymbol({
-          address: strike.tokenAddress,
-          chainId,
-        }),
-      })),
+      strikesChain: _strikesChain,
     }));
   },
   selectedStrikes: new Map(),
-  selectStrike: (index: number, strikeData: SelectedStrike) => {
+  selectStrike: (index: string, strikeData: SelectedStrike) => {
     set((prev) => {
       const selectedStrikes = new Map(prev.selectedStrikes);
       selectedStrikes.set(index, strikeData);
@@ -59,7 +97,7 @@ const useStrikesChainStore = create<StrikesChainStore>((set) => ({
       };
     });
   },
-  deselectStrike: (index: number) => {
+  deselectStrike: (index: string) => {
     set((prev) => {
       const selectedStrikes = new Map(prev.selectedStrikes);
       selectedStrikes.delete(index);
@@ -81,6 +119,39 @@ const useStrikesChainStore = create<StrikesChainStore>((set) => ({
       ...prev,
       updateStrikes: fn,
     }));
+  },
+  getCollateralAvailable(strike: string) {
+    const { strikesChain } = get();
+    const strikesChainData = strikesChain.get(strike);
+    const liquidityData = strikesChainData
+      ? strikesChainData.map(
+          ({
+            meta: { availableTokenLiquidity, availableLiquidity, hook },
+            handler,
+          }) => ({
+            hook,
+            availableLiquidity: BigInt(availableLiquidity),
+            availableTokenLiquidity: BigInt(availableTokenLiquidity),
+            ...handler,
+          }),
+        )
+      : [];
+
+    return liquidityData;
+  },
+  getPurchasableStrikesChain() {
+    const { strikesChain } = get();
+    const strikes: {
+      strike: number;
+      tickLower: number;
+      tickUpper: number;
+    }[] = Array.from(strikesChain).map(([strike, strikeData]) => ({
+      strike: Number(strike),
+      tickLower: strikeData[0].meta.tickLower,
+      tickUpper: strikeData[0].meta.tickUpper,
+    }));
+
+    return strikes;
   },
 }));
 

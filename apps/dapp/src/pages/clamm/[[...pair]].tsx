@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
+import { Address } from 'viem';
 
+import { useQuery } from '@tanstack/react-query';
 import { NextSeo } from 'next-seo';
 import { useNetwork } from 'wagmi';
 
-import useClammStore from 'hooks/clamm/useClammStore';
+import useClammStore, { OptionMarket } from 'hooks/clamm/useClammStore';
 import useTradingViewChartStore from 'hooks/tradingViewChart/useTradingViewChartStore';
 
 import AsidePanel from 'components/clamm/AsidePanel';
@@ -16,36 +18,62 @@ import PageLayout from 'components/common/PageLayout';
 import getAddresses from 'utils/clamm/varrock/getAddresses';
 import getOptionsPools from 'utils/clamm/varrock/getOptionsPools';
 
-import { DEFAULT_CHAIN_ID } from 'constants/env';
+import { DEFAULT_CHAIN_ID, VARROCK_BASE_API_URL } from 'constants/env';
 import seo from 'constants/seo';
 
 const Page = () => {
-  const { initialize, selectedOptionsPool, setAddresses } = useClammStore();
+  const { initialize, selectedOptionsMarket } = useClammStore();
   const { setSelectedTicker } = useTradingViewChartStore();
   const { chain } = useNetwork();
 
-  useEffect(() => {
-    const chainId = chain?.id ?? DEFAULT_CHAIN_ID;
-    getOptionsPools(
-      chainId,
-      (data) => {
-        initialize(data, chainId);
-      },
-      (error: string) => {
-        console.error(error);
-      },
-    );
-  }, [chain, initialize]);
+  const { data, isError } = useQuery<OptionMarket[]>({
+    queryKey: ['optionMarkets', chain?.id ?? DEFAULT_CHAIN_ID],
+    queryFn: async () => {
+      const url = new URL(`${VARROCK_BASE_API_URL}/clamm/option-markets`);
+      url.searchParams.set(
+        'chainId',
+        (chain?.id ?? DEFAULT_CHAIN_ID).toString(),
+      );
+
+      return fetch(url).then((res) => {
+        if (!res.ok) {
+          console.error(res.json());
+          return [];
+        }
+        return res.json();
+      });
+    },
+  });
 
   useEffect(() => {
-    getAddresses().then((data) => setAddresses(data));
-  }, [setAddresses]);
+    if (!data || isError) return;
+    let opMarkets: OptionMarket[] = [];
+    if (chain?.id === 42161) {
+      const firstOptionMarket = data.filter(({ ticker }) => {
+        return ticker === 'WETH/USDC';
+      });
+      const deprecatedMarkets = data.filter(({ deprecated }) => deprecated);
+      const nonDeprecatedMarkets = data.filter(({ deprecated }) => !deprecated);
+      const nonFirstOptionMarkets = nonDeprecatedMarkets.filter(
+        ({ ticker }) => {
+          return ticker !== 'WETH/USDC';
+        },
+      );
+      opMarkets = opMarkets
+        .concat(firstOptionMarket)
+        .concat(nonFirstOptionMarkets)
+        .concat(deprecatedMarkets);
+    }
+
+    opMarkets = opMarkets.length === 0 ? data : opMarkets;
+
+    initialize(opMarkets, chain?.id ?? DEFAULT_CHAIN_ID);
+  }, [initialize, chain?.id, data, isError]);
 
   useEffect(() => {
-    if (!selectedOptionsPool) return;
-    // @ts-ignore
-    setSelectedTicker(selectedOptionsPool.pairTicker);
-  }, [selectedOptionsPool, setSelectedTicker]);
+    if (!selectedOptionsMarket) return;
+    setSelectedTicker(selectedOptionsMarket.ticker);
+  }, [selectedOptionsMarket, setSelectedTicker]);
 
   return (
     <PageLayout>

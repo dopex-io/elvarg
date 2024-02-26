@@ -1,250 +1,379 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { BaseError, formatUnits } from 'viem';
+import React, {
+  Dispatch,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { Address, formatUnits, getAddress, Hex } from 'viem';
 
-import { LinkIcon } from '@heroicons/react/24/solid';
-import * as Tooltip from '@radix-ui/react-tooltip';
+import {
+  ArrowDownRightIcon,
+  ArrowPathIcon,
+  ArrowUpRightIcon,
+} from '@heroicons/react/24/solid';
+import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useNetwork, useWalletClient } from 'wagmi';
-import wagmiConfig from 'wagmi-config';
 
-import useClammPositions from 'hooks/clamm/useClammPositions';
 import useClammStore from 'hooks/clamm/useClammStore';
+import useShare from 'hooks/useShare';
 import useUserBalance from 'hooks/useUserBalance';
 
-import { PositionsTableProps } from 'components/clamm/PositionsTable';
 import TableLayout from 'components/common/TableLayout';
 
-import getExerciseTxData from 'utils/clamm/varrock/getExerciseTxData';
-import { OptionsPositionsResponse } from 'utils/clamm/varrock/types';
-import { cn } from 'utils/general';
-import { getTokenSymbol } from 'utils/token';
+import { cn, formatAmount } from 'utils/general';
+import { getTokenLogoURI, getTokenSymbol } from 'utils/token';
 
-import { DEFAULT_CHAIN_ID } from 'constants/env';
+import { DEFAULT_CHAIN_ID, VARROCK_BASE_API_URL } from 'constants/env';
 
 import { BuyPositionItem, columns } from '../columnHelpers/buyPositions';
 import MultiExerciseButton from './components/MultiExerciseButton';
 import PositionSummary from './components/PositionSummary';
 
-const BuyPositions = ({ loading }: PositionsTableProps) => {
+export type OptionExerciseData = {
+  profit: string;
+  token: Address;
+  swapData: Hex[];
+  swappers: Address[];
+  tx: {
+    to: Address;
+    data: Hex;
+  };
+};
+
+type Option = {
+  size: string;
+  premium: string;
+  strike: number;
+  type: string;
+  token: {
+    address: Address;
+    decimals: number;
+    symbol: string;
+  };
+  meta: {
+    tokenId: string;
+    expiry: number;
+    handlers: {
+      name: Address;
+      deprecated: boolean;
+      handler: Address;
+      pool: Address;
+    }[];
+    liquidities: string[];
+  };
+};
+const BuyPositions = ({
+  setBuyPositionsLength,
+}: {
+  setBuyPositionsLength: Dispatch<React.SetStateAction<number>>;
+}) => {
+  const share = useShare((state) => state.open);
   const { chain } = useNetwork();
-  const { buyPositions, updateBuyPositions } = useClammPositions();
-  const { selectedOptionsPool, markPrice } = useClammStore();
+  const { selectedOptionsMarket, markPrice } = useClammStore();
   const { data: walletClient } = useWalletClient({
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
   });
   const { checkEthBalance } = useUserBalance();
-  const [selectedPositions, setSelectedPositions] = useState<
-    Map<number, OptionsPositionsResponse>
+  const [selectedOptions, setSelectedOptions] = useState<
+    Map<string, OptionExerciseData>
   >(new Map());
-  const [selectedAllmode, setSelectAllMode] = useState(false);
 
-  const selectPosition = useCallback(
-    (key: number, position: OptionsPositionsResponse) => {
-      const isCall = position.side === 'call';
-      if (
-        (isCall && position.strike < markPrice) ||
-        (!isCall && position.strike > markPrice)
-      ) {
-        setSelectedPositions((prev) => new Map(prev.set(key, position)));
-      }
+  const [isRefetching, setIsRefetching] = useState(false);
+
+  const { data, error, isError, refetch, isLoading } = useQuery<Option[]>({
+    queryKey: [
+      'clamm-buy-positions',
+      chain?.id,
+      selectedOptionsMarket?.address,
+      walletClient?.account.address,
+    ],
+    queryFn: async () => {
+      if (!chain || !selectedOptionsMarket || !walletClient) return [];
+      const url = new URL(`${VARROCK_BASE_API_URL}/clamm/purchase/positions`);
+      url.searchParams.set('chainId', chain.id.toString());
+      url.searchParams.set('optionMarket', selectedOptionsMarket.address);
+      url.searchParams.set('user', walletClient.account.address);
+      return await fetch(url).then((res) => res.json());
     },
-    [markPrice],
+  });
+
+  const handleShare = useCallback(
+    async (position: {
+      premiumUsd: number;
+      profitUsd: number;
+      amount: number;
+      callTokenURI: string;
+      putTokenURI: string;
+      callTokenSymbol: string;
+      putTokenSymbol: string;
+      side: string;
+      strike: number;
+      currentPrice: number;
+    }) => {
+      const {
+        amount,
+        callTokenURI,
+        premiumUsd,
+        profitUsd,
+        putTokenURI,
+        side,
+        callTokenSymbol,
+        putTokenSymbol,
+        strike,
+        currentPrice,
+      } = position;
+      share({
+        title: (
+          <div className="flex items-center justify-start space-x-[6px]">
+            <div className="flex -space-x-2 self-center">
+              <img
+                className="w-[24px] h-[24px] z-10 border border-gray-500 rounded-full"
+                src={callTokenURI}
+                alt={callTokenSymbol}
+              />
+              <img
+                className="w-[24px] h-[24px]"
+                src={putTokenURI}
+                alt={putTokenSymbol}
+              />
+            </div>
+            <div className="flex items-center justify-center text-[13px] space-x-[4px]">
+              <span>{callTokenSymbol}</span>
+              <span>-</span>
+              <span>{putTokenSymbol}</span>
+            </div>
+            <span>{formatAmount(amount)}x</span>
+            <span className="flex items-center justify-center space-x-[4px]">
+              {side === 'put' ? 'Puts' : 'Calls'}
+              {side === 'put' ? (
+                <ArrowDownRightIcon className="text-down-bad w-[14px] h-[14px]" />
+              ) : (
+                <ArrowUpRightIcon className="text-up-only w-[14px] h-[14px]" />
+              )}
+            </span>
+          </div>
+        ),
+        percentage: (profitUsd * 100) / premiumUsd,
+        customPath: '/clamm',
+        stats: [
+          {
+            name: 'Strike',
+            value: formatAmount(strike, 4),
+          },
+          {
+            name: 'Mark Price',
+            value: formatAmount(currentPrice, 4),
+          },
+        ],
+      });
+    },
+    [share],
   );
 
-  const unselectPosition = useCallback((key: number) => {
-    setSelectedPositions((prev) => {
-      prev.delete(key);
-      return new Map(prev);
-    });
-  }, []);
+  const handleRefresh = useCallback(async () => {
+    if (!isRefetching) {
+      setIsRefetching(true);
+      refetch().finally(() => setTimeout(() => setIsRefetching(false), 5000));
+    }
+  }, [refetch, isRefetching]);
 
-  const selectAll = useCallback(() => {
-    buyPositions.forEach((position, index) => {
-      selectPosition(index, position);
-    });
-  }, [selectPosition, buyPositions]);
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') {
+        refetch();
+      }
+    };
 
-  const deselectAll = useCallback(() => {
-    buyPositions.forEach((_, index) => {
-      unselectPosition(index);
-    });
-  }, [buyPositions, unselectPosition]);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
-  const handleExercise = useCallback(
-    async (positionId: string, index: number) => {
-      if (!selectedOptionsPool || !walletClient) return;
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [refetch]);
 
-      const loadingToastId = toast.loading('Opening wallet');
-      let oneInchExerciseFailed = false;
-      try {
-        const exerciseTxData = await getExerciseTxData({
-          optionMarket: selectedOptionsPool.optionsPoolAddress,
-          positionId: positionId,
-          slippage: '10',
-          type: '1inch',
-        });
+  const optionsPositions = useMemo(() => {
+    if (error || isError || !data) {
+      console.error(error);
+      return [];
+    }
+    return data;
+  }, [data, error, isError]);
 
-        const { publicClient } = wagmiConfig;
-        const request = await walletClient.prepareTransactionRequest({
-          account: walletClient.account,
-          to: exerciseTxData.to,
-          data: exerciseTxData.txData,
-          type: 'legacy',
-        });
-        checkEthBalance(request);
-        const hash = await walletClient.sendTransaction(request);
-        await publicClient.waitForTransactionReceipt({
-          hash,
-        });
-        await updateBuyPositions?.();
-        toast.success('Transaction sent');
-      } catch (err) {
-        const error = err as BaseError;
-        console.error(err);
-        if (error.shortMessage === 'User rejected the request.') {
-          toast.remove(loadingToastId);
-          toast.error(error.shortMessage);
+  const generateExerciseTx = useCallback(
+    async (tokenId: string) => {
+      if (!selectedOptionsMarket || !chain) return;
+
+      const loadingid = toast.loading(
+        'Preparing Exercise through 1inch router',
+      );
+      const oneInchSwapperId = '1inch';
+      const url = new URL(`${VARROCK_BASE_API_URL}/clamm/exercise/prepare`);
+      url.searchParams.set('chainId', chain.id.toString());
+      url.searchParams.set('optionMarket', selectedOptionsMarket.address),
+        url.searchParams.set('optionId', tokenId);
+      url.searchParams.set('swapperId', oneInchSwapperId);
+      url.searchParams.set('slippage', '1');
+
+      const res = await fetch(url).then((res) => res.json());
+      if (res['error']) {
+        toast.remove(loadingid);
+        toast.error('Failed to prepare exercise. Please try again');
+      } else {
+        let _res: {
+          profit: string;
+          token: Address;
+          swapData: Hex[];
+          swappers: Address[];
+          tx: {
+            to: Address;
+            data: Hex;
+          };
+        } = res;
+
+        if (!_res['tx']) {
+          toast.error('Failed to prepare exercise. Please try again');
           return;
-        } else {
-          oneInchExerciseFailed = true;
-          toast.error('Failed to exercise through 1inch, using uniswap V3');
         }
-        toast.error(error.shortMessage);
+        setSelectedOptions((prev) => {
+          prev.set(tokenId, _res);
+          return new Map(prev);
+        });
+        toast.remove(loadingid);
+        toast.success('Added to exercise queue');
       }
-
-      if (oneInchExerciseFailed) {
-        try {
-          const exerciseTxData = await getExerciseTxData({
-            optionMarket: selectedOptionsPool.optionsPoolAddress,
-            positionId: positionId,
-            slippage: '3',
-            type: 'uni-v3',
-          });
-
-          if (exerciseTxData.error) {
-            toast.error('Failed to exercise');
-            return;
-          }
-
-          const { publicClient } = wagmiConfig;
-          const request = await walletClient.prepareTransactionRequest({
-            account: walletClient.account,
-            to: exerciseTxData.to,
-            data: exerciseTxData.txData,
-            type: 'legacy',
-          });
-          checkEthBalance(request);
-          const hash = await walletClient.sendTransaction(request);
-          await publicClient.waitForTransactionReceipt({
-            hash,
-          });
-
-          await updateBuyPositions?.();
-          toast.success('Transaction sent');
-        } catch (err) {
-          const error = err as BaseError;
-          console.error(err);
-          toast.error(error.shortMessage);
-        }
-      }
-      toast.remove(loadingToastId);
     },
-    [selectedOptionsPool, walletClient, updateBuyPositions],
+    [selectedOptionsMarket, chain],
   );
 
-  const positions = useMemo(() => {
+  const positions: BuyPositionItem[] = useMemo(() => {
+    if (!selectedOptionsMarket) return [];
     const chainId = chain?.id ?? DEFAULT_CHAIN_ID;
-    return buyPositions
-      .map((position, index) => {
-        const { expiry, premium, profit, side, size, strike, meta } = position;
-        const readablePremium = formatUnits(
-          BigInt(premium.amountInToken),
-          premium.decimals,
-        );
-
-        const isSelected = Boolean(selectedPositions.get(index));
-
-        const isPut = side.toLowerCase() === 'put';
-        const priceDifference = isPut ? strike - markPrice : markPrice - strike;
+    if (!optionsPositions['map']) return [];
+    return optionsPositions.map(
+      ({ strike, token, type, size, premium, meta: { expiry, tokenId } }) => {
+        const side = type;
+        const { address, decimals } = token;
+        const isCall = type === 'call';
+        const sizeReadable = Number(formatUnits(BigInt(size), decimals));
+        const sizeUsdValue = isCall ? sizeReadable * markPrice : sizeReadable;
 
         const optionsAmount =
           side.toLowerCase() === 'put'
-            ? Number(size.usdValue) / Number(strike)
-            : Number(formatUnits(BigInt(size.amountInToken), size.decimals));
+            ? Number(sizeUsdValue) / strike
+            : sizeReadable;
 
-        const profitUsd =
-          priceDifference < 0 ? 0 : priceDifference * optionsAmount;
-        const profitAmount = isPut ? profitUsd / markPrice : profitUsd;
+        const premiumReadable = Number(formatUnits(BigInt(premium), decimals));
 
-        const sizeInNumber = Number(
-          formatUnits(BigInt(size.amountInToken), size.decimals),
-        );
-        const sizeUsd = isPut ? sizeInNumber : sizeInNumber * markPrice;
+        const premiumUsdValue = isCall
+          ? premiumReadable * markPrice
+          : premiumReadable;
 
         const breakEven =
           side.toLowerCase() === 'put'
-            ? Number(strike) - Number(premium.usdValue) / optionsAmount
-            : Number(strike) + Number(premium.usdValue) / optionsAmount;
+            ? Number(strike) - premiumUsdValue / optionsAmount
+            : Number(strike) + premiumUsdValue / optionsAmount;
+
+        const profitUsdValue = Math.max(
+          (isCall ? markPrice - strike : strike - markPrice) * optionsAmount,
+          0,
+        );
+
+        const profitReadable =
+          side.toLowerCase() === 'put'
+            ? profitUsdValue / markPrice
+            : profitUsdValue;
+
+        const callTokenSymbol = getTokenSymbol({
+          address: selectedOptionsMarket.callToken.address,
+          chainId,
+        });
+        const putTokenSymbol = getTokenSymbol({
+          address: selectedOptionsMarket.putToken.address,
+          chainId,
+        });
+
+        const callTokenURI = getTokenLogoURI({
+          address: selectedOptionsMarket.callToken.address,
+          chainId,
+        });
+
+        const putTokenURI = getTokenLogoURI({
+          address: selectedOptionsMarket.putToken.address,
+          chainId,
+        });
 
         return {
-          breakEven,
-          expiry: Number(expiry),
-          premium: {
-            amount: readablePremium,
-            symbol: getTokenSymbol({
-              chainId,
-              address: premium.tokenAddress,
-            }),
-            usdValue: premium.usdValue,
-          },
-          profit: {
-            amount: profitAmount,
-            usdValue: profitUsd,
-            symbol: getTokenSymbol({
-              chainId,
-              address: profit.tokenAddress,
-            }),
-          },
-          side: side.charAt(0).toUpperCase() + side.slice(1),
-          size: {
-            amount: sizeInNumber,
-            symbol: getTokenSymbol({
-              chainId,
-              address: size.tokenAddress,
-            }),
-            usdValue: sizeUsd,
-          },
           strike: {
-            handleSelect: () => {
-              if (!isSelected) {
-                selectPosition(index, position);
+            disabled: profitUsdValue === 0,
+            isSelected: Boolean(selectedOptions.get(tokenId)),
+            price: strike,
+            handleSelect: async () => {
+              if (Boolean(selectedOptions.get(tokenId))) {
+                setSelectedOptions((prev) => {
+                  prev.delete(tokenId);
+                  return new Map(prev);
+                });
               } else {
-                unselectPosition(index);
+                await generateExerciseTx(tokenId);
               }
             },
-            isSelected: isSelected,
-            strikePrice: Number(strike),
           },
-          exerciseButton: {
-            handleExercise: async () => {
-              await handleExercise(String(meta.tokenId), index);
-            },
-            disabled: profitAmount === 0,
+          breakEven,
+          side: type,
+          size: {
+            amount: sizeReadable,
+            symbol: getTokenSymbol({
+              address: getAddress(address),
+              chainId,
+            }),
+            usdValue: sizeUsdValue,
+          },
+          premium: {
+            amount: premiumReadable,
+            symbol: getTokenSymbol({
+              address: getAddress(address),
+              chainId,
+            }),
+            usdValue: premiumUsdValue,
+          },
+          expiry,
+          profit: {
+            amount: profitReadable,
+            symbol: getTokenSymbol({
+              address: isCall
+                ? selectedOptionsMarket?.putToken.address
+                : selectedOptionsMarket?.callToken.address,
+              chainId,
+            }),
+            usdValue: profitUsdValue,
+          },
+          share: () => {
+            handleShare({
+              amount: optionsAmount,
+              callTokenSymbol,
+              putTokenSymbol,
+              putTokenURI,
+              callTokenURI,
+              currentPrice: markPrice,
+              premiumUsd: premiumUsdValue,
+              profitUsd: profitUsdValue,
+              strike,
+              side,
+            });
           },
         };
-      })
-      .sort(
-        (a: any, b: any) =>
-          Number(a.strike.strikePrice) - Number(b.strike.strikePrice),
-      );
+      },
+    );
   }, [
+    handleShare,
+    selectedOptions,
+    optionsPositions,
     chain?.id,
-    buyPositions,
     markPrice,
-    handleExercise,
-    selectedPositions,
-    selectPosition,
-    unselectPosition,
+    selectedOptionsMarket,
+    generateExerciseTx,
   ]);
 
   const optionsSummary = useMemo(() => {
@@ -258,8 +387,7 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
       return (
         accumulator +
         (currentValue.side.toLowerCase() === 'put'
-          ? Number(currentValue.size.amount) /
-            Number(currentValue.strike.strikePrice)
+          ? Number(currentValue.size.amount) / Number(currentValue.strike.price)
           : Number(currentValue.size.amount))
       );
     }, 0);
@@ -277,59 +405,39 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
     };
   }, [positions]);
 
+  useEffect(() => {
+    setBuyPositionsLength(positions.length);
+  }, [setBuyPositionsLength, positions.length]);
+
   return (
     <div className="w-full flex flex-col space-y-[12px] py-[12px]">
-      <div className="bg-cod-gray flex px-[12px] items-center justify-between space-x-[12px] overflow-x-scroll">
+      <div className="bg-cod-gray flex px-[12px] items-center justify-between space-x-[12px]">
         <PositionSummary
-          callTokenSymbol={selectedOptionsPool?.callToken.symbol ?? '-'}
+          callTokenSymbol={selectedOptionsMarket?.callToken.symbol ?? '-'}
           totalOptions={optionsSummary.totalOptions}
           totalPremiumUsd={optionsSummary.totalPremiumUsd}
           totalProfitUsd={optionsSummary.totalProfitUsd}
         />
         <div className="flex items-center space-x-[6px]">
-          <div className="w-[22px] h-[22px] p-[4px] bg-carbon flex items-center justify-center rounded-md">
-            <Tooltip.Provider>
-              <Tooltip.Root>
-                <Tooltip.Trigger
-                  onClick={() => {
-                    if (selectedAllmode) {
-                      deselectAll();
-                      setSelectAllMode(false);
-                    } else {
-                      setSelectAllMode(true);
-                      selectAll();
-                    }
-                  }}
-                >
-                  <LinkIcon
-                    className={cn(
-                      'text-stieglitz hover:text-white',
-                      selectedAllmode && 'text-white',
-                    )}
-                    role="button"
-                    height={16}
-                    width={16}
-                  />
-                </Tooltip.Trigger>
-                <Tooltip.Portal>
-                  <Tooltip.Content className="text-xs bg-carbon p-[4px] rounded-md mb-[6px]">
-                    Select all exercisable options
-                  </Tooltip.Content>
-                </Tooltip.Portal>
-              </Tooltip.Root>
-            </Tooltip.Provider>
+          <div className="h-fit w-fit p-[2px] bg-mineshaft rounded-md">
+            <ArrowPathIcon
+              height={22}
+              width={22}
+              onClick={isRefetching ? () => {} : handleRefresh}
+              className={cn(
+                'bg-mineshaft text-stieglitz p-[2px] hover:text-white cursor-pointer',
+                isRefetching && 'animate-spin cursor-progress',
+              )}
+            />
           </div>
-          <MultiExerciseButton
-            positions={selectedPositions}
-            deselectAll={deselectAll}
-          />
+          <MultiExerciseButton positions={selectedOptions} />
         </div>
       </div>
       <TableLayout<BuyPositionItem>
         data={positions}
         columns={columns}
         rowSpacing={3}
-        isContentLoading={loading}
+        isContentLoading={isRefetching || isLoading}
         pageSize={10}
       />
     </div>

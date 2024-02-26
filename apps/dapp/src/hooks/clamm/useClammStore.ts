@@ -2,27 +2,30 @@ import { Address } from 'viem';
 
 import { create } from 'zustand';
 
-import { OptionsPoolsAPIResponse } from 'utils/clamm/varrock/getOptionsPools';
 import { getTokenSymbol } from 'utils/token';
 
-export type OptionsPool = {
-  pairName: string;
-  pairTicker: string;
+export type OptionMarket = {
+  deprecated: boolean;
+  ticker: string;
+  address: Address;
   callToken: {
-    symbol: string;
     address: Address;
     decimals: number;
+    symbol: string;
   };
   putToken: {
-    symbol: string;
     address: Address;
     decimals: number;
+    symbol: string;
   };
-  optionsPoolAddress: Address;
-  tokenURIFetcher: Address;
-  ttls: string[];
-  ivs: string[];
+  pairName: string;
   primePool: Address;
+  dpFee: Address;
+  optionsPricing: Address;
+  tokenURIFetcher: Address;
+  totalPremium: string;
+  totalVolume: string;
+  totalFees: string;
 };
 
 type TokenBalances = {
@@ -40,10 +43,10 @@ type Addresses = {
 };
 
 type ClammStore = {
-  selectedOptionsPool: OptionsPool | null;
-  setSelectedOptionsPool: any;
-  optionsPools: Map<string, OptionsPool>;
-  initialize: (response: OptionsPoolsAPIResponse, chainId: number) => void;
+  selectedOptionsMarket: OptionMarket | null;
+  setSelectedOptionsMarket: any;
+  optionMarkets: Map<string, OptionMarket>;
+  initialize: (response: OptionMarket[], chainId: number) => void;
 
   isPut: boolean;
   setIsPut: (setAs: boolean) => void;
@@ -94,7 +97,7 @@ const useClammStore = create<ClammStore>((set, get) => ({
       selectedTTL: TTL,
     }));
   },
-  optionsPools: new Map<string, OptionsPool>(),
+  optionMarkets: new Map<string, OptionMarket>(),
   setIsTrade: (setAs: boolean) => {
     set((prev) => ({
       ...prev,
@@ -107,60 +110,82 @@ const useClammStore = create<ClammStore>((set, get) => ({
       isPut: setAs,
     }));
   },
-  selectedOptionsPool: null,
-  setSelectedOptionsPool: (pairName: string) => {
-    const poolToSelect = get().optionsPools.get(pairName);
-    if (poolToSelect) {
+  selectedOptionsMarket: null,
+  setSelectedOptionsMarket: (pairName: string) => {
+    const marketToSelect = get().optionMarkets.get(pairName);
+    if (marketToSelect) {
       set((prev) => ({
         ...prev,
-        selectedOptionsPool: poolToSelect,
+        selectedOptionsMarket: marketToSelect,
       }));
     }
   },
-  initialize: (initialData: OptionsPoolsAPIResponse, chainId: number) => {
-    const poolsMapping = new Map<string, OptionsPool>();
+  initialize: (initialData: OptionMarket[], chainId: number) => {
+    const marketsMapping = new Map<string, OptionMarket>();
     if (!initialData.length) return;
     initialData.forEach(
       ({
         callToken,
-        optionsPoolAddress,
-        pairName,
-        pairTicker,
+        address,
         putToken,
-        ivs,
         tokenURIFetcher,
-        ttls,
         primePool,
+        dpFee,
+        optionsPricing,
+        totalFees,
+        totalPremium,
+        totalVolume,
+        ticker,
+        deprecated,
       }) => {
-        poolsMapping.set(pairName, {
-          callToken: {
-            ...callToken,
-            symbol: getTokenSymbol({
+        marketsMapping.set(
+          `${getTokenSymbol({
+            address: callToken.address,
+            chainId,
+          })}-${getTokenSymbol({
+            address: putToken.address,
+            chainId,
+          })}`,
+          {
+            deprecated,
+            ticker,
+            callToken: {
+              ...callToken,
+              symbol: getTokenSymbol({
+                address: callToken.address,
+                chainId,
+              }),
+            },
+            putToken: {
+              ...putToken,
+              symbol: getTokenSymbol({
+                address: putToken.address,
+                chainId,
+              }),
+            },
+            pairName: `${getTokenSymbol({
               address: callToken.address,
               chainId,
-            }),
-          },
-          putToken: {
-            ...putToken,
-            symbol: getTokenSymbol({
+            })}-${getTokenSymbol({
               address: putToken.address,
               chainId,
-            }),
+            })}`,
+            address,
+            tokenURIFetcher,
+            primePool,
+            dpFee,
+            optionsPricing,
+            totalFees,
+            totalPremium,
+            totalVolume,
           },
-          optionsPoolAddress: optionsPoolAddress,
-          pairName: pairName,
-          pairTicker: pairTicker,
-          ivs,
-          tokenURIFetcher,
-          ttls,
-          primePool,
-        });
+        );
       },
     );
 
     set((prev) => ({
       ...prev,
-      optionsPools: poolsMapping,
+      optionMarkets: marketsMapping,
     }));
   },
   setMarkPrice(price) {

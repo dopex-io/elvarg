@@ -6,24 +6,17 @@ import {
   useMemo,
   useState,
 } from 'react';
-import {
-  encodeAbiParameters,
-  encodeFunctionData,
-  formatUnits,
-  hexToBigInt,
-  maxUint256,
-  parseUnits,
-} from 'viem';
+import { formatUnits, parseUnits, zeroAddress } from 'viem';
 
 import {
   ArrowDownRightIcon,
   ArrowUpRightIcon,
   XMarkIcon,
 } from '@heroicons/react/24/solid';
-import DopexV2OptionMarket from 'abis/clamm/DopexV2OptionMarket';
-import DopexV2PositionManager from 'abis/clamm/DopexV2PositionManager';
+import { useQuery } from '@tanstack/react-query';
+import { DopexV2OptionMarket } from 'abis/clamm/DopexV2OptionMarket';
 import { useDebounce } from 'use-debounce';
-import { useNetwork } from 'wagmi';
+import { useNetwork, usePublicClient } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
@@ -34,18 +27,15 @@ import useStrikesChainStore, {
   SelectedStrike,
 } from 'hooks/clamm/useStrikesChainStore';
 
-import getPriceFromTick from 'utils/clamm/getPriceFromTick';
-import {
-  getLiquidityForAmount0,
-  getLiquidityForAmount1,
-} from 'utils/clamm/liquidityAmountMath';
-import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
-import getPremium from 'utils/clamm/varrock/getPremium';
+import NumberInput from 'components/common/NumberInput/NumberInput';
+
 import { cn, formatAmount } from 'utils/general';
+
+import { DEFAULT_CHAIN_ID, VARROCK_BASE_API_URL } from 'constants/env';
 
 type Props = {
   key: number;
-  strikeIndex: number;
+  strikeKey: string;
   strikeData: SelectedStrike;
   editAllMode: boolean;
   commonInputAmount: string;
@@ -54,23 +44,23 @@ type Props = {
 };
 const SelectedStrikeItem = ({
   strikeData,
-  strikeIndex,
+  strikeKey,
   commonInputAmount,
   commonSetInputAmount,
   editAllMode,
   disabledInput,
 }: Props) => {
-  const { deselectStrike } = useStrikesChainStore();
+  const publicClient = usePublicClient();
+  const { deselectStrike, getCollateralAvailable } = useStrikesChainStore();
   const {
     isTrade,
-    selectedOptionsPool,
+    selectedOptionsMarket,
     selectedTTL,
     tokenBalances,
-    addresses,
+    markPrice,
   } = useClammStore();
   const { setDeposit, unsetDeposit, setPurchase, unsetPurchase } =
     useClammTransactionsStore();
-  const [premium, setPremium] = useState(0n);
   const { chain } = useNetwork();
   const [inputAmount, setInputAmount] = useState<string>('');
   const [amountDebounced] = useDebounce(
@@ -79,259 +69,269 @@ const SelectedStrikeItem = ({
   );
   const { setLoading } = useLoadingStates();
   const [error, setError] = useState('');
+  const { tickLower, tickUpper, strike } = strikeData;
+
+  const isCall = useMemo(() => {
+    return strike > markPrice;
+  }, [strike, markPrice]);
+
+  const strikeId = tickLower
+    .toString()
+    .concat('#')
+    .concat(tickUpper.toString())
+    .toString();
 
   const tokenDecimals = useMemo(() => {
-    if (!selectedOptionsPool)
+    if (!selectedOptionsMarket)
       return {
         callToken: 18,
         putToken: 18,
       };
 
     return {
-      callToken: selectedOptionsPool.callToken.decimals,
-      putToken: selectedOptionsPool.putToken.decimals,
+      callToken: selectedOptionsMarket.callToken.decimals,
+      putToken: selectedOptionsMarket.putToken.decimals,
     };
-  }, [selectedOptionsPool]);
+  }, [selectedOptionsMarket]);
 
-  const updatePremium = useCallback(async () => {
-    if (!selectedOptionsPool || !chain || !isTrade) return;
-    const { isCall, meta } = strikeData;
-    const { callToken, putToken } = selectedOptionsPool;
-
-    if (Number(amountDebounced) === 0) return;
-
-    const tick = isCall ? meta.tickUpper : meta.tickLower;
-    const ttl = selectedTTL;
+  const getPremiumLegacy = useCallback(async () => {
+    if (!selectedOptionsMarket) return 0n;
     setLoading(ASIDE_PANEL_BUTTON_KEY, true);
-    const { amountInToken } = await getPremium(
-      callToken.address,
-      putToken.address,
-      tick,
-      ttl,
-      amountDebounced,
-      isCall,
-      chain.id,
-    );
+    let premium = 0n;
+
+    try {
+      const expiry =
+        BigInt(new Date().getTime().toFixed(0)) + BigInt(selectedTTL);
+
+      const [iv, currentPrice, strike] = await publicClient.multicall({
+        contracts: [
+          {
+            abi: DopexV2OptionMarket,
+            address: selectedOptionsMarket?.address,
+            functionName: 'ttlToVol',
+            args: [BigInt(selectedTTL)],
+          },
+          {
+            abi: DopexV2OptionMarket,
+            address: selectedOptionsMarket?.address,
+            functionName: 'getCurrentPricePerCallAsset',
+            args: [selectedOptionsMarket.primePool],
+          },
+          {
+            abi: DopexV2OptionMarket,
+            address: selectedOptionsMarket?.address,
+            functionName: 'getPricePerCallAssetViaTick',
+            args: [
+              selectedOptionsMarket.primePool,
+              isCall ? tickUpper : tickLower,
+            ],
+          },
+        ],
+      });
+
+      const _iv = iv.result ? iv.result : 0n;
+      const _currentPrice = currentPrice.result ? currentPrice.result : 0n;
+      const _strike = strike.result ? strike.result : 0n;
+
+      premium = await publicClient.readContract({
+        abi: DopexV2OptionMarket,
+        functionName: 'getPremiumAmount',
+        address: selectedOptionsMarket?.address,
+        args: [
+          !isCall,
+          expiry,
+          _strike,
+          _currentPrice,
+          _iv,
+          parseUnits(
+            amountDebounced.toString(),
+            isCall
+              ? selectedOptionsMarket.callToken.decimals
+              : selectedOptionsMarket.putToken.decimals,
+          ),
+        ],
+      });
+    } catch (err) {
+      console.error(err);
+      setLoading(ASIDE_PANEL_BUTTON_KEY, false);
+      return 0n;
+    }
+
     setLoading(ASIDE_PANEL_BUTTON_KEY, false);
-    if (!amountInToken) return;
-
-    const totalPremium = amountInToken;
-
-    setPremium(BigInt(totalPremium));
+    return premium;
   }, [
     setLoading,
-    chain,
-    isTrade,
-    selectedOptionsPool,
-    strikeData,
-    selectedTTL,
+    selectedOptionsMarket,
+    publicClient,
     amountDebounced,
+    isCall,
+    selectedTTL,
+    tickLower,
+    tickUpper,
   ]);
 
-  const updateDepositTransaction = useCallback(async () => {
-    if (isTrade || !chain || !selectedOptionsPool || !addresses) return;
+  const {
+    data: optionsCost,
+    isError: isOptionsCostError,
+    isLoading: isPremiumLoading,
+  } = useQuery<{
+    fees: string;
+    premium: string;
+  }>({
+    queryKey: [
+      'clamm-option-premium',
+      tickLower,
+      tickUpper,
+      selectedOptionsMarket?.address ?? zeroAddress,
+      chain?.id ?? DEFAULT_CHAIN_ID,
+      amountDebounced.toString(),
+      markPrice,
+    ],
+    queryFn: async () => {
+      if (!isTrade || !selectedOptionsMarket || !Boolean(amountDebounced)) {
+        return {
+          fees: '0',
+          premium: '0',
+        };
+      }
+      const url = new URL(`${VARROCK_BASE_API_URL}/clamm/purchase/quote`);
+      url.searchParams.set(
+        'chainId',
+        (chain?.id ?? DEFAULT_CHAIN_ID).toString(),
+      );
+      url.searchParams.set('optionMarket', selectedOptionsMarket.address);
+      url.searchParams.set('type', markPrice < strike ? 'call' : 'put');
+      url.searchParams.set('amount', amountDebounced.toString());
+      url.searchParams.set('ttl', selectedTTL.toString());
+      url.searchParams.set('strike', strike.toString());
+      url.searchParams.set('markPrice', markPrice.toString());
+      return fetch(url).then((res) => {
+        if (!res.ok) {
+          throw Error('Failed to fetch premium');
+        }
+        return res.json();
+      });
+    },
+  });
 
-    const { callToken, putToken, primePool } = selectedOptionsPool;
-    const {
-      isCall,
-      meta: { tickLower, tickUpper },
-    } = strikeData;
+  useEffect(() => {
+    if (isTrade) {
+      setLoading(ASIDE_PANEL_BUTTON_KEY, isPremiumLoading);
+    }
+  }, [isPremiumLoading, setLoading, isTrade]);
+
+  const updateDeposit = useCallback(async () => {
+    if (isTrade || !selectedOptionsMarket) return;
+
+    const { callToken, putToken } = selectedOptionsMarket;
     const depositAmount = parseUnits(
       Number(amountDebounced).toString(),
       isCall ? tokenDecimals.callToken : tokenDecimals.putToken,
     );
 
-    if (depositAmount === 0n) unsetDeposit(strikeIndex);
-
-    const token0isCall =
-      hexToBigInt(callToken.address) < hexToBigInt(putToken.address);
-
-    let liquidityToProvide = 0n;
-
-    if (isCall) {
-      liquidityToProvide = token0isCall
-        ? getLiquidityForAmount0(
-            getSqrtRatioAtTick(BigInt(tickLower)),
-            getSqrtRatioAtTick(BigInt(tickUpper)),
-            depositAmount,
-          )
-        : getLiquidityForAmount1(
-            getSqrtRatioAtTick(BigInt(tickLower)),
-            getSqrtRatioAtTick(BigInt(tickUpper)),
-            depositAmount,
-          );
-    } else {
-      liquidityToProvide = token0isCall
-        ? getLiquidityForAmount1(
-            getSqrtRatioAtTick(BigInt(tickLower)),
-            getSqrtRatioAtTick(BigInt(tickUpper)),
-            depositAmount,
-          )
-        : getLiquidityForAmount0(
-            getSqrtRatioAtTick(BigInt(tickLower)),
-            getSqrtRatioAtTick(BigInt(tickUpper)),
-            depositAmount,
-          );
-    }
-
-    const handlerDepositData = encodeAbiParameters(
-      [
-        { name: 'pool', type: 'address' },
-        { name: 'tickLower', type: 'int24' },
-        { name: 'tickUpper', type: 'int24' },
-        { name: 'liquidity', type: 'uint128' },
-      ],
-      [primePool, tickLower, tickUpper, liquidityToProvide],
-    );
-
-    const mintPositionTxData = encodeFunctionData({
-      abi: DopexV2PositionManager,
-      functionName: 'mintPosition',
-      args: [addresses.handler, handlerDepositData],
-    });
-
-    setDeposit(strikeIndex, {
-      strike: strikeData.strike,
-      amount: depositAmount,
-      tokenSymbol: isCall ? callToken.symbol : putToken.symbol,
+    setDeposit(strikeKey, {
+      strike: strike,
       tokenAddress: isCall ? callToken.address : putToken.address,
-      positionManager: addresses.positionManager,
-      txData: mintPositionTxData,
+      tokenSymbol: isCall ? callToken.symbol : putToken.symbol,
       tokenDecimals: isCall ? tokenDecimals.callToken : tokenDecimals.putToken,
+      amount: depositAmount,
+      tickLower: tickLower,
+      tickUpper: tickUpper,
     });
-
-    setLoading(ASIDE_PANEL_BUTTON_KEY, false);
   }, [
-    unsetDeposit,
-    addresses,
-    setLoading,
+    tickLower,
+    tickUpper,
+    strike,
+    strikeKey,
+    isCall,
     amountDebounced,
     tokenDecimals,
     setDeposit,
-    strikeIndex,
-    chain,
     isTrade,
-    selectedOptionsPool,
-    strikeData,
+    selectedOptionsMarket,
   ]);
 
-  const updatePurchases = useCallback(() => {
-    if (!isTrade || !chain || !selectedOptionsPool || !addresses) return;
+  const updatePurchase = useCallback(async () => {
+    if (!isTrade || !selectedOptionsMarket) return;
+    const { strike } = strikeData;
+    const liquidityData = getCollateralAvailable(strike.toString());
+    const totalLiquidityAvailable = liquidityData.reduce(
+      (prev, { availableTokenLiquidity }) => prev + availableTokenLiquidity,
+      0n,
+    );
 
-    if (Number(amountDebounced) > Number(strikeData.amount1)) {
+    const decimalsInContext = isCall
+      ? selectedOptionsMarket.callToken.decimals
+      : selectedOptionsMarket.putToken.decimals;
+    const strikeBigInt = parseUnits(strike.toString(), decimalsInContext);
+    const liquidtyRequiredInToken = isCall
+      ? parseUnits(amountDebounced, decimalsInContext)
+      : (parseUnits(amountDebounced, decimalsInContext) * strikeBigInt) /
+        parseUnits('1', decimalsInContext);
+
+    if (liquidtyRequiredInToken === 0n) {
+      unsetPurchase(strikeKey);
+      return;
+    }
+
+    if (totalLiquidityAvailable < liquidtyRequiredInToken) {
       setError(
         `Amount exceeds available options (${formatAmount(
-          strikeData.amount1,
-          5,
+          formatUnits(totalLiquidityAvailable, decimalsInContext),
+          4,
         )} Available)`,
       );
+    } else if (isOptionsCostError) {
+      setError('Premium calculation error. Please retry.');
     } else {
       setError('');
     }
 
-    if (Number(amountDebounced) === 0) {
-      unsetPurchase(strikeIndex);
-      return;
+    let _premium = 0n;
+    let _fees = 0n;
+    if (selectedOptionsMarket.deprecated) {
+      _premium = await getPremiumLegacy();
+      _fees = (_premium * 34n) / 100n;
+    } else {
+      if (optionsCost) {
+        _premium = BigInt(optionsCost['premium']);
+        _fees = BigInt(optionsCost['fees']);
+      }
     }
 
-    const { callToken, putToken, optionsPoolAddress, primePool } =
-      selectedOptionsPool;
-    const { isCall, meta } = strikeData;
-    const { tickLower, tickUpper } = meta;
-    const token0IsCallToken =
-      hexToBigInt(callToken.address) < hexToBigInt(putToken.address);
-
-    const strike = parseUnits(
-      getPriceFromTick(
-        isCall ? tickUpper : tickLower,
-        10 ** (token0IsCallToken ? callToken.decimals : putToken.decimals),
-        10 ** (token0IsCallToken ? putToken.decimals : callToken.decimals),
-        !token0IsCallToken,
-      ).toString(),
-      8,
-    );
-
-    const decimalsInContext = isCall ? callToken.decimals : putToken.decimals;
-    const symbolInContext = isCall ? callToken.symbol : putToken.symbol;
-    const tokenAddressInContext = isCall ? callToken.address : putToken.address;
-
-    const optionsAmount = parseUnits(
-      String(amountDebounced),
-      decimalsInContext,
-    );
-
-    const tokenAmountToUse = isCall
-      ? optionsAmount
-      : (optionsAmount * strike) / parseUnits('1', 8);
-
-    const getLiquidityForCall = token0IsCallToken
-      ? getLiquidityForAmount0
-      : getLiquidityForAmount1;
-    const getLiquidityForPut = token0IsCallToken
-      ? getLiquidityForAmount1
-      : getLiquidityForAmount0;
-
-    const liquidityToUse = isCall
-      ? getLiquidityForCall(
-          getSqrtRatioAtTick(BigInt(tickLower)),
-          getSqrtRatioAtTick(BigInt(tickUpper)),
-          tokenAmountToUse,
-        )
-      : getLiquidityForPut(
-          getSqrtRatioAtTick(BigInt(tickLower)),
-          getSqrtRatioAtTick(BigInt(tickUpper)),
-          tokenAmountToUse,
-        );
-
-    const optTicks = [
-      {
-        _handler: addresses.handler,
-        pool: primePool,
-        tickLower: tickLower,
-        tickUpper: tickUpper,
-        liquidityToUse: liquidityToUse,
-      },
-    ];
-
-    const txData = encodeFunctionData({
-      abi: DopexV2OptionMarket,
-      functionName: 'mintOption',
-      args: [
-        {
-          optionTicks: optTicks,
-          tickLower,
-          tickUpper,
-          ttl: BigInt(selectedTTL),
-          isCall,
-          maxCostAllowance: maxUint256,
-        },
-      ],
-    });
-
-    setPurchase(strikeIndex, {
+    setPurchase(strikeKey, {
+      strike,
+      tickLower,
+      tickUpper,
       amount: Number(amountDebounced),
-      strike: strikeData.strike,
-      premium: premium,
-      optionsPool: optionsPoolAddress,
-      txData,
-      tokenSymbol: symbolInContext,
-      tokenAddress: tokenAddressInContext,
+      premium: _premium,
+      fees: _fees,
+      collateralRequired: liquidtyRequiredInToken,
+      tokenAddress: isCall
+        ? selectedOptionsMarket.callToken.address
+        : selectedOptionsMarket.putToken.address,
+      tokenSymbol: isCall
+        ? selectedOptionsMarket.callToken.symbol
+        : selectedOptionsMarket.putToken.symbol,
       tokenDecimals: decimalsInContext,
       error: Boolean(error),
     });
   }, [
+    getPremiumLegacy,
+    optionsCost,
+    isCall,
+    strikeKey,
+    tickLower,
+    tickUpper,
+    strikeData,
+    getCollateralAvailable,
     unsetPurchase,
     error,
-    addresses,
     setPurchase,
-    strikeIndex,
-    chain,
     amountDebounced,
     isTrade,
-    selectedOptionsPool,
-    strikeData,
-    premium,
-    selectedTTL,
+    selectedOptionsMarket,
+    isOptionsCostError,
   ]);
 
   const handleMax = useCallback(() => {
@@ -340,26 +340,43 @@ const SelectedStrikeItem = ({
       ? commonSetInputAmount
       : setInputAmount;
     if (isTrade) {
-      handleInputChange((Number(strikeData.amount1) * 0.993).toString());
+      if (!selectedOptionsMarket) return;
+      const liquidityData = getCollateralAvailable(strike.toString());
+      const totalLiquidityAvailable = liquidityData.reduce(
+        (prev, { availableTokenLiquidity }) => prev + availableTokenLiquidity,
+        0n,
+      );
+
+      const decimalsInContext = isCall
+        ? selectedOptionsMarket.callToken.decimals
+        : selectedOptionsMarket.putToken.decimals;
+
+      const strikeBigInt = parseUnits(strike.toString(), decimalsInContext);
+      const optionsAvailable = isCall
+        ? totalLiquidityAvailable
+        : (totalLiquidityAvailable * parseUnits('1', decimalsInContext)) /
+          strikeBigInt;
+
+      handleInputChange(formatUnits(optionsAvailable, decimalsInContext));
     } else {
-      const balance = strikeData.isCall
-        ? tokenBalances.callToken
-        : tokenBalances.putToken;
+      const balance = isCall ? tokenBalances.callToken : tokenBalances.putToken;
       handleInputChange(
         formatUnits(
           balance,
-          strikeData.isCall ? tokenDecimals.callToken : tokenDecimals.putToken,
+          isCall ? tokenDecimals.callToken : tokenDecimals.putToken,
         ),
       );
     }
     setLoading(ASIDE_PANEL_BUTTON_KEY, false);
   }, [
+    getCollateralAvailable,
+    selectedOptionsMarket,
+    strike,
+    isCall,
     setLoading,
     commonSetInputAmount,
     editAllMode,
     isTrade,
-    strikeData.isCall,
-    strikeData.amount1,
     tokenBalances.callToken,
     tokenBalances.putToken,
     tokenDecimals.callToken,
@@ -367,31 +384,30 @@ const SelectedStrikeItem = ({
   ]);
 
   useEffect(() => {
-    updatePremium();
-  }, [updatePremium]);
+    updateDeposit();
+  }, [updateDeposit]);
 
   useEffect(() => {
-    updateDepositTransaction();
-  }, [updateDepositTransaction]);
-
-  useEffect(() => {
-    updatePurchases();
-  }, [updatePurchases]);
+    updatePurchase();
+  }, [updatePurchase]);
 
   return (
     <div className="w-full flex flex-col">
       <div className="w-full flex items-center h-[30px] space-x-[10px]">
         <XMarkIcon
           onClick={() => {
-            deselectStrike(strikeIndex);
-            unsetDeposit(strikeIndex);
-            unsetPurchase(strikeIndex);
+            deselectStrike(strikeId);
+            if (isTrade) {
+              unsetPurchase(strikeId);
+            } else {
+              unsetDeposit(strikeId);
+            }
           }}
           role="button"
           className="text-stieglitz hover:text-white rounded-full w-[18px] h-[18px] flex-[0.075]"
         />
         <div className="w-[34px] h-[30px] flex items-center justify-center bg-carbon rounded-md flex-[0.125]">
-          {strikeData.isCall ? (
+          {isCall ? (
             <ArrowUpRightIcon
               className={'h-[18px] w-[18px] p-[2px] text-up-only'}
             />
@@ -413,10 +429,9 @@ const SelectedStrikeItem = ({
             Boolean(error) ? 'border-down-bad' : 'border-mineshaft',
           )}
         >
-          <input
+          <NumberInput
             disabled={disabledInput}
-            onChange={(event: any) => {
-              setLoading(ASIDE_PANEL_BUTTON_KEY, true);
+            onValueChange={(event: any) => {
               const handleInputChange = editAllMode
                 ? commonSetInputAmount
                 : setInputAmount;
@@ -424,14 +439,14 @@ const SelectedStrikeItem = ({
               handleInputChange(event.target.value);
             }}
             value={editAllMode ? commonInputAmount : inputAmount}
-            type="number"
-            min="0"
             placeholder={`0.0 ${
               isTrade
-                ? selectedOptionsPool
-                  ? selectedOptionsPool.callToken.symbol
+                ? selectedOptionsMarket
+                  ? selectedOptionsMarket.callToken.symbol
                   : '-'
-                : strikeData.tokenSymbol
+                : isCall
+                  ? selectedOptionsMarket!.callToken.symbol
+                  : selectedOptionsMarket!.putToken.symbol
             }`}
             className={cn(
               'w-full text-[13px] text-left bg-umbra focus:outline-none focus:border-mineshaft rounded-md placeholder-mineshaft',

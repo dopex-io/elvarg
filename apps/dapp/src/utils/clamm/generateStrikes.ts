@@ -1,6 +1,10 @@
 import getPriceFromTick from 'utils/clamm/getPriceFromTick';
 
-export type GenerateStrike = {
+
+
+
+
+export type GeneratedStrike = {
   strike: number;
   tickLower: number;
   tickUpper: number;
@@ -13,6 +17,7 @@ function generateStrikes(
   inversePrice: boolean,
   range: number,
 ) {
+  if (!Boolean(tick)) return [];
   const tickSpacing = 10;
   const rounded = Math.round(tick / 10) * 10;
   const currentPrice = getPriceFromTick(
@@ -32,7 +37,7 @@ function generateStrikes(
   let startTick = rounded + tickRange;
   const endTick = rounded - tickRange;
 
-  const strikes: GenerateStrike[] = [];
+  const strikes: GeneratedStrike[] = [];
   while (startTick != endTick) {
     startTick -= tickSpacing;
 

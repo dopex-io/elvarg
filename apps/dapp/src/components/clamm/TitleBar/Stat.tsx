@@ -23,7 +23,7 @@ const Stat = (props: Props) => {
         </span>
         <span>{formatAmount(stat.value ?? 0, 3, condensed)}</span>
       </h6>
-      <h6 className="text-xs sm:text-sm md:text-md font-medium text-stieglitz">
+      <h6 className="text-[11px] sm:text-sm md:text-md font-medium text-stieglitz">
         {label}
       </h6>
     </div>

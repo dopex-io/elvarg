@@ -7,7 +7,6 @@ type Props = {
   buyPositionsLength: number;
   lpPositionsLength: number;
   setSelectedIndex: (index: number) => void;
-  resetPositions: () => void;
 };
 
 const PositionsTypeSelector = (props: Props) => {
@@ -16,7 +15,6 @@ const PositionsTypeSelector = (props: Props) => {
     lpPositionsLength,
     setSelectedIndex,
     selectedIndex,
-    resetPositions,
   } = props;
   return (
     <div className="w-full flex space-x-[12px] items-center justify-start">
@@ -24,7 +22,6 @@ const PositionsTypeSelector = (props: Props) => {
         role="button"
         onClick={() => {
           setSelectedIndex(0);
-          resetPositions();
         }}
         className="flex space-x-[4px] items-center justify-center"
       >
@@ -49,7 +46,6 @@ const PositionsTypeSelector = (props: Props) => {
         role="button"
         onClick={() => {
           setSelectedIndex(1);
-          resetPositions();
         }}
         className="flex space-x-[4px] items-center justify-center"
       >
@@ -61,16 +57,8 @@ const PositionsTypeSelector = (props: Props) => {
         >
           LP Positions
         </span>
-        <span
-          className={cn(
-            'bg-cod-gray rounded-3xl text-[12px] px-[6px]',
-            selectedIndex === 1 ? 'text-white' : 'text-stieglitz',
-          )}
-        >
-          {lpPositionsLength}
-        </span>
       </div>
-      <div
+      {/* <div
         role="button"
         onClick={() => setSelectedIndex(2)}
         className="flex space-x-[4px] items-center justify-center"
@@ -84,7 +72,7 @@ const PositionsTypeSelector = (props: Props) => {
           History
         </span>
         <span className="bg-cod-gray rounded-3xl text-[12px] px-[6px] text-stieglitz"></span>
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -37,7 +37,14 @@ const SUPPORTED_RESOLUTIONS: Record<string, string> = {
   '60': '1h',
 };
 
-const supportedSymbols = ['ARB/USDC', 'WETH/USDC', 'WBTC/USDC'];
+const supportedSymbols = [
+  'ARB/USDC',
+  'WETH/USDC',
+  'WBTC/USDC',
+  'ARB/USDC.e',
+  'WETH/USDC.e',
+  'WBTC/USDC.e',
+];
 
 export function formatTimeInBarToMs(bar: any) {
   return {

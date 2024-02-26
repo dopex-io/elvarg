@@ -20,7 +20,7 @@ const RangeSelectorSlider = ({
 }: Props) => {
   return (
     <Slider.Root
-      className="relative flex items-center select-none touch-none w-[432px] h-5"
+      className="relative flex items-center select-none touch-none w-full h-5"
       value={value}
       onValueChange={onChange}
       max={max}

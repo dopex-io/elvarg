@@ -16,7 +16,7 @@ const ClaimButton = () => {
   const { chain } = useNetwork();
   const { address: user } = useAccount();
 
-  const { selectedOptionsPool } = useClammStore();
+  const { selectedOptionsMarket } = useClammStore();
 
   const { claim, claiming, claimable, refetch, claimableAmount, tokenSymbol } =
     useMerklRewards({
@@ -25,7 +25,7 @@ const ClaimButton = () => {
       rewardToken: TOKENS[chain?.id || 42161].find(
         (token) => token.symbol.toUpperCase() === 'ARB',
       ),
-      pool: checksumAddress(selectedOptionsPool?.primePool || '0x'),
+      pool: checksumAddress(selectedOptionsMarket?.primePool || '0x'),
     });
 
   return claimableAmount > 0n ? (

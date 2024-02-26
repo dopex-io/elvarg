@@ -1,4 +1,4 @@
-const DopexV2OptionMarket = [
+export const DopexV2OptionMarket = [
   {
     inputs: [
       {
@@ -1474,4 +1474,3 @@ const DopexV2OptionMarket = [
     type: 'function',
   },
 ] as const;
-export default DopexV2OptionMarket;
