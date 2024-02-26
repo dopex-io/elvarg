@@ -14,6 +14,7 @@ import wagmiConfig from 'wagmi-config';
 
 import useClammPositions from 'hooks/clamm/useClammPositions';
 import useClammStore from 'hooks/clamm/useClammStore';
+import useUserBalance from 'hooks/useUserBalance';
 
 import { PositionsTableProps } from 'components/clamm/PositionsTable';
 import ClaimButton from 'components/clamm/StrikesChain/components/ClaimButton';
@@ -33,6 +34,7 @@ const LPPositions = ({ loading }: PositionsTableProps) => {
   const { lpPositions, updateLPPositions } = useClammPositions();
   const { tick, markPrice, selectedOptionsPool } = useClammStore();
   const { chain } = useNetwork();
+  const { checkEthBalance } = useUserBalance();
   const [selectedPositions, setSelectedPositions] = useState<
     Map<number, LPPositionMeta>
   >(new Map());
@@ -91,6 +93,7 @@ const LPPositions = ({ loading }: PositionsTableProps) => {
           data: txData,
           type: 'legacy',
         });
+        checkEthBalance(request);
 
         const hash = await walletClient.sendTransaction(request);
         await publicClient.waitForTransactionReceipt({
@@ -290,7 +293,7 @@ const LPPositions = ({ loading }: PositionsTableProps) => {
 
   return (
     <div className="w-full flex flex-col space-y-[12px] py-[12px]">
-      <div className="px-[12px] flex items-center justify-between">
+      <div className="px-[12px] flex items-center justify-between overflow-x-scroll">
         <PositionsSummary
           totalDeposit={totalDeposit}
           totalEarned={totalEarned}

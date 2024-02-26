@@ -9,8 +9,9 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuIcon from '@mui/icons-material/Menu';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
+import spindl from '@spindl-xyz/attribution';
 import axios from 'axios';
-import { useNetwork } from 'wagmi';
+import { useAccount, useNetwork } from 'wagmi';
 
 import { useBoundStore } from 'store';
 
@@ -139,6 +140,14 @@ export default function AppBar() {
   } = useBoundStore();
 
   const { chain } = useNetwork();
+
+  const { address } = useAccount();
+
+  useEffect(() => {
+    if (address) {
+      spindl.attribute(address);
+    }
+  }, [address]);
 
   useEffect(() => {
     updateAssetBalances();

@@ -9,6 +9,7 @@ import wagmiConfig from 'wagmi-config';
 
 import useClammPositions from 'hooks/clamm/useClammPositions';
 import useClammStore from 'hooks/clamm/useClammStore';
+import useUserBalance from 'hooks/useUserBalance';
 
 import { PositionsTableProps } from 'components/clamm/PositionsTable';
 import TableLayout from 'components/common/TableLayout';
@@ -31,6 +32,7 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
   const { data: walletClient } = useWalletClient({
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
   });
+  const { checkEthBalance } = useUserBalance();
   const [selectedPositions, setSelectedPositions] = useState<
     Map<number, OptionsPositionsResponse>
   >(new Map());
@@ -89,6 +91,7 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
           data: exerciseTxData.txData,
           type: 'legacy',
         });
+        checkEthBalance(request);
         const hash = await walletClient.sendTransaction(request);
         await publicClient.waitForTransactionReceipt({
           hash,
@@ -130,6 +133,7 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
             data: exerciseTxData.txData,
             type: 'legacy',
           });
+          checkEthBalance(request);
           const hash = await walletClient.sendTransaction(request);
           await publicClient.waitForTransactionReceipt({
             hash,
@@ -275,7 +279,7 @@ const BuyPositions = ({ loading }: PositionsTableProps) => {
 
   return (
     <div className="w-full flex flex-col space-y-[12px] py-[12px]">
-      <div className="bg-cod-gray flex px-[12px] items-center justify-between space-x-[12px]">
+      <div className="bg-cod-gray flex px-[12px] items-center justify-between space-x-[12px] overflow-x-scroll">
         <PositionSummary
           callTokenSymbol={selectedOptionsPool?.callToken.symbol ?? '-'}
           totalOptions={optionsSummary.totalOptions}

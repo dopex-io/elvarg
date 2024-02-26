@@ -15,7 +15,9 @@ import {
   Title,
   Trigger,
 } from '@radix-ui/react-dialog';
+import spindl from '@spindl-xyz/attribution';
 import toast from 'react-hot-toast';
+import { useAccount } from 'wagmi';
 
 import useLoadingStates from 'hooks/clamm/useLoadingStates';
 
@@ -35,8 +37,13 @@ type Props = {
 };
 const FilterSettingsButton = ({ filterSettings, setFilterSettings }: Props) => {
   const { isLoading } = useLoadingStates();
+  const { address } = useAccount();
   const [_filterSettings, _setFilterSettings] =
     useState<FilterSettingsType>(filterSettings);
+
+  const onFilterSettingsClick = useCallback(() => {
+    spindl.track('clamm_filter_settings_button', {}, { address });
+  }, [address]);
 
   const handleApply = useCallback(() => {
     setFilterSettings(_filterSettings);
@@ -52,6 +59,7 @@ const FilterSettingsButton = ({ filterSettings, setFilterSettings }: Props) => {
     <Root>
       <Trigger disabled={isLoading('strikes-chain')}>
         <AdjustmentsHorizontalIcon
+          onClick={onFilterSettingsClick}
           role="button"
           height={18}
           width={18}

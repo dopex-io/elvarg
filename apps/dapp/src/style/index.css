@@ -213,6 +213,12 @@ input[type='number'] {
   width: 496px;
 }
 
+.tilting-card-wrapper-default {
+  position: relative;
+  height: 220px;
+  width: 280px;
+}
+
 .tilting-card-body {
   position: absolute;
   inset: 0;
