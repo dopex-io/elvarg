@@ -429,7 +429,7 @@ const ManageDialog = ({ positions, refetch }: Props) => {
             totalWithdrawable === 0n
               ? 0n
               : 10000n - (totalCurrentLiq * 10000n) / totalWithdrawable;
-          const canReserve = utilization !== 0n;
+          const canReserve = utilization !== 0n || totalCurrentLiq > totalWithdrawable;
 
           return (
             <Tooltip.Provider>

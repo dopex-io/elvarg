@@ -569,7 +569,7 @@ const Reserve = ({
               Cancel
             </Button>
             <Button size="xsmall" onClick={handleReserve}>
-              {BigInt(withdraw.withdrawableLiquidity) !== 0n
+              {BigInt(withdraw.withdrawableLiquidity) > 1n
                 ? 'Withdraw'
                 : 'Reserve'}
             </Button>
