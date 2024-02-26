@@ -20,6 +20,7 @@ import {
   useContractReads,
   useContractWrite,
   useNetwork,
+  usePublicClient,
   useWalletClient,
 } from 'wagmi';
 
@@ -45,6 +46,7 @@ import RangeDepositInput from './RangeDepositInput';
 import StrikeInput from './StrikeInput';
 
 const LPRangeSelector = () => {
+  const publicCLient = usePublicClient();
   const { selectedOptionsMarket, tick, markPrice, tokenBalances } =
     useClammStore();
   const { chain } = useNetwork();
@@ -143,7 +145,7 @@ const LPRangeSelector = () => {
       token0Precision,
       token1Precision,
       !token0IsCallToken,
-      50,
+      30,
     ).reverse();
   }, [tick, selectedOptionsMarket]);
 
@@ -365,33 +367,38 @@ const LPRangeSelector = () => {
       }
     }
 
+    setLoading(true);
     if (_depositsTx.length > 0) {
-      setLoading(true);
-      await walletClient
-        .writeContract({
+      try {
+        const { request, result } = await publicCLient.simulateContract({
+          account: walletClient.account,
           abi: DopexV2PositionManager,
           address: positionManagerAddress,
           functionName: 'multicall',
           args: [_depositsTx],
-        })
-        .then((data) => {
-          updateStrikes();
-          toast.success('Sucess');
-          console.log('Transaction Hash: ' + data);
-        })
-        .catch((err: any) => {
-          if (err instanceof BaseError) {
-            toast.error(err['shortMessage']);
-          } else {
-            toast.error(
-              'Failed to deposit. Check console for more detail on error',
-            );
-          }
-          console.error(err);
-        })
-        .finally(() => setLoading(false));
+        });
+
+        const hash = await walletClient.writeContract(request);
+        const { transactionHash } =
+          await publicCLient.waitForTransactionReceipt({ hash });
+
+        updateStrikes();
+        toast.success('Transaction Sent!');
+        console.log('Deposit transaction hash: ', transactionHash);
+      } catch (err) {
+        if (err instanceof BaseError) {
+          toast.error(err['shortMessage']);
+        } else {
+          toast.error(
+            'Failed to deposit. Check console for more detail on error',
+          );
+        }
+        console.error(err);
+      }
     }
+    setLoading(false);
   }, [
+    publicCLient,
     chain,
     markPrice,
     positionManagerAddress,
