@@ -585,19 +585,19 @@ const LPRangeSelector = () => {
           <StrikeInput
             inputAmount={lowerLimitInputStrike}
             onSubmitCallback={(e) => {
-              if (e.key === 'Enter') {
-                const strike = checkLowerLimitStrike();
-                const found = currentStrikes.find((s) => s.strike === strike);
-                if (found) {
-                  const index = currentStrikes.indexOf(found);
-                  setSelectedStrikes([index, selection[1]]);
-                  setLowerLimitInputStrike(found.strike.toFixed(4));
-                }
-              }
+              // if (e.key === 'Enter') {
+              //   const strike = checkLowerLimitStrike();
+              //   const found = currentStrikes.find((s) => s.strike === strike);
+              //   if (found) {
+              //     const index = currentStrikes.indexOf(found);
+              //     setSelectedStrikes([index, selection[1]]);
+              //     setLowerLimitInputStrike(found.strike.toFixed(4));
+              //   }
+              // }
             }}
             placeHolder="0"
             onChangeInput={(e) => {
-              setLowerLimitInputStrike(e.target.value);
+              // setLowerLimitInputStrike(e.target.value);
             }}
             label="Lower Strike"
           />
@@ -606,19 +606,19 @@ const LPRangeSelector = () => {
           <StrikeInput
             inputAmount={upperLimitInputStrike}
             onSubmitCallback={(e) => {
-              if (e.key === 'Enter') {
-                const strike = checkUpperLimitStrike();
-                const found = currentStrikes.find((s) => s.strike === strike);
-                if (found) {
-                  const index = currentStrikes.indexOf(found);
-                  setSelectedStrikes([selection[0], index]);
-                  setUpperLimitInputStrike(found.strike.toFixed(4));
-                }
-              }
+              // if (e.key === 'Enter') {
+              //   const strike = checkUpperLimitStrike();
+              //   const found = currentStrikes.find((s) => s.strike === strike);
+              //   if (found) {
+              //     const index = currentStrikes.indexOf(found);
+              //     setSelectedStrikes([selection[0], index]);
+              //     setUpperLimitInputStrike(found.strike.toFixed(4));
+              //   }
+              // }
             }}
             placeHolder="0"
             onChangeInput={(e) => {
-              setUpperLimitInputStrike(e.target.value);
+              // setUpperLimitInputStrike(e.target.value);
             }}
             label="Upper Strike"
           />

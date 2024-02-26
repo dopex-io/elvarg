@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { formatUnits, zeroAddress } from 'viem';
 
-
-
 import { erc20ABI, useAccount, useContractReads } from 'wagmi';
-
-
 
 import useClammStore from 'hooks/clamm/useClammStore';
 
@@ -68,12 +64,7 @@ const AsidePanel = () => {
 
   return (
     <div className="sticky top-[80px] flex flex-col items-center justify-center w-full space-y-[12px]">
-      <div
-        className={cn(
-          'w-full bg-cod-gray p-[12px] rounded-lg space-y-[4px]',
-          selectedOptionsMarket?.deprecated && 'blur-sm',
-        )}
-      >
+      <div className={'w-full bg-cod-gray p-[12px] rounded-lg space-y-[4px]'}>
         <TradeSideSelector />
         {!isTrade && (
           <DepositTypeSelector
@@ -82,7 +73,9 @@ const AsidePanel = () => {
           />
         )}
         {isTrade && <TTLSelector />}
-        {!isTrade && strikesSelectionMode === 1 && <LPRangeSelector />}
+        {!isTrade &&
+          strikesSelectionMode === 1 &&
+          !selectedOptionsMarket?.deprecated && <LPRangeSelector />}
         {(isTrade || singleSelectDepositTye) && <StrikesSection />}
         <CostSummary />
         {isTrade && <AutoExercisers />}

@@ -54,11 +54,7 @@ const StrikesChain = () => {
       );
       url.searchParams.set('callsReach', '100');
       url.searchParams.set('putsReach', '100');
-      if (!selectedOptionsMarket?.deprecated) {
-        return fetch(url).then((res) => res.json());
-      } else {
-        return [];
-      }
+      return await fetch(url).then((res) => res.json());
     },
   });
 
@@ -89,7 +85,7 @@ const StrikesChain = () => {
 
   return (
     <div className="w-full bg-cod-gray flex flex-col rounded-md pb-[12px]">
-      {selectedOptionsMarket?.deprecated ? (
+      {selectedOptionsMarket?.deprecated && (
         <div className="w-full bg-cod-gray h-[100px] flex flex-col items-center justify-center text-[13px]">
           <span className="flex items-center justify-center space-x-[6px]">
             <ExclamationTriangleIcon
@@ -101,11 +97,11 @@ const StrikesChain = () => {
           </span>
           <span className="text-stieglitz max-w-[500px] text-center">
             We are migrating the market&apos;s pair{' '}
-            {selectedOptionsMarket.ticker} to{' '}
-            {DEPRECATED_TO_NEW[selectedOptionsMarket.ticker]}. Please migrate
+            {selectedOptionsMarket?.ticker} to{' '}
+            {DEPRECATED_TO_NEW[selectedOptionsMarket?.ticker!]}. Please migrate
             any liquidity to the new pair&apos;s market{' '}
             <a
-              href={`${DEPRECATED_TO_NEW[selectedOptionsMarket.ticker].replace('/', '-')}`}
+              href={`${(DEPRECATED_TO_NEW[selectedOptionsMarket?.ticker!] ?? '').replace('/', '-')}`}
               className="text-wave-blue underline"
             >
               click here
@@ -113,18 +109,15 @@ const StrikesChain = () => {
             to head over to the new market
           </span>
         </div>
-      ) : (
-        <>
-          <div className="flex items-center justify-between p-[12px]">
-            <FilterPanel />
-            <FilterSettingsButton
-              filterSettings={filterSettings}
-              setFilterSettings={setFilterSettings}
-            />
-          </div>
-          <StrikesTable filterSettings={filterSettings} />
-        </>
       )}
+      <div className="flex items-center justify-between p-[12px]">
+        <FilterPanel />
+        <FilterSettingsButton
+          filterSettings={filterSettings}
+          setFilterSettings={setFilterSettings}
+        />
+      </div>
+      <StrikesTable filterSettings={filterSettings} />
     </div>
   );
 };

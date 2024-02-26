@@ -11,6 +11,7 @@ import {
 } from 'viem';
 
 import { Button } from '@dopex-io/ui';
+import { DopexV2OptionMarket } from 'abis/clamm/DopexV2OptionMarket';
 import DopexV2OptionMarketV2 from 'abis/clamm/DopexV2OptionMarketV2';
 import DopexV2PositionManager from 'abis/clamm/DopexV2PositionManager';
 import toast, { LoaderIcon } from 'react-hot-toast';
@@ -220,16 +221,26 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
             functionName: 'mintPosition',
             args: [
               handlerAddress,
-              encodeAbiParameters(
-                [
-                  { type: 'address' },
-                  { type: 'address' },
-                  { type: 'int24' },
-                  { type: 'int24' },
-                  { type: 'uint128' },
-                ],
-                [pool, hook, tickLower, tickUpper, liquidity],
-              ),
+              selectedOptionsMarket.deprecated
+                ? encodeAbiParameters(
+                    [
+                      { type: 'address' },
+                      { type: 'int24' },
+                      { type: 'int24' },
+                      { type: 'uint128' },
+                    ],
+                    [pool, tickLower, tickUpper, liquidity],
+                  )
+                : encodeAbiParameters(
+                    [
+                      { type: 'address' },
+                      { type: 'address' },
+                      { type: 'int24' },
+                      { type: 'int24' },
+                      { type: 'uint128' },
+                    ],
+                    [pool, hook, tickLower, tickUpper, liquidity],
+                  ),
             ],
           }),
         );
@@ -374,21 +385,33 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
         } else {
           const { hook } = liquidityData[indexOfHandlerWithEnough];
 
-          opTicks.push({
-            _handler: getAddress(
-              liquidityData[indexOfHandlerWithEnough].handler,
-            ),
-            pool: getAddress(liquidityData[indexOfHandlerWithEnough].pool),
-            hook: getAddress(hook),
-            tickLower,
-            tickUpper,
-            liquidityToUse: liquidityRequired,
-          });
+          selectedOptionsMarket.deprecated
+            ? opTicks.push({
+                _handler: getAddress(
+                  liquidityData[indexOfHandlerWithEnough].handler,
+                ),
+                pool: getAddress(liquidityData[indexOfHandlerWithEnough].pool),
+                tickLower,
+                tickUpper,
+                liquidityToUse: liquidityRequired,
+              })
+            : opTicks.push({
+                _handler: getAddress(
+                  liquidityData[indexOfHandlerWithEnough].handler,
+                ),
+                pool: getAddress(liquidityData[indexOfHandlerWithEnough].pool),
+                hook: getAddress(hook),
+                tickLower,
+                tickUpper,
+                liquidityToUse: liquidityRequired,
+              });
         }
 
         purchasesTx.push(
           encodeFunctionData({
-            abi: DopexV2OptionMarketV2,
+            abi: selectedOptionsMarket.deprecated
+              ? DopexV2OptionMarket
+              : DopexV2OptionMarketV2,
             functionName: 'mintOption',
             args: [
               {
@@ -566,11 +589,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
           buttonProps.disabled ||
           allowancesLoading ||
           approveCallTokenLoading ||
-          approvePutTokenLoading ||
-          selectedOptionsMarket?.deprecated ||
-          isTrade
-            ? purchases.size === 0
-            : deposits.size === 0
+          approvePutTokenLoading
         }
       >
         {isLoading(ASIDE_PANEL_BUTTON_KEY) ? (
