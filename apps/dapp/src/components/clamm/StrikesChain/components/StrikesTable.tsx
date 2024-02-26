@@ -128,8 +128,8 @@ const columns2 = [
         }
       });
 
-      return Array.from(compositionMapping).map(([key, totaLiq], index) => (
-        <div key={key} className="flex items-center w-full text-[12px]">
+      Array.from(compositionMapping).map(([key, totaLiq], index) => (
+        <div key={key} className="flex items-center w-[50px] text-[12px]">
           <div className="flex flex-col">
             <img
               src={`/images/exchanges/${key}.svg`}
@@ -143,6 +143,26 @@ const columns2 = [
           </div>
         </div>
       ));
+
+      return (
+        <div className='flex items-center justify-start'>
+          {Array.from(compositionMapping).map(([key, totaLiq], index) => (
+            <div key={key} className="flex items-center w-[50px] text-[12px]">
+              <div className="flex flex-col">
+                <img
+                  src={`/images/exchanges/${key}.svg`}
+                  alt={key}
+                  className="w-[24px] h-[24px]"
+                />
+                <span className="flex space-x-[4px] text-white">
+                  <span>{formatAmount((100 * totaLiq) / total, 0)}</span>
+                  <span className="text-stieglitz">%</span>
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
     },
   }),
   helper.accessor('manage', {
