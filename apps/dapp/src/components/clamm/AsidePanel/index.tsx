@@ -100,14 +100,14 @@ const AsidePanel = () => {
             <span className="text-jaffa">Data Update Delay</span>
           </h6>
         </span>
-        <span className="text-jaffa text-[12px]">
+        <span className="text-jaffa text-xs">
           There is a delay in updating of data, we are fully aware of this issue
           and are actively working on a fix. Thank you for your patience.
         </span>
       </div>
       <div className="flex flex-col bg-umbra rounded-md space-y-2 p-3">
         <span className="flex w-full justify-between">
-          <h6 className="flex items-center justify-center space-x-[4px] text-xs">
+          <h6 className="flex items-center justify-center space-x-1 text-xs">
             <img src="/images/tokens/dpx.svg" alt="dpx" className="h-[18px]" />
             <span>NEW: CLAMM Upgrade & Deprecation Notice</span>
           </h6>
