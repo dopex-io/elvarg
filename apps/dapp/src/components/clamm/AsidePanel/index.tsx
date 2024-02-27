@@ -119,6 +119,7 @@ const AsidePanel = () => {
           <a
             className="text-wave-blue font-medium underline"
             href="https://blog.dopex.io/articles/clamm-upgrade-realising-strykes-vision"
+            target='_blank'
           >
             Read more
           </a>
