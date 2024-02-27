@@ -73,12 +73,12 @@ const useStrikesChainStore = create<StrikesChainStore>((set, get) => ({
     const _strikesChain = new Map<string, StrikesChainItem[]>();
     data.forEach((each) => {
       const strike = Object.keys(each)[0];
-      const filetered = each[strike].filter(({ handler }) => {
+      const filtered = each[strike].filter(({ handler }) => {
         return handler.name === 'uniswap';
       });
 
-      if (filetered.length > 0) {
-        _strikesChain.set(strike, filetered);
+      if (filtered.length > 0) {
+        _strikesChain.set(strike, filtered);
       }
     });
     set((prev) => ({
