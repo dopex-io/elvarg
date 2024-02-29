@@ -1,5 +1,7 @@
 import React, { ChangeEvent, KeyboardEvent } from 'react';
 
+import NumberInput from 'components/common/NumberInput/NumberInput';
+
 import { cn } from 'utils/general';
 
 type Props = {
@@ -27,12 +29,10 @@ const StrikeInput = ({
       >
         {label}
       </label>
-      <input
+      <NumberInput
         onKeyDown={onSubmitCallback}
-        onChange={onChangeInput}
+        onValueChange={onChangeInput}
         value={inputAmount}
-        type="number"
-        min="0"
         placeholder={placeHolder}
         className={cn(
           'w-full text-[12px] text-right bg-umbra focus:outline-none focus:border-mineshaft rounded-md placeholder-stieglitz font-mono',

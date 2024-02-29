@@ -89,24 +89,24 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
       ? {
           call: Array.from(purchases).reduce(
             (prev, [_, { premium, fees, strike }]) =>
-              strike > markPrice ? premium + fees : 0n + prev,
+              (strike > markPrice ? premium + fees : 0n) + prev,
             0n,
           ),
           put: Array.from(purchases).reduce(
             (prev, [_, { premium, fees, strike }]) =>
-              strike < markPrice ? premium + fees : 0n + prev,
+              (strike < markPrice ? premium + fees : 0n) + prev,
             0n,
           ),
         }
       : {
           call: Array.from(deposits).reduce(
             (prev, [_, { strike, amount }]) =>
-              strike > markPrice ? amount : 0n + prev,
+              (strike > markPrice ? amount : 0n) + prev,
             0n,
           ),
           put: Array.from(deposits).reduce(
             (prev, [_, { strike, amount }]) =>
-              strike < markPrice ? amount : 0n + prev,
+              (strike < markPrice ? amount : 0n) + prev,
             0n,
           ),
         };

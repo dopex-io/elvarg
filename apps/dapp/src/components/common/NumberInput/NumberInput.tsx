@@ -1,4 +1,4 @@
-import { ChangeEvent } from 'react';
+import { ChangeEvent, KeyboardEvent } from 'react';
 
 function escapeSpecialRegExpChars(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -14,7 +14,8 @@ type Props = {
   onBlur?: () => void;
   className?: string;
   placeholder?: string;
-  disabled: boolean;
+  disabled?: boolean;
+  onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => void;
 };
 
 function NumberInput({
@@ -26,6 +27,7 @@ function NumberInput({
   onBlur,
   className,
   placeholder,
+  onKeyDown,
 }: Props) {
   function onChange(e: ChangeEvent<HTMLInputElement>) {
     if (!onValueChange) return;
@@ -45,6 +47,7 @@ function NumberInput({
   }
   return (
     <input
+      onKeyDown={onKeyDown}
       disabled={disabled}
       type="text"
       inputMode="decimal"
