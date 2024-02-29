@@ -15,7 +15,7 @@ const Home = () => {
     queryKey: ['tvl_eth_market'],
     queryFn: () => {
       return axios.get(
-        'https://varrock.dopex.io/clamm/stats/tvl?optionMarket=0x764fA09d0B3de61EeD242099BD9352C1C61D3d27',
+        'https://varrock.dopex.io/clamm/stats/tvl?chainId=42161&optionMarket=0x501B03BdB431154b8Df17BF1c00756E3a8F21744',
       );
     },
   });
@@ -25,7 +25,7 @@ const Home = () => {
   }
 
   // Calc for ETH since its allocated the highest amount of rewards
-  const clammAPY = (3600 / query.data?.data.tvl) * 100 * 365;
+  const clammAPY = (2800 / (query.data?.data || 1)) * 100 * 365;
 
   return (
     <div>
