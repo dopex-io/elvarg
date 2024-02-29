@@ -97,17 +97,6 @@ const LpAndBondStepper = ({
           .then(() => deposit().then(() => setStep(1)))
           .catch((e) => console.error(e)),
     },
-    {
-      label: 'Bond',
-      description: 'Approve and bond your rDPX + WETH.',
-      data: `WETH Required: ${formatBigint(wethRequired, DECIMALS_TOKEN)} WETH`,
-      disabled: loading,
-      buttonLabel: 'Bond',
-      action: () =>
-        approveWethForBond()
-          .then(() => bond().then(() => setStep(2)))
-          .catch((e) => console.error(e)),
-    },
   ];
 
   useEffect(() => {

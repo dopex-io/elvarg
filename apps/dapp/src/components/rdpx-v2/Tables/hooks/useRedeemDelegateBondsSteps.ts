@@ -25,21 +25,6 @@ const useRedeemDelegateBondsSteps = (props: Props) => {
         buttonLabel: 'Claim',
         action: () => hooks.multiredeem().catch((e) => setErrorMsg(String(e))),
       },
-      {
-        label: 'Approve rtETH',
-        description: 'Approval of rtETH is required for staking.',
-        disabled: false,
-        buttonLabel: 'Approve',
-        action: () =>
-          hooks.approveStaking().catch((e) => setErrorMsg(String(e))),
-      },
-      {
-        label: 'Stake',
-        description: 'Stake your rtETH to accrue rewards.',
-        disabled: false,
-        buttonLabel: 'Stake',
-        action: () => hooks.stake().catch((e) => setErrorMsg(String(e))),
-      },
     ],
     [hooks],
   );
