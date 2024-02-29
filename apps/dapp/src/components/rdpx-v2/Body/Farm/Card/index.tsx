@@ -155,7 +155,7 @@ const Card = (props: Props) => {
         )}
       </div>
       <div className="flex flex-col h-full justify-end">
-        <ContractLink url={url} text="Deposit on Curve.fi to get LP tokens" />
+        <ContractLink url={url} text="Curve Pool" />
       </div>
     </div>
   );

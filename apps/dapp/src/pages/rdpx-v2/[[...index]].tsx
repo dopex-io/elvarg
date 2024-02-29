@@ -28,7 +28,7 @@ const Main = () => {
     switch (rdpxPageState) {
       case 'bond':
         return {
-          asidePanel: <BondPanel />,
+          asidePanel: null,
           body: <BondsBody />,
           blockscannerContent: quickLinks.arbiscanV2Core,
         };

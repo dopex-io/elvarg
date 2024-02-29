@@ -11,14 +11,14 @@ const Farm = () => {
         subtitle="LP Farm"
         imgSrc={['/images/tokens/rteth.svg', '/images/tokens/weth.svg']}
         disabled={false}
-        url="https://curve.fi/#/arbitrum/pools/factory-v2-147/deposit"
+        url="https://curve.fi/#/arbitrum/pools/factory-v2-147/withdraw"
       />
       <CfCard
         title="rDPX"
         subtitle="Time-locked"
         imgSrc="/images/tokens/rdpx.svg"
         disabled={false}
-        url={`https://arbiscan.io/address/${addresses.communalFarm}`} // todo: replace address
+        url={`https://arbiscan.io/address/${addresses.communalFarm}`}
       />
     </div>
   );

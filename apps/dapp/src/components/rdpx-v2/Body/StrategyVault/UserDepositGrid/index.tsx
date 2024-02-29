@@ -150,14 +150,6 @@ const UserDepositGrid = () => {
       <GridButtons
         buttonStates={[
           {
-            label: 'Stake',
-            handler: () => stake(),
-            disabled:
-              userPerpetualVaultData.totalUserShares -
-                userPerpetualVaultData.userStakedLp ===
-              0n,
-          },
-          {
             label: 'Claim',
             handler: () => claim(),
             disabled: !earned,
