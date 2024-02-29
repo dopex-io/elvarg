@@ -3,8 +3,8 @@ import Link from 'next/link';
 
 const Banner = () => {
   return (
-    <div className="flex bg-primary p-3 rounded-lg w-full justify-between mb-6">
-      <span className="flex flex-col space-y-2 text-white w-3/4">
+    <div className="flex bg-primary p-3 rounded-lg justify-between mb-6 max-w-[720px]">
+      <span className="flex flex-col space-y-1 text-white w-5/6">
         <p className="text-lg">rDPX V2 will be deprecated soon.</p>
         <p className="text-sm text-slate-300">
           {`Please redeem, withdraw and unstake your assets from the Bond, Perpetual Put Vault, Staking & Farm pages. Don't forget to claim any pending rewards.`}
