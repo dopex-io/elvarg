@@ -165,7 +165,7 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
       ...perpPoolConfig,
       functionName: 'calculatePremium',
       args: [strike, parseUnits('1', DECIMALS_TOKEN), ttl, rdpxPriceInEth],
-    });
+    }).catch(() => 0n);
 
     setVaultState((prev) => ({
       ...prev,
@@ -286,22 +286,6 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
         (tokenShare * (userLpShares + userStakedLp)) /
         parseUnits('1', DECIMALS_TOKEN),
     ) as [bigint, bigint];
-
-    // todo: prune redeemRequests after claim(); requires claim event
-    // const data = await queryClient
-    //   .fetchQuery({
-    //     queryKey: ['getRedeemRequests'],
-    //     queryFn: () =>
-    //       request(
-    //         DOPEX_RDPX_V2_SUBGRAPH_API_URL,
-    //         getUserRedeemRequestsDocument,
-    //         {
-    //           sender: user,
-    //         },
-    //       ),
-    //   })
-    //   .then((res) => res.redeemRequests.sort((a, b) => a.epoch - b.epoch))
-    //   .catch(() => []);
 
     const _userSharesPromises = [];
     const allEpochs = range(Number(vaultState.currentEpoch + 1n));
