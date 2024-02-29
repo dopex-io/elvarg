@@ -591,10 +591,13 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
           buttonProps.disabled ||
           allowancesLoading ||
           approveCallTokenLoading ||
-          approvePutTokenLoading
+          approvePutTokenLoading ||
+          selectedOptionsMarket?.deprecated
         }
       >
-        {isLoading(ASIDE_PANEL_BUTTON_KEY) ? (
+        {selectedOptionsMarket?.deprecated ? (
+          'Option Market Deprecated'
+        ) : isLoading(ASIDE_PANEL_BUTTON_KEY) ? (
           <LoaderIcon className="w-[18px] h-[18px] bg-primary" />
         ) : (
           buttonProps?.text
