@@ -233,7 +233,7 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
   );
 
   const updateUserData = useCallback(async () => {
-    if (user === '0x' || vaultState.expiry === 0n) return;
+    if (user === '0x') return;
 
     const [
       { result: userSharesLocked = 0n },
@@ -279,6 +279,7 @@ const usePerpPoolData = ({ user = '0x' }: Props) => {
         vaultState.expiry - BigInt(Math.ceil(new Date().getTime() / 1000));
       // this assumes bootstrap is called at the moment of expiry
     }
+    claimableTime = claimableTime < 0n ? -claimableTime : claimableTime;
 
     const shareComposition = vaultState.oneLpShare.map(
       (tokenShare) =>
