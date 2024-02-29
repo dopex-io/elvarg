@@ -273,8 +273,7 @@ const LPRangeSelector = () => {
       !chain ||
       !allowances ||
       !selectedOptionsMarket ||
-      callDepositAmountBigInt === 0n ||
-      putDepositAmountBigInt === 0n ||
+      (callDepositAmountBigInt === 0n && putDepositAmountBigInt === 0n) ||
       !walletClient
     ) {
       return [];
@@ -504,6 +503,20 @@ const LPRangeSelector = () => {
     putDepositAmountBigInt,
     tokenBalances.putToken,
     tokenBalances.putTokenSymbol,
+  ]);
+
+  useEffect(() => {
+    if (lowerLimitInputStrike === '' && Number(lowerLimitStrike) !== 0) {
+      setLowerLimitInputStrike(lowerLimitStrike.toFixed(5));
+    }
+    if (upperLimitInputStrike === '' && Number(lowerLimitStrike) !== 0) {
+      setUpperLimitInputStrike(upperLimitStrike.toFixed(5));
+    }
+  }, [
+    lowerLimitStrike,
+    lowerLimitInputStrike,
+    upperLimitInputStrike,
+    upperLimitStrike,
   ]);
 
   return (

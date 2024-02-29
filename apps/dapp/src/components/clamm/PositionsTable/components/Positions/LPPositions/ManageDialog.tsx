@@ -280,7 +280,7 @@ const ManageDialog = ({ positions, refetch }: Props) => {
                         withdrawableLiquidity,
                       },
                     }) => ({
-                      max: true,
+                      max: false,
                       tickLower,
                       tickUpper,
                       tokenId: BigInt(tokenId),
@@ -331,7 +331,7 @@ const ManageDialog = ({ positions, refetch }: Props) => {
                   if (checked) {
                     const withdrawTx = await createWithdrawTx([
                       {
-                        max: true,
+                        max: false,
                         tickLower: rowData['tickLower'],
                         tickUpper: rowData['tickUpper'],
                         tokenId: BigInt(rowData['tokenId']),

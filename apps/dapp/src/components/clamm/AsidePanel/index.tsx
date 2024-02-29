@@ -6,6 +6,8 @@ import { erc20ABI, useAccount, useContractReads } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 
+import { CtaBanner } from 'components/UI';
+
 import { cn } from 'utils/general';
 
 import AutoExercisers from './components/AutoExercisers';
@@ -98,10 +100,30 @@ const AsidePanel = () => {
             <span className="text-jaffa">Data Update Delay</span>
           </h6>
         </span>
-        <span className='text-jaffa text-[12px]'>
-          There is a delay in updating of data, we are fully aware of this issue and
-          are actively working on a fix. Thank you for your patience.
+        <span className="text-jaffa text-xs">
+          There is a delay in updating of data, we are fully aware of this issue
+          and are actively working on a fix. Thank you for your patience.
         </span>
+      </div>
+      <div className="flex flex-col bg-umbra rounded-md space-y-2 p-3">
+        <span className="flex w-full justify-between">
+          <h6 className="flex items-center justify-center space-x-1 text-xs">
+            <img src="/images/tokens/dpx.svg" alt="dpx" className="h-[18px]" />
+            <span>NEW: CLAMM Upgrade & Deprecation Notice</span>
+          </h6>
+        </span>
+        <p className="text-stieglitz text-xs">
+          We are migrating from USDC.e to USDC pools for all option markets. If
+          you have any liquidity in option markets tagged as legacy please
+          migrate to the latest option markets using the latest pools.{' '}
+          <a
+            className="text-wave-blue font-medium underline"
+            href="https://blog.dopex.io/articles/clamm-upgrade-realising-strykes-vision"
+            target='_blank'
+          >
+            Read more
+          </a>
+        </p>
       </div>
       <div className="flex flex-col bg-umbra rounded-md space-y-2 p-3">
         <span className="flex w-full justify-between">
