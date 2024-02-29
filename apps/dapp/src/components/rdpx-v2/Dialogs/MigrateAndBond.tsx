@@ -177,16 +177,6 @@ const MigrateAndBond = ({ isOpen, handleClose, user, position }: Props) => {
           .then(() => wrap().then(() => setStep(2)))
           .catch(() => setStep(1)),
     },
-    {
-      label: 'Bond',
-      description: 'Approve and bond your rDPX + WETH.',
-      disabled: loading,
-      buttonLabel: 'Bond',
-      action: () =>
-        bond()
-          .then(() => setStep(3))
-          .catch(() => setStep(2)),
-    },
   ];
 
   return (
