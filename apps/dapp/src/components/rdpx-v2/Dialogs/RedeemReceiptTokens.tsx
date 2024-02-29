@@ -95,7 +95,7 @@ const RedeemReceiptTokens = (props: Props) => {
       return {
         label: 'Redeem',
         disabled: false,
-        title: 'A 2% fee is charged for redeeming your rDPX & WETH!',
+        title: 'A 0.01% fee is charged for redeeming your rDPX & WETH!',
       };
   }, [amount, balance]);
 

@@ -191,7 +191,7 @@ const TitleBar = () => {
                   ) * (data?.oraclePrice || 0),
                 ).toFixed(3)}`}
               />
-              <Stat name="Redemption Fee" value="2%" />
+              <Stat name="Redemption Fee" value="0.01%" />
             </div>
           ),
         };
