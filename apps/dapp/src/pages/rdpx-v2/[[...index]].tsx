@@ -15,6 +15,7 @@ import StakingBody from 'components/rdpx-v2/Body/StakingBody';
 import StrategyVaultBody from 'components/rdpx-v2/Body/StrategyVault';
 import QuickLink from 'components/rdpx-v2/QuickLink';
 import TitleBar from 'components/rdpx-v2/TitleBar';
+import Banner from 'components/rdpx-v2/TitleBar/Banner';
 
 import { quickLinks } from 'constants/rdpx';
 import seo from 'constants/seo';
@@ -94,6 +95,7 @@ const Main = () => {
         }}
       />
       <PageLayout>
+        <Banner />
         <div className="mb-6 lg:max-w-xl md:max-w-md sm:max-w-sm max-w-md mx-auto lg:px-0">
           <TitleBar />
         </div>
