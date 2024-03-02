@@ -8,6 +8,8 @@ import { cn, formatAmount } from 'utils/general';
 
 import { EXPIRIES_BY_INDEX, PROTOCOL_FEES_MULTIPLIER } from 'constants/clamm';
 
+import ImpliedVolatility from './components/ImpliedVolatility';
+
 const CostSummary = () => {
   const { isTrade, markPrice, selectedOptionsMarket, selectedTTL } =
     useClammStore();
@@ -131,6 +133,14 @@ const CostSummary = () => {
           </div>
         ))}
       </div>
+      {isTrade && (
+        <div className="flex justify-between w-full">
+          <span className="text-stieglitz text-[13px]">IV</span>
+          <span className="text-[13px] flex items-center space-x-[2px]">
+            <ImpliedVolatility />
+          </span>
+        </div>
+      )}
       <div className="w-full flex flex-col space-y-[4px]">
         <div
           className={cn(
