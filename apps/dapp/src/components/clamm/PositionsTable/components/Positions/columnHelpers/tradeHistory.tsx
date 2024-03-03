@@ -1,3 +1,5 @@
+import { Address, Hex } from 'viem';
+
 import {
   ArrowDownRightIcon,
   ArrowTopRightOnSquareIcon,
@@ -8,6 +10,44 @@ import { createColumnHelper } from '@tanstack/react-table';
 import { format } from 'date-fns';
 
 import { cn, formatAmount } from 'utils/general';
+
+export type PurchaseHistoryItem = {
+  premium: string;
+  size: string;
+  ttl: number;
+  timestamp: number;
+  strike: number;
+  type: string;
+  txHash: Hex;
+  token: {
+    address: Address;
+    decimals: number;
+    symbol: string;
+  };
+};
+
+export type ExerciseHistoryItem = {
+  strike: number;
+  exercisePrice: number;
+  premium: string;
+  timestamp: number;
+  priceAtAction: number;
+  ttl: string;
+  profit: string;
+  size: string;
+  sizeToken: {
+    address: Address;
+    decimals: number;
+    symbol: string;
+  };
+  profitToken: {
+    address: Address;
+    decimals: number;
+    symbol: string;
+  };
+  type: string;
+  txHash: Hex;
+};
 
 export type HistoryPositionsItem = {
   strike: {

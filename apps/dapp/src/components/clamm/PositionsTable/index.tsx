@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import LPPositions from 'components/clamm/PositionsTable/components/Positions/LPPositions';
 
 import BuyPositions from './components/Positions/BuyPositions';
-// import HistoryPositions from './components/Positions/components/HistoryPositions';
+import HistoryPositions from './components/Positions/components/HistoryPositions';
 import PositionsTypeSelector from './components/Positions/components/PositionsTypeSelector';
 
 const PositionsTable = () => {
@@ -33,7 +33,7 @@ const PositionsTable = () => {
         {positionsTypeIndex === 1 && (
           <LPPositions setLpPositionsLength={setLpPositionsLength} />
         )}
-        {/* {positionsTypeIndex === 2 && <HistoryPositions />} */}
+        {positionsTypeIndex === 2 && <HistoryPositions />}
       </div>
     </div>
   );

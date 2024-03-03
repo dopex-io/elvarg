@@ -1,11 +1,11 @@
 import React, { useCallback, useMemo } from 'react';
-import { Address, formatUnits, Hex, parseUnits, zeroAddress } from 'viem';
+import { formatUnits } from 'viem';
 
 import {
   ArrowDownRightIcon,
   ArrowUpRightIcon,
 } from '@heroicons/react/24/solid';
-import { useQueries, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useAccount, useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
@@ -14,16 +14,17 @@ import useShare from 'hooks/useShare';
 import TableLayout from 'components/common/TableLayout';
 
 import getOptionMarketPairPools from 'utils/clamm/getOptionMarketPairPools';
-import { TradeHistory } from 'utils/clamm/varrock/types';
 import { formatAmount, getExplorerUrl } from 'utils/general';
-import { getTokenDecimals, getTokenLogoURI, getTokenSymbol } from 'utils/token';
+import { getTokenLogoURI, getTokenSymbol } from 'utils/token';
 
 import { EXPIRIES_TO_KEY } from 'constants/clamm';
 import { DEFAULT_CHAIN_ID, VARROCK_BASE_API_URL } from 'constants/env';
 
 import {
+  ExerciseHistoryItem,
   historyPositionsColumns,
   HistoryPositionsItem,
+  PurchaseHistoryItem,
 } from '../columnHelpers/tradeHistory';
 
 const HistoryPositions = () => {
@@ -37,68 +38,6 @@ const HistoryPositions = () => {
     if (!chain || !selectedOptionsMarket) return [];
     return getOptionMarketPairPools(chain.id, selectedOptionsMarket.address);
   }, [chain, selectedOptionsMarket]);
-
-  const depositsHistory = useQueries({
-    queries: pools.map((pool) => ({
-      queryKey: [
-        'clamm-deposit-history',
-        userAddress,
-        pool,
-        chain?.id,
-        selectedOptionsMarket?.address,
-      ],
-      queryFn: async () => {
-        if (!chain || !userAddress || !selectedOptionsMarket) return [];
-        const url = new URL(`${VARROCK_BASE_API_URL}/clamm/deposit/history`);
-        url.searchParams.set(
-          'chainId',
-          (chain?.id ?? DEFAULT_CHAIN_ID).toString(),
-        );
-        url.searchParams.set('pool', pool);
-        url.searchParams.set('user', userAddress);
-        url.searchParams.set('first', '1');
-        url.searchParams.set('skip', '0');
-        return fetch(url).then((res) => {
-          if (!res.ok) {
-            console.error(res.json());
-            return [];
-          }
-          return res.json();
-        });
-      },
-    })),
-  });
-
-  const withdrawHistory = useQueries({
-    queries: pools.map((pool) => ({
-      queryKey: [
-        'clamm-withdraw-history',
-        userAddress,
-        pool,
-        chain?.id,
-        selectedOptionsMarket?.address,
-      ],
-      queryFn: async () => {
-        if (!chain || !userAddress || !selectedOptionsMarket) return [];
-        const url = new URL(`${VARROCK_BASE_API_URL}/clamm/withdraw/history`);
-        url.searchParams.set(
-          'chainId',
-          (chain?.id ?? DEFAULT_CHAIN_ID).toString(),
-        );
-        url.searchParams.set('pool', pool);
-        url.searchParams.set('user', userAddress);
-        url.searchParams.set('first', '1');
-        url.searchParams.set('skip', '0');
-        return fetch(url).then((res) => {
-          if (!res.ok) {
-            console.error(res.json());
-            return [];
-          }
-          return res.json();
-        });
-      },
-    })),
-  });
 
   const exerciseHistory = useQuery({
     queryKey: [
@@ -115,7 +54,7 @@ const HistoryPositions = () => {
         (chain?.id ?? DEFAULT_CHAIN_ID).toString(),
       );
       url.searchParams.set('user', userAddress);
-      url.searchParams.set('first', '1');
+      url.searchParams.set('first', '100');
 
       url.searchParams.set('skip', '0');
       url.searchParams.set('optionMarket', selectedOptionsMarket.address);
@@ -144,7 +83,7 @@ const HistoryPositions = () => {
         (chain?.id ?? DEFAULT_CHAIN_ID).toString(),
       );
       url.searchParams.set('user', userAddress);
-      url.searchParams.set('first', '1');
+      url.searchParams.set('first', '100');
 
       url.searchParams.set('skip', '0');
       url.searchParams.set('optionMarket', selectedOptionsMarket.address);
@@ -159,24 +98,6 @@ const HistoryPositions = () => {
   });
 
   const tradeHistoryResponse = useMemo(() => {
-    const _depositsHistory: { timestamp: number }[] = [];
-    const _withdrawHistory: { timestamp: number }[] = [];
-
-    depositsHistory.forEach(({ data }) => {
-      if (data) {
-        data.forEach((_data: any) => {
-          _depositsHistory.push(_data);
-        });
-      }
-    });
-    withdrawHistory.forEach(({ data }) => {
-      if (data) {
-        data.forEach((_data: any) => {
-          _withdrawHistory.push(_data);
-        });
-      }
-    });
-
     const _exerciseHistory = exerciseHistory.data;
     const _purchaseHistory = purchaseHistory.data;
 
@@ -187,16 +108,10 @@ const HistoryPositions = () => {
       ...(_purchaseHistory ? _purchaseHistory : []).sort(
         (a: any, b: any) => b.timestamp - a.timestamp,
       ),
-      ...(_depositsHistory ? _depositsHistory : []).sort(
-        (a: any, b: any) => b.timestamp - a.timestamp,
-      ),
-      ...(_withdrawHistory ? _withdrawHistory : []).sort(
-        (a: any, b: any) => b.timestamp - a.timestamp,
-      ),
     ];
 
     return history;
-  }, [depositsHistory, withdrawHistory, exerciseHistory, purchaseHistory]);
+  }, [exerciseHistory, purchaseHistory]);
 
   const handleShare = useCallback(
     async (position: {
@@ -299,28 +214,34 @@ const HistoryPositions = () => {
     const history: HistoryPositionsItem[] = [];
     tradeHistoryResponse.map((item) => {
       if (item['exercisePrice']) {
-        const _item: {
-          strike: number;
-          exercisePrice: number;
-          premium: string;
-          timestamp: number;
-          ttl: string;
-          profit: string;
-          size: string;
-          sizeToken: {
-            address: Address;
-            decimals: number;
-            symbol: string;
-          };
-          profitToken: {
-            address: Address;
-            decimals: number;
-            symbol: string;
-          };
-          type: string;
-          txHash: Hex;
-        } = item;
-        const isCall = _item.type.toLowerCase() === 'call';
+        const _item: ExerciseHistoryItem = item;
+        const isCall = _item.type === 'call';
+        const sizeReadable = Number(
+          formatUnits(BigInt(_item.size), _item.sizeToken.decimals),
+        );
+        const sizeUsdValue = isCall
+          ? sizeReadable * _item.exercisePrice
+          : sizeReadable;
+
+        const optionsAmount = !isCall
+          ? Number(sizeUsdValue) / _item.strike
+          : sizeReadable;
+
+        const premiumReadable = Number(
+          formatUnits(BigInt(_item.premium), _item.sizeToken.decimals),
+        );
+
+        const premiumUsdValue = isCall
+          ? premiumReadable * _item.exercisePrice
+          : premiumReadable;
+
+        const profitUsdValue = Math.max(
+          (isCall
+            ? _item.exercisePrice - _item.strike
+            : _item.strike - _item.exercisePrice) * optionsAmount,
+          0,
+        );
+
         history.push({
           actionInfo: [
             {
@@ -338,7 +259,7 @@ const HistoryPositions = () => {
               label: 'Exercise Price',
               amount: _item.exercisePrice.toString(),
               symbol: getTokenSymbol({
-                address: _item.profitToken.address,
+                address: selectedOptionsMarket.putToken.address,
                 chainId: chainId,
               }),
             },
@@ -359,223 +280,87 @@ const HistoryPositions = () => {
             }),
           },
           other: {
-            onShare: () => {},
-            txUrl: _item.txHash,
+            onShare: () => {
+              handleShare({
+                amount: optionsAmount,
+                callTokenSymbol: market.callToken.symbol,
+                putTokenSymbol: market.putToken.symbol,
+                putTokenURI: market.putToken.imgSrc,
+                callTokenURI: market.callToken.imgSrc,
+                exercisePrice: _item.exercisePrice,
+                premiumUsd: premiumUsdValue,
+                profitUsd: profitUsdValue,
+                strike: _item.strike,
+                side: _item.type,
+              });
+            },
+            txUrl: `${getExplorerUrl(chainId)}tx/${_item.txHash}`,
           },
           strike: {
             price: _item.strike,
             side: _item.type,
           },
         });
+      } else {
+        if (item['premium']) {
+          const _item: PurchaseHistoryItem = item;
+          const { address, decimals } = _item.token;
+
+          history.push({
+            actionInfo: [
+              {
+                label: 'Premium',
+                amount: formatAmount(
+                  formatUnits(BigInt(_item.premium), decimals),
+                  5,
+                ),
+                symbol: getTokenSymbol({
+                  address: address,
+                  chainId: chainId,
+                }),
+              },
+              {
+                label: 'TTL',
+                amount: EXPIRIES_TO_KEY[_item.ttl],
+                symbol: '',
+              },
+            ],
+            market: {
+              action: 'Exercise',
+              ...market,
+            },
+            timestamp: _item.timestamp,
+            size: {
+              amount: formatAmount(
+                formatUnits(BigInt(_item.size), decimals),
+                5,
+              ),
+              symbol: getTokenSymbol({
+                address: address,
+                chainId: chainId,
+              }),
+            },
+            other: {
+              onShare: null,
+              txUrl: `${getExplorerUrl(chainId)}tx/${_item.txHash}`,
+            },
+            strike: {
+              price: _item.strike,
+              side: _item.type,
+            },
+          });
+        }
       }
     });
 
     return history;
-
-    // [ "strike", "exercisePrice", "premium", "timestamp", "ttl", "type", "profit", "size", "sizeToken", "profitToken", … ]
-    // HistoryPositions.tsx:362:28
-    // Array(8) [ "txHash", "timestamp", "strike", "size", "ttl", "type", "premium", "token" ]
-    // HistoryPositions.tsx:362:28
-    // Array(6) [ "strikes", "txHash", "timestamp", "liquidity", "tokens", "handler" ]
-    // HistoryPositions.tsx:362:28
-    // Array(6) [ "liquidity", "timestamp", "strikes", "txHash", "tokens", "handler" ]
-    return [];
-    if (!selectedOptionsMarket) return [];
-    // const { callToken, putToken } = selectedOptionsMarket;
-    // const chainId = chain?.id ?? DEFAULT_CHAIN_ID;
-    // return tradeHistoryResponse.map(
-    //   ({ strike, action, timestamp, meta, size, side, ttl, priceAtAction }) => {
-    //     const isCall = side === 'call';
-    //     const { transactionHash, premium, profit } = meta;
-    //     const premiumUsd =
-    //       Number(
-    //         formatUnits(
-    //           BigInt(premium || 0),
-    //           isCall ? callToken.decimals : putToken.decimals,
-    //         ),
-    //       ) * (isCall ? priceAtAction : 1);
-
-    //     const profitUsd =
-    //       Number(
-    //         formatUnits(
-    //           BigInt(profit ? profit : 0),
-    //           isCall ? putToken.decimals : callToken.decimals,
-    //         ),
-    //       ) * (isCall ? 1 : priceAtAction);
-
-    //     const notiionalSize = Number(
-    //       formatUnits(
-    //         isCall
-    //           ? BigInt(size)
-    //           : (BigInt(size) * parseUnits('1', putToken.decimals)) /
-    //               parseUnits(strike.toString(), putToken.decimals),
-    //         getTokenDecimals({
-    //           chainId,
-    //           address: isCall ? callToken.address : putToken.address,
-    //         }),
-    //       ),
-    //     );
-
-    //     const callTokenURI = getTokenLogoURI({
-    //       chainId,
-    //       address: callToken.address,
-    //     });
-
-    //     const putTokenURI = getTokenLogoURI({
-    //       chainId,
-    //       address: putToken.address,
-    //     });
-
-    //     const callTokenSymbol = getTokenSymbol({
-    //       chainId,
-    //       address: callToken.address,
-    //     });
-
-    //     const putTokenSymbol = getTokenSymbol({
-    //       chainId,
-    //       address: putToken.address,
-    //     });
-
-    //     return {
-    //       strike: {
-    //         price: strike,
-    //         side,
-    //       },
-    //       timestamp,
-    //       other: {
-    //         onShare:
-    //           action === 'exercise'
-    //             ? () => {
-    //                 handleShare({
-    //                   premiumUsd,
-    //                   profitUsd,
-    //                   amount: notiionalSize,
-    //                   callTokenURI,
-    //                   putTokenURI,
-    //                   side,
-    //                   callTokenSymbol,
-    //                   putTokenSymbol,
-    //                   strike,
-    //                   exercisePrice: priceAtAction,
-    //                 });
-    //               }
-    //             : null,
-    //         txUrl: `${getExplorerUrl(chainId)}tx/${transactionHash}`,
-    //       },
-    //       size: {
-    //         amount: formatAmount(
-    //           formatUnits(
-    //             BigInt(size),
-    //             getTokenDecimals({
-    //               chainId,
-    //               address: isCall ? callToken.address : putToken.address,
-    //             }),
-    //           ),
-    //           4,
-    //         ),
-    //         symbol: getTokenSymbol({
-    //           chainId,
-    //           address: isCall ? callToken.address : putToken.address,
-    //         }),
-    //       },
-    //       actionInfo:
-    //         action === 'purchase'
-    //           ? [
-    //               {
-    //                 label: 'Premium',
-    //                 amount: formatAmount(
-    //                   formatUnits(
-    //                     BigInt(premium ?? 0),
-    //                     getTokenDecimals({
-    //                       chainId,
-    //                       address: isCall
-    //                         ? callToken.address
-    //                         : putToken.address,
-    //                     }),
-    //                   ),
-    //                   4,
-    //                 ),
-    //                 symbol: getTokenSymbol({
-    //                   chainId,
-    //                   address: isCall ? callToken.address : putToken.address,
-    //                 }),
-    //               },
-    //               {
-    //                 label: 'TTL',
-    //                 amount: EXPIRIES_TO_KEY[ttl],
-    //                 symbol: '',
-    //               },
-    //             ]
-    //           : [
-    //               {
-    //                 label: 'Premium',
-    //                 amount: formatAmount(
-    //                   formatUnits(
-    //                     BigInt(premium ?? 0),
-    //                     getTokenDecimals({
-    //                       chainId,
-    //                       address: isCall
-    //                         ? callToken.address
-    //                         : putToken.address,
-    //                     }),
-    //                   ),
-    //                   4,
-    //                 ),
-    //                 symbol: getTokenSymbol({
-    //                   chainId,
-    //                   address: isCall ? callToken.address : putToken.address,
-    //                 }),
-    //               },
-    //               {
-    //                 label: 'Profit',
-    //                 amount: formatAmount(
-    //                   formatUnits(
-    //                     BigInt(profit ?? 0),
-    //                     getTokenDecimals({
-    //                       chainId,
-    //                       address: isCall
-    //                         ? putToken.address
-    //                         : callToken.address,
-    //                     }),
-    //                   ),
-    //                   4,
-    //                 ),
-    //                 symbol: getTokenSymbol({
-    //                   chainId,
-    //                   address: isCall ? putToken.address : callToken.address,
-    //                 }),
-    //               },
-    //             ],
-    //       market: {
-    //         action,
-    //         callToken: {
-    //           symbol: getTokenSymbol({
-    //             chainId,
-    //             address: callToken.address,
-    //           }),
-    //           imgSrc: getTokenLogoURI({
-    //             chainId,
-    //             address: callToken.address,
-    //           }),
-    //         },
-    //         putToken: {
-    //           symbol: getTokenSymbol({
-    //             chainId,
-    //             address: putToken.address,
-    //           }),
-    //           imgSrc: getTokenLogoURI({
-    //             chainId,
-    //             address: putToken.address,
-    //           }),
-    //         },
-    //       },
-    //     };
-    //   },
-    // );
-  }, [chain?.id, tradeHistoryResponse, selectedOptionsMarket]);
+  }, [chain?.id, tradeHistoryResponse, selectedOptionsMarket, handleShare]);
 
   return (
-    <div className="py-[12px]">
+    <div className="flex flex-col py-[12px]">
+      <span className="text-[13px] text-stieglitz px-[12px]">
+        Only displaying last 100 recent activites
+      </span>
       <TableLayout
         data={positions}
         columns={historyPositionsColumns}
