@@ -24,8 +24,10 @@ type StrikeItem = {
   liquidity: {
     amount: number;
     symbol: string;
+    usd: number;
   };
   options: {
+    usd: number;
     total: number;
     available: number;
   };
@@ -57,21 +59,33 @@ const columns2 = [
     header: 'Liquidity',
     cell: ({ getValue }) => {
       return (
-        <div className="text-[13px] flex items-center space-x-[4px]">
-          <span>{formatAmount(getValue().amount, 4)}</span>
-          <span className="text-stieglitz">{getValue().symbol}</span>
+        <div className="flex flex-col">
+          <div className="text-[13px] flex items-center space-x-[4px]">
+            <span className="text-stieglitz">$</span>
+            <span>{formatAmount(getValue().usd, 4)}</span>
+          </div>
+          <div className="text-[11px] flex items-center space-x-[4px] text-stieglitz">
+            <span>{formatAmount(getValue().amount, 4)}</span>
+            <span>{getValue().symbol}</span>
+          </div>
         </div>
       );
     },
   }),
   helper.accessor('options', {
-    header: 'Options',
+    header: 'Options Available',
     cell: ({ getValue }) => {
       return (
-        <div className="text-[13px] flex items-center space-x-[4px]">
-          <span>{formatAmount(getValue().available, 4)}</span>
-          <span className="text-stieglitz">/</span>
-          <span>{formatAmount(getValue().total, 4)}</span>
+        <div className="flex flex-col">
+          <div className="text-[13px] flex items-center space-x-[4px]">
+            <span>{formatAmount(getValue().available, 4)}</span>
+            <span className="text-stieglitz">/</span>
+            <span>{formatAmount(getValue().total, 4)}</span>
+          </div>
+          <div className="text-stieglitz text-[11px] flex items-center space-x-[4px]">
+            <span>$</span>
+            <span>{formatAmount(getValue().total, 4)}</span>
+          </div>
         </div>
       );
     },
@@ -145,7 +159,7 @@ const columns2 = [
       ));
 
       return (
-        <div className='flex items-center justify-start'>
+        <div className="flex items-center justify-start">
           {Array.from(compositionMapping).map(([key, totaLiq], index) => (
             <div key={key} className="flex items-center w-[50px] text-[12px]">
               <div className="flex flex-col">
@@ -280,10 +294,12 @@ const StrikesTable = ({ filterSettings }: Props) => {
               address: token.address,
               chainId: chain?.id ?? DEFAULT_CHAIN_ID,
             }),
+            usd: totalLiquidityUsd,
           },
           options: {
             total: totalOptions,
             available: optionsAvailable,
+            usd: liquidityAvailableUsd,
           },
           utilization: Math.max((1 - totalAvailable / totalLiquidity) * 100, 0),
           feesApr: totalAPR / len,
