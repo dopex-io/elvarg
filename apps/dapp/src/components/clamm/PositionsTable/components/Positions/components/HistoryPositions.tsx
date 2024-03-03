@@ -265,7 +265,7 @@ const HistoryPositions = () => {
             },
           ],
           market: {
-            action: 'Exercise',
+            action: 'exercise',
             ...market,
           },
           timestamp: _item.timestamp,
@@ -326,7 +326,7 @@ const HistoryPositions = () => {
               },
             ],
             market: {
-              action: 'Exercise',
+              action: 'purchase',
               ...market,
             },
             timestamp: _item.timestamp,
@@ -353,7 +353,7 @@ const HistoryPositions = () => {
       }
     });
 
-    return history;
+    return history.sort((a, b) => b.timestamp - a.timestamp);
   }, [chain?.id, tradeHistoryResponse, selectedOptionsMarket, handleShare]);
 
   return (
