@@ -7,7 +7,7 @@ import HistoryPositions from './components/Positions/components/HistoryPositions
 import PositionsTypeSelector from './components/Positions/components/PositionsTypeSelector';
 
 const PositionsTable = () => {
-  const [positionsTypeIndex, setPositionsTypeIndex] = useState(2);
+  const [positionsTypeIndex, setPositionsTypeIndex] = useState(0);
   const [buyPositionsLength, setBuyPositionsLength] = useState(0);
   const [lpPositionsLength, setLpPositionsLength] = useState(0);
 
