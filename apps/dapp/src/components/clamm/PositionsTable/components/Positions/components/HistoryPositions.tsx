@@ -357,7 +357,10 @@ const HistoryPositions = () => {
   }, [chain?.id, tradeHistoryResponse, selectedOptionsMarket, handleShare]);
 
   return (
-    <div className="py-[12px]">
+    <div className="flex flex-col py-[12px]">
+      <span className="text-[13px] text-stieglitz px-[12px]">
+        Only displaying last 100 recent activites
+      </span>
       <TableLayout
         data={positions}
         columns={historyPositionsColumns}
