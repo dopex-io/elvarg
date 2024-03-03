@@ -294,7 +294,7 @@ const HistoryPositions = () => {
                 side: _item.type,
               });
             },
-            txUrl: `${getExplorerUrl(chainId)}/tx/${_item.txHash}`,
+            txUrl: `${getExplorerUrl(chainId)}tx/${_item.txHash}`,
           },
           strike: {
             price: _item.strike,
@@ -342,7 +342,7 @@ const HistoryPositions = () => {
             },
             other: {
               onShare: null,
-              txUrl: `${getExplorerUrl(chainId)}/tx/${_item.txHash}`,
+              txUrl: `${getExplorerUrl(chainId)}tx/${_item.txHash}`,
             },
             strike: {
               price: _item.strike,
