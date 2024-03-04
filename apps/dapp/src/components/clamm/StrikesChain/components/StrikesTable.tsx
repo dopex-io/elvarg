@@ -84,7 +84,7 @@ const columns2 = [
           </div>
           <div className="text-stieglitz text-[11px] flex items-center space-x-[4px]">
             <span>$</span>
-            <span>{formatAmount(getValue().total, 4)}</span>
+            <span>{formatAmount(getValue().usd, 4)}</span>
           </div>
         </div>
       );
