@@ -342,11 +342,7 @@ const StrikesTable = ({ filterSettings }: Props) => {
             filterSettings.range[1] >= index),
       );
 
-    const strikesFilteredFromAPR = _strikes.filter(
-      ({ feesApr }) => feesApr < 1_000_000,
-    );
-
-    const strikesFilteredIsPut = strikesFilteredFromAPR.filter(({ strike }) => {
+    const strikesFilteredIsPut = _strikes.filter(({ strike }) => {
       const strikeNumber = Number(strike);
       if (isPut) {
         return strikeNumber < markPrice;
