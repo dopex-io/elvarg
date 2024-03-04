@@ -1,25 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { zeroAddress } from 'viem';
 
+
+
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { useQuery } from '@tanstack/react-query';
 import { useNetwork } from 'wagmi';
 
+
+
 import useClammStore from 'hooks/clamm/useClammStore';
 import useLoadingStates from 'hooks/clamm/useLoadingStates';
-import useStrikesChainStore, {
-  StrikesChainMappingArray,
-} from 'hooks/clamm/useStrikesChainStore';
+import useStrikesChainStore, { StrikesChainMappingArray } from 'hooks/clamm/useStrikesChainStore';
 
-import {
-  DEFAULT_STRIKES_CHAIN_FILTER_SETTINGS,
-  FilterSettingsType,
-} from 'constants/clamm';
+
+
+import { DEFAULT_STRIKES_CHAIN_FILTER_SETTINGS, FilterSettingsType } from 'constants/clamm';
 import { DEFAULT_CHAIN_ID, VARROCK_BASE_API_URL } from 'constants/env';
+
+
 
 import FilterPanel from './components/FilterPanel';
 import FilterSettingsButton from './components/FilterSettings/components/FilterSettingsButton';
 import StrikesTable from './components/StrikesTable';
+
 
 const StrikesChain = () => {
   const { setUpdateStrikes, initialize } = useStrikesChainStore();
@@ -52,8 +56,8 @@ const StrikesChain = () => {
         'optionMarket',
         selectedOptionsMarket?.address ?? zeroAddress,
       );
-      url.searchParams.set('callsReach', '100');
-      url.searchParams.set('putsReach', '100');
+      url.searchParams.set('callsReach', '500');
+      url.searchParams.set('putsReach', '500');
       return await fetch(url).then((res) => res.json());
     },
   });
