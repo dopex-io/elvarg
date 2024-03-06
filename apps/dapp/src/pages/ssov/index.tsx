@@ -15,7 +15,6 @@ import queryClient from 'queryClient';
 import { getSsovPurchasesFromTimestampDocument } from 'graphql/ssovs';
 
 import AppBar from 'components/common/AppBar';
-import NewSsovUIBanner from 'components/common/Banners/NewSsovUIBanner';
 import PageLoader from 'components/common/PageLoader';
 import SsovCard from 'components/ssov/SsovCard';
 import SsovFilter from 'components/ssov/SsovFilter';
@@ -197,7 +196,6 @@ const SsovData = () => {
       <AppBar />
       <Box className="pt-1 pb-32 lg:max-w-7xl md:max-w-3xl sm:max-w-xl max-w-md mx-auto px-4 lg:px-0 min-h-screen">
         <Box className="text-center mx-auto max-w-xl mb-8 mt-32">
-          <NewSsovUIBanner />
           <Typography variant="h2" className="z-1">
             Single Staking Option Vaults
           </Typography>
