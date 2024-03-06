@@ -1,12 +1,7 @@
-const { withSentryConfig } = require('@sentry/nextjs');
-
 /**
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
-  sentry: {
-    hideSourceMaps: true,
-  },
   async redirects() {
     return [
       {
@@ -18,10 +13,4 @@ const nextConfig = {
   },
 };
 
-const sentryWebpackPluginOptions = {
-  org: 'dopex-io',
-  project: 'dapp',
-  silent: true, // Suppresses all logs
-};
-
-module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);
+module.exports = nextConfig;
