@@ -7,8 +7,6 @@ import AppBar from 'components/common/AppBar';
 import Footer from 'components/common/Footer';
 import PageLoader from 'components/common/PageLoader';
 import ClammCard from 'components/home/Card/ClammCard';
-import RdpxV2Card from 'components/home/Card/RdpxV2Card';
-import SsovCard from 'components/home/Card/SsovCard';
 
 const Home = () => {
   const query = useQuery({
@@ -77,8 +75,6 @@ const Home = () => {
             </div>
             <div className="grid lg:grid-cols-2 grid-cols-1 gap-8 justify-items-center">
               <ClammCard apy={clammAPY} />
-              <RdpxV2Card />
-              <SsovCard />
             </div>
           </div>
         </div>
