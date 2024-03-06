@@ -1,0 +1,34 @@
+[
+  {
+    "address": "0x78c1b0c915c4faa5fffa6cabf0219da63d7f4cb8",
+    "chainId": 5000,
+    "symbol": "WMNT",
+    "name": "Wrapped Mantle",
+    "logoURI": "BASE_URL/images/tokens/usdt.svg",
+    "decimals": 18
+  },
+  {
+    "address": "0xdeaddeaddeaddeaddeaddeaddeaddeaddead1111",
+    "chainId": 5000,
+    "symbol": "WETH",
+    "name": "Wrapped Ether",
+    "logoURI": "BASE_URL/images/tokens/weth.svg",
+    "decimals": 18
+  },
+  {
+    "address": "0x09bc4e0d864854c6afb6eb9a9cdf58ac190d0df9",
+    "chainId": 5000,
+    "symbol": "USDC",
+    "name": "Mantle Bridged USDC",
+    "logoURI": "BASE_URL/images/tokens/usdc.svg",
+    "decimals": 6
+  },
+  {
+    "address": "0x201eba5cc46d216ce6dc03f6a759e8e766e956ae",
+    "chainId": 5000,
+    "symbol": "USDT",
+    "name": "Mantle Bridged USDT",
+    "logoURI": "BASE_URL/images/tokens/usdt.svg",
+    "decimals": 6
+  }
+]

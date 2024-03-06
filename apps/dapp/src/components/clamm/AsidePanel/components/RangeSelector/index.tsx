@@ -31,6 +31,7 @@ import RangeSelectorSlider from 'components/clamm/StrikesChain/components/Filter
 
 import generateStrikes from 'utils/clamm/generateStrikes';
 import getHandler from 'utils/clamm/getHandler';
+import getHandlerPool from 'utils/clamm/getHandlerPool';
 import getHook from 'utils/clamm/getHook';
 import getPositionManagerAddress from 'utils/clamm/getPositionManagerAddress';
 import {
@@ -46,8 +47,8 @@ import RangeDepositInput from './RangeDepositInput';
 import StrikeInput from './StrikeInput';
 
 const LPRangeSelector = () => {
-  const publicCLient = usePublicClient();
-  const { selectedOptionsMarket, tick, markPrice, tokenBalances } =
+  const publicClient = usePublicClient();
+  const { selectedOptionsMarket, tick, markPrice, tokenBalances, selectedAMM } =
     useClammStore();
   const { chain } = useNetwork();
   const { address: userAddress } = useAccount();
@@ -279,12 +280,18 @@ const LPRangeSelector = () => {
       return [];
     }
 
-    const handlerAddress = getHandler('uniswap', chain?.id ?? DEFAULT_CHAIN_ID);
-    if (!handlerAddress) {
-      return [];
-    }
-    const uniswapV3Hook = getHook(chain.id, '24HTTL');
-    if (!uniswapV3Hook) return;
+    const handlerAddress = getHandler(selectedAMM, chain.id);
+
+    const pool = getHandlerPool({
+      callSymbol: selectedOptionsMarket.callToken.symbol,
+      chainId: chain.id,
+      name: selectedAMM.toLowerCase(),
+      putSymbol: selectedOptionsMarket.putToken.symbol,
+    });
+    const hook = getHook(chain.id, '24HTTL');
+
+    if (!hook || !pool || !handlerAddress) return;
+
     const selectedStrikes = currentStrikes.filter(({ strike }) => {
       return strike > lowerLimitStrike && strike < upperLimitStrike;
     });
@@ -311,13 +318,15 @@ const LPRangeSelector = () => {
     for (const { tickLower, tickUpper, strike } of selectedStrikes) {
       let isCall = strike > markPrice;
 
-      const token0 =
+      let token0IsCallToken =
         hexToBigInt(selectedOptionsMarket.callToken.address) <
-        hexToBigInt(selectedOptionsMarket.putToken.address)
-          ? selectedOptionsMarket.callToken.address
-          : selectedOptionsMarket.putToken.address;
+        hexToBigInt(selectedOptionsMarket.putToken.address);
 
-      const tokenInContext = isCall
+      let token0 = token0IsCallToken
+        ? selectedOptionsMarket.callToken.address
+        : selectedOptionsMarket.putToken.address;
+
+      let tokenInContext = isCall
         ? selectedOptionsMarket.callToken.address
         : selectedOptionsMarket.putToken.address;
 
@@ -326,15 +335,10 @@ const LPRangeSelector = () => {
           ? getLiquidityForAmount0
           : getLiquidityForAmount1;
 
-      const amount =
-        hexToBigInt(tokenInContext) === hexToBigInt(token0)
-          ? callTokenAmountPerStrike
-          : putTokenTokenAmountPerStrike;
-
       let liquidity = getLiquidity(
         getSqrtRatioAtTick(BigInt(tickLower)),
         getSqrtRatioAtTick(BigInt(tickUpper)),
-        amount,
+        isCall ? callTokenAmountPerStrike : putTokenTokenAmountPerStrike,
       );
 
       if (liquidity > 0n) {
@@ -352,13 +356,7 @@ const LPRangeSelector = () => {
                   { type: 'int24' },
                   { type: 'uint128' },
                 ],
-                [
-                  selectedOptionsMarket.primePool,
-                  uniswapV3Hook,
-                  tickLower,
-                  tickUpper,
-                  liquidity,
-                ],
+                [pool, hook, tickLower, tickUpper, liquidity],
               ),
             ],
           }),
@@ -369,7 +367,7 @@ const LPRangeSelector = () => {
     setLoading(true);
     if (_depositsTx.length > 0) {
       try {
-        const { request, result } = await publicCLient.simulateContract({
+        const { request, result } = await publicClient.simulateContract({
           account: walletClient.account,
           abi: DopexV2PositionManager,
           address: positionManagerAddress,
@@ -379,7 +377,7 @@ const LPRangeSelector = () => {
 
         const hash = await walletClient.writeContract(request);
         const { transactionHash } =
-          await publicCLient.waitForTransactionReceipt({ hash });
+          await publicClient.waitForTransactionReceipt({ hash });
 
         updateStrikes();
         toast.success('Transaction Sent!');
@@ -397,7 +395,8 @@ const LPRangeSelector = () => {
     }
     setLoading(false);
   }, [
-    publicCLient,
+    selectedAMM,
+    publicClient,
     chain,
     markPrice,
     positionManagerAddress,
@@ -521,17 +520,6 @@ const LPRangeSelector = () => {
 
   return (
     <div className="flex items-center flex-col p-[12px] bg-umbra space-y-[12px]">
-      <div className="flex items-center justify-between text-[13px] w-full">
-        <span className="text-stieglitz">AMM</span>
-        <p className="flex items-center space-x-[4px] bg-mineshaft px-[4px] py-[2px] rounded-md">
-          <span>Uniswap V3</span>
-          <img
-            src={`/images/exchanges/uniswap.svg`}
-            alt={'uniswap'}
-            className="w-[24px] h-[24px]"
-          />
-        </p>
-      </div>
       {generatedStrikes.length !== 0 && (
         <div className="bg-carbon bg-opacity-35">
           <BarChart width={338} height={100} data={currentStrikes}>

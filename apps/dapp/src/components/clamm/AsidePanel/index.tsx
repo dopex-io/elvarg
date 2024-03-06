@@ -2,14 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { formatUnits, zeroAddress } from 'viem';
 
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
-import { erc20ABI, useAccount, useContractReads } from 'wagmi';
+import { erc20ABI, useAccount, useContractReads, useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 
-import { CtaBanner } from 'components/UI';
-
-import { cn } from 'utils/general';
-
+import AMMSelector from './components/AMMSelector';
 import AutoExercisers from './components/AutoExercisers';
 import CostSummary from './components/CostSummary';
 import DepositTypeSelector from './components/DepositTypeSelector';
@@ -23,6 +20,7 @@ const AsidePanel = () => {
   const { selectedOptionsMarket, setTokenBalances, isTrade } = useClammStore();
   const [strikesSelectionMode, setStrikesSelectionMode] = useState<0 | 1>(0);
   const { address: userAddress } = useAccount();
+  const { chain } = useNetwork();
 
   const { data, refetch: updateTokenBalances } = useContractReads({
     contracts: [
@@ -76,6 +74,7 @@ const AsidePanel = () => {
           />
         )}
         {isTrade && <TTLSelector />}
+        {!isTrade && <AMMSelector />}
         {!isTrade &&
           strikesSelectionMode === 1 &&
           !selectedOptionsMarket?.deprecated && <LPRangeSelector />}
@@ -89,37 +88,40 @@ const AsidePanel = () => {
           <InfoPanel updateTokenBalances={updateTokenBalances} />
         )}
       </div>
-      <div className="flex flex-col bg-umbra rounded-md space-y-2 p-3">
-        <span className="flex w-full justify-between">
-          <h6 className="flex items-center justify-center space-x-[4px] text-xs">
-            <ExclamationTriangleIcon
-              height={18}
-              width={18}
-              className="text-jaffa"
-            />
-            <span className="text-jaffa">Data Update Delay</span>
-          </h6>
-        </span>
-        <span className="text-jaffa text-xs">
-          There is a delay in updating of data, we are fully aware of this issue
-          and are actively working on a fix. Thank you for your patience.
-        </span>
-      </div>
+      {chain && chain.id === 5000 && (
+        <div className="flex flex-col bg-umbra rounded-md space-y-2 p-3">
+          <span className="flex w-full justify-between">
+            <h6 className="flex items-center justify-center space-x-[4px] text-xs">
+              <ExclamationTriangleIcon
+                height={18}
+                width={18}
+                className="text-jaffa"
+              />
+              <span className="text-jaffa">Data Update Delay</span>
+            </h6>
+          </span>
+
+          <span className="text-jaffa text-xs">
+            There is a delay in updating of data, we are fully aware of this
+            issue and are actively working on a fix. Thank you for your
+            patience.
+          </span>
+        </div>
+      )}
       <div className="flex flex-col bg-umbra rounded-md space-y-2 p-3">
         <span className="flex w-full justify-between">
           <h6 className="flex items-center justify-center space-x-1 text-xs">
             <img src="/images/tokens/dpx.svg" alt="dpx" className="h-[18px]" />
-            <span>NEW: CLAMM Upgrade & Deprecation Notice</span>
+            <span>NEW: CLAMM on Mantle Mainnet</span>
           </h6>
         </span>
         <p className="text-stieglitz text-xs">
-          We are migrating from USDC.e to USDC pools for all option markets. If
-          you have any liquidity in option markets tagged as legacy please
-          migrate to the latest option markets using the latest pools.{' '}
+          We have deployed CLAMM on Mantle Mainnet for the markets: WMNT/USDT,
+          WETH/USDC and WETH/USDT. 
           <a
             className="text-wave-blue font-medium underline"
             href="https://blog.dopex.io/articles/clamm-upgrade-realising-strykes-vision"
-            target='_blank'
+            target="_blank"
           >
             Read more
           </a>

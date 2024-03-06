@@ -1,5 +1,5 @@
 import { configureChains, createConfig } from 'wagmi';
-import { arbitrum, mainnet, polygon } from 'wagmi/chains';
+import { arbitrum, mainnet, mantle, polygon } from 'wagmi/chains';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
@@ -14,7 +14,7 @@ import { OkxConnector } from './OkxConnector';
 import { RabbyConnector } from './RabbyConnector';
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [arbitrum, polygon, mainnet],
+  [arbitrum, polygon, mainnet, mantle],
   [
     jsonRpcProvider({
       rpc: (chain) => ({

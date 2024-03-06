@@ -22,6 +22,7 @@ import {
   useContractReads,
   useContractWrite,
   useNetwork,
+  usePublicClient,
   useWalletClient,
 } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
@@ -37,6 +38,7 @@ import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 // import useUserBalance from 'hooks/useUserBalance';
 
 import getHandler from 'utils/clamm/getHandler';
+import getHandlerPool from 'utils/clamm/getHandlerPool';
 import getHook from 'utils/clamm/getHook';
 import getOptionMarketPairPools from 'utils/clamm/getOptionMarketPairPools';
 import getPositionManagerAddress from 'utils/clamm/getPositionManagerAddress';
@@ -60,6 +62,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     selectedOptionsMarket,
     markPrice,
     selectedTTL,
+    selectedAMM,
   } = useClammStore();
   const { updateBuyPositions, updateLPPositions } = useClammPositions();
   const { deposits, purchases, resetDeposits, resetPurchases } =
@@ -71,6 +74,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
   });
   const { address: userAddress } = useAccount();
+  const publicClient = usePublicClient();
 
   // const { checkEthBalance } = useUserBalance();
 
@@ -180,13 +184,14 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     const depositsArray = Array.from(deposits);
     const handlerAddress = selectedOptionsMarket.deprecated
       ? '0xe11d346757d052214686bcbc860c94363afb4a9a'
-      : getHandler('uniswap', chain.id);
-    const pool = getOptionMarketPairPools(
-      chain.id,
-      selectedOptionsMarket.address,
-    )[0];
+      : getHandler(selectedAMM, chain.id);
+    const pool = getHandlerPool({
+      callSymbol: selectedOptionsMarket.callToken.symbol,
+      chainId: chain.id,
+      name: selectedAMM.toLowerCase(),
+      putSymbol: selectedOptionsMarket.putToken.symbol,
+    });
     const hook = getHook(chain.id, '24HTTL');
-    const { publicClient } = wagmiConfig;
 
     if (!handlerAddress || !pool || !hook) return;
 
@@ -300,6 +305,8 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     isTrade,
     setLoading,
     updateTokenBalances,
+    selectedAMM,
+    publicClient,
     // checkEthBalance,
   ]);
 

@@ -186,7 +186,7 @@ const SelectedStrikeItem = ({
       chain?.id ?? DEFAULT_CHAIN_ID,
       amountDebounced.toString(),
       markPrice,
-      selectedTTL
+      selectedTTL,
     ],
     queryFn: async () => {
       if (!isTrade || !selectedOptionsMarket || !Boolean(amountDebounced)) {

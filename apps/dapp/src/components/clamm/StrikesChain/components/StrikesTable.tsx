@@ -43,166 +43,6 @@ type StrikeItem = {
 };
 
 const helper = createColumnHelper<StrikeItem>();
-const columns2 = [
-  helper.accessor('strike', {
-    header: 'Strike',
-    cell: ({ getValue }) => {
-      return (
-        <div className="text-[13px] flex items-center space-x-[4px]">
-          <span className="text-stieglitz">$</span>
-          <span>{formatAmount(getValue(), 4)}</span>
-        </div>
-      );
-    },
-  }),
-  helper.accessor('liquidity', {
-    header: 'Liquidity',
-    cell: ({ getValue }) => {
-      return (
-        <div className="flex flex-col">
-          <div className="text-[13px] flex items-center space-x-[4px]">
-            <span className="text-stieglitz">$</span>
-            <span>{formatAmount(getValue().usd, 4)}</span>
-          </div>
-          <div className="text-[11px] flex items-center space-x-[4px] text-stieglitz">
-            <span>{formatAmount(getValue().amount, 4)}</span>
-            <span>{getValue().symbol}</span>
-          </div>
-        </div>
-      );
-    },
-  }),
-  helper.accessor('options', {
-    header: 'Options Available',
-    cell: ({ getValue }) => {
-      return (
-        <div className="flex flex-col">
-          <div className="text-[13px] flex items-center space-x-[4px]">
-            <span>{formatAmount(getValue().available, 4)}</span>
-            <span className="text-stieglitz">/</span>
-            <span>{formatAmount(getValue().total, 4)}</span>
-          </div>
-          <div className="text-stieglitz text-[11px] flex items-center space-x-[4px]">
-            <span>$</span>
-            <span>{formatAmount(getValue().usd, 4)}</span>
-          </div>
-        </div>
-      );
-    },
-  }),
-  helper.accessor('utilization', {
-    header: 'Utilization',
-    cell: ({ getValue }) => {
-      return (
-        <div className="text-[13px] flex items-center space-x-[4px]">
-          <span>{formatAmount(getValue(), 4)}</span>
-          <span className="text-stieglitz">%</span>
-        </div>
-      );
-    },
-  }),
-  helper.accessor('feesApr', {
-    header: 'Fee APR',
-    cell: ({ getValue }) => {
-      return (
-        <div className="text-[13px] flex items-center space-x-[4px]">
-          <span>{formatAmount(getValue(), 4)}</span>
-          <span className="text-stieglitz">%</span>
-        </div>
-      );
-    },
-  }),
-  helper.accessor('eligbleForRewards', {
-    header: 'Rewards',
-    cell: (info) => (
-      <span className="flex items-center w-full pl-[12px]">
-        {info.getValue() && (
-          <img
-            src="/images/tokens/arb.svg"
-            alt="ARB"
-            className="w-[20px] h-[20px]"
-          />
-        )}
-      </span>
-    ),
-  }),
-  helper.accessor('amms', {
-    header: 'AMM',
-    cell: (info) => {
-      const { getValue } = info;
-      const compositionMapping = new Map<string, number>();
-      let total = 0;
-      Array.from(getValue()).forEach(([key, liq]) => {
-        const currentLiq = compositionMapping.get(key);
-        total += liq;
-        if (!currentLiq) {
-          compositionMapping.set(key, liq);
-        } else {
-          compositionMapping.set(key, liq + currentLiq);
-        }
-      });
-
-      Array.from(compositionMapping).map(([key, totaLiq], index) => (
-        <div key={key} className="flex items-center w-[50px] text-[12px]">
-          <div className="flex flex-col">
-            <img
-              src={`/images/exchanges/${key}.svg`}
-              alt={key}
-              className="w-[24px] h-[24px]"
-            />
-            <span className="flex space-x-[4px] text-white">
-              <span>{formatAmount((100 * totaLiq) / total, 0)}</span>
-              <span className="text-stieglitz">%</span>
-            </span>
-          </div>
-        </div>
-      ));
-
-      return (
-        <div className="flex items-center justify-start">
-          {Array.from(compositionMapping).map(([key, totaLiq], index) => (
-            <div key={key} className="flex items-center w-[50px] text-[12px]">
-              <div className="flex flex-col">
-                <img
-                  src={`/images/exchanges/${key}.svg`}
-                  alt={key}
-                  className="w-[24px] h-[24px]"
-                />
-                <span className="flex space-x-[4px] text-white">
-                  <span>{formatAmount((100 * totaLiq) / total, 0)}</span>
-                  <span className="text-stieglitz">%</span>
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      );
-    },
-  }),
-  helper.accessor('manage', {
-    header: 'Rewards',
-    cell: ({ getValue }) => (
-      <div className="flex space-x-2 justify-end">
-        <Button
-          onClick={
-            getValue().isSelected
-              ? getValue().deselectStrike
-              : getValue().selectStrike
-          }
-          color={getValue().isSelected ? 'primary' : 'mineshaft'}
-        >
-          <div className="flex items-center space-x-1">
-            {getValue().isSelected ? (
-              <MinusIcon className="w-[14px]" />
-            ) : (
-              <PlusIcon className="w-[14px]" />
-            )}
-          </div>
-        </Button>
-      </div>
-    ),
-  }),
-];
 
 export const StatItem = ({ name, value }: { name: string; value: string }) => (
   <div className="flex flex-col px-1">
@@ -222,13 +62,187 @@ const StrikesTable = ({ filterSettings }: Props) => {
   const { selectedOptionsMarket, isPut, markPrice, isTrade } = useClammStore();
   const { isLoading } = useLoadingStates();
 
+  const columns = useMemo(
+    () => [
+      helper.accessor('strike', {
+        header: 'Strike',
+        cell: ({ getValue }) => {
+          return (
+            <div className="text-[13px] flex items-center space-x-[4px]">
+              <span className="text-stieglitz">$</span>
+              <span>{formatAmount(getValue(), 4)}</span>
+            </div>
+          );
+        },
+      }),
+      helper.accessor('liquidity', {
+        header: 'Liquidity',
+        cell: ({ getValue }) => {
+          return (
+            <div className="flex flex-col">
+              <div className="text-[13px] flex items-center space-x-[4px]">
+                <span className="text-stieglitz">$</span>
+                <span>{formatAmount(getValue().usd, 4)}</span>
+              </div>
+              <div className="text-[11px] flex items-center space-x-[4px] text-stieglitz">
+                <span>{formatAmount(getValue().amount, 4)}</span>
+                <span>{getValue().symbol}</span>
+              </div>
+            </div>
+          );
+        },
+      }),
+      helper.accessor('options', {
+        header: 'Options Available',
+        cell: ({ getValue }) => {
+          return (
+            <div className="flex flex-col">
+              <div className="text-[13px] flex items-center space-x-[4px]">
+                <span>{formatAmount(getValue().available, 4)}</span>
+                <span className="text-stieglitz">/</span>
+                <span>{formatAmount(getValue().total, 4)}</span>
+              </div>
+              <div className="text-stieglitz text-[11px] flex items-center space-x-[4px]">
+                <span>$</span>
+                <span>{formatAmount(getValue().usd, 4)}</span>
+              </div>
+            </div>
+          );
+        },
+      }),
+      helper.accessor('utilization', {
+        header: 'Utilization',
+        cell: ({ getValue }) => {
+          return (
+            <div className="text-[13px] flex items-center space-x-[4px]">
+              <span>{formatAmount(getValue(), 4)}</span>
+              <span className="text-stieglitz">%</span>
+            </div>
+          );
+        },
+      }),
+      helper.accessor('feesApr', {
+        header: 'Fee APR',
+        cell: ({ getValue }) => {
+          return (
+            <div className="text-[13px] flex items-center space-x-[4px]">
+              <span>{formatAmount(getValue(), 4)}</span>
+              <span className="text-stieglitz">%</span>
+            </div>
+          );
+        },
+      }),
+      helper.accessor('eligbleForRewards', {
+        header: 'Rewards',
+        cell: (info) => (
+          <span className="flex items-center w-full pl-[12px]">
+            {info.getValue() && (
+              <img
+                src="/images/tokens/arb.svg"
+                alt="ARB"
+                className="w-[20px] h-[20px]"
+              />
+            )}
+          </span>
+        ),
+      }),
+      helper.accessor('amms', {
+        header: 'AMM',
+        cell: (info) => {
+          const { getValue } = info;
+          const compositionMapping = new Map<string, number>();
+          let total = 0;
+          Array.from(getValue()).forEach(([key, liq]) => {
+            const currentLiq = compositionMapping.get(key);
+            total += liq;
+            if (!currentLiq) {
+              compositionMapping.set(key, liq);
+            } else {
+              compositionMapping.set(key, liq + currentLiq);
+            }
+          });
+          Array.from(compositionMapping).map(([key, totaLiq], index) => (
+            <div key={key} className="flex items-center w-[50px] text-[12px]">
+              <div className="flex flex-col">
+                <img
+                  src={`/images/exchanges/${key}.svg`}
+                  alt={key}
+                  className="w-[24px] h-[24px]"
+                />
+                <span className="flex space-x-[4px] text-white">
+                  <span>{formatAmount((100 * totaLiq) / total, 0)}</span>
+                  <span className="text-stieglitz">%</span>
+                </span>
+              </div>
+            </div>
+          ));
+
+          return (
+            <div className="flex items-center justify-start">
+              {Array.from(compositionMapping).map(([key, totaLiq], index) => (
+                <div
+                  key={key}
+                  className="flex items-center w-[50px] text-[12px]"
+                >
+                  <div className="flex flex-col">
+                    <img
+                      src={`/images/exchanges/${key}.svg`}
+                      alt={key}
+                      className="w-[24px] h-[24px]"
+                    />
+                    <span className="flex space-x-[4px] text-white">
+                      <span>{formatAmount((100 * totaLiq) / total, 0)}</span>
+                      <span className="text-stieglitz">%</span>
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        },
+      }),
+      helper.accessor('manage', {
+        header: '',
+        cell: ({ getValue }) => (
+          <div className="flex space-x-2 justify-end">
+            <Button
+              onClick={
+                getValue().isSelected
+                  ? getValue().deselectStrike
+                  : getValue().selectStrike
+              }
+              color={getValue().isSelected ? 'primary' : 'mineshaft'}
+            >
+              <div className="flex items-center space-x-1">
+                {getValue().isSelected ? (
+                  <MinusIcon className="w-[14px]" />
+                ) : (
+                  <PlusIcon className="w-[14px]" />
+                )}
+              </div>
+            </Button>
+          </div>
+        ),
+      }),
+    ],
+    [],
+  );
+
   const isEligibleForRewards = useCallback(
     (price: number) => {
-      const upperLimit = markPrice * 1.024;
-      const lowerLimit = markPrice * 0.976;
-      return price < upperLimit && price > lowerLimit;
+      if (!chain) return false;
+      if (
+        chain.id === 42161 &&
+        new Date().getTime() < 1711929604000 /* 1st april */
+      ) {
+        const upperLimit = markPrice * 1.024;
+        const lowerLimit = markPrice * 0.976;
+        return price < upperLimit && price > lowerLimit;
+      } else {
+        return false;
+      }
     },
-    [markPrice],
+    [markPrice, chain],
   );
 
   const strikes = useMemo(() => {
@@ -368,11 +382,19 @@ const StrikesTable = ({ filterSettings }: Props) => {
     selectedOptionsMarket,
   ]);
 
+  const filteredColumns = useMemo(() => {
+    if (!chain) return columns;
+    if (chain.id === 5000) {
+      return columns.filter((c) => c.header !== 'Rewards');
+    }
+    return columns;
+  }, [chain, columns]);
+
   return (
     <div className="max-h-[500px] overflow-y-auto border-t border-t-carbon">
       <TableLayout<StrikeItem>
         data={strikes}
-        columns={columns2}
+        columns={filteredColumns}
         isContentLoading={isLoading('strikes-chain')}
         disablePagination={false}
         pageSize={500}

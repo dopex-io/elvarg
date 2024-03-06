@@ -1,4 +1,5 @@
 import arbitrumOneTokens from 'token-list/arbitrum-one.json';
+import mantleMainnetTokens from 'token-list/mantle-mainnet.json';
 import polygonMainnetTokens from 'token-list/polygon-mainnet.json';
 import { Token, TokenData } from 'types';
 
@@ -46,6 +47,7 @@ export const TOKENS: { [key: number]: Token[] } = {
   42161: arbitrumOneTokens,
   137: polygonMainnetTokens,
   31337: polygonMainnetTokens,
+  5000: mantleMainnetTokens,
 };
 
 export const TOKEN_DATA: {

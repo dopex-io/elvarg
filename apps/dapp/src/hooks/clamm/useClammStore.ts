@@ -48,6 +48,9 @@ type ClammStore = {
   optionMarkets: Map<string, OptionMarket>;
   initialize: (response: OptionMarket[], chainId: number) => void;
 
+  selectedAMM: string;
+  setSelectedAMM: (amm: string) => void;
+
   isPut: boolean;
   setIsPut: (setAs: boolean) => void;
 
@@ -72,6 +75,7 @@ type ClammStore = {
 };
 const useClammStore = create<ClammStore>((set, get) => ({
   addresses: null,
+  selectedAMM: '',
   isPut: false,
   isTrade: true,
   markPrice: 0,
@@ -108,6 +112,13 @@ const useClammStore = create<ClammStore>((set, get) => ({
     set((prev) => ({
       ...prev,
       isPut: setAs,
+    }));
+  },
+  setSelectedAMM(amm) {
+    const { selectedOptionsMarket } = get();
+    set((prev) => ({
+      ...prev,
+      selectedAMM: amm,
     }));
   },
   selectedOptionsMarket: null,

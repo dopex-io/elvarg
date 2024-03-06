@@ -24,7 +24,12 @@ const LPPositions = ({
 
   const pools = useMemo(() => {
     if (!chain || !selectedOptionsMarket) return [];
-    return getOptionMarketPairPools(chain.id, selectedOptionsMarket.address);
+    const _pools = getOptionMarketPairPools(
+      chain.id,
+      selectedOptionsMarket.address,
+    );
+    if (!_pools) return [];
+    return _pools;
   }, [chain, selectedOptionsMarket]);
 
   const data = useQueries({

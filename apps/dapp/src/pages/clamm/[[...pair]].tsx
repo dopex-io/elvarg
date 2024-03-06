@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { Address } from 'viem';
+import { useParams } from 'next/navigation';
+import { useRouter } from 'next/router';
 
 import { useQuery } from '@tanstack/react-query';
 import { NextSeo } from 'next-seo';
@@ -15,13 +16,13 @@ import StrikesChain from 'components/clamm/StrikesChain';
 import TitleBar from 'components/clamm/TitleBar';
 import PageLayout from 'components/common/PageLayout';
 
-import getAddresses from 'utils/clamm/varrock/getAddresses';
-import getOptionsPools from 'utils/clamm/varrock/getOptionsPools';
-
+import { CHAIN_TO_OPTION_MARKETS } from 'constants/clamm';
 import { DEFAULT_CHAIN_ID, VARROCK_BASE_API_URL } from 'constants/env';
 import seo from 'constants/seo';
 
 const Page = () => {
+  const params = useParams();
+  const router = useRouter();
   const { initialize, selectedOptionsMarket } = useClammStore();
   const { setSelectedTicker } = useTradingViewChartStore();
   const { chain } = useNetwork();
@@ -45,8 +46,25 @@ const Page = () => {
     },
   });
 
+  // Default routing
   useEffect(() => {
-    if (!data || isError) return;
+    if (!chain) return;
+    if (params && params['pair']) {
+      const [pair] = params['pair'];
+      if (chain.id === 42161) {
+        if (!CHAIN_TO_OPTION_MARKETS[42161].includes(pair)) {
+          router.push(`${CHAIN_TO_OPTION_MARKETS[42161][0]}`);
+        }
+      } else if (chain.id === 5000) {
+        if (!CHAIN_TO_OPTION_MARKETS[5000].includes(pair)) {
+          router.push(`${CHAIN_TO_OPTION_MARKETS[5000][0]}`);
+        }
+      }
+    }
+  }, [params, chain, router]);
+
+  useEffect(() => {
+    if (!data || isError || !chain) return;
     let opMarkets: OptionMarket[] = [];
     if (chain?.id === 42161) {
       const firstOptionMarket = data.filter(({ ticker }) => {
@@ -67,8 +85,8 @@ const Page = () => {
 
     opMarkets = opMarkets.length === 0 ? data : opMarkets;
 
-    initialize(opMarkets, chain?.id ?? DEFAULT_CHAIN_ID);
-  }, [initialize, chain?.id, data, isError]);
+    initialize(opMarkets, chain.id ?? DEFAULT_CHAIN_ID);
+  }, [initialize, chain, data, isError]);
 
   useEffect(() => {
     if (!selectedOptionsMarket) return;

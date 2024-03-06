@@ -74,7 +74,7 @@ const useStrikesChainStore = create<StrikesChainStore>((set, get) => ({
     data.forEach((each) => {
       const strike = Object.keys(each)[0];
       const filtered = each[strike].filter(({ handler }) => {
-        return handler.name === 'uniswap';
+        return handler.name !== 'pancake';
       });
 
       if (filtered.length > 0) {
