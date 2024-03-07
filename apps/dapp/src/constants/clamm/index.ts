@@ -23,8 +23,10 @@ export const MULTI_CALL_FN_SIG =
   'function multicall(bytes[] calldata data) external returns (bytes[] memory results)';
 
 export const PROTOCOL_FEES_MULTIPLIER = 1.34;
-export const AUTO_EXERCISER_TIME_BASED =
-  '0xb223eD797742E096632c39d1b2e0c313750B25FE';
+export const AUTO_EXERCISER_TIME_BASED: Record<number, Address | undefined> = {
+  42161: '0xb223eD797742E096632c39d1b2e0c313750B25FE',
+  5000: '0x39d8AD7f378266dD995EEea3B87C7C7EC7Da7490',
+};
 
 export type FilterSettingsType = {
   bundleSize: string;
