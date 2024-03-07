@@ -107,8 +107,8 @@ export const HANDLER_TO_SWAPPER: Record<
   undefined | Record<string, Address>
 > = {
   5000: {
-    agni: '0x319B69888b0d11cEC22caA5034e25FfFBDc88421',
-    fusionx: '0x5989FB161568b9F133eDf5Cf6787f5597762797F',
-    butter: '0xAe5c0a73bAE513fe5842DbcB8E32fc7E3e30DA57',
+    agni: '0x471923c6148495530C5153040A9D8726213421Bd',
+    fusionx: '0x480199183c57853a96BEF4F8e2B0C28dd877c7D8',
+    butter: '0x580bC0591b78c3a255fB908Bff2e1A4633B0c124',
   },
 };

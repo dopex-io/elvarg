@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import { ChevronDownIcon } from '@heroicons/react/24/solid';
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import * as Select from '@radix-ui/react-select';
 import { useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
@@ -16,84 +16,85 @@ const CLAMM_AMMS: Record<number, string[]> = {
 const AMMSelector = () => {
   const { setSelectedAMM, selectedAMM, selectedOptionsMarket } =
     useClammStore();
+
   const { chain } = useNetwork();
-  const [open, setOpen] = useState(false);
-  const [initialized, setInitialized] = useState(false);
-  const [amms, setAmms] = useState(chain ? CLAMM_AMMS[chain.id] : []);
+
+  const amms = useMemo(() => {
+    if (!chain || !selectedOptionsMarket) return [];
+    const poolKey = selectedOptionsMarket.callToken.symbol
+      .toLowerCase()
+      .concat('-')
+      .concat(selectedOptionsMarket.putToken.symbol.toLowerCase());
+
+    const handlerPools = HANDLER_TO_POOLS[chain.id];
+
+    if (!handlerPools) return [];
+
+    return Object.entries(handlerPools)
+      .filter(([_, pool]) => {
+        // @ts-ignore
+        return Object.keys(pool).includes(poolKey);
+      })
+      .map(([amm]) => amm);
+  }, [chain, selectedOptionsMarket]);
 
   useEffect(() => {
     if (!chain) return;
-    if (!initialized) {
-      setSelectedAMM(amms[0] ?? '');
-      setInitialized(true);
+    if (!Boolean(selectedAMM)) {
+      const _amms = CLAMM_AMMS[chain.id];
+      if (!_amms) return;
+      setSelectedAMM(_amms[0]);
     }
-  }, [setSelectedAMM, selectedAMM, chain, amms, initialized]);
+  }, [chain, setSelectedAMM, selectedAMM]);
 
   useEffect(() => {
-    if (!selectedOptionsMarket || !chain || !Boolean(selectedAMM)) return;
-    const { callToken, putToken } = selectedOptionsMarket;
-    const poolKey = callToken.symbol
-      .toLowerCase()
-      .concat('-')
-      .concat(putToken.symbol.toLowerCase());
-
-    const handlersToPools = HANDLER_TO_POOLS[chain.id];
-    if (!handlersToPools) return;
-    const handlerPools = handlersToPools[selectedAMM];
-    if (!handlerPools) return;
-    const pool = handlerPools[poolKey];
-    if (pool) return;
-    if (!pool) {
-      const eligibleAMMS = amms.filter(
-        (a) => a.toLowerCase() !== selectedAMM.toLowerCase(),
-      );
-
-      if (eligibleAMMS[0]) {
-        setSelectedAMM(eligibleAMMS[0]);
-      }
-      setAmms(eligibleAMMS);
+    if (!amms.includes(selectedAMM)) {
+      setSelectedAMM(amms[0]);
     }
-  }, [chain, selectedOptionsMarket, amms, selectedAMM, setSelectedAMM]);
+  }, [amms, selectedAMM, setSelectedAMM]);
 
   return (
-    <div className="flex items-center text-[13px] justify-between px-[12px] py-[6px] bg-umbra">
-      <div className="text-stieglitz">
-        <span>Selected AMM</span>
-      </div>
-      <DropdownMenu.Root open={open}>
-        <DropdownMenu.Trigger
-          className="flex items-center justify-end space-x-[4px] bg-carbon w-[100px] rounded-md p-[4px]"
-          onClick={() => {
-            if (amms.length > 0) {
-              setOpen(true);
-            }
-          }}
-        >
-          <span className="text-[13px] text-center w-full">
-            {selectedAMM && AMM_TO_READABLE_NAME[selectedAMM]}
-          </span>
-          <ChevronDownIcon height={18} width={18} className="text-stieglitz" />
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Portal>
-          <DropdownMenu.Content className="min-h-[20px] w-[100px] rounded-md space-y-[12px] flex flex-col bg-carbon mt-[2px]">
-            {chain &&
-              amms
-                .filter((a) => a.toLowerCase() !== selectedAMM.toLowerCase())
-                .map((amm, index) => (
-                  <span
-                    onClick={() => {
-                      setSelectedAMM(amm);
-                      setOpen(false);
-                    }}
-                    className="text-[13px] px-[2px] hover:bg-mineshaft w-full text-center hover:cursor-pointer rounded-md"
+    <div className="flex items-center justify-between bg-umbra p-[12px]">
+      <span className="text-[13px] text-stieglitz">Select AMM</span>
+      <Select.Root
+        defaultValue={amms[0]}
+        onValueChange={(v) => {
+          setSelectedAMM(v);
+        }}
+      >
+        <Select.Trigger className="w-[100px] text-white text-[13px] bg-mineshaft rounded-sm outline-none h-[25px]">
+          <Select.Value className="flex items-center">
+            <Select.Icon className="flex items-center justify-between px-[12px]">
+              <span className="text-[13px] text-center w-full flex items-center">
+                {AMM_TO_READABLE_NAME[selectedAMM]}
+              </span>
+              <ChevronDownIcon
+                height={18}
+                width={18}
+                className="text-stieglitz"
+              />
+            </Select.Icon>
+          </Select.Value>
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Content className="bg-carbon w-full rounded-md">
+            <Select.Viewport>
+              {chain &&
+                amms.map((amm, index) => (
+                  <Select.Item
+                    value={amm}
+                    className="text-[13px] p-[4px] hover:bg-mineshaft flex items-center justify-center hover:cursor-pointer rounded-md outline-none w-full"
                     key={index}
                   >
-                    {amm[0].toUpperCase() + amm.slice(1)}
-                  </span>
+                    <Select.ItemText>
+                      {amm[0].toUpperCase() + amm.slice(1)}
+                    </Select.ItemText>
+                  </Select.Item>
                 ))}
-          </DropdownMenu.Content>
-        </DropdownMenu.Portal>
-      </DropdownMenu.Root>
+            </Select.Viewport>
+          </Select.Content>
+        </Select.Portal>
+      </Select.Root>
     </div>
   );
 };
