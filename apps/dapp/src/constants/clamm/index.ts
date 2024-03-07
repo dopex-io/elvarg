@@ -101,3 +101,14 @@ export const CHAIN_TO_OPTION_MARKETS = {
   42161: ['WETH-USDC', 'ARB-USDC', 'WBTC-USDC'],
   5000: ['WETH-USDT', 'WMNT-USDT', 'WETH-USDC'],
 };
+
+export const HANDLER_TO_SWAPPER: Record<
+  string,
+  undefined | Record<string, Address>
+> = {
+  5000: {
+    agni: '0x319B69888b0d11cEC22caA5034e25FfFBDc88421',
+    fusionx: '0x5989FB161568b9F133eDf5Cf6787f5597762797F',
+    butter: '0xAe5c0a73bAE513fe5842DbcB8E32fc7E3e30DA57',
+  },
+};

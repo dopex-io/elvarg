@@ -9,6 +9,11 @@ const PRICES_URLS: Record<number, Record<string, string>> = {
     'WBTC/USDC.E': `${VARROCK_BASE_API_URL}/uniswap-prices/candles`,
     'WETH/USDC.E': `${VARROCK_BASE_API_URL}/uniswap-prices/candles`,
   },
+  5000: {
+    'WETH/USDT': `${VARROCK_BASE_API_URL}/uniswap-prices/candles`,
+    'WETH/USDC': `${VARROCK_BASE_API_URL}/uniswap-prices/candles`,
+    'WMNT/USDT': `${VARROCK_BASE_API_URL}/uniswap-prices/candles`,
+  },
 };
 
 function getCurrentBarTimestamp(periodSeconds: number) {
@@ -96,6 +101,7 @@ export class TVDataProvider {
     try {
       let queryUrl = `${VARROCK_BASE_API_URL}/uniswap-prices/candles?interval=${interval}&ticker=${ticker}&from=${from}&to=${to}&chainId=${chainId}`;
       const prices = await fetch(queryUrl).then((response) => response.json());
+      console.log(prices)
       return prices;
     } catch (error) {
       console.error('Failed to fetch prices for', ticker);
@@ -104,8 +110,9 @@ export class TVDataProvider {
   }
 
   async getLastPrice(chainId: number, ticker: string) {
-    if (!PRICES_URLS[chainId][ticker.toUpperCase()])
+    if (!PRICES_URLS[chainId][ticker.toUpperCase()]) {
       throw Error('Unsupported token for TV Chart.');
+    }
     try {
       let queryUrl = `${VARROCK_BASE_API_URL}/uniswap-prices/mark-price?ticker=${ticker}&chainId=${chainId}`;
 
