@@ -129,14 +129,16 @@ const OverViewStats = () => {
             }}
             label="Premium"
           />
-          <Stat
-            stat={{
-              symbol: '%',
-              value: avgAPR?.toString(),
-            }}
-            label="Reward APR"
-            suffix
-          />
+          {chain && chain.id === 42161 && (
+            <Stat
+              stat={{
+                symbol: '%',
+                value: avgAPR?.toString(),
+              }}
+              label="Reward APR"
+              suffix
+            />
+          )}
         </>
       ) : (
         <>
