@@ -1,44 +1,40 @@
-import React, {
-  Dispatch,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
-import {
-  Address,
-  encodeAbiParameters,
-  encodeFunctionData,
-  formatUnits,
-  getAddress,
-  Hex,
-} from 'viem';
+import React, { Dispatch, useCallback, useEffect, useMemo, useState } from 'react';
+import { Address, encodeAbiParameters, encodeFunctionData, formatUnits, getAddress, Hex } from 'viem';
 
-import {
-  ArrowDownRightIcon,
-  ArrowPathIcon,
-  ArrowUpRightIcon,
-} from '@heroicons/react/24/solid';
+
+
+import { ArrowDownRightIcon, ArrowPathIcon, ArrowUpRightIcon } from '@heroicons/react/24/solid';
 import { useQuery } from '@tanstack/react-query';
 import DopexV2OptionMarketV2 from 'abis/clamm/DopexV2OptionMarketV2';
 import toast from 'react-hot-toast';
 import { useNetwork, useWalletClient } from 'wagmi';
 
+
+
 import useClammStore from 'hooks/clamm/useClammStore';
 import useShare from 'hooks/useShare';
 import useUserBalance from 'hooks/useUserBalance';
 
+
+
 import TableLayout from 'components/common/TableLayout';
+
+
 
 import { cn, formatAmount } from 'utils/general';
 import { getTokenLogoURI, getTokenSymbol } from 'utils/token';
 
+
+
 import { HANDLER_TO_SWAPPER } from 'constants/clamm';
 import { DEFAULT_CHAIN_ID, VARROCK_BASE_API_URL } from 'constants/env';
+
+
 
 import { BuyPositionItem, columns } from '../columnHelpers/buyPositions';
 import MultiExerciseButton from './components/MultiExerciseButton';
 import PositionSummary from './components/PositionSummary';
+
 
 export type OptionExerciseData = {
   profit?: string;
@@ -297,132 +293,136 @@ const BuyPositions = ({
     if (!selectedOptionsMarket) return [];
     const chainId = chain?.id ?? DEFAULT_CHAIN_ID;
     if (!optionsPositions['map']) return [];
-    return optionsPositions.map(
-      ({
-        strike,
-        token,
-        type,
-        size,
-        premium,
-        meta: { expiry, tokenId, liquidities, handlers },
-      }) => {
-        const side = type;
-        const { address, decimals } = token;
-        const isCall = type === 'call';
-        const sizeReadable = Number(formatUnits(BigInt(size), decimals));
-        const sizeUsdValue = isCall ? sizeReadable * markPrice : sizeReadable;
+    return optionsPositions
+      .map(
+        ({
+          strike,
+          token,
+          type,
+          size,
+          premium,
+          meta: { expiry, tokenId, liquidities, handlers },
+        }) => {
+          const side = type;
+          const { address, decimals } = token;
+          const isCall = type === 'call';
+          const sizeReadable = Number(formatUnits(BigInt(size), decimals));
+          const sizeUsdValue = isCall ? sizeReadable * markPrice : sizeReadable;
 
-        const optionsAmount =
-          side.toLowerCase() === 'put'
-            ? Number(sizeUsdValue) / strike
-            : sizeReadable;
+          const optionsAmount =
+            side.toLowerCase() === 'put'
+              ? Number(sizeUsdValue) / strike
+              : sizeReadable;
 
-        const premiumReadable = Number(formatUnits(BigInt(premium), decimals));
+          const premiumReadable = Number(
+            formatUnits(BigInt(premium), decimals),
+          );
 
-        const premiumUsdValue = isCall
-          ? premiumReadable * markPrice
-          : premiumReadable;
+          const premiumUsdValue = isCall
+            ? premiumReadable * markPrice
+            : premiumReadable;
 
-        const breakEven =
-          side.toLowerCase() === 'put'
-            ? Number(strike) - premiumUsdValue / optionsAmount
-            : Number(strike) + premiumUsdValue / optionsAmount;
+          const breakEven =
+            side.toLowerCase() === 'put'
+              ? Number(strike) - premiumUsdValue / optionsAmount
+              : Number(strike) + premiumUsdValue / optionsAmount;
 
-        const profitUsdValue = Math.max(
-          (isCall ? markPrice - strike : strike - markPrice) * optionsAmount,
-          0,
-        );
+          const profitUsdValue = Math.max(
+            (isCall ? markPrice - strike : strike - markPrice) * optionsAmount,
+            0,
+          );
 
-        const profitReadable =
-          side.toLowerCase() === 'put'
-            ? profitUsdValue / markPrice
-            : profitUsdValue;
+          const profitReadable =
+            side.toLowerCase() === 'put'
+              ? profitUsdValue / markPrice
+              : profitUsdValue;
 
-        const callTokenSymbol = getTokenSymbol({
-          address: selectedOptionsMarket.callToken.address,
-          chainId,
-        });
-        const putTokenSymbol = getTokenSymbol({
-          address: selectedOptionsMarket.putToken.address,
-          chainId,
-        });
+          const callTokenSymbol = getTokenSymbol({
+            address: selectedOptionsMarket.callToken.address,
+            chainId,
+          });
+          const putTokenSymbol = getTokenSymbol({
+            address: selectedOptionsMarket.putToken.address,
+            chainId,
+          });
 
-        const callTokenURI = getTokenLogoURI({
-          address: selectedOptionsMarket.callToken.address,
-          chainId,
-        });
+          const callTokenURI = getTokenLogoURI({
+            address: selectedOptionsMarket.callToken.address,
+            chainId,
+          });
 
-        const putTokenURI = getTokenLogoURI({
-          address: selectedOptionsMarket.putToken.address,
-          chainId,
-        });
+          const putTokenURI = getTokenLogoURI({
+            address: selectedOptionsMarket.putToken.address,
+            chainId,
+          });
 
-        return {
-          strike: {
-            disabled: profitUsdValue === 0,
-            isSelected: Boolean(selectedOptions.get(tokenId)),
-            price: strike,
-            handleSelect: async () => {
-              if (Boolean(selectedOptions.get(tokenId))) {
-                setSelectedOptions((prev) => {
-                  prev.delete(tokenId);
-                  return new Map(prev);
-                });
-              } else {
-                await generateExerciseTx(
-                  tokenId,
-                  liquidities,
-                  handlers.map(({ name }) => name),
-                );
-              }
+          return {
+            strike: {
+              disabled: profitUsdValue === 0,
+              isSelected: Boolean(selectedOptions.get(tokenId)),
+              price: strike,
+              handleSelect: async () => {
+                if (Boolean(selectedOptions.get(tokenId))) {
+                  setSelectedOptions((prev) => {
+                    prev.delete(tokenId);
+                    return new Map(prev);
+                  });
+                } else {
+                  await generateExerciseTx(
+                    tokenId,
+                    liquidities,
+                    handlers.map(({ name }) => name),
+                  );
+                }
+              },
             },
-          },
-          breakEven,
-          side: type,
-          size: {
-            amount: sizeReadable,
-            symbol: getTokenSymbol({
-              address: getAddress(address),
-              chainId,
-            }),
-            usdValue: sizeUsdValue,
-          },
-          premium: {
-            amount: premiumReadable,
-            symbol: getTokenSymbol({
-              address: getAddress(address),
-              chainId,
-            }),
-            usdValue: premiumUsdValue,
-          },
-          expiry,
-          profit: {
-            amount: profitReadable,
-            symbol: getTokenSymbol({
-              address: isCall
-                ? selectedOptionsMarket?.putToken.address
-                : selectedOptionsMarket?.callToken.address,
-              chainId,
-            }),
-            usdValue: profitUsdValue,
-          },
-          share: () => {
-            handleShare({
-              amount: optionsAmount,
-              callTokenSymbol,
-              putTokenSymbol,
-              putTokenURI,
-              callTokenURI,
-              currentPrice: markPrice,
-              premiumUsd: premiumUsdValue,
-              profitUsd: profitUsdValue,
-              strike,
-              side,
-            });
-          },
-        };
-      },
-    );
+            breakEven,
+            side: type,
+            size: {
+              amount: sizeReadable,
+              symbol: getTokenSymbol({
+                address: getAddress(address),
+                chainId,
+              }),
+              usdValue: sizeUsdValue,
+            },
+            premium: {
+              amount: premiumReadable,
+              symbol: getTokenSymbol({
+                address: getAddress(address),
+                chainId,
+              }),
+              usdValue: premiumUsdValue,
+            },
+            expiry,
+            profit: {
+              amount: profitReadable,
+              symbol: getTokenSymbol({
+                address: isCall
+                  ? selectedOptionsMarket?.putToken.address
+                  : selectedOptionsMarket?.callToken.address,
+                chainId,
+              }),
+              usdValue: profitUsdValue,
+            },
+            share: () => {
+              handleShare({
+                amount: optionsAmount,
+                callTokenSymbol,
+                putTokenSymbol,
+                putTokenURI,
+                callTokenURI,
+                currentPrice: markPrice,
+                premiumUsd: premiumUsdValue,
+                profitUsd: profitUsdValue,
+                strike,
+                side,
+              });
+            },
+          };
+        },
+      )
+      .sort((a, b) => b.expiry - a.expiry);
   }, [
     handleShare,
     selectedOptions,

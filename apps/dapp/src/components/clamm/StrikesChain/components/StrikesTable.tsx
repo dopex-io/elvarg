@@ -365,7 +365,11 @@ const StrikesTable = ({ filterSettings }: Props) => {
       }
     });
 
-    return isPut ? strikesFilteredIsPut : strikesFilteredIsPut.reverse();
+    return isPut
+      ? strikesFilteredIsPut.sort((a, b) => Number(b.strike) - Number(a.strike))
+      : strikesFilteredIsPut.sort(
+          (a, b) => Number(a.strike) - Number(b.strike),
+        );
   }, [
     chain?.id,
     isEligibleForRewards,
