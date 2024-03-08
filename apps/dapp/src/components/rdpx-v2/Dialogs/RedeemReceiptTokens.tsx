@@ -12,8 +12,8 @@ import {
 import useTokenData from 'hooks/helpers/useTokenData';
 
 import Alert, { AlertSeverity } from 'components/common/Alert';
+import RowItem from 'components/common/RowItem';
 import PanelInput from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/PanelInput';
-import RowItem from 'components/ssov-beta/AsidePanel/RowItem';
 
 import formatBigint from 'utils/general/formatBigint';
 

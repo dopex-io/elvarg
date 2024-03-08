@@ -3,18 +3,10 @@
   "compilerOptions": {
     "baseUrl": "src",
     "paths": {
-      "public/*": ["../public/*"]
+      "public/*": ["../public/*"],
     },
-    "target": "EsNext"
+    "target": "EsNext",
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.js",
-    "**/*.tsx",
-    "sentry.server.config.ts",
-    "sentry.edge.config.ts",
-    "sentry.client.config.ts"
-  ],
-  "exclude": ["node_modules", "public"]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.js", "**/*.tsx"],
+  "exclude": ["node_modules", "public"],
 }

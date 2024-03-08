@@ -9,8 +9,8 @@ import { erc20ABI, useAccount, useContractRead, useContractWrite } from 'wagmi';
 import useTokenData from 'hooks/helpers/useTokenData';
 import useRewardAPR from 'hooks/rdpx/useRewardAPR';
 
+import RowItem from 'components/common/RowItem';
 import PanelInput from 'components/rdpx-v2/AsidePanel/BondPanel/Bond/PanelInput';
-import RowItem from 'components/ssov-beta/AsidePanel/RowItem';
 
 import { DECIMALS_TOKEN } from 'constants/index';
 import CurveMultiRewards from 'constants/rdpx/abis/CurveMultiRewards';

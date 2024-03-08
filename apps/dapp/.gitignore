@@ -45,6 +45,3 @@ out
 
 # Local next.js folder
 .next
-
-# Sentry
-.sentryclirc
