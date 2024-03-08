@@ -1,40 +1,44 @@
-import React, { Dispatch, useCallback, useEffect, useMemo, useState } from 'react';
-import { Address, encodeAbiParameters, encodeFunctionData, formatUnits, getAddress, Hex } from 'viem';
+import React, {
+  Dispatch,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import {
+  Address,
+  encodeAbiParameters,
+  encodeFunctionData,
+  formatUnits,
+  getAddress,
+  Hex,
+} from 'viem';
 
-
-
-import { ArrowDownRightIcon, ArrowPathIcon, ArrowUpRightIcon } from '@heroicons/react/24/solid';
+import {
+  ArrowDownRightIcon,
+  ArrowPathIcon,
+  ArrowUpRightIcon,
+} from '@heroicons/react/24/solid';
 import { useQuery } from '@tanstack/react-query';
 import DopexV2OptionMarketV2 from 'abis/clamm/DopexV2OptionMarketV2';
 import toast from 'react-hot-toast';
 import { useNetwork, useWalletClient } from 'wagmi';
 
-
-
 import useClammStore from 'hooks/clamm/useClammStore';
 import useShare from 'hooks/useShare';
 import useUserBalance from 'hooks/useUserBalance';
 
-
-
 import TableLayout from 'components/common/TableLayout';
-
-
 
 import { cn, formatAmount } from 'utils/general';
 import { getTokenLogoURI, getTokenSymbol } from 'utils/token';
 
-
-
 import { HANDLER_TO_SWAPPER } from 'constants/clamm';
 import { DEFAULT_CHAIN_ID, VARROCK_BASE_API_URL } from 'constants/env';
-
-
 
 import { BuyPositionItem, columns } from '../columnHelpers/buyPositions';
 import MultiExerciseButton from './components/MultiExerciseButton';
 import PositionSummary from './components/PositionSummary';
-
 
 export type OptionExerciseData = {
   profit?: string;
@@ -244,7 +248,7 @@ const BuyPositions = ({
           return;
         }
         const swapper = handlers.map((name) => swappers[name]);
-        const slippage = 100n;
+        const slippage = 1000n;
         const liquidityToExercise = liquidities.map((liq) => BigInt(liq));
         const swapData = liquidityToExercise.map((liq) =>
           encodeAbiParameters(
@@ -487,7 +491,12 @@ const BuyPositions = ({
               )}
             />
           </div>
-          <MultiExerciseButton positions={selectedOptions} />
+          <MultiExerciseButton
+            clearPositions={() => {
+              setSelectedOptions(new Map());
+            }}
+            positions={selectedOptions}
+          />
         </div>
       </div>
       <TableLayout<BuyPositionItem>

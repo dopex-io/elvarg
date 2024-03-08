@@ -12,9 +12,10 @@ import { OptionExerciseData } from '../..';
 
 type Props = {
   positions: Map<string, OptionExerciseData>;
+  clearPositions: () => void
 };
 
-const MultiExerciseButton = ({ positions }: Props) => {
+const MultiExerciseButton = ({ positions, clearPositions }: Props) => {
   const { selectedOptionsMarket } = useClammStore();
   const { updateBuyPositions } = useClammPositions();
 
@@ -34,6 +35,7 @@ const MultiExerciseButton = ({ positions }: Props) => {
         writeAsync()
           .then(() => {
             toast.success('Transaction sent');
+            clearPositions()
           })
           .catch((e) => {
             const err = e as BaseError;
