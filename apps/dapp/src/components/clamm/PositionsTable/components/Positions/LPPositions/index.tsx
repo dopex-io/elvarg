@@ -28,6 +28,7 @@ const LPPositions = ({
       chain.id,
       selectedOptionsMarket.address,
     );
+
     if (!_pools) return [];
     return _pools;
   }, [chain, selectedOptionsMarket]);
@@ -73,7 +74,7 @@ const LPPositions = ({
         {selectedOptionsMarket?.deprecated && <ClaimButton />}
       </div>
       <Positions
-        positions={data.map(({ data }) => data)}
+        positions={data.map(({ data }) => data).filter((data) => data.length > 0)}
         refetches={data.map(({ refetch }) => refetch)}
       />
     </div>
