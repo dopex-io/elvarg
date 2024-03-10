@@ -88,26 +88,6 @@ const AsidePanel = () => {
           <InfoPanel updateTokenBalances={updateTokenBalances} />
         )}
       </div>
-      {chain && chain.id === 5000 && (
-        <div className="flex flex-col bg-umbra rounded-md space-y-2 p-3">
-          <span className="flex w-full justify-between">
-            <h6 className="flex items-center justify-center space-x-[4px] text-xs">
-              <ExclamationTriangleIcon
-                height={18}
-                width={18}
-                className="text-jaffa"
-              />
-              <span className="text-jaffa">Data Update Delay</span>
-            </h6>
-          </span>
-
-          <span className="text-jaffa text-xs">
-            There is a delay in updating of data, we are fully aware of this
-            issue and are actively working on a fix. Thank you for your
-            patience.
-          </span>
-        </div>
-      )}
       <div className="flex flex-col bg-umbra rounded-md space-y-2 p-3">
         <span className="flex w-full justify-between">
           <h6 className="flex items-center justify-center space-x-1 text-xs">
@@ -117,7 +97,7 @@ const AsidePanel = () => {
         </span>
         <p className="text-stieglitz text-xs">
           We have deployed CLAMM on Mantle Mainnet for the markets: WMNT/USDT,
-          WETH/USDC and WETH/USDT. 
+          WETH/USDC and WETH/USDT.
           <a
             className="text-wave-blue font-medium underline"
             href="https://blog.dopex.io/articles/clamm-upgrade-realising-strykes-vision"
