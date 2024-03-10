@@ -146,61 +146,6 @@ const StrikesTable = ({ filterSettings }: Props) => {
           </span>
         ),
       }),
-      helper.accessor('amms', {
-        header: 'AMM',
-        cell: (info) => {
-          const { getValue } = info;
-          const compositionMapping = new Map<string, number>();
-          let total = 0;
-          Array.from(getValue()).forEach(([key, liq]) => {
-            const currentLiq = compositionMapping.get(key);
-            total += liq;
-            if (!currentLiq) {
-              compositionMapping.set(key, liq);
-            } else {
-              compositionMapping.set(key, liq + currentLiq);
-            }
-          });
-          Array.from(compositionMapping).map(([key, totaLiq], index) => (
-            <div key={key} className="flex items-center w-[50px] text-[12px]">
-              <div className="flex flex-col">
-                <img
-                  src={`/images/exchanges/${key}.svg`}
-                  alt={key}
-                  className="w-[24px] h-[24px]"
-                />
-                <span className="flex space-x-[4px] text-white">
-                  <span>{formatAmount((100 * totaLiq) / total, 0)}</span>
-                  <span className="text-stieglitz">%</span>
-                </span>
-              </div>
-            </div>
-          ));
-
-          return (
-            <div className="flex items-center justify-start">
-              {Array.from(compositionMapping).map(([key, totaLiq], index) => (
-                <div
-                  key={key}
-                  className="flex items-center w-[50px] text-[12px]"
-                >
-                  <div className="flex flex-col">
-                    <img
-                      src={`/images/exchanges/${key}.svg`}
-                      alt={key}
-                      className="w-[24px] h-[24px]"
-                    />
-                    <span className="flex space-x-[4px] text-white">
-                      <span>{formatAmount((100 * totaLiq) / total, 0)}</span>
-                      <span className="text-stieglitz">%</span>
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          );
-        },
-      }),
       helper.accessor('manage', {
         header: '',
         cell: ({ getValue }) => (

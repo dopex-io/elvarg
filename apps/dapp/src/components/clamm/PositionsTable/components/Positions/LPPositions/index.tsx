@@ -74,7 +74,9 @@ const LPPositions = ({
         {selectedOptionsMarket?.deprecated && <ClaimButton />}
       </div>
       <Positions
-        positions={data.map(({ data }) => data).filter((data) => data.length > 0)}
+        positions={data
+          .map(({ data }) => data ?? [])
+          .filter((data) => data.length > 0)}
         refetches={data.map(({ refetch }) => refetch)}
       />
     </div>

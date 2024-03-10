@@ -10,6 +10,8 @@ import { createColumnHelper } from '@tanstack/react-table';
 
 import { formatAmount } from 'utils/general';
 
+import { AMM_TO_READABLE_NAME } from 'constants/clamm';
+
 import ManageDialog from './ManageDialog';
 
 export type Columns = {
@@ -131,14 +133,7 @@ export const columns = [
     header: 'AMM',
     cell: ({ getValue }) => (
       <div className="flex items-center space-x-[4px]">
-        <span>
-          {getValue().name[0].toUpperCase() + getValue().name.slice(1)}
-        </span>
-        <img
-          src={`/images/exchanges/${getValue().name}.svg`}
-          alt={getValue().name}
-          className="w-[24px] h-[24px]"
-        />
+        <span>{AMM_TO_READABLE_NAME[getValue().name]}</span>
         {getValue().deprecated && (
           <Tooltip.Provider>
             <Tooltip.Root>
