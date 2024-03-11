@@ -23,7 +23,8 @@ import seo from 'constants/seo';
 const Page = () => {
   const params = useParams();
   const router = useRouter();
-  const { initialize, selectedOptionsMarket } = useClammStore();
+  const { initialize, selectedOptionsMarket, setSelectedOptionsMarket } =
+    useClammStore();
   const { setSelectedTicker } = useTradingViewChartStore();
   const { chain } = useNetwork();
 
@@ -51,17 +52,15 @@ const Page = () => {
     if (!chain) return;
     if (params && params['pair']) {
       const [pair] = params['pair'];
-      if (chain.id === 42161) {
-        if (!CHAIN_TO_OPTION_MARKETS[42161].includes(pair)) {
-          router.push(`${CHAIN_TO_OPTION_MARKETS[42161][0]}`);
-        }
-      } else if (chain.id === 5000) {
-        if (!CHAIN_TO_OPTION_MARKETS[5000].includes(pair)) {
-          router.push(`${CHAIN_TO_OPTION_MARKETS[5000][0]}`);
-        }
+      const pairExists = CHAIN_TO_OPTION_MARKETS[chain.id].includes(pair);
+      if (pairExists) return;
+      const firstPair = CHAIN_TO_OPTION_MARKETS[chain.id][0];
+      if (!pairExists) {
+        router.push(`${firstPair}`);
+        setSelectedOptionsMarket(firstPair);
       }
     }
-  }, [params, chain, router]);
+  }, [chain, params, router, setSelectedOptionsMarket]);
 
   useEffect(() => {
     if (!data || isError || !chain) return;

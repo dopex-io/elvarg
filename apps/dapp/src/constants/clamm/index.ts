@@ -99,9 +99,9 @@ export const HANDLER_TO_POOLS: Record<
   },
 };
 
-export const CHAIN_TO_OPTION_MARKETS = {
+export const CHAIN_TO_OPTION_MARKETS: Record<number, string[]> = {
   42161: ['WETH-USDC', 'ARB-USDC', 'WBTC-USDC'],
-  5000: ['WETH-USDT', 'WMNT-USDT', 'WETH-USDC'],
+  5000: ['WETH-USDT', 'WMNT-USDT'],
 };
 
 export const HANDLER_TO_SWAPPER: Record<

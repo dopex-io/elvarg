@@ -44,7 +44,7 @@ type Addresses = {
 
 type ClammStore = {
   selectedOptionsMarket: OptionMarket | null;
-  setSelectedOptionsMarket: any;
+  setSelectedOptionsMarket: (marketPair: string) => void;
   optionMarkets: Map<string, OptionMarket>;
   initialize: (response: OptionMarket[], chainId: number) => void;
 
