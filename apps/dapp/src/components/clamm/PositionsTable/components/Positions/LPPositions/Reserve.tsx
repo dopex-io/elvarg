@@ -359,7 +359,7 @@ const Reserve = ({
               {formatAmount(
                 formatUnits(
                   BigInt(reserved.withdrawable.amount1),
-                  withdraw.amount0Decimals,
+                  withdraw.amount1Decimals,
                 ),
                 5,
               )}
