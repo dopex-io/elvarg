@@ -22,8 +22,7 @@ const TitleBar = () => {
   });
 
   const { reset } = useStrikesChainStore();
-  const { selectedOptionsMarket, optionMarkets, setSelectedOptionsMarket } =
-    useClammStore();
+  const { optionMarkets, setSelectedOptionsMarket } = useClammStore();
 
   useEffect(() => {
     /**

@@ -81,7 +81,6 @@ export const HANDLER_TO_POOLS: Record<
       'weth-usdc': '0x01845ec86909006758DE0D57957D88Da10bf5809',
     },
     butter: {
-      'weth-usdc': '0xB301c86b37801ee31448fE09EF271279f6F0B068',
       'weth-usdt': '0xD801D457D9cC70f6018a62885F03BB70706F59Cc',
       'wmnt-usdt': '0x0B15691C828fF6D499375e2ca2070B08Dd62369E',
     },

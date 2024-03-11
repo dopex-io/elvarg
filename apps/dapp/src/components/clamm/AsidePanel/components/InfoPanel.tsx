@@ -321,6 +321,8 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     )
       return;
 
+    setLoading(ASIDE_PANEL_BUTTON_KEY, true);
+
     const purchasesTx: Hex[] = [];
     const purchasesArray = Array.from(purchases);
     const { publicClient } = wagmiConfig;
@@ -437,7 +439,6 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
       },
     );
 
-    setLoading(ASIDE_PANEL_BUTTON_KEY, true);
     const loadingId = toast.loading('Opening wallet');
 
     try {
@@ -599,7 +600,10 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
           allowancesLoading ||
           approveCallTokenLoading ||
           approvePutTokenLoading ||
-          selectedOptionsMarket?.deprecated
+          selectedOptionsMarket?.deprecated ||
+          isTrade
+            ? purchases.size === 0
+            : deposits.size === 0
         }
       >
         {selectedOptionsMarket?.deprecated ? (

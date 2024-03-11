@@ -104,7 +104,7 @@ export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/ssov': { default: 42161, all: [42161, 137, 1] },
   '/portfolio': { default: 42161, all: [42161, 137] },
   '/ssov/MATIC-WEEKLY-CALLS-SSOV-V3': { default: 137, all: [137] },
-  '/clamm/WETH-USDC': { default: 42161, all: [42161, 5000] },
+  '/clamm/WETH-USDC': { default: 42161, all: [42161] },
   '/clamm/ARB-USDC': { default: 42161, all: [42161, 5000] },
   '/clamm/WBTC-USDC': { default: 42161, all: [42161, 5000] },
   '/clamm/WMNT-USDT': { default: 5000, all: [42161, 5000] },

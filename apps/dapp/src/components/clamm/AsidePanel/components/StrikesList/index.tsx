@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import { Listbox } from '@dopex-io/ui';
 import {
@@ -6,6 +6,7 @@ import {
   ArrowUpRightIcon,
   ChevronDownIcon,
 } from '@heroicons/react/24/solid';
+import { useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 import { BasicStrikeInfo } from 'hooks/clamm/useClammTransactionsStore';
@@ -20,16 +21,27 @@ type Prop = {
 };
 
 const StrikesList = ({ strikes, isPut, selectedLength }: Prop) => {
+  const { chain } = useNetwork();
   const { selectStrike, selectedStrikes, deselectStrike } =
     useStrikesChainStore();
   const { markPrice } = useClammStore();
 
-  const rewardsStrikesLimit = useMemo(() => {
-    return {
-      upperLimit: markPrice * 1.024,
-      lowerLimit: markPrice * 0.976,
-    };
-  }, [markPrice]);
+  const isEligibleForRewards = useCallback(
+    (price: number) => {
+      if (!chain) return false;
+      if (
+        chain.id === 42161 &&
+        new Date().getTime() < 1711929604000 /* 1st april */
+      ) {
+        const upperLimit = markPrice * 1.024;
+        const lowerLimit = markPrice * 0.976;
+        return price < upperLimit && price > lowerLimit;
+      } else {
+        return false;
+      }
+    },
+    [markPrice, chain],
+  );
 
   return (
     <div className="w-full z-20">
@@ -85,16 +97,13 @@ const StrikesList = ({ strikes, isPut, selectedLength }: Prop) => {
               >
                 <div className="flex items-center w-full justify-center">
                   <div className="flex items-center justfiy-center space-x-[4px]">
-                    {rewardsStrikesLimit.lowerLimit <
-                      Number(strikeData.strike) &&
-                      rewardsStrikesLimit.upperLimit >
-                        Number(strikeData.strike) && (
-                        <img
-                          src="/images/tokens/arb.svg"
-                          alt="ARB"
-                          className="w-[10px] h-[10px]"
-                        />
-                      )}
+                    {isEligibleForRewards(strikeData.strike) && (
+                      <img
+                        src="/images/tokens/arb.svg"
+                        alt="ARB"
+                        className="w-[10px] h-[10px]"
+                      />
+                    )}
                     <span
                       className={cn(
                         'text-sm',
