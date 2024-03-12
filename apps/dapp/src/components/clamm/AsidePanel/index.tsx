@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { formatUnits, zeroAddress } from 'viem';
 
-import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { erc20ABI, useAccount, useContractReads, useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
@@ -23,7 +22,6 @@ const AsidePanel = () => {
   const { selectedOptionsMarket, setTokenBalances, isTrade } = useClammStore();
   const [strikesSelectionMode, setStrikesSelectionMode] = useState<0 | 1>(0);
   const { address: userAddress } = useAccount();
-  const { chain } = useNetwork();
 
   const { data, refetch: updateTokenBalances } = useContractReads({
     contracts: [
