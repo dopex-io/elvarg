@@ -91,10 +91,10 @@ export const HANDLER_TO_POOLS: Record<
       'wbtc-usdc': '0x0e4831319a50228b9e450861297ab92dee15b44f',
       'arb-usdc': '0xb0f6ca40411360c03d41c5ffc5f179b8403cdcf8',
     },
-    pancake: {
-      'weth-usdc': '0xd9e2a1a61B6E61b275cEc326465d417e52C1b95c',
-      'arb-usdc': '0x9fFCA51D23Ac7F7df82da414865Ef1055E5aFCc3',
-    },
+    // pancake: {
+    //   'weth-usdc': '0xd9e2a1a61B6E61b275cEc326465d417e52C1b95c',
+    //   'arb-usdc': '0x9fFCA51D23Ac7F7df82da414865Ef1055E5aFCc3',
+    // },
   },
 };
 

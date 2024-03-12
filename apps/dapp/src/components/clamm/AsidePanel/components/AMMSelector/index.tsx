@@ -6,6 +6,8 @@ import { useNetwork } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 
+import { cn } from 'utils/general';
+
 import { AMM_TO_READABLE_NAME, HANDLER_TO_POOLS } from 'constants/clamm';
 
 const CLAMM_AMMS: Record<number, string[]> = {
@@ -53,16 +55,25 @@ const AMMSelector = () => {
     }
   }, [amms, selectedAMM, setSelectedAMM]);
 
+  console.log(amms.length);
+
   return (
     <div className="flex items-center justify-between bg-umbra p-[12px]">
       <span className="text-[13px] text-stieglitz">Select AMM</span>
       <Select.Root
+        disabled={amms.length === 1}
         defaultValue={amms[0]}
         onValueChange={(v) => {
           setSelectedAMM(v);
         }}
       >
-        <Select.Trigger className="w-[100px] text-white text-[13px] bg-mineshaft rounded-sm outline-none h-[25px]">
+        <Select.Trigger
+          disabled={amms.length === 1}
+          className={cn(
+            'w-[160px] text-white text-[13px] bg-mineshaft rounded-sm outline-none h-[25px]',
+            amms.length === 1 && 'cursor-not-allowed',
+          )}
+        >
           <Select.Value className="flex items-center">
             <Select.Icon className="flex items-center justify-between px-[12px]">
               <span className="text-[13px] text-center w-full flex items-center">
@@ -77,17 +88,17 @@ const AMMSelector = () => {
           </Select.Value>
         </Select.Trigger>
         <Select.Portal>
-          <Select.Content className="bg-carbon w-full rounded-md">
+          <Select.Content className="bg-carbon rounded-md">
             <Select.Viewport>
               {chain &&
                 amms.map((amm, index) => (
                   <Select.Item
                     value={amm}
-                    className="text-[13px] p-[4px] hover:bg-mineshaft flex items-center justify-center hover:cursor-pointer rounded-md outline-none w-full"
+                    className="text-[13px] p-[4px] hover:bg-mineshaft flex items-center justify-center hover:cursor-pointer rounded-md outline-none"
                     key={index}
                   >
                     <Select.ItemText>
-                      {amm[0].toUpperCase() + amm.slice(1)}
+                      {AMM_TO_READABLE_NAME[amm]}
                     </Select.ItemText>
                   </Select.Item>
                 ))}

@@ -3,6 +3,7 @@ import { useParams } from 'next/navigation';
 import router from 'next/router';
 
 import useClammStore from 'hooks/clamm/useClammStore';
+import useClammTransactionsStore from 'hooks/clamm/useClammTransactionsStore';
 import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 
 import OverViewStats from 'components/clamm/TitleBar/OverViewStats';
@@ -23,6 +24,7 @@ const TitleBar = () => {
 
   const { reset } = useStrikesChainStore();
   const { optionMarkets, setSelectedOptionsMarket } = useClammStore();
+  const { resetDeposits, resetPurchases } = useClammTransactionsStore();
 
   useEffect(() => {
     /**
@@ -71,10 +73,12 @@ const TitleBar = () => {
       router.replace(pairName);
       setSelectedPair(T);
       setSelectedOptionsMarket(pairName);
+      resetPurchases();
+      resetDeposits();
       reset();
       localStorage.setItem(LAST_VISITED_CLAMM_POOL_KEY, pairName);
     },
-    [reset, setSelectedOptionsMarket],
+    [reset, setSelectedOptionsMarket, resetDeposits, resetPurchases],
   );
 
   return (
