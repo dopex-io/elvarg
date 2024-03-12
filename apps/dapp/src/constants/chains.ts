@@ -73,7 +73,7 @@ export const CHAINS: {
     name: 'Mantle',
     rpc: `https://lb.drpc.org/ogrpc?network=arbitrum&dkey=${DRPC_API_KEY}`,
     publicRpc: 'https://1rpc.io/mantle',
-    explorer: 'https://https://explorer.mantle.xyz/',
+    explorer: 'https://explorer.mantle.xyz/',
     nativeToken: 'ETH',
     icon: '/images/networks/mantle.svg',
     tokenDecimals: {
