@@ -5,6 +5,7 @@ import { Button } from '@dopex-io/ui';
 import { ArrowLongRightIcon, Cog6ToothIcon } from '@heroicons/react/24/solid';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import * as Slider from '@radix-ui/react-slider';
+import UniswapV3Pool from 'abis/clamm/UniswapV3Pool';
 import toast from 'react-hot-toast';
 import { useContractRead, useWalletClient } from 'wagmi';
 
@@ -14,7 +15,6 @@ import { formatAmount } from 'utils/general';
 
 import { PrepareWithdrawData } from './columns';
 import { CreateWithdrawTx } from './ManageDialog';
-import UniswapV3Pool from 'abis/clamm/UniswapV3Pool';
 
 type Props = {
   updateTxQueue: (
@@ -29,6 +29,8 @@ type Props = {
 };
 
 const WithdrawButton = ({
+  handler,
+  hook,
   amount0,
   amount1,
   amount0Symbol,
@@ -75,6 +77,9 @@ const WithdrawButton = ({
 
       const withdrawTX = await createWithdrawTx([
         {
+          pool,
+          handler,
+          hook,
           tickLower,
           tickUpper,
           tokenId: BigInt(tokenId),
@@ -100,6 +105,9 @@ const WithdrawButton = ({
       }
     }
   }, [
+    handler,
+    hook,
+    pool,
     createWithdrawTx,
     updateTxQueue,
     walletClient,
