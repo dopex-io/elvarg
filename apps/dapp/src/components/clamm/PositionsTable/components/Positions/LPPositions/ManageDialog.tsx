@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import {
+  Address,
   BaseError,
   encodeAbiParameters,
   encodeFunctionData,
@@ -26,11 +27,9 @@ import {
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { createColumnHelper } from '@tanstack/react-table';
 import DopexV2PositionManager from 'abis/clamm/DopexV2PositionManager';
-import UniswapV3Pool from 'abis/clamm/UniswapV3Pool';
 import UniswapV3SingleTickLiquidityHandlerV2 from 'abis/clamm/UniswapV3SingleTickLiquidityHandlerV2';
 import toast from 'react-hot-toast';
-import { useContractRead, useWalletClient } from 'wagmi';
-import wagmiConfig from 'wagmi-config';
+import { usePublicClient, useWalletClient } from 'wagmi';
 
 import useClammStore from 'hooks/clamm/useClammStore';
 
@@ -45,6 +44,9 @@ import Reserve from './Reserve';
 import WithdrawButton from './WithdrawButton';
 
 export type CreateWithdrawTx = {
+  pool: Address;
+  hook: Address;
+  handler: Address;
   max: boolean;
   withdrawableLiquidity: bigint;
   tokenId: bigint;
@@ -66,7 +68,7 @@ type Props = {
 const helper = createColumnHelper<LPPositionItemForTable>();
 
 const ManageDialog = ({ positions, refetch }: Props) => {
-  const { publicClient } = wagmiConfig;
+  const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
   const [isRefetching, setIsRefetching] = useState(false);
   const [isGeneratingTx, setIsGeneratingTx] = useState(false);
@@ -86,16 +88,6 @@ const ManageDialog = ({ positions, refetch }: Props) => {
     symbol0: positions[0].liquidity.amount0Symbol,
     symbol1: positions[0].liquidity.amount1Symbol,
   };
-
-  const pool = positions[0].withdraw.pool;
-  const handler = positions[0].withdraw.handler;
-  const hook = positions[0].withdraw.hook;
-
-  const { data } = useContractRead({
-    abi: UniswapV3Pool,
-    address: pool,
-    functionName: 'slot0',
-  });
 
   const removeTxFromQueue = (id: string) => {
     setWithdrawTxQueue((prev) => {
@@ -139,11 +131,11 @@ const ManageDialog = ({ positions, refetch }: Props) => {
 
   const createWithdrawTx = useCallback(
     async (params: CreateWithdrawTx[]) => {
-      if (!data || !walletClient || !selectedOptionsMarket) return;
+      if (!walletClient || !selectedOptionsMarket) return;
       setIsGeneratingTx(true);
 
       let multicallRequest = params.map(
-        ({ tokenId, withdrawableLiquidity, max }) =>
+        ({ tokenId, withdrawableLiquidity, max, handler }) =>
           max
             ? {
                 abi: UniswapV3SingleTickLiquidityHandlerV2,
@@ -160,15 +152,16 @@ const ManageDialog = ({ positions, refetch }: Props) => {
       );
 
       try {
-        const convertToShares = await getSharesMulticall(multicallRequest);
         setIsGeneratingTx(false);
+        const convertToShares = await getSharesMulticall(multicallRequest);
         return convertToShares.map((shares, index) => {
-          shares = shares > 2n ? shares - 1n : shares;
+          shares = shares > 3n ? shares - 1n : shares;
+
           return encodeFunctionData({
             abi: DopexV2PositionManager,
             functionName: 'burnPosition',
             args: [
-              handler,
+              params[index]['handler'],
               selectedOptionsMarket.deprecated
                 ? encodeAbiParameters(
                     [
@@ -191,7 +184,7 @@ const ManageDialog = ({ positions, refetch }: Props) => {
                       },
                     ],
                     [
-                      pool,
+                      params[index]['pool'],
                       params[index]['tickLower'],
                       params[index]['tickUpper'],
                       shares,
@@ -221,8 +214,8 @@ const ManageDialog = ({ positions, refetch }: Props) => {
                       },
                     ],
                     [
-                      pool,
-                      hook,
+                      params[index]['pool'],
+                      params[index]['hook'],
                       params[index]['tickLower'],
                       params[index]['tickUpper'],
                       shares,
@@ -236,15 +229,7 @@ const ManageDialog = ({ positions, refetch }: Props) => {
       }
       setIsGeneratingTx(false);
     },
-    [
-      data,
-      handler,
-      pool,
-      hook,
-      walletClient,
-      getSharesMulticall,
-      selectedOptionsMarket,
-    ],
+    [walletClient, getSharesMulticall, selectedOptionsMarket],
   );
 
   const isSelected = useCallback(
@@ -274,12 +259,18 @@ const ManageDialog = ({ positions, refetch }: Props) => {
                   const params = positions.map(
                     ({
                       withdraw: {
+                        pool,
+                        hook,
+                        handler,
                         tickLower,
                         tickUpper,
                         tokenId,
                         withdrawableLiquidity,
                       },
                     }) => ({
+                      pool,
+                      hook,
+                      handler,
                       max: false,
                       tickLower,
                       tickUpper,
@@ -331,6 +322,9 @@ const ManageDialog = ({ positions, refetch }: Props) => {
                   if (checked) {
                     const withdrawTx = await createWithdrawTx([
                       {
+                        pool: rowData['pool'],
+                        hook: rowData['hook'],
+                        handler: rowData['handler'],
                         max: false,
                         tickLower: rowData['tickLower'],
                         tickUpper: rowData['tickUpper'],
@@ -579,18 +573,22 @@ const ManageDialog = ({ positions, refetch }: Props) => {
     try {
       const txBatched = Array.from(withdrawTxQueue).map(([_, { tx }]) => tx);
 
-      const tx = await walletClient.writeContract({
+      const { request } = await publicClient.simulateContract({
+        account: walletClient.account,
         abi: DopexV2PositionManager,
         functionName: 'multicall',
         address: positionManager,
         args: [txBatched],
       });
 
+      const hash = await walletClient.writeContract(request);
+      await publicClient.waitForTransactionReceipt({ hash });
+
       toast.success('Transaction sent!');
-      console.log('Withdraw transaction receipt: ', tx);
       handleRefresh();
     } catch (err) {
       if (err instanceof BaseError) {
+        console.log(err);
         toast.error(err['shortMessage']);
       } else {
         console.error(err);
@@ -600,7 +598,7 @@ const ManageDialog = ({ positions, refetch }: Props) => {
       }
     }
     setIsRefetching(false);
-  }, [walletClient, withdrawTxQueue, handleRefresh]);
+  }, [walletClient, withdrawTxQueue, handleRefresh, publicClient]);
 
   const totalWithdrawAmounts = useMemo(() => {
     let total = {
