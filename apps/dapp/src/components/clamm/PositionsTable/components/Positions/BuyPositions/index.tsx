@@ -7,12 +7,14 @@ import React, {
 } from 'react';
 import { Address, formatUnits, getAddress, Hex } from 'viem';
 
+import { Button } from '@dopex-io/ui';
 import {
   ArrowDownRightIcon,
   ArrowPathIcon,
   ArrowUpRightIcon,
 } from '@heroicons/react/24/solid';
 import { useQuery } from '@tanstack/react-query';
+import { noop } from 'lodash';
 import toast from 'react-hot-toast';
 import { useNetwork, useWalletClient } from 'wagmi';
 
@@ -410,26 +412,30 @@ const BuyPositions = ({
   }, [setBuyPositionsLength, positions.length]);
 
   return (
-    <div className="w-full flex flex-col space-y-[12px] py-[12px]">
-      <div className="bg-cod-gray flex px-[12px] items-center justify-between space-x-[12px]">
+    <div className="w-full flex flex-col space-y-3 p-1">
+      <div className="bg-cod-gray flex items-center justify-between space-x-3">
         <PositionSummary
           callTokenSymbol={selectedOptionsMarket?.callToken.symbol ?? '-'}
           totalOptions={optionsSummary.totalOptions}
           totalPremiumUsd={optionsSummary.totalPremiumUsd}
           totalProfitUsd={optionsSummary.totalProfitUsd}
         />
-        <div className="flex items-center space-x-[6px]">
-          <div className="h-fit w-fit p-[2px] bg-mineshaft rounded-md">
+        <div className="flex space-x-1.5 md:self-center self-start">
+          <Button
+            size="xsmall"
+            color="mineshaft"
+            className="hover:text-white"
+            onClick={isRefetching ? noop : handleRefresh}
+          >
             <ArrowPathIcon
-              height={22}
-              width={22}
-              onClick={isRefetching ? () => {} : handleRefresh}
+              height={16}
+              width={16}
               className={cn(
-                'bg-mineshaft text-stieglitz p-[2px] hover:text-white cursor-pointer',
+                'bg-mineshaft text-white p-0.5',
                 isRefetching && 'animate-spin cursor-progress',
               )}
             />
-          </div>
+          </Button>
           <MultiExerciseButton positions={selectedOptions} />
         </div>
       </div>
