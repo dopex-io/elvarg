@@ -412,7 +412,7 @@ const BuyPositions = ({
   }, [setBuyPositionsLength, positions.length]);
 
   return (
-    <div className="w-full flex flex-col space-y-3 p-1">
+    <div className="w-full flex flex-col space-y-3 p-3">
       <div className="bg-cod-gray flex items-center justify-between space-x-3">
         <PositionSummary
           callTokenSymbol={selectedOptionsMarket?.callToken.symbol ?? '-'}
