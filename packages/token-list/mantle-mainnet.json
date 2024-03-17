@@ -4,7 +4,7 @@
     "chainId": 5000,
     "symbol": "WMNT",
     "name": "Wrapped Mantle",
-    "logoURI": "BASE_URL/images/tokens/usdt.svg",
+    "logoURI": "BASE_URL/images/tokens/wmnt.svg",
     "decimals": 18
   },
   {
