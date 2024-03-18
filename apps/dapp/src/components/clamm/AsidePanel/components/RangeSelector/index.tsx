@@ -12,11 +12,13 @@ import {
 
 import { Button } from '@dopex-io/ui';
 import DopexV2PositionManager from 'abis/clamm/DopexV2PositionManager';
+import UniswapV3Pool from 'abis/clamm/UniswapV3Pool';
 import toast from 'react-hot-toast';
 import { Bar, BarChart, Cell, Rectangle } from 'recharts';
 import {
   erc20ABI,
   useAccount,
+  useContractRead,
   useContractReads,
   useContractWrite,
   useNetwork,
@@ -40,9 +42,11 @@ import {
 import { getSqrtRatioAtTick } from 'utils/clamm/tickMath';
 import { cn, formatAmount } from 'utils/general';
 
+import { MAX_RANGE_STRIKES } from 'constants/clamm';
 import { DEFAULT_CHAIN_ID } from 'constants/env';
 
 import RangeDepositInput from './RangeDepositInput';
+import Settings from './Settings';
 import StrikeInput from './StrikeInput';
 
 const LPRangeSelector = () => {
@@ -59,10 +63,20 @@ const LPRangeSelector = () => {
   const [putAmount, setPutAmount] = useState('');
   const [callAmount, setCallAmount] = useState('');
   const [selection, setSelection] = useState<number[]>([]);
+  const [tickSpacing, setTickSpacing] = useState<number[]>([10]);
+  const [strikesSpacingMultipler, setStrikesSpacingMultiplier] = useState<
+    number[]
+  >([0]);
 
   const positionManagerAddress = useMemo(() => {
     return getPositionManagerAddress(chain?.id ?? DEFAULT_CHAIN_ID) as Address;
   }, [chain?.id]);
+
+  const { data: poolTickSpacing } = useContractRead({
+    abi: UniswapV3Pool,
+    address: selectedOptionsMarket?.primePool,
+    functionName: 'tickSpacing',
+  });
 
   const {
     data: allowances,
@@ -129,7 +143,7 @@ const LPRangeSelector = () => {
   }, [allowances, putDepositAmountBigInt, callDepositAmountBigInt]);
 
   const generatedStrikes = useMemo(() => {
-    if (!selectedOptionsMarket) return [];
+    if (!selectedOptionsMarket || !poolTickSpacing) return [];
     const { callToken, putToken } = selectedOptionsMarket;
 
     const token0IsCallToken =
@@ -145,9 +159,18 @@ const LPRangeSelector = () => {
       token0Precision,
       token1Precision,
       !token0IsCallToken,
-      30,
-    ).reverse();
-  }, [tick, selectedOptionsMarket]);
+      150,
+      tickSpacing[0],
+      strikesSpacingMultipler[0],
+      poolTickSpacing,
+    ).sort((a, b) => a.strike - b.strike);
+  }, [
+    tick,
+    selectedOptionsMarket,
+    strikesSpacingMultipler,
+    tickSpacing,
+    poolTickSpacing,
+  ]);
 
   const isLoading = useMemo(() => {
     return (
@@ -216,57 +239,48 @@ const LPRangeSelector = () => {
     setSelection(value);
   }, []);
 
-  const lowerLimitStrikes = useMemo(() => {
-    return currentStrikes
-      .filter(({ strike }) => strike > markPrice)
-      .sort((a, b) => a.strike - b.strike);
-  }, [markPrice, currentStrikes]);
-
-  const upperLimitStrikes = useMemo(() => {
-    return currentStrikes
-      .filter(({ strike }) => strike > markPrice)
-      .sort((a, b) => a.strike - b.strike);
-  }, [markPrice, currentStrikes]);
-
-  const checkUpperLimitStrike = useCallback(() => {
-    const strike = Number(upperLimitInputStrike);
-    if (upperLimitStrikes.length === 0) {
-      return;
-    }
-    let closestNumber = upperLimitStrikes[0].strike;
-    let closestDifference = Math.abs(strike - closestNumber);
-    for (let i = 1; i < upperLimitStrikes.length; i++) {
-      const currentDifference = Math.abs(strike - upperLimitStrikes[i].strike);
-      if (currentDifference < closestDifference) {
-        closestNumber = upperLimitStrikes[i].strike;
-        closestDifference = currentDifference;
+  const getClosestStrike = useCallback(
+    (strike: number) => {
+      if (currentStrikes.length === 0) {
+        return;
       }
-    }
-    return closestNumber;
-  }, [upperLimitInputStrike, upperLimitStrikes]);
-
-  const checkLowerLimitStrike = useCallback(() => {
-    const strike = Number(lowerLimitInputStrike);
-    if (lowerLimitStrikes.length === 0) {
-      return;
-    }
-    let closestNumber = lowerLimitStrikes[0].strike;
-    let closestDifference = Math.abs(strike - closestNumber);
-    for (let i = 1; i < lowerLimitStrikes.length; i++) {
-      const currentDifference = Math.abs(strike - lowerLimitStrikes[i].strike);
-      if (currentDifference < closestDifference) {
-        closestNumber = lowerLimitStrikes[i].strike;
-        closestDifference = currentDifference;
+      let closestNumber =
+        strike < markPrice
+          ? currentStrikes[0].strike
+          : currentStrikes[currentStrikes.length - 1].strike;
+      let closestDifference = Math.abs(strike - closestNumber);
+      for (let i = 1; i < currentStrikes.length; i++) {
+        const currentDifference = Math.abs(strike - currentStrikes[i].strike);
+        if (currentDifference < closestDifference) {
+          closestNumber = currentStrikes[i].strike;
+          closestDifference = currentDifference;
+        }
       }
-    }
-    return closestNumber;
-  }, [lowerLimitInputStrike, lowerLimitStrikes]);
+      return closestNumber;
+    },
+    [currentStrikes, markPrice],
+  );
 
   useEffect(() => {
     if (generatedStrikes.length > 0) {
-      setSelection([0, generatedStrikes.length - 1]);
+      const median = Math.floor(generatedStrikes.length / 2);
+      setSelection([median - 10, median + 10]);
     }
   }, [generatedStrikes.length]);
+
+  const selectedStrikes = useMemo(() => {
+    return currentStrikes.filter(({ strike }) => {
+      return strike > lowerLimitStrike && strike < upperLimitStrike;
+    });
+  }, [currentStrikes, lowerLimitStrike, upperLimitStrike]);
+
+  const putStrikesLen = useMemo(() => {
+    return selectedStrikes.filter(({ strike }) => strike < markPrice).length;
+  }, [markPrice, selectedStrikes]);
+
+  const callStrikesLen = useMemo(() => {
+    return selectedStrikes.filter(({ strike }) => strike > markPrice).length;
+  }, [markPrice, selectedStrikes]);
 
   const confirmDeposit = useCallback(async () => {
     if (
@@ -285,16 +299,6 @@ const LPRangeSelector = () => {
     }
     const uniswapV3Hook = getHook(chain.id, '24HTTL');
     if (!uniswapV3Hook) return;
-    const selectedStrikes = currentStrikes.filter(({ strike }) => {
-      return strike > lowerLimitStrike && strike < upperLimitStrike;
-    });
-
-    const callStrikesLen = selectedStrikes.filter(
-      ({ strike }) => strike > markPrice,
-    ).length;
-    const putStrikesLen = selectedStrikes.filter(
-      ({ strike }) => strike < markPrice,
-    ).length;
 
     const callTokenAmountPerStrike =
       callStrikesLen === 0
@@ -369,7 +373,7 @@ const LPRangeSelector = () => {
     setLoading(true);
     if (_depositsTx.length > 0) {
       try {
-        const { request, result } = await publicCLient.simulateContract({
+        const { request } = await publicCLient.simulateContract({
           account: walletClient.account,
           abi: DopexV2PositionManager,
           address: positionManagerAddress,
@@ -397,19 +401,19 @@ const LPRangeSelector = () => {
     }
     setLoading(false);
   }, [
+    callStrikesLen,
     publicCLient,
     chain,
     markPrice,
     positionManagerAddress,
     walletClient,
     updateStrikes,
-    currentStrikes,
-    lowerLimitStrike,
-    upperLimitStrike,
     allowances,
     callDepositAmountBigInt,
     putDepositAmountBigInt,
     selectedOptionsMarket,
+    putStrikesLen,
+    selectedStrikes,
   ]);
 
   const approve = useCallback(async () => {
@@ -505,24 +509,9 @@ const LPRangeSelector = () => {
     tokenBalances.putTokenSymbol,
   ]);
 
-  useEffect(() => {
-    if (lowerLimitInputStrike === '' && Number(lowerLimitStrike) !== 0) {
-      setLowerLimitInputStrike(lowerLimitStrike.toFixed(5));
-    }
-    if (upperLimitInputStrike === '' && Number(lowerLimitStrike) !== 0) {
-      setUpperLimitInputStrike(upperLimitStrike.toFixed(5));
-    }
-  }, [
-    lowerLimitStrike,
-    lowerLimitInputStrike,
-    upperLimitInputStrike,
-    upperLimitStrike,
-  ]);
-
   return (
     <div className="flex items-center flex-col p-[12px] bg-umbra space-y-[12px]">
       <div className="flex items-center justify-between text-[13px] w-full">
-        <span className="text-stieglitz">AMM</span>
         <p className="flex items-center space-x-[4px] bg-mineshaft px-[4px] py-[2px] rounded-md">
           <span>Uniswap V3</span>
           <img
@@ -531,10 +520,16 @@ const LPRangeSelector = () => {
             className="w-[24px] h-[24px]"
           />
         </p>
+        <Settings
+          tickSpacing={tickSpacing}
+          setTickSpacing={setTickSpacing}
+          setStrikesSpacingMultiplier={setStrikesSpacingMultiplier}
+          strikesSpacingMultipler={strikesSpacingMultipler}
+        />
       </div>
       {generatedStrikes.length !== 0 && (
-        <div className="bg-carbon bg-opacity-35">
-          <BarChart width={338} height={100} data={currentStrikes}>
+        <div className="bg-umbra bg-opacity-35">
+          <BarChart width={300} height={100} data={currentStrikes}>
             <Bar
               dataKey="availableLiquidityBarHeight"
               stackId={'a'}
@@ -598,19 +593,21 @@ const LPRangeSelector = () => {
           <StrikeInput
             inputAmount={lowerLimitInputStrike}
             onSubmitCallback={(e) => {
-              // if (e.key === 'Enter') {
-              //   const strike = checkLowerLimitStrike();
-              //   const found = currentStrikes.find((s) => s.strike === strike);
-              //   if (found) {
-              //     const index = currentStrikes.indexOf(found);
-              //     setSelectedStrikes([index, selection[1]]);
-              //     setLowerLimitInputStrike(found.strike.toFixed(4));
-              //   }
-              // }
+              if (e.key === 'Enter') {
+                const strike = getClosestStrike(Number(lowerLimitInputStrike));
+                const closestStrike = currentStrikes.find(
+                  (s) => s.strike === strike,
+                );
+                if (closestStrike) {
+                  const index = currentStrikes.indexOf(closestStrike);
+                  setSelectedStrikes([index, selection[1]]);
+                  setLowerLimitInputStrike(closestStrike.strike.toFixed(4));
+                }
+              }
             }}
             placeHolder="0"
             onChangeInput={(e) => {
-              // setLowerLimitInputStrike(e.target.value);
+              setLowerLimitInputStrike(e.target.value);
             }}
             label="Lower Strike"
           />
@@ -619,19 +616,25 @@ const LPRangeSelector = () => {
           <StrikeInput
             inputAmount={upperLimitInputStrike}
             onSubmitCallback={(e) => {
-              // if (e.key === 'Enter') {
-              //   const strike = checkUpperLimitStrike();
-              //   const found = currentStrikes.find((s) => s.strike === strike);
-              //   if (found) {
-              //     const index = currentStrikes.indexOf(found);
-              //     setSelectedStrikes([selection[0], index]);
-              //     setUpperLimitInputStrike(found.strike.toFixed(4));
-              //   }
-              // }
+              if (e.key === 'Enter') {
+                if (e.key === 'Enter') {
+                  const strike = getClosestStrike(
+                    Number(upperLimitInputStrike),
+                  );
+                  const closestStrike = currentStrikes.find(
+                    (s) => s.strike === strike,
+                  );
+                  if (closestStrike) {
+                    const index = currentStrikes.indexOf(closestStrike);
+                    setSelectedStrikes([selection[0], index]);
+                    setUpperLimitInputStrike(closestStrike.strike.toFixed(4));
+                  }
+                }
+              }
             }}
             placeHolder="0"
             onChangeInput={(e) => {
-              // setUpperLimitInputStrike(e.target.value);
+              setUpperLimitInputStrike(e.target.value);
             }}
             label="Upper Strike"
           />
@@ -660,6 +663,30 @@ const LPRangeSelector = () => {
           }}
           placeHolder={`0.0 ${selectedOptionsMarket?.callToken.symbol}`}
         />
+      )}
+      <div className="text-[13px] flex items-center justify-between w-full">
+        <span className="text-stieglitz">No. of strikes</span>
+        <div className="flex items-center space-x-[8px]">
+          <div className="flex flex-col items-center space-x-[4px]">
+            <span
+              className={cn(
+                callStrikesLen + putStrikesLen > MAX_RANGE_STRIKES &&
+                  'text-down-bad',
+              )}
+            >
+              {callStrikesLen + putStrikesLen}
+            </span>
+          </div>
+        </div>
+      </div>
+      {callStrikesLen + putStrikesLen > MAX_RANGE_STRIKES && (
+        <div className="text-[13px] flex items-center justify-end w-full">
+          <div className="flex items-center justify-center space-x-[8px] border-down-bad border w-full rounded-md">
+            <span className="text-down-bad">
+              Max number of selectable strikes is {MAX_RANGE_STRIKES}
+            </span>
+          </div>
+        </div>
       )}
       <div className="text-[13px] flex items-center justify-between w-full">
         <span className="text-stieglitz">Total</span>
@@ -699,7 +726,12 @@ const LPRangeSelector = () => {
         size="small"
         className="w-full"
         onClick={buttonProps.onClick}
-        disabled={buttonProps?.disabled || isLoading || allowancesLoading}
+        disabled={
+          buttonProps?.disabled ||
+          isLoading ||
+          allowancesLoading ||
+          callStrikesLen + putStrikesLen > MAX_RANGE_STRIKES
+        }
       >
         {buttonProps?.text}
       </Button>

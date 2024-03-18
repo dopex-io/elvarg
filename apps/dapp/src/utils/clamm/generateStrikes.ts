@@ -1,8 +1,6 @@
 import getPriceFromTick from 'utils/clamm/getPriceFromTick';
 
-
-
-
+import getLowerAndUpperTicksFromTick from './getLowerAndUpperTicksFromTick';
 
 export type GeneratedStrike = {
   strike: number;
@@ -16,16 +14,33 @@ function generateStrikes(
   token1Precision: number,
   inversePrice: boolean,
   range: number,
+  tickSpacing: number,
+  strikesSpacingMultiplier: number,
+  baseTickSpacing: number,
 ) {
   if (!Boolean(tick)) return [];
-  const tickSpacing = 10;
-  const rounded = Math.round(tick / 10) * 10;
+
+  const rounded = Math.round(tick / tickSpacing) * tickSpacing;
   const currentPrice = getPriceFromTick(
     tick,
     token0Precision,
     token1Precision,
     inversePrice,
   );
+
+  const { tickLower, tickUpper } = getLowerAndUpperTicksFromTick(
+    tick,
+    baseTickSpacing,
+  );
+
+  const basePriceDifference =
+    getPriceFromTick(
+      tickLower,
+      token0Precision,
+      token1Precision,
+      inversePrice,
+    ) -
+    getPriceFromTick(tickUpper, token0Precision, token1Precision, inversePrice);
 
   const ticksToAvoid = [
     rounded - tickSpacing,
@@ -38,7 +53,10 @@ function generateStrikes(
   const endTick = rounded - tickRange;
 
   const strikes: GeneratedStrike[] = [];
-  while (startTick != endTick) {
+  const maxLoops = 1000;
+  let counter = 0;
+  while (startTick != endTick && maxLoops !== counter) {
+    counter++;
     startTick -= tickSpacing;
 
     const tickUpper = startTick + tickSpacing;
@@ -81,10 +99,37 @@ function generateStrikes(
       }
     }
   }
-  if (strikes.length === 0) {
-    return [];
-  } else {
-    return strikes[0].type === 'put' ? strikes.reverse() : strikes;
+  if (strikes.length === 0) return [];
+
+  if (strikesSpacingMultiplier !== 0) {
+    let _strikesWithSpacing: GeneratedStrike[] = [];
+    strikes.forEach((strike, index) => {
+      if (index === 0) {
+        _strikesWithSpacing.push(strike);
+      } else {
+        const absoluteBasePriceDifference =
+          basePriceDifference < 0
+            ? basePriceDifference * -1
+            : basePriceDifference;
+
+        const priceDifference =
+          _strikesWithSpacing[_strikesWithSpacing.length - 1].strike -
+          strike.strike;
+
+        const absolutePriceDifference =
+          priceDifference < 0 ? priceDifference * -1 : priceDifference;
+
+        if (
+          absolutePriceDifference >
+          absoluteBasePriceDifference * strikesSpacingMultiplier
+        ) {
+          _strikesWithSpacing.push(strike);
+        }
+      }
+    });
+
+    return _strikesWithSpacing;
   }
+  return strikes;
 }
 export default generateStrikes;

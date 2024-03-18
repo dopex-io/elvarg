@@ -1,4 +1,6 @@
-import { Address, zeroAddress } from 'viem';
+import { Address } from 'viem';
+
+export const MAX_RANGE_STRIKES = 40;
 
 export const EXPIRIES: { [key: string]: number } = {
   '1h': 60 * 60,

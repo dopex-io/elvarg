@@ -1,8 +1,7 @@
 import React from 'react';
 
+import { Bars3Icon } from '@heroicons/react/24/solid';
 import * as Slider from '@radix-ui/react-slider';
-
-import { formatAmount } from 'utils/general';
 
 type Props = {
   value: number[];
@@ -28,16 +27,14 @@ const RangeSelectorSlider = ({
       <Slider.Track className="bg-stieglitz relative grow rounded-full h-[3px]">
         <Slider.Range className="absolute bg-wave-blue rounded-full h-full" />
       </Slider.Track>
-      <Slider.Thumb className="block w-3 h-3 bg-white rounded-[10px] focus:outline-none group cursor-pointer">
-        <div className="opacity-0 group-hover:opacity-100 w-[100px] absolute left-[-40px] bottom-[20px] bg-mineshaft p-[2px] rounded-md text-[12px] text-center flex items-center space-x-[4px] justify-center">
-          <p className="text-stieglitz">$</p>
-          <p>{formatAmount(lowerLimitStrike, 4)}</p>
+      <Slider.Thumb className="absolute w-[3px] h-20 bottom-[-2px] right-[1px] bg-white hover:bg-none focus:outline-none group cursor-pointer">
+        <div className="bg-white p-[2px] absolute right-[1px] bottom-[62px] rounded-l-md text-[12px] text-center flex items-center justify-center space-x-[4px]">
+          <Bars3Icon className="rotate-90 text-carbon" height={14} width={14} />
         </div>
       </Slider.Thumb>
-      <Slider.Thumb className="block w-3 h-3 bg-white hover:bg-none rounded-[10px] focus:outline-none group cursor-pointer">
-        <div className="opacity-0 group-hover:opacity-100 w-[100px] bg-mineshaft p-[2px] absolute left-[-40px] bottom-[20px] rounded-md text-[12px] text-center flex items-center justify-center space-x-[4px]">
-          <p className="text-stieglitz">$</p>
-          <p>{formatAmount(upperLimitStrike, 4)}</p>
+      <Slider.Thumb className="absolute w-[3px] h-20 bottom-[-2px] bg-white hover:bg-none  focus:outline-none group cursor-pointer">
+        <div className="bg-white p-[2px] absolute left-[1px] bottom-[62px] rounded-r-md text-[12px] text-center flex items-center justify-center space-x-[4px]">
+          <Bars3Icon className="rotate-90 text-carbon" height={14} width={14} />
         </div>
       </Slider.Thumb>
     </Slider.Root>

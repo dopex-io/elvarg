@@ -42,6 +42,9 @@ const StrikesSection = () => {
       token1Precision,
       !token0IsCallToken,
       150,
+      10,
+      0,
+      10,
     );
   }, [tick, selectedOptionsMarket]);
 
