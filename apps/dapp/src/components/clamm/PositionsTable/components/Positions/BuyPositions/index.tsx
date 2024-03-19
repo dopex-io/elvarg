@@ -104,6 +104,7 @@ const BuyPositions = ({
       url.searchParams.set('chainId', chain.id.toString());
       url.searchParams.set('optionMarket', selectedOptionsMarket.address);
       url.searchParams.set('user', walletClient.account.address);
+      url.searchParams.set('first', '1000');
       return await fetch(url).then((res) => res.json());
     },
   });
