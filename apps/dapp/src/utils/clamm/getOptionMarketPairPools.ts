@@ -49,7 +49,7 @@ const getOptionMarketPairPools = (
       return [
         '0xD08C50F7E69e9aeb2867DefF4A8053d9A855e26A', // agni
         '0x262255F4770aEbE2D0C8b97a46287dCeCc2a0AfF', // fusionX
-        '0x0B15691C828fF6D499375e2ca2070B08Dd62369E', // butter
+        // '0x0B15691C828fF6D499375e2ca2070B08Dd62369E', // butter
       ];
     } else if (optionMarket === '0x50d31b053c3a099b2cae50eb63848eccf87d72df') {
       return [
@@ -59,7 +59,7 @@ const getOptionMarketPairPools = (
     } else if (optionMarket === '0xcda890c42365dcb1a8a1079f2f47379ad620bc99') {
       return [
         '0x628f7131CF43e88EBe3921Ae78C4bA0C31872bd4', // agni
-        '0xD801D457D9cC70f6018a62885F03BB70706F59Cc', // butter
+        // '0xD801D457D9cC70f6018a62885F03BB70706F59Cc', // butter
       ];
     } else return [];
   } else return [];

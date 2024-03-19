@@ -12,7 +12,7 @@ import { AMM_TO_READABLE_NAME, HANDLER_TO_POOLS } from 'constants/clamm';
 
 const CLAMM_AMMS: Record<number, string[]> = {
   42161: ['uniswap'],
-  5000: ['agni', 'fusionx', 'butter'],
+  5000: ['agni', 'fusionx'],
 };
 
 const AMMSelector = () => {
@@ -54,8 +54,6 @@ const AMMSelector = () => {
       setSelectedAMM(amms[0]);
     }
   }, [amms, selectedAMM, setSelectedAMM]);
-
-  console.log(amms.length);
 
   return (
     <div className="flex items-center justify-between bg-umbra p-[12px]">

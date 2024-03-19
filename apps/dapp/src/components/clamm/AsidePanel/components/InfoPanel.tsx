@@ -121,7 +121,10 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
       abi: erc20ABI,
       address: selectedOptionsMarket?.callToken.address,
       functionName: 'approve',
-      args: [spender, (totalTokensCost.call * 1001n) / 1000n],
+      args: [
+        spender,
+        (totalTokensCost.call * (isTrade ? 1050n : 1001n)) / 1000n,
+      ],
     });
 
   const { writeAsync: approvePutToken, isLoading: approvePutTokenLoading } =
@@ -129,7 +132,10 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
       abi: erc20ABI,
       address: selectedOptionsMarket?.putToken.address,
       functionName: 'approve',
-      args: [spender, (totalTokensCost.put * 1001n) / 1000n],
+      args: [
+        spender,
+        (totalTokensCost.put * (isTrade ? 1050n : 1001n)) / 1000n,
+      ],
     });
 
   const {
@@ -255,7 +261,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     });
 
     setLoading(ASIDE_PANEL_BUTTON_KEY, true);
-    const loadingId = toast.loading('Opening wallet');
+    const loadingId = toast.loading('Processing Transaction');
 
     try {
       const { request } = await publicClient.simulateContract({
@@ -268,7 +274,9 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
 
       const hash = await walletClient.writeContract(request);
 
-      await publicClient.waitForTransactionReceipt({ hash });
+      await publicClient.waitForTransactionReceipt({
+        hash,
+      });
 
       updateTokenBalances();
       updateStrikes();
@@ -439,7 +447,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
       },
     );
 
-    const loadingId = toast.loading('Opening wallet');
+    const loadingId = toast.loading('Processing Transaction');
 
     try {
       const { request } = await publicClient.simulateContract({
@@ -496,7 +504,10 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
   const handleApprove = useCallback(async () => {
     if (allowances.call < totalTokensCost.call) {
       await approveCallToken()
-        .then(() => refetchAllowance())
+        .then(async ({ hash }) => {
+          await publicClient.waitForTransactionReceipt({ hash });
+          await refetchAllowance();
+        })
         .catch((err) => {
           if (err instanceof BaseError) {
             toast.error(err['shortMessage']);
@@ -508,7 +519,10 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     }
     if (allowances.put < totalTokensCost.put) {
       await approvePutToken()
-        .then(() => refetchAllowance())
+        .then(async ({ hash }) => {
+          await publicClient.waitForTransactionReceipt({ hash });
+          await refetchAllowance();
+        })
         .catch((err) => {
           if (err instanceof BaseError) {
             toast.error(err['shortMessage']);
@@ -519,6 +533,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
         });
     }
   }, [
+    publicClient,
     allowances.call,
     allowances.put,
     approveCallToken,

@@ -216,9 +216,7 @@ const SelectedStrikeItem = ({
   });
 
   useEffect(() => {
-    if (isTrade) {
-      setLoading(ASIDE_PANEL_BUTTON_KEY, isPremiumLoading);
-    }
+    setLoading(ASIDE_PANEL_BUTTON_KEY, isPremiumLoading);
   }, [isPremiumLoading, setLoading, isTrade]);
 
   const updateDeposit = useCallback(async () => {

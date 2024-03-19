@@ -54,14 +54,13 @@ export const AMM_TO_HANDLER: Record<
   5000: {
     agni: '0x5DdA827f304Aeb693573720B344eD160e7D4703C',
     fusionx: '0x210D2963b555Ce5AC7e3d9b0e2F38d7AEBd4B43F',
-    butter: '0xD648267FC75e144f28436E7b54030C7466031b05',
+    // butter: '0xD648267FC75e144f28436E7b54030C7466031b05',
   },
 };
 
 export const AMM_TO_READABLE_NAME: Record<string, string | undefined> = {
   fusionx: 'Fusion X',
   agni: 'Agni',
-  butter: 'Butter',
   uniswap: 'Uniswap V3',
   pancake: 'PancakeSwap V3',
   sushiswap: 'Sushiswap V3',
@@ -110,6 +109,6 @@ export const HANDLER_TO_SWAPPER: Record<
   5000: {
     agni: '0x471923c6148495530C5153040A9D8726213421Bd',
     fusionx: '0x480199183c57853a96BEF4F8e2B0C28dd877c7D8',
-    butter: '0x580bC0591b78c3a255fB908Bff2e1A4633B0c124',
+    // butter: '0x580bC0591b78c3a255fB908Bff2e1A4633B0c124',
   },
 };
