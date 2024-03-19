@@ -362,7 +362,7 @@ const BuyPositions = ({
 
           return {
             strike: {
-              disabled: profitUsdValue === 0,
+              disabled: false,
               isSelected: Boolean(selectedOptions.get(tokenId)),
               price: strike,
               handleSelect: async () => {

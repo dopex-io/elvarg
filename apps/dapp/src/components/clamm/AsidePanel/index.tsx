@@ -10,7 +10,6 @@ import AutoExercisers from './components/AutoExercisers';
 import CostSummary from './components/CostSummary';
 import DepositTypeSelector from './components/DepositTypeSelector';
 import InfoPanel from './components/InfoPanel';
-import MantleIntegration from './components/Notices/MantleIntegration';
 import StipRewards from './components/Notices/StipRewards';
 import Walkthrough from './components/Notices/Walkthrough';
 import LPRangeSelector from './components/RangeSelector';
@@ -89,7 +88,6 @@ const AsidePanel = () => {
           <InfoPanel updateTokenBalances={updateTokenBalances} />
         )}
       </div>
-      <MantleIntegration />
       <StipRewards />
       <Walkthrough />
     </div>
