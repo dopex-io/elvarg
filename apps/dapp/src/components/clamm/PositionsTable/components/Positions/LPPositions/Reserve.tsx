@@ -269,7 +269,7 @@ const Reserve = ({
     const { liquidity } = withdrawable;
     const { tickLower, tickUpper, pool, hook, handler } = withdraw;
 
-    const loadingId = toast.loading('Opening wallet');
+    const loadingId = toast.loading('Processing Transaction');
     const reserveCallData = encodeAbiParameters(
       [
         {

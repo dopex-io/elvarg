@@ -13,7 +13,7 @@ import SelectedStrikeItem from './SelectedStrikeItem';
 import StrikesList from './StrikesList';
 
 const StrikesSection = () => {
-  const { selectedStrikes, strikesChain, getPurchasableStrikesChain } =
+  const { selectedStrikes, getPurchasableStrikesChain } =
     useStrikesChainStore();
   const { isTrade, tokenBalances, tick, selectedOptionsMarket, markPrice } =
     useClammStore();

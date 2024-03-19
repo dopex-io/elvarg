@@ -186,7 +186,7 @@ const SelectedStrikeItem = ({
       chain?.id ?? DEFAULT_CHAIN_ID,
       amountDebounced.toString(),
       markPrice,
-      selectedTTL
+      selectedTTL,
     ],
     queryFn: async () => {
       if (!isTrade || !selectedOptionsMarket || !Boolean(amountDebounced)) {
@@ -216,9 +216,7 @@ const SelectedStrikeItem = ({
   });
 
   useEffect(() => {
-    if (isTrade) {
-      setLoading(ASIDE_PANEL_BUTTON_KEY, isPremiumLoading);
-    }
+    setLoading(ASIDE_PANEL_BUTTON_KEY, isPremiumLoading);
   }, [isPremiumLoading, setLoading, isTrade]);
 
   const updateDeposit = useCallback(async () => {
@@ -336,12 +334,11 @@ const SelectedStrikeItem = ({
   ]);
 
   const handleMax = useCallback(() => {
-    setLoading(ASIDE_PANEL_BUTTON_KEY, true);
+    if (!selectedOptionsMarket) return;
     const handleInputChange = editAllMode
       ? commonSetInputAmount
       : setInputAmount;
     if (isTrade) {
-      if (!selectedOptionsMarket) return;
       const liquidityData = getCollateralAvailable(strike.toString());
       const totalLiquidityAvailable = liquidityData.reduce(
         (prev, { availableTokenLiquidity }) => prev + availableTokenLiquidity,
@@ -368,13 +365,11 @@ const SelectedStrikeItem = ({
         ),
       );
     }
-    setLoading(ASIDE_PANEL_BUTTON_KEY, false);
   }, [
     getCollateralAvailable,
     selectedOptionsMarket,
     strike,
     isCall,
-    setLoading,
     commonSetInputAmount,
     editAllMode,
     isTrade,

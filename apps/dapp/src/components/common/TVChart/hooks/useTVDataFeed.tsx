@@ -10,6 +10,9 @@ import {
   ResolutionString,
   SubscribeBarsCallback,
 } from 'public/charting_library/charting_library';
+import { useNetwork } from 'wagmi';
+
+import { DEFAULT_CHAIN_ID } from 'constants/env';
 
 import { TVDataProvider } from '../classes/TVDataProvider';
 
@@ -44,6 +47,8 @@ const supportedSymbols = [
   'ARB/USDC.e',
   'WETH/USDC.e',
   'WBTC/USDC.e',
+  'WMNT/USDT',
+  'WETH/USDT',
 ];
 
 export function formatTimeInBarToMs(bar: any) {
@@ -54,6 +59,7 @@ export function formatTimeInBarToMs(bar: any) {
 }
 
 const useTVDataFeed = (dataProvider: TVDataProvider) => {
+  const { chain } = useNetwork();
   const resetCacheRef = useRef<() => void | undefined>();
   const intervalRef = useRef<ReturnType<typeof setInterval> | undefined>();
 
@@ -105,7 +111,7 @@ const useTVDataFeed = (dataProvider: TVDataProvider) => {
 
           try {
             let priceCandles = await dataProvider?.getCandleStickPrices(
-              42161,
+              chain?.id ?? DEFAULT_CHAIN_ID,
               ticker,
               interval,
               from,
@@ -155,7 +161,10 @@ const useTVDataFeed = (dataProvider: TVDataProvider) => {
             const nextBarTime = lastBar.time + CHART_PERIODS[resolution] * 1000;
             const currentTime = new Date().getTime();
             const ticker = symbolInfo.name;
-            const lastPrice = await dataProvider?.getLastPrice(42161, ticker);
+            const lastPrice = await dataProvider?.getLastPrice(
+              chain?.id ?? DEFAULT_CHAIN_ID,
+              ticker,
+            );
 
             let bar;
 
@@ -184,8 +193,8 @@ const useTVDataFeed = (dataProvider: TVDataProvider) => {
           intervalRef.current && clearInterval(intervalRef.current);
         },
       },
-    }; // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    };// eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chain?.id]);
 };
 
 export default useTVDataFeed;

@@ -22,6 +22,7 @@ import {
   useContractReads,
   useContractWrite,
   useNetwork,
+  usePublicClient,
   useWalletClient,
 } from 'wagmi';
 import wagmiConfig from 'wagmi-config';
@@ -37,6 +38,7 @@ import useStrikesChainStore from 'hooks/clamm/useStrikesChainStore';
 // import useUserBalance from 'hooks/useUserBalance';
 
 import getHandler from 'utils/clamm/getHandler';
+import getHandlerPool from 'utils/clamm/getHandlerPool';
 import getHook from 'utils/clamm/getHook';
 import getOptionMarketPairPools from 'utils/clamm/getOptionMarketPairPools';
 import getPositionManagerAddress from 'utils/clamm/getPositionManagerAddress';
@@ -60,6 +62,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     selectedOptionsMarket,
     markPrice,
     selectedTTL,
+    selectedAMM,
   } = useClammStore();
   const { updateBuyPositions, updateLPPositions } = useClammPositions();
   const { deposits, purchases, resetDeposits, resetPurchases } =
@@ -71,6 +74,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     chainId: chain?.id ?? DEFAULT_CHAIN_ID,
   });
   const { address: userAddress } = useAccount();
+  const publicClient = usePublicClient();
 
   // const { checkEthBalance } = useUserBalance();
 
@@ -117,7 +121,10 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
       abi: erc20ABI,
       address: selectedOptionsMarket?.callToken.address,
       functionName: 'approve',
-      args: [spender, (totalTokensCost.call * 1001n) / 1000n],
+      args: [
+        spender,
+        (totalTokensCost.call * (isTrade ? 1050n : 1001n)) / 1000n,
+      ],
     });
 
   const { writeAsync: approvePutToken, isLoading: approvePutTokenLoading } =
@@ -125,7 +132,10 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
       abi: erc20ABI,
       address: selectedOptionsMarket?.putToken.address,
       functionName: 'approve',
-      args: [spender, (totalTokensCost.put * 1001n) / 1000n],
+      args: [
+        spender,
+        (totalTokensCost.put * (isTrade ? 1050n : 1001n)) / 1000n,
+      ],
     });
 
   const {
@@ -180,13 +190,14 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     const depositsArray = Array.from(deposits);
     const handlerAddress = selectedOptionsMarket.deprecated
       ? '0xe11d346757d052214686bcbc860c94363afb4a9a'
-      : getHandler('uniswap', chain.id);
-    const pool = getOptionMarketPairPools(
-      chain.id,
-      selectedOptionsMarket.address,
-    )[0];
+      : getHandler(selectedAMM, chain.id);
+    const pool = getHandlerPool({
+      callSymbol: selectedOptionsMarket.callToken.symbol,
+      chainId: chain.id,
+      name: selectedAMM.toLowerCase(),
+      putSymbol: selectedOptionsMarket.putToken.symbol,
+    });
     const hook = getHook(chain.id, '24HTTL');
-    const { publicClient } = wagmiConfig;
 
     if (!handlerAddress || !pool || !hook) return;
 
@@ -250,7 +261,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     });
 
     setLoading(ASIDE_PANEL_BUTTON_KEY, true);
-    const loadingId = toast.loading('Opening wallet');
+    const loadingId = toast.loading('Processing Transaction');
 
     try {
       const { request } = await publicClient.simulateContract({
@@ -263,7 +274,9 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
 
       const hash = await walletClient.writeContract(request);
 
-      await publicClient.waitForTransactionReceipt({ hash });
+      await publicClient.waitForTransactionReceipt({
+        hash,
+      });
 
       updateTokenBalances();
       updateStrikes();
@@ -300,6 +313,8 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     isTrade,
     setLoading,
     updateTokenBalances,
+    selectedAMM,
+    publicClient,
     // checkEthBalance,
   ]);
 
@@ -313,6 +328,8 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
       !walletClient
     )
       return;
+
+    setLoading(ASIDE_PANEL_BUTTON_KEY, true);
 
     const purchasesTx: Hex[] = [];
     const purchasesArray = Array.from(purchases);
@@ -430,8 +447,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
       },
     );
 
-    setLoading(ASIDE_PANEL_BUTTON_KEY, true);
-    const loadingId = toast.loading('Opening wallet');
+    const loadingId = toast.loading('Processing Transaction');
 
     try {
       const { request } = await publicClient.simulateContract({
@@ -488,7 +504,10 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
   const handleApprove = useCallback(async () => {
     if (allowances.call < totalTokensCost.call) {
       await approveCallToken()
-        .then(() => refetchAllowance())
+        .then(async ({ hash }) => {
+          await publicClient.waitForTransactionReceipt({ hash });
+          await refetchAllowance();
+        })
         .catch((err) => {
           if (err instanceof BaseError) {
             toast.error(err['shortMessage']);
@@ -500,7 +519,10 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     }
     if (allowances.put < totalTokensCost.put) {
       await approvePutToken()
-        .then(() => refetchAllowance())
+        .then(async ({ hash }) => {
+          await publicClient.waitForTransactionReceipt({ hash });
+          await refetchAllowance();
+        })
         .catch((err) => {
           if (err instanceof BaseError) {
             toast.error(err['shortMessage']);
@@ -511,6 +533,7 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
         });
     }
   }, [
+    publicClient,
     allowances.call,
     allowances.put,
     approveCallToken,
@@ -592,7 +615,10 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
           allowancesLoading ||
           approveCallTokenLoading ||
           approvePutTokenLoading ||
-          selectedOptionsMarket?.deprecated
+          selectedOptionsMarket?.deprecated ||
+          isTrade
+            ? purchases.size === 0
+            : deposits.size === 0
         }
       >
         {selectedOptionsMarket?.deprecated ? (

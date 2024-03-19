@@ -69,6 +69,22 @@ export const CHAINS: {
     },
     displayTokens: ['ETH', 'DPX', 'RDPX'],
   },
+  5000: {
+    name: 'Mantle',
+    rpc: `https://lb.drpc.org/ogrpc?network=mantle&dkey=${DRPC_API_KEY}`,
+    publicRpc: 'https://1rpc.io/mantle',
+    explorer: 'https://explorer.mantle.xyz/',
+    nativeToken: 'ETH',
+    icon: '/images/networks/mantle.svg',
+    tokenDecimals: {
+      USDT: 6,
+      USDC: 6,
+      WETH: 18,
+      ARB: 18,
+      WMNT: 18,
+    },
+    displayTokens: ['ETH', 'USDC', 'WMNT', 'USDT'],
+  },
 };
 
 export const CHAIN_PUBLIC_RPCS = Object.keys(CHAINS).reduce((acc, chainId) => {
@@ -88,4 +104,9 @@ export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   '/ssov': { default: 42161, all: [42161, 137, 1] },
   '/portfolio': { default: 42161, all: [42161, 137] },
   '/ssov/MATIC-WEEKLY-CALLS-SSOV-V3': { default: 137, all: [137] },
+  '/clamm/WETH-USDC': { default: 42161, all: [42161, 5000] },
+  '/clamm/ARB-USDC': { default: 42161, all: [42161, 5000] },
+  '/clamm/WBTC-USDC': { default: 42161, all: [42161, 5000] },
+  '/clamm/WMNT-USDT': { default: 5000, all: [42161, 5000] },
+  '/clamm/WETH-USDT': { default: 5000, all: [42161, 5000] },
 };

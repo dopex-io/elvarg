@@ -1,11 +1,16 @@
 import { Address } from 'viem';
 
+
+
+import { AMM_TO_HANDLER } from 'constants/clamm';
+
 const getHandler = (name: string, chainId: number): Address | undefined => {
-  if (chainId === 42161) {
-    if (name.toLowerCase() === 'uniswap') {
-      return '0x29BbF7EbB9C5146c98851e76A5529985E4052116';
-    }
-  }
+  name = name.toLowerCase();
+  const amms = AMM_TO_HANDLER[chainId];
+  if (!amms) throw Error('Chain AMM not set');
+  const handler = amms[name];
+  if (!handler) throw Error('AMM to handler not set');
+  return handler;
 };
 
 export default getHandler;
