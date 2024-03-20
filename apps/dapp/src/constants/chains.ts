@@ -97,7 +97,7 @@ export const CHAIN_PUBLIC_RPCS = Object.keys(CHAINS).reduce((acc, chainId) => {
 export const PAGE_TO_SUPPORTED_CHAIN_IDS: {
   [key: string]: { default: number; all: number[] };
 } = {
-  '/': { default: 42161, all: [1, 42161, 137] },
+  '/': { default: 42161, all: [1, 42161, 137, 5000] },
   '/farms': { default: 42161, all: [1, 42161] },
   '/nfts': { default: 42161, all: [1, 42161, 137] },
   '/sale': { default: 1, all: [1] },
