@@ -36,7 +36,6 @@ const Page = () => {
         'chainId',
         (chain?.id ?? DEFAULT_CHAIN_ID).toString(),
       );
-
       return fetch(url).then((res) => {
         if (!res.ok) {
           console.error(res.json());
@@ -49,12 +48,13 @@ const Page = () => {
 
   // Default routing
   useEffect(() => {
-    if (!chain) return;
     if (params && params['pair']) {
       const [pair] = params['pair'];
-      const pairExists = CHAIN_TO_OPTION_MARKETS[chain.id].includes(pair);
+      const pairExists =
+        CHAIN_TO_OPTION_MARKETS[chain?.id ?? DEFAULT_CHAIN_ID].includes(pair);
       if (pairExists) return;
-      const firstPair = CHAIN_TO_OPTION_MARKETS[chain.id][0];
+      const firstPair =
+        CHAIN_TO_OPTION_MARKETS[chain?.id ?? DEFAULT_CHAIN_ID][0];
       if (!pairExists) {
         router.push(`${firstPair}`);
         setSelectedOptionsMarket(firstPair);
@@ -63,9 +63,10 @@ const Page = () => {
   }, [chain, params, router, setSelectedOptionsMarket]);
 
   useEffect(() => {
-    if (!data || isError || !chain) return;
+    if (!data || isError) return;
+    const _chainId = chain?.id ?? DEFAULT_CHAIN_ID;
     let opMarkets: OptionMarket[] = [];
-    if (chain?.id === 42161) {
+    if (_chainId === 42161) {
       const firstOptionMarket = data.filter(({ ticker }) => {
         return ticker === 'WETH/USDC';
       });
@@ -84,7 +85,7 @@ const Page = () => {
 
     opMarkets = opMarkets.length === 0 ? data : opMarkets;
 
-    initialize(opMarkets, chain.id ?? DEFAULT_CHAIN_ID);
+    initialize(opMarkets, _chainId ?? DEFAULT_CHAIN_ID);
   }, [initialize, chain, data, isError]);
 
   useEffect(() => {
