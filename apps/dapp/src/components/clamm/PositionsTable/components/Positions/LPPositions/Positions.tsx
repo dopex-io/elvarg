@@ -48,6 +48,15 @@ const Positions = ({ positions, refetches }: Props) => {
           amount1Symbol: 'unknown',
         };
 
+        let totalReserve = {
+          amount0Withdrawable: 0,
+          amount1Withdrawable: 0,
+          amount0Reserved: 0,
+          amount1Reserved: 0,
+          amount0Symbol: 'unknown',
+          amount1Symbol: 'unknown',
+        };
+
         let range = {
           lower: 0,
           upper: 0,
@@ -82,6 +91,33 @@ const Positions = ({ positions, refetches }: Props) => {
             });
 
             handler = meta.handler.name;
+
+            totalReserve = {
+              amount0Withdrawable:
+                totalReserve.amount0Withdrawable +
+                Number(
+                  formatUnits(
+                    BigInt(reserved.withdrawable.token0),
+                    token0.decimals,
+                  ),
+                ),
+              amount1Withdrawable:
+                totalReserve.amount1Withdrawable +
+                Number(
+                  formatUnits(
+                    BigInt(reserved.withdrawable.token1),
+                    token1.decimals,
+                  ),
+                ),
+              amount0Reserved:
+                totalReserve.amount0Reserved +
+                Number(formatUnits(BigInt(reserved.token0), token0.decimals)),
+              amount1Reserved:
+                totalReserve.amount1Reserved +
+                Number(formatUnits(BigInt(reserved.token1), token1.decimals)),
+              amount0Symbol,
+              amount1Symbol,
+            };
 
             totalEarned = {
               amount0:
@@ -130,6 +166,7 @@ const Positions = ({ positions, refetches }: Props) => {
                 formatUnits(BigInt(withdrawable.token0), token0.decimals),
               ) /
                 Number(formatUnits(BigInt(liquidity.token0), token0.decimals));
+
             const amount1Utilization =
               1 -
               Number(
@@ -214,6 +251,7 @@ const Positions = ({ positions, refetches }: Props) => {
           earned: totalEarned,
           liquidity: totalLiquidity,
           withdrawable: totalWithdrawable,
+          reserved: totalReserve,
           range,
           manage: {
             positions: _positions,
