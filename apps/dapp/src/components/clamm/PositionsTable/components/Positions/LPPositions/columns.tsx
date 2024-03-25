@@ -37,6 +37,14 @@ export type Columns = {
     amount0Symbol: string;
     amount1Symbol: string;
   };
+  reserved: {
+    amount0Withdrawable: number;
+    amount0Reserved: number;
+    amount1Withdrawable: number;
+    amount1Reserved: number;
+    amount0Symbol: string;
+    amount1Symbol: string;
+  };
   handler: {
     name: string;
     deprecated: boolean;
@@ -211,6 +219,37 @@ export const columns = [
             {getValue().amount1Symbol}
           </span>
         </div>
+      </div>
+    ),
+  }),
+  columnHelper.accessor('reserved', {
+    header: 'Reserved',
+    cell: ({ getValue }) => (
+      <div className="text-[13px] flex flex-col items-start">
+        {getValue().amount0Reserved === 0 &&
+          getValue().amount1Reserved === 0 && (
+            <span className="text-stieglitz">No Reserves</span>
+          )}
+        {getValue().amount0Reserved > 0 && (
+          <div className="flex space-x-[4px]">
+            <span>{formatAmount(getValue().amount0Withdrawable, 5)}</span>
+            <span>/</span>
+            <span>{formatAmount(getValue().amount0Reserved, 5)}</span>
+            <span className="text-stieglitz text-[12px]">
+              {getValue().amount0Symbol}
+            </span>
+          </div>
+        )}
+        {getValue().amount1Reserved > 0 && (
+          <div className="flex space-x-[4px]">
+            <span>{formatAmount(getValue().amount1Withdrawable, 5)}</span>
+            <span>/</span>
+            <span>{formatAmount(getValue().amount1Reserved, 5)}</span>
+            <span className="text-stieglitz text-[12px]">
+              {getValue().amount1Symbol}
+            </span>
+          </div>
+        )}
       </div>
     ),
   }),
