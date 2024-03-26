@@ -195,6 +195,7 @@ const SelectedStrikeItem = ({
           premium: '0',
         };
       }
+      setLoading(ASIDE_PANEL_BUTTON_KEY, true);
       const url = new URL(`${VARROCK_BASE_API_URL}/clamm/purchase/quote`);
       url.searchParams.set(
         'chainId',
@@ -206,18 +207,18 @@ const SelectedStrikeItem = ({
       url.searchParams.set('ttl', selectedTTL.toString());
       url.searchParams.set('strike', strike.toString());
       url.searchParams.set('markPrice', markPrice.toString());
-      return fetch(url).then((res) => {
-        if (!res.ok) {
-          throw Error('Failed to fetch premium');
-        }
-        return res.json();
-      });
+      return fetch(url)
+        .then((res) => {
+          if (!res.ok) {
+            throw Error('Failed to fetch premium');
+          }
+          return res.json();
+        })
+        .finally(() => {
+          setLoading(ASIDE_PANEL_BUTTON_KEY, false);
+        });
     },
   });
-
-  useEffect(() => {
-    setLoading(ASIDE_PANEL_BUTTON_KEY, isPremiumLoading);
-  }, [isPremiumLoading, setLoading, isTrade]);
 
   const updateDeposit = useCallback(async () => {
     if (isTrade || !selectedOptionsMarket) return;
@@ -268,6 +269,11 @@ const SelectedStrikeItem = ({
       : (parseUnits(amountDebounced, decimalsInContext) * strikeBigInt) /
         parseUnits('1', decimalsInContext);
 
+    const liquidityAmountInOptions = isCall
+      ? totalLiquidityAvailable
+      : (totalLiquidityAvailable * parseUnits('1', decimalsInContext)) /
+        strikeBigInt;
+
     if (liquidtyRequiredInToken === 0n) {
       unsetPurchase(strikeKey);
       return;
@@ -276,7 +282,7 @@ const SelectedStrikeItem = ({
     if (totalLiquidityAvailable < liquidtyRequiredInToken) {
       setError(
         `Amount exceeds available options (${formatAmount(
-          formatUnits(totalLiquidityAvailable, decimalsInContext),
+          formatUnits(liquidityAmountInOptions, decimalsInContext),
           4,
         )} Available)`,
       );

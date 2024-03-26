@@ -203,12 +203,14 @@ const Reserve = ({
 
         const hash = await walletClient.writeContract(request);
 
-        const { transactionHash } =
-          await publicClient.waitForTransactionReceipt({
+        await publicClient
+          .waitForTransactionReceipt({
             hash,
-          });
+          })
+          .then(console.log)
+          .catch(console.error);
+
         toast.success('Transaction sent!');
-        console.log('Withdraw transaction receipt: ', transactionHash);
       } catch (err) {
         if (err instanceof BaseError) {
           toast.error(err['shortMessage']);
@@ -233,12 +235,14 @@ const Reserve = ({
 
       const hash = await walletClient.writeContract(request);
 
-      const { transactionHash } = await publicClient.waitForTransactionReceipt({
-        hash,
-      });
+      await publicClient
+        .waitForTransactionReceipt({
+          hash,
+        })
+        .then(console.log)
+        .catch(console.error);
 
       toast.success('Transaction sent!');
-      console.log('Withdraw transaction receipt: ', transactionHash);
     } catch (err) {
       console.log(err);
       if (err instanceof BaseError) {
@@ -307,12 +311,15 @@ const Reserve = ({
       });
 
       const hash = await walletClient.writeContract(request);
-      const { transactionHash } = await publicClient.waitForTransactionReceipt({
-        hash,
-      });
+
+      await publicClient
+        .waitForTransactionReceipt({
+          hash,
+        })
+        .then(console.log)
+        .catch(console.error);
 
       toast.success('Transaction sent!');
-      console.log('Reserve transaction receipt: ', transactionHash);
     } catch (err) {
       if (err instanceof BaseError) {
         toast.error(err.shortMessage);

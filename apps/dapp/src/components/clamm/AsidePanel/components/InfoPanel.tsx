@@ -274,9 +274,12 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
 
       const hash = await walletClient.writeContract(request);
 
-      await publicClient.waitForTransactionReceipt({
-        hash,
-      });
+      await publicClient
+        .waitForTransactionReceipt({
+          hash,
+        })
+        .then(console.log)
+        .catch(console.error);
 
       updateTokenBalances();
       updateStrikes();
@@ -459,7 +462,10 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
       });
 
       const hash = await walletClient.writeContract(request);
-      await publicClient.waitForTransactionReceipt({ hash });
+      await publicClient
+        .waitForTransactionReceipt({ hash })
+        .then(console.log)
+        .catch(console.error);
 
       resetPurchases();
       reset();
@@ -502,11 +508,14 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
   ]);
 
   const handleApprove = useCallback(async () => {
+    setLoading(ASIDE_PANEL_BUTTON_KEY, true);
     if (allowances.call < totalTokensCost.call) {
       await approveCallToken()
         .then(async ({ hash }) => {
-          await publicClient.waitForTransactionReceipt({ hash });
-          await refetchAllowance();
+          await publicClient
+            .waitForTransactionReceipt({ hash })
+            .then(console.log)
+            .catch(console.error);
         })
         .catch((err) => {
           if (err instanceof BaseError) {
@@ -520,8 +529,10 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
     if (allowances.put < totalTokensCost.put) {
       await approvePutToken()
         .then(async ({ hash }) => {
-          await publicClient.waitForTransactionReceipt({ hash });
-          await refetchAllowance();
+          await publicClient
+            .waitForTransactionReceipt({ hash })
+            .then(console.log)
+            .catch(console.error);
         })
         .catch((err) => {
           if (err instanceof BaseError) {
@@ -532,7 +543,12 @@ const InfoPanel = ({ updateTokenBalances }: Props) => {
           }
         });
     }
+
+    await refetchAllowance().finally(() =>
+      setLoading(ASIDE_PANEL_BUTTON_KEY, false),
+    );
   }, [
+    setLoading,
     publicClient,
     allowances.call,
     allowances.put,
