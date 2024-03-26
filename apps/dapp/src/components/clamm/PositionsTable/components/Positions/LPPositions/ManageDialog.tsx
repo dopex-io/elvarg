@@ -582,9 +582,13 @@ const ManageDialog = ({ positions, refetch }: Props) => {
       });
 
       const hash = await walletClient.writeContract(request);
-      await publicClient.waitForTransactionReceipt({ hash });
 
-      toast.success('Transaction sent!');
+      await publicClient
+        .waitForTransactionReceipt({ hash })
+        .then(console.log)
+        .catch(console.error);
+
+      toast.success('Transaction Sent!');
       handleRefresh();
     } catch (err) {
       if (err instanceof BaseError) {

@@ -376,12 +376,13 @@ const LPRangeSelector = () => {
         });
 
         const hash = await walletClient.writeContract(request);
-        const { transactionHash } =
-          await publicClient.waitForTransactionReceipt({ hash });
+        await publicClient
+          .waitForTransactionReceipt({ hash })
+          .then(console.log)
+          .catch(console.error);
 
         updateStrikes();
         toast.success('Transaction Sent!');
-        console.log('Deposit transaction hash: ', transactionHash);
       } catch (err) {
         if (err instanceof BaseError) {
           toast.error(err['shortMessage']);
