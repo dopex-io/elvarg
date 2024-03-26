@@ -212,7 +212,6 @@ const SelectedStrikeItem = ({
           if (!res.ok) {
             throw Error('Failed to fetch premium');
           }
-          setLoading(ASIDE_PANEL_BUTTON_KEY, false);
           return res.json();
         })
         .finally(() => {
