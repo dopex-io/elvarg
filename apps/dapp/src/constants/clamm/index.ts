@@ -114,7 +114,7 @@ export const HANDLER_TO_SWAPPER: Record<
   undefined | Record<string, Address>
 > = {
   5000: {
-    agni: '0x471923c6148495530C5153040A9D8726213421Bd',
+    agni: '0x480199183c57853a96BEF4F8e2B0C28dd877c7D8',
     fusionx: '0x480199183c57853a96BEF4F8e2B0C28dd877c7D8',
     // butter: '0x580bC0591b78c3a255fB908Bff2e1A4633B0c124',
   },
