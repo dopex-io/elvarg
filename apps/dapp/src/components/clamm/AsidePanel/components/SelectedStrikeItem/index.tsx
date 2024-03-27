@@ -281,10 +281,9 @@ const SelectedStrikeItem = ({
 
     if (totalLiquidityAvailable < liquidtyRequiredInToken) {
       setError(
-        `Amount exceeds available options (${formatAmount(
+        `Amount exceeds available options (${Number(
           formatUnits(liquidityAmountInOptions, decimalsInContext),
-          4,
-        )} Available)`,
+        ).toFixed(4)} Available)`,
       );
     } else if (!selectedOptionsMarket.deprecated && isOptionsCostError) {
       setError('Premium calculation error. Please retry.');

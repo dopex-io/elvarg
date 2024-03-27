@@ -98,9 +98,9 @@ const StrikesTable = ({ filterSettings }: Props) => {
           return (
             <div className="flex flex-col">
               <div className="text-[13px] flex items-center space-x-[4px]">
-                <span>{formatAmount(getValue().available, 4)}</span>
+                <span>{Number(getValue().available).toFixed(4)}</span>
                 <span className="text-stieglitz">/</span>
-                <span>{formatAmount(getValue().total, 4)}</span>
+                <span>{Number(getValue().total).toFixed(4)}</span>
               </div>
               <div className="text-stieglitz text-[11px] flex items-center space-x-[4px]">
                 <span>$</span>
